@@ -52,4 +52,20 @@ public class FashionSelectionController extends BaseController {
             @RequestBody ComboReplaceRequest request) {
         return success(service.replace(quoteId, comboId, request.toCommand(), getUserId()));
     }
+
+    public record ManualRequest(long quoteRowVersion,String candidateSetHash,String name,
+        java.util.List<String> candidateRefs,java.util.Map<String,Integer> quantities){}
+    public record RemoveRequest(long quoteRowVersion,long comboRowVersion){}
+    @PreAuthorize("@ss.hasPermi('fashion:quote:edit')")
+    @PostMapping("/manual")
+    @Log(title="智能选品人工组合",businessType=BusinessType.INSERT,isSaveRequestData=false)
+    public AjaxResult manual(@PathVariable String quoteId,@RequestBody ManualRequest body){
+        return success(service.saveManual(quoteId,body.quoteRowVersion(),body.candidateSetHash(),body.name(),body.candidateRefs(),body.quantities(),getUserId()));
+    }
+    @PreAuthorize("@ss.hasPermi('fashion:quote:edit')")
+    @PostMapping("/combinations/{comboId}/remove")
+    @Log(title="智能选品移除组合",businessType=BusinessType.UPDATE,isSaveRequestData=false)
+    public AjaxResult remove(@PathVariable String quoteId,@PathVariable String comboId,@RequestBody RemoveRequest body){
+        return success(service.removeManual(quoteId,comboId,body.quoteRowVersion(),body.comboRowVersion(),getUserId()));
+    }
 }

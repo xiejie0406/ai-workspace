@@ -153,6 +153,10 @@ export async function fashionRequest<TResponse, TBody = unknown>(
   }
   if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey
   if (ifMatch) headers['If-Match'] = ifMatch
+  // 覆盖若依全局 JSON 默认值，由 Axios 为文件上传生成 multipart boundary。
+  if (typeof FormData !== 'undefined' && options.body instanceof FormData) {
+    headers['Content-Type'] = 'multipart/form-data'
+  }
 
   try {
     return await request({

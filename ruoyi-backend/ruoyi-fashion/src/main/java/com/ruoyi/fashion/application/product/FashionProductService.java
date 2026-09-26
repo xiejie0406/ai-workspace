@@ -28,7 +28,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class FashionProductService {
     public static final Set<String> EDITABLE_FIELDS = Set.of(
             "name", "categoryCode", "colorCode", "colorName", "sizeCode", "sizeSystem", "unit",
-            "brand", "material", "season", "tags", "jdItemId", "jdUrl", "attributesConfirmed");
+            "brand", "material", "season", "tags", "jdItemId", "jdUrl", "attributesConfirmed", "attributes");
     private static final Set<String> SIZE_SYSTEMS = Set.of("CN", "EU", "US", "LETTER", "FREE");
 
     private final FashionProductRepository repository;
@@ -55,6 +55,12 @@ public class FashionProductService {
 
     public ProductPage search(
             String sourceCode, String categoryCode, String status, String keyword, int page, int pageSize) {
+        return search(sourceCode, categoryCode, status, keyword, page, pageSize, null, null);
+    }
+
+    public ProductPage search(String sourceCode,String categoryCode,String status,String keyword,int page,int pageSize,String attributeKey,String attributeValue) {
+        if (attributeKey != null && !attributeKey.isBlank() && !com.ruoyi.fashion.domain.product.ProductAttributeFields.FIELDS.containsKey(attributeKey)) throw new ServiceException("属性筛选字段无效");
+        if (attributeValue != null && attributeValue.length()>255) throw new ServiceException("属性筛选值过长");
         int normalizedPage = Math.max(page, 1);
         int normalizedSize = Math.min(Math.max(pageSize, 1), 200);
         if (status != null && !status.isBlank()) {
@@ -62,7 +68,7 @@ public class FashionProductService {
         }
         ProductSearchCriteria criteria = new ProductSearchCriteria(
                 trimToNull(sourceCode), trimToNull(categoryCode), trimToNull(status), trimToNull(keyword),
-                (normalizedPage - 1) * normalizedSize, normalizedSize);
+                (normalizedPage - 1) * normalizedSize, normalizedSize, trimToNull(attributeKey), trimToNull(attributeValue));
         return new ProductPage(
                 repository.search(criteria).stream().map(ProductView::from).toList(),
                 repository.count(criteria), normalizedPage, normalizedSize);
@@ -88,7 +94,7 @@ public class FashionProductService {
                     trimToNull(command.brand()), trimToNull(command.material()), command.season().trim(), List.of(),
                     null, List.of(), 1L, null, false, null, null, trimToNull(command.jdItemId()),
                     trimToNull(command.jdUrl()), null, FashionProductStatus.DRAFT,
-                    operatorId, now, operatorId, now, 1L);
+                    operatorId, now, operatorId, now, 1L, com.ruoyi.fashion.domain.product.ProductAttributeFields.normalize(command.attributes()));
             repository.insert(product);
             return ProductView.from(product);
         }));
@@ -160,6 +166,11 @@ public class FashionProductService {
     private Map<String, Object> normalizeChanges(Map<String, Object> changes, FashionProduct current) {
         Map<String, Object> result = new LinkedHashMap<>();
         changes.forEach((field, raw) -> {
+            if ("attributes".equals(field)) {
+                if (!(raw instanceof Map<?, ?> values)) throw new ServiceException("attributes 必须是字段对象");
+                result.put(field, com.ruoyi.fashion.domain.product.ProductAttributeFields.normalize(values));
+                return;
+            }
             if ("tags".equals(field)) {
                 if (!(raw instanceof List<?> values) || values.size() > 50) {
                     throw new ServiceException("tags 必须是不超过 50 项的数组");

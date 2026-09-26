@@ -1,0 +1,199 @@
+{
+  "environment": "isolated fashion_uat :11255",
+  "data": "POOLUAT-前缀28个合成SKU/14款，4分类；不包含真实电商来源或商品图片",
+  "checks": [
+    {
+      "check": "28个合成SKU准备",
+      "result": "Pass",
+      "actual": {
+        "count": 28,
+        "masters": 14,
+        "categories": 4,
+        "identifiers": [
+          "POOLUAT-0-0-BLACK",
+          "POOLUAT-0-0-WHITE",
+          "POOLUAT-0-1-BLACK",
+          "POOLUAT-0-1-WHITE",
+          "POOLUAT-1-0-BLACK",
+          "POOLUAT-1-0-WHITE",
+          "POOLUAT-1-1-BLACK",
+          "POOLUAT-1-1-WHITE",
+          "POOLUAT-1-2-BLACK",
+          "POOLUAT-1-2-WHITE",
+          "POOLUAT-2-0-BLACK",
+          "POOLUAT-2-0-WHITE",
+          "POOLUAT-2-1-BLACK",
+          "POOLUAT-2-1-WHITE",
+          "POOLUAT-2-2-BLACK",
+          "POOLUAT-2-2-WHITE",
+          "POOLUAT-2-3-BLACK",
+          "POOLUAT-2-3-WHITE",
+          "POOLUAT-3-0-BLACK",
+          "POOLUAT-3-0-WHITE",
+          "POOLUAT-3-1-BLACK",
+          "POOLUAT-3-1-WHITE",
+          "POOLUAT-3-2-BLACK",
+          "POOLUAT-3-2-WHITE",
+          "POOLUAT-3-3-BLACK",
+          "POOLUAT-3-3-WHITE",
+          "POOLUAT-3-4-BLACK",
+          "POOLUAT-3-4-WHITE"
+        ]
+      },
+      "time": "2026-09-26T14:37:39.587424+08:00"
+    },
+    {
+      "check": "双价真实写入与旧版本拒绝",
+      "result": "Pass",
+      "actual": {
+        "productId": "5895554512986980806",
+        "groupPrice": 12.34,
+        "vipPrice": 16.78,
+        "rowVersion": 4,
+        "oldVersionResponse": {
+          "httpStatus": 200,
+          "code": 500,
+          "message": "商品不存在或版本已变化"
+        },
+        "salePriceUnchanged": true
+      },
+      "time": "2026-09-26T14:37:39.815602+08:00"
+    },
+    {
+      "check": "1品类组合数量",
+      "result": "Pass",
+      "actual": {
+        "poolId": "27eb8815-1b57-4766-ba16-6b6005a59e49",
+        "rawCount": 2,
+        "total": 2,
+        "variantCount": 2
+      },
+      "time": "2026-09-26T14:37:40.080832+08:00"
+    },
+    {
+      "check": "2品类组合数量",
+      "result": "Pass",
+      "actual": {
+        "poolId": "93592ae1-6c9e-4f41-ac0f-08ea30a82fe4",
+        "rawCount": 6,
+        "total": 6,
+        "variantCount": 2
+      },
+      "time": "2026-09-26T14:37:40.690528+08:00"
+    },
+    {
+      "check": "3品类组合数量",
+      "result": "Pass",
+      "actual": {
+        "poolId": "7e8e63b8-5ab4-4949-9a67-e33c45b85878",
+        "rawCount": 24,
+        "total": 24,
+        "variantCount": 2
+      },
+      "time": "2026-09-26T14:37:41.035517+08:00"
+    },
+    {
+      "check": "4品类组合数量",
+      "result": "Pass",
+      "actual": {
+        "poolId": "f7b6bd5f-a225-4747-9726-30bbc961fafc",
+        "rawCount": 120,
+        "total": 120,
+        "variantCount": 2
+      },
+      "time": "2026-09-26T14:37:41.337301+08:00"
+    },
+    {
+      "check": "120套分页不重不漏",
+      "result": "Pass",
+      "actual": {
+        "count": 120,
+        "unique": 120
+      },
+      "time": "2026-09-26T14:37:41.822308+08:00"
+    },
+    {
+      "check": "团购价真实排序",
+      "result": "Pass",
+      "actual": {
+        "minimum": 100.0,
+        "maximum": 110.0,
+        "count": 120
+      },
+      "time": "2026-09-26T14:37:42.158461+08:00"
+    },
+    {
+      "check": "跨页选择保存重开及版本冲突",
+      "result": "Pass",
+      "actual": {
+        "poolId": "f7b6bd5f-a225-4747-9726-30bbc961fafc",
+        "savedVersion": 1,
+        "selectedIds": [
+          "0-0-0-0",
+          "0-1-0-1",
+          "1-2-0-0"
+        ],
+        "orderedIds": [
+          "1-2-0-0",
+          "0-0-0-0",
+          "0-1-0-1"
+        ],
+        "conflict": {
+          "httpStatus": 200,
+          "code": 500,
+          "message": "方案已被修改，请重新加载后保存"
+        }
+      },
+      "time": "2026-09-26T14:37:42.661534+08:00"
+    },
+    {
+      "check": "全选排除持久化",
+      "result": "Pass",
+      "actual": {
+        "total": 117,
+        "excludedIds": [
+          "0-0-0-0",
+          "0-1-0-1",
+          "1-2-0-0"
+        ]
+      },
+      "time": "2026-09-26T14:37:42.837855+08:00"
+    },
+    {
+      "check": "未知库存不等于零",
+      "result": "Pass",
+      "actual": {
+        "unknownMasters": 2,
+        "zeroResponse": {
+          "httpStatus": 200,
+          "code": 500,
+          "message": "第1组没有匹配的主SKU，请检查分类映射、主SKU编码及筛选条件"
+        }
+      },
+      "time": "2026-09-26T14:37:42.991636+08:00"
+    },
+    {
+      "check": "缺图提案预检明确拒绝",
+      "result": "Pass",
+      "actual": {
+        "ready": false,
+        "issues": [
+          "合成测试 POOLUAT 第1类款1缺少已授权的提案主图"
+        ],
+        "combinationCount": 0,
+        "maxPerFile": 100
+      },
+      "time": "2026-09-26T14:37:43.046420+08:00"
+    },
+    {
+      "check": "真实Provider状态回读",
+      "result": "Pass",
+      "actual": {
+        "tasks": [],
+        "providerAvailable": false,
+        "blockedReason": "模特试衣服务尚未接通，可以继续导出商品原图提案"
+      },
+      "time": "2026-09-26T14:37:43.102379+08:00"
+    }
+  ]
+}

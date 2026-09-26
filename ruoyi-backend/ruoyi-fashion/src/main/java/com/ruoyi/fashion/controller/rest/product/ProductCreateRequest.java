@@ -19,6 +19,7 @@ public class ProductCreateRequest {
     public String season;
     public String jdItemId;
     public String jdUrl;
+    public java.util.Map<String, String> attributes;
 
     @JsonAnySetter
     public void rejectUnknownField(String field, Object value) {
@@ -27,6 +28,6 @@ public class ProductCreateRequest {
 
     ProductCreate toCommand() {
         return new ProductCreate(sourceCode, skuCode, styleCode, name, categoryCode, colorCode, colorName,
-                sizeCode, sizeSystem, unit, brand, material, season, jdItemId, jdUrl);
+                sizeCode, sizeSystem, unit, brand, material, season, jdItemId, jdUrl, attributes);
     }
 }

@@ -35,3 +35,8 @@ export function productTemplateUrl() {
   const base = String(import.meta.env.VITE_APP_BASE_API ?? '').replace(/\/$/, '')
   return `${base}${FASHION_API_PREFIX}/imports/products/template`
 }
+
+
+export function getProductFields() {
+  return fashionRequest<RuoYiResult<{ templateVersion: string; mapping: Record<string,string>; attributes: import('./types').ProductAttributeField[] }>>({ path: 'imports/products/fields' })
+}

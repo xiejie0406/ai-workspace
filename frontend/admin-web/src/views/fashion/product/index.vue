@@ -1,7 +1,7 @@
 <template>
   <div class="app-container fashion-products">
     <el-alert
-      title="商品按 SKU 保存，页面按“来源 / 款号 / 颜色”分组；价格与库存只能通过各自专用批次更新。"
+      title="商品按颜色尺码 SKU 保存；主SKU与三级分类在详情中维护。销售价/库存通过批次更新，团购价/VIP价使用独立维护入口。"
       type="info" :closable="false" show-icon class="mb20"
     />
     <el-alert
@@ -27,6 +27,7 @@
           <el-option label="下架" value="inactive" />
         </el-select>
       </el-form-item>
+      <el-form-item label="服装属性"><el-select v-model="query.attributeKey" clearable style="width:160px"><el-option v-for="field in attributeFields" :key="field.key" :label="field.label" :value="field.key" /></el-select><el-input v-model="query.attributeValue" clearable placeholder="输入属性值" style="width:180px;margin-left:8px" /></el-form-item>
       <el-form-item><el-button type="primary" icon="Search" @click="loadProducts">查询</el-button></el-form-item>
     </el-form>
     <div class="toolbar mb8">
@@ -48,18 +49,21 @@
         </template>
       </el-table-column>
       <el-table-column label="状态" width="90"><template #default="{ row }"><el-tag :type="row.status === 'active' ? 'success' : 'info'">{{ statusLabel(row.status) }}</el-tag></template></el-table-column>
-      <el-table-column label="操作" width="300" fixed="right">
+      <el-table-column label="操作" width="370" fixed="right">
         <template #default="{ row }">
           <el-tooltip :content="aiCapability.enabled ? '生成待人工确认的商品属性建议' : capabilityReason(aiCapability.reason)" placement="top">
             <span><el-button link type="success" :disabled="!aiCapability.enabled" v-hasPermi="['fashion:ai:run:execute']" @click="suggestAttributes(row)">AI 属性建议</el-button></span>
           </el-tooltip>
-          <el-button link type="primary" v-hasPermi="['fashion:product:edit']" @click="rename(row)">改名</el-button>
+          <el-button link type="primary" v-hasPermi="['fashion:product:edit']" @click="details?.open(row.id)">详情 / 编辑</el-button>
+          <el-button link type="primary" v-hasPermi="['fashion:price:import']" @click="commercialPrices?.open(row)">团购 / VIP价</el-button>
           <el-button link type="primary" v-hasPermi="['fashion:product:edit']" @click="toggleStatus(row)">{{ row.status === 'active' ? '下架' : '上架' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
     <pagination v-show="page.total > 0" :total="page.total" v-model:page="query.page" v-model:limit="query.pageSize" @pagination="loadProducts" />
 
+    <ProductDetails ref="details" @saved="loadProducts" />
+    <CommercialPrices ref="commercialPrices" @saved="loadProducts" />
     <el-dialog v-model="createVisible" title="新增 SKU 商品" width="760px" append-to-body>
       <el-form label-width="100px" :model="createForm">
         <el-row :gutter="16">
@@ -72,6 +76,7 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <ProductAttributes v-model="createAttributes" :fields="attributeFields" />
       </el-form>
       <template #footer><el-button @click="createVisible=false">取消</el-button><el-button type="primary" :loading="saving" @click="submitCreate">保存草稿</el-button></template>
     </el-dialog>
@@ -101,7 +106,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import ProductDetails from './ProductDetails.vue'
+import CommercialPrices from './CommercialPrices.vue'
+import ProductAttributes from './ProductAttributes.vue'
+import { getProductFields } from '@/api/fashion/importBatch'
+import type { ProductAttributeField } from '@/api/fashion/types'
+import { computed, onActivated, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getDicts } from '@/api/system/dict/data'
 import { createProduct, listProducts, updateProducts, updateProductStatus, type ProductCreateBody } from '@/api/fashion/product'
@@ -112,6 +122,10 @@ interface Option { label: string; value: string }
 type DictionaryKey = 'source' | 'category' | 'color' | 'unit' | 'season'
 const dictionaries = reactive<Record<DictionaryKey, Option[]>>({ source: [], category: [], color: [], unit: [], season: [] })
 const dictTypes: Record<DictionaryKey, string> = { source: 'fashion_product_source', category: 'fashion_product_category', color: 'fashion_product_color', unit: 'fashion_product_unit', season: 'fashion_product_season' }
+const details = ref<InstanceType<typeof ProductDetails>>()
+const commercialPrices = ref<InstanceType<typeof CommercialPrices>>()
+const createAttributes = ref<Record<string,string>>({})
+const attributeFields = ref<ProductAttributeField[]>([])
 const loading = ref(false)
 const saving = ref(false)
 const createVisible = ref(false)
@@ -121,7 +135,7 @@ const aiCapability = reactive<RunCapability>({ enabled: false, reason: 'capabili
 const activeRun = ref<FashionRun>()
 const activeProduct = ref<FashionProduct>()
 const page = reactive({ items: [] as FashionProduct[], total: 0 })
-const query = reactive<{ sourceCode?: string; categoryCode?: string; status: ProductStatus | ''; keyword?: string; page: number; pageSize: number }>({ status: '', page: 1, pageSize: 20 })
+const query = reactive<{ sourceCode?: string; categoryCode?: string; status: ProductStatus | ''; keyword?: string; attributeKey?: string; attributeValue?: string; page: number; pageSize: number }>({ status: '', page: 1, pageSize: 20 })
 let controller: AbortController | undefined
 let pollingTimer: ReturnType<typeof setTimeout> | undefined
 const createForm = reactive<Record<string, string>>({ sizeSystem: 'LETTER', season: '四季' })
@@ -153,10 +167,10 @@ async function loadAiCapability() {
   try { Object.assign(aiCapability, (await getProductAttributeCapability()).data) }
   catch { Object.assign(aiCapability, { enabled: false, reason: 'capability_unavailable' }) }
 }
-function openCreate() { Object.keys(createForm).forEach(key => delete createForm[key]); createForm.sizeSystem='LETTER'; createForm.season='四季'; createVisible.value=true }
+function openCreate() { createAttributes.value={}; Object.keys(createForm).forEach(key => delete createForm[key]); createForm.sizeSystem='LETTER'; createForm.season='四季'; createVisible.value=true }
 async function submitCreate() {
   saving.value = true
-  try { await createProduct(createForm as unknown as ProductCreateBody); ElMessage.success('商品草稿已创建'); createVisible.value=false; await loadProducts() }
+  try { await createProduct({...createForm, attributes:createAttributes.value} as unknown as ProductCreateBody); ElMessage.success('商品草稿已创建'); createVisible.value=false; await loadProducts() }
   finally { saving.value = false }
 }
 async function rename(row: FashionProduct) {
@@ -213,7 +227,9 @@ function reasonLabel(value: string) { return ({ missing_price: '缺价格', miss
 function capabilityReason(value?: string) { return ({ provider_disabled: 'Provider 未配置', product_attribute_agent_not_published: '商品属性 Agent 尚未发布', capability_loading: '正在检查能力', capability_unavailable: '能力检查失败' } as Record<string,string>)[value || ''] ?? (value || '未知原因') }
 function runStatusLabel(value: string) { return ({ queued: '排队中', running: '执行中', retry_wait: '等待重试', succeeded: '已完成', failed: '失败', expired: '超时', cancelled: '已取消' } as Record<string,string>)[value] ?? value }
 function runStatusType(value: string) { return value === 'succeeded' ? 'success' : ['failed','expired','cancelled'].includes(value) ? 'danger' : 'warning' }
-onMounted(async () => { await Promise.all([loadDictionaries(), loadAiCapability()]); await loadProducts() })
+let initialized = false
+onMounted(async () => { await Promise.all([loadDictionaries(), loadAiCapability(), getProductFields().then(response=>{attributeFields.value=response.data.attributes})]); await loadProducts(); initialized=true })
+onActivated(() => { if(initialized) void loadProducts() })
 onBeforeUnmount(() => { controller?.abort(); stopPolling() })
 </script>
 

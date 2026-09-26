@@ -17,6 +17,30 @@ class FashionProductImportParserTest {
     private final FashionProductImportParser parser = new FashionProductImportParser();
 
     @Test
+    void optionalClothingAttributesValidateWithoutChangingPriceOrStock() {
+        var fields=com.ruoyi.fashion.domain.product.ProductAttributeFields.normalize(Map.of("platformSkuId","000123","fabricComposition","棉100%","observedPrice","0.00"));
+        assertEquals("000123",fields.get("platformSkuId"));
+        assertThrows(ServiceException.class,()->com.ruoyi.fashion.domain.product.ProductAttributeFields.normalize(Map.of("availableQty","8")));
+        assertThrows(ServiceException.class,()->com.ruoyi.fashion.domain.product.ProductAttributeFields.normalize(Map.of("observedPrice","-1")));
+        assertThrows(ServiceException.class,()->com.ruoyi.fashion.domain.product.ProductAttributeFields.normalize(Map.of("sourceUrl","https://user:password@example.com/a")));
+        assertThrows(ServiceException.class,()->com.ruoyi.fashion.domain.product.ProductAttributeFields.normalize(Map.of("collectedAt","2026-09-26")));
+    }
+
+    @Test
+    void legacyXlsxCanOmitEveryExtensionColumn() throws Exception {
+        byte[] content;
+        try(var book=new XSSFWorkbook();var output=new ByteArrayOutputStream()) {
+            var sheet=book.createSheet("商品");var header=sheet.createRow(0);var row=sheet.createRow(1);
+            String[] fields={"sourceCode","skuCode","styleCode","name","categoryCode","colorCode","colorName","sizeCode","sizeSystem","unit","brand","material","season","jdItemId","jdUrl"};
+            String[] values={"INTERNAL","000123","STYLE001","商品","TOP","BLACK","黑色","M","LETTER","件","","","四季","",""};
+            for(int i=0;i<fields.length;i++){header.createCell(i).setCellValue(parser.defaultMapping().get(fields[i]));row.createCell(i).setCellValue(values[i]);}
+            book.write(output);content=output.toByteArray();
+        }
+        var rows=parser.parse("legacy.xlsx",content,Map.of());
+        assertTrue(rows.get(0).errors().isEmpty());assertEquals("000123",rows.get(0).values().get("skuCode"));
+    }
+
+    @Test
     void csvPreservesTextLeadingZerosBomQuotesAndNewlines() {
         String csv = "\ufeff来源编码,SKU编码,款号,商品名称,品类编码,颜色编码,颜色名称,尺码,尺码制式,单位,品牌,材质,季节,京东商品ID,京东链接\r\n"
                 + "INTERNAL,000123,STYLE001,\"两行\n名称\",TOP,BLACK,黑色,M,LETTER,件,品牌,棉,四季,,\r\n";

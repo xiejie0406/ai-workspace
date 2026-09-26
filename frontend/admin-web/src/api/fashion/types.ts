@@ -17,7 +17,10 @@ export interface ProductImage {
   originalFilename: string
 }
 
+export interface ProductAttributeField { key: string; label: string; group: string; maxLength: number }
+
 export interface FashionProduct {
+  attributes?: Record<string, string>
   id: string
   sourceCode: string
   skuCode: string

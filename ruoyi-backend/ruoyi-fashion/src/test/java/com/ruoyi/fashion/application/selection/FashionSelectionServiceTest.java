@@ -50,6 +50,7 @@ class FashionSelectionServiceTest {
     private final AtomicLong sequence = new AtomicLong(9_000);
     private final FashionIdGenerator ids = sequence::incrementAndGet;
     private final TransactionTemplate transaction = mock(TransactionTemplate.class);
+    private final com.ruoyi.fashion.infrastructure.persistence.FashionCatalogWriteLock lock = mock(com.ruoyi.fashion.infrastructure.persistence.FashionCatalogWriteLock.class);
     private FashionSelectionService service;
     private FashionQuote quote;
 
@@ -67,7 +68,8 @@ class FashionSelectionServiceTest {
             callback.accept(null);
             return null;
         }).when(transaction).executeWithoutResult(any());
-        service = new FashionSelectionService(repository, quoteRepository, quotes, ids, time, objectMapper, transaction);
+        when(lock.executeLocked(org.mockito.ArgumentMatchers.eq(10), any())).thenAnswer(invocation -> ((java.util.function.Supplier<?>) invocation.getArgument(1)).get());
+        service = new FashionSelectionService(repository, quoteRepository, quotes, ids, time, objectMapper, transaction, lock);
     }
 
     @Test
@@ -164,6 +166,32 @@ class FashionSelectionServiceTest {
         ServiceException conflict = assertThrows(ServiceException.class,
                 () -> service.updateLocks("100", "701", List.of(), 2, 4, visualHash, 1));
         assertEquals(409, conflict.getCode());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void manualSelectionPersistsExactSizeQuantitiesWithoutAiRun() {
+        JsonNode preview=service.workspace("100").preview();
+        List<String> refs=new ArrayList<>();Map<String,Integer> quantities=new LinkedHashMap<>();
+        preview.path("tiers").get(3).path("slots").forEach(slot -> {
+            for(JsonNode candidate:preview.path("frozen_candidates")) {
+                if(slot.path("category").asText().equals(candidate.path("category_code").asText())) {
+                    refs.add(candidate.path("candidate_ref").asText());
+                    candidate.path("variants").forEach(v->quantities.put(v.path("product_ref").asText(),50));
+                }
+            }
+        });
+        service.saveManual("100",3,preview.path("candidate_set_hash").asText(),"人工组合",refs,quantities,1);
+        ArgumentCaptor<List<SelectionDetailWrite>> captured=ArgumentCaptor.forClass(List.class);
+        verify(repository,org.mockito.Mockito.times(4)).insertCombo(any(),captured.capture());
+        assertTrue(captured.getAllValues().stream().flatMap(List::stream).allMatch(d->d.qty()==50 && d.aiRunId()==null));
+    }
+
+    @Test
+    void manualSelectionRejectsChangedCandidateSetWithoutWriting() {
+        assertThrows(ServiceException.class,()->service.saveManual("100",3,"stale","人工组合",List.of("CAND-unknown"),Map.of(),1));
+        verify(repository,never()).insertCombo(any(),any());
+        verify(quoteRepository,never()).touchDraft(anyLong(),anyLong(),anyLong(),any());
     }
 
     private ObjectNode output(JsonNode preview) {

@@ -36,9 +36,10 @@ public class JdbcFashionProductRepository implements FashionProductRepository {
             sale_price,currency,tax_mode,price_as_of,last_price_import_batch_id,brand,material,season,tags_json,
             main_image_key,images_json,visual_version,last_ai_run_id,attributes_confirmed,attributes_confirmed_by,
             attributes_confirmed_at,jd_item_id,jd_url,last_product_import_batch_id,status,create_by,create_time,
-            update_by,update_time,row_version
+            update_by,update_time,row_version,attributes_json
             """;
     private static final Map<String, String> EDITABLE_COLUMNS = Map.ofEntries(
+            Map.entry("attributes", "attributes_json"),
             Map.entry("name", "name"),
             Map.entry("categoryCode", "category_code"),
             Map.entry("colorCode", "color_code"),
@@ -134,12 +135,12 @@ public class JdbcFashionProductRepository implements FashionProductRepository {
                     unit,sale_price,currency,tax_mode,price_as_of,last_price_import_batch_id,brand,material,season,
                     tags_json,main_image_key,images_json,visual_version,last_ai_run_id,attributes_confirmed,
                     attributes_confirmed_by,attributes_confirmed_at,jd_item_id,jd_url,last_product_import_batch_id,
-                    status,create_by,create_time,update_by,update_time,row_version)
+                    status,create_by,create_time,update_by,update_time,row_version,attributes_json)
                 values (
                     :id,:source,:sku,:style,:name,:category,:color,:colorName,:size,:sizeSystem,:unit,:price,:currency,
                     :taxMode,:priceAsOf,:priceBatch,:brand,:material,:season,:tags,:mainImage,:images,:visualVersion,
                     :lastAiRun,:confirmed,:confirmedBy,:confirmedAt,:jdItemId,:jdUrl,:productBatch,:status,
-                    :createBy,:createTime,:updateBy,:updateTime,:rowVersion)
+                    :createBy,:createTime,:updateBy,:updateTime,:rowVersion,:attributes)
                 """, parameters(p));
         if (changed != 1) {
             throw new IllegalStateException("新增商品未写入一行");
@@ -153,7 +154,7 @@ public class JdbcFashionProductRepository implements FashionProductRepository {
                 update fq_product set
                     style_code=:style,name=:name,category_code=:category,color_code=:color,color_name=:colorName,
                     size_code=:size,size_system=:sizeSystem,unit=:unit,brand=:brand,material=:material,season=:season,
-                    jd_item_id=:jdItemId,jd_url=:jdUrl,last_product_import_batch_id=:productBatch,
+                    jd_item_id=:jdItemId,jd_url=:jdUrl,last_product_import_batch_id=:productBatch,attributes_json=:attributes,
                     update_by=:updateBy,update_time=:updateTime,row_version=row_version+1
                  where id=:id and row_version=:expectedVersion
                 """, parameters) == 1;
@@ -175,7 +176,7 @@ public class JdbcFashionProductRepository implements FashionProductRepository {
             }
             assignments.add(column + "=:f_" + entry.getKey());
             Object value = entry.getValue();
-            if ("tags".equals(entry.getKey())) {
+            if ("tags".equals(entry.getKey()) || "attributes".equals(entry.getKey())) {
                 value = json.write(objectMapper.valueToTree(value));
             }
             if ("attributesConfirmed".equals(entry.getKey())) {
@@ -257,6 +258,11 @@ public class JdbcFashionProductRepository implements FashionProductRepository {
             clauses.add("(sku_code like :keyword or style_code like :keyword or name like :keyword)");
             parameters.addValue("keyword", "%" + criteria.keyword().trim() + "%");
         }
+        if (criteria.attributeKey()!=null && criteria.attributeValue()!=null) {
+            if(!com.ruoyi.fashion.domain.product.ProductAttributeFields.FIELDS.containsKey(criteria.attributeKey())) throw new IllegalArgumentException("属性筛选字段无效");
+            clauses.add("json_unquote(json_extract(attributes_json,:attributePath)) like :attributeValue");
+            parameters.addValue("attributePath", "$."+criteria.attributeKey()).addValue("attributeValue","%"+criteria.attributeValue()+"%");
+        }
         if (!count) {
             parameters.addValue("limit", criteria.limit()).addValue("offset", criteria.offset());
         }
@@ -288,7 +294,7 @@ public class JdbcFashionProductRepository implements FashionProductRepository {
                 .addValue("productBatch", p.lastProductImportBatchId()).addValue("status", p.status().code())
                 .addValue("createBy", p.createBy()).addValue("createTime", Timestamp.from(p.createTime()))
                 .addValue("updateBy", p.updateBy()).addValue("updateTime", Timestamp.from(p.updateTime()))
-                .addValue("rowVersion", p.rowVersion());
+                .addValue("rowVersion", p.rowVersion()).addValue("attributes", json.write(p.attributes()));
     }
 
     private FashionProduct map(ResultSet rs, int rowNum) throws SQLException {
@@ -307,7 +313,8 @@ public class JdbcFashionProductRepository implements FashionProductRepository {
                 instant(rs, "attributes_confirmed_at"), rs.getString("jd_item_id"), rs.getString("jd_url"),
                 nullableLong(rs, "last_product_import_batch_id"), FashionProductStatus.fromCode(rs.getString("status")),
                 rs.getLong("create_by"), instant(rs, "create_time"), rs.getLong("update_by"),
-                instant(rs, "update_time"), rs.getLong("row_version"));
+                instant(rs, "update_time"), rs.getLong("row_version"),
+                rs.getString("attributes_json") == null ? Map.of() : read(rs.getString("attributes_json"), new TypeReference<Map<String, String>>() {}));
     }
 
     private <T> T read(String value, TypeReference<T> type) {

@@ -2,6 +2,7 @@ package com.ruoyi.fashion.application.importing;
 
 import com.ruoyi.fashion.configuration.FashionModuleEnabled;
 
+import com.ruoyi.fashion.domain.product.ProductAttributeFields;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -26,10 +27,10 @@ import org.springframework.stereotype.Component;
 @Component
 public final class FashionProductImportParser {
     public static final String TEMPLATE_CODE = "fashion-product";
-    public static final String TEMPLATE_VERSION = "1.0";
+    public static final String TEMPLATE_VERSION = "2.0";
     /** 与 P0 容量约束一致；文件字节上限仍由 FashionUploadPolicy 独立约束。 */
     public static final int MAX_ROWS = 100_000;
-    public static final Set<String> FIELDS = Set.of(
+    private static final Set<String> BASE_FIELDS = Set.of(
             "sourceCode", "skuCode", "styleCode", "name", "categoryCode", "colorCode", "colorName",
             "sizeCode", "sizeSystem", "unit", "brand", "material", "season", "jdItemId", "jdUrl");
     private static final Set<String> REQUIRED = Set.of(
@@ -37,7 +38,7 @@ public final class FashionProductImportParser {
             "sizeCode", "sizeSystem", "unit", "season");
     private static final Set<String> TEXT_ONLY_CODES = Set.of(
             "sourceCode", "skuCode", "styleCode", "categoryCode", "colorCode", "sizeCode");
-    private static final Map<String, String> DEFAULT_HEADERS = Map.ofEntries(
+    private static final Map<String, String> BASE_HEADERS = Map.ofEntries(
             Map.entry("sourceCode", "来源编码"), Map.entry("skuCode", "SKU编码"),
             Map.entry("styleCode", "款号"), Map.entry("name", "商品名称"),
             Map.entry("categoryCode", "品类编码"), Map.entry("colorCode", "颜色编码"),
@@ -46,6 +47,17 @@ public final class FashionProductImportParser {
             Map.entry("brand", "品牌"), Map.entry("material", "材质"),
             Map.entry("season", "季节"), Map.entry("jdItemId", "京东商品ID"),
             Map.entry("jdUrl", "京东链接"));
+
+    public static final Set<String> FIELDS;
+    private static final Map<String, String> DEFAULT_HEADERS;
+    static {
+        Map<String, String> headers = new LinkedHashMap<>();
+        List.of("sourceCode","skuCode","styleCode","name","categoryCode","colorCode","colorName","sizeCode","sizeSystem","unit","brand","material","season","jdItemId","jdUrl")
+                .forEach(key -> headers.put(key, BASE_HEADERS.get(key)));
+        ProductAttributeFields.DEFINITIONS.forEach(field -> headers.put(field.key(), field.label()));
+        DEFAULT_HEADERS = Collections.unmodifiableMap(headers);
+        FIELDS = DEFAULT_HEADERS.keySet();
+    }
 
     public List<ParsedProductRow> parse(String filename, byte[] content, Map<String, String> requestedMapping) {
         FashionUploadPolicy.validateImport(filename, content);
@@ -78,7 +90,7 @@ public final class FashionProductImportParser {
                     throw new ServiceException("商品导入最多 " + MAX_ROWS + " 行");
                 }
                 Map<String, String> values = new LinkedHashMap<>();
-                mapping.forEach((field, header) -> values.put(field, normalize(record.get(header))));
+                mapping.forEach((field, header) -> values.put(field, normalize(record.isMapped(header) ? record.get(header) : null)));
                 if (values.values().stream().allMatch(value -> value == null || value.isBlank())) {
                     continue;
                 }
@@ -118,13 +130,14 @@ public final class FashionProductImportParser {
                 Map<String, String> values = new LinkedHashMap<>();
                 List<ImportRowError> errors = new ArrayList<>();
                 for (Map.Entry<String, String> entry : mapping.entrySet()) {
-                    StreamingXlsxReader.CellValue cell = row.cells().get(headers.get(entry.getValue()));
+                    Integer columnIndex = headers.get(entry.getValue());
+                    StreamingXlsxReader.CellValue cell = columnIndex == null ? null : row.cells().get(columnIndex);
                     if (cell != null && cell.formula()) {
                         errors.add(new ImportRowError(entry.getKey(), "formula_not_allowed", "[formula]",
                                 "不接受公式单元格，请粘贴为文本值"));
                         values.put(entry.getKey(), null);
                     } else {
-                        if (cell != null && TEXT_ONLY_CODES.contains(entry.getKey()) && cell.numeric()) {
+                        if (cell != null && (TEXT_ONLY_CODES.contains(entry.getKey()) || Set.of("platformProductId", "platformSkuId", "barcode", "jdItemId").contains(entry.getKey())) && cell.numeric()) {
                             errors.add(new ImportRowError(entry.getKey(), "code_must_be_text", "[numeric]",
                                     "编码字段必须设置为文本，避免前导零丢失"));
                         }
@@ -197,7 +210,8 @@ public final class FashionProductImportParser {
         if (!duplicates.isEmpty()) {
             throw new ServiceException("导入文件存在重复表头：" + duplicates);
         }
-        Set<String> missing = new HashSet<>(mapping.values());
+        Set<String> missing = new HashSet<>();
+        BASE_FIELDS.forEach(field -> missing.add(mapping.get(field)));
         missing.removeAll(actual);
         if (!missing.isEmpty()) {
             throw new ServiceException("导入文件缺少映射列：" + missing);

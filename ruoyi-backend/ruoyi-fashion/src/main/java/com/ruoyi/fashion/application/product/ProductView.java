@@ -36,7 +36,8 @@ public record ProductView(
         String status,
         List<String> incompleteReasons,
         long rowVersion,
-        Instant updateTime) {
+        Instant updateTime,
+        java.util.Map<String, String> attributes) {
 
     public static ProductView from(FashionProduct product) {
         return new ProductView(
@@ -47,6 +48,6 @@ public record ProductView(
                 product.material(), product.season(), product.tags(), product.mainImageKey(),
                 product.images(), product.visualVersion(), product.attributesConfirmed(), product.jdItemId(),
                 product.jdUrl(), product.status().code(), product.incompleteReasons(), product.rowVersion(),
-                product.updateTime());
+                product.updateTime(), product.attributes());
     }
 }

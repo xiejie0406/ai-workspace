@@ -122,6 +122,18 @@ export const constantRoutes = [
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
   {
+    path: '/fashion',
+    component: Layout,
+    hidden: true,
+    permissions: ['fashion:quote:list'],
+    children: [{
+      path: 'pool',
+      component: () => import('@/views/fashion/pool/index.vue'),
+      name: 'FashionSelectionPool',
+      meta: { title: '套装选品', activeMenu: '/fashion/quote', noCache: true }
+    }]
+  },
+  {
     path: '/system/user-auth',
     component: Layout,
     hidden: true,

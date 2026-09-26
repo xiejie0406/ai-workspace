@@ -38,13 +38,17 @@ public class FashionCatalogValueImportController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('fashion:price:import')")
     @GetMapping("/prices/template")
-    public ResponseEntity<byte[]> priceTemplate() throws IOException {
+    public ResponseEntity<byte[]> priceTemplate(@RequestParam(defaultValue = "xlsx") String format) throws IOException {
+        if ("xlsx".equals(format)) return FashionTemplateWorkbook.response("fashion-price-v1.xlsx", com.ruoyi.fashion.application.importing.CatalogImportType.PRICE.headers());
+        if (!"csv".equals(format)) throw new IllegalArgumentException("模板格式必须是 xlsx 或 csv");
         return template("price-v1.csv", "fashion-price-v1.csv");
     }
 
     @PreAuthorize("@ss.hasPermi('fashion:stock:import')")
     @GetMapping("/stocks/template")
-    public ResponseEntity<byte[]> stockTemplate() throws IOException {
+    public ResponseEntity<byte[]> stockTemplate(@RequestParam(defaultValue = "xlsx") String format) throws IOException {
+        if ("xlsx".equals(format)) return FashionTemplateWorkbook.response("fashion-stock-v1.xlsx", com.ruoyi.fashion.application.importing.CatalogImportType.STOCK.headers());
+        if (!"csv".equals(format)) throw new IllegalArgumentException("模板格式必须是 xlsx 或 csv");
         return template("stock-v1.csv", "fashion-stock-v1.csv");
     }
 

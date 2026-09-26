@@ -8,14 +8,20 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.sql.DataSource;
 
-/** 迁移前后校验目标库、RuoYi 标志和精确 16 张业务表，阻止错库与半套 Schema。 */
+/** 迁移前允许完整旧基线，迁移后校验当前精确表集合，阻止错库与半套 Schema。 */
 public final class FashionDatabasePreconditions {
     public static final String RUOYI_MARKER_TABLE = "sys_menu";
-    public static final Set<String> EXPECTED_BUSINESS_TABLES = Set.of(
+    private static final Set<String> LEGACY_BUSINESS_TABLES = Set.of(
             "fq_product", "fq_stock", "fq_customer", "fq_quote", "fq_quote_combo",
             "fq_quote_detail", "fq_quote_image", "fq_quote_file", "fq_import_batch",
             "fq_import_detail", "fq_ai_agent", "fq_ai_agent_version", "fq_ai_conversation",
             "fq_ai_message", "fq_ai_run", "fq_ai_run_step");
+    public static final Set<String> EXPECTED_BUSINESS_TABLES;
+    static {
+        Set<String> tables = new LinkedHashSet<>(LEGACY_BUSINESS_TABLES);
+        tables.addAll(Set.of("fq_selection_pool", "fq_selection_draft", "fq_proposal_image_task"));
+        EXPECTED_BUSINESS_TABLES = Set.copyOf(tables);
+    }
 
     private FashionDatabasePreconditions() {
     }
@@ -41,7 +47,8 @@ public final class FashionDatabasePreconditions {
             if (!tables.isEmpty() && !historyExists) {
                 throw new IllegalStateException("拒绝操作存在未纳入 Fashion Flyway 历史的 fq_* 表");
             }
-            if (historyExists && !tables.isEmpty() && !tables.equals(EXPECTED_BUSINESS_TABLES)) {
+            if (historyExists && !tables.isEmpty() && !tables.equals(EXPECTED_BUSINESS_TABLES)
+                    && !tables.equals(LEGACY_BUSINESS_TABLES)) {
                 throw mismatch(tables);
             }
             return new Inspection(actual, historyExists, tables.isEmpty());

@@ -2,8 +2,8 @@ import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import createVitePlugins from './vite/plugins'
 
-const baseUrl = 'http://127.0.0.1:8081' // 若依平台后端
-const interviewBaseUrl = 'http://127.0.0.1:8081' // RuoYi 唯一后端
+const baseUrl = process.env.FASHION_DEV_BACKEND_URL || 'http://127.0.0.1:8081' // 若依平台后端
+const interviewBaseUrl = baseUrl // RuoYi 唯一后端
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
@@ -43,8 +43,10 @@ export default defineConfig(({ mode, command }) => {
     },
     // vite 相关配置
     server: {
-      port: 5173,
-      host: true,
+      port: Number(process.env.FASHION_DEV_PORT || 5173),
+      strictPort: Boolean(process.env.FASHION_DEV_PORT),
+      host: process.env.FASHION_DEV_PORT ? '127.0.0.1' : true,
+      allowedHosts: ['fashion-remediation.localhost'],
       open: false,
       proxy: {
         // https://cn.vitejs.dev/config/#server-proxy

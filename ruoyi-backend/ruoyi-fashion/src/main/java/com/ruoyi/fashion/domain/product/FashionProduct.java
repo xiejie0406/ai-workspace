@@ -41,7 +41,51 @@ public record FashionProduct(
         Instant createTime,
         long updateBy,
         Instant updateTime,
+        long rowVersion,
+        java.util.Map<String, String> attributes) {
+
+    public FashionProduct(long id,
+        String sourceCode,
+        String skuCode,
+        String styleCode,
+        String name,
+        String categoryCode,
+        String colorCode,
+        String colorName,
+        String sizeCode,
+        String sizeSystem,
+        String unit,
+        BigDecimal salePrice,
+        String currency,
+        String taxMode,
+        Instant priceAsOf,
+        Long lastPriceImportBatchId,
+        String brand,
+        String material,
+        String season,
+        List<String> tags,
+        String mainImageKey,
+        List<FashionProductImage> images,
+        long visualVersion,
+        Long lastAiRunId,
+        boolean attributesConfirmed,
+        Long attributesConfirmedBy,
+        Instant attributesConfirmedAt,
+        String jdItemId,
+        String jdUrl,
+        Long lastProductImportBatchId,
+        FashionProductStatus status,
+        long createBy,
+        Instant createTime,
+        long updateBy,
+        Instant updateTime,
         long rowVersion) {
+        this(id, sourceCode, skuCode, styleCode, name, categoryCode, colorCode, colorName, sizeCode, sizeSystem, unit, salePrice, currency, taxMode, priceAsOf, lastPriceImportBatchId, brand, material, season, tags, mainImageKey, images, visualVersion, lastAiRunId, attributesConfirmed, attributesConfirmedBy, attributesConfirmedAt, jdItemId, jdUrl, lastProductImportBatchId, status, createBy, createTime, updateBy, updateTime, rowVersion, java.util.Map.of());
+    }
+
+    public FashionProduct {
+        attributes = attributes == null ? java.util.Map.of() : java.util.Map.copyOf(attributes);
+    }
 
     public String businessKey() {
         return sourceCode + ":" + skuCode;
