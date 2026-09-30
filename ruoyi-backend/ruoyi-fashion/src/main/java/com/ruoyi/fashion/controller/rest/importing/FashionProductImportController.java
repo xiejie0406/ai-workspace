@@ -46,16 +46,24 @@ public class FashionProductImportController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('fashion:product:import')")
     @GetMapping("/template")
-    public ResponseEntity<byte[]> template() throws IOException {
-        byte[] content;
-        try (java.io.InputStream input = new ClassPathResource("fashion/import-templates/product-v1.csv")
-                .getInputStream()) {
-            content = input.readAllBytes();
+    public ResponseEntity<byte[]> template(@RequestParam(defaultValue = "xlsx") String format) throws IOException {
+        if ("csv".equals(format)) {
+            try (java.io.InputStream input = new ClassPathResource("fashion/import-templates/product-v1.csv").getInputStream()) {
+                return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=fashion-product-v1.csv")
+                        .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8")).body(input.readAllBytes());
+            }
         }
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=fashion-product-v1.csv")
-                .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))
-                .body(content);
+        if (!"xlsx".equals(format)) throw new ServiceException("模板格式必须是 xlsx 或 csv");
+        return FashionTemplateWorkbook.response("fashion-product-v2.xlsx",
+                new com.ruoyi.fashion.application.importing.FashionProductImportParser().defaultMapping());
+    }
+
+    @PreAuthorize("@ss.hasPermi('fashion:product:list') or @ss.hasPermi('fashion:product:import')")
+    @GetMapping("/fields")
+    public AjaxResult fields() {
+        return success(Map.of("templateVersion", "2.0", "mapping",
+                new com.ruoyi.fashion.application.importing.FashionProductImportParser().defaultMapping(),
+                "attributes", com.ruoyi.fashion.domain.product.ProductAttributeFields.DEFINITIONS));
     }
 
     @PreAuthorize("@ss.hasPermi('fashion:product:import')")

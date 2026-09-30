@@ -1,0 +1,1576 @@
+openapi: 3.1.0
+info:
+  title: 智能选品方案池与提案 API
+  version: 1.0.0
+  description: v0.3 三步业务实现契约：横版筛选→完整方案池→已选清单，试衣及PPT为独立弹窗能力。依据当前 Java 控制器/DTO 编写；不表示真实Provider或用户验收通过。认证沿用RuoYi Bearer令牌，权限及pool
+    owner同时校验。HTTP200也可能是业务错误，客户端必须判断AjaxResult.code；二进制接口同时检查Content-Type。商品数据/价格由Java/MySQL持有，旧销售价与新增双价互不复制。
+security:
+- RuoYiBearer: []
+tags:
+- name: selection-pool
+  description: 商品筛选、组合、已选与双价维护
+- name: proposal
+  description: 提案PPT与模特试衣
+paths:
+  /fashion/pools/options:
+    get:
+      tags:
+      - selection-pool
+      operationId: getPoolOptions
+      summary: 取得内部商品分类及筛选选项
+      description: 取得内部商品分类及筛选选项
+      x-ruoyi-permissions:
+      - fashion:quote:list
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/PoolOptions'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+  /fashion/pools:
+    get:
+      tags:
+      - selection-pool
+      operationId: listPools
+      summary: 当前用户最近100个方案池
+      description: 只返回owner为当前账号的最近100条，按创建时间倒序；当前接口没有历史分页。
+      x-ruoyi-permissions:
+      - fashion:quote:list
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/PoolSummary'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+    post:
+      tags:
+      - selection-pool
+      operationId: createPool
+      summary: 创建并持久化完整候选方案池
+      description: 每组分类候选子SKU≤5000，原始主SKU组合≤100000，快照≤20MiB，预算扫描/搜索≤200万步。任何超限明确失败、不返回截断结果。空组报对应组号。跨来源主SKU独立，重叠组不允许重复使用同一主SKU。
+      x-ruoyi-permissions:
+      - fashion:quote:edit
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/Pool'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePool'
+  /fashion/pools/{id}:
+    get:
+      tags:
+      - selection-pool
+      operationId: getPool
+      summary: 回读不可变方案池快照
+      description: 仅所属用户可访问；并非实时重算价格/库存。修改筛选需新建池。
+      x-ruoyi-permissions:
+      - fashion:quote:list
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/Pool'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - &id001
+        name: id
+        in: path
+        required: true
+        schema:
+          type: string
+  /fashion/pools/{id}/combinations:
+    get:
+      tags:
+      - selection-pool
+      operationId: pageCombinations
+      summary: 分页查看完整方案或已选方案
+      description: keyword在主SKU、名称、品号、货号上不区分大小写检索。total是本次范围精确数量，rawCount是池原始组合数量。selectedOnly=true忽略sort，按已保存orderedIds及稳定ID排序。缺价在金额排序末尾。
+      x-ruoyi-permissions:
+      - fashion:quote:list
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/CombinationPage'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id001
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - identity
+          - groupAsc
+          - groupDesc
+          - vipAsc
+          - vipDesc
+          default: identity
+      - name: keyword
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: selectedOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+  /fashion/pools/{id}/selection:
+    get:
+      tags:
+      - selection-pool
+      operationId: getSelection
+      summary: 读取跨页选择与颜色设置
+      description: 读取跨页选择与颜色设置
+      x-ruoyi-permissions:
+      - fashion:quote:list
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/Selection'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id001
+    put:
+      tags:
+      - selection-pool
+      operationId: saveSelection
+      summary: 按版本保存已选方案
+      description: 仅所属用户可写；CAS冲突返回业务错误（当前普通ServiceException code500，不承诺HTTP409）。不会覆盖其他版本。
+      x-ruoyi-permissions:
+      - fashion:quote:edit
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/Selection'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Selection'
+      parameters:
+      - *id001
+  /fashion/pools/products/{id}/commercial-prices:
+    get:
+      tags:
+      - selection-pool
+      operationId: getCommercialPrices
+      summary: 读取商品双价及当前版本
+      description: 读取商品双价及当前版本
+      x-ruoyi-permissions:
+      - fashion:price:import
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/CommercialPrice'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id001
+    put:
+      tags:
+      - selection-pool
+      operationId: setCommercialPrices
+      summary: 独立维护团购价和VIP价
+      description: 需price:import，不从salePrice回填；成功响应含previous，供操作日志审计。旧价格Excel导入目前不覆盖这两个独立字段。
+      x-ruoyi-permissions:
+      - fashion:price:import
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/CommercialPriceChange'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommercialPriceWrite'
+      parameters:
+      - *id001
+  /fashion/pools/{poolId}/proposal/preflight:
+    post:
+      tags:
+      - proposal
+      operationId: preflightProposal
+      summary: 检查提案导出素材和价格
+      description: 检查提案导出素材和价格
+      x-ruoyi-permissions:
+      - fashion:quote:export
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/Preflight'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      parameters:
+      - &id002
+        name: poolId
+        in: path
+        required: true
+        schema:
+          type: string
+  /fashion/pools/{poolId}/proposal/pptx:
+    post:
+      tags:
+      - proposal
+      operationId: exportProposalPptx
+      summary: 同步生成并下载可编辑提案PPTX
+      description: 实际为同步生成二进制，无独立导出任务ID或后台进度接口。图文嵌入、标题可编辑，每文件1～100套。图片授权与sha256当前复核，model模式要求已采用未过期试衣图。
+      x-ruoyi-permissions:
+      - fashion:quote:export
+      responses:
+        '200':
+          description: 成功为二进制；业务失败仍可能HTTP200 application/json AjaxError。检查Content-Type后下载。
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              description: PPTX为attachment及UTF-8文件名；图片响应不设置此头。
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+            X-Content-Type-Options:
+              schema:
+                type: string
+              description: nosniff
+          content:
+            application/vnd.openxmlformats-officedocument.presentationml.presentation:
+              schema:
+                type: string
+                format: binary
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      parameters:
+      - *id002
+  /fashion/pools/{poolId}/proposal/images:
+    get:
+      tags:
+      - proposal
+      operationId: getTryOnWorkspace
+      summary: 打开试衣弹窗并恢复任务列表
+      description: 校验当前已选版本和owner；Provider不可用时仍返回任务与blockedReason。
+      x-ruoyi-permissions:
+      - fashion:quote:query
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ImageWorkspace'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id002
+      - name: rowVersion
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    post:
+      tags:
+      - proposal
+      operationId: createTryOn
+      summary: 为一套已选方案提交试衣
+      description: 为一套已选方案提交试衣
+      x-ruoyi-permissions:
+      - fashion:quote:edit
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ImageTask'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TryOnRequest'
+      parameters:
+      - *id002
+  /fashion/pools/{poolId}/proposal/models:
+    post:
+      tags:
+      - proposal
+      operationId: uploadProposalModel
+      summary: 上传当前账号模特素材
+      description: 仅当前owner已保存非空选择。支持PNG/JPEG/WebP，文件≤20MiB、至少200×200且≤4000万像素，扩展名与magic一致。返回私有对象引用，不是公开URL。
+      x-ruoyi-permissions:
+      - fashion:quote:edit
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ImageRef'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id002
+      - name: rowVersion
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+  /fashion/pools/{poolId}/proposal/images/{taskId}:
+    get:
+      tags:
+      - proposal
+      operationId: getTryOnTask
+      summary: 读取并轮询真实试衣状态
+      description: 排队/运行/未知/取消请求状态且有Provider任务ID时调用Provider更新状态，因此GET可能推进持久化任务版本。
+      x-ruoyi-permissions:
+      - fashion:quote:query
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ImageTask'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id002
+      - &id003
+        name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+  /fashion/pools/{poolId}/proposal/images/{taskId}/cancel:
+    post:
+      tags:
+      - proposal
+      operationId: cancelTryOnTask
+      summary: 请求取消可取消的试衣任务
+      description: 仅queued/running/unknown允许；先存cancel_requested再请求Provider取消。不保证撤销已开始生成或费用。关闭弹窗不调用此接口。
+      x-ruoyi-permissions:
+      - fashion:quote:edit
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ImageTask'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskVersion'
+      parameters:
+      - *id002
+      - *id003
+  /fashion/pools/{poolId}/proposal/images/{taskId}/review:
+    post:
+      tags:
+      - proposal
+      operationId: reviewTryOnTask
+      summary: 逐图采用或拒绝试衣结果
+      description: 逐图采用或拒绝试衣结果
+      x-ruoyi-permissions:
+      - fashion:quote:edit
+      responses:
+        '200':
+          description: 成功信封或业务错误信封；以code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ImageTask'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewRequest'
+      parameters:
+      - *id002
+      - *id003
+  /fashion/pools/{poolId}/proposal/images/{taskId}/results/{resultNo}:
+    get:
+      tags:
+      - proposal
+      operationId: getTryOnResult
+      summary: 下载试衣结果图片
+      description: 只读取该owner池内任务成功结果，校验对象sha256；结果索引从0开始。当前控制器按PNG签名返回image/png，其余返回image/jpeg。
+      x-ruoyi-permissions:
+      - fashion:quote:query
+      responses:
+        '200':
+          description: 成功为二进制；业务失败仍可能HTTP200 application/json AjaxError。检查Content-Type后下载。
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              description: PPTX为attachment及UTF-8文件名；图片响应不设置此头。
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+            X-Content-Type-Options:
+              schema:
+                type: string
+              description: nosniff
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id002
+      - *id003
+      - name: resultNo
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 0
+components:
+  securitySchemes:
+    RuoYiBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    TransportError:
+      description: 网关、HTTP绑定或框架级异常可能使用非200状态；业务错误正常走200 AjaxError。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AjaxError'
+  schemas:
+    Money:
+      type:
+      - number
+      - 'null'
+      minimum: 0
+      description: 十进制金额；null 表示未知。团购和 VIP 价独立，不回填销售价。
+    Id:
+      type: string
+      description: 业务 ID 使用字符串，避免 JavaScript bigint 精度丢失。
+    CombinationId:
+      type: string
+      maxLength: 32
+      description: 池内稳定位置编码，如 0-1-2；必须连同 poolId 使用，不跨池复用。
+    TextChoices:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 160
+      maxItems: 200
+    GroupFilter:
+      type: object
+      properties:
+        categoryLeafCodes:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 160
+          minItems: 1
+          maxItems: 200
+        seasons:
+          $ref: '#/components/schemas/TextChoices'
+        genders:
+          $ref: '#/components/schemas/TextChoices'
+        brands:
+          $ref: '#/components/schemas/TextChoices'
+        itemNos:
+          $ref: '#/components/schemas/TextChoices'
+        articleNos:
+          $ref: '#/components/schemas/TextChoices'
+        mainSkuCodes:
+          $ref: '#/components/schemas/TextChoices'
+        colors:
+          $ref: '#/components/schemas/TextChoices'
+        sizes:
+          $ref: '#/components/schemas/TextChoices'
+        styles:
+          $ref: '#/components/schemas/TextChoices'
+        fits:
+          $ref: '#/components/schemas/TextChoices'
+        scenes:
+          $ref: '#/components/schemas/TextChoices'
+        label:
+          type: string
+          maxLength: 100
+        keyword:
+          type: string
+          maxLength: 200
+        warehouseCode:
+          type: string
+          maxLength: 100
+        stockStatus:
+          type: string
+          enum:
+          - all
+          - positive
+          - zero
+          - unknown
+        stockFreshness:
+          type: string
+          enum:
+          - all
+          - fresh
+          - stale
+        stockMin:
+          type: integer
+          format: int64
+          minimum: 0
+        stockMax:
+          type: integer
+          format: int64
+          minimum: 0
+        requireAllSizes:
+          type: boolean
+          description: 须提供 sizes；至少一种同一颜色的全部指定尺码库存新鲜且大于 0。仅保留齐码颜色。
+        fabricComposition:
+          type: string
+          maxLength: 1000
+          description: 面料成分子串匹配
+        hasMainImage:
+          type: boolean
+        imagesConfirmed:
+          type: boolean
+        groupPriceMin:
+          $ref: '#/components/schemas/Money'
+        groupPriceMax:
+          $ref: '#/components/schemas/Money'
+        vipPriceMin:
+          $ref: '#/components/schemas/Money'
+        vipPriceMax:
+          $ref: '#/components/schemas/Money'
+      required:
+      - categoryLeafCodes
+      description: 同字段内 OR、字段间 AND；每组直接选三级分类。只有 active 且明确 mainSkuCode 的商品进入候选。库存 freshnessHours 沿用平台配置（默认24小时，允许1～168）。缺失或过期库存为未知，不冒充可售。
+    CreatePool:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupFilter'
+          minItems: 1
+          maxItems: 4
+        priceBasis:
+          type: string
+          enum:
+          - group
+          - vip
+          default: group
+        totalMin:
+          $ref: '#/components/schemas/Money'
+        totalMax:
+          $ref: '#/components/schemas/Money'
+      required:
+      - groups
+      description: 未给 title 使用新套装方案；未给 priceBasis 按团购价预算验证。创建不可变商品候选快照；返回原始数量和排重、币税与预算验证后的精确数量。
+    ProductImage:
+      type: object
+      properties:
+        imageId:
+          type:
+          - string
+          - 'null'
+        objectKey:
+          type:
+          - string
+          - 'null'
+        sha256:
+          type:
+          - string
+          - 'null'
+        usage:
+          type:
+          - string
+          - 'null'
+        sourceType:
+          type:
+          - string
+          - 'null'
+        jdId:
+          type:
+          - string
+          - 'null'
+        sourceUrl:
+          type:
+          - string
+          - 'null'
+        originalFilename:
+          type:
+          - string
+          - 'null'
+        capturedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        confirmedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        allowInternal:
+          type: boolean
+        allowAi:
+          type: boolean
+        allowProposal:
+          type: boolean
+        allowEcommerce:
+          type: boolean
+        status:
+          type: string
+        confirmedBy:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        width:
+          type: integer
+          format: int64
+        height:
+          type: integer
+          format: int64
+      description: 当前商品素材记录；引用不是公开下载地址，授权及摘要须由服务端复核。
+    Variant:
+      type: object
+      properties:
+        productId:
+          $ref: '#/components/schemas/Id'
+        skuCode:
+          type: string
+        colorCode:
+          type: string
+        colorName:
+          type: string
+        sizeCode:
+          type: string
+        groupPrice:
+          $ref: '#/components/schemas/Money'
+        vipPrice:
+          $ref: '#/components/schemas/Money'
+        availableQty:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        mainImageUrl:
+          type:
+          - string
+          - 'null'
+        mainImageKey:
+          type:
+          - string
+          - 'null'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductImage'
+        visualVersion:
+          type: integer
+          format: int64
+      required:
+      - productId
+      - skuCode
+      - images
+      - visualVersion
+    MainSku:
+      type: object
+      properties:
+        key:
+          type:
+          - string
+          - 'null'
+        mainSkuCode:
+          type:
+          - string
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        sourceCode:
+          type:
+          - string
+          - 'null'
+        categoryLeafCode:
+          type:
+          - string
+          - 'null'
+        brand:
+          type:
+          - string
+          - 'null'
+        itemNo:
+          type:
+          - string
+          - 'null'
+        articleNo:
+          type:
+          - string
+          - 'null'
+        productId:
+          type:
+          - string
+          - 'null'
+        mainImageUrl:
+          type:
+          - string
+          - 'null'
+        currency:
+          type:
+          - string
+          - 'null'
+        taxMode:
+          type:
+          - string
+          - 'null'
+        groupPriceMin:
+          $ref: '#/components/schemas/Money'
+        groupPriceMax:
+          $ref: '#/components/schemas/Money'
+        vipPriceMin:
+          $ref: '#/components/schemas/Money'
+        vipPriceMax:
+          $ref: '#/components/schemas/Money'
+        availableQty:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        stockUnknown:
+          type: boolean
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variant'
+      required:
+      - key
+      - mainSkuCode
+      - name
+      - sourceCode
+      - categoryLeafCode
+      - variants
+      - stockUnknown
+      description: key=来源:主SKU；一个款式一个主SKU，下挂过滤后颜色尺码变体。主图接口需携带登录令牌。
+    CandidateGroup:
+      type: object
+      properties:
+        label:
+          type:
+          - string
+          - 'null'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MainSku'
+      required:
+      - items
+    Pool:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        request:
+          $ref: '#/components/schemas/CreatePool'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateGroup'
+        rawCount:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 100000
+        total:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 100000
+        createdAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - title
+      - request
+      - groups
+      - rawCount
+      - total
+      - createdAt
+    PoolSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - title
+      - createdAt
+    Combination:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/CombinationId'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MainSku'
+          minItems: 1
+          maxItems: 4
+        stockUnknown:
+          type: boolean
+        currency:
+          type:
+          - string
+          - 'null'
+        taxMode:
+          type:
+          - string
+          - 'null'
+        groupPriceMin:
+          $ref: '#/components/schemas/Money'
+        groupPriceMax:
+          $ref: '#/components/schemas/Money'
+        vipPriceMin:
+          $ref: '#/components/schemas/Money'
+        vipPriceMax:
+          $ref: '#/components/schemas/Money'
+      required:
+      - id
+      - items
+      - stockUnknown
+    CombinationPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Combination'
+        total:
+          type: integer
+          format: int64
+        rawCount:
+          type: integer
+          format: int64
+        page:
+          type: integer
+          format: int64
+          minimum: 1
+        pageSize:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 100
+      required:
+      - items
+      - total
+      - rawCount
+      - page
+      - pageSize
+    Selection:
+      type: object
+      properties:
+        poolId:
+          type: string
+          description: 请求中忽略此值，以路径池 ID 为准；响应为真实池 ID。
+        rowVersion:
+          type: integer
+          format: int64
+          minimum: 0
+          description: 未保存版本为0，保存成功递增；提交旧版拒绝覆盖。
+        all:
+          type: boolean
+          default: false
+          description: 整个不可变池的有效结果全选，不是当前页或关键词范围。
+        selectedIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/CombinationId'
+          maxItems: 100000
+        excludedIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/CombinationId'
+          maxItems: 100000
+        names:
+          type: object
+          maxProperties: 1000
+          additionalProperties:
+            type: string
+            maxLength: 200
+        orderedIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/CombinationId'
+          maxItems: 100000
+        variantSelections:
+          type: object
+          maxProperties: 1000
+          additionalProperties:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/Id'
+          description: 组合ID→主SKU key→实际 productId；服务端验证所属关系。
+      required:
+      - rowVersion
+      description: 缺省列表/map按空处理。排除项优先；orderedIds 先排序，未指定部分按稳定组合ID排序。输入身份全部须属于此池。
+    CommercialPrice:
+      type: object
+      properties:
+        productId:
+          $ref: '#/components/schemas/Id'
+        rowVersion:
+          type: integer
+          format: int64
+        groupPrice:
+          $ref: '#/components/schemas/Money'
+        vipPrice:
+          $ref: '#/components/schemas/Money'
+        currency:
+          type:
+          - string
+          - 'null'
+        taxMode:
+          type:
+          - string
+          - 'null'
+    CommercialPriceWrite:
+      type: object
+      properties:
+        rowVersion:
+          type: integer
+          format: int64
+          minimum: 1
+        groupPrice:
+          $ref: '#/components/schemas/Money'
+        vipPrice:
+          $ref: '#/components/schemas/Money'
+      required:
+      - rowVersion
+      description: 两个字段独立赋值，省略或null清空该价；非负，整数最多14位，小数最多2位。使用目录写锁、事务与商品版本CAS。
+    CommercialPriceChange:
+      allOf:
+      - $ref: '#/components/schemas/CommercialPrice'
+      - type: object
+        properties:
+          previous:
+            $ref: '#/components/schemas/CommercialPrice'
+        required:
+        - previous
+    PoolOptions:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              path:
+                type: string
+            required:
+            - code
+            - path
+        brands:
+          type: array
+          items:
+            type: string
+        seasons:
+          type: array
+          items:
+            type: string
+        genders:
+          type: array
+          items:
+            type: string
+        warehouses:
+          type: array
+          items:
+            type: string
+      required:
+      - categories
+      - brands
+      - seasons
+      - genders
+      - warehouses
+    ImageRef:
+      type: object
+      properties:
+        objectKey:
+          type: string
+        sha256:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      required:
+      - objectKey
+      - sha256
+    ExportRequest:
+      type: object
+      properties:
+        rowVersion:
+          type: integer
+          format: int64
+          minimum: 1
+        combinationIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/CombinationId'
+          uniqueItems: true
+        priceMode:
+          type: string
+          enum:
+          - none
+          - group
+          - vip
+          default: none
+        imageMode:
+          type: string
+          enum:
+          - original
+          - model
+          default: original
+        adoptedTaskIds:
+          type: object
+          additionalProperties:
+            type: string
+          description: 组合ID→已采用且未过期任务ID；model模式每个导出组合必须提供。
+      required:
+      - rowVersion
+      description: combinationIds空或省略表示全部已选；非空必须是已选子集。顺序沿用已选清单，非请求数组顺序。有效范围每文件1～100套，超限拒绝，客户端分批。选品提案不等于正式报价。
+    Preflight:
+      type: object
+      properties:
+        ready:
+          type: boolean
+        issues:
+          type: array
+          items:
+            type: string
+        combinationCount:
+          type: integer
+          format: int64
+        maxPerFile:
+          type: integer
+          format: int64
+          enum:
+          - 100
+      required:
+      - ready
+      - issues
+      - combinationCount
+      - maxPerFile
+      description: 素材/价格等问题返回ready=false、第一条问题和combinationCount=0。所属权限或草稿版本异常直接失败，不转成预检信息。
+    TryOnRequest:
+      type: object
+      properties:
+        rowVersion:
+          type: integer
+          format: int64
+          minimum: 1
+          description: 已选草稿版本
+        combinationId:
+          $ref: '#/components/schemas/CombinationId'
+        model:
+          $ref: '#/components/schemas/ImageRef'
+        requestKey:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{8,100}$
+      required:
+      - rowVersion
+      - combinationId
+      - model
+      - requestKey
+      description: 只能针对已选组合。模型必须为当前账号经/models上传的素材。相同owner+requestKey且同输入复用原任务；冲突code409。Provider不可用code503且不创建任务。一次请求对应一套方案，批量由调用方逐套提交。
+    TaskVersion:
+      type: object
+      properties:
+        rowVersion:
+          type: integer
+          format: int64
+          minimum: 1
+          description: 试衣任务版本，区别于已选草稿版本
+      required:
+      - rowVersion
+    ReviewRequest:
+      type: object
+      properties:
+        rowVersion:
+          type: integer
+          format: int64
+          minimum: 1
+        resultNo:
+          type: integer
+          format: int64
+          minimum: 0
+        adopt:
+          type: boolean
+        checks:
+          type: object
+          properties:
+            style:
+              type: boolean
+            color:
+              type: boolean
+            completeness:
+              type: boolean
+            quality:
+              type: boolean
+        reason:
+          type: string
+      required:
+      - rowVersion
+      - resultNo
+      - adopt
+      description: 采用时四个checks全部true；拒绝时reason非空。仅review/adopted/rejected且未过期任务可复核。resultNo从0开始。
+    ImageResult:
+      type: object
+      properties:
+        status:
+          type: string
+        object_key:
+          type: string
+        sha256:
+          type: string
+        error_message:
+          type:
+          - string
+          - 'null'
+      description: Provider结果JSON透传，额外字段允许；成功项含status=success、object_key和sha256。
+    ImageTask:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - submitting
+          - queued
+          - running
+          - unknown
+          - cancel_requested
+          - cancelled
+          - review
+          - adopted
+          - rejected
+          - failed
+        rowVersion:
+          type: integer
+          format: int64
+        draftVersion:
+          type: integer
+          format: int64
+        combinationId:
+          $ref: '#/components/schemas/CombinationId'
+        inputHash:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageResult'
+        errorMessage:
+          type:
+          - string
+          - 'null'
+        review:
+          type: object
+          additionalProperties: true
+        stale:
+          type: boolean
+      required:
+      - id
+      - status
+      - rowVersion
+      - draftVersion
+      - combinationId
+      - inputHash
+      - results
+      - review
+      - stale
+    ImageWorkspace:
+      type: object
+      properties:
+        providerAvailable:
+          type: boolean
+        blockedReason:
+          type: string
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageTask'
+      required:
+      - providerAvailable
+      - blockedReason
+      - tasks
+    AjaxError:
+      type: object
+      properties:
+        code:
+          type: integer
+          not:
+            const: 200
+          examples:
+          - 401
+          - 403
+          - 409
+          - 500
+          - 503
+        msg:
+          type: string
+        data: {}
+      required:
+      - code
+      - msg
+      description: RuoYi业务错误信封。GlobalExceptionHandler/认证入口通常HTTP200，必须检查code，不能仅检查HTTP状态。普通ServiceException为500；Proposal部分冲突为409、Provider不可用503；未认证401/无权限403同样可能HTTP200。

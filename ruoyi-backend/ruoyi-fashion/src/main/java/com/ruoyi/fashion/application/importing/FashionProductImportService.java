@@ -2,6 +2,7 @@ package com.ruoyi.fashion.application.importing;
 
 import com.ruoyi.fashion.configuration.FashionModuleEnabled;
 
+import com.ruoyi.fashion.domain.product.ProductAttributeFields;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -43,7 +44,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 @FashionModuleEnabled
 @Service
 public class FashionProductImportService {
-    private static final Set<String> OPTIONAL_CLEARABLE = Set.of("brand", "material", "jdItemId", "jdUrl");
+    private static final Set<String> OPTIONAL_CLEARABLE = java.util.stream.Stream.concat(
+            Set.of("brand", "material", "jdItemId", "jdUrl").stream(), ProductAttributeFields.FIELDS.keySet().stream())
+            .collect(java.util.stream.Collectors.toUnmodifiableSet());
 
     private final FashionProductImportParser parser;
     private final FashionImportRepository imports;
@@ -94,7 +97,7 @@ public class FashionProductImportService {
         }
         Set<String> clears = clearFields == null ? Set.of() : Set.copyOf(clearFields);
         if (!OPTIONAL_CLEARABLE.containsAll(clears)) {
-            throw new ServiceException("显式清空只允许 brand、material、jdItemId、jdUrl");
+            throw new ServiceException("显式清空仅允许可选商品属性");
         }
         String safeFilename = FashionUploadPolicy.safeFilename(filename);
         String fileHash = FashionHashing.sha256(content);
@@ -248,6 +251,10 @@ public class FashionProductImportService {
         if (!Set.of("CN", "EU", "US", "LETTER", "FREE").contains(values.get("sizeSystem"))) {
             errors.add(error("sizeSystem", "invalid_enum", values.get("sizeSystem"), "尺码制式无效"));
         }
+        ProductAttributeFields.FIELDS.keySet().forEach(field -> {
+            String value = values.get(field);
+            if (value != null) tryValidation(field, value, errors, () -> ProductAttributeFields.normalize(Map.of(field, value)));
+        });
         String jdUrl = values.get("jdUrl");
         if (jdUrl != null && (!jdUrl.startsWith("https://") || jdUrl.length() > 2048)) {
             errors.add(error("jdUrl", "invalid_https_url", jdUrl, "京东链接必须是 HTTPS URL"));
@@ -294,7 +301,7 @@ public class FashionProductImportService {
             case "material" -> p.material();
             case "jdItemId" -> p.jdItemId();
             case "jdUrl" -> p.jdUrl();
-            default -> null;
+            default -> p.attributes().get(key);
         };
     }
 
@@ -311,7 +318,8 @@ public class FashionProductImportService {
                 && Objects.equals(p.material(), n.get("material"))
                 && Objects.equals(p.season(), n.get("season"))
                 && Objects.equals(p.jdItemId(), n.get("jdItemId"))
-                && Objects.equals(p.jdUrl(), n.get("jdUrl"));
+                && Objects.equals(p.jdUrl(), n.get("jdUrl"))
+                && Objects.equals(p.attributes(), attributes(n));
     }
 
     private FashionProduct importedProduct(
@@ -330,7 +338,17 @@ public class FashionProductImportService {
                 old == null ? null : old.attributesConfirmedAt(), text(n, "jdItemId"), text(n, "jdUrl"), batchId,
                 old == null ? FashionProductStatus.DRAFT : old.status(),
                 old == null ? operatorId : old.createBy(), old == null ? now : old.createTime(),
-                operatorId, now, old == null ? 1L : old.rowVersion() + 1);
+                operatorId, now, old == null ? 1L : old.rowVersion() + 1, n.keySet().stream().anyMatch(ProductAttributeFields.FIELDS::containsKey)
+                        ? attributes(n) : (old == null ? Map.of() : old.attributes()));
+    }
+
+    private static Map<String, String> attributes(Map<String, Object> values) {
+        Map<String, String> result = new LinkedHashMap<>();
+        ProductAttributeFields.FIELDS.keySet().forEach(field -> {
+            Object value = values.get(field);
+            if (value != null && !value.toString().isBlank()) result.put(field, value.toString());
+        });
+        return result;
     }
 
     private static String text(Map<String, Object> values, String key) {
@@ -380,6 +398,7 @@ public class FashionProductImportService {
         result.put("season", p.season());
         result.put("jdItemId", p.jdItemId());
         result.put("jdUrl", p.jdUrl());
+        result.putAll(p.attributes());
         return result;
     }
 

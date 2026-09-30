@@ -6,7 +6,11 @@ public record ProductSearchCriteria(
         String status,
         String keyword,
         int offset,
-        int limit) {
+        int limit, String attributeKey, String attributeValue) {
+
+    public ProductSearchCriteria(String sourceCode,String categoryCode,String status,String keyword,int offset,int limit) {
+        this(sourceCode,categoryCode,status,keyword,offset,limit,null,null);
+    }
 
     public ProductSearchCriteria {
         if (offset < 0 || limit < 1 || limit > 200) {

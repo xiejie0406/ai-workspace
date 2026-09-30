@@ -50,6 +50,7 @@ public class FashionSelectionService {
     private final FashionTimeSource time;
     private final ObjectMapper objectMapper;
     private final TransactionTemplate transaction;
+    private final com.ruoyi.fashion.infrastructure.persistence.FashionCatalogWriteLock catalogWriteLock;
 
     public FashionSelectionService(
             FashionSelectionRepository repository,
@@ -58,7 +59,8 @@ public class FashionSelectionService {
             FashionIdGenerator ids,
             FashionTimeSource time,
             ObjectMapper objectMapper,
-            @Qualifier("fashionTransactionTemplate") TransactionTemplate transaction) {
+            @Qualifier("fashionTransactionTemplate") TransactionTemplate transaction,
+            com.ruoyi.fashion.infrastructure.persistence.FashionCatalogWriteLock catalogWriteLock) {
         this.repository = repository;
         this.quoteRepository = quoteRepository;
         this.quotes = quotes;
@@ -66,6 +68,7 @@ public class FashionSelectionService {
         this.time = time;
         this.objectMapper = objectMapper;
         this.transaction = transaction;
+        this.catalogWriteLock = catalogWriteLock;
     }
 
     public SelectionWorkspace workspace(String quoteId) {
@@ -229,6 +232,74 @@ public class FashionSelectionService {
                     prepared.name(), prepared.categoryCount(), quote.requestedQty(), old.sortNo(),
                     prepared.reason(), prepared.lockedSlots(), prepared.visualHash(), operatorId, now),
                     details(newComboId, null, prepared, quote, operatorId, now));
+        });
+        return workspace(quoteId);
+    }
+
+    /** 人工选择只接受当前已过滤候选与显式尺码数量，不依赖 AI Run。 */
+    public SelectionWorkspace saveManual(String quoteId, long version, String candidateSetHash,
+            String name, List<String> references, Map<String, Integer> quantities, long operatorId) {
+        if (references == null || references.isEmpty() || references.size()>4 || new HashSet<>(references).size()!=references.size())
+            throw new ServiceException("请选择 1～4 个不同颜色款");
+        if (name==null || name.isBlank() || name.length()>100) throw new ServiceException("组合名称需为 1～100 字");
+        if (quantities==null || quantities.size()>800) throw new ServiceException("请填写尺码数量");
+        transaction.executeWithoutResult(status -> catalogWriteLock.executeLocked(10, () -> {
+            FashionQuote quote=quotes.requireAccessible(FashionId.parse(quoteId).value());
+            if (!"draft".equals(quote.status()) || !quote.requirementConfirmed() || quote.rowVersion()!=version)
+                throw new ServiceException("请先确认需求，或刷新已变化的方案",409);
+            JsonNode snapshot=freeze(quote,null,null);
+            if(!snapshot.path("candidate_set_hash").asText().equals(candidateSetHash)) throw new ServiceException("商品价格或库存已变化，请刷新后重新选品",409);
+            Map<String,JsonNode> candidates=candidates(snapshot);
+            List<JsonNode> chosen=new ArrayList<>();
+            for(String ref:references){JsonNode item=candidates.get(ref);if(item==null)throw new ServiceException("所选商品已不满足当前条件");chosen.add(item);}
+            List<Tier> specifications=tiers(quote.comboTemplateJson());
+            Tier selected=specifications.stream().filter(t->t.count()==chosen.size()).findFirst().orElseThrow(()->new ServiceException("所选品类数量不在方案档位中"));
+            if(quote.progressive() && selected.count()!=specifications.stream().mapToInt(Tier::count).max().orElse(0)) throw new ServiceException("递进方案请选齐最高档品类，保存时同步生成各档组合");
+            for(int i=0;i<chosen.size();i++) if(!selected.slots().get(i).equals(chosen.get(i).path("category_code").asText())) throw new ServiceException("请选择与方案槽位顺序一致的品类");
+            long price=chosen.stream().mapToLong(c->c.path("conservative_unit_price_minor").asLong()).sum();
+            long budget=snapshot.path("budget_maximum_per_set_minor").asLong();
+            if(budget>0 && price>budget)throw new ServiceException("所选组合超过每套预算");
+            Map<Long,Integer> allocations=new LinkedHashMap<>();
+            quantities.forEach((id,qty)->{if(qty==null||qty<0)throw new ServiceException("尺码数量必须为非负整数");allocations.put(FashionId.parse(id).value(),qty);});
+            Set<Long> validIds=new HashSet<>();
+            for(JsonNode candidate:chosen){
+                int sum=0;
+                for(SelectionProductFact fact:factsForCandidate(candidate,quote)){
+                    validIds.add(fact.productId());int qty=allocations.getOrDefault(fact.productId(),0);
+                    if(qty>fact.availableQty())throw new ServiceException(fact.skuCode()+" 库存不足");
+                    sum=Math.addExact(sum,qty);
+                }
+                if(sum!=quote.requestedQty())throw new ServiceException("每个颜色款尺码数量之和必须等于采购套数");
+            }
+            if(!validIds.containsAll(allocations.keySet()))throw new ServiceException("包含未选商品的尺码分配");
+            Instant now=time.now();
+            if(!quoteRepository.touchDraft(quote.id(),version,operatorId,now))throw new ServiceException("方案已变化，请刷新",409);
+            if(quote.progressive())repository.deselectCurrent(quote.id(),operatorId,now);
+            List<Tier> targetTiers=quote.progressive()?specifications:List.of(selected);
+            int sort=repository.findByQuoteId(quote.id()).size();
+            for(Tier tier:targetTiers){
+                List<JsonNode> subset=chosen.subList(0,tier.count());
+                for(int i=0;i<subset.size();i++)if(!tier.slots().get(i).equals(subset.get(i).path("category_code").asText()))throw new ServiceException("递进档位品类顺序不一致");
+                Map<Integer,String> refs=new LinkedHashMap<>();for(int i=0;i<subset.size();i++)refs.put(i+1,subset.get(i).path("candidate_ref").asText());
+                PreparedCombo combo=new PreparedCombo(name.trim()+(quote.progressive()?" · "+tier.count()+"品类":""),"人工选品",tier.count(),List.copyOf(subset),comboVisualHash(refs,candidates),List.of());
+                long id=ids.nextId();
+                repository.insertCombo(new SelectionComboWrite(id,quote.id(),"C-"+id,combo.name(),combo.categoryCount(),quote.requestedQty(),sort++,combo.reason(),List.of(),combo.visualHash(),operatorId,now),
+                        details(id,null,combo,quote,operatorId,now,allocations));
+            }
+            return null;
+        }));
+        return workspace(quoteId);
+    }
+
+    public SelectionWorkspace removeManual(String quoteId,String comboId,long quoteVersion,long comboVersion,long operatorId){
+        transaction.executeWithoutResult(status->{
+            FashionQuote quote=quotes.requireAccessible(FashionId.parse(quoteId).value());
+            if(!"draft".equals(quote.status()))throw new ServiceException("只能修改草稿方案");
+            long id=FashionId.parse(comboId).value();
+            SelectionComboView combo=repository.findCombo(quote.id(),id).orElseThrow(()->new ServiceException("组合不存在"));
+            if(!combo.selected() || !combo.lockedSlots().isEmpty())throw new ServiceException("请先解除组合锁定");
+            Instant now=time.now();
+            if(!quoteRepository.touchDraft(quote.id(),quoteVersion,operatorId,now)||!repository.deselectCombo(id,comboVersion,operatorId,now))throw new ServiceException("方案或组合已变化",409);
         });
         return workspace(quoteId);
     }
@@ -411,12 +482,17 @@ public class FashionSelectionService {
 
     private List<SelectionDetailWrite> details(
             long comboId, Long aiRunId, PreparedCombo combo, FashionQuote quote, long operatorId, Instant now) {
+        return details(comboId, aiRunId, combo, quote, operatorId, now, null);
+    }
+
+    private List<SelectionDetailWrite> details(long comboId, Long aiRunId, PreparedCombo combo,
+            FashionQuote quote, long operatorId, Instant now, Map<Long,Integer> explicitAllocation) {
         List<SelectionDetailWrite> details = new ArrayList<>();
         int line = 1;
         for (int slot = 1; slot <= combo.candidates().size(); slot++) {
             JsonNode candidate = combo.candidates().get(slot - 1);
             List<SelectionProductFact> currentFacts = factsForCandidate(candidate, quote);
-            Map<Long, Integer> allocation = allocate(currentFacts, quote, candidate.path("category_code").asText());
+            Map<Long, Integer> allocation = explicitAllocation == null ? allocate(currentFacts, quote, candidate.path("category_code").asText()) : explicitAllocation;
             for (SelectionProductFact fact : currentFacts) {
                 int qty = allocation.getOrDefault(fact.productId(), 0);
                 if (qty == 0) continue;

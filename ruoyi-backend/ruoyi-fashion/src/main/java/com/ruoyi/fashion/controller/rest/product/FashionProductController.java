@@ -37,8 +37,9 @@ public class FashionProductController extends BaseController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int pageSize) {
-        return success(service.search(sourceCode, categoryCode, status, keyword, page, pageSize));
+            @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required=false) String attributeKey, @RequestParam(required=false) String attributeValue) {
+        return success(service.search(sourceCode, categoryCode, status, keyword, page, pageSize, attributeKey, attributeValue));
     }
 
     @PreAuthorize("@ss.hasPermi('fashion:product:query')")

@@ -108,6 +108,117 @@ import com.ruoyi.system.service.ISysConfigService;
 /** 由调用方提供隔离 MySQL URL 时执行；默认不连接任何本机或共享数据库。 */
 @EnabledIfSystemProperty(named = "fashion.test.mysql.url", matches = "jdbc:mysql:.*")
 class FashionProvidedMySqlMigrationTest {
+    @Test
+    void poolCatalogUsesRealJsonClassificationDeduplicatesMastersAndWritesDualPricesWithCas() {
+        var mapper = new ObjectMapper();
+        var named = new NamedParameterJdbcTemplate(jdbc);
+        var products = new JdbcFashionProductRepository(named, new FashionJsonCodec(mapper), mapper);
+        var config = mock(ISysConfigService.class);
+        when(config.selectConfigByKey("fashion.stock.freshnessHours")).thenReturn("24");
+        var catalog = new com.ruoyi.fashion.infrastructure.persistence.pool.FashionPoolCatalog(
+                named, products, new FashionCatalogWriteLock(dataSource), config);
+        var transaction = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
+        Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+        jdbc.update("""
+                insert into fq_import_batch(id,batch_no,import_type,source_code,warehouse_code,
+                    mapping_snapshot,scope_json,as_of,request_key,status,create_by,create_time,update_by,update_time)
+                values(998300,'POOL-CATALOG-STOCK','stock','POOL-CATALOG','POOL-CATALOG-WH',
+                    json_object(),json_object(),?,'pool-catalog-stock-request','success',1,?,1,?)
+                """, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
+        // 两款四个真实 SKU：同款跨颜色尺码聚合；第二款其中一个 SKU 没有库存记录。
+        for (int index = 0; index < 4; index++) {
+            boolean firstMaster = index < 2;
+            String suffix = firstMaster ? "A" : "B";
+            String color = index % 2 == 0 ? "BLUE" : "RED";
+            String size = index % 2 == 0 ? "S" : "M";
+            var attributes = mapper.createObjectNode().put("mainSkuCode", "POOL-CATALOG-MAIN-" + suffix)
+                    .put("categoryLeafCode", "POOL-CATALOG-LEAF-" + suffix)
+                    .put("categoryLeafPath", "测试服装/测试上装/测试" + suffix)
+                    .put("itemNo", "000CAT" + suffix).put("articleNo", "000ART" + suffix).put("gender", "unisex");
+            jdbc.update("""
+                    insert into fq_product(id,source_code,sku_code,style_code,name,category_code,color_code,
+                        color_name,size_code,size_system,unit,brand,season,attributes_json,group_price,vip_price,
+                        status,create_by,create_time,update_by,update_time)
+                    values(?,'POOL-CATALOG',?,?,?,?,?, ?,?,'LETTER','件','POOL-CATALOG-BRAND','秋季',?,?,?,
+                        'active',1,?,1,?)
+                    """, 998301L + index, "POOL-CATALOG-SKU-" + index, "POOL-CATALOG-STYLE-" + suffix,
+                    "选品测试款" + suffix, "TOP", color, color, size, mapper.writeValueAsString(attributes),
+                    firstMaster ? new BigDecimal("100.00") : new BigDecimal("200.00"),
+                    firstMaster ? new BigDecimal("90.00") : new BigDecimal("180.00"),
+                    Timestamp.from(now), Timestamp.from(now));
+            if (index != 3) jdbc.update("""
+                    insert into fq_stock(id,product_id,warehouse_code,available_qty,as_of,confirmation_type,
+                        last_import_batch_id,create_by,create_time,update_by,update_time)
+                    values(?,?,'POOL-CATALOG-WH',?,?,'import',998300,1,?,1,?)
+                    """, 998311L + index, 998301L + index, index == 1 ? 7 : 5,
+                    Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
+        }
+        ObjectNode filter = mapper.createObjectNode().put("label", "测试分类并集")
+                .put("warehouseCode", "POOL-CATALOG-WH").put("stockStatus", "all");
+        filter.putArray("categoryLeafCodes").add("POOL-CATALOG-LEAF-A").add("POOL-CATALOG-LEAF-B");
+        var all = catalog.find(mapper.treeToValue(filter, com.ruoyi.fashion.application.pool.PoolModels.GroupFilter.class));
+        assertEquals(2, all.size());
+        assertEquals(2, all.get(0).variants().size());
+        assertEquals("000CATA", all.get(0).itemNo());
+        assertEquals(12L, all.get(0).availableQty());
+        assertTrue(!all.get(0).stockUnknown());
+        assertNull(all.get(1).availableQty());
+        assertTrue(all.get(1).stockUnknown());
+        assertEquals(new BigDecimal("100.00"), all.get(0).groupPriceMin());
+        assertEquals(new BigDecimal("90.00"), all.get(0).vipPriceMin());
+
+        filter.put("stockStatus", "positive");
+        assertEquals(List.of("POOL-CATALOG-MAIN-A"), catalog.find(mapper.treeToValue(filter,
+                com.ruoyi.fashion.application.pool.PoolModels.GroupFilter.class)).stream().map(x -> x.mainSkuCode()).toList());
+        filter.put("stockStatus", "unknown");
+        assertEquals(List.of("POOL-CATALOG-MAIN-B"), catalog.find(mapper.treeToValue(filter,
+                com.ruoyi.fashion.application.pool.PoolModels.GroupFilter.class)).stream().map(x -> x.mainSkuCode()).toList());
+        filter.put("stockStatus", "all").put("groupPriceMin", new BigDecimal("150.00"));
+        assertEquals(List.of("POOL-CATALOG-MAIN-B"), catalog.find(mapper.treeToValue(filter,
+                com.ruoyi.fashion.application.pool.PoolModels.GroupFilter.class)).stream().map(x -> x.mainSkuCode()).toList());
+
+        // 双价单独写回，不复制销售价，不改库存；旧版本写入不能覆盖新价格。
+        var saved = transaction.execute(status -> catalog.price("998301", new BigDecimal("99.00"), null, 1, 88003));
+        assertEquals(2L, saved.get("rowVersion"));
+        assertEquals(new BigDecimal("99.00"), saved.get("groupPrice"));
+        assertNull(saved.get("vipPrice"));
+        assertThrows(ServiceException.class, () -> transaction.execute(status ->
+                catalog.price("998301", new BigDecimal("1.00"), BigDecimal.ONE, 1, 88003)));
+        assertEquals(new BigDecimal("99.00"), catalog.price("998301").get("groupPrice"));
+        assertNull(products.findById(998301).orElseThrow().salePrice());
+        assertEquals(5, jdbc.queryForObject("select available_qty from fq_stock where id=998311", Integer.class));
+        assertEquals(1L, jdbc.queryForObject("select row_version from fq_stock where id=998311", Long.class));
+    }
+    @Test
+    void poolSnapshotAndSelectionSurviveRepositoryReloadAndRejectStaleOrForeignWrites() {
+        var named = new NamedParameterJdbcTemplate(jdbc);
+        var mapper = new ObjectMapper();
+        var repository = new com.ruoyi.fashion.infrastructure.persistence.pool.JdbcFashionPoolRepository(named, mapper);
+        var catalog = mock(com.ruoyi.fashion.infrastructure.persistence.pool.FashionPoolCatalog.class);
+        var service = new com.ruoyi.fashion.application.pool.FashionPoolService(repository, catalog);
+        var request = new com.ruoyi.fashion.application.pool.PoolModels.Create("隔离库持久化测试", List.of(), "group", null, null);
+        var main = new com.ruoyi.fashion.application.pool.PoolModels.MainSku(
+                "MANUAL:MAIN-0001", "MAIN-0001", "主SKU测试", "MANUAL", "TEST-LEAF", "测试品牌",
+                "000123", "000456", "999999", null, BigDecimal.TEN, BigDecimal.TEN,
+                BigDecimal.ONE, BigDecimal.ONE, 0L, false, "CNY", "included", List.of());
+        String poolId = java.util.UUID.randomUUID().toString();
+        var pool = new com.ruoyi.fashion.application.pool.PoolModels.Pool(poolId, request.title(), request,
+                List.of(new com.ruoyi.fashion.application.pool.PoolModels.Group("上装", List.of(main))),
+                1, 1, Instant.now().toString());
+        repository.insert(pool, 88001L);
+        assertEquals("MAIN-0001", repository.get(poolId, 88001L).groups().get(0).items().get(0).mainSkuCode());
+        String comboId = com.ruoyi.fashion.application.pool.PoolCombinations.enumerate(pool).get(0).id();
+        var draft = new com.ruoyi.fashion.application.pool.PoolModels.Selection(poolId, 0, false,
+                List.of(comboId), List.of(), Map.of(comboId, "秋季团建A"), List.of(comboId), Map.of());
+        assertEquals(1L, service.save(poolId, 88001L, draft).rowVersion());
+        var reloaded = new com.ruoyi.fashion.infrastructure.persistence.pool.JdbcFashionPoolRepository(named, mapper);
+        assertEquals("秋季团建A", reloaded.selection(poolId, 88001L).names().get(comboId));
+        assertThrows(ServiceException.class, () -> service.save(poolId, 88001L, draft));
+        assertThrows(ServiceException.class, () -> service.get(poolId, 88002L));
+        assertThrows(ServiceException.class, () -> service.requireExport(poolId, 88001L, 0));
+        assertEquals(1, service.requireExport(poolId, 88001L, 1).combinations().size());
+        assertEquals(2, jdbc.queryForObject("select count(*) from information_schema.columns where table_schema=database() and table_name='fq_product' and column_name in ('group_price','vip_price') and data_type='decimal' and numeric_precision=16 and numeric_scale=2", Integer.class));
+    }
     private static DataSource dataSource;
     private static JdbcTemplate jdbc;
     private static Flyway flyway;
@@ -127,7 +238,7 @@ class FashionProvidedMySqlMigrationTest {
         assertTrue(inspection.businessSchemaEmpty());
         flyway = FashionFlywayFactory.create(dataSource);
         flyway.baseline();
-        assertEquals(1, flyway.migrate().migrationsExecuted);
+        assertEquals(3, flyway.migrate().migrationsExecuted);
         flyway.validate();
         FashionDatabasePreconditions.verifyCurrentSchema(dataSource, database);
         jdbc = new JdbcTemplate(dataSource);
@@ -135,16 +246,16 @@ class FashionProvidedMySqlMigrationTest {
 
     @Test
     void schemaAndPlatformScriptsAreExactAndRepeatable() {
-        assertEquals(16, jdbc.queryForObject("""
+        assertEquals(19, jdbc.queryForObject("""
                 select count(*) from information_schema.tables
                  where table_schema = database() and left(table_name, 3) = 'fq_'
                 """, Integer.class));
-        assertEquals(16, jdbc.queryForObject("""
+        assertEquals(18, jdbc.queryForObject("""
                 select count(*) from information_schema.columns
                  where table_schema = database() and left(table_name, 3) = 'fq_'
                    and column_name = 'row_version' and column_default = '1'
                 """, Integer.class));
-        assertEquals(39, jdbc.queryForObject("""
+        assertEquals(40, jdbc.queryForObject("""
                 select count(*) from information_schema.columns
                  where table_schema = database() and left(table_name, 3) = 'fq_'
                    and data_type = 'json'
@@ -394,6 +505,11 @@ class FashionProvidedMySqlMigrationTest {
                 select count(*) from fq_stock s join fq_product p on p.id=s.product_id
                  where p.source_code='MANUAL' and p.sku_code='000123'
                 """, Integer.class));
+        // V2 真实 JDBC 回读：扩展属性保持来源字符串，不能改变销售价和库存。
+        ProductView updatedAttributes = catalog.update(List.of(new ProductPatch(Long.toString(product.id()), product.rowVersion(),
+                Map.of("attributes", Map.of("platformSkuId","00000999","fabricComposition","棉100%","observedPrice","19.90")))),1L).get(0);
+        assertEquals("00000999",products.findById(product.id()).orElseThrow().attributes().get("platformSkuId"));
+        assertNull(updatedAttributes.salePrice());
         Long productBatchId = product.lastProductImportBatchId();
         assertNotNull(productBatchId);
 
@@ -946,7 +1062,7 @@ class FashionProvidedMySqlMigrationTest {
         assertEquals(100, selection.findByQuoteId(960040).get(0).details().stream()
                 .mapToInt(com.ruoyi.fashion.application.selection.SelectionDetailView::qty).sum());
         assertEquals("succeeded", runs.findById(Long.parseLong(run.id())).orElseThrow().status());
-        assertEquals(16, jdbc.queryForObject("""
+        assertEquals(19, jdbc.queryForObject("""
                 select count(*) from information_schema.tables
                  where table_schema=database() and left(table_name,3)='fq_'
                 """, Integer.class));
@@ -1111,7 +1227,7 @@ class FashionProvidedMySqlMigrationTest {
                  where c.quote_id=970041
                 """, Integer.class));
         assertNull(jdbc.queryForObject("select total_amount from fq_quote where id=970041", BigDecimal.class));
-        assertEquals(16, jdbc.queryForObject("""
+        assertEquals(19, jdbc.queryForObject("""
                 select count(*) from information_schema.tables
                  where table_schema=database() and left(table_name,3)='fq_'
                 """, Integer.class));
@@ -1230,7 +1346,7 @@ class FashionProvidedMySqlMigrationTest {
         assertTrue(operations.retentionCandidates(now.plusSeconds(20), now.minus(365, ChronoUnit.DAYS),
                 now.minus(90, ChronoUnit.DAYS), now.minus(30, ChronoUnit.DAYS)).stream()
                 .anyMatch(item -> "990001".equals(item.recordId()) && "extended".equals(item.decision())));
-        assertEquals(16, jdbc.queryForObject("""
+        assertEquals(19, jdbc.queryForObject("""
                 select count(*) from information_schema.tables
                  where table_schema=database() and left(table_name,3)='fq_'
                 """, Integer.class));

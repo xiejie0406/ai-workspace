@@ -20,6 +20,7 @@
       <template v-if="requirementRun.output"><el-divider content-position="left">待确认结构化草稿</el-divider><pre>{{JSON.stringify(requirementRun.output,null,2)}}</pre><el-button v-if="requirementRun.status==='succeeded'&&requirementRun.applyStatus!=='applied'" type="success" :loading="applying" v-hasPermi="['fashion:ai:run:apply']" @click="applyRequirement">采用需求并标记人工确认</el-button></template>
     </el-card>
 
+    <ManualSelection v-if="workspace && quote" :quote="quote" :workspace="workspace" @saved="loadAll" />
     <el-card v-if="workspace" shadow="never" class="mt20">
       <template #header><div class="header"><span>一至四品类选品搭配</span><div><el-tag>{{workspace.preview.selection_mode==='progressive'?'递进档位':'独立档位'}}</el-tag><el-button class="ml8" type="primary" :disabled="!canStartSelection" :loading="selectionStarting" v-hasPermi="['fashion:ai:run:execute']" @click="startSelection()">生成搭配</el-button></div></div></template>
       <el-alert v-if="!selectionCapability.enabled" :title="selectionCapabilityText" type="warning" :closable="false" show-icon />
@@ -30,6 +31,7 @@
       <el-tabs>
         <el-tab-pane v-for="group in candidateGroups" :key="group.category" :label="`${group.category} ${group.items.length}`">
           <div class="candidate-grid"><el-card v-for="candidate in group.items" :key="candidate.candidate_ref" shadow="hover" class="candidate-card">
+            <ProductThumbnail :product-id="candidate.variants[0].product_ref" />
             <div class="header"><strong>{{candidate.product_name}}</strong><el-tag size="small">{{candidate.color_name}}</el-tag></div>
             <div class="muted">{{candidate.source_ref}} / {{candidate.style_ref}}</div>
             <div>¥{{money(candidate.conservative_unit_price_minor)}} / 套 · 可用 {{candidate.total_available_qty}}</div>
@@ -41,7 +43,7 @@
       <el-divider content-position="left">当前组合</el-divider>
       <el-empty v-if="!selectedCombinations.length" description="尚未采用搭配" />
       <el-card v-for="combo in selectedCombinations" :key="combo.id" shadow="never" class="combo-card">
-        <template #header><div class="header"><div><strong>{{combo.name}}</strong> <el-tag>{{combo.categoryCount}} 品类</el-tag></div><el-button size="small" :disabled="!selectionCapability.enabled" @click="startSelection(combo)">保持锁定重搭</el-button></div></template>
+        <template #header><div class="header"><div><strong>{{combo.name}}</strong> <el-tag>{{combo.categoryCount}} 品类</el-tag></div><el-button v-hasPermi="['fashion:quote:edit']" size="small" type="danger" plain @click="removeCombo(combo)">移除组合</el-button><el-button size="small" :disabled="!selectionCapability.enabled" @click="startSelection(combo)">保持锁定重搭</el-button></div></template>
         <div class="muted">{{combo.reason}} · visualHash {{combo.visualHash.slice(0,12)}}…</div>
         <el-table :data="slotRows(combo)" size="small">
           <el-table-column prop="slotCode" label="槽位" width="90" /><el-table-column prop="categoryCode" label="品类" width="100" /><el-table-column prop="productName" label="颜色款" /><el-table-column prop="colorName" label="颜色" width="90" /><el-table-column label="尺码初始分配"><template #default="{row}"><el-tag v-for="size in row.sizes" :key="size.skuCode" size="small" type="info">{{size.sizeCode}} × {{size.qty}}</el-tag></template></el-table-column>
@@ -65,6 +67,9 @@
 </template>
 
 <script setup lang="ts">
+import ManualSelection from './ManualSelection.vue'
+import ProductThumbnail from '../components/ProductThumbnail.vue'
+import { fashionRequest } from '@/api/fashion/client'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -88,6 +93,7 @@ const candidateGroups=computed(()=>{const groups=new Map<string,FrozenSelectionC
 const selectionOutputTiers=computed(()=>((selectionRun.value?.output?.tiers??[]) as SelectionTierOutput[]))
 const selectionIsStale=computed(()=>Boolean(selectionRun.value&&quote.value&&selectionRun.value.quoteRowVersion!==quote.value.rowVersion))
 const replaceCandidates=computed(()=>workspace.value?.preview.frozen_candidates.filter(item=>item.category_code===replaceSlot.value?.categoryCode)??[])
+async function removeCombo(combo:SelectionCombo){if(!quote.value)return;await ElMessageBox.confirm('移除此组合？历史记录会保留。','移除组合',{type:'warning'});await fashionRequest({path:`quotes/${quote.value.id}/selection/combinations/${combo.id}/remove`,method:'post',body:{quoteRowVersion:quote.value.rowVersion,comboRowVersion:combo.rowVersion}});await loadAll()}
 async function loadCapabilities(){const [requirement,selection]=await Promise.all([getRequirementCapability(),getSelectionCapability()]);requirementCapability.value=requirement.data;selectionCapability.value=selection.data}
 async function loadAll(){if(!quoteId.value.trim())return;loading.value=true;try{const [quoteResponse,workspaceResponse]=await Promise.all([getQuote(quoteId.value.trim()),getSelectionWorkspace(quoteId.value.trim())]);quote.value=quoteResponse.data;workspace.value=workspaceResponse.data;sourceText.value=quoteResponse.data.requirementText??'';await router.replace({query:{...route.query,quoteId:quoteId.value.trim()}})}finally{loading.value=false}}
 function requestKey(prefix:string){return `${prefix}-${globalThis.crypto?.randomUUID?.()??`${Date.now()}-${Math.random().toString(36).slice(2)}`}`}

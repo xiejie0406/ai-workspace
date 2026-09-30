@@ -90,7 +90,7 @@ class FashionProductionCandidateCapacityTest {
         assertTrue(inspection.businessSchemaEmpty());
         Flyway flyway = FashionFlywayFactory.create(dataSource);
         flyway.baseline();
-        assertEquals(1, flyway.migrate().migrationsExecuted);
+        assertEquals(3, flyway.migrate().migrationsExecuted);
         FashionDatabasePreconditions.verifyCurrentSchema(dataSource, database);
         jdbc = new JdbcTemplate(dataSource);
     }
@@ -159,7 +159,7 @@ class FashionProductionCandidateCapacityTest {
         assertThat(jdbc.queryForObject("select count(*) from fq_product where source_code='CAPACITY' "
                 + "and main_image_key is not null", Integer.class)).isEqualTo(40);
         assertThat(jdbc.queryForObject("select count(*) from information_schema.tables "
-                + "where table_schema=database() and left(table_name,3)='fq_'", Integer.class)).isEqualTo(16);
+                + "where table_schema=database() and left(table_name,3)='fq_'", Integer.class)).isEqualTo(19);
 
         ObjectNode metrics = mapper.createObjectNode();
         metrics.put("environment", "local-isolated-mysql");
@@ -185,7 +185,7 @@ class FashionProductionCandidateCapacityTest {
         metrics.put("pptPictureShapes", pictureShapeCount);
         metrics.put("pptBytes", pptx.content().length);
         metrics.put("pptMillis", pptMillis);
-        metrics.put("businessTableCount", 16);
+        metrics.put("businessTableCount", 19);
         metrics.put("objectReferenceRows", 40);
         Path output = Path.of("target", "fashion-candidate-validation", "capacity-metrics.json");
         Files.createDirectories(output.getParent());

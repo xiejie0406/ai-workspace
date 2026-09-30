@@ -1,0 +1,482 @@
+{
+  "templateCode": "fashion-product",
+  "templateVersion": "2.0",
+  "status": "implementation-in-progress",
+  "description": "兼容旧15列输入；增加主SKU、品号、货号、标准三级分类可选列。编码文本保留前导零。团购/VIP价格走独立正式价格接口，不从销售价复制。",
+  "extensionFields": [
+    {
+      "key": "mainSkuCode",
+      "label": "主SKU编号",
+      "group": "主SKU与分类",
+      "maxLength": 128,
+      "required": false
+    },
+    {
+      "key": "itemNo",
+      "label": "品号",
+      "group": "主SKU与分类",
+      "maxLength": 128,
+      "required": false
+    },
+    {
+      "key": "articleNo",
+      "label": "货号",
+      "group": "主SKU与分类",
+      "maxLength": 128,
+      "required": false
+    },
+    {
+      "key": "categoryLeafCode",
+      "label": "三级分类编码",
+      "group": "主SKU与分类",
+      "maxLength": 128,
+      "required": false
+    },
+    {
+      "key": "categoryLeafPath",
+      "label": "标准三级分类路径",
+      "group": "主SKU与分类",
+      "maxLength": 255,
+      "required": false
+    },
+    {
+      "key": "platform",
+      "label": "平台",
+      "group": "来源",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "shopName",
+      "label": "店铺",
+      "group": "来源",
+      "maxLength": 120,
+      "required": false
+    },
+    {
+      "key": "supplierName",
+      "label": "供应商",
+      "group": "来源",
+      "maxLength": 120,
+      "required": false
+    },
+    {
+      "key": "platformProductId",
+      "label": "平台商品ID",
+      "group": "来源",
+      "maxLength": 128,
+      "required": false
+    },
+    {
+      "key": "platformSkuId",
+      "label": "平台SKU ID",
+      "group": "来源",
+      "maxLength": 128,
+      "required": false
+    },
+    {
+      "key": "sourceUrl",
+      "label": "商品来源链接",
+      "group": "来源",
+      "maxLength": 2048,
+      "required": false
+    },
+    {
+      "key": "collectedAt",
+      "label": "采集时间",
+      "group": "来源",
+      "maxLength": 40,
+      "required": false
+    },
+    {
+      "key": "categoryPath",
+      "label": "平台品类路径",
+      "group": "来源",
+      "maxLength": 255,
+      "required": false
+    },
+    {
+      "key": "listingYear",
+      "label": "上市年份",
+      "group": "基础",
+      "maxLength": 4,
+      "required": false
+    },
+    {
+      "key": "barcode",
+      "label": "条码",
+      "group": "基础",
+      "maxLength": 64,
+      "required": false
+    },
+    {
+      "key": "gender",
+      "label": "适用性别",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "audience",
+      "label": "适用人群",
+      "group": "服装",
+      "maxLength": 120,
+      "required": false
+    },
+    {
+      "key": "style",
+      "label": "风格",
+      "group": "服装",
+      "maxLength": 120,
+      "required": false
+    },
+    {
+      "key": "scene",
+      "label": "适用场景",
+      "group": "服装",
+      "maxLength": 255,
+      "required": false
+    },
+    {
+      "key": "fabricComposition",
+      "label": "面料成分及比例",
+      "group": "服装",
+      "maxLength": 1000,
+      "required": false
+    },
+    {
+      "key": "lining",
+      "label": "里料",
+      "group": "服装",
+      "maxLength": 255,
+      "required": false
+    },
+    {
+      "key": "thickness",
+      "label": "厚薄",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "elasticity",
+      "label": "弹力",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "fit",
+      "label": "版型",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "collar",
+      "label": "领型",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "sleeveType",
+      "label": "袖型",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "sleeveLength",
+      "label": "袖长类型",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "garmentLength",
+      "label": "衣长类型",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "pattern",
+      "label": "图案",
+      "group": "服装",
+      "maxLength": 255,
+      "required": false
+    },
+    {
+      "key": "craft",
+      "label": "工艺",
+      "group": "服装",
+      "maxLength": 255,
+      "required": false
+    },
+    {
+      "key": "trouserFit",
+      "label": "裤型",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "trouserLength",
+      "label": "裤长类型",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "waistType",
+      "label": "腰型",
+      "group": "服装",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "sizeName",
+      "label": "尺码名称",
+      "group": "尺码",
+      "maxLength": 80,
+      "required": false
+    },
+    {
+      "key": "sizeMeasurements",
+      "label": "实测尺寸说明",
+      "group": "尺码",
+      "maxLength": 4000,
+      "required": false
+    },
+    {
+      "key": "measurementUnit",
+      "label": "测量单位",
+      "group": "尺码",
+      "maxLength": 16,
+      "required": false
+    },
+    {
+      "key": "sizeSource",
+      "label": "尺码来源说明",
+      "group": "尺码",
+      "maxLength": 1000,
+      "required": false
+    },
+    {
+      "key": "sourceMainImageUrl",
+      "label": "来源主图链接",
+      "group": "图片来源",
+      "maxLength": 2048,
+      "required": false
+    },
+    {
+      "key": "sourceColorImageUrl",
+      "label": "来源颜色图链接",
+      "group": "图片来源",
+      "maxLength": 2048,
+      "required": false
+    },
+    {
+      "key": "sourceDetailImageUrls",
+      "label": "来源细节图链接",
+      "group": "图片来源",
+      "maxLength": 12000,
+      "required": false
+    },
+    {
+      "key": "sourceSizeImageUrl",
+      "label": "来源尺码图链接",
+      "group": "图片来源",
+      "maxLength": 2048,
+      "required": false
+    },
+    {
+      "key": "observedPrice",
+      "label": "电商观察价",
+      "group": "观察价格",
+      "maxLength": 20,
+      "required": false
+    },
+    {
+      "key": "observedCurrency",
+      "label": "观察价币种",
+      "group": "观察价格",
+      "maxLength": 3,
+      "required": false
+    },
+    {
+      "key": "observedAt",
+      "label": "观察价时间",
+      "group": "观察价格",
+      "maxLength": 40,
+      "required": false
+    }
+  ],
+  "baseFields": [
+    {
+      "key": "sourceCode",
+      "label": "来源编码",
+      "required": true,
+      "cellType": "text",
+      "dictionary": "fashion_product_source"
+    },
+    {
+      "key": "skuCode",
+      "label": "SKU编码",
+      "required": true,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "styleCode",
+      "label": "款号",
+      "required": true,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "name",
+      "label": "商品名称",
+      "required": true,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "categoryCode",
+      "label": "品类编码",
+      "required": true,
+      "cellType": "text",
+      "dictionary": "fashion_product_category"
+    },
+    {
+      "key": "colorCode",
+      "label": "颜色编码",
+      "required": true,
+      "cellType": "text",
+      "dictionary": "fashion_product_color"
+    },
+    {
+      "key": "colorName",
+      "label": "颜色名称",
+      "required": true,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "sizeCode",
+      "label": "尺码",
+      "required": true,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "sizeSystem",
+      "label": "尺码制式",
+      "required": true,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "unit",
+      "label": "单位",
+      "required": true,
+      "cellType": "text",
+      "dictionary": "fashion_product_unit"
+    },
+    {
+      "key": "brand",
+      "label": "品牌",
+      "required": false,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "material",
+      "label": "材质",
+      "required": false,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "season",
+      "label": "季节",
+      "required": true,
+      "cellType": "text",
+      "dictionary": "fashion_product_season"
+    },
+    {
+      "key": "jdItemId",
+      "label": "京东商品ID",
+      "required": false,
+      "cellType": "text",
+      "dictionary": null
+    },
+    {
+      "key": "jdUrl",
+      "label": "京东链接",
+      "required": false,
+      "cellType": "text",
+      "dictionary": null
+    }
+  ],
+  "rules": {
+    "requiredHeaders": [
+      "来源编码",
+      "SKU编码",
+      "款号",
+      "商品名称",
+      "品类编码",
+      "颜色编码",
+      "颜色名称",
+      "尺码",
+      "尺码制式",
+      "单位",
+      "品牌",
+      "材质",
+      "季节",
+      "京东商品ID",
+      "京东链接"
+    ],
+    "optionalColumns": "All 44 extension columns may be absent; retain existing values on missing/blank cells unless explicitly cleared.",
+    "unknownRequiredValues": "Keep acquisition draft; require user mapping before import. Never fabricate.",
+    "textOnlyCodes": [
+      "barcode",
+      "categoryCode",
+      "colorCode",
+      "jdItemId",
+      "platformProductId",
+      "platformSkuId",
+      "sizeCode",
+      "skuCode",
+      "sourceCode",
+      "styleCode"
+    ],
+    "sizeSystems": [
+      "CN",
+      "EU",
+      "US",
+      "LETTER",
+      "FREE"
+    ],
+    "urls": "HTTPS only; hostname required; userinfo forbidden; max 2048 characters per URL.",
+    "timestamps": "ISO-8601 instant with time zone, export normalized UTC Z.",
+    "detailImages": {
+      "field": "sourceDetailImageUrls",
+      "separator": "newline",
+      "maxItems": 20
+    },
+    "observedPrice": {
+      "pattern": "[0-9]{1,12}(\\.[0-9]{1,2})?",
+      "affectsSalePrice": false
+    },
+    "observedCurrency": {
+      "pattern": "[A-Z]{3}"
+    },
+    "listingYear": {
+      "pattern": "[12][0-9]{3}"
+    },
+    "images": "Source references only; actual materials require separate reviewed import.",
+    "inventory": "No inventory quantity in product import."
+  }
+}

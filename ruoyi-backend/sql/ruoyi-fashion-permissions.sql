@@ -126,8 +126,8 @@ where not exists (select 1 from sys_menu m where m.perms = v.perms)
 -- 若 IMP-02 已先执行，下面只整理本脚本创建的功能权限父级，不改管理员自建菜单。
 update sys_menu set parent_id = 920007
  where create_by = 'migration' and perms in ('fashion:product:query','fashion:product:edit');
-update sys_menu set menu_name='库存全量更新',parent_id=920000,order_num=40,path='stock-import',
-       component='fashion/import/stock/index',route_name='FashionStockImport',menu_type='C',visible='0',icon='storage'
+update sys_menu set menu_name='库存中心',parent_id=920000,order_num=40,path='stock',
+       component='fashion/stock/index',route_name='FashionStock',menu_type='C',visible='0',icon='storage'
  where menu_id=920012 and create_by='migration' and perms='fashion:stock:list';
 update sys_menu set parent_id = 920012
  where create_by = 'migration' and perms in ('fashion:stock:import','fashion:stock:verify');

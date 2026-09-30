@@ -1,0 +1,134 @@
+{
+  "base": "38b36c933c259868f87d033177b18fb942bfa890",
+  "workspace": "C:\\Users\\admin\\.codex\\worktrees\\fashion-remediation\\java-workspace",
+  "createdAt": "2026-09-26T11:08:11.508088+08:00",
+  "browser": "Codex 内置浏览器 / IAB，任务标签 13；内核版本未取得；截图时 1440×1000，部分早期截图为窄视口",
+  "environment": "独立工作树；MySQL 11253 / Redis 11254 / Java 11255 / 前端 11256；fashion_uat 专属测试库。前端曾可用，随后连接重置并停止监听，恢复启动被自动审批策略拒绝；Python 未启动。",
+  "data": "真实采集样本待交付，技术测试为合成数据",
+  "items": [
+    {
+      "id": "UAT-FIX-01",
+      "goal": "电商样本与来源",
+      "expected": "商品、真实 SKU、链接和采集时间可追溯",
+      "precondition": "桌面端采集样本",
+      "steps": "检查来源与SKU，核对原始样本",
+      "result": "Blocked",
+      "screenshotStatus": "待截图（场景未完成）",
+      "actual": "尚无桌面端交付的真实电商样本。本轮 12 条 SKU 全部为明确标记的合成数据，不能证明京东或其他平台采集成功。",
+      "evidence": [],
+      "url": "http://fashion-remediation.localhost:11256",
+      "executedAt": "2026-09-26",
+      "role": "专属测试库 admin",
+      "actualInput": "12 条合成 SKU；商品 1 份、价格和库存各 2 份 Excel；不含真实平台库存"
+    },
+    {
+      "id": "UAT-FIX-02",
+      "goal": "商品 Excel 导入与编辑",
+      "expected": "预览、发布、详情和刷新回读一致",
+      "precondition": "真实商品Excel，商品导入/编辑权限",
+      "steps": "上传、映射、预览、发布、编辑、刷新",
+      "result": "Blocked",
+      "screenshotStatus": "部分步骤已截图并回读；剩余步骤待截图",
+      "actual": "内置浏览器上传、预览、发布 12 条合成 SKU 成功（批次 8509134388365512433）；接口回读确认 12 条持久化、服装属性和平台 SKU 前导零保存，观察价格未覆盖销售价。真实样本、详情编辑和重登录批次回读尚未完成；前端中断阻塞余项。",
+      "evidence": [
+        "截图/UAT-FIX-02-商品发布成功.png",
+        "接口核验.json"
+      ],
+      "url": "http://fashion-remediation.localhost:11256",
+      "executedAt": "2026-09-26",
+      "role": "专属测试库 admin",
+      "actualInput": "12 条合成 SKU；商品 1 份、价格和库存各 2 份 Excel；不含真实平台库存"
+    },
+    {
+      "id": "UAT-FIX-03",
+      "goal": "价格两次更新",
+      "expected": "差异正确，库存不变，可查历史",
+      "precondition": "两版合成价格Excel，专属测试商品",
+      "steps": "依次发布两版价格，检查前后值及库存",
+      "result": "Blocked",
+      "screenshotStatus": "待截图（场景未完成）",
+      "actual": "实际 API 上传两版价格 Excel 并发布成功，每 SKU 第二版增加 1，库存保持不变，历史 2 批可查。尚未完成页面操作、恢复和全部异常分支；前端中断。",
+      "evidence": [
+        "接口核验.json"
+      ],
+      "url": "http://fashion-remediation.localhost:11256",
+      "executedAt": "2026-09-26",
+      "role": "专属测试库 admin",
+      "actualInput": "12 条合成 SKU；商品 1 份、价格和库存各 2 份 Excel；不含真实平台库存"
+    },
+    {
+      "id": "UAT-FIX-04",
+      "goal": "库存中心与更新",
+      "expected": "尺码、仓库互不串值，未知与零库存区分",
+      "precondition": "两版合成库存Excel，两个测试仓库",
+      "steps": "导入后查询明细/矩阵，对比两个仓库",
+      "result": "Blocked",
+      "screenshotStatus": "待截图（场景未完成）",
+      "actual": "实际 API 上传两版库存 Excel 成功：MAIN 仓库 12 条，UAT-TOP-S=0，其他 11 条=52；价格不变。未导入仓库查询返回未知值而非 0，零库存筛选为 1 条。尚未完成第二个实存仓库、页面尺码矩阵和全部异常；前端中断。",
+      "evidence": [
+        "接口核验.json"
+      ],
+      "url": "http://fashion-remediation.localhost:11256",
+      "executedAt": "2026-09-26",
+      "role": "专属测试库 admin",
+      "actualInput": "12 条合成 SKU；商品 1 份、价格和库存各 2 份 Excel；不含真实平台库存"
+    },
+    {
+      "id": "UAT-FIX-05",
+      "goal": "人工方案选品",
+      "expected": "可选商品、分配数量、保存并重新打开",
+      "precondition": "已有可选商品、测试客户与方案",
+      "steps": "确认需求、人工选品、数量分配、保存、重开",
+      "result": "Blocked",
+      "screenshotStatus": "待截图（场景未完成）",
+      "actual": "人工选品、数量分配、保存和移除入口已编码并完成定向单元测试；本轮尚未从真实页面保存并重开方案。样本图片/人工确认条件及前端服务仍待完成。",
+      "evidence": [],
+      "url": "http://fashion-remediation.localhost:11256",
+      "executedAt": "2026-09-26",
+      "role": "专属测试库 admin",
+      "actualInput": "12 条合成 SKU；商品 1 份、价格和库存各 2 份 Excel；不含真实平台库存"
+    },
+    {
+      "id": "UAT-FIX-06",
+      "goal": "错误与并发处理",
+      "expected": "错误文件、旧版本和冲突不会部分生效",
+      "precondition": "负数、缺行、未知SKU、过时/重复输入",
+      "steps": "各异常预览及发布并回读",
+      "result": "Blocked",
+      "screenshotStatus": "部分步骤已截图并回读；剩余步骤待截图",
+      "actual": "页面实际拒绝时间格式错误的 12 行，确认生效不可用；修正 Excel 时间文本后成功导入。初次上传还发现 multipart 类型问题，修复后页面发布成功。缺行、负数、未知 SKU、旧版本、并发等场景尚未全部执行。",
+      "evidence": [
+        "截图/UAT-FIX-06-时间格式错误.png",
+        "截图/UAT-FIX-06-时间格式错误明细.png"
+      ],
+      "url": "http://fashion-remediation.localhost:11256",
+      "executedAt": "2026-09-26",
+      "role": "专属测试库 admin",
+      "actualInput": "12 条合成 SKU；商品 1 份、价格和库存各 2 份 Excel；不含真实平台库存"
+    },
+    {
+      "id": "UAT-FIX-07",
+      "goal": "报价与完整流程",
+      "expected": "导入商品进入方案报价，结果可对账",
+      "precondition": "前述商品/价库/方案",
+      "steps": "完整操作并独立复算报价",
+      "result": "Blocked",
+      "screenshotStatus": "待截图（场景未完成）",
+      "actual": "完整方案到报价、独立金额复算未执行；依赖真实来源样本、方案页面及前端恢复。不能用接口导入成功替代整条链路验收。",
+      "evidence": [],
+      "url": "http://fashion-remediation.localhost:11256",
+      "executedAt": "2026-09-26",
+      "role": "专属测试库 admin",
+      "actualInput": "12 条合成 SKU；商品 1 份、价格和库存各 2 份 Excel；不含真实平台库存"
+    }
+  ],
+  "updatedAt": "2026-09-26T11:58:35.729625+08:00",
+  "userDecision": "待确认（本次整改）；此前演示版本为不接受",
+  "reportVisualCheck": "未执行；静态检查通过；应用打开报告返回 queued，未取得渲染画面",
+  "history": [
+    {
+      "date": "2026-09-26",
+      "change": "初始化七项 NotRun / 待截图后执行；本次记录实际已完成子步骤及环境阻塞，不降低原验收标准。"
+    }
+  ]
+}

@@ -10,7 +10,7 @@ public final class FashionFlywayFactory {
     public static final String LOCATION = "classpath:db/fashion-migration";
     public static final String HISTORY_TABLE = "fashion_flyway_schema_history";
     public static final String BASELINE_VERSION = "0";
-    public static final String EXPECTED_VERSION = "1";
+    public static final String EXPECTED_VERSION = "3";
 
     private FashionFlywayFactory() {
     }

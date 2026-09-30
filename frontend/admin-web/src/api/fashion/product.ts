@@ -2,6 +2,8 @@ import { fashionRequest, type FashionQuery } from './client'
 import type { FashionProduct, ProductStatus, RuoYiResult } from './types'
 
 export interface ProductQuery extends FashionQuery {
+  attributeKey?: string
+  attributeValue?: string
   sourceCode?: string
   categoryCode?: string
   status?: ProductStatus | ''
@@ -18,6 +20,7 @@ export interface ProductPage {
 }
 
 export interface ProductCreateBody {
+  attributes?: Record<string, string>
   sourceCode: string
   skuCode: string
   styleCode: string
@@ -38,7 +41,7 @@ export interface ProductCreateBody {
 export interface ProductPatch {
   id: string
   rowVersion: number
-  changes: Record<string, string | boolean | null>
+  changes: Record<string, string | boolean | null | string[] | Record<string, string>>
 }
 
 export function listProducts(params: ProductQuery, signal?: AbortSignal) {

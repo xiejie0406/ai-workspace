@@ -1,0 +1,216 @@
+{
+  "date": "2026-09-26",
+  "baseline": "38b36c933c259868f87d033177b18fb942bfa890 + 本工作树未提交修改",
+  "environment": "fashion-remediation独立工作树；fashion_uat已备份并迁移V2→V3；Java11255新包；前端11256未监听；MySQL11253/Redis11254",
+  "role": "任务专用管理员；执行者Codex主控",
+  "data": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+  "browser": "计划Codex内置浏览器；当前前端启动策略阻塞；视口/内核未知",
+  "userDecision": "待确认",
+  "items": [
+    {
+      "id": "POOL-01",
+      "title": "横向筛选、三级分类多选、三步导航",
+      "ac": "AC-POOL-01/09/10",
+      "steps": "打开新建选品；多选分类；增减横向组；切换三步",
+      "expected": "仅三步；模特图/PPT是弹窗按钮；分类直接多选",
+      "result": "Blocked",
+      "screenshot": "未截图：前端服务策略阻塞；无可核对的业务界面",
+      "actual": "页面代码、类型检查和生产构建完成；前端11256没有监听。前次两次启动被自动审批策略拒绝（blocked by policy，未提供更具体原因）；未绕过该限制，未进行页面操作。",
+      "evidence": [
+        "前端类型检查.log",
+        "前端构建.log"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "/fashion/pool"
+    },
+    {
+      "id": "POOL-02",
+      "title": "主SKU聚合及1～4品类组合计数",
+      "ac": "AC-POOL-02",
+      "steps": "用14款、每款2个颜色尺码的合成商品，分别生成1～4组并核对数量",
+      "expected": "颜色尺码不扩增主SKU组合，2、6、24、120套",
+      "result": "Pass",
+      "screenshot": "不适用（接口回读和测试日志）",
+      "actual": "真实HTTP与MySQL：14主SKU/28子SKU，1～4组分别为2、6、24、120套；每款2个颜色尺码不扩增组合。",
+      "evidence": [
+        "接口核验.json",
+        "合成数据清单.json"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "http://127.0.0.1:11255/fashion/pools"
+    },
+    {
+      "id": "POOL-03",
+      "title": "团购价、VIP价维护及旧版本拒绝",
+      "ac": "AC-POOL-04/08",
+      "steps": "维护两种价格；回读；再次用旧版本提交",
+      "expected": "两价真实写回，旧版本拒绝，原售价库存不变",
+      "result": "Pass",
+      "screenshot": "不适用（接口回读和测试日志）",
+      "actual": "真实HTTP写入12.34团购价/16.78 VIP价并回读，旧rowVersion被拒绝，销售价未变；真实MySQL补验库存值与版本未变。",
+      "evidence": [
+        "接口核验.json",
+        "MySQL12项检查.log"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "http://127.0.0.1:11255/fashion/pools"
+    },
+    {
+      "id": "POOL-04",
+      "title": "分页、排序、无重复和漏项",
+      "ac": "AC-POOL-02/03",
+      "steps": "对120套分页遍历、排序，核对唯一ID和总数",
+      "expected": "120个ID不重不漏、排序有效",
+      "result": "Pass",
+      "screenshot": "不适用（接口回读和测试日志）",
+      "actual": "实际遍历6页共120套，ID唯一120、无遗漏；团购合计升序核对通过。",
+      "evidence": [
+        "接口核验.json"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "http://127.0.0.1:11255/fashion/pools"
+    },
+    {
+      "id": "POOL-05",
+      "title": "跨页选择、全选排除、保存重开",
+      "ac": "AC-POOL-03/08",
+      "steps": "跨页选择；保存重开；全选排除；用旧版本保存",
+      "expected": "回读内容一致，旧版本不可覆盖",
+      "result": "Pass",
+      "screenshot": "不适用（接口回读和测试日志）",
+      "actual": "实际跨页选3套、命名、重排、保存重开一致；旧版本被拒绝；全选排除3套后回读117套。",
+      "evidence": [
+        "接口核验.json",
+        "MySQL12项检查.log"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "http://127.0.0.1:11255/fashion/pools"
+    },
+    {
+      "id": "POOL-06",
+      "title": "库存未知值、齐码和价格边界",
+      "ac": "AC-POOL-04/08",
+      "steps": "筛选未知库存、零库存；结合真实MySQL及定向测试核对齐码和离散价格",
+      "expected": "未知不等于零；同色齐码；不存在的价格不得通过预算",
+      "result": "Pass",
+      "screenshot": "不适用（接口回读和测试日志）",
+      "actual": "实际未知库存筛选得到2款，零库存筛选没有结果；native MySQL验证新鲜库存12与未知隔离；定向测试覆盖同色齐码和离散价格不可达预算。",
+      "evidence": [
+        "接口核验.json",
+        "MySQL12项检查.log",
+        "Java打包与36项检查.log"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "http://127.0.0.1:11255/fashion/pools"
+    },
+    {
+      "id": "POOL-07",
+      "title": "模特试衣与PPT弹窗交互",
+      "ac": "AC-POOL-10",
+      "steps": "在已选页打开关闭两种工具；核对状态保留",
+      "expected": "弹窗可用，关闭不丢失已保存内容",
+      "result": "Blocked",
+      "screenshot": "未截图：前端服务策略阻塞；无可核对的业务界面",
+      "actual": "两种工具已实现为弹窗并通过编译，前端服务未运行，关闭保留/焦点/Esc/真实按钮操作未执行。",
+      "evidence": [
+        "前端类型检查.log",
+        "前端构建.log"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "/fashion/pool"
+    },
+    {
+      "id": "POOL-08",
+      "title": "PPT预检、文件生成及内容核对",
+      "ac": "AC-POOL-06/07/08",
+      "steps": "预检缺图明确拒绝；用真实生成的PPTX核对文本和图片；浏览器下载检查",
+      "expected": "PPT可打开、含名称主SKU品号货号和嵌入图片；缺图失败明确",
+      "result": "Blocked",
+      "screenshot": "未截图：前端服务策略阻塞；无可核对的业务界面",
+      "actual": "实际HTTP：缺图预检明确失败；上传14张程序测试图片并确认后，新池选择2套，预检成功并下载真实PPTX。OOXML核对2页、顺序、商品名/主SKU/品号/货号/价格和嵌入图片通过；POI测试验证文字修改后可重开。浏览器下载与PowerPoint视觉打开未执行，完整项目保持Blocked。",
+      "evidence": [
+        "PPT接口核验.json",
+        "合成样本-接口导出提案.pptx",
+        "Java打包与36项检查.log"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "http://127.0.0.1:11255/fashion/pools"
+    },
+    {
+      "id": "POOL-09",
+      "title": "真实试衣可用性与失败提示",
+      "ac": "AC-POOL-05/08",
+      "steps": "查询服务能力；核实未接通时提示；真实提交并核对模特图质量",
+      "expected": "真实服务生成且人工核对；未接通不得伪造成功",
+      "result": "Blocked",
+      "screenshot": "未截图：前端服务策略阻塞；无可核对的业务界面",
+      "actual": "真实接口返回providerAvailable=false，并给出尚未启用的原因。未产生真实AI试衣图；任务协议和复核测试使用Mock适配器，只证明逻辑，不证明生成质量。",
+      "evidence": [
+        "接口核验.json",
+        "Java打包与36项检查.log"
+      ],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "http://127.0.0.1:11255/fashion/pools"
+    },
+    {
+      "id": "POOL-10",
+      "title": "内置浏览器完整操作与截图",
+      "ac": "AC-POOL-01～10",
+      "steps": "在内置浏览器走筛选至交付，截图并逐张回读",
+      "expected": "完整页面可操作且每项有可读截图",
+      "result": "Blocked",
+      "screenshot": "未截图：前端服务策略阻塞；无可核对的业务界面",
+      "actual": "完整内置浏览器业务操作与截图未执行：前端11256未监听，启动被策略拒绝。没有用线框截图、测试图片或接口200代替页面验收。",
+      "evidence": [],
+      "executedAt": "2026-09-26T14:43:25.327697+08:00",
+      "input": "14款/28个合成SKU，4个合成三级分类；留在fashion_uat。14个BLACK测试SKU另关联相同程序测试图片（蓝底FASHION），仅验证文件链路，非真实服装图，禁止用于AI或电商。",
+      "entry": "/fashion/pool"
+    }
+  ],
+  "jarSha256": "6d1c02a8f85ff418f5d23267b83be1664e454434ae13d8ae6250b27e46b08a34",
+  "updatedAt": "2026-09-26T14:43:25.327697+08:00",
+  "reportVisualCheck": "报告视觉检查未执行：创建新报告的内置浏览器标签页被URL安全策略拒绝。未通过其他浏览器、托管或命令绕过；已完成10项ID、结果统计与证据链接静态检查。业务页面另因前端启动策略受阻。",
+  "counts": {
+    "Blocked": 5,
+    "Pass": 5
+  },
+  "technical": {
+    "java": {
+      "tests": 36,
+      "failed": 0,
+      "skipped": 0
+    },
+    "mysql": {
+      "tests": 12,
+      "failed": 0,
+      "skipped": 0
+    },
+    "frontendState": {
+      "tests": 5,
+      "failed": 0
+    },
+    "typecheck": "Pass",
+    "productionBuild": "Pass",
+    "adminPackage": "Pass",
+    "httpChecks": 13,
+    "pptHttp": "Pass"
+  },
+  "limits": [
+    "真实电商采集样本仍未交付，本次均为合成测试数据。",
+    "真实试衣Provider未启用，Python/Provider实图质量未验证。",
+    "单池最多10万原始组合、单组最多5000子SKU、快照20MiB、价格计算200万步；超限明确拒绝而非截断。",
+    "PPT目前同步生成，每文件1～100套、图片总量50MB；通过当前页逐批导出，暂无后台文件历史/自动分包和封面比较页。",
+    "已选重排提供“移到首位”，暂无拖拽排序。",
+    "当前库查询存在按SKU读取，5000候选内仍需后续实测性能；不宣称生产负载已验证。",
+    "未执行Git暂存、提交、推送。"
+  ]
+}
