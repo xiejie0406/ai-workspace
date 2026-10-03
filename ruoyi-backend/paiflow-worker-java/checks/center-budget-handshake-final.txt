@@ -1,0 +1,81 @@
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\admin\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+SLF4J(W): Class path contains multiple SLF4J providers.
+SLF4J(W): Found provider [ch.qos.logback.classic.spi.LogbackServiceProvider@339f3a55]
+SLF4J(W): Found provider [org.slf4j.simple.SimpleServiceProvider@2dd63e3]
+SLF4J(W): See https://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J(I): Actual provider is of type [ch.qos.logback.classic.spi.LogbackServiceProvider@339f3a55]
+05:41:19.437 [main] INFO com.iflytek.astron.workflow.engine.ParallelWorkflowEngine -- Registered 2 node executors for ParallelEngine
+05:41:19.445 [main] INFO com.iflytek.astron.workflow.engine.WorkflowEngine -- Registered 2 node executors: [node-end, node-start]
+05:41:20.019 [virtual-30] INFO com.iflytek.astron.workflow.engine.ParallelWorkflowEngine -- Starting parallel workflow execution with 2 nodes
+05:41:20.082 [virtual-30] INFO com.iflytek.astron.workflow.engine.domain.callbacks.ChatCallBacks -- putFrameIntoQueue nodeId: WorkflowStart, finishReason: null
+05:41:20.089 [pool-1-thread-1] INFO com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor -- Executing node: node-start::1 (type: node-start)
+05:41:20.163 [workflow-1] ERROR com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback -- Error in stream callback
+com.ruoyi.paiflow.worker.service.WorkerException: 中心租约已失效，停止后续节点
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.check(ExecutionScope.java:48)
+	at com.ruoyi.paiflow.worker.service.WorkerTaskRunner$CenterStreamCallback.callback(WorkerTaskRunner.java:288)
+	at com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback.lambda$new$0(WorkflowMsgCallback.java:57)
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.lambda$wrap$1(ExecutionScope.java:125)
+	at com.alibaba.ttl.TtlRunnable.run(TtlRunnable.java:60)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+05:41:20.165 [virtual-30] ERROR com.iflytek.astron.workflow.engine.ParallelWorkflowEngine -- Workflow execution failed
+java.util.concurrent.ExecutionException: com.ruoyi.paiflow.worker.service.WorkerException: 无法核对中心租约或写入执行证据
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:396)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2073)
+	at com.iflytek.astron.workflow.engine.ParallelWorkflowEngine.execute(ParallelWorkflowEngine.java:104)
+	at com.ruoyi.paiflow.worker.service.WorkerTaskRunner.lambda$executeVerified$4(WorkerTaskRunner.java:183)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.lang.VirtualThread.run(VirtualThread.java:329)
+Caused by: com.ruoyi.paiflow.worker.service.WorkerException: 无法核对中心租约或写入执行证据
+	at com.ruoyi.paiflow.worker.adapter.HttpCenterClient.postPath(HttpCenterClient.java:203)
+	at com.ruoyi.paiflow.worker.adapter.HttpCenterClient.post(HttpCenterClient.java:174)
+	at com.ruoyi.paiflow.worker.adapter.HttpCenterClient.event(HttpCenterClient.java:118)
+	at com.ruoyi.paiflow.worker.service.WorkerTaskRunner$CenterStreamCallback.callback(WorkerTaskRunner.java:307)
+	at com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback.onNodeStart(WorkflowMsgCallback.java:93)
+	at com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor.doExecute(AbstractNodeExecutor.java:142)
+	at com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor.execute(AbstractNodeExecutor.java:46)
+	at com.iflytek.astron.workflow.engine.ParallelWorkflowEngine.executeNode(ParallelWorkflowEngine.java:200)
+	at com.iflytek.astron.workflow.engine.ParallelWorkflowEngine.lambda$execute$1(ParallelWorkflowEngine.java:100)
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.lambda$wrap$1(ExecutionScope.java:125)
+	at com.alibaba.ttl.TtlRunnable.run(TtlRunnable.java:60)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: 实际中心隔离调用未完成
+	at com.ruoyi.paiflow.worker.adapter.CenterBudgetHandshakeProbe.lambda$main$2(CenterBudgetHandshakeProbe.java:105)
+	at com.ruoyi.paiflow.worker.adapter.HttpCenterClient.postPath(HttpCenterClient.java:186)
+	... 15 common frames omitted
+Caused by: java.lang.reflect.InvocationTargetException: null
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:118)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at com.ruoyi.paiflow.worker.adapter.CenterBudgetHandshakeProbe.call(CenterBudgetHandshakeProbe.java:144)
+	at com.ruoyi.paiflow.worker.adapter.CenterBudgetHandshakeProbe.lambda$main$2(CenterBudgetHandshakeProbe.java:101)
+	... 16 common frames omitted
+Caused by: com.ruoyi.common.exception.ServiceException: 事件时间须包含时区
+	at com.ruoyi.paiflow.service.RunLeaseService.append(RunLeaseService.java:172)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:190)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:158)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:133)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:371)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:130)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:719)
+	at com.ruoyi.paiflow.service.RunLeaseService$$SpringCGLIB$$0.append(<generated>)
+	at com.ruoyi.paiflow.controller.WorkerRunController.event(WorkerRunController.java:53)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	... 19 common frames omitted
+05:41:20.173 [virtual-30] INFO com.iflytek.astron.workflow.engine.domain.callbacks.ChatCallBacks -- putFrameIntoQueue nodeId: WorkflowEnd, finishReason: null
+Exception in thread "main" java.lang.AssertionError: ʵ������/ԭ����/�־���̬�������
+	at com.ruoyi.paiflow.worker.adapter.CenterBudgetHandshakeProbe.main(CenterBudgetHandshakeProbe.java:114)

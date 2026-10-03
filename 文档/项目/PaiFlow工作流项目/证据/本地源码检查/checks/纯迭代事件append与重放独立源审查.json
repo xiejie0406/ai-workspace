@@ -1,0 +1,177 @@
+{
+  "checkedAtUtc": "2026-10-03T09:26:10.425986+00:00",
+  "scope": "现有checks的独立源码审查，不是第二状态或正式事务验收",
+  "sourceBefore": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java": "07df720d4b2b505a4b50b95a44058c5a102353ad9ae216eecba5160f6d1c4684",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java": "6f3a17e1dc56943f5266a1bbc4c34ea5ca8d4e1f2889f99aea9d27c9d4de11b3",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonCodec.java": "9153c5a9e3770943f8156affff3eb294e3cfe2cd6f231e15dfec5d6d41b68a36",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "d3f9b27bdda647770e94414781f2dcf0032fe9877a52c8ff0bfe09a776678e07",
+    "python/paiflow-runtime/worker/task_runner.py": "f567da8fc3b06cb6810d4dd42af17338c6bfc2e7bbee9578f56009da1e90e65d",
+    "python/paiflow-runtime/verification/pure-iteration-java-assignment-check.json": "fa4fd2b1d374d447b11edbd676ff6c02849ff1723781b101dbc6959410bc937b"
+  },
+  "sourceAfter": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java": "07df720d4b2b505a4b50b95a44058c5a102353ad9ae216eecba5160f6d1c4684",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java": "6f3a17e1dc56943f5266a1bbc4c34ea5ca8d4e1f2889f99aea9d27c9d4de11b3",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonCodec.java": "9153c5a9e3770943f8156affff3eb294e3cfe2cd6f231e15dfec5d6d41b68a36",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "d3f9b27bdda647770e94414781f2dcf0032fe9877a52c8ff0bfe09a776678e07",
+    "python/paiflow-runtime/worker/task_runner.py": "f567da8fc3b06cb6810d4dd42af17338c6bfc2e7bbee9578f56009da1e90e65d",
+    "python/paiflow-runtime/verification/pure-iteration-java-assignment-check.json": "fa4fd2b1d374d447b11edbd676ff6c02849ff1723781b101dbc6959410bc937b"
+  },
+  "sourceWindowChanges": [],
+  "facts": [
+    {
+      "fact": "validate与requireEventScope复用唯一私有Analysis；预算及owner来自固定DSL/Input，未建立缓存或表。",
+      "refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 28
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 56
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 75
+        }
+      ]
+    },
+    {
+      "fact": "主scope含iteration容器不能带tag；inner必须完整owner前缀与规范ASCII非负索引，小于固定数组批数。两位限制符合MAX_BATCH64且超大数先被长度拒。",
+      "refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 78
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 82
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 86
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 88
+        }
+      ]
+    },
+    {
+      "fact": "ordinary图仅检查实际节点存在和无tag，不借本次PurePolicy重新授予Agent/model等资源能力。node空/unknown在member门拒。",
+      "refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 69
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 71
+        }
+      ]
+    },
+    {
+      "fact": "optional缺input取原有效required后决定声明default或[]；显式false/0/null不作为数组，显式null不选default。items细类型仍由原Factory裁决，guard接受某些原FactoryFAILED样例不等于执行成功。",
+      "refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 189
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 190
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+          "line": 191
+        }
+      ]
+    },
+    {
+      "fact": "append协议/预算初验后锁实际run；sameLease校service身份并调用ownerStillAuthorized，其账号、成员、菜单复查在读取历史seq回执之前；当前租约/deadline/begin也先于回执。",
+      "refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 64
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 58
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 178
+        }
+      ]
+    },
+    {
+      "fact": "seq<=lastEventSeq仅比较run不可变编码标记下canonical原文；完全相同回执无insert/update，不重写存量坏tag；不同内容409。新seq严格last+1，不能以旧replay授新scope。",
+      "refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 184
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 185
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 187
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonCodec.java",
+          "line": 17
+        }
+      ]
+    },
+    {
+      "fact": "新seq在insertEvent之前以assignment.dsl/input校owner/batch。实际存在legacyFrame时要求对象、raw.id==实际run、workflow_step.node.id==外层node；辅助事件不强造frame，不从frame推scope。",
+      "refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 193
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 197
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 199
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 202
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+          "line": 204
+        }
+      ]
+    },
+    {
+      "fact": "已保存24真实回调包含主End提前started，不能附加整图串行生命周期或以单个node.stop代替run终态。此次未重跑Factory或篡改原artifact期限。",
+      "refs": [
+        {
+          "path": "python/paiflow-runtime/verification/pure-iteration-java-assignment-check.json",
+          "jsonPointer": "/originalFactory/originalCallbackFrames"
+        }
+      ]
+    }
+  ],
+  "actualPrivatePolicyProof": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\纯迭代事件归属实际策略独立有限检查.json",
+    "sha256": "929c19f4af89507ba87fe569ebd5c692b9732a7e5fc7803fa85f9832dbb1a3b5",
+    "cases": 86,
+    "compileExit": 0,
+    "runExit": 0
+  },
+  "confirmedDefects": [],
+  "pending": [
+    "未收到本批LegacyWorkflowStreamCodec冻点，尚未实际新投影检查",
+    "RunLease仅本次静态源码核对；没有实际Mapper/事务/授权撤销/并发执行probe，须根定向Maven另证"
+  ],
+  "realDBHTTPProviderEngineServicesMavenCalls": 0,
+  "productionTestContractTargetEdits": 0
+}

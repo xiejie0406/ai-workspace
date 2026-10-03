@@ -1,0 +1,118 @@
+{
+  "说明": "同原失败范围独立复验；实际SDK自然InvalidURL构造失败，未patch SDK，使用既有内存HTTPX fixture；新增压缩/真实finish+尾usage探针。原失败摘要另保留。",
+  "command": ".venv/Scripts/python.exe -B D:/2025Ai/26-05-23/java-workspace/文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/OpenAIProducerCleanupReview.py",
+  "workdir": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\paiflow-runtime",
+  "exitCode": 0,
+  "observed": {
+    "beforeSourceHashes": {
+      "worker/producers/openai_chat.py": "85751ffa33f3b933b131ebac1dd0d1030d0bb5d56bf19bdc9cf7e289bae82ea2",
+      "worker/producers/chat_lifecycle.py": "8a91b8a35541dad6010544f18c54445f92471a0a3fd074c46aceb71cff422eb6",
+      "worker/model_bridge.py": "f74230fdf83b43d537f9a23043bfb834bbc6bb43dcbc6d77fd7b0cdc9d4d79a6",
+      "workflow/engine/nodes/base_node.py": "0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f"
+    },
+    "afterSourceHashes": {
+      "worker/producers/openai_chat.py": "85751ffa33f3b933b131ebac1dd0d1030d0bb5d56bf19bdc9cf7e289bae82ea2",
+      "worker/producers/chat_lifecycle.py": "8a91b8a35541dad6010544f18c54445f92471a0a3fd074c46aceb71cff422eb6",
+      "worker/model_bridge.py": "f74230fdf83b43d537f9a23043bfb834bbc6bb43dcbc6d77fd7b0cdc9d4d79a6",
+      "workflow/engine/nodes/base_node.py": "0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f"
+    },
+    "scenarios": [
+      {
+        "name": "original NUL input",
+        "error": {
+          "code": "EFFECT_UNKNOWN",
+          "kind": "authorization",
+          "localClosed": true,
+          "sendAttempted": false,
+          "providerStopConfirmed": false
+        },
+        "privateTransportCreated": 0,
+        "httpRequests": 0,
+        "transportClosed": 0,
+        "bodyClosed": 0,
+        "centerFrames": 0,
+        "centerFinishes": [],
+        "centerStops": 0,
+        "centerFailures": 0,
+        "tailUsage": null,
+        "tailChoicesUnchanged": null,
+        "outcomeLocalClosed": null,
+        "requestIdentityEncoding": null
+      },
+      {
+        "name": "actual SDK invalid IDN constructor",
+        "error": {
+          "code": "RESOURCE_UNAVAILABLE",
+          "kind": "transport",
+          "localClosed": true,
+          "sendAttempted": false,
+          "providerStopConfirmed": false
+        },
+        "privateTransportCreated": 1,
+        "httpRequests": 0,
+        "transportClosed": 1,
+        "bodyClosed": 0,
+        "centerFrames": 0,
+        "centerFinishes": [],
+        "centerStops": 0,
+        "centerFailures": 1,
+        "tailUsage": null,
+        "tailChoicesUnchanged": null,
+        "outcomeLocalClosed": null,
+        "requestIdentityEncoding": null
+      },
+      {
+        "name": "gzip bomb rejected before SDK decode",
+        "error": {
+          "code": "EFFECT_UNKNOWN",
+          "kind": "protocol",
+          "localClosed": true,
+          "sendAttempted": true,
+          "providerStopConfirmed": false
+        },
+        "privateTransportCreated": 1,
+        "httpRequests": 1,
+        "transportClosed": 1,
+        "bodyClosed": 1,
+        "centerFrames": 0,
+        "centerFinishes": [],
+        "centerStops": 1,
+        "centerFailures": 1,
+        "tailUsage": null,
+        "tailChoicesUnchanged": null,
+        "outcomeLocalClosed": null,
+        "requestIdentityEncoding": "identity"
+      },
+      {
+        "name": "actual finish followed by usage-only",
+        "error": null,
+        "privateTransportCreated": 1,
+        "httpRequests": 1,
+        "transportClosed": 1,
+        "bodyClosed": 1,
+        "centerFrames": 2,
+        "centerFinishes": [
+          [
+            2,
+            1,
+            "stop"
+          ]
+        ],
+        "centerStops": 0,
+        "centerFailures": 0,
+        "tailUsage": 13,
+        "tailChoicesUnchanged": true,
+        "outcomeLocalClosed": true,
+        "requestIdentityEncoding": "identity"
+      }
+    ],
+    "privateSDKLogSuppressed": true,
+    "networkPolicy": "socket.connect prohibited; in-memory HTTPX only",
+    "realProviderCalls": 0,
+    "businessVerified": false
+  },
+  "原失败": "OpenAI-Producer构造失败清理独立复现.json",
+  "sourceHashMismatchCount": 0,
+  "技术结果": "原NUL在构造前拒绝；自然SDK InvalidURL构造失败关闭HTTPX/transport；gzip在SDK解压前拒并关闭body/transport；真实finish序号与尾usage均原样引用；SDK日志抑制有效。",
+  "限制": "使用内存中心/HTTPX而非Provider；默认端口仍缺失；EFFECT_UNKNOWN不等于Provider停止已证实；本地关闭和发送事实分开"
+}

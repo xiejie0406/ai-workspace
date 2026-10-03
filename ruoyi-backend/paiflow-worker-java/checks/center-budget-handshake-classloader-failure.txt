@@ -1,0 +1,40 @@
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\admin\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+Exception in thread "main" java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:118)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at com.ruoyi.paiflow.worker.adapter.CenterBudgetHandshakeProbe.call(CenterBudgetHandshakeProbe.java:140)
+	at com.ruoyi.paiflow.worker.adapter.CenterBudgetHandshakeProbe.invoke(CenterBudgetHandshakeProbe.java:134)
+	at com.ruoyi.paiflow.worker.adapter.CenterBudgetHandshakeProbe.main(CenterBudgetHandshakeProbe.java:38)
+Caused by: java.lang.IllegalStateException: Could not initialize plugin: interface org.mockito.plugins.MockResolver
+	at org.mockito.internal.configuration.plugins.PluginLoader$2.invoke(PluginLoader.java:117)
+	at jdk.proxy2/jdk.proxy2.$Proxy54.resolve(Unknown Source)
+	at org.mockito.internal.util.MockUtil.resolve(MockUtil.java:172)
+	at org.mockito.internal.util.MockUtil.getMockHandlerOrNull(MockUtil.java:155)
+	at org.mockito.internal.util.MockUtil.getMockHandler(MockUtil.java:115)
+	at org.mockito.internal.stubbing.answers.InvocationInfo.isVoid(InvocationInfo.java:94)
+	at org.mockito.internal.stubbing.answers.Returns.validateFor(Returns.java:34)
+	at org.mockito.internal.stubbing.InvocationContainerImpl.addAnswer(InvocationContainerImpl.java:65)
+	at org.mockito.internal.stubbing.InvocationContainerImpl.addAnswer(InvocationContainerImpl.java:56)
+	at org.mockito.internal.stubbing.OngoingStubbingImpl.thenAnswer(OngoingStubbingImpl.java:32)
+	at org.mockito.internal.stubbing.BaseStubbing.thenReturn(BaseStubbing.java:34)
+	at com.ruoyi.paiflow.service.RunPersistenceContractTest.setup(RunPersistenceContractTest.java:68)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	... 4 more
+Caused by: java.lang.IllegalStateException: Failed to load interface org.mockito.plugins.MockResolver implementation declared in java.lang.CompoundEnumeration@49b07ee3
+	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpls(PluginInitializer.java:91)
+	at org.mockito.internal.configuration.plugins.PluginLoader.loadPlugins(PluginLoader.java:105)
+	at org.mockito.internal.configuration.plugins.PluginRegistry.<init>(PluginRegistry.java:49)
+	at org.mockito.internal.configuration.plugins.Plugins.<clinit>(Plugins.java:26)
+	at org.mockito.internal.MockitoCore.<clinit>(MockitoCore.java:71)
+	at org.mockito.Mockito.<clinit>(Mockito.java:1777)
+	at com.ruoyi.paiflow.service.RunPersistenceContractTest.setup(RunPersistenceContractTest.java:67)
+	... 5 more
+Caused by: java.lang.ClassCastException: Cannot cast org.springframework.test.context.bean.override.mockito.SpringMockResolver to org.mockito.plugins.MockResolver
+	at java.base/java.lang.Class.cast(Class.java:4069)
+	at org.mockito.internal.configuration.plugins.PluginInitializer.loadImpls(PluginInitializer.java:87)
+	... 11 more

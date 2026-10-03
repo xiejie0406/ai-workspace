@@ -1,0 +1,3799 @@
+{
+  "status": "technical_baseline_reconciled",
+  "inputTypesUniqueTests": 68,
+  "secondRunCarriedPassed": 46,
+  "thirdRunCarriedPassed": 20,
+  "latestRunNewlyExecutedPassed": 2,
+  "currentAllModuleBaselineTests": 471,
+  "priorQaUnaffectedCarriedPassed": 403,
+  "all68Or471FullyRerunAfterRepairs": false,
+  "sourceInputCount": 201,
+  "sourceWindowChanges": [],
+  "sourceTransitions": [
+    [
+      "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowInputTypesPolicyTest.java"
+    ],
+    [
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowInputTypesPolicy.java",
+      "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/AgentInputTypesPersistenceTest.java",
+      "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowInputTypesPolicyTest.java"
+    ],
+    [
+      "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/AgentInputTypesPersistenceTest.java"
+    ]
+  ],
+  "priorQaInputFilesAdded": [
+    "contracts/paiflow/fixtures/workflow-input-types.json",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/dto/LegacyWorkflowInputTypeDto.java",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowInputTypesPolicy.java",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/AgentInputTypesPersistenceTest.java",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowInputTypesPolicyTest.java"
+  ],
+  "priorQaInputFilesChanged": [
+    "contracts/paiflow/source-api-inventory.json",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentWorkflowController.java",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentContractTest.java"
+  ],
+  "carryReason": "两次新增测试修复只调整隔离H2的MySQL生成字段适配和循环清理，未改变业务权限；固定输入过滤顺序的生产修复已覆盖6项策略及16项真实持久化族。原Agent31与Legacy15来自第二次真实通过，其他403身份的生产源和测试未受影响。source-api-inventory为此前QA完成后的已保全索引刷新，不是业务源码。",
+  "runs": [
+    {
+      "prefix": "输入类型同步定向检查",
+      "resultSha256": "416914796692cf5f55de33aaa2988a462cd86bdbc63e2a9026f59ad97de32d5d",
+      "totals": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "startedAt": "2026-10-03T05:52:20.674101+00:00",
+      "endedAt": "2026-10-03T05:53:02.224318+00:00"
+    },
+    {
+      "prefix": "输入类型同步编译修复定向检查",
+      "resultSha256": "300e70adef3b2518d2245c5e02d16ba30420a9c00b41e376179e8694070139a6",
+      "totals": {
+        "tests": 66,
+        "failures": 0,
+        "errors": 15,
+        "skipped": 0
+      },
+      "startedAt": "2026-10-03T06:03:03.745877+00:00",
+      "endedAt": "2026-10-03T06:05:16.704042+00:00"
+    },
+    {
+      "prefix": "输入类型同步H2与固定输入修复定向检查",
+      "resultSha256": "28425165906b79b639d60283593dc70c4b019c7bd0a3984f7445ee759fc5db05",
+      "totals": {
+        "tests": 22,
+        "failures": 0,
+        "errors": 2,
+        "skipped": 0
+      },
+      "startedAt": "2026-10-03T06:13:48.757259+00:00",
+      "endedAt": "2026-10-03T06:17:10.897240+00:00"
+    },
+    {
+      "prefix": "输入类型同步循环夹具清理修复定向检查",
+      "resultSha256": "f49489ddab976d37c9aedee6cfd25c8957cb9b5af1ae36995b36119b291f9ca0",
+      "totals": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "startedAt": "2026-10-03T06:21:33.684214+00:00",
+      "endedAt": "2026-10-03T06:22:36.161788+00:00"
+    }
+  ],
+  "actualMvcResponseCopy": {
+    "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/输入类型同步实际MVC响应.json",
+    "sha256": "86eaf632398292b9791d56a69357d2bef3179125b688af603114dfb0ccb65f15"
+  },
+  "cases": [
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "absentDefaultListDetailAndCopyKeepOriginalPostAndFormContracts",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "actualSqlPromptSeedsKeepOriginalListShapeAndWorkflowTemplatesRemainUnavailable",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "contradictoryWeakWildcardAndNegativeConditionsRejectBeforeCallingService",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "defaultWorkflowUpdateStillBindsOriginalStringIdAndBothRevisionHeaders",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "detailUsesOriginalPostQueryAndExposesTwoQuotedConditions",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "emptyAndAbsentHeadersReachDefaultCreationWithoutInventingAUserSpaceId",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "inputSyncEmptyHeaderKeepsOriginalAgentAndFileArrayResponseOrder",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "inputTypesReturnsActualTwelveFieldArrayAndAgentBoundReceiptWithoutWorkflowCondition",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "malformedInputSyncBotIdentityRefusesBeforeServiceOrReceipt",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "ordinaryCreateReturnsObjectNeededByResBotIdAndDoesNotUseEchoedOwnerOrPublication",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "originalBotIdStringOnlyCanSyncWithAbsentHeaderWithoutInventedRequestRevision",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "originalConfigStringBotIdBodyAndHeadersSupplyBothReadRevisions",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "originalDeleteQueryAcceptsConditionsAndNoReadConditionIsNotInvented",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "originalListKeepsPageDataAndTotalCountAndCopyKeepsVoid",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest",
+      "name": "originalMakeCreationBodyUsesWorkflowVersionAndCompatibleObjectResponse",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyConfigInfoContractTest",
+      "name": "nativeUsesAjaxResultAndBothPathsHaveNoWriteRouteOrDoubleWrapping",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyConfigInfoContractTest",
+      "name": "originalDatabaseNodeDescriptionAndPythonPackageCallsKeepObjectAndJsonString",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyConfigInfoContractTest",
+      "name": "originalDateFieldFormatAndCurrentValueAreReadFromMapperByActualHttp",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyConfigInfoContractTest",
+      "name": "originalTagFlagsAndMissingCategoriesHaveHonestDifferentResponses",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyConfigInfoContractTest",
+      "name": "sixOriginalUploadSliceQueriesAndExactCategoryCodeListHaveActualSourceData",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyConfigInfoContractTest",
+      "name": "unchangedGlobalStoreIconColorCallsKeepArrayAndIgnoreUnusedCodeParam",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyDefaultPersonalSpaceContractTest",
+      "name": "defaultLastUsesDedicatedComparisonAndDoesNotSelectFirstNamedList",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyDefaultPersonalSpaceContractTest",
+      "name": "emptyAndMissingVisitParameterBothSelectOriginalDefault",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyDefaultPersonalSpaceContractTest",
+      "name": "namedListIsKeptAndReadNeverInitializesDefault",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyLoginControllerTest",
+      "name": "delegatesCredentialsAndCaptchaAndReturnsOnlyPlatformToken",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyLoginControllerTest",
+      "name": "missingPlatformSessionCannotSucceed",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyLoginControllerTest",
+      "name": "platformRejectIsNotConvertedToEmptySuccess",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyLoginControllerTest",
+      "name": "sessionReturnsOnlyAuthenticatedPlatformIdentity",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyMembershipContractTest",
+      "name": "invitationArrayScopeAndApplicationQueryPassIntoSingleService",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyMembershipContractTest",
+      "name": "teamCreationKeepsLongDataAndSpaceMemberPageKeepsMybatisPageShape",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "existingOriginalPostUsesBodyIdAndExplicitPriorConditionWithoutReadingNewState",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "nativeDraftUsesAjaxResultAndImmutableVersionReadNeverProducesCurrentCardEtag",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "nativeMutationCannotUseAnotherModelsEchoAndCategoryKeepsArrayShape",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "originalDetailKeepsModelInfoStringConfigAndReferenceAndReturnsActualReadCondition",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "originalGetOnOffAndDeleteAllRequireQualifiedCardConditionAndPreserveBooleanData",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "originalLocalDeploymentReturnsTrueOnlyAfterServiceReceiptAndHasBoundConditions",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "originalNewThirdPartyBodyIgnoresForgedUidAndSuccessIsStringWithQualifiedEtag",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "originalPersonalPageShapeHasReadTicketsOnRowsAndNoVersionEtag",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "qualifiedConditionsRejectCrossIdWeakWildcardOverflowAndConflictingBodyBeforeAnyService",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyModelContractTest",
+      "name": "unavailableRsaAndCatalogNeverBecomeAKeyOrEmptySuccess",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyTextConfigContractTest",
+      "name": "invalidLegacyBodyIdentifierRejectsBeforeAnyWriteAndPermissionExceptionsRemainFailures",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyTextConfigContractTest",
+      "name": "originalBackendUpdateUsesBodyIdAndNativeListUsesAjaxResultWithoutDoubleWrapping",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyTextConfigContractTest",
+      "name": "originalListHasNumericSystemUidAndExactLiteralSeparatorAndComment",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyTextConfigContractTest",
+      "name": "originalQueryDeleteReturnsIntegerAndNeverInventsReadRevision",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyTextConfigContractTest",
+      "name": "originalTextHandleSaveBodyIsUnchangedAndResponseStaysBoolean",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowContractTest",
+      "name": "bodyAndHeaderScopeCannotDisagreeAndWeakOrWildcardEtagsAreRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowContractTest",
+      "name": "legacyDetailCreateAndSaveKeepCodeZeroCanvasStringAndResponseRevision",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowContractTest",
+      "name": "listKeepsOriginalPageDataAndVersionListKeepsRecordsTotalCurrentSize",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowDefaultScopeContractTest",
+      "name": "createAndSaveKeepActualJsonObjectBodyAndOnlyForwardReadRevision",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowDefaultScopeContractTest",
+      "name": "deleteForwardsQueryScopeAndMissingCloneHeaderIsOptionalAtTransportOnly",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowDefaultScopeContractTest",
+      "name": "emptyHeaderAndMissingHeaderReachDefaultReadWithoutNumericBindingFailure",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowDefaultScopeContractTest",
+      "name": "listForwardsExplicitSpaceSeparatelyAndPreservesOriginalPageDataShape",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowDefaultScopeContractTest",
+      "name": "revisionConflictsAndWeakTagsFailBeforeFacadeAndBodyIsNotRewritten",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowDefaultScopeContractTest",
+      "name": "versionCreateRestoreAndListPreserveWorkflowIdentityAndQuotedDraftCondition",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "actualJavaProjectionMatrixIsSavedForTheUnchangedOriginalConsumer",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "auxiliaryReasoningAndUsageEventsDoNotDuplicateOriginalFrame",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "failedCancelledAndUnknownEffectAreNonSuccessWithoutInventedUsage",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "historicalEncodingRestoresOnlyDeclaredNullableStateFields",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "missingFailureCodeCannotTurnIntoSuccessfulNodeFrame",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "nonFailureEventsCannotHijackOriginalAuditBranchWithDifferentStatusCode",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "onlyPersistedCentreTerminalCanStopPageAndCarriesActualUsageAndElapsedTime",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "optionAndDirectInterruptAreBoundToActualCheckpointAndKeepDefaultOrder",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "originalStartedCompletedAndFailedFramesPreservePageContractAndOpaqueNull",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "staleCheckpointRevisionReplaysButForgedFutureRevisionAndDifferentQuestionDoNot",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "wholeFixedGraphRejectsIterationEvenWhenTopLevelWorkerOmitsIterationId",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "workerChoiceStopDoesNotCompleteTheRun",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodecTest",
+      "name": "wrongRunLeaseAttemptNodeAndSidCannotProduceOriginalPageFrames",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerCheckpointControllerTest",
+      "name": "checkpointLeaseConflictHasActualWorkerHttpStatusAndPlatformEnvelope",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerCheckpointControllerTest",
+      "name": "invalidIdentityIsRejectedBeforeMalformedCheckpointJsonBinding",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerModelControllerTest",
+      "name": "fourRoutesKeepResourceAndOperationBindingsInsideData",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerModelControllerTest",
+      "name": "jacksonMapBindingPreservesExplicitNullAndFloatOptions",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerModelControllerTest",
+      "name": "leaseConflictAndMissingProducerAreActualHttpRejections",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerModelControllerTest",
+      "name": "privateMaterialInWorkerBodyIsRejectedBeforeOperationService",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerModelControllerTest",
+      "name": "rejectedIdentityCannotReachAnyModelEndpoint",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerRunControllerTest",
+      "name": "beginCannotAcceptCallerSnapshotOrClaimDataAsPermission",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerRunControllerTest",
+      "name": "beginExecutionPreservesBoundSnapshotAndDuplicateIsActual409",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerRunControllerTest",
+      "name": "emptyQueueReturnsExplicitNullDataForStrictClients",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerRunControllerTest",
+      "name": "invalidServiceIdentityIsActualHttp401BeforeLeaseOrBodyProcessing",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerRunControllerTest",
+      "name": "unknownLeaseFieldsAreRejectedAs400AndNeverReachRunService",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.controller.WorkerRunControllerTest",
+      "name": "verifyJsonPreservesStrictAssignmentInItsOwnField",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "acceptedBodyIsPassedIntactToExistingMvcBinding",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "checkpointCreationUsesQuestionBudgetRatherThanSmallControlBudget",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "contextEncodedSegmentsAndPathParametersStillUseWorkerBoundary",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "modelFramesAndCancelKeepSmallControlBudget",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "modelStartAcceptsOriginalPromptWithinTwoMiBBudget",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "modelStartUnknownLengthStillEnforcesActualTwoMiB",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "overBudgetContentLengthIsRejectedBeforeReading",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "platformAndSimilarlyNamedRoutesRemainUnderTheirExistingFilters",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "rejectedIdentityDoesNotReadOrParseMalformedBody",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.filter.WorkerRequestBoundaryFilterTest",
+      "name": "unknownLengthCannotBypassActualByteLimit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "actorChangeAfterFirstPermissionReadCannotUseAnotherAuthorizedMembersIdentity",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "actualMenuRevokedWhileWaitingForSpaceLockIsReadAgainBeforeAnyWrite",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "actualOrderedResponseMetadataSourceAndRevisionAreBoundWithoutChangingCanvas",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "copiesClearDerivedSourcesAndMetadataWithoutRecompilingOrChangingCopiedCanvas",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "currentAccountAndMembershipRevocationRefuseWithNoMetadataWrite",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "databaseCasConstraintFailureRollsBackAllDerivedMetadata",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "defaultScopeIsExactAndForeignDomainOrUnboundPromptCannotSync",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "emptyAndAbsentHeadersResolveOnlyTheActorsActualDefaultBinding",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "emptyNullFirstAndSchemaLessFilesAllRejectWithZeroDerivedUpdate",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步循环夹具清理修复定向检查",
+      "carriedBaseline": false
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "laterCanvasRevisionIsRecordedOnlyByExplicitSyncAndKeepsUnknownConfigNull",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "metadataBudgetFailureDoesNotPatchAgentOrWorkflow",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "onlyAgentEditAndWorkflowQueryAreNeededAndMissingAgentEditWritesNothing",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "realMvcOriginalBotIdOnlyReturnsTwelveNullableFieldsAndBoundHeaders",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "repeatedSyncOfSameSourceAndMetadataIsReadOnlyIdempotent",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "reservedMalformedMetadataFieldsRemainNullableInActualMvcButNeverEnterSavedExtras",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步循环夹具清理修复定向检查",
+      "carriedBaseline": false
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest",
+      "name": "workflowFormCanEchoButCannotOverwriteDerivedMetadataAndPromptCannotForgeSource",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "actualBindingConstraintFailureRollsBackFirstDefaultAndBothResources",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "actualOriginalConfigBodyPersistsAndMemberEditKeepsCreatorWhileDraftDoesNotClaimPublication",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "actualStartExtraOutputDeterminesMultiInputAndRestoreKeepsTheSingleBinding",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "bindingFailureRollsBackBothCopyRowsUsingAnActualDatabaseConstraint",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "clientMetadataCannotCreateOrSwapAnAgentBindingButActualEchoAndUnknownExtArePreserved",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "concurrentDefaultCreatesAt100HaveOneWinnerAndOneCountConflict",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "concurrentWritesWithTheSameReadRevisionHaveExactlyOneWinner",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "createWorkflowFailureDoesNotLeaveAnUnboundAgent",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "defaultCountUsesAllLiveOwnerBotsAcrossNamedAndTeamButKeepsOriginalGreaterThan100",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "defaultDomainIsOwnerOnlyEvenWithDirtyForeignMembershipAndKnownResourceId",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "defaultReadsAreEmptyOr404AndNeverChooseAnExistingNamedSpace",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "defaultUpdateAndDeleteDoNotWaitForCreatorGuardOrReverseItsLockOrder",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "defaultWorkflowBindingUpdateAndDeleteKeepBothCasAndImmutableHistory",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "deletingBoundAgentNeedsBothVersionsAndPreservesImmutableHistory",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "directCanvasSaveSyncsAgentRevisionAndRollsBackWhenAgentPermissionIsMissing",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "directWorkflowDeleteDeletesItsBoundAgentWithinTheSameTransaction",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "fullCopyAndLegacyCloneCreateNewAgentWorkflowAndPreserveExactCanvasAndMetadata",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "headerScopeAndBodyEchoAreExactAndCannotExposeOtherJoinedDomains",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "legacyImportedAndRestoredOpaqueMetadataNeverBecomesAnUnboundAgentReference",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "listCountAndRecordsShareSpaceFiltersAndNamesAreUniquePerSpace",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "memberAndPlatformPermissionsAndCrossSpaceAreBothEnforced",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "missingProviderResourcesAndWorkflowPrivilegeCannotInitializeTheDefaultDomain",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "namedInsertUsesSameGuardAndDefaultWaiterSeesItsCommittedOwnerCount",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "originalCountGreaterThan100IsPreservedAndScopedToCurrentOwnerAndSpace",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "originalDefaultHttpCreationKeepsNullWireAndNativePositiveIdWithoutQueryPrivilege",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "originalDefaultMvcDetailAndListPreserveNullAndNamedHeaderIsStillExact",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "originalUnlimitedDefaultCopyAndBoundCloneAreIncludedInLaterOwnerCount",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "permissionRevokedWhileWaitingForCreatorGuardRejectsBeforeAnyDefaultWrite",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "permissionRevokedWhileWaitingForSpaceLockIsRecheckedBeforeMutation",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "unknownCredentialsResourcesAndPublicationClaimsCannotWriteFormalRows",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.AgentPersistenceTest",
+      "name": "workflowCreationHasRealUniqueBindingAndBothRevisionsRequiredForMetadataUpdate",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步编译修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "alreadyExecutableDefaultsAreNotReinterpretedAsCanvasDescription",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "branchHandleContainsMatchingTermAndTargetHandlePreserveOriginalWithoutDoublePrefix",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "defaultBecomesDescriptionOnlyWhenOriginalDescriptionIsNullIncludingStart",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "inputContentEmptyMatchesOriginalInsteadOfBooleanTruthiness",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "nonArrayObjectNestedArrayAndDuplicatePropertyNamePreserveOriginalProjection",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "objectPropertiesUseOnlyOriginalTypeItemsAndFirstArrayObjectRequired",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "originalAliasAndTypedArrayTimeConversionOnlyChangeExecutionCopy",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "retryCustomOutputObjectStringBlankAndMalformedUseOriginalCases",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "topLevelArrayFallbackDoesNotInventMissingNestedElementType",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "v1BytesAndUnknownCodecCannotAccidentallyUseCurrentConverter",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CanvasExecutionCompilerTest",
+      "name": "v2ExplicitNullCloneCanonicalAndSecondNormalizationAreConsistent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "cachedLoginPermissionCannotOverrideCurrentResumePermissionRevocation",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "cancellingRunSealsResumedQuestionBeforeConsumption",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "claimedButNotBegunWorkerCannotCreateQuestionCheckpoint",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "createPreservesQuestionAndUsesRequestAndPositionIdempotency",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "expiredOrCancelledWaitCannotConsumeReply",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "leaseAttemptRunScopeAndActualUserCannotBeReplaced",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "optionalQuestionRetainsIgnoreWithoutInventingContent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "optionsCannotBeCoercedFromJsonTextNullOrObject",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "oversizedIdentifiersAndChangedVersionPolicyAreRejectedBeforeInsert",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "platformTaskCanSealAbandonedWaitWithoutWorkerPolling",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "realReplyIsConsumedOnceWithOriginalQueueEnvelopeAndMetadata",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "replyDataAndCasStateRollBackTogetherOnPersistenceFailure",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "replyWaitingForRunLockReadsPermissionRevocationAfterTheWait",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "requiredQuestionCannotBeIgnoredAndOriginalAbortIsPreserved",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "simultaneousDifferentRepliesCannotOverwriteEachOther",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CheckpointPersistenceTest",
+      "name": "wrongRunIsRejectedBeforeAcquiringAnotherRunsCheckpointLock",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CurrentAuthorityPersistenceTest",
+      "name": "accountDisabledByCommittedPlatformSqlIsSeenInsideSameReadCommittedTransaction",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CurrentAuthorityPersistenceTest",
+      "name": "actualPlatformRoleDisableIsSeenWithoutReplacingPlatformAuthorization",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CurrentAuthorityPersistenceTest",
+      "name": "actualRoleMenuRevocationRefreshesAuthenticatedPrincipalAndOriginalPermissionService",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CurrentAuthorityPersistenceTest",
+      "name": "committedMemberRevocationCannotBeMaskedBySameTransactionSessionCache",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CurrentAuthorityPersistenceTest",
+      "name": "menuRevokedWhileWaitingForRealSpaceLockIsCheckedAfterLock",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CurrentAuthorityPersistenceTest",
+      "name": "missingRequiredSessionOrMenuDoesNotSilentlyReuseOldLoginPermissions",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.CurrentAuthorityPersistenceTest",
+      "name": "referenceMappingAndTargetStatusAreFreshButNeverChangeAuthenticatedActor",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "concurrentFirstMaterializationProducesOneMappingAndOneOwner",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "defaultDomainRejectsAllCollaborationReadsAndMutations",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "defaultMappingCannotBeRenamedTransferredOrSoftDeleted",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "defaultVisitClearsEnterpriseSelectionButStartupClearDoesNotStampDefault",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "differentOwnersHaveDistinctPrivateMappingsAndForeignMembershipCannotGrantAccess",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "equalMillisecondVisitKeepsOriginalStrictIsAfterMeaning",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "explicitDefaultVisitHasOriginalNullReceiptAndPersistsMillisecondHistory",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "explicitlyIndependentModelPreparationKeepsOnlyItsScopeOnLaterFailure",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "failedOwnerInsertRollsBackMappingAndOwnerScopeLock",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "hiddenOwnerAndDirtyDefaultInvitationsDoNotConsumeNamedPersonalCapacity",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "materializationIsIdempotentUniqueAndAbsentFromNamedLists",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "missingDefaultReadsAreZeroWriteAndNeverChooseAnExistingNamedSpace",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "missingPlatformPermissionCannotMaterializeAnOwnerDomain",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "ordinaryResourceTransactionRollsBackItsFirstDefaultMapping",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "permissionRevokedWhileWaitingForOwnerLockRejectsBeforeMappingInsert",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "realLegacyEmptyVisitAndLastReadPreserveNullWithoutImplicitReadCreation",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest",
+      "name": "selectionRejectsMalformedAndForeignEchoWithoutAnyWrites",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DslCompatibilityTest",
+      "name": "canonicalBytesMatchTheSharedCrossLanguageFixture",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DslCompatibilityTest",
+      "name": "catalogMatchesIndependentPythonRegistryAndJavaExecutors",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DslCompatibilityTest",
+      "name": "incompatibleNodesMalformedEdgesAndCyclesAreRejectedBeforeDispatch",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DslCompatibilityTest",
+      "name": "layoutChangeDoesNotChangeExecutionHashAndUnknownFieldsAreRetained",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DslCompatibilityTest",
+      "name": "missingStartAndEndDuplicateIdsAndScalarNodesCannotPassPrecheck",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.DslCompatibilityTest",
+      "name": "originalPodcastPreservesWholeCanvasAndConvertsEveryEdge",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "disabledPlatformAccountCannotKeepUsingCachedLogin",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "lastOwnerCannotLeaveOrBeRemovedAndPersonalTransferIsRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "legacyProfileDisplaysPlatformUtcInstantInBeijingTime",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "nicknameUpdateCannotOverwritePlatformDepartmentOrPassword",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "ownershipNeverGrantsMissingPlatformPermission",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "profileUsesPlatformFieldsAndDoesNotInventAgreementOrExposeSecrets",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "removedMemberCannotReadSpaceEvenWithPlatformPermission",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "transferChangesOwnerAndBothRolesUsingOneLockedRevision",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.IdentityAndSpacePolicyTest",
+      "name": "unknownUidCannotFallBackToAdminAndCaseSensitiveMappingIsExplicit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "acceptingTeamSpaceInviteAddsActualBothMembershipsAndCasRejectsSecondReceipt",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "applicationChecksTeamBoundaryAndPendingStateThenAddsActualMember",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "capacityReservationSerializesConcurrentInvitationsAndUnconfiguredPolicyIs503",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "concurrentAcceptanceHasOneMemberAndOneSuccessfulReceipt",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "failedApprovalMemberWriteRollsBackAuditAndRefusalDoesNotAddMember",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "failedMemberInsertRollsBackInviteStateAndBatchInsert",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "failedTeamRemovalRollsBackOwnerTransferAndAllRelatedMemberChanges",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "invitationsRejectDuplicateBatchAndExpiredPendingCanBeReplaced",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "originalAdminCanChangeAndRemovePeerButNeverOwnerAndMembersCannotManage",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "realTeamOwnerInsertFailureRollsBackTeamAndUniqueName",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "rejectionRevocationAndWrongScopeNeverCreateMembership",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "removingTeamMemberTransfersOwnedSpacesToTeamOwnerAndProtectsLastOwner",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "sourceCapacityCountsDistinctPeopleAcrossSpacesAndIgnoresAlreadyJoinedInvitees",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.MembershipPersistenceTest",
+      "name": "teamAndOwnerAreSeparateFromSpaceAndMissingPolicyNeverWritesPaidFacts",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelNodeOptionsTest",
+      "name": "effectiveValuesAgreeWithRecordedOriginalPydanticCases",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelNodeOptionsTest",
+      "name": "ignoredInternalHistoryNameNeverEnablesExternalHistoryAlias",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelNodeOptionsTest",
+      "name": "keyBudgetCountsUnicodeCharactersAndRejectsMalformedUnicode",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelNodeOptionsTest",
+      "name": "missingDefaultsAndExplicitNullKeepOriginalDifferentSemantics",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelNodeOptionsTest",
+      "name": "originalIntegerSyntaxAndFloatSyntaxRemainDistinct",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelNodeOptionsTest",
+      "name": "responseFormatCannotUseFloatBooleanOrStringCoercion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "actualCurrentCallWaitCannotDeliverFramesAfterModelMenuRevocationOrAppendAfterDisable",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "actualRunAdmissionPersistsBoundApprovalAndNeverPublicPrivateMaterial",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "actualRunMenuRevokedDuringApproveRunCannotCreateRunOrOperation",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "bareEofAndUnknownStopPreserveEffectUnknownAndNeverRedispatch",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "confirmedStopUsesExactGrantProofAndDoesNotClaimUndeliveredOutput",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "exactFrameReplayIsIdempotentButChangedFramesAndGapsAreRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "expiryDuringLocalCallPolicyPreventsDispatchAndSdkSubmit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "finishEvidenceCannotBeInventedAndKnownProviderNonStopReasonIsFailure",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "frameInsertAndSequenceCasRollBackTogetherOnActualConstraintFailure",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "invalidUsageTailCannotOverwriteFactsOrInventCompletion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "missingAnyRequiredPortProducesZeroRunAndZeroOperationWrites",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "modelDisableAndMembershipRevocationRejectFurtherStreamWritesButPreserveFacts",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "originalFramesKeepNullUsageTailAndOnlyActualStreamEndCompletes",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "oversizedFrameIsRejectedBeforeAnyFrameOrSequenceWrite",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "privateGrantDeadlineIsMinimumApprovalDeadlineAndExpiredFramesAreRefused",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "providerFrameCannotPersistKnownPrivateKeyBaseOrReferenceEvenInsideText",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "revokedRunMenuWithModelQueryStillPresentCannotReadExistingFramesAfterPolicyWait",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "sameActualKeyReplaysReceiptButDifferentRequestCannotReuseItsApproval",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "twoConcurrentCallersDispatchOneActualOperationAndNoAutomaticRetry",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "workerMessagesNeedActualInputAndFixedNodeApprovalInsteadOfSelfReportedHash",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelOperationPersistenceTest",
+      "name": "wrongAttemptNodeScopeOrModelVersionNeverCreatesAnotherOperation",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "absentActualReferenceHelloAndDeploymentPortsNeverWriteSuccessfulMetadata",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "actorAndPermissionOrCurrentCredentialChangesBetweenProbeAndCommitProduceZeroWrites",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "actualDeploymentReceiptOnlyPersistsPendingAndCannotClaimRunningOrEnabled",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "actualJacksonHttpObjectBindingReachesTransactionalServiceWithoutStringCoercion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "actualLegacyMissingAndEmptyHeaderPreserveOriginalDefaultProtocolAndUpdateBoolean",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "approvalThatExpiresWhileWaitingForSpaceLockCannotCommitEvenWhenReferenceVersionIsCurrent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "authorizationAndReceiptCannotBeReusedForChangedSpaceHashEndpointProviderOrReferenceVersion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "bareIdCannotBypassSpaceMembershipOwnerOrCurrentPlatformPermissions",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "categoryCatalogPreservesExactFlatDefectsAndOnlyActualFourReachableTrees",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "concurrentSameRevisionHasOneCommitAndNoPartialVersion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultDeploymentRetainsPendingStateAndCannotEnableWithoutReadyReceipt",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultInvalidCandidateForeignEchoAndCustomCategoryStopBeforeMaterialization",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultKnownIdCannotReadNamedOrOtherOwnerDomainEvenWithDirtyMembership",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultListAndCategoriesReadWithoutCreatingOrSelectingNamedModels",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultMissingKnownModelOperationsNeverMaterializeAndPermissionIsCurrent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultMissingPortsNeverCreateAnInternalDomainOrModel",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultProbeFailureLeavesOnlyPreparedDomainWithoutFormalModelOrVersion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultSuccessfulHelloUsesActualPositiveOwnerDomainAndLegacyNullOnly",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultSwitchAndDeleteAreActualTransactionsAndKeepCasAndImmutableVersions",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "defaultSwitchDatabaseVersionFailureRollsBackStateRatherThanLeavingPartialDisable",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "disabledAndEnabledTransitionsRequireFreshBoundApprovalAndNeverMutateOldSnapshots",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "enableApprovalExpiryAfterLocalReferenceWaitMustLeaveActualModelDisabledAndVersionUntouched",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "listAndHistoryPaginationAreBoundedAndShareExactScopedLiteralFilters",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "malformedSecretArraysOrCoercedCategoryAndEndpointAreRejectedBeforeDatabaseWrites",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "missingOrMismatchedExplicitReadRevisionStopsBeforeCallingAnyProbe",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "nativeDraftIsDisabledVersionedAndReturnsOnlyOpaqueReferenceAndOriginalConfigString",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "originalMaskedFalseKeepsReferenceAndIgnoresRsaEnvelopeWhileTrueReplacesReference",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "originalOffHttpReceiptIsUpdateTrueWhileActualCasStoresDisabledAndStaleRequestsCannotWrite",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "partialDraftSaveUsesCasAndImmutableOldVersionAndPreservesCreator",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "permissionRevocationDuringSpaceLockWaitIsRecheckedAndLeavesVersionUntouched",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "probeCannotOverwriteAnEditThatCommitsWhileNetworkWouldBeInFlight",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "realDatabaseVersionConstraintFailureRollsBackModelAndPreviousDraftUpdate",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "realFixtureReceiptIsBoundToCompleteCandidateAndHelloRunsOutsideTransaction",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.ModelPersistenceTest",
+      "name": "softDeleteStopsNewReadsAndPreservesImmutableSnapshotInCorrectSpace",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PersistenceContractTest",
+      "name": "agreementIsPersistedAndRepeatedAcceptanceKeepsFirstTimestampAndRevision",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PersistenceContractTest",
+      "name": "mapperBindsUidRatherThanInterpolatingAndRejectsUnclaimedRows",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PersistenceContractTest",
+      "name": "ownerWriteFailureRollsBackSpaceCreationThroughActualSpringTransaction",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PersistenceContractTest",
+      "name": "staleRevisionCannotOverwriteAndRemovedMembershipDisappearsFromListAndVisits",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "actualDatabaseUpdatesNewRowsAndInactiveSwitchAreVisibleWithoutRebuildingCatalog",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "allReviewedSourceRowsKeepOriginalNineFieldsAndInactiveRowsNeverAppear",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "browserNumericIpv4CannotExposePrivateTargetsButCanonicalPublicUrlsStayUnchanged",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "changedPublicValueCannotLeakStructuredSecretsOrPrivateAndSignedTargets",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "encodedQueryKeysAreCheckedAfterStrictDecodingAndNeverReturnedAsPublicUrls",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "exactCategoryCodeAndOriginalListWithoutCodeFilterKeepAllMatchingRows",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "malformedParametersCannotWidenOrSelectAnUnreviewedDirectory",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "missingWorkflowCategoryIsNotInventedAndFutureFormalRowsFollowOriginalSplit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "oversizedRowsAndResultBytesFailInsteadOfReturningTruncatedSuccess",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "platformCurrentAccountIsCheckedBeforeAndAfterActualReadWithoutSpaceInitialization",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "publicTableCheckRejectsSecretCategoriesAndUnreviewedPairsRatherThanServingThem",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "tagSortUsesActualUpdateTimeAndDevTestRemapUsesOriginalRemarksOnly",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PublicConfigPersistenceTest",
+      "name": "topLevelEncodedJsonStringMustNotBypassPrivateUrlOrStructuredCredentials",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "actualWorkflowVersionCompilesOriginalTypedCanvasThenQueuesClaimsAndBegins",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "allFifteenOriginalFactoryCasesUseSharedAdmissionWithoutInventingFactorySuccess",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "batchMustBeOnlyInputAndDirectStartArrayInsteadOfDerivedOrLiteralValue",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "batchSixtyFourAcceptedAndSixtyFiveRejectedWithZeroExtraWrites",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "crossContainerEdgesCannotTurnInnerNodesIntoMainGraph",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "damagedStoredCanonicalOrExecutionFailsWithConflictAndNoRunWrites",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "defaultArrayLengthCountsAndRequiredStillRejectsMissingInput",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "detachedIterationCannotOwnAnUnreachableInnerGraph",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "disabledRetryUsesOriginalBooleanCoercionAndActiveRetryIsNotHiddenFromBudget",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "duplicateEdgesDoNotMultiplyOriginalChainsPaths",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "expandedBudgetAndPathLengthAreIndependentlyEnforced",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "expandedFourThousandNinetySixBoundaryIsIndependentOfAllOtherLimits",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "exponentialDagIsCountedBySaturatingDpWithoutPathEnumeration",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "graphNodeBudgetRejectsManyEvenWhenEmptyBatchWouldSkipThem",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "graphOneHundredTwentyEightIsAdmittedWithoutExceedingPathBudget",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "implicitErrorOutputsAreCountedWithoutRejectingSameNodeDeclarations",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "innerReferencesCannotReadCopiedMainOrUnknownGlobalVariables",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "nestedIterationAndAnyResourceOrGlobalVariableStayUnavailable",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "oldNullCodecKeepsV1BytesDetailAndRestoreWithoutSilentlyRecompiling",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "ordinaryCycleNeverCreatesRunOrEvent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "originalVariablePoolCompositeKeysCannotAliasAnotherNodeOutput",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "orphanPureNodeIsNotAcceptedByPassingOrdinaryDagValidation",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "sameScopeForwardAndUndeclaredOutputReferencesAreRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "schemaRemoteReferenceAndNestedResourceShadowNeverQueue",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "sharedFactorySampleQueuesPinnedReadOnlyTaskAndObtainsOneExecutionPermit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "staleWorkflowSnapshotHashAndJavaEngineCannotUseIterationAdmission",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "totalOneHundredTwentyEightPathsIsAdmittedAndNextPathRefused",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "uniqueInternalStartAndEndAreActualScopeRequirements",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.PureIterationRunPersistenceTest",
+      "name": "v2VersionStoresExplicitNullAndUnknownCodecCannotRun",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonBoundaryCompatibilityTest",
+      "name": "byteBudgetIncludesExplicitNulls",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonBoundaryCompatibilityTest",
+      "name": "newEncodingDistinguishesMissingNullAndRetainsUnknownNestedOutput",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonBoundaryCompatibilityTest",
+      "name": "nonRunModelCandidateDoesNotFollowWorkflowCompilerUpgrade",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonBoundaryCompatibilityTest",
+      "name": "nullOrEmptyCredentialsStayAllowedButRealNestedCredentialIsRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonBoundaryCompatibilityTest",
+      "name": "oldEventNullsKeepTheOriginalReplayBytes",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonBoundaryCompatibilityTest",
+      "name": "oldRequestNullsKeepTheOriginalHash",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonBoundaryCompatibilityTest",
+      "name": "oldResultKeepsNullArrayElementsAndOriginalHash",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "everyPureAssignmentRetainsExecutionNullAndOriginalCanonicalBytes",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "explicitV1MarkerKeepsLegacyRequestEventAndResultReplays",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "newV2EventPreservesNullAndRejectsMissingReplay",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "newV2RequestDistinguishesMissingAndExplicitNullWithNoSecondRun",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "newV2ResultPreservesNullAndRejectsMissingReceipt",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "oldNullEventReplayKeepsLegacyBytesAndOriginalEquivalence",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "oldNullRequestHashReplaysOriginalMissingAndExplicitNullEquivalence",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "oldNullResultReplayKeepsHashAndLegacyStoredJson",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "queuedCancellationAndCenterExpiryUseRunMarkerWithoutRewritingHistory",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "runUpdateNeverChangesImmutableCodecAndUnknownCodecHasNoFallback",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest",
+      "name": "unknownFutureMarkerIsRejectedAcrossUserWorkerAndCheckpointPaths",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunLeasePolicyTest",
+      "name": "gapOrConflictingDuplicateCannotAdvanceSequence",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunLeasePolicyTest",
+      "name": "heartbeatPersistsBoundedLeaseAndActualCancellationRequest",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunLeasePolicyTest",
+      "name": "optionalEventIdsMustFollowPublishedSchemaWithoutCoercion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunLeasePolicyTest",
+      "name": "originalLifecycleRetainsAcceptedInputAndOutputWithinSharedBudget",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunLeasePolicyTest",
+      "name": "terminalResultIsCasPersistedAndDuplicateReceiptDoesNotEmitAgain",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunLeasePolicyTest",
+      "name": "workerCannotCreateTerminalEventsOrInjectCredentialsAndUnknownNodes",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunLeasePolicyTest",
+      "name": "workerIdentityRequiresExactCredentialAndUnexpiredEngineBinding",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunLeasePolicyTest",
+      "name": "wrongWorkerExpiredLeaseAndRevokedMembershipCannotReadAssignment",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "beginWaitingForRunLockChecksFreshCommittedPermission",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "cancellationExpiryOrRevocationCannotMintAnExecutionPermit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "cancellingQueuedRunPersistsActualTerminalAndCannotBeClaimed",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "centerReconciliationFinishesExpiredRunsWithoutAWorkerClaim",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "claimPersistsOneLeaseAndSecondClaimDoesNotDuplicateIt",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "claimWaitingForRunLockObservesCommittedMembershipRevocation",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "completionCommittedBeforeCancellationRemainsActualTerminal",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "defaultPersonalForeignOwnerWithDirtyOwnerMemberCannotBeClaimed",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "defaultPersonalLeaseRequiresOwnerRoleAndNoTeamAfterClaim",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "eventAndSequenceUpdateRollBackTogetherWhenRunWriteFails",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "executionPermitPersistsAndAnotherServiceInstanceCannotReissueIt",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "expiredReadOnlyLeaseIsFailedAtCenterWithoutAutomaticReplay",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "expiredWriteCapableLeasePreservesUnknownAndIsNeverRequeued",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "failedPermitPersistenceRollsBackAndDoesNotConsumeTheOnlyPermit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "nodeEventsAndCompletedResultsCannotPrecedeExecutionPermit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "realEventReplayAndTerminalReceiptAreIdempotent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "savedCancelRequestWinsOverLateCompletionWithoutErasingNodeFacts",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunPersistenceContractTest",
+      "name": "twoConcurrentWorkerProcessesReceiveOnlyOneExecutionPermit",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunServicePolicyTest",
+      "name": "replaySurvivesDeletedWorkflowButCannotBypassRevokedSpaceAccess",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunServicePolicyTest",
+      "name": "runUsesActualActorAndPinnedVersionWhileInputCannotReplaceDsl",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunServicePolicyTest",
+      "name": "sameIdempotencyKeyAndBodyReturnsOriginalRunAndDifferentBodyIsRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RunServicePolicyTest",
+      "name": "unresolvedResourceNodeAndVersionEngineMismatchNeverCreateTask",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "appIdCompatibilityPreservesRealOriginalAndNeverCreatesAppBinding",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "baseUrlDerivationIsExactAndRejectsUnapprovedTransportsAndRewrites",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "currentModelCanChangeWithoutRetargetingPinnedOldVersion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "dirtyDefaultMemberNeverAuthorizesAnotherOwner",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "disabledCurrentModelRefusesNewRuntimeButHistoricalVersionRemainsReadable",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "forgedClientBindingAndMalformedTypedOptionsFailBeforeVersionInsert",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "immutableTupleCopiesCachedMutableDtoBeforeLocalProfileRead",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "javaResourceAndNestedModelCompilesNeverPretendTheirRuntimeIsConnected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "legacyNullPureVersionKeepsOriginalHashAndEmptyBindings",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "legacyNullResourceVersionRemainsHistoricalButCannotRun",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "localProfileFailureNeverReturnsItsPrivateEndpointOrCredentialMessage",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "missingApprovedProfileRollsBackVersionSelectionAndWritesNoResources",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "modelAndVersionCannotCrossActualScopeOrBeReplacedByDescriptor",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "nullCodecModelResourceReconstructionUsesOriginalV1DataAndBytes",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "originalPydanticCoercionIsSavedOnlyInExecutionWithoutChangingRawCanvas",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "originalTemplateObjectInputsRemainWhileHistoryMultimodalAndOverridesAreRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "profileCannotGuessFamilyOrReuseAnotherSourceApproval",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "profileWaitCannotCarryRevokedPermissionOrEnabledStateAcrossReturn",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "publicDescriptorCopiesCannotMutatePrivatePinnedTuple",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "realVersionStoresAuthoritativePublicDescriptorAndExecutionOnlyAdaptation",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "resourceColumnIsIndependentOfOpaqueMetadataAndTamperingBreaksIntegrity",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "revokedMembershipOrDisabledActorCannotUseImmutableSnapshot",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "runtimeUsesExplicitCurrentHumanAndFreshMenuNotWorkerLoginContext",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.RuntimeModelCompilationTest",
+      "name": "v2ExplicitNullModelOptionsCannotDisappearIntoDefaultOrWriteVersion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerOptionsTest",
+      "name": "actualOneHundredEighteenPydanticCasesKeepOriginalFactsAndOnlyApprovedMissingStringCompatibility",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerOptionsTest",
+      "name": "baseFieldsAndCompatibilityEmptyStringsAreTypedOnlyInExecutionCopy",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerOptionsTest",
+      "name": "duplicateDefaultTypeOnlyRejectsEffectiveOptionBranch",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerOptionsTest",
+      "name": "emptyHistoryStillRejectedWhenEffectiveFlagsAreEnabled",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerOptionsTest",
+      "name": "explicitNullDoesNotBecomeMissingDefault",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerOptionsTest",
+      "name": "optionOrderDefaultAndTrueHandleRemainStaticAndNoGuessing",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerOptionsTest",
+      "name": "runtimeStateAndPrivateProviderMaterialHaveNoDefaultPort",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerOptionsTest",
+      "name": "sharedCanonicalGraphUsesSamePoolAndTopologicalBudgets",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "abortMessageIsConsumedAsAbortAndWorkerFailedResultIsRetained",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "activeHistoryDirectModelHandlingAndExplicitNullRefuseVersionWithNoVersionWrite",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "actualCurrentMenuRevocationBlocksUserReplyWithZeroReplyWrite",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "actualRunCreatePermissionRevocationBlocksWorkerConsume",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "cancelledRunStopsWaitingWithoutInventingEngineCompleted",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "checkpointExpirationNeverCreatesFakeReplyOrConsumedSuccess",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "consumeReplayIsIdempotentAndDifferentReceiptNeverReconsumes",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "expiredReplyRefusesAndDoesNotPersistMessage",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "foreignRunAndLeaseAttemptCannotConsumeCheckpoint",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "missingCheckpointAssemblyRejectsBeforeAnyRunOrEvent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "mixedResourcesNestedIterationVariablesAndActiveRetryAreRejectedBeforeVersionWrite",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "needReplyFalseStillWaitsThenConsumesRealResumeAndAcceptsBoundResult",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "oldV2QuestionVersionReconstructsOriginalBytesButCannotSilentlyRunOrUpgrade",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "optionTrueHandleUsesNameAsInterruptIdAndPreservesOriginalOrder",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "optionalIgnoreUsesOriginalEventAndDoesNotInventResumeContent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "originalCanvasCompilesV3WithoutChangingRawThenQueuesClaimsBeginsAndPreservesNullBytes",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答规范字节断言-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "originalRequiredMenuAndAccountChecksRejectRunBeforeAnyQueueWrite",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "qaImplicitOutputAddressCannotAliasAnotherNodeButSameNodeDeclarationIsLegal",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "removedMembershipBlocksReplyWithoutScopeWildcard",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "requiredIgnoreIsRejectedWithActualStateUnchanged",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPersistenceTest",
+      "name": "versionV1NullKeepsOriginalHashThroughRestoreAndOnlyNewVersionGetsV3",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPolicyTest",
+      "name": "allThreeQaImplicitIgnoreOutputsCannotOverwriteForeignDeclaredAddresses",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPolicyTest",
+      "name": "duplicateEdgesDoNotMultiplyPathsAndDisconnectedPureNodeIsRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPolicyTest",
+      "name": "externalSchemaAndUnknownGlobalReferenceRemainUnavailable",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPolicyTest",
+      "name": "maxPathLengthSixtyFourAcceptedAndSixtyFiveRefused",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPolicyTest",
+      "name": "nodeCountOneHundredTwentyEightAcceptedAndOneMoreRefused",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPolicyTest",
+      "name": "ordinaryCyclesAndUndeclaredOrForwardReferencesAreRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.StaticQuestionAnswerPolicyTest",
+      "name": "totalPathsOneHundredTwentyEightAcceptedAndOneMoreRefusedWithoutEnumeration",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "concurrentIdenticalCreatesUseRealUniqueConstraintAndExactlyOnePersists",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "deleteRemovesOnlyDirectoryAndDoesNotRewriteSavedCanvasOrPreventReadding",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "duplicateUpdateAndSqlFailurePreserveOriginalRowAndRevision",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "fiveOriginalSeedsKeepIdsCommentsAndLiteralWhitespaceAndCannotBecomeUserRecords",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "foreignAndSystemIdsCannotBeEditedOrDeletedEvenWhenRequestForcesUidOwnerOrDeleted",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "malformedOrOversizedValuesAreRejectedAndSqlTextRemainsBoundData",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "originalCreateIgnoresForgedIdentityAndUsesSeparatorAsCommentWithoutTrimming",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "ownAndSystemDuplicatesRejectButAnotherUsersIdenticalPreferenceIsIndependent",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "updateUsesOwnedRowAndOptionalExplicitRevisionNeverOverwritesAConflict",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.TextConfigPersistenceTest",
+      "name": "waitingForOwnedRowLockRechecksPermissionBeforeWriting",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答与运行JSON-联合回归",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowDefaultScopePersistenceTest",
+      "name": "absentDefaultReadIsEmptyAndNeverFallsBackToOwnedNamedWorkflow",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowDefaultScopePersistenceTest",
+      "name": "concurrentFirstCreatesShareOneDefaultOwnerAndKeepTwoRealWorkflowRows",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowDefaultScopePersistenceTest",
+      "name": "defaultCreateSaveVersionRestoreAndDeleteUseOnePhysicalScopeAndLegacyNull",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowDefaultScopePersistenceTest",
+      "name": "defaultScopeDoesNotUseForeignOwnerOrDirtyMemberAndMalformedEchoCannotPromoteIt",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowDefaultScopePersistenceTest",
+      "name": "explicitNamedQueryAndBodyOverrideHeaderButMustAuthorizeTheSelectedDomain",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowDefaultScopePersistenceTest",
+      "name": "firstInvalidRequestAndRealMapperFailureRollBackDefaultOwnerAndResourceTogether",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowDefaultScopePersistenceTest",
+      "name": "versionHeaderCannotBeReplacedByBodyNamedScopeAndUnboundCloneStaysUnavailable",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowInputTypesPolicyTest",
+      "name": "emptyOrNullFirstFileTypeAndMissingFileSchemaRefuseBeforeProjectionWrites",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowInputTypesPolicyTest",
+      "name": "fifteenOriginalTypedCasesAndSourceDerivedMetadataMatchWithoutMutatingRaw",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowInputTypesPolicyTest",
+      "name": "projectionBudgetAndDerivedDynamicCredentialNamesKeepExistingBoundary",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowInputTypesPolicyTest",
+      "name": "reservedAgentInputIsReturnedButSkippedBeforeMetadataSchemaOrFileChecks",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowInputTypesPolicyTest",
+      "name": "responseKeepsAgentAndArrayFileOrderAndOriginalFirstStart",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowInputTypesPolicyTest",
+      "name": "typedWhitelistStopsAtOpenObjectsAndOnlySingularItemIsOriginalField",
+      "outcome": "passed",
+      "evidencePrefix": "输入类型同步H2与固定输入修复定向检查",
+      "carriedBaseline": true
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "actualJsonCanvasPreservesExplicitRootAndNestedNullForCreateAndSave",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "actualJsonObjectCanvasAndConfigurationSurviveJacksonBindingAndPersistence",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "advancedConfigurationBudgetAppliesAfterMergingAndRejectsWithoutPersistingPatch",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "canvasRequiresActualArraysAndNeverCoercesArrayStringsOnCreateOrSave",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "copyHasNewIdentifiersPreservesLayoutAndDoesNotInventAgentApplicationOrPublication",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "duplicateNamesAreSpaceScopedSearchIsLiteralAndDeletedWorkflowStopsNewRuntimeReads",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "encodedCanvasRemainsByteIdenticalAndConfigurationArraysAreRejectedAtomically",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "nestedUnmanagedCredentialsIncludingStringWrappedConfigCannotEnterDraftOrVersion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "nullFieldNamesCountTowardFinalMergedPhysicalBudget",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "objectCanvasSaveRetainsUnsentOriginalRootMetadataAndMergedSecretsAreRejected",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "originalCanvasAndUnknownFieldsRemainIndependentOfExecutableVersion",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "originalPartialAdvancedConfigurationMergesObjectsAndReplacesArraysScalarsAndNull",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "resourceDenialHappensBeforeFormalInsertAndClientsCannotClaimPublishedVersions",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "restoreRejectsForeignVersionAndKeepsHistoricalSnapshotWhileCreatingNewDraftRevision",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "staleRevisionMissingRevisionCrossSpaceAndForgedFlowIdCannotOverwrite",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    },
+    {
+      "class": "com.ruoyi.paiflow.service.WorkflowPersistenceTest",
+      "name": "versionInsertFailureRollsBackVersionAndPointerAndSnapshotNeverUpdates",
+      "outcome": "passed",
+      "evidencePrefix": "静态问答首验修复-定向复验",
+      "carriedBaseline": true,
+      "carrySource": "静态问答三次检查用例沿用核对.json"
+    }
+  ],
+  "realDbWrites": false,
+  "liveHttp": false,
+  "businessVerified": false,
+  "migrationComplete": false
+}

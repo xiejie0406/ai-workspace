@@ -1,0 +1,5533 @@
+{
+  "schemaVersion": "paiflow.static-question-answer.fixture.v1",
+  "scope": "canonical execution fixed JSON, not raw React canvas or live user/centre proof",
+  "rawCanvasScope": "No rawCanvas claimed. V3 centre compiler must preserve raw frontend data and compile array-* plus original typed coercion; empty domain/appId are execution-only compatibility, not App/model identity.",
+  "execution": {
+    "nodes": [
+      {
+        "id": "node-start::s",
+        "data": {
+          "nodeMeta": {
+            "nodeType": "node-start",
+            "aliasName": "node-start::s"
+          },
+          "inputs": [],
+          "outputs": [
+            {
+              "name": "question",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            }
+          ],
+          "nodeParam": {}
+        }
+      },
+      {
+        "id": "question-answer::qa",
+        "data": {
+          "nodeMeta": {
+            "nodeType": "question-answer",
+            "aliasName": "question-answer::qa"
+          },
+          "inputs": [
+            {
+              "id": "",
+              "name": "question",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "type": "ref",
+                  "content": {
+                    "nodeId": "node-start::s",
+                    "name": "question"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "name": "id",
+              "schema": {
+                "type": "string"
+              },
+              "required": false
+            },
+            {
+              "name": "query",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            },
+            {
+              "name": "content",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            }
+          ],
+          "nodeParam": {
+            "appId": "",
+            "domain": "",
+            "question": "请回答{{question}}",
+            "answerType": "direct",
+            "timeout": 1,
+            "needReply": true,
+            "directAnswer": {
+              "handleResponse": false,
+              "maxRetryCounts": 5
+            }
+          }
+        }
+      },
+      {
+        "id": "node-end::e",
+        "data": {
+          "nodeMeta": {
+            "nodeType": "node-end",
+            "aliasName": "node-end::e"
+          },
+          "inputs": [
+            {
+              "id": "",
+              "name": "id",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "type": "ref",
+                  "content": {
+                    "nodeId": "question-answer::qa",
+                    "name": "id"
+                  }
+                }
+              }
+            },
+            {
+              "id": "",
+              "name": "query",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "type": "ref",
+                  "content": {
+                    "nodeId": "question-answer::qa",
+                    "name": "query"
+                  }
+                }
+              }
+            },
+            {
+              "id": "",
+              "name": "content",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "type": "ref",
+                  "content": {
+                    "nodeId": "question-answer::qa",
+                    "name": "content"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "name": "id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            },
+            {
+              "name": "query",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            },
+            {
+              "name": "content",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            }
+          ],
+          "nodeParam": {
+            "outputMode": 0
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "sourceNodeId": "node-start::s",
+        "targetNodeId": "question-answer::qa",
+        "sourceHandle": ""
+      },
+      {
+        "sourceNodeId": "question-answer::qa",
+        "targetNodeId": "node-end::e",
+        "sourceHandle": ""
+      }
+    ]
+  },
+  "input": {
+    "question": "中心检查点问题"
+  },
+  "resourceSnapshots": {},
+  "effectPolicy": {
+    "mode": "read_only",
+    "allowedOperations": []
+  },
+  "limits": {
+    "maxGraphNodes": 128,
+    "maxPaths": 128,
+    "maxPathLength": 64
+  },
+  "profileScope": {
+    "nodeTypes": [
+      "node-start",
+      "node-end",
+      "if-else",
+      "text-joiner",
+      "message",
+      "question-answer"
+    ],
+    "topLevelOnly": true,
+    "directHandleResponse": false,
+    "optionRetainedHandleResponseTrueIsStatic": true,
+    "historyEnabled": false,
+    "activeRetry": false,
+    "resources": false,
+    "workflowFactoryBeforeBegin": false
+  },
+  "coercionScope": "actual original Pydantic only; accepted does not confer this static profile model/history/resource authorization",
+  "coercionCases": [
+    {
+      "id": "need-reply-0",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "boolean",
+      "input": true,
+      "effectiveValue": true
+    },
+    {
+      "id": "need-reply-1",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": false,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "boolean",
+      "input": false,
+      "effectiveValue": false
+    },
+    {
+      "id": "need-reply-2",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": 1,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "integer",
+      "input": 1,
+      "effectiveValue": true
+    },
+    {
+      "id": "need-reply-3",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": 0,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "integer",
+      "input": 0,
+      "effectiveValue": false
+    },
+    {
+      "id": "need-reply-4",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": 1.0,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "number",
+      "input": 1.0,
+      "effectiveValue": true
+    },
+    {
+      "id": "need-reply-5",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": 0.0,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "number",
+      "input": 0.0,
+      "effectiveValue": false
+    },
+    {
+      "id": "need-reply-6",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": "false",
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "false",
+      "effectiveValue": false
+    },
+    {
+      "id": "need-reply-7",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": "OFF",
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "OFF",
+      "effectiveValue": false
+    },
+    {
+      "id": "need-reply-8",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": "yes",
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "yes",
+      "effectiveValue": true
+    },
+    {
+      "id": "need-reply-9",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": "t",
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "t",
+      "effectiveValue": true
+    },
+    {
+      "id": "need-reply-10",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": "",
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": ""
+    },
+    {
+      "id": "need-reply-11",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": null,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "need-reply-12",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": 2,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 2
+    },
+    {
+      "id": "need-reply-13",
+      "group": "need-reply",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": " false ",
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": " false "
+    },
+    {
+      "id": "handle-response-14",
+      "group": "handle-response",
+      "field": "directAnswer.handleResponse",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": true,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "boolean",
+      "input": true,
+      "effectiveValue": {
+        "handleResponse": true,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "handle-response-15",
+      "group": "handle-response",
+      "field": "directAnswer.handleResponse",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "boolean",
+      "input": false,
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "handle-response-16",
+      "group": "handle-response",
+      "field": "directAnswer.handleResponse",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": "false",
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "false",
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "handle-response-17",
+      "group": "handle-response",
+      "field": "directAnswer.handleResponse",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": "OFF",
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "OFF",
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "handle-response-18",
+      "group": "handle-response",
+      "field": "directAnswer.handleResponse",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": 1.0,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "number",
+      "input": 1.0,
+      "effectiveValue": {
+        "handleResponse": true,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "handle-response-19",
+      "group": "handle-response",
+      "field": "directAnswer.handleResponse",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": 0.0,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "number",
+      "input": 0.0,
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "handle-response-20",
+      "group": "handle-response",
+      "field": "directAnswer.handleResponse",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": null,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "handle-response-21",
+      "group": "handle-response",
+      "field": "directAnswer.handleResponse",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": "",
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": ""
+    },
+    {
+      "id": "timeout-22",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 0,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 0
+    },
+    {
+      "id": "timeout-23",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "integer",
+      "input": 1,
+      "effectiveValue": 1
+    },
+    {
+      "id": "timeout-24",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 5,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "integer",
+      "input": 5,
+      "effectiveValue": 5
+    },
+    {
+      "id": "timeout-25",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 6,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 6
+    },
+    {
+      "id": "timeout-26",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": -1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": -1
+    },
+    {
+      "id": "timeout-27",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1.0,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "number",
+      "input": 1.0,
+      "effectiveValue": 1
+    },
+    {
+      "id": "timeout-28",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1.5,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "number",
+      "input": 1.5
+    },
+    {
+      "id": "timeout-29",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": true,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "boolean",
+      "input": true,
+      "effectiveValue": 1
+    },
+    {
+      "id": "timeout-30",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": false,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "boolean",
+      "input": false
+    },
+    {
+      "id": "timeout-31",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "1",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "1",
+      "effectiveValue": 1
+    },
+    {
+      "id": "timeout-32",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "3.0",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "3.0",
+      "effectiveValue": 3
+    },
+    {
+      "id": "timeout-33",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "3.",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": "3."
+    },
+    {
+      "id": "timeout-34",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "+3",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "+3",
+      "effectiveValue": 3
+    },
+    {
+      "id": "timeout-35",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "003",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "003",
+      "effectiveValue": 3
+    },
+    {
+      "id": "timeout-36",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "3e0",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": "3e0"
+    },
+    {
+      "id": "timeout-37",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "3_000",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": "3_000"
+    },
+    {
+      "id": "timeout-38",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "\t3\n",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "\t3\n",
+      "effectiveValue": 3
+    },
+    {
+      "id": "timeout-39",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": null,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "timeout-40",
+      "group": "timeout",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": "",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": ""
+    },
+    {
+      "id": "max-retry-41",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 0
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 0
+    },
+    {
+      "id": "max-retry-42",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 1
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "integer",
+      "input": 1,
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 1
+      }
+    },
+    {
+      "id": "max-retry-43",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "integer",
+      "input": 5,
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "max-retry-44",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 6
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 6
+    },
+    {
+      "id": "max-retry-45",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": -1
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": -1
+    },
+    {
+      "id": "max-retry-46",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 1000000000000000000000000000000
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 1000000000000000000000000000000
+    },
+    {
+      "id": "max-retry-47",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5.0
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "number",
+      "input": 5.0,
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "max-retry-48",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": true
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "boolean",
+      "input": true,
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 1
+      }
+    },
+    {
+      "id": "max-retry-49",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": false
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "boolean",
+      "input": false
+    },
+    {
+      "id": "max-retry-50",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": "5"
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "5",
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "max-retry-51",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": "5.0"
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "5.0",
+      "effectiveValue": {
+        "handleResponse": false,
+        "maxRetryCounts": 5
+      }
+    },
+    {
+      "id": "max-retry-52",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": "5e0"
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": "5e0"
+    },
+    {
+      "id": "max-retry-53",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": null
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "max-retry-54",
+      "group": "max-retry",
+      "field": "directAnswer.maxRetryCounts",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": ""
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": ""
+    },
+    {
+      "id": "option-type-55",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 1,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "integer",
+      "input": 1,
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 1,
+          "content_type": "text",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-type-56",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "integer",
+      "input": 2,
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 2,
+          "content_type": "text",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-type-57",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": true,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "boolean",
+      "input": true
+    },
+    {
+      "id": "option-type-58",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": false,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "boolean",
+      "input": false
+    },
+    {
+      "id": "option-type-59",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 1.0,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "number",
+      "input": 1.0
+    },
+    {
+      "id": "option-type-60",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2.0,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "number",
+      "input": 2.0
+    },
+    {
+      "id": "option-type-61",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 3,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 3
+    },
+    {
+      "id": "option-type-62",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": "1",
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": "1"
+    },
+    {
+      "id": "option-type-63",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": "2",
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": "2"
+    },
+    {
+      "id": "option-type-64",
+      "group": "option-type",
+      "field": "optionAnswer.type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": null,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "option-name-65",
+      "group": "option-name",
+      "field": "optionAnswer.name",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "A",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 2,
+          "content_type": "text",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-name-66",
+      "group": "option-name",
+      "field": "optionAnswer.name",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "Z",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "Z",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "Z",
+          "type": 2,
+          "content_type": "text",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-name-67",
+      "group": "option-name",
+      "field": "optionAnswer.name",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "default",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "default",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "default",
+          "type": 2,
+          "content_type": "text",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-name-68",
+      "group": "option-name",
+      "field": "optionAnswer.name",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "a",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": "a"
+    },
+    {
+      "id": "option-name-69",
+      "group": "option-name",
+      "field": "optionAnswer.name",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "AA",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": "AA"
+    },
+    {
+      "id": "option-name-70",
+      "group": "option-name",
+      "field": "optionAnswer.name",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": ""
+    },
+    {
+      "id": "option-name-71",
+      "group": "option-name",
+      "field": "optionAnswer.name",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": 1,
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 1
+    },
+    {
+      "id": "option-name-72",
+      "group": "option-name",
+      "field": "optionAnswer.name",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": null,
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "option-id-73",
+      "group": "option-id",
+      "field": "optionAnswer.id",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "",
+      "effectiveValue": [
+        {
+          "id": "",
+          "name": "A",
+          "type": 2,
+          "content_type": "text",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-id-74",
+      "group": "option-id",
+      "field": "optionAnswer.id",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": 1,
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 1
+    },
+    {
+      "id": "option-id-75",
+      "group": "option-id",
+      "field": "optionAnswer.id",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": null,
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "option-id-76",
+      "group": "option-id",
+      "field": "optionAnswer.id",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "branch-A",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 2,
+          "content_type": "text",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-content-77",
+      "group": "option-content",
+      "field": "optionAnswer.content",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": ""
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 2,
+          "content_type": "text",
+          "content": ""
+        }
+      ]
+    },
+    {
+      "id": "option-content-78",
+      "group": "option-content",
+      "field": "optionAnswer.content",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": 1
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 1
+    },
+    {
+      "id": "option-content-79",
+      "group": "option-content",
+      "field": "optionAnswer.content",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": null
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "option-content-80",
+      "group": "option-content",
+      "field": "optionAnswer.content",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": "原内容"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "原内容",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 2,
+          "content_type": "text",
+          "content": "原内容"
+        }
+      ]
+    },
+    {
+      "id": "option-content-type-81",
+      "group": "option-content-type",
+      "field": "optionAnswer.content_type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 2,
+          "content_type": "",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-content-type-82",
+      "group": "option-content-type",
+      "field": "optionAnswer.content_type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": 1,
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 1
+    },
+    {
+      "id": "option-content-type-83",
+      "group": "option-content-type",
+      "field": "optionAnswer.content_type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": null,
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "option-content-type-84",
+      "group": "option-content-type",
+      "field": "optionAnswer.content_type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "text",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "text",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 2,
+          "content_type": "text",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-content-type-85",
+      "group": "option-content-type",
+      "field": "optionAnswer.content_type",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "option",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": [
+          {
+            "id": "branch-A",
+            "name": "A",
+            "type": 2,
+            "content_type": "image",
+            "content": "选项{{question}}"
+          }
+        ]
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "image",
+      "effectiveValue": [
+        {
+          "id": "branch-A",
+          "name": "A",
+          "type": 2,
+          "content_type": "image",
+          "content": "选项{{question}}"
+        }
+      ]
+    },
+    {
+      "id": "option-list-86",
+      "group": "option-list",
+      "field": "optionAnswer",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": []
+      },
+      "accepted": true,
+      "inputJSONType": "array",
+      "input": [],
+      "effectiveValue": []
+    },
+    {
+      "id": "option-list-87",
+      "group": "option-list",
+      "field": "optionAnswer",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": null
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "option-list-88",
+      "group": "option-list",
+      "field": "optionAnswer",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "optionAnswer": ""
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": ""
+    },
+    {
+      "id": "history-v1-89",
+      "group": "history-v1",
+      "field": "enableChatHistory",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistory": false
+      },
+      "accepted": true,
+      "inputJSONType": "boolean",
+      "input": false,
+      "effectiveValue": false
+    },
+    {
+      "id": "history-v1-90",
+      "group": "history-v1",
+      "field": "enableChatHistory",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistory": "false"
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "false",
+      "effectiveValue": false
+    },
+    {
+      "id": "history-v1-91",
+      "group": "history-v1",
+      "field": "enableChatHistory",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistory": true
+      },
+      "accepted": true,
+      "inputJSONType": "boolean",
+      "input": true,
+      "effectiveValue": true
+    },
+    {
+      "id": "history-v1-92",
+      "group": "history-v1",
+      "field": "enableChatHistory",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistory": "true"
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "true",
+      "effectiveValue": true
+    },
+    {
+      "id": "history-v1-93",
+      "group": "history-v1",
+      "field": "enableChatHistory",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistory": null
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "history-v1-94",
+      "group": "history-v1",
+      "field": "enableChatHistory",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistory": ""
+      },
+      "accepted": false,
+      "inputJSONType": "string",
+      "input": ""
+    },
+    {
+      "id": "history-v2-95",
+      "group": "history-v2",
+      "field": "enableChatHistoryV2",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistoryV2": {}
+      },
+      "accepted": true,
+      "inputJSONType": "object",
+      "input": {},
+      "effectiveValue": {
+        "is_enabled": false,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "history-v2-96",
+      "group": "history-v2",
+      "field": "enableChatHistoryV2",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistoryV2": {
+          "isEnabled": false
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "object",
+      "input": {
+        "isEnabled": false
+      },
+      "effectiveValue": {
+        "is_enabled": false,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "history-v2-97",
+      "group": "history-v2",
+      "field": "enableChatHistoryV2",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistoryV2": {
+          "isEnabled": "false"
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "object",
+      "input": {
+        "isEnabled": "false"
+      },
+      "effectiveValue": {
+        "is_enabled": false,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "history-v2-98",
+      "group": "history-v2",
+      "field": "enableChatHistoryV2",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistoryV2": {
+          "isEnabled": true
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "object",
+      "input": {
+        "isEnabled": true
+      },
+      "effectiveValue": {
+        "is_enabled": true,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "history-v2-99",
+      "group": "history-v2",
+      "field": "enableChatHistoryV2",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistoryV2": {
+          "is_enabled": true
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "object",
+      "input": {
+        "is_enabled": true
+      },
+      "effectiveValue": {
+        "is_enabled": false,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "history-v2-100",
+      "group": "history-v2",
+      "field": "enableChatHistoryV2",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistoryV2": {
+          "rounds": "3.0"
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "object",
+      "input": {
+        "rounds": "3.0"
+      },
+      "effectiveValue": {
+        "is_enabled": false,
+        "rounds": 3
+      }
+    },
+    {
+      "id": "history-v2-101",
+      "group": "history-v2",
+      "field": "enableChatHistoryV2",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistoryV2": null
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "history-v2-102",
+      "group": "history-v2",
+      "field": "enableChatHistoryV2",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        },
+        "enableChatHistoryV2": {
+          "rounds": 0
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "object",
+      "input": {
+        "rounds": 0
+      }
+    },
+    {
+      "id": "question-103",
+      "group": "question",
+      "field": "question",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "",
+      "effectiveValue": ""
+    },
+    {
+      "id": "question-104",
+      "group": "question",
+      "field": "question",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": null,
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "question-105",
+      "group": "question",
+      "field": "question",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": 3,
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 3
+    },
+    {
+      "id": "base-app-106",
+      "group": "base-app",
+      "field": "appId",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "",
+      "effectiveValue": ""
+    },
+    {
+      "id": "base-app-107",
+      "group": "base-app",
+      "field": "appId",
+      "parameters": {
+        "appId": null,
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "base-app-108",
+      "group": "base-app",
+      "field": "appId",
+      "parameters": {
+        "appId": 3,
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 3
+    },
+    {
+      "id": "base-domain-109",
+      "group": "base-domain",
+      "field": "domain",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": true,
+      "inputJSONType": "string",
+      "input": "",
+      "effectiveValue": ""
+    },
+    {
+      "id": "base-domain-110",
+      "group": "base-domain",
+      "field": "domain",
+      "parameters": {
+        "appId": "",
+        "domain": null,
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "null",
+      "input": null
+    },
+    {
+      "id": "base-domain-111",
+      "group": "base-domain",
+      "field": "domain",
+      "parameters": {
+        "appId": "",
+        "domain": 3,
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "integer",
+      "input": 3
+    },
+    {
+      "id": "missing-appId",
+      "group": "missing",
+      "field": "appId",
+      "parameters": {
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "absent",
+      "inputAbsent": true
+    },
+    {
+      "id": "missing-domain",
+      "group": "missing",
+      "field": "domain",
+      "parameters": {
+        "appId": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "absent",
+      "inputAbsent": true
+    },
+    {
+      "id": "missing-question",
+      "group": "missing",
+      "field": "question",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "absent",
+      "inputAbsent": true
+    },
+    {
+      "id": "missing-timeout",
+      "group": "missing",
+      "field": "timeout",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "needReply": true,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "absent",
+      "inputAbsent": true
+    },
+    {
+      "id": "missing-needReply",
+      "group": "missing",
+      "field": "needReply",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "directAnswer": {
+          "handleResponse": false,
+          "maxRetryCounts": 5
+        }
+      },
+      "accepted": false,
+      "inputJSONType": "absent",
+      "inputAbsent": true
+    },
+    {
+      "id": "missing-directAnswer",
+      "group": "missing",
+      "field": "directAnswer",
+      "parameters": {
+        "appId": "",
+        "domain": "",
+        "question": "请回答{{question}}",
+        "answerType": "direct",
+        "timeout": 1,
+        "needReply": true
+      },
+      "accepted": false,
+      "inputJSONType": "absent",
+      "inputAbsent": true
+    }
+  ],
+  "algorithmCases": [
+    {
+      "name": "direct-required",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "direct",
+                "timeout": 1,
+                "needReply": true,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                }
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "resume",
+        "content": "真实回复"
+      },
+      "expectedOutputs": {
+        "id": "",
+        "query": "请回答中心检查点问题",
+        "content": "真实回复"
+      },
+      "expectedErrorCode": null,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "direct-empty-resume",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "direct",
+                "timeout": 1,
+                "needReply": false,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                }
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "resume",
+        "content": ""
+      },
+      "expectedOutputs": {
+        "id": "",
+        "query": "请回答中心检查点问题",
+        "content": ""
+      },
+      "expectedErrorCode": null,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "direct-ignore",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "direct",
+                "timeout": 1,
+                "needReply": false,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                }
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "ignore",
+        "content": ""
+      },
+      "expectedOutputs": {
+        "id": "",
+        "query": "请回答中心检查点问题",
+        "content": ""
+      },
+      "expectedErrorCode": null,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "required-ignore-fails",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "direct",
+                "timeout": 1,
+                "needReply": true,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                }
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "ignore",
+        "content": ""
+      },
+      "expectedOutputs": null,
+      "expectedErrorCode": 23802,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "abort-required-fails",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "direct",
+                "timeout": 1,
+                "needReply": true,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                }
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "abort",
+        "content": ""
+      },
+      "expectedOutputs": null,
+      "expectedErrorCode": 23802,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "abort-optional-fails",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "direct",
+                "timeout": 1,
+                "needReply": false,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                }
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "abort",
+        "content": ""
+      },
+      "expectedOutputs": null,
+      "expectedErrorCode": 23802,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "optional-timeout-does-not-ignore",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "direct",
+                "timeout": 1,
+                "needReply": false,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                }
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": null,
+      "expectedOutputs": null,
+      "expectedErrorCode": 23900,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "EXPIRED"
+    },
+    {
+      "name": "option-A-before-default",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "option",
+                "timeout": 1,
+                "needReply": true,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                },
+                "optionAnswer": [
+                  {
+                    "id": "branch-A",
+                    "name": "A",
+                    "type": 2,
+                    "content_type": "text",
+                    "content": "选项{{question}}"
+                  },
+                  {
+                    "id": "branch-default",
+                    "name": "default",
+                    "type": 1,
+                    "content_type": "text",
+                    "content": "默认"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-A"
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-default"
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "resume",
+        "content": "A"
+      },
+      "expectedOutputs": {
+        "id": "A",
+        "query": "请回答中心检查点问题",
+        "content": "选项中心检查点问题"
+      },
+      "expectedErrorCode": null,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "option-default-before-A",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "option",
+                "timeout": 1,
+                "needReply": true,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                },
+                "optionAnswer": [
+                  {
+                    "id": "branch-default",
+                    "name": "default",
+                    "type": 1,
+                    "content_type": "text",
+                    "content": "默认"
+                  },
+                  {
+                    "id": "branch-A",
+                    "name": "A",
+                    "type": 2,
+                    "content_type": "text",
+                    "content": "选项{{question}}"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-default"
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-A"
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "resume",
+        "content": "A"
+      },
+      "expectedOutputs": {
+        "id": "default",
+        "query": "请回答中心检查点问题",
+        "content": "默认"
+      },
+      "expectedErrorCode": null,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "option-retained-handle-response-true-stays-static",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "option",
+                "timeout": 1,
+                "needReply": true,
+                "directAnswer": {
+                  "handleResponse": true,
+                  "maxRetryCounts": 5
+                },
+                "optionAnswer": [
+                  {
+                    "id": "branch-A",
+                    "name": "A",
+                    "type": 2,
+                    "content_type": "text",
+                    "content": "选项{{question}}"
+                  },
+                  {
+                    "id": "branch-default",
+                    "name": "default",
+                    "type": 1,
+                    "content_type": "text",
+                    "content": "默认"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-A"
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-default"
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "resume",
+        "content": "A"
+      },
+      "expectedOutputs": {
+        "id": "A",
+        "query": "请回答中心检查点问题",
+        "content": "选项中心检查点问题"
+      },
+      "expectedErrorCode": null,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "option-ignore-default",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "option",
+                "timeout": 1,
+                "needReply": false,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                },
+                "optionAnswer": [
+                  {
+                    "id": "branch-A",
+                    "name": "A",
+                    "type": 2,
+                    "content_type": "text",
+                    "content": "选项{{question}}"
+                  },
+                  {
+                    "id": "branch-default",
+                    "name": "default",
+                    "type": 1,
+                    "content_type": "text",
+                    "content": "默认"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-A"
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-default"
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "ignore",
+        "content": ""
+      },
+      "expectedOutputs": {
+        "id": "default",
+        "query": "请回答中心检查点问题",
+        "content": ""
+      },
+      "expectedErrorCode": null,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    },
+    {
+      "name": "option-invalid-token-no-default",
+      "execution": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "question",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "question-answer::qa",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "question-answer",
+                "aliasName": "question-answer::qa"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "question"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "appId": "",
+                "domain": "",
+                "question": "请回答{{question}}",
+                "answerType": "option",
+                "timeout": 1,
+                "needReply": true,
+                "directAnswer": {
+                  "handleResponse": false,
+                  "maxRetryCounts": 5
+                },
+                "optionAnswer": [
+                  {
+                    "id": "branch-A",
+                    "name": "A",
+                    "type": 2,
+                    "content_type": "text",
+                    "content": "选项{{question}}"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "id",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "query",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "query"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "content",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "question-answer::qa",
+                        "name": "content"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "query",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                },
+                {
+                  "name": "content",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": "branch-A"
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "event": {
+        "event_type": "resume",
+        "content": "not-A"
+      },
+      "expectedOutputs": null,
+      "expectedErrorCode": 23800,
+      "metadata": {
+        "retries": 0,
+        "timestamp": 123456789
+      },
+      "pollState": "RESUMED"
+    }
+  ],
+  "originalSourceHashes": {
+    "workflow/engine/nodes/question_answer/question_answer_node.py": "d77590cfbea9d1286c67bd12b8aa96d151a776720cfa567247c6d66f24308471",
+    "workflow/engine/nodes/base_node.py": "0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f",
+    "workflow/engine/node.py": "2847a8446f4b799f880d1fbf3511e4e857c7050a64360dde23a51eaf277ac8bc",
+    "workflow/engine/entities/workflow_dsl.py": "b8f6dc6d3bd1a28586aababf735f8c043e8d70cc4038ef5542dc8104b3b343bb",
+    "workflow/engine/entities/retry_config.py": "7a34d81b3f6c65f246c2bab53a99d9e9ffcf38a9220f9dced3b16f6ed6ff1ec5",
+    "workflow/engine/entities/history.py": "253d2238fd2c3d04c15535647bde33ea7bdb7bad681a3fe8fd5c701207373898",
+    "workflow/extensions/otlp/trace/span.py": "745192272e6fe28358d8b8dda7b2a39de7f2680c84ae65bf71ffab084c709442"
+  },
+  "sourceProbe": "../../python/paiflow-runtime/verification/static-question-answer-source-probe.json",
+  "checkpointSchema": "../checkpoints.schema.json",
+  "queueWrapperExample": {
+    "message": "{\"event_type\":\"resume\",\"content\":\"真实回复\"}",
+    "metadata": {
+      "retries": 0,
+      "timestamp": 123456789
+    }
+  }
+}

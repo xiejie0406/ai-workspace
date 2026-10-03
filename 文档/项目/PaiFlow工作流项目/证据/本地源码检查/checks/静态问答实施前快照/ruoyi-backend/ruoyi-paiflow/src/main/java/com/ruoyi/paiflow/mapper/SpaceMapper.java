@@ -1,0 +1,66 @@
+package com.ruoyi.paiflow.mapper;
+
+import com.ruoyi.paiflow.domain.SpaceMember;
+import com.ruoyi.paiflow.domain.SpaceRecord;
+import com.ruoyi.paiflow.domain.SpaceVisit;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public interface SpaceMapper {
+
+    com.ruoyi.paiflow.domain.TeamRecord team(@Param("id") long id);
+    com.ruoyi.paiflow.domain.TeamRecord lockTeam(@Param("id") long id);
+    com.ruoyi.paiflow.domain.TeamMember teamMember(@Param("teamId") long teamId,@Param("userId") long userId);
+    List<com.ruoyi.paiflow.domain.TeamRecord> joinedTeams(@Param("userId") long userId);
+    int insertTeam(com.ruoyi.paiflow.domain.TeamRecord team);
+    int updateTeam(com.ruoyi.paiflow.domain.TeamRecord team);
+    long countTeamName(@Param("name") String name,@Param("excludeId") Long excludeId);
+    long countOwnedTeams(@Param("userId") long userId);
+    int insertTeamMember(@Param("teamId") long teamId,@Param("userId") long userId,@Param("role") int role,@Param("actor") String actor);
+    int reactivateTeamMember(@Param("teamId") long teamId,@Param("userId") long userId,@Param("role") int role,@Param("actor") String actor);
+    int setTeamRole(@Param("teamId") long teamId,@Param("userId") long userId,@Param("role") int role,@Param("actor") String actor);
+    int removeTeamMember(@Param("teamId") long teamId,@Param("userId") long userId,@Param("actor") String actor);
+    List<com.ruoyi.paiflow.domain.TeamMember> teamMembers(@Param("teamId") long teamId);
+    List<SpaceRecord> teamSpaces(@Param("teamId") long teamId);
+    int visitTeam(@Param("teamId") long teamId,@Param("userId") long userId);
+    int clearTeamVisit(@Param("userId") long userId);
+    int insertMember(@Param("spaceId") long spaceId,@Param("userId") long userId,@Param("role") int role,@Param("actor") String actor);
+    int reactivateMember(@Param("spaceId") long spaceId,@Param("userId") long userId,@Param("role") int role,@Param("actor") String actor);
+    long countMembers(@Param("spaceId") long spaceId,@Param("nickname") String nickname,@Param("role") Integer role);
+    List<SpaceMember> memberPage(@Param("spaceId") long spaceId,@Param("nickname") String nickname,@Param("role") Integer role,@Param("offset") int offset,@Param("limit") int limit);
+    long countTeamMembers(@Param("teamId") long teamId,@Param("nickname") String nickname,@Param("role") Integer role);
+    List<com.ruoyi.paiflow.domain.TeamMember> teamMemberPage(@Param("teamId") long teamId,@Param("nickname") String nickname,@Param("role") Integer role,@Param("offset") int offset,@Param("limit") int limit);
+    int lockOwnerScope(@Param("ownerUserId") long ownerUserId);
+    long countCapacityMembers(@Param("ownerUserId") long ownerUserId,@Param("teamId") Long teamId);
+    long countCapacityInvites(@Param("ownerUserId") long ownerUserId,@Param("teamId") Long teamId);
+    long countPendingSpaceInvites(@Param("spaceId") long spaceId);
+    int expireInvites(@Param("ownerUserId") long ownerUserId,@Param("teamId") Long teamId);
+    com.ruoyi.paiflow.domain.MembershipInvitation invitation(@Param("id") long id);
+    int insertInvitation(com.ruoyi.paiflow.domain.MembershipInvitation invitation);
+    long pendingInvitation(@Param("type") int type,@Param("scopeId") long scopeId,@Param("userId") long userId);
+    int invitationTransition(@Param("id") long id,@Param("revision") long revision,@Param("status") int status);
+    long countInvitations(@Param("type") int type,@Param("scopeId") long scopeId,@Param("nickname") String nickname,@Param("status") Integer status);
+    List<com.ruoyi.paiflow.domain.MembershipInvitation> invitationPage(@Param("type") int type,@Param("scopeId") long scopeId,@Param("nickname") String nickname,@Param("status") Integer status,@Param("offset") int offset,@Param("limit") int limit);
+    com.ruoyi.paiflow.domain.MembershipApplication application(@Param("id") long id);
+    long pendingApplication(@Param("spaceId") long spaceId,@Param("userId") long userId);
+    int insertApplication(com.ruoyi.paiflow.domain.MembershipApplication application);
+    int applicationTransition(@Param("id") long id,@Param("revision") long revision,@Param("status") int status,@Param("auditUserId") long auditUserId);
+    long countApplications(@Param("spaceId") long spaceId,@Param("nickname") String nickname,@Param("status") Integer status);
+    List<com.ruoyi.paiflow.domain.MembershipApplication> applicationPage(@Param("spaceId") long spaceId,@Param("nickname") String nickname,@Param("status") Integer status,@Param("offset") int offset,@Param("limit") int limit);
+    SpaceRecord find(@Param("id") long id);
+    SpaceRecord defaultPersonal(@Param("ownerUserId") long ownerUserId);
+    SpaceVisit defaultPersonalVisit(@Param("userId") long userId);
+    SpaceRecord lock(@Param("id") long id);
+    SpaceMember member(@Param("spaceId") long spaceId, @Param("userId") long userId);
+    int insert(SpaceRecord space);
+    int insertOwner(@Param("spaceId") long spaceId, @Param("userId") long userId, @Param("actor") String actor);
+    int update(SpaceRecord space);
+    int transfer(@Param("spaceId") long spaceId, @Param("userId") long userId, @Param("revision") long revision, @Param("actor") String actor);
+    int setRole(@Param("spaceId") long spaceId, @Param("userId") long userId, @Param("role") int role, @Param("actor") String actor);
+    int removeMember(@Param("spaceId") long spaceId, @Param("userId") long userId, @Param("actor") String actor);
+    long countName(@Param("ownerUserId") long ownerUserId, @Param("name") String name, @Param("excludeId") Long excludeId);
+    List<SpaceRecord> list(@Param("userId") long userId, @Param("kind") String kind, @Param("name") String name, @Param("owned") boolean owned);
+    List<SpaceMember> members(@Param("spaceId") long spaceId);
+    int visit(@Param("spaceId") long spaceId, @Param("userId") long userId);
+    List<SpaceVisit> recent(@Param("userId") long userId);
+}

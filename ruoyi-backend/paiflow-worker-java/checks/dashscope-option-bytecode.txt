@@ -1,0 +1,932 @@
+Compiled from "ApiServiceOption.java"
+public final class com.alibaba.dashscope.protocol.ApiServiceOption implements com.alibaba.dashscope.protocol.ServiceOption {
+  private com.alibaba.dashscope.protocol.StreamingMode streamingMode;
+
+  private com.alibaba.dashscope.common.OutputMode outputMode;
+
+  private com.alibaba.dashscope.protocol.Protocol protocol;
+
+  private com.alibaba.dashscope.protocol.HttpMethod httpMethod;
+
+  private java.lang.String taskGroup;
+
+  private java.lang.String task;
+
+  private java.lang.String function;
+
+  private java.lang.Boolean isAsyncTask;
+
+  private java.lang.Boolean isSSE;
+
+  private java.lang.Boolean isService;
+
+  private java.lang.String baseHttpUrl;
+
+  private java.lang.String baseWebSocketUrl;
+
+  private boolean passTaskStarted;
+
+  public java.lang.String httpUrl();
+    Code:
+       0: new           #1                  // class java/lang/StringBuffer
+       3: dup
+       4: invokespecial #2                  // Method java/lang/StringBuffer."<init>":()V
+       7: astore_1
+       8: aload_0
+       9: getfield      #3                  // Field isService:Ljava/lang/Boolean;
+      12: invokevirtual #4                  // Method java/lang/Boolean.booleanValue:()Z
+      15: ifeq          25
+      18: aload_1
+      19: ldc           #5                  // String /services
+      21: invokevirtual #6                  // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      24: pop
+      25: aload_0
+      26: getfield      #7                  // Field taskGroup:Ljava/lang/String;
+      29: ifnull        48
+      32: aload_1
+      33: ldc           #8                  // String /
+      35: invokevirtual #6                  // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      38: pop
+      39: aload_1
+      40: aload_0
+      41: getfield      #7                  // Field taskGroup:Ljava/lang/String;
+      44: invokevirtual #6                  // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      47: pop
+      48: aload_0
+      49: getfield      #9                  // Field task:Ljava/lang/String;
+      52: ifnull        71
+      55: aload_1
+      56: ldc           #8                  // String /
+      58: invokevirtual #6                  // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      61: pop
+      62: aload_1
+      63: aload_0
+      64: getfield      #9                  // Field task:Ljava/lang/String;
+      67: invokevirtual #6                  // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      70: pop
+      71: aload_0
+      72: getfield      #10                 // Field function:Ljava/lang/String;
+      75: ifnull        94
+      78: aload_1
+      79: ldc           #8                  // String /
+      81: invokevirtual #6                  // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      84: pop
+      85: aload_1
+      86: aload_0
+      87: getfield      #10                 // Field function:Ljava/lang/String;
+      90: invokevirtual #6                  // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      93: pop
+      94: aload_1
+      95: invokevirtual #11                 // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+      98: areturn
+
+  private static com.alibaba.dashscope.protocol.StreamingMode $default$streamingMode();
+    Code:
+       0: getstatic     #12                 // Field com/alibaba/dashscope/protocol/StreamingMode.NONE:Lcom/alibaba/dashscope/protocol/StreamingMode;
+       3: areturn
+
+  private static com.alibaba.dashscope.common.OutputMode $default$outputMode();
+    Code:
+       0: getstatic     #13                 // Field com/alibaba/dashscope/common/OutputMode.ACCUMULATE:Lcom/alibaba/dashscope/common/OutputMode;
+       3: areturn
+
+  private static com.alibaba.dashscope.protocol.Protocol $default$protocol();
+    Code:
+       0: getstatic     #14                 // Field com/alibaba/dashscope/protocol/Protocol.HTTP:Lcom/alibaba/dashscope/protocol/Protocol;
+       3: areturn
+
+  private static com.alibaba.dashscope.protocol.HttpMethod $default$httpMethod();
+    Code:
+       0: getstatic     #15                 // Field com/alibaba/dashscope/protocol/HttpMethod.POST:Lcom/alibaba/dashscope/protocol/HttpMethod;
+       3: areturn
+
+  private static java.lang.Boolean $default$isAsyncTask();
+    Code:
+       0: iconst_0
+       1: invokestatic  #16                 // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+       4: areturn
+
+  private static java.lang.Boolean $default$isSSE();
+    Code:
+       0: iconst_0
+       1: invokestatic  #16                 // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+       4: areturn
+
+  private static java.lang.Boolean $default$isService();
+    Code:
+       0: iconst_1
+       1: invokestatic  #16                 // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+       4: areturn
+
+  private static java.lang.String $default$baseHttpUrl();
+    Code:
+       0: aconst_null
+       1: areturn
+
+  private static java.lang.String $default$baseWebSocketUrl();
+    Code:
+       0: aconst_null
+       1: areturn
+
+  private static boolean $default$passTaskStarted();
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  protected com.alibaba.dashscope.protocol.ApiServiceOption(com.alibaba.dashscope.protocol.ApiServiceOption$ApiServiceOptionBuilder<?, ?>);
+    Code:
+       0: aload_0
+       1: invokespecial #17                 // Method java/lang/Object."<init>":()V
+       4: aload_1
+       5: invokestatic  #18                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$000:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+       8: ifeq          22
+      11: aload_0
+      12: aload_1
+      13: invokestatic  #19                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$100:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Lcom/alibaba/dashscope/protocol/StreamingMode;
+      16: putfield      #20                 // Field streamingMode:Lcom/alibaba/dashscope/protocol/StreamingMode;
+      19: goto          29
+      22: aload_0
+      23: invokestatic  #21                 // Method $default$streamingMode:()Lcom/alibaba/dashscope/protocol/StreamingMode;
+      26: putfield      #20                 // Field streamingMode:Lcom/alibaba/dashscope/protocol/StreamingMode;
+      29: aload_1
+      30: invokestatic  #22                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$200:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+      33: ifeq          47
+      36: aload_0
+      37: aload_1
+      38: invokestatic  #23                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$300:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Lcom/alibaba/dashscope/common/OutputMode;
+      41: putfield      #24                 // Field outputMode:Lcom/alibaba/dashscope/common/OutputMode;
+      44: goto          54
+      47: aload_0
+      48: invokestatic  #25                 // Method $default$outputMode:()Lcom/alibaba/dashscope/common/OutputMode;
+      51: putfield      #24                 // Field outputMode:Lcom/alibaba/dashscope/common/OutputMode;
+      54: aload_1
+      55: invokestatic  #26                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$400:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+      58: ifeq          72
+      61: aload_0
+      62: aload_1
+      63: invokestatic  #27                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$500:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Lcom/alibaba/dashscope/protocol/Protocol;
+      66: putfield      #28                 // Field protocol:Lcom/alibaba/dashscope/protocol/Protocol;
+      69: goto          79
+      72: aload_0
+      73: invokestatic  #29                 // Method $default$protocol:()Lcom/alibaba/dashscope/protocol/Protocol;
+      76: putfield      #28                 // Field protocol:Lcom/alibaba/dashscope/protocol/Protocol;
+      79: aload_1
+      80: invokestatic  #30                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$600:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+      83: ifeq          97
+      86: aload_0
+      87: aload_1
+      88: invokestatic  #31                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$700:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Lcom/alibaba/dashscope/protocol/HttpMethod;
+      91: putfield      #32                 // Field httpMethod:Lcom/alibaba/dashscope/protocol/HttpMethod;
+      94: goto          104
+      97: aload_0
+      98: invokestatic  #33                 // Method $default$httpMethod:()Lcom/alibaba/dashscope/protocol/HttpMethod;
+     101: putfield      #32                 // Field httpMethod:Lcom/alibaba/dashscope/protocol/HttpMethod;
+     104: aload_0
+     105: aload_1
+     106: invokestatic  #34                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$800:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Ljava/lang/String;
+     109: putfield      #7                  // Field taskGroup:Ljava/lang/String;
+     112: aload_0
+     113: aload_1
+     114: invokestatic  #35                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$900:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Ljava/lang/String;
+     117: putfield      #9                  // Field task:Ljava/lang/String;
+     120: aload_0
+     121: aload_1
+     122: invokestatic  #36                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1000:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Ljava/lang/String;
+     125: putfield      #10                 // Field function:Ljava/lang/String;
+     128: aload_1
+     129: invokestatic  #37                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1100:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+     132: ifeq          146
+     135: aload_0
+     136: aload_1
+     137: invokestatic  #38                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1200:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Ljava/lang/Boolean;
+     140: putfield      #39                 // Field isAsyncTask:Ljava/lang/Boolean;
+     143: goto          153
+     146: aload_0
+     147: invokestatic  #40                 // Method $default$isAsyncTask:()Ljava/lang/Boolean;
+     150: putfield      #39                 // Field isAsyncTask:Ljava/lang/Boolean;
+     153: aload_1
+     154: invokestatic  #41                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1300:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+     157: ifeq          171
+     160: aload_0
+     161: aload_1
+     162: invokestatic  #42                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1400:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Ljava/lang/Boolean;
+     165: putfield      #43                 // Field isSSE:Ljava/lang/Boolean;
+     168: goto          178
+     171: aload_0
+     172: invokestatic  #44                 // Method $default$isSSE:()Ljava/lang/Boolean;
+     175: putfield      #43                 // Field isSSE:Ljava/lang/Boolean;
+     178: aload_1
+     179: invokestatic  #45                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1500:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+     182: ifeq          196
+     185: aload_0
+     186: aload_1
+     187: invokestatic  #46                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1600:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Ljava/lang/Boolean;
+     190: putfield      #3                  // Field isService:Ljava/lang/Boolean;
+     193: goto          203
+     196: aload_0
+     197: invokestatic  #47                 // Method $default$isService:()Ljava/lang/Boolean;
+     200: putfield      #3                  // Field isService:Ljava/lang/Boolean;
+     203: aload_1
+     204: invokestatic  #48                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1700:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+     207: ifeq          221
+     210: aload_0
+     211: aload_1
+     212: invokestatic  #49                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1800:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Ljava/lang/String;
+     215: putfield      #50                 // Field baseHttpUrl:Ljava/lang/String;
+     218: goto          228
+     221: aload_0
+     222: invokestatic  #51                 // Method $default$baseHttpUrl:()Ljava/lang/String;
+     225: putfield      #50                 // Field baseHttpUrl:Ljava/lang/String;
+     228: aload_1
+     229: invokestatic  #52                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$1900:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+     232: ifeq          246
+     235: aload_0
+     236: aload_1
+     237: invokestatic  #53                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$2000:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Ljava/lang/String;
+     240: putfield      #54                 // Field baseWebSocketUrl:Ljava/lang/String;
+     243: goto          253
+     246: aload_0
+     247: invokestatic  #55                 // Method $default$baseWebSocketUrl:()Ljava/lang/String;
+     250: putfield      #54                 // Field baseWebSocketUrl:Ljava/lang/String;
+     253: aload_1
+     254: invokestatic  #56                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$2100:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+     257: ifeq          271
+     260: aload_0
+     261: aload_1
+     262: invokestatic  #57                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder.access$2200:(Lcom/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilder;)Z
+     265: putfield      #58                 // Field passTaskStarted:Z
+     268: goto          278
+     271: aload_0
+     272: invokestatic  #59                 // Method $default$passTaskStarted:()Z
+     275: putfield      #58                 // Field passTaskStarted:Z
+     278: return
+
+  public static com.alibaba.dashscope.protocol.ApiServiceOption$ApiServiceOptionBuilder<?, ?> builder();
+    Code:
+       0: new           #60                 // class com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilderImpl
+       3: dup
+       4: aconst_null
+       5: invokespecial #61                 // Method com/alibaba/dashscope/protocol/ApiServiceOption$ApiServiceOptionBuilderImpl."<init>":(Lcom/alibaba/dashscope/protocol/ApiServiceOption$1;)V
+       8: areturn
+
+  public com.alibaba.dashscope.protocol.StreamingMode getStreamingMode();
+    Code:
+       0: aload_0
+       1: getfield      #20                 // Field streamingMode:Lcom/alibaba/dashscope/protocol/StreamingMode;
+       4: areturn
+
+  public com.alibaba.dashscope.common.OutputMode getOutputMode();
+    Code:
+       0: aload_0
+       1: getfield      #24                 // Field outputMode:Lcom/alibaba/dashscope/common/OutputMode;
+       4: areturn
+
+  public com.alibaba.dashscope.protocol.Protocol getProtocol();
+    Code:
+       0: aload_0
+       1: getfield      #28                 // Field protocol:Lcom/alibaba/dashscope/protocol/Protocol;
+       4: areturn
+
+  public com.alibaba.dashscope.protocol.HttpMethod getHttpMethod();
+    Code:
+       0: aload_0
+       1: getfield      #32                 // Field httpMethod:Lcom/alibaba/dashscope/protocol/HttpMethod;
+       4: areturn
+
+  public java.lang.String getTaskGroup();
+    Code:
+       0: aload_0
+       1: getfield      #7                  // Field taskGroup:Ljava/lang/String;
+       4: areturn
+
+  public java.lang.String getTask();
+    Code:
+       0: aload_0
+       1: getfield      #9                  // Field task:Ljava/lang/String;
+       4: areturn
+
+  public java.lang.String getFunction();
+    Code:
+       0: aload_0
+       1: getfield      #10                 // Field function:Ljava/lang/String;
+       4: areturn
+
+  public java.lang.Boolean getIsAsyncTask();
+    Code:
+       0: aload_0
+       1: getfield      #39                 // Field isAsyncTask:Ljava/lang/Boolean;
+       4: areturn
+
+  public java.lang.Boolean getIsSSE();
+    Code:
+       0: aload_0
+       1: getfield      #43                 // Field isSSE:Ljava/lang/Boolean;
+       4: areturn
+
+  public java.lang.Boolean getIsService();
+    Code:
+       0: aload_0
+       1: getfield      #3                  // Field isService:Ljava/lang/Boolean;
+       4: areturn
+
+  public java.lang.String getBaseHttpUrl();
+    Code:
+       0: aload_0
+       1: getfield      #50                 // Field baseHttpUrl:Ljava/lang/String;
+       4: areturn
+
+  public java.lang.String getBaseWebSocketUrl();
+    Code:
+       0: aload_0
+       1: getfield      #54                 // Field baseWebSocketUrl:Ljava/lang/String;
+       4: areturn
+
+  public boolean isPassTaskStarted();
+    Code:
+       0: aload_0
+       1: getfield      #58                 // Field passTaskStarted:Z
+       4: ireturn
+
+  public void setStreamingMode(com.alibaba.dashscope.protocol.StreamingMode);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #20                 // Field streamingMode:Lcom/alibaba/dashscope/protocol/StreamingMode;
+       5: return
+
+  public void setOutputMode(com.alibaba.dashscope.common.OutputMode);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #24                 // Field outputMode:Lcom/alibaba/dashscope/common/OutputMode;
+       5: return
+
+  public void setProtocol(com.alibaba.dashscope.protocol.Protocol);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #28                 // Field protocol:Lcom/alibaba/dashscope/protocol/Protocol;
+       5: return
+
+  public void setHttpMethod(com.alibaba.dashscope.protocol.HttpMethod);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #32                 // Field httpMethod:Lcom/alibaba/dashscope/protocol/HttpMethod;
+       5: return
+
+  public void setTaskGroup(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #7                  // Field taskGroup:Ljava/lang/String;
+       5: return
+
+  public void setTask(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #9                  // Field task:Ljava/lang/String;
+       5: return
+
+  public void setFunction(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #10                 // Field function:Ljava/lang/String;
+       5: return
+
+  public void setIsAsyncTask(java.lang.Boolean);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #39                 // Field isAsyncTask:Ljava/lang/Boolean;
+       5: return
+
+  public void setIsSSE(java.lang.Boolean);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #43                 // Field isSSE:Ljava/lang/Boolean;
+       5: return
+
+  public void setIsService(java.lang.Boolean);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #3                  // Field isService:Ljava/lang/Boolean;
+       5: return
+
+  public void setBaseHttpUrl(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #50                 // Field baseHttpUrl:Ljava/lang/String;
+       5: return
+
+  public void setBaseWebSocketUrl(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #54                 // Field baseWebSocketUrl:Ljava/lang/String;
+       5: return
+
+  public void setPassTaskStarted(boolean);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: putfield      #58                 // Field passTaskStarted:Z
+       5: return
+
+  public boolean equals(java.lang.Object);
+    Code:
+       0: aload_1
+       1: aload_0
+       2: if_acmpne     7
+       5: iconst_1
+       6: ireturn
+       7: aload_1
+       8: instanceof    #62                 // class com/alibaba/dashscope/protocol/ApiServiceOption
+      11: ifne          16
+      14: iconst_0
+      15: ireturn
+      16: aload_1
+      17: checkcast     #62                 // class com/alibaba/dashscope/protocol/ApiServiceOption
+      20: astore_2
+      21: aload_0
+      22: invokevirtual #63                 // Method isPassTaskStarted:()Z
+      25: aload_2
+      26: invokevirtual #63                 // Method isPassTaskStarted:()Z
+      29: if_icmpeq     34
+      32: iconst_0
+      33: ireturn
+      34: aload_0
+      35: invokevirtual #64                 // Method getIsAsyncTask:()Ljava/lang/Boolean;
+      38: astore_3
+      39: aload_2
+      40: invokevirtual #64                 // Method getIsAsyncTask:()Ljava/lang/Boolean;
+      43: astore        4
+      45: aload_3
+      46: ifnonnull     57
+      49: aload         4
+      51: ifnull        68
+      54: goto          66
+      57: aload_3
+      58: aload         4
+      60: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+      63: ifne          68
+      66: iconst_0
+      67: ireturn
+      68: aload_0
+      69: invokevirtual #66                 // Method getIsSSE:()Ljava/lang/Boolean;
+      72: astore        5
+      74: aload_2
+      75: invokevirtual #66                 // Method getIsSSE:()Ljava/lang/Boolean;
+      78: astore        6
+      80: aload         5
+      82: ifnonnull     93
+      85: aload         6
+      87: ifnull        105
+      90: goto          103
+      93: aload         5
+      95: aload         6
+      97: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     100: ifne          105
+     103: iconst_0
+     104: ireturn
+     105: aload_0
+     106: invokevirtual #67                 // Method getIsService:()Ljava/lang/Boolean;
+     109: astore        7
+     111: aload_2
+     112: invokevirtual #67                 // Method getIsService:()Ljava/lang/Boolean;
+     115: astore        8
+     117: aload         7
+     119: ifnonnull     130
+     122: aload         8
+     124: ifnull        142
+     127: goto          140
+     130: aload         7
+     132: aload         8
+     134: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     137: ifne          142
+     140: iconst_0
+     141: ireturn
+     142: aload_0
+     143: invokevirtual #68                 // Method getStreamingMode:()Lcom/alibaba/dashscope/protocol/StreamingMode;
+     146: astore        9
+     148: aload_2
+     149: invokevirtual #68                 // Method getStreamingMode:()Lcom/alibaba/dashscope/protocol/StreamingMode;
+     152: astore        10
+     154: aload         9
+     156: ifnonnull     167
+     159: aload         10
+     161: ifnull        179
+     164: goto          177
+     167: aload         9
+     169: aload         10
+     171: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     174: ifne          179
+     177: iconst_0
+     178: ireturn
+     179: aload_0
+     180: invokevirtual #69                 // Method getOutputMode:()Lcom/alibaba/dashscope/common/OutputMode;
+     183: astore        11
+     185: aload_2
+     186: invokevirtual #69                 // Method getOutputMode:()Lcom/alibaba/dashscope/common/OutputMode;
+     189: astore        12
+     191: aload         11
+     193: ifnonnull     204
+     196: aload         12
+     198: ifnull        216
+     201: goto          214
+     204: aload         11
+     206: aload         12
+     208: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     211: ifne          216
+     214: iconst_0
+     215: ireturn
+     216: aload_0
+     217: invokevirtual #70                 // Method getProtocol:()Lcom/alibaba/dashscope/protocol/Protocol;
+     220: astore        13
+     222: aload_2
+     223: invokevirtual #70                 // Method getProtocol:()Lcom/alibaba/dashscope/protocol/Protocol;
+     226: astore        14
+     228: aload         13
+     230: ifnonnull     241
+     233: aload         14
+     235: ifnull        253
+     238: goto          251
+     241: aload         13
+     243: aload         14
+     245: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     248: ifne          253
+     251: iconst_0
+     252: ireturn
+     253: aload_0
+     254: invokevirtual #71                 // Method getHttpMethod:()Lcom/alibaba/dashscope/protocol/HttpMethod;
+     257: astore        15
+     259: aload_2
+     260: invokevirtual #71                 // Method getHttpMethod:()Lcom/alibaba/dashscope/protocol/HttpMethod;
+     263: astore        16
+     265: aload         15
+     267: ifnonnull     278
+     270: aload         16
+     272: ifnull        290
+     275: goto          288
+     278: aload         15
+     280: aload         16
+     282: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     285: ifne          290
+     288: iconst_0
+     289: ireturn
+     290: aload_0
+     291: invokevirtual #72                 // Method getTaskGroup:()Ljava/lang/String;
+     294: astore        17
+     296: aload_2
+     297: invokevirtual #72                 // Method getTaskGroup:()Ljava/lang/String;
+     300: astore        18
+     302: aload         17
+     304: ifnonnull     315
+     307: aload         18
+     309: ifnull        327
+     312: goto          325
+     315: aload         17
+     317: aload         18
+     319: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     322: ifne          327
+     325: iconst_0
+     326: ireturn
+     327: aload_0
+     328: invokevirtual #73                 // Method getTask:()Ljava/lang/String;
+     331: astore        19
+     333: aload_2
+     334: invokevirtual #73                 // Method getTask:()Ljava/lang/String;
+     337: astore        20
+     339: aload         19
+     341: ifnonnull     352
+     344: aload         20
+     346: ifnull        364
+     349: goto          362
+     352: aload         19
+     354: aload         20
+     356: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     359: ifne          364
+     362: iconst_0
+     363: ireturn
+     364: aload_0
+     365: invokevirtual #74                 // Method getFunction:()Ljava/lang/String;
+     368: astore        21
+     370: aload_2
+     371: invokevirtual #74                 // Method getFunction:()Ljava/lang/String;
+     374: astore        22
+     376: aload         21
+     378: ifnonnull     389
+     381: aload         22
+     383: ifnull        401
+     386: goto          399
+     389: aload         21
+     391: aload         22
+     393: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     396: ifne          401
+     399: iconst_0
+     400: ireturn
+     401: aload_0
+     402: invokevirtual #75                 // Method getBaseHttpUrl:()Ljava/lang/String;
+     405: astore        23
+     407: aload_2
+     408: invokevirtual #75                 // Method getBaseHttpUrl:()Ljava/lang/String;
+     411: astore        24
+     413: aload         23
+     415: ifnonnull     426
+     418: aload         24
+     420: ifnull        438
+     423: goto          436
+     426: aload         23
+     428: aload         24
+     430: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     433: ifne          438
+     436: iconst_0
+     437: ireturn
+     438: aload_0
+     439: invokevirtual #76                 // Method getBaseWebSocketUrl:()Ljava/lang/String;
+     442: astore        25
+     444: aload_2
+     445: invokevirtual #76                 // Method getBaseWebSocketUrl:()Ljava/lang/String;
+     448: astore        26
+     450: aload         25
+     452: ifnonnull     463
+     455: aload         26
+     457: ifnull        475
+     460: goto          473
+     463: aload         25
+     465: aload         26
+     467: invokevirtual #65                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+     470: ifne          475
+     473: iconst_0
+     474: ireturn
+     475: iconst_1
+     476: ireturn
+
+  public int hashCode();
+    Code:
+       0: bipush        59
+       2: istore_1
+       3: iconst_1
+       4: istore_2
+       5: iload_2
+       6: bipush        59
+       8: imul
+       9: aload_0
+      10: invokevirtual #63                 // Method isPassTaskStarted:()Z
+      13: ifeq          21
+      16: bipush        79
+      18: goto          23
+      21: bipush        97
+      23: iadd
+      24: istore_2
+      25: aload_0
+      26: invokevirtual #64                 // Method getIsAsyncTask:()Ljava/lang/Boolean;
+      29: astore_3
+      30: iload_2
+      31: bipush        59
+      33: imul
+      34: aload_3
+      35: ifnonnull     43
+      38: bipush        43
+      40: goto          47
+      43: aload_3
+      44: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+      47: iadd
+      48: istore_2
+      49: aload_0
+      50: invokevirtual #66                 // Method getIsSSE:()Ljava/lang/Boolean;
+      53: astore        4
+      55: iload_2
+      56: bipush        59
+      58: imul
+      59: aload         4
+      61: ifnonnull     69
+      64: bipush        43
+      66: goto          74
+      69: aload         4
+      71: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+      74: iadd
+      75: istore_2
+      76: aload_0
+      77: invokevirtual #67                 // Method getIsService:()Ljava/lang/Boolean;
+      80: astore        5
+      82: iload_2
+      83: bipush        59
+      85: imul
+      86: aload         5
+      88: ifnonnull     96
+      91: bipush        43
+      93: goto          101
+      96: aload         5
+      98: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     101: iadd
+     102: istore_2
+     103: aload_0
+     104: invokevirtual #68                 // Method getStreamingMode:()Lcom/alibaba/dashscope/protocol/StreamingMode;
+     107: astore        6
+     109: iload_2
+     110: bipush        59
+     112: imul
+     113: aload         6
+     115: ifnonnull     123
+     118: bipush        43
+     120: goto          128
+     123: aload         6
+     125: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     128: iadd
+     129: istore_2
+     130: aload_0
+     131: invokevirtual #69                 // Method getOutputMode:()Lcom/alibaba/dashscope/common/OutputMode;
+     134: astore        7
+     136: iload_2
+     137: bipush        59
+     139: imul
+     140: aload         7
+     142: ifnonnull     150
+     145: bipush        43
+     147: goto          155
+     150: aload         7
+     152: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     155: iadd
+     156: istore_2
+     157: aload_0
+     158: invokevirtual #70                 // Method getProtocol:()Lcom/alibaba/dashscope/protocol/Protocol;
+     161: astore        8
+     163: iload_2
+     164: bipush        59
+     166: imul
+     167: aload         8
+     169: ifnonnull     177
+     172: bipush        43
+     174: goto          182
+     177: aload         8
+     179: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     182: iadd
+     183: istore_2
+     184: aload_0
+     185: invokevirtual #71                 // Method getHttpMethod:()Lcom/alibaba/dashscope/protocol/HttpMethod;
+     188: astore        9
+     190: iload_2
+     191: bipush        59
+     193: imul
+     194: aload         9
+     196: ifnonnull     204
+     199: bipush        43
+     201: goto          209
+     204: aload         9
+     206: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     209: iadd
+     210: istore_2
+     211: aload_0
+     212: invokevirtual #72                 // Method getTaskGroup:()Ljava/lang/String;
+     215: astore        10
+     217: iload_2
+     218: bipush        59
+     220: imul
+     221: aload         10
+     223: ifnonnull     231
+     226: bipush        43
+     228: goto          236
+     231: aload         10
+     233: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     236: iadd
+     237: istore_2
+     238: aload_0
+     239: invokevirtual #73                 // Method getTask:()Ljava/lang/String;
+     242: astore        11
+     244: iload_2
+     245: bipush        59
+     247: imul
+     248: aload         11
+     250: ifnonnull     258
+     253: bipush        43
+     255: goto          263
+     258: aload         11
+     260: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     263: iadd
+     264: istore_2
+     265: aload_0
+     266: invokevirtual #74                 // Method getFunction:()Ljava/lang/String;
+     269: astore        12
+     271: iload_2
+     272: bipush        59
+     274: imul
+     275: aload         12
+     277: ifnonnull     285
+     280: bipush        43
+     282: goto          290
+     285: aload         12
+     287: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     290: iadd
+     291: istore_2
+     292: aload_0
+     293: invokevirtual #75                 // Method getBaseHttpUrl:()Ljava/lang/String;
+     296: astore        13
+     298: iload_2
+     299: bipush        59
+     301: imul
+     302: aload         13
+     304: ifnonnull     312
+     307: bipush        43
+     309: goto          317
+     312: aload         13
+     314: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     317: iadd
+     318: istore_2
+     319: aload_0
+     320: invokevirtual #76                 // Method getBaseWebSocketUrl:()Ljava/lang/String;
+     323: astore        14
+     325: iload_2
+     326: bipush        59
+     328: imul
+     329: aload         14
+     331: ifnonnull     339
+     334: bipush        43
+     336: goto          344
+     339: aload         14
+     341: invokevirtual #77                 // Method java/lang/Object.hashCode:()I
+     344: iadd
+     345: istore_2
+     346: iload_2
+     347: ireturn
+
+  public java.lang.String toString();
+    Code:
+       0: new           #78                 // class java/lang/StringBuilder
+       3: dup
+       4: invokespecial #79                 // Method java/lang/StringBuilder."<init>":()V
+       7: ldc           #80                 // String ApiServiceOption(streamingMode=
+       9: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      12: aload_0
+      13: invokevirtual #68                 // Method getStreamingMode:()Lcom/alibaba/dashscope/protocol/StreamingMode;
+      16: invokevirtual #82                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+      19: ldc           #83                 // String , outputMode=
+      21: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      24: aload_0
+      25: invokevirtual #69                 // Method getOutputMode:()Lcom/alibaba/dashscope/common/OutputMode;
+      28: invokevirtual #82                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+      31: ldc           #84                 // String , protocol=
+      33: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      36: aload_0
+      37: invokevirtual #70                 // Method getProtocol:()Lcom/alibaba/dashscope/protocol/Protocol;
+      40: invokevirtual #82                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+      43: ldc           #85                 // String , httpMethod=
+      45: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      48: aload_0
+      49: invokevirtual #71                 // Method getHttpMethod:()Lcom/alibaba/dashscope/protocol/HttpMethod;
+      52: invokevirtual #82                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+      55: ldc           #86                 // String , taskGroup=
+      57: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      60: aload_0
+      61: invokevirtual #72                 // Method getTaskGroup:()Ljava/lang/String;
+      64: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      67: ldc           #87                 // String , task=
+      69: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      72: aload_0
+      73: invokevirtual #73                 // Method getTask:()Ljava/lang/String;
+      76: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      79: ldc           #88                 // String , function=
+      81: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      84: aload_0
+      85: invokevirtual #74                 // Method getFunction:()Ljava/lang/String;
+      88: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      91: ldc           #89                 // String , isAsyncTask=
+      93: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      96: aload_0
+      97: invokevirtual #64                 // Method getIsAsyncTask:()Ljava/lang/Boolean;
+     100: invokevirtual #82                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+     103: ldc           #90                 // String , isSSE=
+     105: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     108: aload_0
+     109: invokevirtual #66                 // Method getIsSSE:()Ljava/lang/Boolean;
+     112: invokevirtual #82                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+     115: ldc           #91                 // String , isService=
+     117: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     120: aload_0
+     121: invokevirtual #67                 // Method getIsService:()Ljava/lang/Boolean;
+     124: invokevirtual #82                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+     127: ldc           #92                 // String , baseHttpUrl=
+     129: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     132: aload_0
+     133: invokevirtual #75                 // Method getBaseHttpUrl:()Ljava/lang/String;
+     136: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     139: ldc           #93                 // String , baseWebSocketUrl=
+     141: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     144: aload_0
+     145: invokevirtual #76                 // Method getBaseWebSocketUrl:()Ljava/lang/String;
+     148: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     151: ldc           #94                 // String , passTaskStarted=
+     153: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     156: aload_0
+     157: invokevirtual #63                 // Method isPassTaskStarted:()Z
+     160: invokevirtual #95                 // Method java/lang/StringBuilder.append:(Z)Ljava/lang/StringBuilder;
+     163: ldc           #96                 // String )
+     165: invokevirtual #81                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     168: invokevirtual #97                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     171: areturn
+}

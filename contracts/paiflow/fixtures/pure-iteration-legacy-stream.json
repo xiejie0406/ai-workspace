@@ -1,0 +1,1235 @@
+{
+  "schemaVersion": "paiflow.pure-iteration.legacy-stream.fixture.v1",
+  "status": "existing actual OriginalFactory callbacks reused as controlled input; no new Python or Worker execution",
+  "sources": [
+    {
+      "path": "python/paiflow-runtime/verification/pure-iteration-java-assignment-check.json",
+      "sha256": "fa4fd2b1d374d447b11edbd676ff6c02849ff1723781b101dbc6959410bc937b",
+      "field": "originalFactory.originalCallbackFrames"
+    },
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/纯迭代原画布中心实际领取任务-重试夹具修正后.json",
+      "sha256": "59507f49972d93e8d207c3e746c1caf7acd2b7981793303c7a202d346297e816",
+      "fields": [
+        "dsl",
+        "input"
+      ]
+    },
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/原纯迭代调试SSE来源独立核对.json",
+      "sha256": "6cdb8988bf2fe6f0a7a79e6d84e7864f4b770b1cdb47178473f5d4065c82dbfb"
+    }
+  ],
+  "replayBoundary": {
+    "oldRunId": "9553757e-35c2-48ad-85b6-231e3045c616",
+    "rawFrameChange": "only raw.id is explicitly rebound to the newly created actual H2 Run ID; all other source-frame fields remain unchanged",
+    "outerEventBinding": "new actual Run runId/leaseId/attempt, contiguous database seq and current isolated clock timestamp; iterationId copied from original private tag",
+    "rawFrameSeq": "original workflow_step.seq=0 retained; SSE cursor comes from database runId:seq",
+    "noEngineRerun": true,
+    "noProvider": true,
+    "noLiveCenter": true
+  },
+  "execution": {
+    "edges": [
+      {
+        "sourceHandle": "original-output",
+        "sourceNodeId": "node-start::s",
+        "targetHandle": "original-input",
+        "targetNodeId": "iteration::i"
+      },
+      {
+        "sourceHandle": "",
+        "sourceNodeId": "iteration::i",
+        "targetNodeId": "node-end::e"
+      },
+      {
+        "sourceHandle": "",
+        "sourceNodeId": "iteration-node-start::is",
+        "targetNodeId": "text-joiner::j"
+      },
+      {
+        "sourceHandle": "",
+        "sourceNodeId": "text-joiner::j",
+        "targetNodeId": "iteration-node-end::ie"
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "inputs": [],
+          "nodeMeta": {
+            "aliasName": "原页面node-start::s",
+            "nodeType": "node-start"
+          },
+          "nodeParam": {},
+          "outputs": [
+            {
+              "name": "items",
+              "required": true,
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            }
+          ]
+        },
+        "id": "node-start::s"
+      },
+      {
+        "data": {
+          "inputs": [
+            {
+              "id": "",
+              "name": "items",
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "value": {
+                  "content": {
+                    "name": "items",
+                    "nodeId": "node-start::s"
+                  },
+                  "type": "ref"
+                }
+              }
+            }
+          ],
+          "nodeMeta": {
+            "aliasName": "原页面iteration::i",
+            "nodeType": "iteration"
+          },
+          "nodeParam": {
+            "IterationStartNodeId": "iteration-node-start::is"
+          },
+          "outputs": [
+            {
+              "name": "value",
+              "required": true,
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            }
+          ]
+        },
+        "id": "iteration::i"
+      },
+      {
+        "data": {
+          "inputs": [],
+          "nodeMeta": {
+            "aliasName": "原页面iteration-node-start::is",
+            "nodeType": "iteration-node-start"
+          },
+          "nodeParam": {},
+          "outputs": [
+            {
+              "name": "items",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "id": "iteration-node-start::is"
+      },
+      {
+        "data": {
+          "inputs": [
+            {
+              "id": "",
+              "name": "item",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "content": {
+                    "name": "items",
+                    "nodeId": "iteration-node-start::is"
+                  },
+                  "type": "ref"
+                }
+              }
+            }
+          ],
+          "nodeMeta": {
+            "aliasName": "原页面text-joiner::j",
+            "nodeType": "text-joiner"
+          },
+          "nodeParam": {
+            "mode": 0,
+            "opaqueNull": null,
+            "prompt": "item={{item}}"
+          },
+          "outputs": [
+            {
+              "name": "value",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "retryConfig": {
+            "customOutput": {
+              "value": "disabled fixture"
+            },
+            "maxRetries": 2,
+            "shouldRetry": false
+          }
+        },
+        "id": "text-joiner::j"
+      },
+      {
+        "data": {
+          "inputs": [
+            {
+              "id": "",
+              "name": "value",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "content": {
+                    "name": "value",
+                    "nodeId": "text-joiner::j"
+                  },
+                  "type": "ref"
+                }
+              }
+            }
+          ],
+          "nodeMeta": {
+            "aliasName": "原页面iteration-node-end::ie",
+            "nodeType": "iteration-node-end"
+          },
+          "nodeParam": {
+            "outputMode": 0
+          },
+          "outputs": [
+            {
+              "name": "value",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "id": "iteration-node-end::ie"
+      },
+      {
+        "data": {
+          "inputs": [
+            {
+              "id": "",
+              "name": "answer",
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "value": {
+                  "content": {
+                    "name": "value",
+                    "nodeId": "iteration::i"
+                  },
+                  "type": "ref"
+                }
+              }
+            }
+          ],
+          "nodeMeta": {
+            "aliasName": "原页面node-end::e",
+            "nodeType": "node-end"
+          },
+          "nodeParam": {
+            "outputMode": 0
+          },
+          "outputs": [
+            {
+              "name": "answer",
+              "required": true,
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            }
+          ]
+        },
+        "id": "node-end::e"
+      }
+    ]
+  },
+  "input": {
+    "items": [
+      "乙",
+      "甲",
+      "丙"
+    ]
+  },
+  "expectedOutput": {
+    "answer": [
+      "item=乙",
+      "item=甲",
+      "item=丙"
+    ]
+  },
+  "originalCallbackFrames": [
+    {
+      "iterationId": null,
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "node-start::s",
+            "alias_name": "原页面node-start::s",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": null,
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "node-start::s",
+            "alias_name": "原页面node-start::s",
+            "finish_reason": "stop",
+            "inputs": {
+              "items": [
+                "乙",
+                "甲",
+                "丙"
+              ]
+            },
+            "outputs": {},
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": null,
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration::i",
+            "alias_name": "原页面iteration::i",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.3333333333333333
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:0",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-start::is",
+            "alias_name": "原页面iteration-node-start::is",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:0",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-start::is",
+            "alias_name": "原页面iteration-node-start::is",
+            "finish_reason": "stop",
+            "inputs": {
+              "items": "乙"
+            },
+            "outputs": {},
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": null,
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "node-end::e",
+            "alias_name": "原页面node-end::e",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.6666666666666666
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:0",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "text-joiner::j",
+            "alias_name": "原页面text-joiner::j",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:0",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "text-joiner::j",
+            "alias_name": "原页面text-joiner::j",
+            "finish_reason": "stop",
+            "inputs": {
+              "item": "乙"
+            },
+            "outputs": {
+              "value": "item=乙"
+            },
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:0",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-end::ie",
+            "alias_name": "原页面iteration-node-end::ie",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:0",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-end::ie",
+            "alias_name": "原页面iteration-node-end::ie",
+            "finish_reason": "stop",
+            "inputs": {},
+            "outputs": {
+              "value": "item=乙"
+            },
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:1",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-start::is",
+            "alias_name": "原页面iteration-node-start::is",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:1",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-start::is",
+            "alias_name": "原页面iteration-node-start::is",
+            "finish_reason": "stop",
+            "inputs": {
+              "items": "甲"
+            },
+            "outputs": {},
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:1",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "text-joiner::j",
+            "alias_name": "原页面text-joiner::j",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:1",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "text-joiner::j",
+            "alias_name": "原页面text-joiner::j",
+            "finish_reason": "stop",
+            "inputs": {
+              "item": "甲"
+            },
+            "outputs": {
+              "value": "item=甲"
+            },
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.002,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:1",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-end::ie",
+            "alias_name": "原页面iteration-node-end::ie",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:1",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-end::ie",
+            "alias_name": "原页面iteration-node-end::ie",
+            "finish_reason": "stop",
+            "inputs": {},
+            "outputs": {
+              "value": "item=甲"
+            },
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.001,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:2",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-start::is",
+            "alias_name": "原页面iteration-node-start::is",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:2",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-start::is",
+            "alias_name": "原页面iteration-node-start::is",
+            "finish_reason": "stop",
+            "inputs": {
+              "items": "丙"
+            },
+            "outputs": {},
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.001,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:2",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "text-joiner::j",
+            "alias_name": "原页面text-joiner::j",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:2",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "text-joiner::j",
+            "alias_name": "原页面text-joiner::j",
+            "finish_reason": "stop",
+            "inputs": {
+              "item": "丙"
+            },
+            "outputs": {
+              "value": "item=丙"
+            },
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.001,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:2",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-end::ie",
+            "alias_name": "原页面iteration-node-end::ie",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": "iteration::i:2",
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration-node-end::ie",
+            "alias_name": "原页面iteration-node-end::ie",
+            "finish_reason": "stop",
+            "inputs": {},
+            "outputs": {
+              "value": "item=丙"
+            },
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.001,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": null,
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "iteration::i",
+            "alias_name": "原页面iteration::i",
+            "finish_reason": "stop",
+            "inputs": {
+              "items": [
+                "乙",
+                "甲",
+                "丙"
+              ]
+            },
+            "outputs": {
+              "value": [
+                "item=乙",
+                "item=甲",
+                "item=丙"
+              ]
+            },
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.02,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.3333333333333333
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "iterationId": null,
+      "raw": {
+        "code": 0,
+        "message": "Success",
+        "id": "9553757e-35c2-48ad-85b6-231e3045c616",
+        "created": 1790999326,
+        "workflow_step": {
+          "node": {
+            "id": "node-end::e",
+            "alias_name": "原页面node-end::e",
+            "finish_reason": "stop",
+            "inputs": {},
+            "outputs": {
+              "answer": [
+                "item=乙",
+                "item=甲",
+                "item=丙"
+              ]
+            },
+            "error_outputs": {},
+            "ext": {},
+            "executed_time": 0.02,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.6666666666666666
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "{\"answer\":[\"item=乙\",\"item=甲\",\"item=丙\"]}",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    }
+  ],
+  "budget": {
+    "graph_nodes": 6,
+    "expanded_nodes": 12,
+    "path_count": 2,
+    "max_path_length": 3,
+    "batch_sizes": [
+      [
+        "iteration::i",
+        3
+      ]
+    ]
+  }
+}

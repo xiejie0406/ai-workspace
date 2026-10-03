@@ -1,0 +1,72 @@
+"""只核 direct 未消费 option 元数据与原 option 校验；不调用正式中心。"""
+import asyncio
+import hashlib
+import json
+from pathlib import Path
+import sys
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from worker.engine_adapter import OriginalWorkflowEngine
+from worker.events import EventPublisher
+from worker.static_question_answer import validate_assignment
+from worker.task_runner import Assignment, CURRENT_CONTEXT, RunContext
+from tests.test_question_answer import CheckpointCenter, qa_raw
+from tests.test_worker import refresh_test_canonical
+from workflow.engine.dsl_engine import WorkflowEngineFactory
+
+PATHS = ['worker/static_question_answer.py', 'workflow/engine/nodes/question_answer/question_answer_node.py',
+         'workflow/engine/dsl_engine.py', 'worker/engine_adapter.py']
+
+
+def hashes():
+    return {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in PATHS}
+
+
+async def main():
+    before = hashes()
+    cases = []
+    for answer_type in ['direct', 'option']:
+        raw = qa_raw(answerType=answer_type, optionAnswer=[
+            {'id': str(i), 'name': 'default', 'type': 1, 'content_type': 'text', 'content': '未消费元数据'}
+            for i in range(2)])
+        refresh_test_canonical(raw)
+        assignment = Assignment.parse(raw)
+        case = {'answerType': answer_type}
+        try:
+            validate_assignment(assignment)
+            case['guard'] = {'accepted': True}
+        except Exception as error:
+            case['guard'] = {'accepted': False, 'type': type(error).__name__, 'code': getattr(error, 'code', None)}
+        center = CheckpointCenter(raw)
+        context = RunContext(center, assignment, EventPublisher(center, assignment.run_id,
+            assignment.lease_id, assignment.attempt, assignment.last_event_seq))
+        token = CURRENT_CONTEXT.set(context)
+        try:
+            with patch('socket.socket.connect', side_effect=AssertionError('no network')):
+                with patch.object(WorkflowEngineFactory, 'create_engine', wraps=WorkflowEngineFactory.create_engine) as factory:
+                    try:
+                        result = await asyncio.wait_for(OriginalWorkflowEngine().execute(assignment, context), 8)
+                        case['originalFactory'] = {'accepted': True, 'outputs': result['outputs']}
+                    except Exception as error:
+                        case['originalFactory'] = {'accepted': False, 'type': type(error).__name__, 'code': getattr(error, 'code', None)}
+                    case['factoryCalls'] = factory.call_count
+        finally:
+            CURRENT_CONTEXT.reset(token)
+        case.update(checkpointCreates=len(center.checkpoint_calls), begin=len(center.begin_calls),
+            result=len(center.results), operations=len(center.operations), resources=len(center.resource_calls))
+        cases.append(case)
+    after = hashes()
+    report = {'sourceBefore': before, 'sourceAfter': after, 'sourceChanges': before != after,
+        'cases': cases, 'scope': 'actual original Factory/isolated checkpoint fixtures only; no TaskRunner or real centre/Provider'}
+    data = json.dumps(report, ensure_ascii=False, indent=2) + '\n'
+    path = ROOT / 'verification/static-question-answer-default-first-probe.json'
+    if path.exists():
+        assert path.read_text(encoding='utf-8') == data
+    else:
+        path.write_text(data, encoding='utf-8')
+    print(data)
+
+
+asyncio.run(main())

@@ -1,0 +1,372 @@
+"""中心租约驱动的执行边界；原引擎通过显式 adapter 接入。
+
+未注册真实原引擎时拒绝执行。这里的离线测试只证明契约/租约/取消/序号，
+不能代替原 21 节点联机运行证据。
+"""
+from __future__ import annotations
+
+import asyncio
+import base64
+import binascii
+import copy
+import hashlib
+import json
+import re
+from contextvars import ContextVar
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any, Mapping, Protocol
+
+from .boundaries import install_legacy_guard
+from .catalog import NODE_CLASSES
+from .errors import CenterUnavailable, LeaseLost, WorkerError
+from .events import EventPublisher
+
+
+install_legacy_guard()
+ASSIGNMENT_FIELDS = frozenset({"schemaVersion", "runId", "workflowVersionId", "dslHash", "engineProfile",
+                              "input", "resourceSnapshots", "attempt", "leaseId", "deadline", "effectPolicy",
+                              "lastEventSeq", "dsl", "dslCanonicalBase64"})
+CURRENT_CONTEXT: ContextVar["RunContext | None"] = ContextVar("paiflow_run_context", default=None)
+READ_ONLY_OPERATIONS = frozenset({"knowledge.retrieve", "data.query", "tools.read", "mcp.read", "sandbox.execute"})
+ERROR_MESSAGES = {
+    "DSL_INVALID": "引擎协议或输出无效", "ENGINE_UNSUPPORTED": "当前执行器不支持该节点",
+    "RESOURCE_UNAVAILABLE": "本次运行所需资源不可用", "DEPENDENCY_TIMEOUT": "任务或依赖超过截止时间",
+    "TOOL_POLICY_DENIED": "中心资源或工具策略拒绝执行", "VERSION_CONFLICT": "固定快照版本冲突",
+    "QUOTA_EXCEEDED": "中心配额不足", "CANCEL_REQUESTED": "中心已请求取消", "EFFECT_UNKNOWN": "外部操作结果待核对",
+}
+
+
+def dsl_hash(canonical_bytes: bytes) -> str:
+    """只使用中心给出的原规范化字节，禁止 Python 重新序列化计算。"""
+    if not isinstance(canonical_bytes, bytes):
+        raise WorkerError("DSL_INVALID", "缺少中心规范化 DSL 字节")
+    return hashlib.sha256(canonical_bytes).hexdigest()
+
+
+def _same_json(left, right):
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return set(left) == set(right) and all(_same_json(left[key], right[key]) for key in left)
+    if isinstance(left, list):
+        return len(left) == len(right) and all(_same_json(a, b) for a, b in zip(left, right))
+    return left == right
+
+
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate key")
+        result[key] = value
+    return result
+
+
+def _deny_constant(value):
+    raise ValueError("non-JSON numeric constant")
+
+
+@dataclass(frozen=True)
+class Assignment:
+    run_id: str
+    version_id: str
+    lease_id: str
+    attempt: int
+    deadline: datetime
+    last_event_seq: int
+    hash: str
+    dsl: dict[str, Any]
+    input: dict[str, Any]
+    resources: dict[str, Any]
+    effect_policy: dict[str, Any]
+    snapshot: dict[str, Any]
+
+    @classmethod
+    def parse(cls, raw: Mapping[str, Any]) -> "Assignment":
+        def reject():
+            raise WorkerError("DSL_INVALID", "中心任务协议、快照或参数无效")
+        if not isinstance(raw, Mapping) or set(raw) != ASSIGNMENT_FIELDS:
+            reject()
+        if raw["schemaVersion"] != "paiflow.worker.v1":
+            raise WorkerError("ENGINE_UNSUPPORTED", "不支持的 Worker 协议版本")
+        if raw["engineProfile"] != "python":
+            raise WorkerError("ENGINE_UNSUPPORTED", "任务没有指定 Python 引擎")
+        for field in ("runId", "workflowVersionId", "leaseId"):
+            if not isinstance(raw[field], str) or not raw[field] or len(raw[field]) > 256:
+                reject()
+        for field, minimum in (("attempt", 1), ("lastEventSeq", 0)):
+            if type(raw[field]) is not int or raw[field] < minimum:
+                reject()
+        for field in ("dsl", "input", "resourceSnapshots", "effectPolicy"):
+            if not isinstance(raw[field], dict):
+                reject()
+        if any(not isinstance(resource_id, str) or not resource_id or not isinstance(snapshot, dict)
+               for resource_id, snapshot in raw["resourceSnapshots"].items()):
+            reject()
+        if not isinstance(raw["deadline"], str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})", raw["deadline"]):
+            reject()
+        try:
+            deadline = datetime.fromisoformat(raw["deadline"].replace("Z", "+00:00"))
+            encoded = raw["dslCanonicalBase64"]
+            if not isinstance(encoded, str) or not encoded or len(encoded) > 24 * 1024 * 1024:
+                reject()
+            canonical = base64.b64decode(encoded, validate=True)
+            if base64.b64encode(canonical).decode("ascii") != encoded or len(canonical) > 16 * 1024 * 1024:
+                reject()
+            parsed = json.loads(canonical.decode("utf-8"), object_pairs_hook=_unique_object, parse_constant=_deny_constant)
+            if not _same_json(parsed, raw["dsl"]):
+                raise WorkerError("VERSION_CONFLICT", "中心规范化字节与派发 DSL 内容不一致")
+            actual_hash = dsl_hash(canonical)
+        except (TypeError, ValueError, AttributeError, OverflowError, RecursionError, binascii.Error):
+            reject()
+        if deadline.tzinfo is None or deadline <= datetime.now(timezone.utc):
+            raise WorkerError("DEPENDENCY_TIMEOUT", "任务截止时间已过或未注明时区")
+        if not isinstance(raw["dslHash"], str) or raw["dslHash"] != actual_hash:
+            raise WorkerError("VERSION_CONFLICT", "DSL 快照与中心任务 hash 不一致")
+        policy = raw["effectPolicy"]
+        if set(policy) - {"mode", "allowedOperations", "approvalRef"} or policy.get("mode") not in {"read_only", "approved_write"}:
+            reject()
+        operations = policy.get("allowedOperations")
+        if not isinstance(operations, list) or any(not isinstance(value, str) or not value for value in operations):
+            reject()
+        if len(operations) != len(set(operations)):
+            reject()
+        if "approvalRef" in policy and (not isinstance(policy["approvalRef"], str) or not policy["approvalRef"]):
+            reject()
+        if policy["mode"] == "approved_write" and (not isinstance(policy.get("approvalRef"), str) or not policy["approvalRef"]):
+            raise WorkerError("TOOL_POLICY_DENIED", "正式副作用没有中心审批引用")
+        nodes = raw["dsl"].get("nodes")
+        edges = raw["dsl"].get("edges")
+        if not isinstance(nodes, list) or not nodes or not isinstance(edges, list):
+            reject()
+        node_ids = set()
+        for node in nodes:
+            if not isinstance(node, dict) or not isinstance(node.get("id"), str) or "::" not in node["id"] or not isinstance(node.get("data"), dict):
+                reject()
+            if node["id"] in node_ids:
+                reject()
+            node_ids.add(node["id"])
+            if node["id"].split("::", 1)[0] not in NODE_CLASSES:
+                raise WorkerError("ENGINE_UNSUPPORTED", "DSL 包含原 Python 注册表未支持的节点")
+        for edge in edges:
+            if not isinstance(edge, dict) or edge.get("sourceNodeId") not in node_ids or edge.get("targetNodeId") not in node_ids:
+                reject()
+        return cls(raw["runId"], raw["workflowVersionId"], raw["leaseId"], raw["attempt"], deadline,
+                   raw["lastEventSeq"], actual_hash, copy.deepcopy(raw["dsl"]), copy.deepcopy(raw["input"]),
+                   copy.deepcopy(raw["resourceSnapshots"]), copy.deepcopy(policy), copy.deepcopy(dict(raw)))
+
+
+class Engine(Protocol):
+    supported_types: frozenset[str]
+    async def execute(self, assignment: Assignment, context: "RunContext") -> dict[str, Any]: ...
+
+
+class RunContext:
+    def __init__(self, center, assignment: Assignment, publisher: EventPublisher):
+        self.center = center
+        self.assignment = assignment
+        self.events = publisher
+        self.active = True
+        self.node_ids = frozenset(node["id"] for node in assignment.dsl["nodes"])
+        self.execution_context = None
+        self.variable_lock = asyncio.Lock()
+        self.variable_requests = {}
+        self.boundary_failure = None
+        self.checkpoint_acks = {}
+
+    def assert_active(self) -> None:
+        if self.boundary_failure is not None:
+            raise self.boundary_failure
+        if not self.active:
+            raise LeaseLost()
+        if datetime.now(timezone.utc) >= self.assignment.deadline:
+            raise WorkerError("DEPENDENCY_TIMEOUT", "执行已超过中心任务截止时间")
+
+    async def emit(self, event_type: str, payload: dict[str, Any], **identifiers) -> dict[str, Any]:
+        self.assert_active()
+        if identifiers.get("node_id") is not None and identifiers["node_id"] not in self.node_ids:
+            raise WorkerError("DSL_INVALID", "事件节点不属于固定快照")
+        return await self.events.emit(event_type, payload, **identifiers)
+
+    async def resource(self, resource_id: str) -> dict[str, Any]:
+        self.assert_active()
+        if resource_id not in self.assignment.resources:
+            raise WorkerError("TOOL_POLICY_DENIED", "资源不在本次运行快照范围内")
+        data = await self.center.resource(self.assignment.run_id, self.assignment.lease_id, self.assignment.attempt, resource_id)
+        self.assert_active()
+        return data
+
+    async def operation(self, node_id: str, operation: str, parameters: dict[str, Any], *, key: str) -> Any:
+        self.assert_active()
+        if node_id not in self.node_ids or operation not in self.assignment.effect_policy["allowedOperations"] or not key:
+            raise WorkerError("TOOL_POLICY_DENIED", "本次运行未授权该节点操作")
+        if self.assignment.effect_policy["mode"] == "read_only" and operation not in READ_ONLY_OPERATIONS:
+            raise WorkerError("TOOL_POLICY_DENIED", "只读策略不允许费用调用或正式写入")
+        # 白名单只是本地先行拒绝；每次仍由中心检查审批、参数、快照和幂等键。
+        try:
+            data = await self.center.operation(self.assignment.run_id, self.assignment.lease_id, self.assignment.attempt,
+                                               node_id, operation, copy.deepcopy(parameters), key)
+        except WorkerError as error:
+            self.boundary_failure = error
+            raise
+        self.assert_active()
+        return data
+
+
+def current_context() -> RunContext:
+    context = CURRENT_CONTEXT.get()
+    if context is None:
+        raise WorkerError("RESOURCE_UNAVAILABLE", "该算法只能在已验证中心租约的运行内调用")
+    context.assert_active()
+    return context
+
+
+class TaskRunner:
+    def __init__(self, center, engine: Engine | None, *, heartbeat_seconds: float = 10.0, capacity: int = 4):
+        if not 0 < heartbeat_seconds <= 30 or type(capacity) is not int or not 1 <= capacity <= 128:
+            raise ValueError("Worker 心跳/容量配置无效")
+        self.center = center
+        self.engine = engine
+        self.heartbeat_seconds = heartbeat_seconds
+        self._capacity = asyncio.Semaphore(capacity)
+        self._active_leases = set()
+
+    async def _watch_lease(self, assignment: Assignment):
+        while True:
+            await asyncio.sleep(self.heartbeat_seconds)
+            heartbeat = await self.center.heartbeat(assignment.run_id, assignment.lease_id, assignment.attempt)
+            if heartbeat.get("cancelRequested") is True:
+                raise WorkerError("CANCEL_REQUESTED", "中心已请求取消")
+
+    async def run(self, raw: Mapping[str, Any]) -> dict[str, Any]:
+        assignment = Assignment.parse(raw)
+        if self.engine is None:
+            raise WorkerError("RESOURCE_UNAVAILABLE", "原 Python 引擎适配尚未注册，不能执行任务")
+        types = {node["id"].split("::", 1)[0] for node in assignment.dsl["nodes"]}
+        if not types <= self.engine.supported_types:
+            raise WorkerError("ENGINE_UNSUPPORTED", "当前引擎未就绪的节点不能派发")
+        lease_key = (assignment.run_id, assignment.lease_id, assignment.attempt)
+        if lease_key in self._active_leases:
+            raise WorkerError("VERSION_CONFLICT", "同一租约正在本进程执行")
+        self._active_leases.add(lease_key)
+        try:
+            async with self._capacity:
+                return await self._execute(assignment)
+        finally:
+            self._active_leases.discard(lease_key)
+
+    async def _execute(self, assignment: Assignment) -> dict[str, Any]:
+        lease = await self.center.verify_lease(assignment.run_id, assignment.lease_id, assignment.attempt)
+        if lease.get("dslHash") != assignment.hash or lease.get("workflowVersionId") != assignment.version_id:
+            raise LeaseLost()
+        # 中心序号必须等于领取快照；不自行猜测已落库事件。
+        if lease.get("lastEventSeq") != assignment.last_event_seq:
+            raise WorkerError("VERSION_CONFLICT", "领取序号与中心当前事件序号不一致")
+        if not isinstance(lease.get("assignment"), dict):
+            raise CenterUnavailable()
+        if not _same_json(lease["assignment"], assignment.snapshot):
+            raise WorkerError("VERSION_CONFLICT", "派发参数/资源/策略与中心固定任务不一致")
+        publisher = EventPublisher(self.center, assignment.run_id, assignment.lease_id, assignment.attempt, assignment.last_event_seq)
+        context = RunContext(self.center, assignment, publisher)
+        binding = lease.get("executionContext")
+        if binding is not None:
+            if (not isinstance(binding, dict) or set(binding) != {"flowId", "userId", "appId", "chatId"}
+                    or any(not isinstance(binding[key], str) or not binding[key] for key in ("flowId", "userId", "appId"))
+                    or not (binding["chatId"] is None or isinstance(binding["chatId"], str))):
+                raise WorkerError("RESOURCE_UNAVAILABLE", "中心正式会话/应用归属尚未绑定")
+            context.execution_context = copy.deepcopy(binding)
+        # 中心行锁的一次性许可；必须在原Factory/节点执行之前。任何未知或拒绝
+        # 都不能提交result，否则重复Worker会关闭真正持许可方的在途run。
+        context.assert_active()
+        expected_permit = {"begun": True, "runId": assignment.run_id, "leaseId": assignment.lease_id,
+            "attempt": assignment.attempt, "workflowVersionId": assignment.version_id, "dslHash": assignment.hash}
+        try:
+            permit = await self.center.begin_execution(assignment.run_id, assignment.lease_id, assignment.attempt)
+            if not _same_json(permit, expected_permit):
+                raise CenterUnavailable()
+            context.assert_active()
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            code = "EFFECT_UNKNOWN" if assignment.effect_policy["mode"] == "approved_write" else "RESOURCE_UNAVAILABLE"
+            raise WorkerError(code, "中心一次性执行许可未确认；不执行、不重试、不提交终态，交由中心核对") from None
+        token = CURRENT_CONTEXT.set(context)
+        engine_task = None
+        heartbeat_task = None
+        try:
+            context.assert_active()
+            engine_task = asyncio.create_task(self.engine.execute(assignment, context))
+            heartbeat_task = asyncio.create_task(self._watch_lease(assignment))
+            seconds = (assignment.deadline - datetime.now(timezone.utc)).total_seconds()
+            done, _ = await asyncio.wait((engine_task, heartbeat_task), timeout=max(seconds, 0), return_when=asyncio.FIRST_COMPLETED)
+            if heartbeat_task in done:
+                await heartbeat_task
+            if engine_task not in done:
+                raise WorkerError("DEPENDENCY_TIMEOUT", "执行已超过中心任务截止时间")
+            output = await engine_task
+            if not isinstance(output, dict):
+                raise WorkerError("DSL_INVALID", "引擎结果没有满足对象输出契约")
+            try:
+                encoded = json.dumps(output, ensure_ascii=False, allow_nan=False).encode("utf-8")
+            except (TypeError, ValueError):
+                raise WorkerError("DSL_INVALID", "引擎结果不是有效 JSON") from None
+            if len(encoded) > 2 * 1024 * 1024:
+                raise WorkerError("DSL_INVALID", "引擎结果超出预算，应通过 artifact 保存")
+            # 完成前再验证租约；中心 CAS 是唯一正式终态。
+            final_lease = await self.center.verify_lease(assignment.run_id, assignment.lease_id, assignment.attempt)
+            self._check_final_cancel(final_lease)
+            context.assert_active()
+            try:
+                return await self.center.complete(assignment.run_id, {"leaseId": assignment.lease_id,
+                    "attempt": assignment.attempt, "state": "COMPLETED", "output": output})
+            except LeaseLost:
+                # 取消可能在verify与result之间先取得中心行锁。只读一次核对；
+                # 明确仍有有效租约且取消时才走下面的真实停止路径，不重放成功。
+                current = await self.center.verify_lease(assignment.run_id, assignment.lease_id, assignment.attempt)
+                self._check_final_cancel(current)
+                raise
+        except (LeaseLost, CenterUnavailable):
+            # 中心不能确认时没有本地成功/取消/失败业务真相。
+            raise
+        except WorkerError as error:
+            # 先停止剩余计算，防止发布终态时引擎继续发出工具请求。
+            context.active = False
+            if engine_task is not None and not engine_task.done():
+                engine_task.cancel()
+                stopped, _ = await asyncio.wait((engine_task,), timeout=2)
+                if engine_task not in stopped:
+                    error = WorkerError("EFFECT_UNKNOWN", "引擎未响应停止，业务状态须由中心核对")
+            if context.boundary_failure is not None and context.boundary_failure.code == "EFFECT_UNKNOWN":
+                error = context.boundary_failure
+            state = "CANCELLED" if error.code == "CANCEL_REQUESTED" else "EFFECT_UNKNOWN" if error.code == "EFFECT_UNKNOWN" else "FAILED"
+            code = error.code if error.code in ERROR_MESSAGES else "ENGINE_FAILED"
+            safe_error = {"code": code, "message": ERROR_MESSAGES.get(code, "原引擎执行失败，需按关联运行核对诊断")}
+            await self.center.verify_lease(assignment.run_id, assignment.lease_id, assignment.attempt)
+            return await self.center.complete(assignment.run_id, {"leaseId": assignment.lease_id,
+                "attempt": assignment.attempt, "state": state, "error": safe_error})
+        except Exception:
+            # 供应商异常可能包含 URL/密钥；普通响应只留确定的分类。
+            safe_error = {"code": "ENGINE_FAILED", "message": "原引擎执行失败，需按关联运行核对诊断"}
+            await self.center.verify_lease(assignment.run_id, assignment.lease_id, assignment.attempt)
+            return await self.center.complete(assignment.run_id, {"leaseId": assignment.lease_id,
+                "attempt": assignment.attempt, "state": "FAILED", "error": safe_error})
+        finally:
+            context.active = False
+            for task in (engine_task, heartbeat_task):
+                if task is not None and not task.done():
+                    task.cancel()
+            pending = tuple(task for task in (engine_task, heartbeat_task) if task is not None)
+            if pending:
+                done, _ = await asyncio.wait(pending, timeout=2)
+                for task in done:
+                    if not task.cancelled():
+                        task.exception()  # 消费失败以免出现未读取任务异常，不输出敏感堆栈。
+            CURRENT_CONTEXT.reset(token)
+
+    @staticmethod
+    def _check_final_cancel(lease):
+        if not isinstance(lease, dict) or lease.get("valid") is not True or type(lease.get("cancelRequested")) is not bool:
+            raise CenterUnavailable()
+        if lease["cancelRequested"]:
+            raise WorkerError("CANCEL_REQUESTED", "中心已先请求取消，停止确认前不提交成功")

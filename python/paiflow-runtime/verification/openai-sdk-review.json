@@ -1,0 +1,534 @@
+{
+  "timestamp": "2026-10-02T23:38:04.697816+00:00",
+  "scope": "Workflow独立25包SDK恢复与只读/零API本地对象检查；此记录生成时未写OpenAI Producer，后续实施授权单独接续",
+  "restoration": {
+    "selected11": [
+      {
+        "name": "anyio",
+        "version": "4.4.0",
+        "sha256": "c1b2d8f46a8a812513012e1107cb0e68c17159a7a594208005a57dc776e1bdc7"
+      },
+      {
+        "name": "certifi",
+        "version": "2024.7.4",
+        "sha256": "c198e21b1289c2ab85ee4e67bb4b4ef3ead0892059901a8d5b622f24a1101e90"
+      },
+      {
+        "name": "distro",
+        "version": "1.9.0",
+        "sha256": "7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2"
+      },
+      {
+        "name": "h11",
+        "version": "0.14.0",
+        "sha256": "e3fe4ac4b851c468cc8363d500db52c2ead036020723024a109d37346efaa761"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.5",
+        "sha256": "421f18bac248b25d310f3cacd198d55b8e6125c107797b609ff9b7a6ba7991b5"
+      },
+      {
+        "name": "httpx",
+        "version": "0.27.0",
+        "sha256": "71d5465162c13681bff01ad59b2cc68dd838ea1f10e51574bac27103f00c91a5"
+      },
+      {
+        "name": "idna",
+        "version": "3.7",
+        "sha256": "82fee1fc78add43492d3a1898bfa6d8a904cc97d8427f683ed8e798d07761aa0"
+      },
+      {
+        "name": "jiter",
+        "version": "0.10.0",
+        "sha256": "a7c7d785ae9dda68c2678532a5a1581347e9c15362ae9f6e68f3fdbfb64f2e49"
+      },
+      {
+        "name": "openai",
+        "version": "1.60.2",
+        "sha256": "993bd11b96900b9098179c728026f016b4982ded7ee30dfcf4555eab1171fff9"
+      },
+      {
+        "name": "sniffio",
+        "version": "1.3.1",
+        "sha256": "2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2"
+      },
+      {
+        "name": "tqdm",
+        "version": "4.67.1",
+        "sha256": "26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2"
+      }
+    ],
+    "originalLock": "upstream-dependencies\\workflow\\uv.lock",
+    "originalLockSha256": "4742b18f938abba000f50fa7b330bf0d64aa9e02cc4fd39d91f764da56496811",
+    "referenceLockMatched": true,
+    "requirements": "requirements-openai-sdk.lock",
+    "requirementsSha256": "7f9caf4e5b9650bcdc2246e34d4151cd6bf5b153604fc70b0352c26c1914acde",
+    "allArtifactsOriginalLockHashSizeNameVersionVerified": true,
+    "python": "CPython3.12.4 win_amd64",
+    "currentMarkerClosureSatisfied": true,
+    "extraResolverPackages": [],
+    "builds": false,
+    "networkFetched": 9,
+    "cacheHits": 2,
+    "cacheDirectory": "C:/Users/admin/AppData/Local/pip/cache",
+    "artifactDirectory": ".venv/downloads/openai-lock",
+    "flags": [
+      "--no-index",
+      "--no-deps",
+      "--no-compile",
+      "--require-hashes"
+    ],
+    "licenseEvidence": "verification/openai-sdk-artifacts.json: original METADATA/license files and hashes; jiter/tqdm wheels lack standalone LICENSE",
+    "original14Changed": [],
+    "importedPackages": 25
+  },
+  "verification": {
+    "fullTests": 171,
+    "newTests": 0,
+    "summary": "Ran 171 tests in 40.456s",
+    "checks": [
+      {
+        "command": [
+          ".venv\\Scripts\\python.exe",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "exitCode": 0,
+        "log": "verification/unittest.log"
+      },
+      {
+        "command": [
+          ".venv\\Scripts\\python.exe",
+          "-B",
+          "scripts/verify_source.py"
+        ],
+        "exitCode": 0,
+        "log": "verification/source-check.log"
+      },
+      {
+        "command": [
+          ".venv\\Scripts\\python.exe",
+          "-B",
+          "scripts/analyze_port_dependencies.py"
+        ],
+        "exitCode": 0,
+        "log": "verification/dependency-analysis.log"
+      },
+      {
+        "command": [
+          ".venv\\Scripts\\python.exe",
+          "-B",
+          "-m",
+          "pip",
+          "check"
+        ],
+        "exitCode": 0,
+        "log": "verification/dependency-check.log"
+      }
+    ],
+    "sourceScan": {
+      "pythonFiles": 467,
+      "introducedFiles": 427,
+      "missingIntroducedFiles": [],
+      "syntaxErrors": [],
+      "suspiciousLiteralCredentialBindings": [],
+      "executableExamples": [],
+      "hostExecCalls": []
+    },
+    "frozenPython": 467,
+    "changedPython": [],
+    "frozen16ConsumersAnd3ProducerFiles": [
+      {
+        "file": "worker/node_capabilities.py",
+        "sha256": "364d0ec3872ed687d9910665e641b33e818c9ed1665e5482217f66e1aa50a8a6",
+        "unchanged": true
+      },
+      {
+        "file": "worker/legacy_operations.py",
+        "sha256": "3dc1ba1f8e2baa6e62c9111bb4abb390f05f5534bcc2fbadc4e3165fc533fb6d",
+        "unchanged": true
+      },
+      {
+        "file": "worker/center_client.py",
+        "sha256": "a2fb713bd3664d4ef2f2d99a3e09c1484469f177732e38bcf7ef7193d4eba068",
+        "unchanged": true
+      },
+      {
+        "file": "worker/engine_adapter.py",
+        "sha256": "12e4f0b2dd0e6a9f05830fe92576f408801a95d8ea90940014dfaaaf6c540489",
+        "unchanged": true
+      },
+      {
+        "file": "workflow/engine/nodes/plugin_tool/plugin_node.py",
+        "sha256": "0bd959156850bc001494cdc6ad5e39bfc10e5a3b2fda986f803ae8f534a64cbc",
+        "unchanged": true
+      },
+      {
+        "file": "workflow/engine/nodes/plugin_tool/link_client.py",
+        "sha256": "347037c323db036adb93265b4cbb58575be784474f8dfaba7a79e9b72a53ca43",
+        "unchanged": true
+      },
+      {
+        "file": "workflow/engine/nodes/knowledge_pro/knowledge_pro_node.py",
+        "sha256": "5e24338d38afa2d850c41d4a0a5510972422d7ae99a498fdf3fb3461411013ee",
+        "unchanged": true
+      },
+      {
+        "file": "workflow/engine/nodes/agent/agent_node.py",
+        "sha256": "d374c97b4e36c42f77312edf48202155c3463e5c224063074efda8f144341187",
+        "unchanged": true
+      },
+      {
+        "file": "workflow/engine/nodes/pgsql/pgsql_node.py",
+        "sha256": "d82511ac78fa86cef578b39f15b6003630f55a0c11d69054aa42f7baf574dded",
+        "unchanged": true
+      },
+      {
+        "file": "workflow/engine/nodes/pgsql/pgsql_client.py",
+        "sha256": "39743af5a831e5eb3b6a80909918d9cc0237c478e11a1f5c7e4a903adca121bd",
+        "unchanged": true
+      },
+      {
+        "file": "workflow/engine/nodes/rpa/rpa_node.py",
+        "sha256": "d2ce9c51fe4393718faaad4e5664ec0b68cc1b1a271c18ce594dd5b3c2a6bc55",
+        "unchanged": true
+      },
+      {
+        "file": "protocols/remaining-capabilities-draft.schema.json",
+        "sha256": "35aa68ce7d73070285741eaf86a844f47f52049110e81297fa7601ac97bb56fe",
+        "unchanged": true
+      },
+      {
+        "file": "tests/test_remaining_nodes.py",
+        "sha256": "7eb7e8bbff660fd4f0c5c6e2a187a43a211c7dbaedae9709f65f62ce5b26bd52",
+        "unchanged": true
+      },
+      {
+        "file": "tests/test_original_engine.py",
+        "sha256": "4ecd6554579654404955b9f9f124ac069432d746dcf138cbbd7835c89ee4cb46",
+        "unchanged": true
+      },
+      {
+        "file": "tests/test_worker.py",
+        "sha256": "b7a2158cadd3893017f46df3f1b1395648a986e64837163113a80c9f0e4c8bda",
+        "unchanged": true
+      },
+      {
+        "file": "scripts/run_offline_checks.py",
+        "sha256": "cc78c7d3c590fd7cf3bb64a7bd8bddfd349c4fcf55052c6afcde84c003b95dce",
+        "unchanged": true
+      },
+      {
+        "file": "worker/producers/__init__.py",
+        "sha256": "f488ae465fff2162a7ca16b94cc223fb85c822288072a739ff2f136446988eb1",
+        "unchanged": true
+      },
+      {
+        "file": "worker/producers/spark_chat.py",
+        "sha256": "67ea6eee539006ea20a41a337c245fbdc5ac3cba83feabb3ef1956544b94b055",
+        "unchanged": true
+      },
+      {
+        "file": "tests/test_spark_producer.py",
+        "sha256": "8957120d3a27e8711972aa9a0c992935412c8201e6e30a9e31e4ed444ebb5501",
+        "unchanged": true
+      }
+    ],
+    "baseline14": "verification/openai-14-packages-baseline.json",
+    "baseline171": [
+      "verification/openai-171-readme-baseline.md",
+      "verification/openai-171-unittest-baseline.log",
+      "verification/openai-171-checks-baseline.json",
+      "verification/openai-171-source-baseline.json"
+    ],
+    "localProbe": {
+      "timestamp": "2026-10-02T23:23:03.537826+00:00",
+      "sdkVersion": "1.60.2",
+      "defaults": {
+        "maxRetries": 2,
+        "timeout": {
+          "connect": 5.0,
+          "read": 600.0,
+          "write": 600.0,
+          "pool": 600.0
+        }
+      },
+      "streamCloseReleasedResponse": true,
+      "clientCloseReleasedHttpClient": true,
+      "roleDeltaContentNullable": true,
+      "reasoningExtensionPreserved": true,
+      "usageOnlyValidSDKButOriginalDecoderError": "IndexError",
+      "apiRequests": 0,
+      "networkBlocked": true,
+      "scope": "actual SDK constructor/type/close local probes only; no model create/Provider request"
+    },
+    "peerSdkProbe": {
+      "path": "../../文档/项目/PaiFlow工作流项目/证据/本地源码检查/OpenAI-SDK原适配只读核对.json",
+      "sha256": "c0d07f12ec86f6e668d321d7d8d774ef888c8a0cab69a3e73367072c140a9515",
+      "executedOriginalWorkflow": false,
+      "apiOrHttpSend": false,
+      "cases": [
+        "bare_eof",
+        "done_after_finish",
+        "usage_only",
+        "sse_error",
+        "empty_eof"
+      ]
+    },
+    "network": "Dependency downloads only; model API requests0. Socket outbound blocked during own imports/probe."
+  },
+  "sourceRefs": [
+    {
+      "file": ".venv/Lib/site-packages/openai/_constants.py",
+      "lines": [
+        9,
+        10,
+        13,
+        14
+      ],
+      "sha256": "2f5a5f121bb3ff0336c36fd4f4fffd259cd36eb378a5b2e8db4ee5f7aaed29c4"
+    },
+    {
+      "file": ".venv/Lib/site-packages/openai/_base_client.py",
+      "lines": [
+        446,
+        687,
+        711,
+        1337,
+        1339,
+        1454,
+        1461,
+        1587,
+        1602,
+        1627,
+        1655
+      ],
+      "sha256": "769f13251f1906e4b445b8e734a564642fbeb5bb2dc33df743f3ff501edd2821"
+    },
+    {
+      "file": ".venv/Lib/site-packages/openai/_streaming.py",
+      "lines": [
+        123,
+        154,
+        161,
+        168,
+        185,
+        208,
+        216
+      ],
+      "sha256": "b75519ae0e777d5241e51b3a936b13f4f05bbe3a7e206ad0cd4abfe67971286e"
+    },
+    {
+      "file": ".venv/Lib/site-packages/openai/types/chat/chat_completion_chunk.py",
+      "lines": [
+        59,
+        60,
+        87,
+        91,
+        108,
+        112,
+        141
+      ],
+      "sha256": "11fda17c912ba2263a257196568b9548d0e24fd2fb9196fcf7ba404fd6eca24f"
+    },
+    {
+      "file": ".venv/Lib/site-packages/httpx/_client.py",
+      "lines": [
+        1386,
+        1428,
+        2011
+      ],
+      "sha256": "633008210912d222b699b1231e6319666ed23af9f15d7e16f0df12a45bdeb989"
+    },
+    {
+      "file": ".venv/Lib/site-packages/httpx/_models.py",
+      "lines": [
+        969,
+        997
+      ],
+      "sha256": "e17dee0808829b57bb8309c187befb2f795657a35d8dd81f5d2835364e3b26c4"
+    },
+    {
+      "file": "workflow/infra/providers/llm/openai/openai_chat_llm.py",
+      "lines": [
+        50,
+        77,
+        84,
+        91,
+        113,
+        118,
+        134,
+        145,
+        154,
+        171,
+        197,
+        205
+      ],
+      "sha256": "341853c203b55ce0421a0cfbc1c27c8619ff5f55fc8411b14f81b7ec55467b32"
+    },
+    {
+      "file": "workflow/engine/nodes/base_node.py",
+      "lines": [
+        1265,
+        1285,
+        1296
+      ],
+      "sha256": "b01cfc8833f16814f6ad6a1061f13fe3559aca9f51ca6bed0a6aaa15069b7ea3"
+    },
+    {
+      "file": "worker/producers/spark_chat.py",
+      "lines": [
+        38,
+        52,
+        63,
+        79,
+        91,
+        118,
+        127,
+        131,
+        143,
+        146
+      ],
+      "sha256": "67ea6eee539006ea20a41a337c245fbdc5ac3cba83feabb3ef1956544b94b055"
+    }
+  ],
+  "findings": [
+    {
+      "topic": "timeouts/retry",
+      "fact": "Default max_retries2 up to3 initial requests; connect5/read-write-pool600 per I/O; timeout/connection/408/409/429/5xx/x-should-retry retries with bounded Retry-After/exponential jitter; no initial retry wrapper for midstream errors. Original timeout covers perframe only."
+    },
+    {
+      "topic": "private exit",
+      "fact": "SDK follow_redirects=True; HTTPX trust_env=True. Explicit max_retries0, private fixed base_url/TLS/egress, redirectfalse/environmentfalse and fixed HTTP plus total deadlines required."
+    },
+    {
+      "topic": "overrides/logs",
+      "fact": "extra_body may override model/messages/stream; extra_headers/query/timeout may change request/authority. Only center-fixed effective kwargs; no original achat/assemble_url logs or SDK/HTTPX URL/body/private exception logs."
+    },
+    {
+      "topic": "original parameter semantics",
+      "fact": "create passes only model/messages/stream+extra_params, generic temperature/max_tokens/top_k not auto-forwarded; original only choices0."
+    },
+    {
+      "topic": "original frame semantics/gap",
+      "fact": "Nullable content and vendor reasoning extension supported; usage-only choices=[] valid SDK but original decoder actual IndexError. Original EOF rewrites last finish_reason stop and yields again; empty/usage-only EOF errors. Original BaseNode non-stop finish length/content_filter/tool_calls/function_call preserves OPEN_AI_REQUEST_ERROR."
+    },
+    {
+      "topic": "error/termination",
+      "fact": "SDK [DONE]/rawEOF finishes iterator without creating finish; API/SSE errors no legal choices rawframe. Do not fabricate Provider FAILED frame/DEFAULT. Only real legal frame+bound center terminal ACK can finish."
+    },
+    {
+      "topic": "close/cancel",
+      "fact": "AsyncStream.close→response.aclose; AsyncOpenAI.close→HTTPXclient.aclose. EOF fully consumed closes naturally; APIError response needs explicit close in peer probe. finally bounded double close required; local close is not Provider stop/charge-stop proof."
+    }
+  ],
+  "nextProducerProposal": {
+    "statusAtThisRecord": "not implemented",
+    "reuse": [
+      "center atomic once acquire with producer identity,run/lease/attempt/begin,fixed branch/version/resource and perinvoke approval",
+      "assert_active before send and each read/commit",
+      "bound center commit_frame CAS+sequence idempotency",
+      "confirm_stop real Provider proof separate from close",
+      "record_failure sanitized facts never override terminal/effect ledger"
+    ],
+    "newPrivateSdkDifference": "AsyncOpenAI+private HTTPX stream instead of Spark HMAC/WebSocket; max_retries0, redirectfalse, trust_envfalse, fixed connect/read/write/pool/total/close budgets; original create effective kwargs only.",
+    "immutablePublicProfile": [
+      "resource_id",
+      "kind=model",
+      "provider=openai",
+      "version",
+      "model_name",
+      "enabled=true",
+      "fixed options_json",
+      "limits"
+    ],
+    "privateGrant": [
+      "operation/run/lease/attempt/node/workflowVersion/dslHash/deadline",
+      "parameters original bytes+sha256",
+      "managed base_url/API material private only"
+    ],
+    "consumerBranches": "Actual chat branches only, center-fixed DSL input/template verification; extractor reasonMode1,decision Prompt/non-FC Normal,QA resume+direct+handleResponse; nested denied until real iteration ownership; Spark FC not OpenAI",
+    "compatibilityGaps": [
+      "usage-only needs original usage retention without assuming choices0",
+      "typed API/HTTP nochoices error receipts need center/consumer design, cannot fake rawframe",
+      "SDK EOF/close do not establish legal terminal or upstream stop"
+    ]
+  },
+  "sourceEdits": [],
+  "testEdits": [],
+  "notDone": [
+    "OpenAI Producer/default registration",
+    "center resources/operations/fee-effect-ledger/private exit implementation",
+    "real Provider/cancel/charge verification",
+    "Agent/Link/AITools full separate environments"
+  ],
+  "evidenceHashes": [
+    {
+      "file": "verification/checks.json",
+      "sha256": "d1098c954f94c9cef6832d802982d1b3cf4c89fa88c5be9220131dd50df7f6b1"
+    },
+    {
+      "file": "verification/unittest.log",
+      "sha256": "5d26c1af946fcf11dae81299f9f764e2d88edc1c2d013188d88ce922ce140f63"
+    },
+    {
+      "file": "source-verification.json",
+      "sha256": "ee0ac35b382eb0f28c315def46b472f1bc175a66165d0f0cbd845a6708cedbc7"
+    },
+    {
+      "file": "verification/openai-sdk-import.json",
+      "sha256": "7e3eb4a9a5d96bb8f8c302b0ba3046e2dc437df558dfbe6c05ad1cbfbcd77c35"
+    },
+    {
+      "file": "verification/openai-sdk-local-probe.json",
+      "sha256": "4fa86ad99d100a96c389c6bc0621aaf1313c0e7f00762ee3aa1e54dd929ec364"
+    },
+    {
+      "file": "README.md",
+      "sha256": "46245ddac293fc69a6b52c6a11e79735a3acc1f2dde56f46117ddff81a62e6b4"
+    }
+  ],
+  "preservedStageCopies": [
+    {
+      "originalPathAtStage": "verification/checks.json",
+      "preservedPath": "verification/openai-sdk-171-checks.json",
+      "sha256": "d1098c954f94c9cef6832d802982d1b3cf4c89fa88c5be9220131dd50df7f6b1"
+    },
+    {
+      "originalPathAtStage": "verification/unittest.log",
+      "preservedPath": "verification/openai-sdk-171-unittest.log",
+      "sha256": "5d26c1af946fcf11dae81299f9f764e2d88edc1c2d013188d88ce922ce140f63"
+    },
+    {
+      "originalPathAtStage": "source-verification.json",
+      "preservedPath": "verification/openai-sdk-467-source.json",
+      "sha256": "ee0ac35b382eb0f28c315def46b472f1bc175a66165d0f0cbd845a6708cedbc7"
+    },
+    {
+      "originalPathAtStage": "verification/openai-sdk-import.json",
+      "preservedPath": "verification/openai-sdk-import.json",
+      "sha256": "7e3eb4a9a5d96bb8f8c302b0ba3046e2dc437df558dfbe6c05ad1cbfbcd77c35"
+    },
+    {
+      "originalPathAtStage": "verification/openai-sdk-local-probe.json",
+      "preservedPath": "verification/openai-sdk-local-probe.json",
+      "sha256": "4fa86ad99d100a96c389c6bc0621aaf1313c0e7f00762ee3aa1e54dd929ec364"
+    },
+    {
+      "originalPathAtStage": "README.md",
+      "preservedPath": "verification/openai-sdk-readme-before-producer.md",
+      "sha256": "46245ddac293fc69a6b52c6a11e79735a3acc1f2dde56f46117ddff81a62e6b4"
+    }
+  ],
+  "laterImplementationEvidence": "verification/openai-producer-port.json",
+  "originalReviewBackup": {
+    "file": "verification/openai-sdk-review-before-producer.json",
+    "sha256": "d7ef42132e3822caef880ce1ea4d6739c712cc8a3ef457b5a004e324a47d7c11"
+  }
+}

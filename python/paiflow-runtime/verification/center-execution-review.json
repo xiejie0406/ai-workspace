@@ -1,0 +1,76 @@
+{
+  "timestamp": "2026-10-02T21:40:20.930617+00:00",
+  "scope": "中心一次性许可与取消竞争只读源码审查；不修改中心，不运行中心测试/DDL/联机",
+  "files": [
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+      "sha256": "ebcbc8bc9e7cbdbb330778730e7cd85a16417bd466ff78c38fcc0cb6715dd1a0"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java",
+      "sha256": "1fb34b66418ec788514f1ea86bc1656ef179d3fc7865579acc7261462e51f615"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CheckpointService.java",
+      "sha256": "7ce501b7fae7ac29359cfb10e04ce1cb6fb2ddb251ee065efd950bb2f7d874c0"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/controller/WorkerRunController.java",
+      "sha256": "99d90d8c3a84877f9f1ed7b67730e22795fe7327574c0bf7d9d0353bad2bcd70"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/controller/WorkerRunExceptionHandler.java",
+      "sha256": "99e613bdbfd161d942f85cbe2cb4ecbdb50bd0d1926de7a0ee17147f867df546"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/filter/WorkerRequestBoundaryFilter.java",
+      "sha256": "c661015f8e930ff55d9ecb5053d30845ec2974680c20d3357d2c97bcad620fea"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkerIdentityService.java",
+      "sha256": "4901ececb1951af3b4c3e36e72cdfe0dcc2fee077c5ed3aaecf8f09ef3c132e3"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/RunMapper.xml",
+      "sha256": "d731875fd54573bc38efa32175e7c9910010558160bb6290d10ea41882bd13f2"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/sql/003-paiflow-run.sql",
+      "sha256": "c0e073e5b8de408d64e691a2cb00f177e318cb8a6f380f1dbf2a24d5a74949fb"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/sql/006-paiflow-execution-start.sql",
+      "sha256": "cc1408013daa8a8e0f9a3a05147ac534c5b63fd4cd2a3a3a285cfdebe2cb1487"
+    },
+    {
+      "path": "contracts/paiflow/worker.schema.json",
+      "sha256": "d9822a541d71a153028e493e9ae277fe6a7d8c46ef50e2060d4ee631c61b64b2"
+    },
+    {
+      "path": "contracts/paiflow/internal.openapi.json",
+      "sha256": "fed195a4bd03b8331a5e3784c66fb288465ddba921b722485b7dd9dc80227806"
+    }
+  ],
+  "finding": {
+    "severity": "P1",
+    "status": "fixed-source-readback-and-119-worker-tests",
+    "description": "Worker最终verify忽略cancelRequested，且中心取消后仍接受COMPLETED；已由Worker转真实停止路径、中心result行锁拒409修复。未知effect不假报CANCELLED，原节点/用量事实保留。"
+  },
+  "checked": [
+    "独立服务身份与真实HTTP拒绝",
+    "run行锁+revision CAS唯一许可",
+    "完整共享ACK",
+    "等待锁后当前发起者/空间权限",
+    "事务失败回滚与许可不重发",
+    "事件/COMPLETED/CPcreate须许可",
+    "003时间非空与006保守旧attempt回填",
+    "claim/heartbeat不清空已发许可",
+    "取消先获锁拒完成与结果冲突不假取消"
+  ],
+  "remainingP0P1": [],
+  "limits": [
+    "中心测试结果由主Agent保存，此审查没有自行重跑Maven",
+    "006仍是未执行增量草案，切换须停派发核对旧运行，不清空字段重放",
+    "真实数据库/租约恢复/Provider停止未联机验证"
+  ]
+}

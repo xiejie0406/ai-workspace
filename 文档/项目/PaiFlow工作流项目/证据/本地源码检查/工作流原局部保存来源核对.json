@@ -1,0 +1,80 @@
+{
+  "recordType": "readonly_original_partial_save_source_audit",
+  "recordedAt": "2026-10-02T23:52:07.295709+00:00",
+  "sourceEvidence": [
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java",
+      "line": 143,
+      "sha256": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+      "fact": "PUT根入口149接收@RequestBody WorkflowReq并调用updateInfo"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/dto/WorkflowReq.java",
+      "line": 16,
+      "sha256": "faecb52bb132b61ae04a37f9209877b3f3fdf3a872da7184d935e5566fbcd59d",
+      "fact": "data声明BizWorkflowData；31 advancedConfig Map<String,Object>；40 flowConfig TalkAgentConfigDto，无String data或专门String解码声明"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowData.java",
+      "line": 11,
+      "sha256": "975a73d9eaa5c17bf39b4a45a89c75e2b070fa0bccc17cd007b7764076ad87a4",
+      "fact": "仅nodes/edges两List字段"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "line": 1767,
+      "sha256": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+      "fact": "saveLocal1775先合并advancedConfig；1776-1791 flowConfig非null时在version=-1整体JSON替换，否则不改"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "line": 1848,
+      "sha256": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+      "fact": "mergeAdvancedConfigSafe以旧ObjectNode和请求ObjectNode递归合并，缺省不改，1859序列化持久化结果"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "line": 2188,
+      "sha256": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+      "fact": "同key两边皆object时递归；array/scalar/null直接replace，未传旧key保留"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "line": 1869,
+      "sha256": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+      "fact": "writeProtocolDataIfPresent旧画布JSONObject仅put nodes/edges，其他旧root字段保留；无旧画布时使用DTO对象序列化"
+    },
+    {
+      "file": "frontend/paiflow-web/src/components/workflow/drawer/advanced-config/index.tsx",
+      "line": 394,
+      "sha256": "2f15ef0df00d4359077dd6176c6f705f8d03f8ae9c332cb43cb74d3e6abd5c25",
+      "fact": "399/411仅advancedConfig:updateParams局部对象，依赖后端递归合并"
+    },
+    {
+      "file": "frontend/paiflow-web/src/components/workflow/store/flow-manager-function.ts",
+      "line": 425,
+      "sha256": "1a9a2b85c7eadede2362f5624c56b4ae36e8490943601dff2ff00378a9326fd0",
+      "fact": "435-452 autoSave data仅nodes/edges；不发送旧viewport/futureRoot"
+    },
+    {
+      "file": "文档/项目/PaiFlow工作流项目/完整迁移设计.md",
+      "line": 140,
+      "sha256": "0ca2a35486adf230b4ec3a3cd78848382bec4318a5ffed14a26d6ce84bd0ae82",
+      "fact": "批准方案保全原布局和未知字段；142包往返比较语义与布局。没有要求局部object整体覆盖"
+    }
+  ],
+  "semantics": {
+    "advancedConfig": "deep object merge; arrays/scalars/null replace; absent retains existing",
+    "flowConfig": "non-null entire typed configuration replace; absent/null retains existing",
+    "canvasObject": "original typed nodes/edges replace; absent root fields retain persisted value",
+    "canvasJSONString": "current center extension; preserve exact bytes as full canvas, not documented original DTO string contract"
+  },
+  "controlledMigrationInference": "中心object更新保留未传根字段、显式传入根键按请求保全，与已批准布局/未知字段保全目标一致；不能因此跳过行锁/权限/CAS以及合并后凭据和体积检查。",
+  "limits": [
+    "没有启动原服务、DB、Provider或Maven",
+    "DTO声明与源控制流不是原Jackson对JSONString的实际运行验证",
+    "根中心真实Jackson与Mapper复现/修复证据由其单独维护，本文件不改其测试结论"
+  ],
+  "sourceEdited": false,
+  "businessRuntimeVerified": false
+}

@@ -1,0 +1,129 @@
+{
+  "checkedAt": "2026-10-03T09:21:29.153922+00:00",
+  "scope": "区分原空值修复入口的Run结果/事件预算与Model帧预算；仅读源和已有RunProtocolLimits.class常量",
+  "sources": [
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/controller/WorkerRunController.java",
+      "sha256": "9691b7a01c1d577c3539fddd334b72758402a7e0952f173e085588938a626955",
+      "needle": "RunProtocolLimits.EVENT_BYTES",
+      "lines": [
+        27
+      ]
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunProtocolLimits.java",
+      "sha256": "05e4886ed0f1f4292261124f083a0e57b30e89b59a23cbd39e04f00853c3a384",
+      "needle": "public static final int EVENT_BYTES",
+      "lines": [
+        8
+      ]
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunProtocolLimits.java",
+      "sha256": "05e4886ed0f1f4292261124f083a0e57b30e89b59a23cbd39e04f00853c3a384",
+      "needle": "public static final int RESULT_BYTES",
+      "lines": [
+        9
+      ]
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/filter/WorkerRequestBoundaryFilter.java",
+      "sha256": "ad1e63bf5168459478b11749d7e00924b8378556e2518c9977aaa3850545fc2f",
+      "needle": "route.endsWith(\"/result\")",
+      "lines": [
+        50
+      ]
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+      "sha256": "6f3a17e1dc56943f5266a1bbc4c34ea5ca8d4e1f2889f99aea9d27c9d4de11b3",
+      "needle": "RunJsonBoundary.check(result,RunProtocolLimits.RESULT_BYTES)",
+      "lines": [
+        211
+      ]
+    },
+    {
+      "path": "contracts/paiflow/internal.openapi.json",
+      "sha256": "50a6d57494237f4abc1b2e63ba7042df8dff309bc5ff0d4dfffc06fb5908b0b4",
+      "needle": "结果正文超过2MiB",
+      "lines": [
+        232
+      ]
+    },
+    {
+      "path": "contracts/paiflow/worker.schema.json",
+      "sha256": "d9822a541d71a153028e493e9ae277fe6a7d8c46ef50e2060d4ee631c61b64b2",
+      "needle": "\"Result\"",
+      "lines": [
+        166
+      ]
+    },
+    {
+      "path": "python/paiflow-runtime/worker/task_runner.py",
+      "sha256": "f567da8fc3b06cb6810d4dd42af17338c6bfc2e7bbee9578f56009da1e90e65d",
+      "needle": "引擎结果超出预算",
+      "lines": [
+        324
+      ]
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ModelOperationJson.java",
+      "sha256": "6e2aad9bfaf1c21ad0a23bf2158c71344c37e50c6a735513cd004ff5a2226544",
+      "needle": "FRAME_BYTES",
+      "lines": [
+        14
+      ]
+    }
+  ],
+  "sourceHashesBefore": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/controller/WorkerRunController.java": "9691b7a01c1d577c3539fddd334b72758402a7e0952f173e085588938a626955",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunProtocolLimits.java": "05e4886ed0f1f4292261124f083a0e57b30e89b59a23cbd39e04f00853c3a384",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/filter/WorkerRequestBoundaryFilter.java": "ad1e63bf5168459478b11749d7e00924b8378556e2518c9977aaa3850545fc2f",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java": "6f3a17e1dc56943f5266a1bbc4c34ea5ca8d4e1f2889f99aea9d27c9d4de11b3",
+    "contracts/paiflow/internal.openapi.json": "50a6d57494237f4abc1b2e63ba7042df8dff309bc5ff0d4dfffc06fb5908b0b4",
+    "contracts/paiflow/worker.schema.json": "d9822a541d71a153028e493e9ae277fe6a7d8c46ef50e2060d4ee631c61b64b2",
+    "python/paiflow-runtime/worker/task_runner.py": "f567da8fc3b06cb6810d4dd42af17338c6bfc2e7bbee9578f56009da1e90e65d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ModelOperationJson.java": "6e2aad9bfaf1c21ad0a23bf2158c71344c37e50c6a735513cd004ff5a2226544"
+  },
+  "sourceHashesAfter": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/controller/WorkerRunController.java": "9691b7a01c1d577c3539fddd334b72758402a7e0952f173e085588938a626955",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunProtocolLimits.java": "05e4886ed0f1f4292261124f083a0e57b30e89b59a23cbd39e04f00853c3a384",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/filter/WorkerRequestBoundaryFilter.java": "ad1e63bf5168459478b11749d7e00924b8378556e2518c9977aaa3850545fc2f",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java": "6f3a17e1dc56943f5266a1bbc4c34ea5ca8d4e1f2889f99aea9d27c9d4de11b3",
+    "contracts/paiflow/internal.openapi.json": "50a6d57494237f4abc1b2e63ba7042df8dff309bc5ff0d4dfffc06fb5908b0b4",
+    "contracts/paiflow/worker.schema.json": "d9822a541d71a153028e493e9ae277fe6a7d8c46ef50e2060d4ee631c61b64b2",
+    "python/paiflow-runtime/worker/task_runner.py": "f567da8fc3b06cb6810d4dd42af17338c6bfc2e7bbee9578f56009da1e90e65d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ModelOperationJson.java": "6e2aad9bfaf1c21ad0a23bf2158c71344c37e50c6a735513cd004ff5a2226544"
+  },
+  "sourceWindowChanges": [],
+  "preservedCurrentController": {
+    "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/Worker结果预算核对当前入口原文/WorkerRunController.java",
+    "sha256": "9691b7a01c1d577c3539fddd334b72758402a7e0952f173e085588938a626955"
+  },
+  "actualFacts": {
+    "runEventBytes": 4194304,
+    "runResultBytes": 2097152,
+    "modelFrameBytes": 65536,
+    "controllerSharedJsonBudget": "EVENT_BYTES=4MiB",
+    "resultFilterBudget": "RESULT_BYTES=2MiB",
+    "resultServiceBudget": "RESULT_BYTES=2MiB",
+    "openApiResult413Description": "结果正文超过2MiB",
+    "workerResultOutputOnlyLimit": "TaskRunner output JSON UTF8 >2MiB拒绝；中心Filter/Service限制完整结果正文",
+    "javapReadOnlyCompiledConstantObservation": "现RunProtocolLimits.class的EVENT_BYTES4194304、RESULT_BYTES2097152，与source一致；未执行Service"
+  },
+  "correction": "最初把Model帧64KiB误套Run事件；约70KiB合法结果不会因当前Controller4MiB预算首先413，不伪造该反例",
+  "decision": "按Root更正仅保存scope注记，预算/路由不改，正式MVC null绑定tests由Root另行实施",
+  "retainedNullEvidence": {
+    "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/Worker事件HTTP显式空值修复独立复验.json",
+    "sha256": "fbbf529dea9d3f06ecc8e4ee2813bd33b66cb21fa6a430eaf08587b8b32b6abb",
+    "modified": false
+  },
+  "budgetMvcProbeExecuted": false,
+  "budgetServiceExecuted": false,
+  "sourceModified": false,
+  "targetWritten": false,
+  "maven": false,
+  "network": false,
+  "database": false,
+  "businessVerified": false
+}

@@ -1,0 +1,36 @@
+{
+  "scope": "readonly AST literal + json.loads check; does not rerun Pydantic/Node/Provider",
+  "script": "verification/pydantic-model-options-probe.py.txt",
+  "scriptLine": 26,
+  "scriptSha256": "6f36568ead2990400f290279fb930fa6493c0702c67fa0110249fd2f31ec1e08",
+  "fixture": "verification/pydantic-model-options-probe.json",
+  "fixtureSha256": "9dab409ba1a6abd29fd9f3e90511448715d467b963a2e59dafeaa944f5f14827",
+  "sourceLiteralCodepoints": [
+    9,
+    51,
+    10
+  ],
+  "sourceLiteralLength": 3,
+  "jsonParseCases": [
+    {
+      "inputCodepoints": [
+        9,
+        51,
+        10
+      ],
+      "length": 3,
+      "inputType": "str",
+      "accepted": true,
+      "effective": 3,
+      "effectiveType": "int"
+    }
+  ],
+  "literalBackslashPresent": false,
+  "transformsApplied": [
+    "Python normal source literal parsing",
+    "json.dumps storage",
+    "json.loads verification"
+  ],
+  "unicodeEscapeCodecApplied": false,
+  "explanation": "repr displays actual tab/newline with backslash escapes; JSON display escapes those backslashes again. The actual input is U+0009 U+0033 U+000A."
+}

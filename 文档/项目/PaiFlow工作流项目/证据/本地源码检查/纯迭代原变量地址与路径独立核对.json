@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "paiflow.iteration.original-algorithm-readonly.v1",
+  "recordedAt": "2026-10-03T02:55:24.266211+00:00",
+  "command": [
+    "python/paiflow-runtime/.venv/Scripts/python.exe",
+    "-B",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/PureIterationReadOnlyReview.py",
+    "D:\\2025Ai\\26-05-23\\java-workspace"
+  ],
+  "workdir": "D:\\2025Ai\\26-05-23\\java-workspace",
+  "exitCode": 0,
+  "log": "纯迭代原变量地址与路径-独立检查.log",
+  "logSha256": "06ed977ed1d765a20adc7bd2546ccbe1ed4444a0f86fbcacfa3b7800bf48b691",
+  "probe": "checks/PureIterationReadOnlyReview.py",
+  "probeSha256": "b90d129574dfd510a908d2b4b9591e5c5f8f4ca73fa8bc68f336a628141b27cf",
+  "actual": {
+    "scope": "actual original Pydantic + VariablePool + Chains in-memory; no Factory execution or formal guard result",
+    "variableAddressCollision": {
+      "ownAddress": [
+        "text-joiner::a",
+        "x-y"
+      ],
+      "foreignAddress": [
+        "text-joiner::a-x",
+        "y"
+      ],
+      "mappingKey": "text-joiner::a-x-y",
+      "consumerExplicitReference": [
+        "text-joiner::a",
+        "x-y"
+      ],
+      "expectedOwnDeclaredDefault": "BODY_FIXTURE",
+      "actualRead": "ROOT_FIXTURE",
+      "confirmed": true
+    },
+    "exponentialDag": {
+      "layers": 8,
+      "nodes": 18,
+      "edges": 32,
+      "acyclic": true,
+      "actualSimplePaths": 256,
+      "actualMaxPathLengthIncludingEndpoints": 10,
+      "pathNodeEntries": 2560,
+      "exceedsProposedPathBudget128": true
+    },
+    "sourceHashesBefore": {
+      "workflow/engine/entities/workflow_dsl.py": "b8f6dc6d3bd1a28586aababf735f8c043e8d70cc4038ef5542dc8104b3b343bb",
+      "workflow/engine/entities/variable_pool.py": "16f740fd787a5dfa9b3e5be218c9962ec1b85eb277fefd90cf19eaab0a4dcf35",
+      "workflow/engine/entities/chains.py": "5e8cdaeb8ed83ee6da5eb74ed07f548d42ede6a440ecdb08e9291754c924b5c3"
+    },
+    "sourceHashesAfter": {
+      "workflow/engine/entities/workflow_dsl.py": "b8f6dc6d3bd1a28586aababf735f8c043e8d70cc4038ef5542dc8104b3b343bb",
+      "workflow/engine/entities/variable_pool.py": "16f740fd787a5dfa9b3e5be218c9962ec1b85eb277fefd90cf19eaab0a4dcf35",
+      "workflow/engine/entities/chains.py": "5e8cdaeb8ed83ee6da5eb74ed07f548d42ede6a440ecdb08e9291754c924b5c3"
+    },
+    "sourceWindowChanges": [],
+    "serviceStarted": false,
+    "network": false,
+    "databaseCalls": 0,
+    "factoryExecuted": false,
+    "formalGuardExecuted": false,
+    "productionSourceModified": false,
+    "targetWrites": 0
+  },
+  "limitations": [
+    "真实原Pydantic、VariablePool与Chains纯内存探针；没有执行Factory、中心guard、Worker begin或业务运行。",
+    "实际碰撞与路径计数用于新guard反例，不冒称已开启迭代的当前生产漏洞。"
+  ]
+}

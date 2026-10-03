@@ -1,0 +1,1021 @@
+{
+  "schemaVersion": "paiflow.original-workflow-export-golden.v1",
+  "startedAt": "2026-10-03T12:05:27.302801+00:00",
+  "endedAt": "2026-10-03T12:05:35.216480+00:00",
+  "scope": "原9完整DTO+原导出纯算法段+原/current下载函数AST技术golden，不执行原完整Service权限/Mapper/App/Provider/导入",
+  "sourceHashesBefore": {
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/entity/workflow/Workflow.java": "55bd3aff015977cb33e925774b69b5238c730cd05a243c988691916abe411648",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowData.java": "975a73d9eaa5c17bf39b4a45a89c75e2b070fa0bccc17cd007b7764076ad87a4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowNode.java": "3dab4126fdd3c14cb05f1276a456b1505d4b76b5eb83b10652e8572f68a83abe",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowEdge.java": "f0eb48a90e83089e2d618144c2cb3233c44d7da6a3aa59d9016938f0f4c078d0",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizNodeData.java": "fef2c9ecee4469165128711024bd321056e6093b2996e11d4340f6bec3e4dc21",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowExportService.java": "f1d3f5279b5f48833917b6c156c70e418146f9cb4f389489e28099713b8f866f",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/pom.xml": "b6bca3f8440d2c47178ba94d062f87d7e6025d19532036b35b1e27f5805cf929",
+    "参考项目/PaiFlow-main/console/backend/pom.xml": "d169a9a674a8c49bc38e2a7ab2acc90dfd1552e19782a49ddad740bdbe1bfa4b",
+    "参考项目/PaiFlow-main/console/frontend/src/utils/http.ts": "ff154ed4dfdecb24d9893f892d275ba5f0ebf1be3e4bd96181ecbbd72545690a",
+    "frontend/paiflow-web/src/utils/http.ts": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/utils/index.ts": "daf9eb46876cdd2ddb5f1735f0a9ea4bfc35ada06fc37b94259363de2f221f50",
+    "frontend/paiflow-web/src/components/workflow/utils/index.ts": "382ac1c965aef6f91cf5da5f21558a0ac95c96440cdae32aa2c09dc72f715e63",
+    "frontend/paiflow-web/src/pages/workflow/components/btn-groups/index.tsx": "195939d3bb15ec37f89c0e48ce862d3271dddc7330167e7ab54446ad2a718183",
+    "frontend/paiflow-web/src/pages/space-page/agent-page/index.tsx": "20b1ba9f4c3f71659e0839b1fca88f948920aa6d3d7b9c725a00fbecd4388340"
+  },
+  "sourceHashesAfter": {
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/entity/workflow/Workflow.java": "55bd3aff015977cb33e925774b69b5238c730cd05a243c988691916abe411648",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowData.java": "975a73d9eaa5c17bf39b4a45a89c75e2b070fa0bccc17cd007b7764076ad87a4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowNode.java": "3dab4126fdd3c14cb05f1276a456b1505d4b76b5eb83b10652e8572f68a83abe",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowEdge.java": "f0eb48a90e83089e2d618144c2cb3233c44d7da6a3aa59d9016938f0f4c078d0",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizNodeData.java": "fef2c9ecee4469165128711024bd321056e6093b2996e11d4340f6bec3e4dc21",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowExportService.java": "f1d3f5279b5f48833917b6c156c70e418146f9cb4f389489e28099713b8f866f",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/pom.xml": "b6bca3f8440d2c47178ba94d062f87d7e6025d19532036b35b1e27f5805cf929",
+    "参考项目/PaiFlow-main/console/backend/pom.xml": "d169a9a674a8c49bc38e2a7ab2acc90dfd1552e19782a49ddad740bdbe1bfa4b",
+    "参考项目/PaiFlow-main/console/frontend/src/utils/http.ts": "ff154ed4dfdecb24d9893f892d275ba5f0ebf1be3e4bd96181ecbbd72545690a",
+    "frontend/paiflow-web/src/utils/http.ts": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/utils/index.ts": "daf9eb46876cdd2ddb5f1735f0a9ea4bfc35ada06fc37b94259363de2f221f50",
+    "frontend/paiflow-web/src/components/workflow/utils/index.ts": "382ac1c965aef6f91cf5da5f21558a0ac95c96440cdae32aa2c09dc72f715e63",
+    "frontend/paiflow-web/src/pages/workflow/components/btn-groups/index.tsx": "195939d3bb15ec37f89c0e48ce862d3271dddc7330167e7ab54446ad2a718183",
+    "frontend/paiflow-web/src/pages/space-page/agent-page/index.tsx": "20b1ba9f4c3f71659e0839b1fca88f948920aa6d3d7b9c725a00fbecd4388340"
+  },
+  "sourceWindowChanges": [],
+  "fixtures": [
+    {
+      "id": "empty-arrays-seven-metadata",
+      "workflow": {
+        "name": "中文 😀",
+        "description": "描述",
+        "avatarIcon": "icon",
+        "avatarColor": "#f0f",
+        "edgeType": "curve",
+        "category": 3,
+        "advancedConfig": "{\"x\":null}",
+        "uid": "PRIVATE_FIXTURE",
+        "appId": "FIXTURE_APP",
+        "flowId": "FIXTURE_FLOW",
+        "id": 1,
+        "futureMeta": "ignored"
+      },
+      "canvas": {
+        "nodes": [],
+        "edges": []
+      }
+    },
+    {
+      "id": "all-null-metadata-and-null-dto-lists",
+      "workflow": {
+        "name": null,
+        "description": null,
+        "avatarIcon": null,
+        "avatarColor": null,
+        "edgeType": null,
+        "category": null,
+        "advancedConfig": null
+      },
+      "canvas": {
+        "nodes": null,
+        "edges": null
+      }
+    },
+    {
+      "id": "all-null-metadata-and-empty-dto-lists",
+      "workflow": {
+        "name": null,
+        "description": null,
+        "avatarIcon": null,
+        "avatarColor": null,
+        "edgeType": null,
+        "category": null,
+        "advancedConfig": null
+      },
+      "canvas": {
+        "nodes": [],
+        "edges": []
+      }
+    },
+    {
+      "id": "root-unknown-viewport-dropped",
+      "workflow": {
+        "name": "root"
+      },
+      "canvas": {
+        "nodes": [],
+        "edges": [],
+        "viewport": {
+          "x": 0,
+          "y": null,
+          "zoom": 0.75
+        },
+        "futureRoot": null
+      }
+    },
+    {
+      "id": "closed-node-data-edge-fields",
+      "workflow": {
+        "name": "closed"
+      },
+      "canvas": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "futureNode": {
+              "nil": null
+            },
+            "data": {
+              "label": "S",
+              "futureData": {
+                "zero": 0,
+                "flag": false
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e",
+            "source": "a",
+            "target": "b",
+            "futureEdge": 17
+          }
+        ]
+      }
+    },
+    {
+      "id": "open-object-json-fields-null-policy",
+      "workflow": {
+        "name": "open"
+      },
+      "canvas": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "position": {
+              "x": 0,
+              "y": null,
+              "future": false
+            },
+            "data": {
+              "nodeParam": {
+                "nil": null,
+                "nested": {
+                  "nil": null,
+                  "zero": 0,
+                  "flag": false
+                },
+                "array": [
+                  null,
+                  0,
+                  false,
+                  {
+                    "nil": null,
+                    "x": "x"
+                  }
+                ]
+              },
+              "nodeMeta": {
+                "future": null,
+                "zero": 0
+              },
+              "originPosition": {
+                "nil": null,
+                "flag": false
+              },
+              "references": {
+                "nil": null,
+                "zero": 0
+              },
+              "retryConfig": {
+                "enabled": false,
+                "customOutput": null
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "source": "a",
+            "target": "b",
+            "data": {
+              "nil": null,
+              "false": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "schema-default-item-value-and-property",
+      "workflow": {
+        "name": "schema"
+      },
+      "canvas": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "outputs": [
+                {
+                  "name": "obj",
+                  "futureOutput": "dropped",
+                  "schema": {
+                    "type": "object",
+                    "default": {
+                      "nil": null,
+                      "zero": 0,
+                      "flag": false
+                    },
+                    "item": {
+                      "future": null,
+                      "zero": 0
+                    },
+                    "value": {
+                      "type": "literal",
+                      "content": {
+                        "nil": null,
+                        "flag": false
+                      },
+                      "futureValue": "drop"
+                    },
+                    "properties": [
+                      {
+                        "name": "p",
+                        "type": "integer",
+                        "default": "17",
+                        "required": false,
+                        "futureProperty": "drop"
+                      }
+                    ],
+                    "futureSchema": "drop"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "id": "typed-node-width-boolean-string-coercion",
+      "workflow": {
+        "name": 17,
+        "category": "3"
+      },
+      "canvas": {
+        "nodes": [
+          {
+            "id": 17,
+            "width": "13",
+            "height": "0",
+            "selected": "false",
+            "dragging": "true",
+            "data": {
+              "label": 23,
+              "updatable": false
+            }
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "id": "typed-property-default-coercion",
+      "workflow": {
+        "name": "property"
+      },
+      "canvas": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "outputs": [
+                {
+                  "name": 15,
+                  "required": "false",
+                  "schema": {
+                    "type": "object",
+                    "properties": [
+                      {
+                        "name": "p",
+                        "default": 123,
+                        "required": "true",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "id": "raw-json-null-root",
+      "workflow": {
+        "name": "null"
+      },
+      "canvasRaw": "null"
+    },
+    {
+      "id": "nullable-node-edge-array-items",
+      "workflow": {
+        "name": "nullitems"
+      },
+      "canvas": {
+        "nodes": [
+          null,
+          {
+            "id": "node-end::e",
+            "data": null
+          }
+        ],
+        "edges": [
+          null
+        ]
+      }
+    },
+    {
+      "id": "invalid-typed-width",
+      "workflow": {
+        "name": "invalid"
+      },
+      "canvas": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "width": "not-int"
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "id": "private-fields-original-cleanup-commented",
+      "workflow": {
+        "name": "fixture-only"
+      },
+      "canvas": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeParam": {
+                "uid": "PRIVATE_FIXTURE",
+                "appId": "FIXTURE_APP",
+                "apiKey": "FIXTURE_NOT_A_CREDENTIAL"
+              }
+            }
+          }
+        ],
+        "edges": []
+      }
+    }
+  ],
+  "actualOriginalProjection": [
+    {
+      "id": "empty-arrays-seven-metadata",
+      "yamlUTF8Bytes": 217,
+      "yamlSha256": "38cdf61a225f4211a876b5d1f8238b8be733f3abcc79d1483aa4f5dc93531369",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTog5Lit5paHIPCfmIAKICBkZXNjcmlwdGlvbjog5o+P6L+wCiAgYXZhdGFySWNvbjogaWNvbgogIGF2YXRhckNvbG9yOiAnI2YwZicKICBlZGdlVHlwZTogY3VydmUKICBhZHZhbmNlZENvbmZpZzogJ3sieCI6bnVsbH0nCiAgY2F0ZWdvcnk6IDMKICBkc2xWZXJzaW9uOiB2MQpmbG93RGF0YToKICBub2RlczogWwogICAgXQogIGVkZ2VzOiBbCiAgICBdCg==",
+      "yamlText": "flowMeta:\n  name: 中文 😀\n  description: 描述\n  avatarIcon: icon\n  avatarColor: '#f0f'\n  edgeType: curve\n  advancedConfig: '{\"x\":null}'\n  category: 3\n  dslVersion: v1\nflowData:\n  nodes: [\n    ]\n  edges: [\n    ]\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "中文 😀",
+          "description": "描述",
+          "avatarIcon": "icon",
+          "avatarColor": "#f0f",
+          "edgeType": "curve",
+          "advancedConfig": "{\"x\":null}",
+          "category": 3,
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [],
+          "edges": []
+        }
+      }
+    },
+    {
+      "id": "all-null-metadata-and-null-dto-lists",
+      "errorType": "java.lang.NullPointerException",
+      "errorMessage": "Cannot invoke \"java.util.List.iterator()\" because \"<local3>\" is null"
+    },
+    {
+      "id": "all-null-metadata-and-empty-dto-lists",
+      "yamlUTF8Bytes": 71,
+      "yamlSha256": "6e5a5f443468555f714a8bef099c1d77c7f8560cfb67c06aa8c416258ad7a117",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgZHNsVmVyc2lvbjogdjEKZmxvd0RhdGE6CiAgbm9kZXM6IFsKICAgIF0KICBlZGdlczogWwogICAgXQo=",
+      "yamlText": "flowMeta:\n  dslVersion: v1\nflowData:\n  nodes: [\n    ]\n  edges: [\n    ]\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [],
+          "edges": []
+        }
+      }
+    },
+    {
+      "id": "root-unknown-viewport-dropped",
+      "yamlUTF8Bytes": 84,
+      "yamlSha256": "5ee0efab95747dac35555294cd1cce71a1a04e377e567abcf4e89269d2ca34fe",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTogcm9vdAogIGRzbFZlcnNpb246IHYxCmZsb3dEYXRhOgogIG5vZGVzOiBbCiAgICBdCiAgZWRnZXM6IFsKICAgIF0K",
+      "yamlText": "flowMeta:\n  name: root\n  dslVersion: v1\nflowData:\n  nodes: [\n    ]\n  edges: [\n    ]\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "root",
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [],
+          "edges": []
+        }
+      }
+    },
+    {
+      "id": "closed-node-data-edge-fields",
+      "yamlUTF8Bytes": 155,
+      "yamlSha256": "8855170bf9c4dcbd5a80a37c65ba0906fd5a469054b1276c97b91e1a67ce38e1",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTogY2xvc2VkCiAgZHNsVmVyc2lvbjogdjEKZmxvd0RhdGE6CiAgbm9kZXM6CiAgLSBpZDogbm9kZS1zdGFydDo6cwogICAgZGF0YToKICAgICAgbGFiZWw6IFMKICBlZGdlczoKICAtIHNvdXJjZTogYQogICAgdGFyZ2V0OiBiCiAgICBpZDogZQo=",
+      "yamlText": "flowMeta:\n  name: closed\n  dslVersion: v1\nflowData:\n  nodes:\n  - id: node-start::s\n    data:\n      label: S\n  edges:\n  - source: a\n    target: b\n    id: e\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "closed",
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [
+            {
+              "id": "node-start::s",
+              "data": {
+                "label": "S"
+              }
+            }
+          ],
+          "edges": [
+            {
+              "source": "a",
+              "target": "b",
+              "id": "e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "open-object-json-fields-null-policy",
+      "yamlUTF8Bytes": 500,
+      "yamlSha256": "283113a2a227051c118b886d29826a3198689a12ba9c3fcd9fe46cf0cdae51af",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTogb3BlbgogIGRzbFZlcnNpb246IHYxCmZsb3dEYXRhOgogIG5vZGVzOgogIC0gaWQ6IG5vZGUtc3RhcnQ6OnMKICAgIHBvc2l0aW9uOgogICAgICB4OiAwCiAgICAgIGZ1dHVyZTogZmFsc2UKICAgIGRhdGE6CiAgICAgIHJlZmVyZW5jZXM6CiAgICAgICAgemVybzogMAogICAgICBub2RlTWV0YToKICAgICAgICB6ZXJvOiAwCiAgICAgIG5vZGVQYXJhbToKICAgICAgICBuZXN0ZWQ6CiAgICAgICAgICB6ZXJvOiAwCiAgICAgICAgICBmbGFnOiBmYWxzZQogICAgICAgIGFycmF5OgogICAgICAgIC0gbnVsbAogICAgICAgIC0gMAogICAgICAgIC0gZmFsc2UKICAgICAgICAtIHg6IHgKICAgICAgcmV0cnlDb25maWc6CiAgICAgICAgZW5hYmxlZDogZmFsc2UKICAgICAgb3JpZ2luUG9zaXRpb246CiAgICAgICAgZmxhZzogZmFsc2UKICBlZGdlczoKICAtIHNvdXJjZTogYQogICAgdGFyZ2V0OiBiCiAgICBkYXRhOgogICAgICAnZmFsc2UnOiBmYWxzZQo=",
+      "yamlText": "flowMeta:\n  name: open\n  dslVersion: v1\nflowData:\n  nodes:\n  - id: node-start::s\n    position:\n      x: 0\n      future: false\n    data:\n      references:\n        zero: 0\n      nodeMeta:\n        zero: 0\n      nodeParam:\n        nested:\n          zero: 0\n          flag: false\n        array:\n        - null\n        - 0\n        - false\n        - x: x\n      retryConfig:\n        enabled: false\n      originPosition:\n        flag: false\n  edges:\n  - source: a\n    target: b\n    data:\n      'false': false\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "open",
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [
+            {
+              "id": "node-start::s",
+              "position": {
+                "x": 0,
+                "future": false
+              },
+              "data": {
+                "references": {
+                  "zero": 0
+                },
+                "nodeMeta": {
+                  "zero": 0
+                },
+                "nodeParam": {
+                  "nested": {
+                    "zero": 0,
+                    "flag": false
+                  },
+                  "array": [
+                    null,
+                    0,
+                    false,
+                    {
+                      "x": "x"
+                    }
+                  ]
+                },
+                "retryConfig": {
+                  "enabled": false
+                },
+                "originPosition": {
+                  "flag": false
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "source": "a",
+              "target": "b",
+              "data": {
+                "false": false
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "schema-default-item-value-and-property",
+      "yamlUTF8Bytes": 493,
+      "yamlSha256": "1e8ca4d79147d2caacfd40dad63aa3333e66b5129a93ac7e175965f58848d052",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTogc2NoZW1hCiAgZHNsVmVyc2lvbjogdjEKZmxvd0RhdGE6CiAgbm9kZXM6CiAgLSBpZDogbm9kZS1zdGFydDo6cwogICAgZGF0YToKICAgICAgb3V0cHV0czoKICAgICAgLSBuYW1lOiBvYmoKICAgICAgICBzY2hlbWE6CiAgICAgICAgICB0eXBlOiBvYmplY3QKICAgICAgICAgIHZhbHVlOgogICAgICAgICAgICB0eXBlOiBsaXRlcmFsCiAgICAgICAgICAgIGNvbnRlbnQ6CiAgICAgICAgICAgICAgZmxhZzogZmFsc2UKICAgICAgICAgIGl0ZW06CiAgICAgICAgICAgIHplcm86IDAKICAgICAgICAgIHByb3BlcnRpZXM6CiAgICAgICAgICAtIG5hbWU6IHAKICAgICAgICAgICAgcmVxdWlyZWQ6IGZhbHNlCiAgICAgICAgICAgIHR5cGU6IGludGVnZXIKICAgICAgICAgICAgZGVmYXVsdDogJzE3JwogICAgICAgICAgZGVmYXVsdDoKICAgICAgICAgICAgemVybzogMAogICAgICAgICAgICBmbGFnOiBmYWxzZQogIGVkZ2VzOiBbCiAgICBdCg==",
+      "yamlText": "flowMeta:\n  name: schema\n  dslVersion: v1\nflowData:\n  nodes:\n  - id: node-start::s\n    data:\n      outputs:\n      - name: obj\n        schema:\n          type: object\n          value:\n            type: literal\n            content:\n              flag: false\n          item:\n            zero: 0\n          properties:\n          - name: p\n            required: false\n            type: integer\n            default: '17'\n          default:\n            zero: 0\n            flag: false\n  edges: [\n    ]\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "schema",
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [
+            {
+              "id": "node-start::s",
+              "data": {
+                "outputs": [
+                  {
+                    "name": "obj",
+                    "schema": {
+                      "type": "object",
+                      "value": {
+                        "type": "literal",
+                        "content": {
+                          "flag": false
+                        }
+                      },
+                      "item": {
+                        "zero": 0
+                      },
+                      "properties": [
+                        {
+                          "name": "p",
+                          "required": false,
+                          "type": "integer",
+                          "default": "17"
+                        }
+                      ],
+                      "default": {
+                        "zero": 0,
+                        "flag": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": []
+        }
+      }
+    },
+    {
+      "id": "typed-node-width-boolean-string-coercion",
+      "yamlUTF8Bytes": 221,
+      "yamlSha256": "5fd5b6b70e012a16b94a61ac9c5df4312bc32975e15b1b0cf0a23ee20b7f71fc",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTogJzE3JwogIGNhdGVnb3J5OiAzCiAgZHNsVmVyc2lvbjogdjEKZmxvd0RhdGE6CiAgbm9kZXM6CiAgLSBpZDogJzE3JwogICAgZHJhZ2dpbmc6IHRydWUKICAgIHNlbGVjdGVkOiBmYWxzZQogICAgd2lkdGg6IDEzCiAgICBoZWlnaHQ6IDAKICAgIGRhdGE6CiAgICAgIGxhYmVsOiAnMjMnCiAgICAgIHVwZGF0YWJsZTogZmFsc2UKICBlZGdlczogWwogICAgXQo=",
+      "yamlText": "flowMeta:\n  name: '17'\n  category: 3\n  dslVersion: v1\nflowData:\n  nodes:\n  - id: '17'\n    dragging: true\n    selected: false\n    width: 13\n    height: 0\n    data:\n      label: '23'\n      updatable: false\n  edges: [\n    ]\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "17",
+          "category": 3,
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [
+            {
+              "id": "17",
+              "dragging": true,
+              "selected": false,
+              "width": 13,
+              "height": 0,
+              "data": {
+                "label": "23",
+                "updatable": false
+              }
+            }
+          ],
+          "edges": []
+        }
+      }
+    },
+    {
+      "id": "typed-property-default-coercion",
+      "yamlUTF8Bytes": 330,
+      "yamlSha256": "dd58dda07099caa0f4445d0c606c2a5b3a284f1218d787355b6cdb1aea40bbf5",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTogcHJvcGVydHkKICBkc2xWZXJzaW9uOiB2MQpmbG93RGF0YToKICBub2RlczoKICAtIGlkOiBub2RlLXN0YXJ0OjpzCiAgICBkYXRhOgogICAgICBvdXRwdXRzOgogICAgICAtIG5hbWU6ICcxNScKICAgICAgICBzY2hlbWE6CiAgICAgICAgICB0eXBlOiBvYmplY3QKICAgICAgICAgIHByb3BlcnRpZXM6CiAgICAgICAgICAtIG5hbWU6IHAKICAgICAgICAgICAgcmVxdWlyZWQ6IHRydWUKICAgICAgICAgICAgdHlwZTogc3RyaW5nCiAgICAgICAgICAgIGRlZmF1bHQ6ICcxMjMnCiAgICAgICAgcmVxdWlyZWQ6IGZhbHNlCiAgZWRnZXM6IFsKICAgIF0K",
+      "yamlText": "flowMeta:\n  name: property\n  dslVersion: v1\nflowData:\n  nodes:\n  - id: node-start::s\n    data:\n      outputs:\n      - name: '15'\n        schema:\n          type: object\n          properties:\n          - name: p\n            required: true\n            type: string\n            default: '123'\n        required: false\n  edges: [\n    ]\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "property",
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [
+            {
+              "id": "node-start::s",
+              "data": {
+                "outputs": [
+                  {
+                    "name": "15",
+                    "schema": {
+                      "type": "object",
+                      "properties": [
+                        {
+                          "name": "p",
+                          "required": true,
+                          "type": "string",
+                          "default": "123"
+                        }
+                      ]
+                    },
+                    "required": false
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": []
+        }
+      }
+    },
+    {
+      "id": "raw-json-null-root",
+      "yamlUTF8Bytes": 57,
+      "yamlSha256": "84ff378d3afb3b1ea75e1d4c5e2bdacebe0d12ebdfdc07fe58785fb551f6007b",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTogJ251bGwnCiAgZHNsVmVyc2lvbjogdjEKZmxvd0RhdGE6IG51bGwK",
+      "yamlText": "flowMeta:\n  name: 'null'\n  dslVersion: v1\nflowData: null\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "null",
+          "dslVersion": "v1"
+        },
+        "flowData": null
+      }
+    },
+    {
+      "id": "nullable-node-edge-array-items",
+      "errorType": "java.lang.NullPointerException",
+      "errorMessage": "Cannot invoke \"com.iflytek.astron.console.toolkit.entity.biz.workflow.BizWorkflowNode.getData()\" because \"<local5>\" is null"
+    },
+    {
+      "id": "invalid-typed-width",
+      "errorType": "com.alibaba.fastjson2.JSONException",
+      "errorMessage": "parseInt error, value : not-int"
+    },
+    {
+      "id": "private-fields-original-cleanup-commented",
+      "yamlUTF8Bytes": 230,
+      "yamlSha256": "a7c547f190652507ca9f12eb9e6a07d4fa9ab1dde5b5c320b0a0b863e07ff22d",
+      "yamlUTF8Base64": "Zmxvd01ldGE6CiAgbmFtZTogZml4dHVyZS1vbmx5CiAgZHNsVmVyc2lvbjogdjEKZmxvd0RhdGE6CiAgbm9kZXM6CiAgLSBpZDogbm9kZS1zdGFydDo6cwogICAgZGF0YToKICAgICAgbm9kZVBhcmFtOgogICAgICAgIHVpZDogUFJJVkFURV9GSVhUVVJFCiAgICAgICAgYXBwSWQ6IEZJWFRVUkVfQVBQCiAgICAgICAgYXBpS2V5OiBGSVhUVVJFX05PVF9BX0NSRURFTlRJQUwKICBlZGdlczogWwogICAgXQo=",
+      "yamlText": "flowMeta:\n  name: fixture-only\n  dslVersion: v1\nflowData:\n  nodes:\n  - id: node-start::s\n    data:\n      nodeParam:\n        uid: PRIVATE_FIXTURE\n        appId: FIXTURE_APP\n        apiKey: FIXTURE_NOT_A_CREDENTIAL\n  edges: [\n    ]\n",
+      "parsedYaml": {
+        "flowMeta": {
+          "name": "fixture-only",
+          "dslVersion": "v1"
+        },
+        "flowData": {
+          "nodes": [
+            {
+              "id": "node-start::s",
+              "data": {
+                "nodeParam": {
+                  "uid": "PRIVATE_FIXTURE",
+                  "appId": "FIXTURE_APP",
+                  "apiKey": "FIXTURE_NOT_A_CREDENTIAL"
+                }
+              }
+            }
+          ],
+          "edges": []
+        }
+      }
+    }
+  ],
+  "actualProjectionCases": 13,
+  "actualDownloadConsumer": {
+    "caseCountEach": 6,
+    "sourceHashesBefore": {
+      "参考项目/PaiFlow-main/console/frontend/src/utils/http.ts": "ff154ed4dfdecb24d9893f892d275ba5f0ebf1be3e4bd96181ecbbd72545690a",
+      "frontend/paiflow-web/src/utils/http.ts": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917"
+    },
+    "sourceHashesAfter": {
+      "参考项目/PaiFlow-main/console/frontend/src/utils/http.ts": "ff154ed4dfdecb24d9893f892d275ba5f0ebf1be3e4bd96181ecbbd72545690a",
+      "frontend/paiflow-web/src/utils/http.ts": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917"
+    },
+    "sourceWindowChanges": [],
+    "original": [
+      {
+        "id": "default-domain-with-token",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_NOT_A_TOKEN"
+        },
+        "responseType": "blob",
+        "calls": [
+          {
+            "operation": "open",
+            "method": "GET",
+            "url": "https://center.invalid/paiflow/legacy/workflow/export/5000000001",
+            "async": true
+          },
+          {
+            "operation": "send"
+          },
+          {
+            "operation": "createObjectURL"
+          },
+          {
+            "operation": "appendChild"
+          },
+          {
+            "operation": "click",
+            "filename": "调用者中文工作流.yml",
+            "href": "blob:private-memory"
+          },
+          {
+            "operation": "removeChild"
+          },
+          {
+            "operation": "revokeObjectURL"
+          }
+        ]
+      },
+      {
+        "id": "named-personal-with-token",
+        "headers": {
+          "space-id": "7",
+          "Authorization": "Bearer FIXTURE_NOT_A_TOKEN"
+        },
+        "responseType": "blob",
+        "calls": [
+          {
+            "operation": "open",
+            "method": "GET",
+            "url": "https://center.invalid/paiflow/legacy/workflow/export/5000000001",
+            "async": true
+          },
+          {
+            "operation": "send"
+          },
+          {
+            "operation": "createObjectURL"
+          },
+          {
+            "operation": "appendChild"
+          },
+          {
+            "operation": "click",
+            "filename": "调用者中文工作流.yml",
+            "href": "blob:private-memory"
+          },
+          {
+            "operation": "removeChild"
+          },
+          {
+            "operation": "revokeObjectURL"
+          }
+        ]
+      },
+      {
+        "id": "team-headers",
+        "headers": {
+          "space-id": "7",
+          "Authorization": "Bearer FIXTURE_NOT_A_TOKEN",
+          "enterprise-id": "9"
+        },
+        "responseType": "blob",
+        "calls": [
+          {
+            "operation": "open",
+            "method": "GET",
+            "url": "https://center.invalid/paiflow/legacy/workflow/export/5000000001",
+            "async": true
+          },
+          {
+            "operation": "send"
+          },
+          {
+            "operation": "createObjectURL"
+          },
+          {
+            "operation": "appendChild"
+          },
+          {
+            "operation": "click",
+            "filename": "调用者中文工作流.yml",
+            "href": "blob:private-memory"
+          },
+          {
+            "operation": "removeChild"
+          },
+          {
+            "operation": "revokeObjectURL"
+          }
+        ]
+      },
+      {
+        "id": "anonymous-no-token",
+        "headers": {},
+        "responseType": "blob",
+        "calls": [
+          {
+            "operation": "open",
+            "method": "GET",
+            "url": "https://center.invalid/paiflow/legacy/workflow/export/5000000001",
+            "async": true
+          },
+          {
+            "operation": "send"
+          },
+          {
+            "operation": "createObjectURL"
+          },
+          {
+            "operation": "appendChild"
+          },
+          {
+            "operation": "click",
+            "filename": "调用者中文工作流.yml",
+            "href": "blob:private-memory"
+          },
+          {
+            "operation": "removeChild"
+          },
+          {
+            "operation": "revokeObjectURL"
+          }
+        ]
+      },
+      {
+        "id": "non200-does-not-download",
+        "headers": {
+          "space-id": "7",
+          "Authorization": "Bearer FIXTURE_NOT_A_TOKEN"
+        },
+        "responseType": "blob",
+        "calls": [
+          {
+            "operation": "open",
+            "method": "GET",
+            "url": "https://center.invalid/paiflow/legacy/workflow/export/5000000001",
+            "async": true
+          },
+          {
+            "operation": "send"
+          },
+          {
+            "operation": "error",
+            "text": "下载失败: Forbidden"
+          }
+        ]
+      },
+      {
+        "id": "network-error-does-not-download",
+        "headers": {
+          "space-id": "7",
+          "Authorization": "Bearer FIXTURE_NOT_A_TOKEN"
+        },
+        "responseType": "blob",
+        "calls": [
+          {
+            "operation": "open",
+            "method": "GET",
+            "url": "https://center.invalid/paiflow/legacy/workflow/export/5000000001",
+            "async": true
+          },
+          {
+            "operation": "send"
+          },
+          {
+            "operation": "error",
+            "text": "网络错误: private-status"
+          }
+        ]
+      }
+    ],
+    "currentEqualsOriginal": true,
+    "contentDispositionReadByHelper": false,
+    "filenameSource": "调用者参数，原helper未读取Content-Disposition",
+    "limitations": [
+      "真实函数AST，XHR/DOM/Blob/URL/message均为内存spies；没有真实HTTP、账号或下载",
+      "原handleFlowExport另一fetch只发Authorization，非本XHR方法；其scope不足不能猜授权"
+    ],
+    "businessVerified": false
+  },
+  "algorithmSegmentSha256": "10e316371504e9d6fe07796442a20926748982da7602b8dc717df73edc6e126b",
+  "privateWrapperSha256": "b21f340fec8d8442bffa12a174a2bba7668843600a02923cda0fae71e6d13cc2",
+  "cacheJars": [
+    {
+      "name": "jackson-databind-2.17.2.jar",
+      "sha256": "c04993f33c0f845342653784f14f38373d005280e6359db5f808701cfae73c0c"
+    },
+    {
+      "name": "jackson-core-2.17.2.jar",
+      "sha256": "721a189241dab0525d9e858e5cb604d3ecc0ede081e2de77d6f34fa5779a5b46"
+    },
+    {
+      "name": "jackson-annotations-2.17.2.jar",
+      "sha256": "873a606e23507969f9bbbea939d5e19274a88775ea5a169ba7e2d795aa5156e1"
+    },
+    {
+      "name": "fastjson2-2.0.51.jar",
+      "sha256": "10c1c26d82415f077f4706142ff48f60a39e0df4aaff852f7a7e8e766f81e758"
+    },
+    {
+      "name": "snakeyaml-2.5.jar",
+      "sha256": "e6682acf1ace77508ef13649cbf4f8d09d2cf5457bdb61d25ffb6ac0233d78dd"
+    },
+    {
+      "name": "lombok-1.18.32.jar",
+      "sha256": "97574674e2a25f567a313736ace00df8787d443de316407d57fc877d9f19a65d"
+    },
+    {
+      "name": "mybatis-plus-annotation-3.5.5.jar",
+      "sha256": "df553c917ee75174cc57591342d967158494ddca6c2c4f78a3a69f2eca205e2a"
+    },
+    {
+      "name": "mybatis-3.5.19.jar",
+      "sha256": "93eea616ae355751bd5fbabb57f0732713fbe79f3196f33c51a0aeeb4255862a"
+    }
+  ],
+  "commands": {
+    "javacExitCode": 0,
+    "javaExitCode": 0,
+    "nodeExitCode": 0,
+    "privateTempOnly": true
+  },
+  "controllerSourceDerived": {
+    "path": "/workflow/export/{id}",
+    "idType": "Long",
+    "contentType": "application/octet-stream",
+    "characterEncoding": "UTF-8",
+    "contentDisposition": "attachment; filename*=UTF-8''workflow-{id}.yaml",
+    "sourceLines": [
+      450,
+      451,
+      461,
+      463,
+      465
+    ],
+    "actualControllerExecuted": false
+  },
+  "sourceVsApprovedCenterCompatibility": [
+    "原flowData只nodes/edges，DTO闭合层裁root viewport/future、node/data/schema未知字段；Object/JSONObject开放字段保未知但所有Map键值null递归省略，List元素null保留，0/false保留，均为本次实际纯执行。",
+    "中心已批准保存原画布未知字段/布局，未来export保未知/null是明确扩展保全，不能称原typed投影全部原样；执行DSL不可替代rawcanvas。",
+    "原private nodeParam scrub是注释，fixture uid/appId/apiKey确实被纯原投影带出。中心只清node.data.nodeParam.uid具体非空String path并附中文YAML注释为批准hygiene差异，业务schema/default/HTTP UID和非secret App引用不得一并清；秘密仍须正式边界拒绝。",
+    "原canvasRaw JSON null产生flowData null；nodes null/缺失和null node导致原循环NullPointerException，非Controller完整错误码证据。",
+    "原Controller download只有二进制不包装LegacyResult，前端helper成功HTTP200才下载caller filename，错误只message。"
+  ],
+  "firstPrivateFailures": [
+    {
+      "path": "checks/工作流原YAML导出金样-首次.log",
+      "kind": "私有编译诊断本地默认编码无法UTF8读取；改javac JVM诊断编码，未改原DTO/算法。"
+    },
+    {
+      "path": "checks/工作流原YAML导出DTO-缺注解依赖首执行.log",
+      "kind": "私有缓存类路径缺MyBatis注解JdbcType，补已缓存3.5.19仅注解解析，不执行ORM。"
+    },
+    {
+      "path": "checks/工作流原YAML导出金样-补缓存类路径.log",
+      "kind": "私有assert误假设null nodes可导出，实际原loop NPE；保原结果并纠正预期，加独立meta全null/空nodes案例。"
+    }
+  ],
+  "limitations": [
+    "完整原Service类未实例化，权限检查、BusinessException包装、Controller flush与HTTP均只核源码；只执行字节相同9DTO和原内部算法段。",
+    "Jackson2.17.2/FastJSON2.0.51/Lombok1.18.32与原声明一致；MyBatis注解3.5.5仅缓存compile-time旁证，原3.5.7不执行ORM；SnakeYAML2.5为当前缓存与root确定目标版本，不冒充原完整锁依赖闭环。",
+    "全部golden是可区分的私有fixture，不是原库/真实凭据/正式App。",
+    "下载AST只使用内存XHR/DOM/Blob/URL/store/token spies，无页面挂载、账号、网络和实际文件下载。",
+    "不写Maven/target/生产/前端/SQL/contracts/index，导入依赖正式App/ProtocolAdd/资源的独立大流程未执行。"
+  ],
+  "toolSources": [
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/BuildWorkflowExportOriginalGolden.py",
+      "sha256": "abef39ddfcb6ef9c1df9a64140dc33bd46d8f455cc71c4a24003f22c402a68e4"
+    },
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowExportOriginalProjectionProbe.java",
+      "sha256": "0782551d3db598c6f4113d00c140cf3c951548039028d503d20d9bb7e2aeb89b"
+    },
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowExportDownloadConsumerReview.cjs",
+      "sha256": "77480cb76663b2589230136e3ccd249104b8b89d85f83c1a2f73ba9bec53e5a1"
+    }
+  ],
+  "businessVerified": false
+}

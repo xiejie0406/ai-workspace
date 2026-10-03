@@ -1,0 +1,394 @@
+"""以隔离中心端口运行真实原引擎；不替代 Chains/DFS/节点算法。"""
+import asyncio
+import copy
+import pickle
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+from worker.engine_adapter import create_task_runner
+from worker.errors import CenterUnavailable, WorkerError, LeaseLost
+from worker.center_client import CenterClient
+from worker.boundaries import LegacyControlPlaneDenied
+from tests.test_worker import RecordingCenter, MemoryTransport, assignment, refresh_test_canonical
+
+
+def output(name, kind="string", **schema):
+    return {"name": name, "schema": {"type": kind, **schema}, "required": True}
+
+
+def ref(name, node_id, variable, kind="string", identifier=""):
+    return {"id": identifier, "name": name, "schema": {"type": kind,
+        "value": {"type": "ref", "content": {"nodeId": node_id, "name": variable}}}}
+
+
+def literal(name, value, kind="string", identifier=""):
+    return {"id": identifier, "name": name, "schema": {"type": kind,
+        "value": {"type": "literal", "content": value}}}
+
+
+def node(identifier, *, inputs=None, outputs=None, **params):
+    return {"id": identifier, "data": {"nodeMeta": {"nodeType": identifier.split("::")[0],
+        "aliasName": identifier}, "inputs": inputs or [], "outputs": outputs or [], "nodeParam": params}}
+
+
+def edge(source, target, handle=""):
+    return {"sourceNodeId": source, "targetNodeId": target, "sourceHandle": handle}
+
+
+def raw_workflow(nodes, edges, inputs):
+    raw = assignment()
+    raw["dsl"] = {"nodes": nodes, "edges": edges}
+    raw["input"] = inputs
+    refresh_test_canonical(raw)
+    return raw
+
+
+def passthrough(inputs=None):
+    return raw_workflow([node("node-start::s", outputs=[output("question")]),
+        node("node-end::e", inputs=[ref("answer", "node-start::s", "question")],
+             outputs=[output("answer")], outputMode=0)],
+        [edge("node-start::s", "node-end::e")], inputs or {"question": "真实原引擎"})
+
+
+class VariableCenter(RecordingCenter):
+    def __init__(self, raw):
+        super().__init__(raw)
+        self.variable_store = {}
+        self.variable_calls = []
+        self.reject_variables = False
+        self.variable_revision = 0
+
+    async def verify_lease(self, *args):
+        data = await super().verify_lease(*args)
+        data["executionContext"] = {"flowId": "formal-flow", "userId": "formal-user",
+            "appId": "formal-app", "chatId": "formal-chat"}
+        return data
+
+    async def variables(self, run_id, lease_id, attempt, operation, **values):
+        self.variable_calls.append((run_id, lease_id, attempt, operation, copy.deepcopy(values)))
+        if self.reject_variables:
+            raise CenterUnavailable()
+        if operation == "set":
+            assert values["expectedRevision"] == self.variable_revision
+            self.variable_store[values["variableName"]] = values["value"]
+            self.variable_revision += 1
+        elif operation == "clear":
+            self.variable_store.clear()
+        data = {"accepted": True, "revision": self.variable_revision, "variables": copy.deepcopy(self.variable_store)}
+        if operation == "get":
+            data["found"] = values["variableName"] in self.variable_store
+            data["value"] = self.variable_store.get(values["variableName"])
+        return data
+
+
+class OriginalEngineTest(unittest.IsolatedAsyncioTestCase):
+    async def execute(self, raw, center=None):
+        center = center or RecordingCenter(raw)
+        result = await asyncio.wait_for(create_task_runner(center, heartbeat_seconds=.03).run(raw), 8)
+        self.assertTrue(result["accepted"])
+        self.assertEqual(center.results[-1]["state"], "COMPLETED", center.results[-1])
+        return center.results[-1]["output"], center
+
+    async def test_real_factory_start_end_and_ordered_center_events(self):
+        answer, center = await self.execute(passthrough())
+        self.assertEqual(answer["outputs"], {"answer": "真实原引擎"})
+        self.assertEqual([(item["nodeId"], item["eventType"]) for item in center.events],
+            [("node-start::s", "node.started"), ("node-start::s", "node.completed"),
+             ("node-end::e", "node.started"), ("node-end::e", "node.completed")])
+        self.assertEqual([item["seq"] for item in center.events], [4, 5, 6, 7])
+        self.assertNotIn("workflow.repository.flow_dao", sys.modules)
+        self.assertNotIn("workflow.infra.providers.llm.spark.spark_chat", sys.modules)
+
+    async def test_join_split_and_nested_array_variable_reference(self):
+        raw = raw_workflow([
+            node("node-start::s", outputs=[output("record", "object", properties={"names": {
+                "type": "array", "items": {"type": "string"}}})]),
+            node("text-joiner::j", inputs=[ref("names", "node-start::s", "record.names", "array")],
+                 outputs=[output("joined")], mode=0, prompt="{{names[0]}}|{{names[1]}}"),
+            node("text-joiner::split", inputs=[ref("line", "text-joiner::j", "joined")],
+                 outputs=[output("pieces", "array", items={"type": "string"})], mode=1, separator="|"),
+            node("node-end::e", inputs=[ref("answer", "text-joiner::split", "pieces", "array")],
+                 outputs=[output("answer", "array", items={"type": "string"})], outputMode=0)],
+            [edge("node-start::s", "text-joiner::j"), edge("text-joiner::j", "text-joiner::split"),
+             edge("text-joiner::split", "node-end::e")], {"record": {"names": ["甲", "乙"]}})
+        answer, _ = await self.execute(raw)
+        self.assertEqual(answer["outputs"], {"answer": ["甲", "乙"]})
+
+    async def test_if_else_selects_true_or_fallback_only(self):
+        for value, selected in [(10, "high"), (2, "low")]:
+            raw = raw_workflow([
+                node("node-start::s", outputs=[output("number", "number")]),
+                node("if-else::c", inputs=[ref("actual", "node-start::s", "number", "number", "left"),
+                     literal("expected", 5, "number", "right")], cases=[
+                     {"id": "branch_one_of::high", "level": 1, "logicalOperator": "and", "conditions":
+                      [{"leftVarIndex": "left", "rightVarIndex": "right", "compareOperator": "gt"}]},
+                     {"id": "branch_one_of::low", "level": 999, "logicalOperator": "and", "conditions": []}]),
+                node("text-joiner::high", outputs=[output("value")], prompt="high", mode=0),
+                node("text-joiner::low", outputs=[output("value")], prompt="low", mode=0),
+                node("node-end::e", inputs=[ref("upper", "text-joiner::high", "value"),
+                     ref("lower", "text-joiner::low", "value")], outputs=[], outputMode=0)],
+                [edge("node-start::s", "if-else::c"), edge("if-else::c", "text-joiner::high", "branch_one_of::high"),
+                 edge("if-else::c", "text-joiner::low", "branch_one_of::low"),
+                 edge("text-joiner::high", "node-end::e"), edge("text-joiner::low", "node-end::e")], {"number": value})
+            answer, center = await self.execute(raw)
+            self.assertEqual(answer["outputs"], {"upper": "high" if selected == "high" else "", "lower": "low" if selected == "low" else ""})
+            started = {item["nodeId"] for item in center.events if item["eventType"] == "node.started"}
+            self.assertIn("text-joiner::" + selected, started)
+            self.assertNotIn("text-joiner::" + ("low" if selected == "high" else "high"), started)
+
+    async def test_original_parallel_branches_join_both_values(self):
+        raw = raw_workflow([
+            node("node-start::s", outputs=[output("value")]),
+            node("text-joiner::left", inputs=[ref("value", "node-start::s", "value")], outputs=[output("result")],
+                 mode=0, prompt="L{{value}}"),
+            node("text-joiner::right", inputs=[ref("value", "node-start::s", "value")], outputs=[output("result")],
+                 mode=0, prompt="R{{value}}"),
+            node("text-joiner::join", inputs=[ref("left", "text-joiner::left", "result"),
+                 ref("right", "text-joiner::right", "result")], outputs=[output("result")], mode=0, prompt="{{left}}+{{right}}"),
+            node("node-end::e", inputs=[ref("answer", "text-joiner::join", "result")], outputs=[output("answer")], outputMode=0)],
+            [edge("node-start::s", "text-joiner::left"), edge("node-start::s", "text-joiner::right"),
+             edge("text-joiner::left", "text-joiner::join"), edge("text-joiner::right", "text-joiner::join"),
+             edge("text-joiner::join", "node-end::e")], {"value": "原值"})
+        answer, center = await self.execute(raw)
+        self.assertEqual(answer["outputs"], {"answer": "L原值+R原值"})
+        finished = [item["nodeId"] for item in center.events if item["eventType"] == "node.completed"]
+        self.assertEqual(finished.count("text-joiner::join"), 1)
+        self.assertLess(finished.index("text-joiner::left"), finished.index("text-joiner::join"))
+        self.assertLess(finished.index("text-joiner::right"), finished.index("text-joiner::join"))
+
+    async def test_iteration_preserves_batch_order_with_original_inner_engine(self):
+        raw = raw_workflow([
+            node("node-start::s", outputs=[output("items", "array", items={"type": "string"})]),
+            node("iteration::i", inputs=[ref("items", "node-start::s", "items", "array")],
+                 outputs=[output("value", "array", items={"type": "string"})], IterationStartNodeId="iteration-node-start::is"),
+            node("iteration-node-start::is", outputs=[output("items")]),
+            node("text-joiner::j", inputs=[ref("item", "iteration-node-start::is", "items")], outputs=[output("value")],
+                 mode=0, prompt="item={{item}}"),
+            node("iteration-node-end::ie", inputs=[ref("value", "text-joiner::j", "value")], outputs=[output("value")], outputMode=0),
+            node("node-end::e", inputs=[ref("answer", "iteration::i", "value", "array")],
+                 outputs=[output("answer", "array", items={"type": "string"})], outputMode=0)],
+            [edge("node-start::s", "iteration::i"), edge("iteration::i", "node-end::e"),
+             edge("iteration-node-start::is", "text-joiner::j"), edge("text-joiner::j", "iteration-node-end::ie")],
+            {"items": ["乙", "甲", "丙"]})
+        raw["resourceSnapshots"] = {}
+        raw["effectPolicy"] = {"mode": "read_only", "allowedOperations": []}
+        answer, center = await self.execute(raw)
+        self.assertEqual(answer["outputs"], {"answer": ["item=乙", "item=甲", "item=丙"]})
+        self.assertEqual(sum(event["eventType"] == "node.completed" and event["nodeId"] == "text-joiner::j"
+            for event in center.events), 3)
+        self.assertEqual({event["iterationId"] for event in center.events if event["nodeId"] == "text-joiner::j"},
+                         {"iteration::i:0", "iteration::i:1", "iteration::i:2"})
+        self.assertEqual(sum(event["eventType"] == "node.started" and event["nodeId"] == "text-joiner::j"
+            for event in center.events), 3)
+
+    async def test_original_global_variable_set_get_delegates_center(self):
+        raw = raw_workflow([
+            node("node-start::s", outputs=[output("value")]),
+            node("node-variable::set", inputs=[ref("value", "node-start::s", "value")], outputs=[output("value")], method="set"),
+            node("node-variable::get", inputs=[literal("value", "local-fallback")], outputs=[output("value")], method="get"),
+            node("node-end::e", inputs=[ref("answer", "node-variable::get", "value")], outputs=[output("answer")], outputMode=0)],
+            [edge("node-start::s", "node-variable::set"), edge("node-variable::set", "node-variable::get"),
+             edge("node-variable::get", "node-end::e")], {"value": "center-value"})
+        center = VariableCenter(raw)
+        answer, _ = await self.execute(raw, center)
+        self.assertEqual(answer["outputs"], {"answer": "center-value"})
+        self.assertEqual([item[3] for item in center.variable_calls], ["get_all", "set", "get_all"])
+        self.assertTrue(all(item[:3] == (raw["runId"], raw["leaseId"], 1) for item in center.variable_calls))
+
+    async def test_message_and_prompt_end_keep_original_order_and_text(self):
+        raw = raw_workflow([
+            node("node-start::s", outputs=[output("question")]),
+            node("message::m", inputs=[ref("value", "node-start::s", "question")], template="message={{value}}", streamOutput=False),
+            node("node-end::e", inputs=[ref("value", "node-start::s", "question")],
+                 outputMode=1, template="answer={{value}}", streamOutput=False)],
+            [edge("node-start::s", "message::m"), edge("message::m", "node-end::e")], {"question": "原顺序"})
+        answer, center = await self.execute(raw)
+        self.assertEqual(answer["content"], "answer=原顺序")
+        ends = [item["nodeId"] for item in center.events if item["eventType"] == "node.completed"]
+        self.assertEqual(ends, ["node-start::s", "message::m", "node-end::e"])
+        message = next(item for item in center.events if item["nodeId"] == "message::m" and item["eventType"] == "node.completed")
+        self.assertEqual(message["payload"]["legacyFrame"]["choices"][0]["delta"]["content"], "message=原顺序")
+
+    def variable_raw(self):
+        return raw_workflow([
+            node("node-start::s", outputs=[output("value")]),
+            node("node-variable::set", inputs=[ref("value", "node-start::s", "value")], outputs=[output("value")], method="set"),
+            node("node-end::e", inputs=[ref("answer", "node-variable::set", "value")], outputs=[output("answer")], outputMode=0)],
+            [edge("node-start::s", "node-variable::set"), edge("node-variable::set", "node-end::e")], {"value": "original"})
+
+    async def test_missing_formal_scope_and_rejected_variable_ack_never_succeed(self):
+        raw = self.variable_raw()
+        center = RecordingCenter(raw)
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "FAILED")
+        self.assertEqual(center.results[-1]["error"]["code"], "RESOURCE_UNAVAILABLE")
+        self.assertEqual(center.events, [])
+        center = VariableCenter(raw)
+        center.reject_variables = True
+        with self.assertRaises(CenterUnavailable):
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results, [])
+        self.assertNotIn("answer", center.variable_store)
+
+    async def test_original_variable_fallback_and_null_empty_chat_remain_distinct(self):
+        raw = raw_workflow([
+            node("node-start::s", outputs=[output("value")]),
+            node("node-variable::get", inputs=[literal("value", "original-fallback")], outputs=[output("value")], method="get"),
+            node("node-end::e", inputs=[ref("answer", "node-variable::get", "value")], outputs=[output("answer")], outputMode=0)],
+            [edge("node-start::s", "node-variable::get"), edge("node-variable::get", "node-end::e")], {"value": "input"})
+        for chat_id in (None, ""):
+            class ScopedCenter(VariableCenter):
+                async def verify_lease(self, *args):
+                    data = await super().verify_lease(*args)
+                    data["executionContext"]["chatId"] = chat_id
+                    return data
+            center = ScopedCenter(raw)
+            answer, _ = await self.execute(raw, center)
+            self.assertEqual(answer["outputs"], {"answer": "original-fallback"})
+            self.assertEqual(center.variable_store, {})
+            self.assertEqual([item[3] for item in center.variable_calls], ["get_all"])
+
+    async def test_original_node_cancellation_and_lease_loss_cleanup_real_tasks(self):
+        for lose_lease in (False, True):
+            raw = self.variable_raw()
+            class WaitingCenter(VariableCenter):
+                def __init__(self, raw):
+                    super().__init__(raw)
+                    self.variable_entered = asyncio.Event()
+                    self.variable_stopped = asyncio.Event()
+                async def variables(self, *args, **values):
+                    self.variable_entered.set()
+                    try:
+                        await asyncio.Event().wait()
+                    finally:
+                        self.variable_stopped.set()
+            center = WaitingCenter(raw)
+            active = asyncio.create_task(create_task_runner(center, heartbeat_seconds=.02).run(raw))
+            await asyncio.wait_for(center.variable_entered.wait(), 5)
+            center.lease_lost = lose_lease
+            center.cancel_requested = not lose_lease
+            if lose_lease:
+                with self.assertRaises(LeaseLost):
+                    await asyncio.wait_for(active, 5)
+                self.assertEqual(center.results, [])
+            else:
+                await asyncio.wait_for(active, 5)
+                self.assertEqual(center.results[-1]["state"], "CANCELLED")
+            self.assertTrue(center.variable_stopped.is_set())
+            self.assertFalse(any("WorkflowEngine." in getattr(task.get_coro(), "__qualname__", "")
+                or "Consumer.consume" in getattr(task.get_coro(), "__qualname__", "")
+                for task in asyncio.all_tasks() if task is not asyncio.current_task()))
+
+    def test_original_pickle_deserializer_cannot_execute_host_payload(self):
+        from workflow.engine.dsl_engine import WorkflowEngine
+        from worker.trace import WorkerSpan
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "must-not-exist.txt"
+            class HostPayload:
+                def __reduce__(self):
+                    return Path.write_text, (target, "must-not-execute")
+            raw = pickle.dumps(HostPayload())
+            with self.assertRaises(WorkerError) as error:
+                WorkflowEngine.loads(raw, WorkerSpan())
+            self.assertEqual(error.exception.code, "TOOL_POLICY_DENIED")
+            self.assertFalse(target.exists())
+
+    def test_lazy_question_node_uses_center_without_original_cache(self):
+        from workflow.engine.nodes.cache_node import QuestionAnswerNode
+        self.assertEqual(QuestionAnswerNode.load().__name__, "QuestionAnswerNode")
+        with self.assertRaises(LegacyControlPlaneDenied):
+            __import__("workflow.cache.event_registry")
+        self.assertNotIn("workflow.cache.event_registry", sys.modules)
+
+    async def test_required_input_type_failure_is_not_completion(self):
+        raw = passthrough({"question": 3})
+        center = RecordingCenter(raw)
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "FAILED")
+        self.assertTrue(any(item["eventType"] == "node.failed" for item in center.events))
+
+    async def test_registered_agent_bad_parameters_refused_before_provider_call(self):
+        openai_before = sys.modules.get("openai")
+        raw = passthrough()
+        raw["dsl"]["nodes"].insert(1, node("agent::unready"))
+        refresh_test_canonical(raw)
+        center = RecordingCenter(raw)
+        await create_task_runner(center).run(raw)
+        self.assertEqual(center.results[-1]["state"], "FAILED")
+        self.assertEqual(center.results[-1]["error"]["code"], "DSL_INVALID")
+        self.assertEqual(center.events, [])
+        self.assertEqual(center.operations, [])
+        self.assertIs(sys.modules.get("openai"), openai_before)
+
+    async def test_center_event_refusal_prevents_success(self):
+        raw = passthrough()
+        center = RecordingCenter(raw)
+        center.reject_event_once = True
+        with self.assertRaises(CenterUnavailable):
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results, [])
+
+    async def test_center_full_assignment_rejects_changed_input_resources_and_policy(self):
+        approved = passthrough()
+        for field, replacement in [("input", {"question": "unapproved"}),
+                ("resourceSnapshots", {"other-resource": {"version": "v2"}}),
+                ("effectPolicy", {"mode": "approved_write", "allowedOperations": ["data.write"], "approvalRef": "invented"})]:
+            raw = copy.deepcopy(approved)
+            raw[field] = replacement
+            center = RecordingCenter(approved)
+            with self.assertRaises(WorkerError) as error:
+                await create_task_runner(center).run(raw)
+            self.assertEqual(error.exception.code, "VERSION_CONFLICT")
+            self.assertEqual(center.events, [])
+            self.assertEqual(center.results, [])
+
+    async def test_independent_actual_engines_do_not_share_variable_pool(self):
+        results = await asyncio.gather(self.execute(passthrough({"question": "first"})),
+                                       self.execute(passthrough({"question": "second"})))
+        self.assertEqual([item[0]["outputs"]["answer"] for item in results], ["first", "second"])
+
+
+class PersistenceProtocolTest(unittest.IsolatedAsyncioTestCase):
+    async def test_history_keeps_raw_multimodal_json_and_requires_revision(self):
+        content = {"role": "user", "content": [{"type": "image", "resourceRef": "image-1"},
+            {"type": "text", "text": "question"}], "content_type": "image"}
+        answer = {"role": "assistant", "content": "answer"}
+        transport = MemoryTransport(response={"code": 200, "data": {"stored": True, "revision": 2}})
+        client = CenterClient("https://center.example", "token", transport=transport)
+        await client.append_history("r", "l", 1, "spark-llm::a", content, answer, iteration_id="iteration::i:1")
+        body = transport.calls[0][3]
+        self.assertEqual(body["question"], content)
+        self.assertEqual(body["iterationId"], "iteration::i:1")
+        self.assertNotIn("uid", body)
+        self.assertNotIn("chatId", body)
+        client = CenterClient("https://center.example", "token", transport=MemoryTransport(response={"code": 200, "data": {"stored": True}}))
+        with self.assertRaises(CenterUnavailable):
+            await client.append_history("r", "l", 1, "spark-llm::a", content, answer)
+
+    async def test_variable_cas_ack_and_unknown_revision_rejected(self):
+        transport = MemoryTransport(response={"code": 200, "data": {"accepted": True, "revision": 4}})
+        client = CenterClient("https://center.example", "token", transport=transport)
+        await client.variables("r", "l", 1, "set", node_id="node-variable::s", variableName="value", value={"a": [1]},
+                               expectedRevision=3, idempotencyKey="write-1")
+        self.assertEqual(transport.calls[0][3], {"leaseId": "l", "attempt": 1, "nodeId": "node-variable::s",
+            "operation": "set", "variableName": "value", "value": {"a": [1]}, "expectedRevision": 3, "idempotencyKey": "write-1"})
+        with self.assertRaises(WorkerError):
+            await client.variables("r", "l", 1, "set", node_id="node-variable::s", variableName="value", value=1)
+        for data in ({"accepted": True, "variables": {}}, {"accepted": True, "revision": True, "variables": {}},
+                     {"accepted": True, "revision": -1, "variables": {}}):
+            client = CenterClient("https://center.example", "token", transport=MemoryTransport(response={"code": 200, "data": data}))
+            with self.assertRaises(CenterUnavailable):
+                await client.variables("r", "l", 1, "get_all", node_id="node-variable::s")
+
+    async def test_stale_variable_mutation_revision_is_not_success(self):
+        client = CenterClient("https://center.example", "token", transport=MemoryTransport(response={"code": 200,
+            "data": {"accepted": True, "revision": 3}}))
+        with self.assertRaises(CenterUnavailable):
+            await client.variables("r", "l", 1, "set", node_id="node-variable::s", variableName="v", value=1,
+                expectedRevision=3, idempotencyKey="write-1")
+
+
+if __name__ == "__main__":
+    unittest.main()

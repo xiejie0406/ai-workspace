@@ -1,0 +1,541 @@
+{
+  "schemaVersion": "paiflow.iteration.canvas-conversion.readonly.v1",
+  "recordedAt": "2026-10-03T02:55:24.254271+00:00",
+  "scope": "核原React→Toolkit→执行DSL的实际来源，不修改原前端/正式Java/Python，不启动服务",
+  "sources": [
+    {
+      "role": "frontCreate",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/hooks/use-flow-common.ts",
+      "sha256": "8dc3e4957ef4d4ee16351286642be0f9a38f0775378292a6ee42d48bde5da351",
+      "markers": [
+        {
+          "needle": "addNode.data.nodeParam.IterationStartNodeId = startNodeId;",
+          "lines": [
+            94
+          ]
+        },
+        {
+          "needle": "nodeType: 'iteration-node-start'",
+          "lines": [
+            116
+          ]
+        }
+      ]
+    },
+    {
+      "role": "frontCopyAndItem",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-function.ts",
+      "sha256": "114fdc020449e513f15657a3069910c8584db755cbb1005889e844eb012d89c3",
+      "markers": [
+        {
+          "needle": "copyNode.data.nodeParam.IterationStartNodeId =",
+          "lines": [
+            297
+          ]
+        },
+        {
+          "needle": "function updateIterationOutputs",
+          "lines": [
+            582
+          ]
+        }
+      ]
+    },
+    {
+      "role": "frontArrayTypes",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/utils/reactflowUtils.ts",
+      "sha256": "fe3b312c54391896e1d926f4164a37ddb94e58f787ce610cf6113f29f5a5c3ed",
+      "markers": [
+        {
+          "needle": "'array-string',",
+          "lines": [
+            925
+          ]
+        }
+      ]
+    },
+    {
+      "role": "frontDefaultArray",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/hooks/use-node-common.tsx",
+      "sha256": "fc73575e552d0b434619106c4dfdb368cb54199cc4b2d0b26b22ef6de7393307",
+      "markers": [
+        {
+          "needle": "type: isIteratorNode ? 'array-string' : 'string'",
+          "lines": [
+            349
+          ]
+        }
+      ]
+    },
+    {
+      "role": "originalToolkit",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "sha256": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+      "markers": [
+        {
+          "needle": "public FlowProtocol buildWorkflowData",
+          "lines": [
+            2205
+          ]
+        },
+        {
+          "needle": "private List<Node> bizNodesToSysNodes",
+          "lines": [
+            1559
+          ]
+        },
+        {
+          "needle": "private NodeData bizNodeDataToSysNodeData",
+          "lines": [
+            1571
+          ]
+        },
+        {
+          "needle": "private void inputCopy",
+          "lines": [
+            1608
+          ]
+        },
+        {
+          "needle": "private void outputCopy",
+          "lines": [
+            1647
+          ]
+        },
+        {
+          "needle": "bs.getType().startsWith(\"array-\")",
+          "lines": [
+            1627,
+            1659
+          ]
+        },
+        {
+          "needle": "private JSONObject handleNodeParam",
+          "lines": [
+            2888
+          ]
+        }
+      ]
+    },
+    {
+      "role": "currentDslCodec",
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/DslCodec.java",
+      "sha256": "d69f423ace2116f05c5ef1b53984ee176f98ef5adf01d01e6ec33419d0019b97",
+      "markers": [
+        {
+          "needle": "converted.put(\"data\", node.get(\"data\"))",
+          "lines": [
+            38
+          ]
+        }
+      ]
+    },
+    {
+      "role": "pythonInputSchema",
+      "path": "python/paiflow-runtime/workflow/engine/entities/workflow_dsl.py",
+      "sha256": "b8f6dc6d3bd1a28586aababf735f8c043e8d70cc4038ef5542dc8104b3b343bb",
+      "markers": [
+        {
+          "needle": "class InputSchema",
+          "lines": [
+            36
+          ]
+        },
+        {
+          "needle": "type: Literal[\"string\", \"boolean\", \"integer\", \"number\", \"array\", \"object\"]",
+          "lines": [
+            43
+          ]
+        }
+      ]
+    }
+  ],
+  "facts": [
+    {
+      "status": "source_confirmed",
+      "fact": "原React创建迭代时已写nodeParam.IterationStartNodeId，复制容器时重新写新内部start ID；无需从root parentId/parentNode猜测或注入。"
+    },
+    {
+      "status": "source_confirmed",
+      "fact": "Toolkit只复制id和转换后的data；不把root parentId/parentNode作为执行授权。nodeParam复制后handleNodeParam无IterationStartNodeId修正分支。"
+    },
+    {
+      "status": "source_confirmed_compatibility_gap",
+      "fact": "原canvas schema.type使用array-string/array-integer/array-boolean/array-number/array-object，Toolkit inputCopy/outputCopy将type改array并建立items；当前DslCodec只复制data而没有该转换，typed-array canvas经当前原引擎InputSchema会不匹配。"
+    },
+    {
+      "status": "source_confirmed",
+      "fact": "原outputCopy还将object/array-object的UI properties列表转换为执行properties映射并收集required，兼容description/dft；inputCopy有time→string与空输入过滤。这些转换不能由只含执行DSL的fixture证明。"
+    },
+    {
+      "status": "source_limit_not_fixed",
+      "fact": "原updateIterationOutputs寻找nodeType=node-start，而创建内start为iteration-node-start，需用原实际raw样例检验其item schema；不能为通过测试私自补造原画布字段。"
+    }
+  ],
+  "minimalProposal": [
+    "在中心单一执行转换处增加经源核实的纯schema转换；只转换执行副本，原raw画布与String传输逐字保全。",
+    "保留已有IterationStartNodeId并按真实图验证，不用parentId授权或猜未配置start。",
+    "新fixture必须包含原React typed-array原画布、配置后的item schema，以及原Toolkit对应执行形状；核当前Service版本编译/真实Mapper和Factory，不能仅execution fixture通过。",
+    "核不可变旧版本hash/重建规则；转换变化不可默默改写历史执行或把未配置item type自动变成合法事实。"
+  ],
+  "runtimeExecuted": false,
+  "servicesStarted": false,
+  "network": false,
+  "databaseCalls": 0,
+  "targetWrites": 0,
+  "productionSourceModified": false,
+  "pureConversionReview": {
+    "recordedAt": "2026-10-03T03:05:58.668848+00:00",
+    "beforeEvidenceSha256": "efc865927adc83e7ecd8f2608619338bcd57f4f287d81f900a2e99a1d8ecc4e8",
+    "sources": [
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+        "sha256": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+        "markers": [
+          {
+            "needle": "private List<Edge> bizEdgesToSysEdges",
+            "lines": [
+              1541
+            ]
+          },
+          {
+            "needle": "private NodeData bizNodeDataToSysNodeData",
+            "lines": [
+              1571
+            ]
+          },
+          {
+            "needle": "handleRetryConfig(BizNodeData",
+            "lines": [
+              1597
+            ]
+          },
+          {
+            "needle": "private void inputCopy",
+            "lines": [
+              1608
+            ]
+          },
+          {
+            "needle": "private void outputCopy",
+            "lines": [
+              1647
+            ]
+          },
+          {
+            "needle": "private Property bizPropertyToProperty",
+            "lines": [
+              2533
+            ]
+          },
+          {
+            "needle": "private Map<String, Property> bizPropertiesToPropertyMap",
+            "lines": [
+              2552
+            ]
+          },
+          {
+            "needle": "public static boolean isInputContentEmpty",
+            "lines": [
+              2806,
+              2810
+            ]
+          },
+          {
+            "needle": "private static boolean isJsonObjEmpty",
+            "lines": [
+              2858
+            ]
+          },
+          {
+            "needle": "private JSONObject handleNodeParam",
+            "lines": [
+              2888
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizNodeData.java",
+        "sha256": "fef2c9ecee4469165128711024bd321056e6093b2996e11d4340f6bec3e4dc21",
+        "markers": [
+          {
+            "needle": "String label;",
+            "lines": [
+              14
+            ]
+          },
+          {
+            "needle": "JSONObject nodeMeta;",
+            "lines": [
+              18
+            ]
+          },
+          {
+            "needle": "JSONObject nodeParam;",
+            "lines": [
+              21
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java",
+        "sha256": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+        "markers": [
+          {
+            "needle": "String id;",
+            "lines": [
+              10
+            ]
+          },
+          {
+            "needle": "Boolean required;",
+            "lines": [
+              19
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java",
+        "sha256": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+        "markers": [
+          {
+            "needle": "@JSONField(name = \"default\")",
+            "lines": [
+              14
+            ]
+          },
+          {
+            "needle": "Object dft;",
+            "lines": [
+              16
+            ]
+          },
+          {
+            "needle": "List<BizProperty> properties;",
+            "lines": [
+              20
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java",
+        "sha256": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+        "markers": [
+          {
+            "needle": "String dft;",
+            "lines": [
+              15
+            ]
+          },
+          {
+            "needle": "Boolean required;",
+            "lines": [
+              16
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java",
+        "sha256": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+        "markers": [
+          {
+            "needle": "String type;",
+            "lines": [
+              8
+            ]
+          },
+          {
+            "needle": "Object content;",
+            "lines": [
+              9
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/core/workflow/node/NodeData.java",
+        "sha256": "f01be44c1f17c22a033b8c0b8f8d258e9b2f8ae2ea88423670cb48b68109a883",
+        "markers": [
+          {
+            "needle": "JSONObject nodeMeta;",
+            "lines": [
+              10
+            ]
+          },
+          {
+            "needle": "JSONObject retryConfig;",
+            "lines": [
+              14
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/core/workflow/node/InputOutput.java",
+        "sha256": "8bb1fc63eaa3faf1b88ddca7a07af03c7238de8ed53146bef5bcb65d6f76df91",
+        "markers": [
+          {
+            "needle": "Boolean required;",
+            "lines": [
+              16
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/core/workflow/node/Schema.java",
+        "sha256": "c36d8cd153adb22560617eddad36c8c8015a03f3a17252bbeb1bc49b02b13f1e",
+        "markers": [
+          {
+            "needle": "@JSONField(name = \"default\")",
+            "lines": [
+              13
+            ]
+          },
+          {
+            "needle": "Map<String, Property> properties;",
+            "lines": [
+              20
+            ]
+          },
+          {
+            "needle": "Property items;",
+            "lines": [
+              21
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/core/workflow/node/Property.java",
+        "sha256": "74c1f1f350900e47d868135cfd816dc3d633da71c6aadc8adeac108a51eb446e",
+        "markers": [
+          {
+            "needle": "Map<String, Property> properties;",
+            "lines": [
+              9
+            ]
+          },
+          {
+            "needle": "Object required;",
+            "lines": [
+              12
+            ]
+          }
+        ]
+      },
+      {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/core/workflow/Edge.java",
+        "sha256": "f808559ab09c887d1234df72320a1ee98193601952b2b923591d6f96099434af",
+        "markers": [
+          {
+            "needle": "String sourceHandle;",
+            "lines": [
+              9
+            ]
+          },
+          {
+            "needle": "String targetHandle;",
+            "lines": [
+              10
+            ]
+          }
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "symbol": "bizNodeDataToSysNodeData",
+        "lines": [
+          1571,
+          1593
+        ],
+        "fact": "仅投影 nodeMeta/inputs/outputs/nodeParam/retryConfig。原 nodeMeta.aliasName 强制由 label 覆盖；原函数会复用/修改 DTO 对象，新执行副本不能因此改动 raw canvas。root parentId/position 等不决定执行归属。"
+      },
+      {
+        "symbol": "inputCopy",
+        "lines": [
+          1608,
+          1645
+        ],
+        "fact": "先按 schema.value.content 判空过滤；仅输入的 time(忽略大小写)转 string。array-* 以 Java split('-') 的第一/二段构造 type=array/items.type，第二段不存在回退 object；不把 UI properties 递归进输入 items。BizSchema.item 与 core Schema.items 名称不同，不是原数组 items 来源。value 仅复制 type/content；contentErrMsg 等 UI 字段不进入执行 DTO。"
+      },
+      {
+        "symbol": "isInputContentEmpty/isJsonObjEmpty",
+        "lines": [
+          2802,
+          2885
+        ],
+        "fact": "null、空白字符串、空集合以及元素全部判空的集合会被过滤；false/0 非空。对象先用 text/content/value/title/name/message/prompt/url/fileUrl/path 的 getString 判非空，再看 default 递归非空、任意直接字符串值非空。非候选键下只有嵌套对象、数字或布尔值的对象可能仍判空，不能以一般 truthiness/任意深层内容替代此规则。"
+      },
+      {
+        "symbol": "outputCopy",
+        "lines": [
+          1647,
+          1696
+        ],
+        "fact": "不按 value.content 判空过滤输出，不把 time 转 string。array-object 把 properties 列表递归成 items.properties，并仅把其直接 property.required=true 的名称放 items.required(可为空数组)。其他 typed array 不构建对象属性；非 typed array 构造 schema.properties。"
+      },
+      {
+        "symbol": "outputCopy description/default",
+        "lines": [
+          1688,
+          1692
+        ],
+        "fact": "只有 schema.description==null 时令 description=default==null?null:default.toString()，并清 default；空字符串 description 不触发此分支，既有 description 保留 default。BizSchema/CoreSchema dft 使用 JSONField 与 JsonProperty 映射到 default。该规则也作用于主开始节点输出，不应把执行 fixture 的 optional default 等同于原 canvas 必然保留的 default。"
+      },
+      {
+        "symbol": "bizPropertyToProperty/bizPropertiesToPropertyMap",
+        "lines": [
+          2532,
+          2585
+        ],
+        "fact": "属性按 name 建 Map；重复 name 后写覆盖前写。递归仅 type/properties/items；Property DTO 不含 BizProperty.id/name/default/description。嵌套 required 收集代码被注释，不能声称每层 required 均有原实现依据。array-* 子属性将第二段设 items.type，并把子 properties 放 items.properties；原 split[1] 无回退，畸形 array- 可能抛错。"
+      },
+      {
+        "symbol": "bizEdgesToSysEdges",
+        "lines": [
+          1541,
+          1556
+        ],
+        "fact": "source/target 映射 sourceNodeId/targetNodeId。sourceHandle 非空且包含任意 intent-one-of/branch_one_of/fail_one_of 时加 intent_chain| 前缀(containsAny，不仅前缀匹配)；targetHandle 原值复制。"
+      },
+      {
+        "symbol": "handleRetryConfig",
+        "lines": [
+          1597,
+          1605
+        ],
+        "fact": "customOutput 非空白字符串按 JSONObject.parseObject 转对象，异常不在该方法吞掉；空白字符串原值保留。新纯准入可明确拒 shouldRetry=true 来保持展开预算边界，而不能把未知重试费用或次数标已验证。"
+      },
+      {
+        "symbol": "handleNodeParam/checkAndFixNode",
+        "lines": [
+          2888,
+          2915
+        ],
+        "fact": "原通用 handleNodeParam 去 configs，并有 topN/patchId/dbId 资源专用转换；buildWorkflowData 还调用 checkAndFixNode 注入 app/key/provider 等。纯转换只投影已核纯节点参数，不能复制这些外部密钥/环境注入。IterationStartNodeId 原前端直接提供，后端不从 parentId 推断。"
+      }
+    ],
+    "minimalFixtures": [
+      "真实 React typed-array canvas：主开始 array-string 输出、迭代直接 ref、内部已配置 string item，产出执行 array/items.type=string；原 raw/viewport/parentId/未知根字段及字符串保存字节不变。",
+      "输入空值表：null/' '/[]/[null,' ']过滤，false/0/[false]保留，{opaque:{x:'v'}}按原判空，{opaque:'v'}保留；time/Time 仅 input 转 string。",
+      "输出 object/array-object 两层属性：第一层 required 保留，嵌套 required/default/id 按原 DTO 不传；同名 property 原覆盖行为与候选更严格拒绝须明确区分。",
+      "输出 default/description 表：description 缺失/null 时 default 转 description 后清除；description='' 或非空时 default 保留；包括主开始输出，避免未经原转换的执行 fixture 假证默认值兼容。",
+      "branch sourceHandle 包含匹配词的前/中/后位置均加 intent_chain|；普通 sourceHandle/targetHandle 原值保持；新 compiler 不二次给已经执行形状重复加前缀。",
+      "retry customOutput 有效对象字符串、空白与畸形分别转换/保留/拒绝；shouldRetry=true 新批明确未准入，不声称原重试已迁完。",
+      "旧 execution_codec NULL 版本继续旧 V1 hash 重建，新 V2 不改历史 immutable execution_json/raw/hash，资源 descriptor 重建也选择记录 codec，禁止按默认 V2 重算旧行。"
+    ],
+    "status": "原源码只读事实与建议；未执行候选转换器或 Maven，不证明本批原页面可派发",
+    "productionSourceModified": false,
+    "network": false,
+    "databaseCalls": 0,
+    "servicesStarted": false,
+    "targetWrites": 0
+  }
+}

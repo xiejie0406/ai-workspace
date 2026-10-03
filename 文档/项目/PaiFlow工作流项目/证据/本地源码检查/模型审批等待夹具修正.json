@@ -1,0 +1,20 @@
+{
+  "changeType": "仅隔离测试同步前提修正",
+  "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/ModelPersistenceTest.java",
+  "beforeSha256": "e9bd5c102d55b12a2e15658af7226b3937c1c31aa3f915db66f1c8978f7db923",
+  "afterSha256": "f96696f78f2b3e2ebf7abe41fef3029027bc1e01674668fcf6ed14812d8c74e8",
+  "sourceBackup": "checks/ModelPersistence审批锁等待计数首失败源码.java.txt",
+  "cause": "原第二次hasPermi信号被新增requireSpace锁后复查在非事务准备阶段提前触发；granted尚未生成",
+  "replacement": "已生成审批且处于实际最终事务时发同步信号；保留真实Space行锁、审批等待过期、409/0行断言",
+  "resultPending": false,
+  "actualDirectedResult": {
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "execution": "模型审批等待夹具-定向复验执行.json",
+    "expiredWhileLocked": true,
+    "outcome": 409,
+    "rows": 0
+  }
+}

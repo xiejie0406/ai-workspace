@@ -1,0 +1,3996 @@
+{
+  "schemaVersion": "paiflow.input-types.source-contract-review.v1",
+  "checkedAt": "2026-10-03T05:09:13.351056+00:00",
+  "caseCount": 15,
+  "cases": [
+    {
+      "id": "empty",
+      "meaning": "空列表",
+      "rawStartOutputs": [],
+      "independentExpected": {
+        "getInputsInfoData": [],
+        "rawJsonConverterTypeTemplate": {},
+        "rawJsonConverterValueTemplate": {},
+        "typedJsonConverterTypeTemplate": {},
+        "typedJsonConverterValueTemplate": {},
+        "returnedDtoFieldState": [],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [],
+          "extraInputsConfigStoredJsonValue": [],
+          "extraInputsMemory": {},
+          "extraInputsStoredJsonValue": {},
+          "supportUpload": 0,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [],
+      "actualOriginalPureObservations": {
+        "id": "empty",
+        "actualRawTypeTemplate": {},
+        "actualRawValueTemplate": {},
+        "actualGetInputsInfoData": [],
+        "actualGetInputsInfoDataString": "[]",
+        "actualTypedTypeTemplate": {},
+        "actualTypedValueTemplate": {},
+        "actualDtoFieldState": []
+      }
+    },
+    {
+      "id": "agent-user-input",
+      "meaning": "固定输入仅从metadata过滤，响应仍保留",
+      "rawStartOutputs": [
+        {
+          "id": "system-input",
+          "name": "AGENT_USER_INPUT",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "system-input",
+            "name": "AGENT_USER_INPUT",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "AGENT_USER_INPUT": "string"
+        },
+        "rawJsonConverterValueTemplate": {
+          "AGENT_USER_INPUT": ""
+        },
+        "typedJsonConverterTypeTemplate": {
+          "AGENT_USER_INPUT": "string"
+        },
+        "typedJsonConverterValueTemplate": {
+          "AGENT_USER_INPUT": ""
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "system-input",
+            "name": "AGENT_USER_INPUT",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [],
+          "extraInputsConfigStoredJsonValue": [],
+          "extraInputsMemory": {},
+          "extraInputsStoredJsonValue": {},
+          "supportUpload": 0,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [
+        "MaasUtil filteredParams排除固定输入，但return res保留原data；Controller仍将完整data转换为DTO。"
+      ],
+      "actualOriginalPureObservations": {
+        "id": "agent-user-input",
+        "actualRawTypeTemplate": {
+          "AGENT_USER_INPUT": "string"
+        },
+        "actualRawValueTemplate": {
+          "AGENT_USER_INPUT": ""
+        },
+        "actualGetInputsInfoData": [
+          {
+            "id": "system-input",
+            "name": "AGENT_USER_INPUT",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"id\":\"system-input\",\"name\":\"AGENT_USER_INPUT\",\"required\":true,\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "AGENT_USER_INPUT": "string"
+        },
+        "actualTypedValueTemplate": {
+          "AGENT_USER_INPUT": ""
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "system-input",
+            "name": "AGENT_USER_INPUT",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "primitives",
+      "meaning": "五种基本类型保留次序和required，但不进入旧extraInputs首项",
+      "rawStartOutputs": [
+        {
+          "id": "primitive-string",
+          "name": "string",
+          "schema": {
+            "type": "string",
+            "default": "原默认忽略"
+          },
+          "required": true
+        },
+        {
+          "id": "primitive-integer",
+          "name": "integer",
+          "schema": {
+            "type": "integer",
+            "default": "原默认忽略"
+          },
+          "required": false
+        },
+        {
+          "id": "primitive-boolean",
+          "name": "boolean",
+          "schema": {
+            "type": "boolean",
+            "default": "原默认忽略"
+          },
+          "required": true
+        },
+        {
+          "id": "primitive-number",
+          "name": "number",
+          "schema": {
+            "type": "number",
+            "default": "原默认忽略"
+          },
+          "required": false
+        },
+        {
+          "id": "primitive-object",
+          "name": "object",
+          "schema": {
+            "type": "object",
+            "default": "原默认忽略"
+          },
+          "required": true
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "primitive-string",
+            "name": "string",
+            "schema": {
+              "type": "string",
+              "default": "原默认忽略"
+            },
+            "required": true
+          },
+          {
+            "id": "primitive-integer",
+            "name": "integer",
+            "schema": {
+              "type": "integer",
+              "default": "原默认忽略"
+            },
+            "required": false
+          },
+          {
+            "id": "primitive-boolean",
+            "name": "boolean",
+            "schema": {
+              "type": "boolean",
+              "default": "原默认忽略"
+            },
+            "required": true
+          },
+          {
+            "id": "primitive-number",
+            "name": "number",
+            "schema": {
+              "type": "number",
+              "default": "原默认忽略"
+            },
+            "required": false
+          },
+          {
+            "id": "primitive-object",
+            "name": "object",
+            "schema": {
+              "type": "object",
+              "default": "原默认忽略"
+            },
+            "required": true
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "string": "string",
+          "integer": "integer",
+          "boolean": "boolean",
+          "number": "number",
+          "object": {}
+        },
+        "rawJsonConverterValueTemplate": {
+          "string": "",
+          "integer": 0,
+          "boolean": true,
+          "number": 0,
+          "object": {}
+        },
+        "typedJsonConverterTypeTemplate": {
+          "string": "string",
+          "integer": "integer",
+          "boolean": "boolean",
+          "number": "number",
+          "object": {}
+        },
+        "typedJsonConverterValueTemplate": {
+          "string": "",
+          "integer": 0,
+          "boolean": true,
+          "number": 0,
+          "object": {}
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "primitive-string",
+            "name": "string",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string",
+              "default": "原默认忽略"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "primitive-integer",
+            "name": "integer",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "integer",
+              "default": "原默认忽略"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "primitive-boolean",
+            "name": "boolean",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "boolean",
+              "default": "原默认忽略"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "primitive-number",
+            "name": "number",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "number",
+              "default": "原默认忽略"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "primitive-object",
+            "name": "object",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "object",
+              "default": "原默认忽略"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "string": "string",
+              "string_required": true,
+              "name": "string",
+              "type": "string",
+              "schema": {
+                "type": "string",
+                "default": "原默认忽略"
+              }
+            },
+            {
+              "integer": "integer",
+              "integer_required": false,
+              "name": "integer",
+              "type": "integer",
+              "schema": {
+                "type": "integer",
+                "default": "原默认忽略"
+              }
+            },
+            {
+              "boolean": "boolean",
+              "boolean_required": true,
+              "name": "boolean",
+              "type": "boolean",
+              "schema": {
+                "type": "boolean",
+                "default": "原默认忽略"
+              }
+            },
+            {
+              "number": "number",
+              "number_required": false,
+              "name": "number",
+              "type": "number",
+              "schema": {
+                "type": "number",
+                "default": "原默认忽略"
+              }
+            },
+            {
+              "object": "object",
+              "object_required": true,
+              "name": "object",
+              "type": "object",
+              "schema": {
+                "type": "object",
+                "default": "原默认忽略"
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "string": "string",
+              "string_required": true,
+              "name": "string",
+              "type": "string",
+              "schema": {
+                "type": "string",
+                "default": "原默认忽略"
+              }
+            },
+            {
+              "integer": "integer",
+              "integer_required": false,
+              "name": "integer",
+              "type": "integer",
+              "schema": {
+                "type": "integer",
+                "default": "原默认忽略"
+              }
+            },
+            {
+              "boolean": "boolean",
+              "boolean_required": true,
+              "name": "boolean",
+              "type": "boolean",
+              "schema": {
+                "type": "boolean",
+                "default": "原默认忽略"
+              }
+            },
+            {
+              "number": "number",
+              "number_required": false,
+              "name": "number",
+              "type": "number",
+              "schema": {
+                "type": "number",
+                "default": "原默认忽略"
+              }
+            },
+            {
+              "object": "object",
+              "object_required": true,
+              "name": "object",
+              "type": "object",
+              "schema": {
+                "type": "object",
+                "default": "原默认忽略"
+              }
+            }
+          ],
+          "extraInputsMemory": {},
+          "extraInputsStoredJsonValue": {},
+          "supportUpload": 0,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [],
+      "actualOriginalPureObservations": {
+        "id": "primitives",
+        "actualRawTypeTemplate": {
+          "string": "string",
+          "integer": "integer",
+          "boolean": "boolean",
+          "number": "number",
+          "object": {}
+        },
+        "actualRawValueTemplate": {
+          "string": "",
+          "integer": 0,
+          "boolean": true,
+          "number": 0,
+          "object": {}
+        },
+        "actualGetInputsInfoData": [
+          {
+            "id": "primitive-string",
+            "name": "string",
+            "required": true,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "string"
+            }
+          },
+          {
+            "id": "primitive-integer",
+            "name": "integer",
+            "required": false,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "integer"
+            }
+          },
+          {
+            "id": "primitive-boolean",
+            "name": "boolean",
+            "required": true,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "boolean"
+            }
+          },
+          {
+            "id": "primitive-number",
+            "name": "number",
+            "required": false,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "number"
+            }
+          },
+          {
+            "id": "primitive-object",
+            "name": "object",
+            "required": true,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "object"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"id\":\"primitive-string\",\"name\":\"string\",\"required\":true,\"schema\":{\"default\":\"原默认忽略\",\"type\":\"string\"}},{\"id\":\"primitive-integer\",\"name\":\"integer\",\"required\":false,\"schema\":{\"default\":\"原默认忽略\",\"type\":\"integer\"}},{\"id\":\"primitive-boolean\",\"name\":\"boolean\",\"required\":true,\"schema\":{\"default\":\"原默认忽略\",\"type\":\"boolean\"}},{\"id\":\"primitive-number\",\"name\":\"number\",\"required\":false,\"schema\":{\"default\":\"原默认忽略\",\"type\":\"number\"}},{\"id\":\"primitive-object\",\"name\":\"object\",\"required\":true,\"schema\":{\"default\":\"原默认忽略\",\"type\":\"object\"}}]",
+        "actualTypedTypeTemplate": {
+          "string": "string",
+          "integer": "integer",
+          "boolean": "boolean",
+          "number": "number",
+          "object": {}
+        },
+        "actualTypedValueTemplate": {
+          "string": "",
+          "integer": 0,
+          "boolean": true,
+          "number": 0,
+          "object": {}
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "primitive-string",
+            "name": "string",
+            "nameErrMsg": null,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "primitive-integer",
+            "name": "integer",
+            "nameErrMsg": null,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "integer"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "primitive-boolean",
+            "name": "boolean",
+            "nameErrMsg": null,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "boolean"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "primitive-number",
+            "name": "number",
+            "nameErrMsg": null,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "number"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "primitive-object",
+            "name": "object",
+            "nameErrMsg": null,
+            "schema": {
+              "default": "原默认忽略",
+              "type": "object"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "file-first-allowed",
+      "meaning": "文件首个allowedFileType优先：模板保大小写，metadata转小写",
+      "rawStartOutputs": [
+        {
+          "id": "file-pdf",
+          "name": "document",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [
+            "PDF",
+            "Image"
+          ],
+          "required": true
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "required": true
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "document": "PDF"
+        },
+        "rawJsonConverterValueTemplate": {
+          "document": "PDF"
+        },
+        "typedJsonConverterTypeTemplate": {
+          "document": "PDF"
+        },
+        "typedJsonConverterValueTemplate": {
+          "document": "PDF"
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "document": "pdf",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "document",
+              "type": "pdf",
+              "fullParam": {
+                "id": "file-pdf",
+                "name": "document",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "PDF",
+                  "Image"
+                ],
+                "required": true
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "document": "pdf",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "document",
+              "type": "pdf",
+              "fullParam": {
+                "id": "file-pdf",
+                "name": "document",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "PDF",
+                  "Image"
+                ],
+                "required": true
+              }
+            }
+          ],
+          "extraInputsMemory": {
+            "document": "pdf",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "name": "document",
+            "type": "pdf",
+            "fullParam": {
+              "id": "file-pdf",
+              "name": "document",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "PDF",
+                "Image"
+              ],
+              "required": true
+            }
+          },
+          "extraInputsStoredJsonValue": {
+            "document": "pdf",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "name": "document",
+            "type": "pdf",
+            "fullParam": {
+              "id": "file-pdf",
+              "name": "document",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "PDF",
+                "Image"
+              ],
+              "required": true
+            }
+          },
+          "supportUpload": 1,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [
+        "第二个Image不影响type/supportUpload；不是允许文件集合聚合。"
+      ],
+      "actualOriginalPureObservations": {
+        "id": "file-first-allowed",
+        "actualRawTypeTemplate": {
+          "document": "PDF"
+        },
+        "actualRawValueTemplate": {
+          "document": "PDF"
+        },
+        "actualGetInputsInfoData": [
+          {
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "id": "file-pdf",
+            "name": "document",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"allowedFileType\":[\"PDF\",\"Image\"],\"id\":\"file-pdf\",\"name\":\"document\",\"required\":true,\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "document": "PDF"
+        },
+        "actualTypedValueTemplate": {
+          "document": "PDF"
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "file-missing-required",
+      "meaning": "文件required缺省在memory为null，默认落盘JSON省略null",
+      "rawStartOutputs": [
+        {
+          "id": "file-image",
+          "name": "picture",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [
+            "image"
+          ],
+          "fileType": "file",
+          "description": "图片"
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "file-image",
+            "name": "picture",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "image"
+            ],
+            "fileType": "file",
+            "description": "图片"
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "picture": "image"
+        },
+        "rawJsonConverterValueTemplate": {
+          "picture": "image"
+        },
+        "typedJsonConverterTypeTemplate": {
+          "picture": "image"
+        },
+        "typedJsonConverterValueTemplate": {
+          "picture": "image"
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "file-image",
+            "name": "picture",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "image"
+            ],
+            "fileType": "file",
+            "description": "图片",
+            "required": null,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "picture": "image",
+              "required": null,
+              "schema": {
+                "type": "string"
+              },
+              "name": "picture",
+              "type": "image",
+              "fullParam": {
+                "id": "file-image",
+                "name": "picture",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "image"
+                ],
+                "fileType": "file",
+                "description": "图片"
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "picture": "image",
+              "schema": {
+                "type": "string"
+              },
+              "name": "picture",
+              "type": "image",
+              "fullParam": {
+                "id": "file-image",
+                "name": "picture",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "image"
+                ],
+                "fileType": "file",
+                "description": "图片"
+              }
+            }
+          ],
+          "extraInputsMemory": {
+            "picture": "image",
+            "required": null,
+            "schema": {
+              "type": "string"
+            },
+            "name": "picture",
+            "type": "image",
+            "fullParam": {
+              "id": "file-image",
+              "name": "picture",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "image"
+              ],
+              "fileType": "file",
+              "description": "图片"
+            }
+          },
+          "extraInputsStoredJsonValue": {
+            "picture": "image",
+            "schema": {
+              "type": "string"
+            },
+            "name": "picture",
+            "type": "image",
+            "fullParam": {
+              "id": "file-image",
+              "name": "picture",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "image"
+              ],
+              "fileType": "file",
+              "description": "图片"
+            }
+          },
+          "supportUpload": 2,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [],
+      "actualOriginalPureObservations": {
+        "id": "file-missing-required",
+        "actualRawTypeTemplate": {
+          "picture": "image"
+        },
+        "actualRawValueTemplate": {
+          "picture": "image"
+        },
+        "actualGetInputsInfoData": [
+          {
+            "allowedFileType": [
+              "image"
+            ],
+            "description": "图片",
+            "fileType": "file",
+            "id": "file-image",
+            "name": "picture",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"allowedFileType\":[\"image\"],\"description\":\"图片\",\"fileType\":\"file\",\"id\":\"file-image\",\"name\":\"picture\",\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "picture": "image"
+        },
+        "actualTypedValueTemplate": {
+          "picture": "image"
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "file-image",
+            "name": "picture",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "image"
+            ],
+            "fileType": "file",
+            "description": "图片",
+            "required": null,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "array-file-only",
+      "meaning": "数组文件完整metadata保留，但旧首项选择不选它",
+      "rawStartOutputs": [
+        {
+          "id": "array-file",
+          "name": "documents",
+          "schema": {
+            "type": "array-string"
+          },
+          "allowedFileType": [
+            "pdf",
+            "image"
+          ],
+          "required": false
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "array-file",
+            "name": "documents",
+            "schema": {
+              "type": "array-string"
+            },
+            "allowedFileType": [
+              "pdf",
+              "image"
+            ],
+            "required": false
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "documents": "pdf"
+        },
+        "rawJsonConverterValueTemplate": {
+          "documents": "pdf"
+        },
+        "typedJsonConverterTypeTemplate": {
+          "documents": "pdf"
+        },
+        "typedJsonConverterValueTemplate": {
+          "documents": "pdf"
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "array-file",
+            "name": "documents",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-string"
+            },
+            "allowedFileType": [
+              "pdf",
+              "image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "documents": "pdf",
+              "required": false,
+              "schema": {
+                "type": "array-string"
+              },
+              "name": "documents",
+              "type": "pdf",
+              "fullParam": {
+                "id": "array-file",
+                "name": "documents",
+                "schema": {
+                  "type": "array-string"
+                },
+                "allowedFileType": [
+                  "pdf",
+                  "image"
+                ],
+                "required": false
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "documents": "pdf",
+              "required": false,
+              "schema": {
+                "type": "array-string"
+              },
+              "name": "documents",
+              "type": "pdf",
+              "fullParam": {
+                "id": "array-file",
+                "name": "documents",
+                "schema": {
+                  "type": "array-string"
+                },
+                "allowedFileType": [
+                  "pdf",
+                  "image"
+                ],
+                "required": false
+              }
+            }
+          ],
+          "extraInputsMemory": {},
+          "extraInputsStoredJsonValue": {},
+          "supportUpload": 0,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [
+        "getFileType(pdf,array-string)自身分支为21，但getInputsType先keepOldValue排除该row，所以持久supportUpload实际为0（源码推导）。"
+      ],
+      "actualOriginalPureObservations": {
+        "id": "array-file-only",
+        "actualRawTypeTemplate": {
+          "documents": "pdf"
+        },
+        "actualRawValueTemplate": {
+          "documents": "pdf"
+        },
+        "actualGetInputsInfoData": [
+          {
+            "allowedFileType": [
+              "pdf",
+              "image"
+            ],
+            "id": "array-file",
+            "name": "documents",
+            "required": false,
+            "schema": {
+              "type": "array-string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"allowedFileType\":[\"pdf\",\"image\"],\"id\":\"array-file\",\"name\":\"documents\",\"required\":false,\"schema\":{\"type\":\"array-string\"}}]",
+        "actualTypedTypeTemplate": {
+          "documents": "pdf"
+        },
+        "actualTypedValueTemplate": {
+          "documents": "pdf"
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "array-file",
+            "name": "documents",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-string"
+            },
+            "allowedFileType": [
+              "pdf",
+              "image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "array-file-before-scalar",
+      "meaning": "数组文件在前不会挡住后续标量文件",
+      "rawStartOutputs": [
+        {
+          "id": "array-file",
+          "name": "documents",
+          "schema": {
+            "type": "array-string"
+          },
+          "allowedFileType": [
+            "pdf",
+            "image"
+          ],
+          "required": false
+        },
+        {
+          "id": "second-image",
+          "name": "preview",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [
+            "image"
+          ],
+          "required": true
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "array-file",
+            "name": "documents",
+            "schema": {
+              "type": "array-string"
+            },
+            "allowedFileType": [
+              "pdf",
+              "image"
+            ],
+            "required": false
+          },
+          {
+            "id": "second-image",
+            "name": "preview",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "image"
+            ],
+            "required": true
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "documents": "pdf",
+          "preview": "image"
+        },
+        "rawJsonConverterValueTemplate": {
+          "documents": "pdf",
+          "preview": "image"
+        },
+        "typedJsonConverterTypeTemplate": {
+          "documents": "pdf",
+          "preview": "image"
+        },
+        "typedJsonConverterValueTemplate": {
+          "documents": "pdf",
+          "preview": "image"
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "array-file",
+            "name": "documents",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-string"
+            },
+            "allowedFileType": [
+              "pdf",
+              "image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "second-image",
+            "name": "preview",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "documents": "pdf",
+              "required": false,
+              "schema": {
+                "type": "array-string"
+              },
+              "name": "documents",
+              "type": "pdf",
+              "fullParam": {
+                "id": "array-file",
+                "name": "documents",
+                "schema": {
+                  "type": "array-string"
+                },
+                "allowedFileType": [
+                  "pdf",
+                  "image"
+                ],
+                "required": false
+              }
+            },
+            {
+              "preview": "image",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "preview",
+              "type": "image",
+              "fullParam": {
+                "id": "second-image",
+                "name": "preview",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "image"
+                ],
+                "required": true
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "documents": "pdf",
+              "required": false,
+              "schema": {
+                "type": "array-string"
+              },
+              "name": "documents",
+              "type": "pdf",
+              "fullParam": {
+                "id": "array-file",
+                "name": "documents",
+                "schema": {
+                  "type": "array-string"
+                },
+                "allowedFileType": [
+                  "pdf",
+                  "image"
+                ],
+                "required": false
+              }
+            },
+            {
+              "preview": "image",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "preview",
+              "type": "image",
+              "fullParam": {
+                "id": "second-image",
+                "name": "preview",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "image"
+                ],
+                "required": true
+              }
+            }
+          ],
+          "extraInputsMemory": {
+            "preview": "image",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "name": "preview",
+            "type": "image",
+            "fullParam": {
+              "id": "second-image",
+              "name": "preview",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "image"
+              ],
+              "required": true
+            }
+          },
+          "extraInputsStoredJsonValue": {
+            "preview": "image",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "name": "preview",
+            "type": "image",
+            "fullParam": {
+              "id": "second-image",
+              "name": "preview",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "image"
+              ],
+              "required": true
+            }
+          },
+          "supportUpload": 2,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [],
+      "actualOriginalPureObservations": {
+        "id": "array-file-before-scalar",
+        "actualRawTypeTemplate": {
+          "documents": "pdf",
+          "preview": "image"
+        },
+        "actualRawValueTemplate": {
+          "documents": "pdf",
+          "preview": "image"
+        },
+        "actualGetInputsInfoData": [
+          {
+            "allowedFileType": [
+              "pdf",
+              "image"
+            ],
+            "id": "array-file",
+            "name": "documents",
+            "required": false,
+            "schema": {
+              "type": "array-string"
+            }
+          },
+          {
+            "allowedFileType": [
+              "image"
+            ],
+            "id": "second-image",
+            "name": "preview",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"allowedFileType\":[\"pdf\",\"image\"],\"id\":\"array-file\",\"name\":\"documents\",\"required\":false,\"schema\":{\"type\":\"array-string\"}},{\"allowedFileType\":[\"image\"],\"id\":\"second-image\",\"name\":\"preview\",\"required\":true,\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "documents": "pdf",
+          "preview": "image"
+        },
+        "actualTypedValueTemplate": {
+          "documents": "pdf",
+          "preview": "image"
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "array-file",
+            "name": "documents",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-string"
+            },
+            "allowedFileType": [
+              "pdf",
+              "image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "second-image",
+            "name": "preview",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "two-scalar-files",
+      "meaning": "两个标量文件按原顺序只选第一枚",
+      "rawStartOutputs": [
+        {
+          "id": "first-doc",
+          "name": "word",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [
+            "doc"
+          ],
+          "required": true
+        },
+        {
+          "id": "file-pdf",
+          "name": "document",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [
+            "PDF",
+            "Image"
+          ],
+          "required": true
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "first-doc",
+            "name": "word",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "doc"
+            ],
+            "required": true
+          },
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "required": true
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "word": "doc",
+          "document": "PDF"
+        },
+        "rawJsonConverterValueTemplate": {
+          "word": "doc",
+          "document": "PDF"
+        },
+        "typedJsonConverterTypeTemplate": {
+          "word": "doc",
+          "document": "PDF"
+        },
+        "typedJsonConverterValueTemplate": {
+          "word": "doc",
+          "document": "PDF"
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "first-doc",
+            "name": "word",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "doc"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "word": "doc",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "word",
+              "type": "doc",
+              "fullParam": {
+                "id": "first-doc",
+                "name": "word",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "doc"
+                ],
+                "required": true
+              }
+            },
+            {
+              "document": "pdf",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "document",
+              "type": "pdf",
+              "fullParam": {
+                "id": "file-pdf",
+                "name": "document",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "PDF",
+                  "Image"
+                ],
+                "required": true
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "word": "doc",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "word",
+              "type": "doc",
+              "fullParam": {
+                "id": "first-doc",
+                "name": "word",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "doc"
+                ],
+                "required": true
+              }
+            },
+            {
+              "document": "pdf",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "document",
+              "type": "pdf",
+              "fullParam": {
+                "id": "file-pdf",
+                "name": "document",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "PDF",
+                  "Image"
+                ],
+                "required": true
+              }
+            }
+          ],
+          "extraInputsMemory": {
+            "word": "doc",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "name": "word",
+            "type": "doc",
+            "fullParam": {
+              "id": "first-doc",
+              "name": "word",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "doc"
+              ],
+              "required": true
+            }
+          },
+          "extraInputsStoredJsonValue": {
+            "word": "doc",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "name": "word",
+            "type": "doc",
+            "fullParam": {
+              "id": "first-doc",
+              "name": "word",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "doc"
+              ],
+              "required": true
+            }
+          },
+          "supportUpload": 3,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [],
+      "actualOriginalPureObservations": {
+        "id": "two-scalar-files",
+        "actualRawTypeTemplate": {
+          "word": "doc",
+          "document": "PDF"
+        },
+        "actualRawValueTemplate": {
+          "word": "doc",
+          "document": "PDF"
+        },
+        "actualGetInputsInfoData": [
+          {
+            "allowedFileType": [
+              "doc"
+            ],
+            "id": "first-doc",
+            "name": "word",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "id": "file-pdf",
+            "name": "document",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"allowedFileType\":[\"doc\"],\"id\":\"first-doc\",\"name\":\"word\",\"required\":true,\"schema\":{\"type\":\"string\"}},{\"allowedFileType\":[\"PDF\",\"Image\"],\"id\":\"file-pdf\",\"name\":\"document\",\"required\":true,\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "word": "doc",
+          "document": "PDF"
+        },
+        "actualTypedValueTemplate": {
+          "word": "doc",
+          "document": "PDF"
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "first-doc",
+            "name": "word",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "doc"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "nested-object",
+      "meaning": "嵌套object/array与BizProperty字段裁剪",
+      "rawStartOutputs": [
+        {
+          "id": "nested",
+          "name": "profile",
+          "schema": {
+            "type": "object",
+            "description": "结构",
+            "properties": [
+              {
+                "name": "asset",
+                "type": "string",
+                "allowedFileType": [
+                  "PDF"
+                ],
+                "description": "原BizProperty不声明此字段",
+                "default": "ignored"
+              },
+              {
+                "name": "age",
+                "type": "integer",
+                "required": true
+              },
+              {
+                "name": "addresses",
+                "type": "array-object",
+                "properties": [
+                  {
+                    "name": "road",
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          },
+          "required": false
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "nested",
+            "name": "profile",
+            "schema": {
+              "type": "object",
+              "description": "结构",
+              "properties": [
+                {
+                  "name": "asset",
+                  "type": "string",
+                  "default": "ignored"
+                },
+                {
+                  "name": "age",
+                  "type": "integer",
+                  "required": true
+                },
+                {
+                  "name": "addresses",
+                  "type": "array-object",
+                  "properties": [
+                    {
+                      "name": "road",
+                      "type": "string"
+                    }
+                  ]
+                }
+              ]
+            },
+            "required": false
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "profile": {
+            "asset": "PDF",
+            "age": "integer",
+            "addresses": [
+              {
+                "road": "string"
+              }
+            ]
+          }
+        },
+        "rawJsonConverterValueTemplate": {
+          "profile": {
+            "asset": "PDF",
+            "age": 0,
+            "addresses": [
+              {
+                "road": ""
+              }
+            ]
+          }
+        },
+        "typedJsonConverterTypeTemplate": {
+          "profile": {
+            "asset": "string",
+            "age": "integer",
+            "addresses": [
+              {
+                "road": "string"
+              }
+            ]
+          }
+        },
+        "typedJsonConverterValueTemplate": {
+          "profile": {
+            "asset": "",
+            "age": 0,
+            "addresses": [
+              {
+                "road": ""
+              }
+            ]
+          }
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "nested",
+            "name": "profile",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "object",
+              "description": "结构",
+              "properties": [
+                {
+                  "name": "asset",
+                  "type": "string",
+                  "default": "ignored"
+                },
+                {
+                  "name": "age",
+                  "type": "integer",
+                  "required": true
+                },
+                {
+                  "name": "addresses",
+                  "type": "array-object",
+                  "properties": [
+                    {
+                      "name": "road",
+                      "type": "string"
+                    }
+                  ]
+                }
+              ]
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "profile": "object",
+              "profile_required": false,
+              "name": "profile",
+              "type": "object",
+              "schema": {
+                "type": "object",
+                "description": "结构",
+                "properties": [
+                  {
+                    "name": "asset",
+                    "type": "string",
+                    "default": "ignored"
+                  },
+                  {
+                    "name": "age",
+                    "type": "integer",
+                    "required": true
+                  },
+                  {
+                    "name": "addresses",
+                    "type": "array-object",
+                    "properties": [
+                      {
+                        "name": "road",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "profile": "object",
+              "profile_required": false,
+              "name": "profile",
+              "type": "object",
+              "schema": {
+                "type": "object",
+                "description": "结构",
+                "properties": [
+                  {
+                    "name": "asset",
+                    "type": "string",
+                    "default": "ignored"
+                  },
+                  {
+                    "name": "age",
+                    "type": "integer",
+                    "required": true
+                  },
+                  {
+                    "name": "addresses",
+                    "type": "array-object",
+                    "properties": [
+                      {
+                        "name": "road",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "extraInputsMemory": {},
+          "extraInputsStoredJsonValue": {},
+          "supportUpload": 0,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [
+        "直接JsonConverter支持properties.allowedFileType；实际getInputsInfo先BizProperty typed投影，未声明allowedFileType/description会丢失。"
+      ],
+      "actualOriginalPureObservations": {
+        "id": "nested-object",
+        "actualRawTypeTemplate": {
+          "profile": {
+            "asset": "PDF",
+            "age": "integer",
+            "addresses": [
+              {
+                "road": "string"
+              }
+            ]
+          }
+        },
+        "actualRawValueTemplate": {
+          "profile": {
+            "asset": "PDF",
+            "age": 0,
+            "addresses": [
+              {
+                "road": ""
+              }
+            ]
+          }
+        },
+        "actualGetInputsInfoData": [
+          {
+            "id": "nested",
+            "name": "profile",
+            "required": false,
+            "schema": {
+              "description": "结构",
+              "properties": [
+                {
+                  "default": "ignored",
+                  "name": "asset",
+                  "type": "string"
+                },
+                {
+                  "name": "age",
+                  "required": true,
+                  "type": "integer"
+                },
+                {
+                  "name": "addresses",
+                  "properties": [
+                    {
+                      "name": "road",
+                      "type": "string"
+                    }
+                  ],
+                  "type": "array-object"
+                }
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"id\":\"nested\",\"name\":\"profile\",\"required\":false,\"schema\":{\"description\":\"结构\",\"properties\":[{\"default\":\"ignored\",\"name\":\"asset\",\"type\":\"string\"},{\"name\":\"age\",\"required\":true,\"type\":\"integer\"},{\"name\":\"addresses\",\"properties\":[{\"name\":\"road\",\"type\":\"string\"}],\"type\":\"array-object\"}],\"type\":\"object\"}}]",
+        "actualTypedTypeTemplate": {
+          "profile": {
+            "asset": "string",
+            "age": "integer",
+            "addresses": [
+              {
+                "road": "string"
+              }
+            ]
+          }
+        },
+        "actualTypedValueTemplate": {
+          "profile": {
+            "asset": "",
+            "age": 0,
+            "addresses": [
+              {
+                "road": ""
+              }
+            ]
+          }
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "nested",
+            "name": "profile",
+            "nameErrMsg": null,
+            "schema": {
+              "description": "结构",
+              "properties": [
+                {
+                  "default": "ignored",
+                  "name": "asset",
+                  "type": "string"
+                },
+                {
+                  "name": "age",
+                  "required": true,
+                  "type": "integer"
+                },
+                {
+                  "name": "addresses",
+                  "properties": [
+                    {
+                      "name": "road",
+                      "type": "string"
+                    }
+                  ],
+                  "type": "array-object"
+                }
+              ],
+              "type": "object"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "typed-arrays",
+      "meaning": "原五种array-*简写分别生成单元素模板",
+      "rawStartOutputs": [
+        {
+          "id": "array-string",
+          "name": "stringList",
+          "schema": {
+            "type": "array-string"
+          },
+          "required": false
+        },
+        {
+          "id": "array-integer",
+          "name": "integerList",
+          "schema": {
+            "type": "array-integer"
+          },
+          "required": false
+        },
+        {
+          "id": "array-boolean",
+          "name": "booleanList",
+          "schema": {
+            "type": "array-boolean"
+          },
+          "required": false
+        },
+        {
+          "id": "array-number",
+          "name": "numberList",
+          "schema": {
+            "type": "array-number"
+          },
+          "required": false
+        },
+        {
+          "id": "array-object",
+          "name": "objectList",
+          "schema": {
+            "type": "array-object",
+            "properties": [
+              {
+                "name": "label",
+                "type": "string"
+              }
+            ]
+          },
+          "required": false
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "array-string",
+            "name": "stringList",
+            "schema": {
+              "type": "array-string"
+            },
+            "required": false
+          },
+          {
+            "id": "array-integer",
+            "name": "integerList",
+            "schema": {
+              "type": "array-integer"
+            },
+            "required": false
+          },
+          {
+            "id": "array-boolean",
+            "name": "booleanList",
+            "schema": {
+              "type": "array-boolean"
+            },
+            "required": false
+          },
+          {
+            "id": "array-number",
+            "name": "numberList",
+            "schema": {
+              "type": "array-number"
+            },
+            "required": false
+          },
+          {
+            "id": "array-object",
+            "name": "objectList",
+            "schema": {
+              "type": "array-object",
+              "properties": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ]
+            },
+            "required": false
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "stringList": [
+            "string"
+          ],
+          "integerList": [
+            "integer"
+          ],
+          "booleanList": [
+            "boolean"
+          ],
+          "numberList": [
+            "number"
+          ],
+          "objectList": [
+            {
+              "label": "string"
+            }
+          ]
+        },
+        "rawJsonConverterValueTemplate": {
+          "stringList": [
+            ""
+          ],
+          "integerList": [
+            0
+          ],
+          "booleanList": [
+            true
+          ],
+          "numberList": [
+            0
+          ],
+          "objectList": [
+            {
+              "label": ""
+            }
+          ]
+        },
+        "typedJsonConverterTypeTemplate": {
+          "stringList": [
+            "string"
+          ],
+          "integerList": [
+            "integer"
+          ],
+          "booleanList": [
+            "boolean"
+          ],
+          "numberList": [
+            "number"
+          ],
+          "objectList": [
+            {
+              "label": "string"
+            }
+          ]
+        },
+        "typedJsonConverterValueTemplate": {
+          "stringList": [
+            ""
+          ],
+          "integerList": [
+            0
+          ],
+          "booleanList": [
+            true
+          ],
+          "numberList": [
+            0
+          ],
+          "objectList": [
+            {
+              "label": ""
+            }
+          ]
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "array-string",
+            "name": "stringList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "array-integer",
+            "name": "integerList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-integer"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "array-boolean",
+            "name": "booleanList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-boolean"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "array-number",
+            "name": "numberList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-number"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "array-object",
+            "name": "objectList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-object",
+              "properties": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ]
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "stringList": "array-string",
+              "stringList_required": false,
+              "name": "stringList",
+              "type": "array-string",
+              "schema": {
+                "type": "array-string"
+              }
+            },
+            {
+              "integerList": "array-integer",
+              "integerList_required": false,
+              "name": "integerList",
+              "type": "array-integer",
+              "schema": {
+                "type": "array-integer"
+              }
+            },
+            {
+              "booleanList": "array-boolean",
+              "booleanList_required": false,
+              "name": "booleanList",
+              "type": "array-boolean",
+              "schema": {
+                "type": "array-boolean"
+              }
+            },
+            {
+              "numberList": "array-number",
+              "numberList_required": false,
+              "name": "numberList",
+              "type": "array-number",
+              "schema": {
+                "type": "array-number"
+              }
+            },
+            {
+              "objectList": "array-object",
+              "objectList_required": false,
+              "name": "objectList",
+              "type": "array-object",
+              "schema": {
+                "type": "array-object",
+                "properties": [
+                  {
+                    "name": "label",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "stringList": "array-string",
+              "stringList_required": false,
+              "name": "stringList",
+              "type": "array-string",
+              "schema": {
+                "type": "array-string"
+              }
+            },
+            {
+              "integerList": "array-integer",
+              "integerList_required": false,
+              "name": "integerList",
+              "type": "array-integer",
+              "schema": {
+                "type": "array-integer"
+              }
+            },
+            {
+              "booleanList": "array-boolean",
+              "booleanList_required": false,
+              "name": "booleanList",
+              "type": "array-boolean",
+              "schema": {
+                "type": "array-boolean"
+              }
+            },
+            {
+              "numberList": "array-number",
+              "numberList_required": false,
+              "name": "numberList",
+              "type": "array-number",
+              "schema": {
+                "type": "array-number"
+              }
+            },
+            {
+              "objectList": "array-object",
+              "objectList_required": false,
+              "name": "objectList",
+              "type": "array-object",
+              "schema": {
+                "type": "array-object",
+                "properties": [
+                  {
+                    "name": "label",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          ],
+          "extraInputsMemory": {},
+          "extraInputsStoredJsonValue": {},
+          "supportUpload": 0,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [],
+      "actualOriginalPureObservations": {
+        "id": "typed-arrays",
+        "actualRawTypeTemplate": {
+          "stringList": [
+            "string"
+          ],
+          "integerList": [
+            "integer"
+          ],
+          "booleanList": [
+            "boolean"
+          ],
+          "numberList": [
+            "number"
+          ],
+          "objectList": [
+            {
+              "label": "string"
+            }
+          ]
+        },
+        "actualRawValueTemplate": {
+          "stringList": [
+            ""
+          ],
+          "integerList": [
+            0
+          ],
+          "booleanList": [
+            true
+          ],
+          "numberList": [
+            0
+          ],
+          "objectList": [
+            {
+              "label": ""
+            }
+          ]
+        },
+        "actualGetInputsInfoData": [
+          {
+            "id": "array-string",
+            "name": "stringList",
+            "required": false,
+            "schema": {
+              "type": "array-string"
+            }
+          },
+          {
+            "id": "array-integer",
+            "name": "integerList",
+            "required": false,
+            "schema": {
+              "type": "array-integer"
+            }
+          },
+          {
+            "id": "array-boolean",
+            "name": "booleanList",
+            "required": false,
+            "schema": {
+              "type": "array-boolean"
+            }
+          },
+          {
+            "id": "array-number",
+            "name": "numberList",
+            "required": false,
+            "schema": {
+              "type": "array-number"
+            }
+          },
+          {
+            "id": "array-object",
+            "name": "objectList",
+            "required": false,
+            "schema": {
+              "properties": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ],
+              "type": "array-object"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"id\":\"array-string\",\"name\":\"stringList\",\"required\":false,\"schema\":{\"type\":\"array-string\"}},{\"id\":\"array-integer\",\"name\":\"integerList\",\"required\":false,\"schema\":{\"type\":\"array-integer\"}},{\"id\":\"array-boolean\",\"name\":\"booleanList\",\"required\":false,\"schema\":{\"type\":\"array-boolean\"}},{\"id\":\"array-number\",\"name\":\"numberList\",\"required\":false,\"schema\":{\"type\":\"array-number\"}},{\"id\":\"array-object\",\"name\":\"objectList\",\"required\":false,\"schema\":{\"properties\":[{\"name\":\"label\",\"type\":\"string\"}],\"type\":\"array-object\"}}]",
+        "actualTypedTypeTemplate": {
+          "stringList": [
+            "string"
+          ],
+          "integerList": [
+            "integer"
+          ],
+          "booleanList": [
+            "boolean"
+          ],
+          "numberList": [
+            "number"
+          ],
+          "objectList": [
+            {
+              "label": "string"
+            }
+          ]
+        },
+        "actualTypedValueTemplate": {
+          "stringList": [
+            ""
+          ],
+          "integerList": [
+            0
+          ],
+          "booleanList": [
+            true
+          ],
+          "numberList": [
+            0
+          ],
+          "objectList": [
+            {
+              "label": ""
+            }
+          ]
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "array-string",
+            "name": "stringList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "array-integer",
+            "name": "integerList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-integer"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "array-boolean",
+            "name": "booleanList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-boolean"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "array-number",
+            "name": "numberList",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "array-number"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "array-object",
+            "name": "objectList",
+            "nameErrMsg": null,
+            "schema": {
+              "properties": [
+                {
+                  "name": "label",
+                  "type": "string"
+                }
+              ],
+              "type": "array-object"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "unknown-before-file",
+      "meaning": "未知类型能成为旧首项并挡住后续真实文件",
+      "rawStartOutputs": [
+        {
+          "id": "unknown",
+          "name": "tokenLike",
+          "schema": {
+            "type": "custom-kind"
+          },
+          "required": true
+        },
+        {
+          "id": "file-pdf",
+          "name": "document",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [
+            "PDF",
+            "Image"
+          ],
+          "required": true
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "unknown",
+            "name": "tokenLike",
+            "schema": {
+              "type": "custom-kind"
+            },
+            "required": true
+          },
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "required": true
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "tokenLike": "custom-kind",
+          "document": "PDF"
+        },
+        "rawJsonConverterValueTemplate": {
+          "tokenLike": {},
+          "document": "PDF"
+        },
+        "typedJsonConverterTypeTemplate": {
+          "tokenLike": "custom-kind",
+          "document": "PDF"
+        },
+        "typedJsonConverterValueTemplate": {
+          "tokenLike": {},
+          "document": "PDF"
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "unknown",
+            "name": "tokenLike",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "custom-kind"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "tokenLike": "custom-kind",
+              "tokenLike_required": true,
+              "name": "tokenLike",
+              "type": "custom-kind",
+              "schema": {
+                "type": "custom-kind"
+              }
+            },
+            {
+              "document": "pdf",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "document",
+              "type": "pdf",
+              "fullParam": {
+                "id": "file-pdf",
+                "name": "document",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "PDF",
+                  "Image"
+                ],
+                "required": true
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "tokenLike": "custom-kind",
+              "tokenLike_required": true,
+              "name": "tokenLike",
+              "type": "custom-kind",
+              "schema": {
+                "type": "custom-kind"
+              }
+            },
+            {
+              "document": "pdf",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "document",
+              "type": "pdf",
+              "fullParam": {
+                "id": "file-pdf",
+                "name": "document",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "PDF",
+                  "Image"
+                ],
+                "required": true
+              }
+            }
+          ],
+          "extraInputsMemory": {
+            "tokenLike": "custom-kind",
+            "tokenLike_required": true,
+            "name": "tokenLike",
+            "type": "custom-kind",
+            "schema": {
+              "type": "custom-kind"
+            }
+          },
+          "extraInputsStoredJsonValue": {
+            "tokenLike": "custom-kind",
+            "tokenLike_required": true,
+            "name": "tokenLike",
+            "type": "custom-kind",
+            "schema": {
+              "type": "custom-kind"
+            }
+          },
+          "supportUpload": 0,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [
+        "NO_SUPPORT_TYPE仅10种固定字符串，未知type不被排除；getFileType未知分支为NONE。"
+      ],
+      "actualOriginalPureObservations": {
+        "id": "unknown-before-file",
+        "actualRawTypeTemplate": {
+          "tokenLike": "custom-kind",
+          "document": "PDF"
+        },
+        "actualRawValueTemplate": {
+          "tokenLike": {},
+          "document": "PDF"
+        },
+        "actualGetInputsInfoData": [
+          {
+            "id": "unknown",
+            "name": "tokenLike",
+            "required": true,
+            "schema": {
+              "type": "custom-kind"
+            }
+          },
+          {
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "id": "file-pdf",
+            "name": "document",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"id\":\"unknown\",\"name\":\"tokenLike\",\"required\":true,\"schema\":{\"type\":\"custom-kind\"}},{\"allowedFileType\":[\"PDF\",\"Image\"],\"id\":\"file-pdf\",\"name\":\"document\",\"required\":true,\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "tokenLike": "custom-kind",
+          "document": "PDF"
+        },
+        "actualTypedValueTemplate": {
+          "tokenLike": {},
+          "document": "PDF"
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "unknown",
+            "name": "tokenLike",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "custom-kind"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "file-pdf",
+            "name": "document",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "PDF",
+              "Image"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "empty-allowed-file-types",
+      "meaning": "空allowedFileType：JsonConverter回退schema，Maas会越界",
+      "rawStartOutputs": [
+        {
+          "id": "empty-allowed",
+          "name": "text",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [],
+          "required": false
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "empty-allowed",
+            "name": "text",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [],
+            "required": false
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "text": "string"
+        },
+        "rawJsonConverterValueTemplate": {
+          "text": ""
+        },
+        "typedJsonConverterTypeTemplate": {
+          "text": "string"
+        },
+        "typedJsonConverterValueTemplate": {
+          "text": ""
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "empty-allowed",
+            "name": "text",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [],
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_exception_before_mapper_calls",
+          "failure": {
+            "source": "MaasUtil.getInputsType:568",
+            "expectedExceptionClass": "java.lang.IndexOutOfBoundsException",
+            "reason": "非null空JSONArray.getString(0)，不满足原非空先决条件。"
+          },
+          "metadataWriteReachable": false
+        }
+      },
+      "notes": [
+        "不把原异常改记成功；迁移边界应明确拒绝，精确HTTP错误码由后续正式合同决定。"
+      ],
+      "actualOriginalPureObservations": {
+        "id": "empty-allowed-file-types",
+        "actualRawTypeTemplate": {
+          "text": "string"
+        },
+        "actualRawValueTemplate": {
+          "text": ""
+        },
+        "actualGetInputsInfoData": [
+          {
+            "allowedFileType": [],
+            "id": "empty-allowed",
+            "name": "text",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"allowedFileType\":[],\"id\":\"empty-allowed\",\"name\":\"text\",\"required\":false,\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "text": "string"
+        },
+        "actualTypedValueTemplate": {
+          "text": ""
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "empty-allowed",
+            "name": "text",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [],
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "null-schema",
+      "meaning": "schema/required显式null经原DTO JSON后省略：两原算法行为不同",
+      "rawStartOutputs": [
+        {
+          "id": "missing-schema",
+          "name": "untyped",
+          "schema": null,
+          "required": null
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "missing-schema",
+            "name": "untyped"
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "untyped": "object"
+        },
+        "rawJsonConverterValueTemplate": {
+          "untyped": {}
+        },
+        "typedJsonConverterTypeTemplate": {
+          "untyped": "object"
+        },
+        "typedJsonConverterValueTemplate": {
+          "untyped": {}
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "missing-schema",
+            "name": "untyped",
+            "nameErrMsg": null,
+            "schema": null,
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": null,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_exception_before_mapper_calls",
+          "failure": {
+            "source": "MaasUtil.getInputsType:578",
+            "expectedExceptionClass": "java.lang.NullPointerException",
+            "reason": "非file分支getJSONObject(schema)返回null后调用getString(type)。"
+          },
+          "metadataWriteReachable": false
+        }
+      },
+      "notes": [],
+      "actualOriginalPureObservations": {
+        "id": "null-schema",
+        "actualRawTypeTemplate": {
+          "untyped": "object"
+        },
+        "actualRawValueTemplate": {
+          "untyped": {}
+        },
+        "actualGetInputsInfoData": [
+          {
+            "id": "missing-schema",
+            "name": "untyped"
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"id\":\"missing-schema\",\"name\":\"untyped\"}]",
+        "actualTypedTypeTemplate": {
+          "untyped": "object"
+        },
+        "actualTypedValueTemplate": {
+          "untyped": {}
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "missing-schema",
+            "name": "untyped",
+            "nameErrMsg": null,
+            "schema": null,
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": null,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "dto-nullable-and-unknown",
+      "meaning": "原DTO的12字段nullable状态与unknown字段裁剪",
+      "rawStartOutputs": [
+        {
+          "id": "nullable",
+          "name": "label",
+          "nameErrMsg": null,
+          "schema": {
+            "type": "string",
+            "default": null,
+            "futureSchema": true
+          },
+          "allowedFileType": null,
+          "fileType": null,
+          "description": null,
+          "required": null,
+          "refId": null,
+          "deleteDisabled": null,
+          "disabled": null,
+          "customParameterType": null,
+          "futureRoot": "原DTO未声明"
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "nullable",
+            "name": "label",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "label": "string"
+        },
+        "rawJsonConverterValueTemplate": {
+          "label": ""
+        },
+        "typedJsonConverterTypeTemplate": {
+          "label": "string"
+        },
+        "typedJsonConverterValueTemplate": {
+          "label": ""
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "nullable",
+            "name": "label",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": null,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "label": "string",
+              "label_required": null,
+              "name": "label",
+              "type": "string",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "label": "string",
+              "name": "label",
+              "type": "string",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "extraInputsMemory": {},
+          "extraInputsStoredJsonValue": {},
+          "supportUpload": 0,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [
+        "raw canvas不应据typed旧读取链永久删unknown/null；这里仅记录原inputs读取响应的typed投影。",
+        "原字段null state按真正DTO反射核对；未运行原HTTP serializer，不能把WriteNulls探针误称原响应bytes。"
+      ],
+      "actualOriginalPureObservations": {
+        "id": "dto-nullable-and-unknown",
+        "actualRawTypeTemplate": {
+          "label": "string"
+        },
+        "actualRawValueTemplate": {
+          "label": ""
+        },
+        "actualGetInputsInfoData": [
+          {
+            "id": "nullable",
+            "name": "label",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"id\":\"nullable\",\"name\":\"label\",\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "label": "string"
+        },
+        "actualTypedValueTemplate": {
+          "label": ""
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "nullable",
+            "name": "label",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": null,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "duplicate-and-blank-names",
+      "meaning": "空名称模板跳过；重复名称模板最后覆盖，metadata首项仍按原次序",
+      "rawStartOutputs": [
+        {
+          "id": "blank",
+          "name": "",
+          "schema": {
+            "type": "string"
+          },
+          "required": false
+        },
+        {
+          "id": "duplicate-first",
+          "name": "same",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [
+            "pdf"
+          ],
+          "required": true
+        },
+        {
+          "id": "duplicate-last",
+          "name": "same",
+          "schema": {
+            "type": "string"
+          },
+          "allowedFileType": [
+            "txt"
+          ],
+          "required": false
+        }
+      ],
+      "independentExpected": {
+        "getInputsInfoData": [
+          {
+            "id": "blank",
+            "name": "",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "id": "duplicate-first",
+            "name": "same",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "pdf"
+            ],
+            "required": true
+          },
+          {
+            "id": "duplicate-last",
+            "name": "same",
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "txt"
+            ],
+            "required": false
+          }
+        ],
+        "rawJsonConverterTypeTemplate": {
+          "same": "txt"
+        },
+        "rawJsonConverterValueTemplate": {
+          "same": "txt"
+        },
+        "typedJsonConverterTypeTemplate": {
+          "same": "txt"
+        },
+        "typedJsonConverterValueTemplate": {
+          "same": "txt"
+        },
+        "returnedDtoFieldState": [
+          {
+            "id": "blank",
+            "name": "",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "duplicate-first",
+            "name": "same",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "pdf"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "duplicate-last",
+            "name": "same",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "txt"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ],
+        "maasLocalMetadataProjection": {
+          "status": "source_derived_success",
+          "extraInputsConfigMemory": [
+            {
+              "": "string",
+              "_required": false,
+              "name": "",
+              "type": "string",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "same": "pdf",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "same",
+              "type": "pdf",
+              "fullParam": {
+                "id": "duplicate-first",
+                "name": "same",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "pdf"
+                ],
+                "required": true
+              }
+            },
+            {
+              "same": "txt",
+              "required": false,
+              "schema": {
+                "type": "string"
+              },
+              "name": "same",
+              "type": "txt",
+              "fullParam": {
+                "id": "duplicate-last",
+                "name": "same",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "txt"
+                ],
+                "required": false
+              }
+            }
+          ],
+          "extraInputsConfigStoredJsonValue": [
+            {
+              "": "string",
+              "_required": false,
+              "name": "",
+              "type": "string",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "same": "pdf",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "name": "same",
+              "type": "pdf",
+              "fullParam": {
+                "id": "duplicate-first",
+                "name": "same",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "pdf"
+                ],
+                "required": true
+              }
+            },
+            {
+              "same": "txt",
+              "required": false,
+              "schema": {
+                "type": "string"
+              },
+              "name": "same",
+              "type": "txt",
+              "fullParam": {
+                "id": "duplicate-last",
+                "name": "same",
+                "schema": {
+                  "type": "string"
+                },
+                "allowedFileType": [
+                  "txt"
+                ],
+                "required": false
+              }
+            }
+          ],
+          "extraInputsMemory": {
+            "same": "pdf",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "name": "same",
+            "type": "pdf",
+            "fullParam": {
+              "id": "duplicate-first",
+              "name": "same",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "pdf"
+              ],
+              "required": true
+            }
+          },
+          "extraInputsStoredJsonValue": {
+            "same": "pdf",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "name": "same",
+            "type": "pdf",
+            "fullParam": {
+              "id": "duplicate-first",
+              "name": "same",
+              "schema": {
+                "type": "string"
+              },
+              "allowedFileType": [
+                "pdf"
+              ],
+              "required": true
+            }
+          },
+          "supportUpload": 1,
+          "returnedDataIsUnfiltered": true,
+          "metadataWriteReachable": true
+        }
+      },
+      "notes": [
+        "原Maas不跳过blank name；不得用JsonConverter结果JSONObject取代完整ordered extraInputsConfig。"
+      ],
+      "actualOriginalPureObservations": {
+        "id": "duplicate-and-blank-names",
+        "actualRawTypeTemplate": {
+          "same": "txt"
+        },
+        "actualRawValueTemplate": {
+          "same": "txt"
+        },
+        "actualGetInputsInfoData": [
+          {
+            "id": "blank",
+            "name": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "allowedFileType": [
+              "pdf"
+            ],
+            "id": "duplicate-first",
+            "name": "same",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "allowedFileType": [
+              "txt"
+            ],
+            "id": "duplicate-last",
+            "name": "same",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "actualGetInputsInfoDataString": "[{\"id\":\"blank\",\"name\":\"\",\"required\":false,\"schema\":{\"type\":\"string\"}},{\"allowedFileType\":[\"pdf\"],\"id\":\"duplicate-first\",\"name\":\"same\",\"required\":true,\"schema\":{\"type\":\"string\"}},{\"allowedFileType\":[\"txt\"],\"id\":\"duplicate-last\",\"name\":\"same\",\"required\":false,\"schema\":{\"type\":\"string\"}}]",
+        "actualTypedTypeTemplate": {
+          "same": "txt"
+        },
+        "actualTypedValueTemplate": {
+          "same": "txt"
+        },
+        "actualDtoFieldState": [
+          {
+            "id": "blank",
+            "name": "",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": null,
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "duplicate-first",
+            "name": "same",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "pdf"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": true,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          },
+          {
+            "id": "duplicate-last",
+            "name": "same",
+            "nameErrMsg": null,
+            "schema": {
+              "type": "string"
+            },
+            "allowedFileType": [
+              "txt"
+            ],
+            "fileType": null,
+            "description": null,
+            "required": false,
+            "refId": null,
+            "deleteDisabled": null,
+            "disabled": null,
+            "customParameterType": null
+          }
+        ]
+      }
+    }
+  ],
+  "sourceHashesBefore": {
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java": "6ab3d18a54b18a3c470532b52469b5060e13f4319c9420937cfa092891468e52",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/workflow/impl/WorkflowBotParamServiceImpl.java": "c0e3dd14cf408ece0d66a1658a882bc959f2f7c977d3a7e3aa2df46ff636d9ec",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/workflow/WorkflowInputTypeDto.java": "655005ce3d003ea090e38d6b50633e60679041431a6612495619d06a9ac311ba",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/enums/bot/BotUploadEnum.java": "afa141a2f0ed3039cc13fc70f8e11a436dbb7115a33d5652e83897c9d9455eda",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/JsonConverter.java": "a57bf7584a73e3d424f9d9cab80521a61de6eda4be54c1995980eb2a840b05d7",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/workflow/WorkflowBotController.java": "39f8a1f01efa71aa4319d890683f3338a975eb52b98637fe58dd6a98ac662253",
+    "参考项目/PaiFlow-main/console/backend/pom.xml": "d169a9a674a8c49bc38e2a7ab2acc90dfd1552e19782a49ddad740bdbe1bfa4b",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "frontend/paiflow-web/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5"
+  },
+  "sourceHashesAfter": {
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java": "6ab3d18a54b18a3c470532b52469b5060e13f4319c9420937cfa092891468e52",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/workflow/impl/WorkflowBotParamServiceImpl.java": "c0e3dd14cf408ece0d66a1658a882bc959f2f7c977d3a7e3aa2df46ff636d9ec",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/workflow/WorkflowInputTypeDto.java": "655005ce3d003ea090e38d6b50633e60679041431a6612495619d06a9ac311ba",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/enums/bot/BotUploadEnum.java": "afa141a2f0ed3039cc13fc70f8e11a436dbb7115a33d5652e83897c9d9455eda",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/JsonConverter.java": "a57bf7584a73e3d424f9d9cab80521a61de6eda4be54c1995980eb2a840b05d7",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/workflow/WorkflowBotController.java": "39f8a1f01efa71aa4319d890683f3338a975eb52b98637fe58dd6a98ac662253",
+    "参考项目/PaiFlow-main/console/backend/pom.xml": "d169a9a674a8c49bc38e2a7ab2acc90dfd1552e19782a49ddad740bdbe1bfa4b",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "frontend/paiflow-web/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5"
+  },
+  "sourceWindowChanges": [],
+  "sourceSemantics": {
+    "configuredLocalRead": "hub maas.getInputs默认/workflow/get-inputs-info；get-inputs-yype是另一JsonConverter template接口，不能替代DTO列表。",
+    "toolkitTypedRead": "WorkflowService.getInputsInfo:3366-3385，首个node-start前缀节点的BizInputOutput List用默认JSON.toJSONString序列化，data是JSON数组String。",
+    "metadataTransformation": "MaasUtil.getInputsType:546-597：固定AGENT_USER_INPUT只从metadata过滤、allowedFileType首项lowercase、ordered extraInputsConfig与keepOldValue首项extraInputs；回传res原data不滤。",
+    "selection": "MaasUtil.keepOldValue:606-619：排除schema.type array-string和NO_SUPPORT_TYPE10种固定值，保第一个其他type；getFileType:271-294映射标量1..7/数组21..27/未知0。",
+    "dto": "WorkflowInputTypeDto12字段均为引用类型，无primitive默认值；schema是JSONObject，refId/deleteDisabled/disabled是Object。BizInputOutput/BizSchema/BizProperty读取链更早裁剪其未声明字段。"
+  },
+  "execution": {
+    "javacCommand": [
+      "javac",
+      "-J-Duser.language=en",
+      "-J-Duser.country=US",
+      "-encoding",
+      "UTF-8",
+      "-cp",
+      "C:\\Users\\admin\\.m2\\repository\\com\\alibaba\\fastjson2\\fastjson2\\2.0.51\\fastjson2-2.0.51.jar;C:\\Users\\admin\\.m2\\repository\\org\\apache\\commons\\commons-lang3\\3.14.0\\commons-lang3-3.14.0.jar;C:\\Users\\admin\\.m2\\repository\\org\\apache\\commons\\commons-collections4\\4.4\\commons-collections4-4.4.jar;C:\\Users\\admin\\.m2\\repository\\org\\projectlombok\\lombok\\1.18.32\\lombok-1.18.32.jar;C:\\Users\\admin\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-annotations\\2.19.2\\jackson-annotations-2.19.2.jar",
+      "-processorpath",
+      "C:\\Users\\admin\\.m2\\repository\\org\\projectlombok\\lombok\\1.18.32\\lombok-1.18.32.jar",
+      "-d",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\原输入类型纯转换独立编译",
+      "-s",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\原输入类型纯转换独立编译\\generated",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\PaiFlow-main\\console\\backend\\toolkit\\src\\main\\java\\com\\iflytek\\astron\\console\\toolkit\\tool\\JsonConverter.java",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\PaiFlow-main\\console\\backend\\commons\\src\\main\\java\\com\\iflytek\\astron\\console\\commons\\dto\\workflow\\WorkflowInputTypeDto.java",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\PaiFlow-main\\console\\backend\\toolkit\\src\\main\\java\\com\\iflytek\\astron\\console\\toolkit\\entity\\biz\\workflow\\node\\BizInputOutput.java",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\PaiFlow-main\\console\\backend\\toolkit\\src\\main\\java\\com\\iflytek\\astron\\console\\toolkit\\entity\\biz\\workflow\\node\\BizSchema.java",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\PaiFlow-main\\console\\backend\\toolkit\\src\\main\\java\\com\\iflytek\\astron\\console\\toolkit\\entity\\biz\\workflow\\node\\BizProperty.java",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\PaiFlow-main\\console\\backend\\toolkit\\src\\main\\java\\com\\iflytek\\astron\\console\\toolkit\\entity\\biz\\workflow\\node\\BizValue.java",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\InputTypesSourceReview.java"
+    ],
+    "javacExitCode": 0,
+    "javaCommand": [
+      "java",
+      "-Dfile.encoding=UTF-8",
+      "-Dsun.stdout.encoding=UTF-8",
+      "-Dsun.stderr.encoding=UTF-8",
+      "-cp",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\原输入类型纯转换独立编译;C:\\Users\\admin\\.m2\\repository\\com\\alibaba\\fastjson2\\fastjson2\\2.0.51\\fastjson2-2.0.51.jar;C:\\Users\\admin\\.m2\\repository\\org\\apache\\commons\\commons-lang3\\3.14.0\\commons-lang3-3.14.0.jar;C:\\Users\\admin\\.m2\\repository\\org\\apache\\commons\\commons-collections4\\4.4\\commons-collections4-4.4.jar;C:\\Users\\admin\\.m2\\repository\\org\\projectlombok\\lombok\\1.18.32\\lombok-1.18.32.jar;C:\\Users\\admin\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-annotations\\2.19.2\\jackson-annotations-2.19.2.jar",
+      "InputTypesSourceReview",
+      "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\原输入类型纯转换独立编译\\fixed-cases-input.json"
+    ],
+    "javaExitCode": 0,
+    "workingDirectory": "D:\\2025Ai\\26-05-23\\java-workspace",
+    "compilerDiagnosticEncoding": "utf-8",
+    "compiledOriginalSources": [
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/JsonConverter.java",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/workflow/WorkflowInputTypeDto.java",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java"
+    ],
+    "cachedJarHashes": {
+      "C:\\Users\\admin\\.m2\\repository\\com\\alibaba\\fastjson2\\fastjson2\\2.0.51\\fastjson2-2.0.51.jar": "10c1c26d82415f077f4706142ff48f60a39e0df4aaff852f7a7e8e766f81e758",
+      "C:\\Users\\admin\\.m2\\repository\\org\\apache\\commons\\commons-lang3\\3.14.0\\commons-lang3-3.14.0.jar": "7b96bf3ee68949abb5bc465559ac270e0551596fa34523fddf890ec418dde13c",
+      "C:\\Users\\admin\\.m2\\repository\\org\\apache\\commons\\commons-collections4\\4.4\\commons-collections4-4.4.jar": "1df8b9430b5c8ed143d7815e403e33ef5371b2400aadbe9bda0883762e0846d1",
+      "C:\\Users\\admin\\.m2\\repository\\org\\projectlombok\\lombok\\1.18.32\\lombok-1.18.32.jar": "97574674e2a25f567a313736ace00df8787d443de316407d57fc877d9f19a65d",
+      "C:\\Users\\admin\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-annotations\\2.19.2\\jackson-annotations-2.19.2.jar": "e516743a316dcf83c572ffc9cb6e8c5e8c134880c8c5155b02f7b34e9c5dc3cf"
+    },
+    "pureAssertions": 90,
+    "pureDifferences": [],
+    "formatPrimitiveProbes": {
+      "emptyAllowedFileTypeGetStringZero": "java.lang.IndexOutOfBoundsException"
+    },
+    "fullMaasUtilExecuted": false,
+    "fullToolkitServiceExecuted": false,
+    "dtoHttpSerializerExecuted": false,
+    "originalMetadataPersistenceExecuted": false
+  },
+  "interpretation": [
+    "原JsonConverter完整原源码与原Biz/WorkflowInputTypeDto在固定参考依赖下实际执行，可证明本15例纯模板转换和DTO字段状态。",
+    "MaasUtil metadata/supportUpload/异常预期为逐行源码推导；其完整方法先外部HTTP后真实Mapper写，未编译/运行该类，不把本材料称Maas联机或业务通过。",
+    "空文件列表越界辅助probe只执行Fastjson JSONArray.getString(0)，不是完整MaasService实测。",
+    "默认持久JSON省略null与HTTP nullable字段是不同边界；本材料显式保存memory和storedJson语义，但未跑原HTTP serializer。",
+    "unknown/blank/重复名字和malformed原行为用于定位来源边界，不自动授权正式服务接受非法结构或把原缺陷作为正式成功。",
+    "仅证据私有javac输出，不写原参考、main/test、target或contracts；QA冻结后再由owner审查纳入正式fixture。"
+  ],
+  "noMaven": true,
+  "productionSourceWritten": false,
+  "frontendWritten": false,
+  "targetWritten": false,
+  "contractsWritten": false,
+  "realDatabaseWrites": false,
+  "network": false,
+  "servicesStarted": false,
+  "businessVerified": false
+}

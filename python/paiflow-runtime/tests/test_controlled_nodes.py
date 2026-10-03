@@ -1,0 +1,398 @@
+"""原受控节点算法回归：只隔离中心端口，不执行代码/调用真实模型。"""
+import asyncio
+import copy
+import json
+from pathlib import Path
+import tempfile
+import unittest
+
+from worker.engine_adapter import create_task_runner
+from worker.errors import CenterUnavailable, WorkerError
+from worker.node_context import CURRENT_ITERATION_ID
+from tests.test_worker import RecordingCenter, refresh_test_canonical
+from tests.test_original_engine import node, output, ref, edge, raw_workflow
+
+
+def code_raw(code="def main(value):\n    return {'answer': value}", output_type="string"):
+    return raw_workflow([
+        node("node-start::s", outputs=[output("value")]),
+        node("ifly-code::c", inputs=[ref("value", "node-start::s", "value")], outputs=[output("answer", output_type)],
+             code=code, appId="legacy-app-label", uid="legacy-user-label"),
+        node("node-end::e", inputs=[ref("answer", "ifly-code::c", "answer", output_type)],
+             outputs=[output("answer", output_type)], outputMode=0)],
+        [edge("node-start::s", "ifly-code::c"), edge("ifly-code::c", "node-end::e")], {"value": "参数引号'与换行\n中文"})
+
+
+class SandboxCenter(RecordingCenter):
+    output = '{"answer":"中心沙箱输出"}'
+    async def operation(self, *args):
+        self.operations.append(copy.deepcopy(args))
+        return {"state": "completed", "output": self.output}
+
+
+class OriginalCodeNodeTest(unittest.IsolatedAsyncioTestCase):
+    async def test_real_code_node_preserves_parameter_injection_and_json_output(self):
+        raw = code_raw()
+        center = SandboxCenter(raw)
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "COMPLETED")
+        self.assertEqual(center.results[-1]["output"]["outputs"], {"answer": "中心沙箱输出"})
+        operation = center.operations[0]
+        self.assertEqual(operation[3:5], ("ifly-code::c", "sandbox.execute"))
+        self.assertIn("output = main(**" + repr(raw["input"]) + ")", operation[5]["code"])
+        self.assertEqual(operation[5]["language"], "python")
+        self.assertNotIn("uid", operation[5])
+        self.assertNotIn("appId", operation[5])
+
+    async def test_original_non_json_fallback_and_wrong_type_failure(self):
+        raw = code_raw()
+        center = SandboxCenter(raw)
+        center.output = "plain original output"
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["output"]["outputs"], {"answer": "plain original output"})
+        raw = code_raw(output_type="integer")
+        center = SandboxCenter(raw)
+        center.output = '{"answer":"not-an-integer"}'
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "FAILED")
+        self.assertTrue(any(item["eventType"] == "node.failed" for item in center.events))
+
+    async def test_center_sandbox_unavailable_never_completes_and_host_code_never_runs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "host-file.txt"
+            raw = code_raw("def main(value):\n    __import__('pathlib').Path(" + repr(str(target)) + ").write_text(value)\n    return {'answer': value}")
+            class UnavailableCenter(SandboxCenter):
+                async def operation(self, *args):
+                    self.operations.append(copy.deepcopy(args))
+                    raise CenterUnavailable()
+            center = UnavailableCenter(raw)
+            with self.assertRaises(CenterUnavailable):
+                await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+            self.assertFalse(target.exists())
+            self.assertEqual(center.results, [])
+
+    async def test_sandbox_cancel_before_execution_ack_keeps_unknown(self):
+        raw = code_raw()
+        class WaitingSandboxCenter(SandboxCenter):
+            started = None
+            async def operation(self, *args):
+                self.operations.append(copy.deepcopy(args))
+                self.started.set()
+                await asyncio.Event().wait()
+        center = WaitingSandboxCenter(raw)
+        center.started = asyncio.Event()
+        task = asyncio.create_task(create_task_runner(center, heartbeat_seconds=.02).run(raw))
+        await asyncio.wait_for(center.started.wait(), 5)
+        center.cancel_requested = True
+        await asyncio.wait_for(task, 8)
+        self.assertEqual(center.results[-1]["state"], "EFFECT_UNKNOWN")
+
+
+def spark_frame(content="", *, status=2, reasoning="", function_call=None, code=0):
+    text = {"content": content, "reasoning_content": reasoning}
+    if function_call is not None:
+        text["function_call"] = function_call
+    return {"header": {"code": code, "status": status, "sid": "recorded-fixture-2"},
+        "payload": {"choices": {"text": [text]}, "usage": {"text": {
+            "prompt_tokens": 2, "completion_tokens": 3, "total_tokens": 5}}}}
+
+
+def openai_frame(content="", *, status="stop", reasoning=""):
+    return {"choices": [{"delta": {"content": content, "reasoning_content": reasoning}, "finish_reason": status}],
+        "usage": {"prompt_tokens": 2, "completion_tokens": 3, "total_tokens": 5}}
+
+
+def model_raw(kind="spark-llm", *, source="xinghuo", schema_type="string", node_params=None):
+    params = {"appId": "legacy-label", "domain": "model-fixture", "modelResourceId": "model-1", "source": source,
+        "template": "ask={{question}}", "systemTemplate": "original system", **(node_params or {})}
+    identifier = kind + "::model"
+    raw = raw_workflow([
+        node("node-start::s", outputs=[output("question")]),
+        node(identifier, inputs=[ref("question", "node-start::s", "question")], outputs=[output("answer", schema_type)], **params),
+        node("node-end::e", inputs=[ref("answer", identifier, "answer", schema_type)],
+             outputs=[output("answer", schema_type)], outputMode=0)],
+        [edge("node-start::s", identifier), edge(identifier, "node-end::e")], {"question": "真实算法输入"})
+    raw["resourceSnapshots"] = {"model-1": {"kind": "model", "provider": source,
+        "version": "model-version-1", "modelName": "model-fixture", "enabled": True, "capabilities": ["chat"]}}
+    raw["effectPolicy"] = {"mode": "approved_write", "approvalRef": "test-center-approval", "allowedOperations": ["model.invoke"]}
+    return raw
+
+
+class ModelCenter(RecordingCenter):
+    def __init__(self, raw, frames):
+        super().__init__(raw)
+        self.frames = frames
+        self.frame_calls = []
+        self.cancel_calls = []
+        self.reject_model = False
+        self.cursor_error = False
+        self.stop_confirmed = True
+        self.frame_wait = None
+        self.failure_kind = None
+        self.operation_wait = None
+        self.bindings = {}
+
+    def binding(self, args, operation_id):
+        params = args[5]
+        value = {'runId': args[0], 'leaseId': args[1], 'attempt': args[2], 'nodeId': args[3],
+            'iterationId': CURRENT_ITERATION_ID.get(), 'workflowVersionId': self.raw['workflowVersionId'],
+            'dslHash': self.raw['dslHash'], 'operationId': operation_id, 'resourceId': params['resourceId'],
+            'resourceVersion': params['resourceVersion'], 'provider': params['provider']}
+        self.bindings[operation_id] = copy.deepcopy(value)
+        return value
+
+    async def resource(self, *args):
+        self.resource_calls.append(args)
+        return copy.deepcopy(self.raw["resourceSnapshots"][args[-1]])
+
+    async def operation(self, *args):
+        self.operations.append(copy.deepcopy(args))
+        if self.operation_wait is not None:
+            self.operation_wait.set()
+            await asyncio.Event().wait()
+        if self.reject_model:
+            raise CenterUnavailable()
+        return {**self.binding(args, 'operation-fixture'), 'state': 'RUNNING'}
+
+    async def operation_frames(self, *args):
+        self.frame_calls.append(args)
+        if self.frame_wait is not None:
+            self.frame_wait.set()
+            await asyncio.Event().wait()
+        after = args[-2]
+        provider = self.raw["resourceSnapshots"]["model-1"]["provider"]
+        frame = self.frames[after:after + 1]
+        complete = after + len(frame) == len(self.frames)
+        state = 'FAILED' if self.failure_kind else 'COMPLETED'
+        response = {**copy.deepcopy(self.bindings[args[-3]]), 'state': state if complete else 'RUNNING',
+            'operationState': state, 'lastSeq': len(self.frames), 'finishSeq': None, 'failureKind': self.failure_kind,
+            "frames": copy.deepcopy(frame), "nextCursor": after + len(frame) + int(self.cursor_error), "done": complete}
+        if provider == "openai":
+            response["lastSeq"] = len(self.frames)
+            finishes = [i + 1 for i, value in enumerate(self.frames)
+                        if value.get("choices") and value["choices"][0].get("finish_reason")]
+            if finishes:
+                response["finishSeq"] = finishes[-1]
+        else:
+            finishes = [i + 1 for i, value in enumerate(self.frames)
+                if value.get('header', {}).get('status') == 2 or value.get('header', {}).get('code')]
+            if finishes:
+                response['finishSeq'] = finishes[-1]
+        return response
+
+    async def cancel_operation(self, *args):
+        self.cancel_calls.append(args)
+        if not self.stop_confirmed:
+            raise CenterUnavailable()
+        return {**copy.deepcopy(self.bindings[args[-1]]), 'state': 'CANCELLED', 'stopped': True,
+                'proofId': 'offline-center-proof'}
+
+
+class OriginalModelNodeTest(unittest.IsolatedAsyncioTestCase):
+    async def execute(self, raw, frames):
+        center = ModelCenter(raw, frames)
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "COMPLETED", center.results[-1])
+        return center.results[-1]["output"], center
+
+    async def test_original_spark_and_openai_text_decoder_message_options_and_usage(self):
+        for source, frames in [("xinghuo", [spark_frame("甲", status=0), spark_frame("乙")]),
+                               ("openai", [openai_frame("甲", status=None), openai_frame("乙")])]:
+            raw = model_raw(source=source)
+            result, center = await self.execute(raw, frames)
+            self.assertEqual(result["outputs"], {"answer": "甲乙"})
+            self.assertEqual(result["usage"]["total_tokens"], 5)
+            params = center.operations[0][5]
+            self.assertEqual(params["messages"], [{"role": "system", "content": "original system"},
+                {"role": "user", "content": "ask=真实算法输入"}])
+            self.assertEqual(params["provider"], source)
+            self.assertNotIn("url", params)
+            self.assertEqual([item[-2] for item in center.frame_calls], [0, 1])
+            self.assertEqual(center.cancel_calls, [])
+
+    async def test_original_llm_json_and_extractor_prompt_keep_schema_fix(self):
+        raw = model_raw(node_params={"respFormat": 2}, schema_type="integer")
+        result, _ = await self.execute(raw, [spark_frame('```json\n{"answer": 7}\n```')])
+        self.assertEqual(result["outputs"], {"answer": 7})
+        raw = model_raw("extractor-parameter", node_params={"reasonMode": 1}, schema_type="integer")
+        result, center = await self.execute(raw, [spark_frame('```json\n{"answer": "9"}\n```')])
+        self.assertEqual(result["outputs"], {"answer": 9})
+        self.assertIn('"answer"', center.operations[0][5]["messages"][-1]["content"])
+
+    async def test_original_extractor_spark_function_schema_and_parser(self):
+        raw = model_raw("extractor-parameter", schema_type="integer")
+        result, center = await self.execute(raw, [spark_frame(function_call={"name": "extractor_parameter", "arguments": '{"answer":"11"}'})])
+        self.assertEqual(result["outputs"], {"answer": 11})
+        params = center.operations[0][5]
+        self.assertEqual(params["mode"], "function_call")
+        self.assertEqual(params["functions"][0]["parameters"]["required"], ["answer"])
+
+    async def test_missing_binding_legacy_url_readonly_or_bad_cursor_never_success(self):
+        for params in ({"modelResourceId": ""}, {"url": "https://must-not-be-called.invalid/model"}, {"apiKey": "fixture-credential"}):
+            raw = model_raw(node_params=params)
+            center = ModelCenter(raw, [spark_frame("forbidden")])
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+            self.assertEqual(center.results[-1]["state"], "FAILED")
+            self.assertEqual(center.operations, [])
+        raw = model_raw()
+        raw["effectPolicy"]["mode"] = "read_only"
+        raw["effectPolicy"].pop("approvalRef")
+        center = ModelCenter(raw, [spark_frame("forbidden")])
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "FAILED")
+        self.assertEqual(center.operations, [])
+        raw = model_raw()
+        center = ModelCenter(raw, [spark_frame("wrong-cursor")])
+        center.cursor_error = True
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "FAILED")
+        self.assertEqual(len(center.cancel_calls), 1)
+
+    async def test_original_model_cancellation_unconfirmed_stop_stays_unknown(self):
+        raw = model_raw()
+        center = ModelCenter(raw, [spark_frame("waiting")])
+        center.frame_wait = asyncio.Event()
+        center.stop_confirmed = False
+        task = asyncio.create_task(create_task_runner(center, heartbeat_seconds=.02).run(raw))
+        await asyncio.wait_for(center.frame_wait.wait(), 5)
+        center.cancel_requested = True
+        await asyncio.wait_for(task, 8)
+        self.assertEqual(center.results[-1]["state"], "EFFECT_UNKNOWN")
+        self.assertEqual(len(center.cancel_calls), 1)
+
+    async def test_model_cancel_before_operation_id_ack_keeps_unknown(self):
+        raw = model_raw()
+        center = ModelCenter(raw, [spark_frame("not-confirmed")])
+        center.operation_wait = asyncio.Event()
+        task = asyncio.create_task(create_task_runner(center, heartbeat_seconds=.02).run(raw))
+        await asyncio.wait_for(center.operation_wait.wait(), 5)
+        center.cancel_requested = True
+        await asyncio.wait_for(task, 8)
+        self.assertEqual(center.results[-1]["state"], "EFFECT_UNKNOWN")
+        self.assertEqual(center.cancel_calls, [])
+
+    def decision_raw(self, **mode):
+        raw = model_raw("decision-making", node_params={"promptPrefix": "classify {{question}}", "intentChains": [
+            {"id": "intent-one-of::accept", "name": "accept", "description": "Accept intent", "intentType": 2},
+            {"id": "intent-one-of::default", "name": "fallback", "description": "Default intent", "intentType": 1}], **mode})
+        middle = "decision-making::model"
+        raw["dsl"]["nodes"][2] = node("node-end::e", inputs=[ref("chosen", "text-joiner::accept", "value"),
+            ref("fallback", "text-joiner::fallback", "value")], outputMode=0)
+        raw["dsl"]["nodes"].extend([node("text-joiner::accept", outputs=[output("value")], prompt="selected", mode=0),
+            node("text-joiner::fallback", outputs=[output("value")], prompt="fallback", mode=0)])
+        raw["dsl"]["edges"] = [edge("node-start::s", middle), edge(middle, "text-joiner::accept", "intent-one-of::accept"),
+            edge(middle, "text-joiner::fallback", "intent-one-of::default"), edge("text-joiner::accept", "node-end::e"),
+            edge("text-joiner::fallback", "node-end::e")]
+        refresh_test_canonical(raw)
+        return raw
+
+    async def test_original_decision_function_prompt_and_normal_routes(self):
+        fixtures = [({}, spark_frame(function_call={"name": "accept", "arguments": '{"next_inputs":"value"}'})),
+            ({"reasonMode": 1}, spark_frame('{"category_name":"accept"}')),
+            ({"useFunctionCall": False}, spark_frame('{"destination":"accept","next_inputs":"value"}'))]
+        for mode, frame in fixtures:
+            raw = self.decision_raw(**mode)
+            result, center = await self.execute(raw, [frame])
+            self.assertEqual(result["outputs"], {"chosen": "selected", "fallback": ""})
+            started = {item["nodeId"] for item in center.events if item["eventType"] == "node.started"}
+            self.assertNotIn("text-joiner::fallback", started)
+
+    async def test_rejected_model_cannot_turn_original_decision_default_into_success(self):
+        raw = self.decision_raw(reasonMode=1)
+        center = ModelCenter(raw, [spark_frame("must-not-read")])
+        center.reject_model = True
+        with self.assertRaises(CenterUnavailable):
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results, [])
+        self.assertFalse(any(item["nodeId"].startswith("text-joiner::") for item in center.events))
+
+    async def test_original_streaming_prompt_end_consumes_provider_frames(self):
+        raw = model_raw()
+        raw["dsl"]["nodes"][-1] = node("node-end::e", inputs=[ref("answer", "spark-llm::model", "answer")],
+            outputMode=1, template="response={{answer}}", streamOutput=True)
+        refresh_test_canonical(raw)
+        result, center = await self.execute(raw, [spark_frame("甲", status=0), spark_frame("乙")])
+        self.assertEqual(result["content"], "response=甲乙")
+        deltas = [item["payload"]["text"] for item in center.events if item["eventType"] == "text.delta"]
+        self.assertTrue(deltas)
+        self.assertIn("甲", "".join(deltas))
+
+    async def test_original_provider_errors_or_malformed_frames_cannot_complete(self):
+        fixtures = [("xinghuo", spark_frame(code=10003)),
+            ("openai", openai_frame("truncated", status="length")),
+            ("xinghuo", {"header": {"code": 0, "status": 2}})]
+        for source, frame in fixtures:
+            center = ModelCenter(model_raw(source=source), [frame])
+            await asyncio.wait_for(create_task_runner(center).run(center.raw), 8)
+            self.assertEqual(center.results[-1]["state"], "FAILED")
+
+    async def test_acknowledged_provider_error_preserves_original_code_and_decision_default(self):
+        from workflow.exception.errors.code_convert import CodeConvert
+        from workflow.exception.errors.err_code import CodeEnum
+        for source, frame, expected in [("xinghuo", spark_frame(code=10003), CodeConvert.sparkCode(10003).code),
+                ("openai", openai_frame("truncated", status="length"), CodeEnum.OPEN_AI_REQUEST_ERROR.code)]:
+            raw = model_raw(source=source)
+            center = ModelCenter(raw, [frame])
+            center.failure_kind = "provider"
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+            self.assertEqual(center.results[-1]["state"], "FAILED")
+            failed = [item for item in center.events if item["eventType"] == "node.failed"]
+            self.assertEqual(failed[-1]["payload"]["legacyFrame"]["code"], expected)
+            self.assertEqual(center.cancel_calls, [])
+        for mode in ({"reasonMode": 1}, {}):
+            raw = self.decision_raw(**mode)
+            center = ModelCenter(raw, [spark_frame(code=10003)])
+            center.failure_kind = "provider"
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+            self.assertEqual(center.results[-1]["state"], "COMPLETED")
+            self.assertEqual(center.results[-1]["output"]["outputs"], {"chosen": "", "fallback": "fallback"})
+            self.assertEqual(center.cancel_calls, [])
+
+    async def test_provider_label_without_error_or_authorization_failure_cannot_default(self):
+        for kind, frame in [("provider", spark_frame("success-frame-in-failed-state")),
+                ("authorization", spark_frame(code=10003)), ("transport", spark_frame(code=10003))]:
+            raw = self.decision_raw(reasonMode=1)
+            center = ModelCenter(raw, [frame])
+            center.failure_kind = kind
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+            self.assertEqual(center.results[-1]["state"], "FAILED")
+            self.assertFalse(any(item["nodeId"].startswith("text-joiner::") for item in center.events))
+
+    async def test_function_call_has_no_openai_alias_and_no_fake_history(self):
+        raw = model_raw("extractor-parameter", source="openai")
+        center = ModelCenter(raw, [openai_frame("not-spark-fc")])
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "FAILED")
+        self.assertEqual(center.operations, [])
+        raw = model_raw(node_params={"enableChatHistoryV2": {"isEnabled": True}})
+        center = ModelCenter(raw, [spark_frame("empty-history-must-not-run")])
+        await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], "FAILED")
+        self.assertEqual(center.operations, [])
+
+    async def test_model_resource_revision_and_provider_must_match_snapshot(self):
+        for field, value in [("version", "other-version"), ("provider", "openai"), ("enabled", False)]:
+            class ChangedResourceCenter(ModelCenter):
+                async def resource(self, *args):
+                    response = await super().resource(*args)
+                    response[field] = value
+                    return response
+            raw = model_raw()
+            center = ChangedResourceCenter(raw, [spark_frame("must-not-use")])
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+            self.assertEqual(center.results[-1]["state"], "FAILED")
+            self.assertEqual(center.operations, [])
+
+    async def test_model_draft_matches_actual_parameters_and_original_schema_types(self):
+        from jsonschema import Draft202012Validator
+        document = json.loads((Path(__file__).resolve().parents[1] / "protocols/model-operations-draft.schema.json").read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(document)
+        raw = model_raw("extractor-parameter", schema_type="integer")
+        _, center = await self.execute(raw, [spark_frame(function_call={"name": "extractor_parameter", "arguments": '{"answer":12}'})])
+        from tests.schema_support import local_validator
+        validator = local_validator(Path(__file__).resolve().parents[1] / 'protocols/model-operations-draft.schema.json', 'ModelParameters')
+        validator.validate(center.operations[0][5])
+
+
+if __name__ == "__main__":
+    unittest.main()

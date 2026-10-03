@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.CheckpointMapper">
+  <sql id="columns">c.id,c.run_id AS runId,c.lease_id AS leaseId,c.attempt,c.node_id AS nodeId,c.iteration_id AS iterationId,
+    c.ordinal,c.need_reply AS needReply,c.state,c.request_key AS requestKey,c.request_hash AS requestHash,c.question_json AS questionJson,
+    c.resume_data_json AS resumeDataJson,c.reply_key AS replyKey,c.reply_hash AS replyHash,c.consume_key AS consumeKey,c.consume_hash AS consumeHash,
+    c.revision,c.deadline,c.create_time AS createTime,c.update_time AS updateTime</sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.CheckpointRecord">SELECT <include refid="columns"/> FROM paiflow_run_checkpoint c WHERE c.id=#{id}</select>
+  <select id="lock" resultType="com.ruoyi.paiflow.domain.CheckpointRecord">SELECT <include refid="columns"/> FROM paiflow_run_checkpoint c WHERE c.id=#{id} FOR UPDATE</select>
+  <select id="byRequest" resultType="com.ruoyi.paiflow.domain.CheckpointRecord">SELECT <include refid="columns"/> FROM paiflow_run_checkpoint c WHERE c.run_id=#{runId} AND c.attempt=#{attempt} AND c.request_key=#{key}</select>
+  <select id="byPosition" resultType="com.ruoyi.paiflow.domain.CheckpointRecord">SELECT <include refid="columns"/> FROM paiflow_run_checkpoint c WHERE c.run_id=#{runId} AND c.attempt=#{attempt} AND c.node_id=#{nodeId} AND c.iteration_key=COALESCE(#{iterationId},'') AND c.ordinal=#{ordinal}</select>
+  <insert id="insert">
+    INSERT INTO paiflow_run_checkpoint(id,run_id,lease_id,attempt,node_id,iteration_id,iteration_key,ordinal,need_reply,state,request_key,request_hash,question_json,revision,deadline,create_time,update_time)
+    VALUES(#{id},#{runId},#{leaseId},#{attempt},#{nodeId},#{iterationId},COALESCE(#{iterationId},''),#{ordinal},#{needReply},'WAITING',#{requestKey},#{requestHash},#{questionJson},0,#{deadline},UTC_TIMESTAMP(),UTC_TIMESTAMP())
+  </insert>
+  <update id="update">
+    UPDATE paiflow_run_checkpoint SET state=#{state},resume_data_json=#{resumeDataJson},reply_key=#{replyKey},reply_hash=#{replyHash},
+      consume_key=#{consumeKey},consume_hash=#{consumeHash},revision=revision+1,update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision}
+  </update>
+  <select id="ended" resultType="com.ruoyi.paiflow.domain.CheckpointRecord">
+    SELECT <include refid="columns"/> FROM paiflow_run_checkpoint c JOIN paiflow_run r ON r.id=c.run_id
+    WHERE c.state IN('WAITING','RESUMED') AND (c.deadline &lt;= #{now} OR r.deadline &lt;= #{now} OR r.lease_expires_at &lt;= #{now}
+      OR r.state IN('CANCEL_REQUESTED','COMPLETED','FAILED','CANCELLED','EFFECT_UNKNOWN')) ORDER BY c.create_time,c.id LIMIT #{limit}
+  </select>
+</mapper>

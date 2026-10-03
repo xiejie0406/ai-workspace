@@ -1,0 +1,62 @@
+import com.alibaba.fastjson2.*;
+import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.paiflow.domain.RunRecord;
+import com.ruoyi.paiflow.adapter.legacy.LegacyWorkflowStreamCodec;
+import java.nio.file.*;
+
+/** 实际Codec纯投影probe；原24帧只显式重绑raw.id，未启动或重跑引擎。 */
+public class IterationCodecIndependentProbe {
+    static final String ID="00000000-0000-0000-0000-000000000091";
+    static JSONArray original,rows=new JSONArray(),projectedFrames=new JSONArray();static JSONObject assignment;
+    static JSONObject copy(JSONObject value){return JSON.parseObject(value.toJSONString(JSONWriter.Feature.WriteMapNullValue));}
+    static RunRecord run(){var run=new RunRecord();run.setId(ID);run.setLeaseId("private-lease-fixture");run.setAttempt(1);
+        run.setLastEventSeq(100L);run.setState("RUNNING");run.setRunJsonCodec("paiflow.run-json.v2");
+        run.setAssignmentJson(assignment.toJSONString(JSONWriter.Feature.WriteMapNullValue));return run;}
+    static JSONObject event(int index){var item=original.getJSONObject(index),raw=copy(item.getJSONObject("raw"));raw.put("id",ID);
+        var node=raw.getJSONObject("workflow_step").getJSONObject("node");
+        var value=JSONObject.of("schemaVersion","paiflow.events.v1","runId",ID,"leaseId","private-lease-fixture","attempt",1,
+            "seq",index+1,"timestamp","2026-10-03T00:00:00Z","nodeId",node.getString("id"),
+            "eventType","stop".equals(node.get("finish_reason"))?"node.completed":"node.started","payload",JSONObject.of("legacyFrame",raw));
+        if(item.get("iterationId")!=null)value.put("iterationId",item.get("iterationId"));return value;}
+    static JSONObject nodeFrame(int index){return event(index).getJSONObject("payload").getJSONObject("legacyFrame");}
+    static void check(String name,boolean expected,Integer expectedCode,RunRecord run,JSONObject event){
+        boolean accepted=false;Integer code=null;String errorType=null;JSONObject frame=null;
+        try{frame=LegacyWorkflowStreamCodec.project(run,event,null);accepted=true;}catch(ServiceException error){code=error.getCode();errorType="ServiceException";}
+        catch(Throwable error){errorType=error.getClass().getSimpleName();}
+        var row=JSONObject.of("name",name,"expectedAccepted",expected,"accepted",accepted,"expectedCode",expectedCode,"code",code,
+            "errorType",errorType,"returnedNull",accepted&&frame==null,"matches",accepted==expected&&(expected||java.util.Objects.equals(expectedCode,code)));
+        rows.add(row);
+    }
+    public static void main(String[] args)throws Exception{
+        var payload=JSON.parseObject(Files.readString(Path.of(args[0])));assignment=payload.getJSONObject("assignment");original=payload.getJSONArray("originalFrames");
+        for(int i=0;i<original.size();i++){
+            var ev=event(i),before=copy(ev),result=LegacyWorkflowStreamCodec.project(run(),ev,null),expected=nodeFrame(i);
+            expected.getJSONArray("choices").getJSONObject(0).put("finish_reason",null);
+            if(!result.equals(expected)||!ev.equals(before))throw new AssertionError("raw preservation or caller mutation: "+i);
+            rows.add(JSONObject.of("name","original-frame-"+(i+1),"matches",true));
+            projectedFrames.add(JSONObject.of("iterationId",original.getJSONObject(i).get("iterationId"),"raw",result));
+        }
+        int inner=0;while(original.getJSONObject(inner).get("iterationId")==null)inner++;
+        var ev=event(inner);var value=ev.getJSONObject("payload").getJSONObject("legacyFrame").getJSONObject("workflow_step").getJSONObject("node");
+        var falsy=JSONObject.of("opaqueNull",null,"opaqueFalse",false,"opaqueZero",0,"opaqueEmpty","");value.put("inputs",copy(falsy));value.put("outputs",copy(falsy));
+        var res=LegacyWorkflowStreamCodec.project(run(),ev,null).getJSONObject("workflow_step").getJSONObject("node");
+        rows.add(JSONObject.of("name","null-false-zero-empty-preserved","matches",res.getJSONObject("inputs").equals(falsy)&&res.getJSONObject("outputs").equals(falsy)));
+        for(String tag:new String[]{null,"iteration::other:0","iteration::i:03","iteration::i:-1","iteration::i:1.0","iteration::i:0/0","iteration::i:999999999999999999999"}){
+            ev=event(inner);if(tag==null)ev.remove("iterationId");else ev.put("iterationId",tag);check("bad-inner-tag-"+tag,false,409,run(),ev);}
+        ev=event(0);ev.put("iterationId","iteration::i:0");check("main-tagged-as-child",false,409,run(),ev);
+        ev=event(inner);ev.getJSONObject("payload").getJSONObject("legacyFrame").put("id","other-run");check("raw-run-mismatch",false,409,run(),ev);
+        ev=event(inner);ev.getJSONObject("payload").getJSONObject("legacyFrame").getJSONObject("workflow_step").getJSONObject("node").put("id","node-end::e");check("raw-node-mismatch",false,409,run(),ev);
+        ev=event(inner);ev.getJSONObject("payload").put("legacyFrame",nodeFrame(inner).toJSONString(JSONWriter.Feature.WriteMapNullValue));check("raw-frame-string-not-object",false,409,run(),ev);
+        var r=run(),fixed=copy(assignment);fixed.put("input",JSONObject.of("items",new JSONArray()));r.setAssignmentJson(fixed.toJSONString(JSONWriter.Feature.WriteMapNullValue));check("fixed-empty-batch-inner",false,409,r,event(inner));
+        for(Object scalar:new Object[]{null,false,0}){r=run();fixed=copy(assignment);fixed.put("input",JSONObject.of("items",scalar));r.setAssignmentJson(fixed.toJSONString(JSONWriter.Feature.WriteMapNullValue));check("fixed-nonarray-"+scalar,false,409,r,event(inner));}
+        r=run();fixed=copy(assignment);fixed.put("resourceSnapshots",JSONObject.of("unready",JSONObject.of("version","1")));r.setAssignmentJson(fixed.toJSONString(JSONWriter.Feature.WriteMapNullValue));check("resources-unready",false,503,r,event(inner));
+        r=run();fixed=copy(assignment);fixed.getJSONObject("dsl").getJSONArray("nodes").getJSONObject(3).put("id","question-answer::nested");r.setAssignmentJson(fixed.toJSONString(JSONWriter.Feature.WriteMapNullValue));check("nested-QA-unready",false,503,r,event(inner));
+        ev=event(inner);ev.put("eventType","usage");ev.getJSONObject("payload").remove("legacyFrame");check("valid-auxiliary-filtered",true,null,run(),ev);
+        ev=event(inner);ev.put("eventType","usage");ev.put("iterationId","wrong-owner:0");ev.getJSONObject("payload").remove("legacyFrame");check("invalid-scope-auxiliary",false,409,run(),ev);
+        r=run();r.setState("COMPLETED");r.setLastEventSeq(25L);r.setResultJson("{\"state\":\"COMPLETED\",\"output\":{}}");
+        ev=JSONObject.of("schemaVersion","paiflow.events.v1","runId",ID,"leaseId","private-lease-fixture","attempt",1,"seq",25,"timestamp","2026-10-03T00:00:00Z","eventType","run.completed","payload",JSONObject.of("state","COMPLETED"));
+        check("actual-terminal-projection",true,null,r,ev);ev.put("nodeId","text-joiner::j");ev.put("iterationId","wrong-owner:0");check("terminal-must-not-carry-node-scope",false,409,r,ev);
+        System.out.println(JSONObject.of("rows",rows,"projectedFrames",projectedFrames,"privateRunId",ID).toJSONString(JSONWriter.Feature.WriteMapNullValue));
+        if(rows.stream().anyMatch(row->!((JSONObject)row).getBooleanValue("matches")))System.exit(1);
+    }
+}

@@ -1,0 +1,59 @@
+{
+  "scope": "实际已安装fetch-event-source源码＋内存fetch/timer/解析回调，不执行页面、中心、Provider、HTTP或业务运行",
+  "source": {
+    "path": "frontend/paiflow-web/node_modules/@microsoft/fetch-event-source/lib/esm/fetch.js",
+    "sha256Before": "281018bed797cc242747cbdfa2ad1e2ad4a33a183f3b94c54d87e6c596f1b570",
+    "sha256After": "281018bed797cc242747cbdfa2ad1e2ad4a33a183f3b94c54d87e6c596f1b570",
+    "changed": false
+  },
+  "cases": [
+    {
+      "name": "original-ui-abort-inside-onerror-still-schedules-retry",
+      "afterFirstError": {
+        "fetchCount": 1,
+        "inputSignalAborted": true,
+        "queuedTimers": 1
+      },
+      "afterTimer": {
+        "fetchCount": 2,
+        "inputSignalAborted": true,
+        "queuedTimers": 2
+      },
+      "assertionPassed": true
+    },
+    {
+      "name": "library-reconnect-post-keeps-body-and-last-event-id",
+      "requests": [
+        {
+          "method": "POST",
+          "body": "{\"flow_id\":\"fixture\",\"inputs\":{\"question\":\"memory\"},\"chatId\":\"client-alias\",\"regen\":false}",
+          "headers": {
+            "accept": "text/event-stream"
+          }
+        },
+        {
+          "method": "POST",
+          "body": "{\"flow_id\":\"fixture\",\"inputs\":{\"question\":\"memory\"},\"chatId\":\"client-alias\",\"regen\":false}",
+          "headers": {
+            "accept": "text/event-stream",
+            "last-event-id": "7"
+          }
+        }
+      ],
+      "assertionPassed": true
+    },
+    {
+      "name": "bare-sse-eof-resolves-with-no-terminal-message",
+      "fetchCount": 1,
+      "onMessageCount": 0,
+      "queuedTimers": 0,
+      "promiseResolved": true,
+      "assertionPassed": true
+    }
+  ],
+  "passed": 3,
+  "total": 3,
+  "realHttpRequests": 0,
+  "centreCalls": 0,
+  "workflowRuns": 0
+}

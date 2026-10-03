@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-03",
+  "evidenceType": "执行摘要",
+  "note": "基于本会话真实执行结果保全；不是完整原始日志，未为留日志重复构建。",
+  "commands": [
+    {
+      "command": "node --test tests/workflow-revision.test.cjs tests/platform-auth.test.cjs tests/runtime-websocket.test.cjs",
+      "workdir": "frontend/paiflow-web",
+      "exitCode": 0,
+      "tests": 31,
+      "passed": 31,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run build",
+      "workdir": "frontend/paiflow-web",
+      "exitCode": 0,
+      "bundler": "Vite 5.4.19",
+      "modulesTransformed": 8138,
+      "duration": "6m34s",
+      "warnings": [
+        "原字体/资源路径未在构建时解析",
+        "Browserslist 数据陈旧",
+        "Sass legacy JS API",
+        "lottie-web eval",
+        "原主bundle超过chunk提示阈值，9012.93 kB"
+      ]
+    },
+    {
+      "command": "node tests/compare-reference-types.cjs",
+      "workdir": "frontend/paiflow-web",
+      "exitCode": 0,
+      "referenceDiagnostics": 3712,
+      "currentDiagnostics": 3710,
+      "newDiagnostics": 0,
+      "limitation": "原类型错误仍存在，增量比较不代表全工程类型检查通过"
+    }
+  ],
+  "sourceHashes": {
+    "src/utils/http.ts": "718391a2c26bac101b7cf85fc88ecc39b66ba60271000b0bf33c6c5ee8799ca5",
+    "src/utils/workflow-revision.ts": "ebdeb6d081555eb7ad65b3f203f974536bd7b9160a5eea4457de5b60ae2c771a",
+    "tests/workflow-revision.test.cjs": "085b3e104c29efa4cee342e7090fa258601ae1e5683d1f733cad79ddfa0a4b8d",
+    "tests/platform-auth.test.cjs": "2f17c29e7a27a1aa52a8ed94147acee472feedc0bcec337d3a8f7693e5668d0c"
+  },
+  "originalFileComparison": {
+    "unchanged": 1694,
+    "changed": 9,
+    "missing": [],
+    "referenceChanged": []
+  },
+  "businessValidation": "未执行页面或真实后端业务验收"
+}

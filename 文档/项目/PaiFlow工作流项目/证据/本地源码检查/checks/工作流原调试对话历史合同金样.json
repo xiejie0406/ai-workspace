@@ -1,0 +1,1091 @@
+{
+  "schemaVersion": "paiflow.original-dialogue-contract-golden.v1",
+  "startedAt": "2026-10-03T10:16:29.859052+00:00",
+  "endedAt": "2026-10-03T10:16:39.622322+00:00",
+  "scope": "原调试显示历史3接口来源和golden材料；不是正式App会话/runtime history/变量真相，不是实施或长期状态文件",
+  "sourceHashesBefore": {
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/WorkflowDialog.java": "19d5fcb1521e45b9fb475082b31abb60551b91d3f366d1d4ca975e3d938443b4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/mapper/workflow/WorkflowDialogMapper.java": "fd0af4c3fffd4b59c9c4a5264b305b6eb9f8077bbe137d1901e1770ee3de6e2d",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/DataPermissionCheckTool.java": "2a1e8be54f72e8428c5583895f020f1c2acc9e5f8381080dec6e4a4ceb148403",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/config/aop/ResponseResultBodyAdvice.java": "0eb27c62037a9af6cbcf405a599c61acbdd20ca84d2229b822b08bbfa4e115e9",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/common/anno/ResponseResultBody.java": "ee6eafeb6021dda7b6680824f5d3d4196fc8f5699681d78bce5d90a77c1f129b",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/response/ApiResult.java": "7618c1d6fe767b555e67936df05ee5de283b295efde9cabd8ab7a5a20c044008",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/config/JacksonConfig.java": "8d2b88e5dd8f6254e8dcb8f79ff31970655456666db037ad036b599f13ae721a",
+    "参考项目/PaiFlow-main/console/backend/pom.xml": "d169a9a674a8c49bc38e2a7ab2acc90dfd1552e19782a49ddad740bdbe1bfa4b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/pom.xml": "b6bca3f8440d2c47178ba94d062f87d7e6025d19532036b35b1e27f5805cf929",
+    "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc",
+    "参考项目/PaiFlow-main/console/frontend/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5",
+    "参考项目/PaiFlow-main/console/frontend/src/utils/http.ts": "ff154ed4dfdecb24d9893f892d275ba5f0ebf1be3e4bd96181ecbbd72545690a",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx": "e515a1c30c213327f92638fc30bced097e6e0ad98f6b41d98b94043361c8f43d",
+    "frontend/paiflow-web/src/services/flow.ts": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba",
+    "frontend/paiflow-web/src/components/workflow/drawer/chat-debugger/index.tsx": "e515a1c30c213327f92638fc30bced097e6e0ad98f6b41d98b94043361c8f43d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/domain/RunRecord.java": "ddae3a05cf3bde3677f9790376c662a4cb344ba2ef00438ffd2203f208ce51e7",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/RunMapper.java": "ff0c1f5a2b854555e95c871b75a3ce57e9ebe446e5db719f5abeb9540682884d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java": "7e5d655b263c12d3c3d964e20ed9243514a2da53c223b80f4d53ff7fb12e97f9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "5a67dad6f7669f3edf4ea87a27d90adce42ff1c2a9a1e6d9cead3458f2daa469",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java": "5d7c4e653c8fcd9158b724651d7ab342ef401f0de38a67e384e6ebe959731124",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/RunMapper.xml": "626d60a1bbd6e5252a7a8abd303cb845b3f71481d5a36894479377d51734fbd8",
+    "参考项目/PaiFlow-main/core/workflow/api/v1/chat/debug.py": "194f577ce766c6c1ba3de863be4c121f2f894d4538b83152d21017d51bc7006f",
+    "参考项目/PaiFlow-main/core/workflow/service/chat_service.py": "132b267e592b7a2e17b2a04de401f1c288c0aab4e67c7c761fab3a72c6e1451f",
+    "参考项目/PaiFlow-main/core/workflow/extensions/otlp/trace/span.py": "c3d3865e999dfd21bd04e78d3111cd3b09ff0cbeec5a2d07244b94022813dc96",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java": "227d193d68972a2fe57c7eb037784097fd54c69b220fa78464413eb891467588"
+  },
+  "sourceHashesAfter": {
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/WorkflowDialog.java": "19d5fcb1521e45b9fb475082b31abb60551b91d3f366d1d4ca975e3d938443b4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/mapper/workflow/WorkflowDialogMapper.java": "fd0af4c3fffd4b59c9c4a5264b305b6eb9f8077bbe137d1901e1770ee3de6e2d",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/DataPermissionCheckTool.java": "2a1e8be54f72e8428c5583895f020f1c2acc9e5f8381080dec6e4a4ceb148403",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/config/aop/ResponseResultBodyAdvice.java": "0eb27c62037a9af6cbcf405a599c61acbdd20ca84d2229b822b08bbfa4e115e9",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/common/anno/ResponseResultBody.java": "ee6eafeb6021dda7b6680824f5d3d4196fc8f5699681d78bce5d90a77c1f129b",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/response/ApiResult.java": "7618c1d6fe767b555e67936df05ee5de283b295efde9cabd8ab7a5a20c044008",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/config/JacksonConfig.java": "8d2b88e5dd8f6254e8dcb8f79ff31970655456666db037ad036b599f13ae721a",
+    "参考项目/PaiFlow-main/console/backend/pom.xml": "d169a9a674a8c49bc38e2a7ab2acc90dfd1552e19782a49ddad740bdbe1bfa4b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/pom.xml": "b6bca3f8440d2c47178ba94d062f87d7e6025d19532036b35b1e27f5805cf929",
+    "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc",
+    "参考项目/PaiFlow-main/console/frontend/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5",
+    "参考项目/PaiFlow-main/console/frontend/src/utils/http.ts": "ff154ed4dfdecb24d9893f892d275ba5f0ebf1be3e4bd96181ecbbd72545690a",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx": "e515a1c30c213327f92638fc30bced097e6e0ad98f6b41d98b94043361c8f43d",
+    "frontend/paiflow-web/src/services/flow.ts": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba",
+    "frontend/paiflow-web/src/components/workflow/drawer/chat-debugger/index.tsx": "e515a1c30c213327f92638fc30bced097e6e0ad98f6b41d98b94043361c8f43d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/domain/RunRecord.java": "ddae3a05cf3bde3677f9790376c662a4cb344ba2ef00438ffd2203f208ce51e7",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/RunMapper.java": "ff0c1f5a2b854555e95c871b75a3ce57e9ebe446e5db719f5abeb9540682884d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java": "7e5d655b263c12d3c3d964e20ed9243514a2da53c223b80f4d53ff7fb12e97f9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "5a67dad6f7669f3edf4ea87a27d90adce42ff1c2a9a1e6d9cead3458f2daa469",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java": "5d7c4e653c8fcd9158b724651d7ab342ef401f0de38a67e384e6ebe959731124",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/RunMapper.xml": "626d60a1bbd6e5252a7a8abd303cb845b3f71481d5a36894479377d51734fbd8",
+    "参考项目/PaiFlow-main/core/workflow/api/v1/chat/debug.py": "194f577ce766c6c1ba3de863be4c121f2f894d4538b83152d21017d51bc7006f",
+    "参考项目/PaiFlow-main/core/workflow/service/chat_service.py": "132b267e592b7a2e17b2a04de401f1c288c0aab4e67c7c761fab3a72c6e1451f",
+    "参考项目/PaiFlow-main/core/workflow/extensions/otlp/trace/span.py": "c3d3865e999dfd21bd04e78d3111cd3b09ff0cbeec5a2d07244b94022813dc96",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java": "227d193d68972a2fe57c7eb037784097fd54c69b220fa78464413eb891467588"
+  },
+  "sourceWindowChanges": [],
+  "sourceCount": 30,
+  "methods": [
+    {
+      "method": "POST",
+      "path": "/workflow/dialog",
+      "body": "WorkflowDialog",
+      "actualOriginalFrontendFields": [
+        "chatId",
+        "type",
+        "workflowId",
+        "sid",
+        "questionItem",
+        "answerItem",
+        "question",
+        "answer"
+      ],
+      "returns": {
+        "code": 0,
+        "message": "成功文案由原国际化决定",
+        "data": "原入参chatId（String，可null）",
+        "timestamp": "Long"
+      },
+      "bodyPolicySource": "仅@NotNull body；字段nullable；uid/createTime server覆盖",
+      "originalServiceExecuted": false
+    },
+    {
+      "method": "GET",
+      "path": "/workflow/dialog/list",
+      "query": {
+        "workflowId": "必填Long内部ID",
+        "type": "可选Integer；原消费者固定1"
+      },
+      "returns": {
+        "code": 0,
+        "data": "WorkflowDialog[0..10]，每条13原字段",
+        "timestamp": "Long"
+      },
+      "ordering": "createTime DESC，无稳定ID tie-break",
+      "pagination": "没有分页或总数；固定limit10",
+      "filter": "本人uid、workflowId、type、deleted=false",
+      "originalServiceExecuted": false
+    },
+    {
+      "method": "GET",
+      "path": "/workflow/dialog/clear",
+      "query": {
+        "workflowId": "必填Long内部ID",
+        "type": "可选Integer；原消费者固定1"
+      },
+      "returns": {
+        "code": 0,
+        "data": "Integer受影响行数，0合法技术返回",
+        "timestamp": "Long"
+      },
+      "sourceBug": "原更新缺本人uid及visible校验；本地迁移必须本人和实际域/权限限制，不复制跨用户clear",
+      "originalServiceExecuted": false
+    }
+  ],
+  "dtoFields": {
+    "Long": [
+      "id",
+      "workflowId"
+    ],
+    "String": [
+      "uid",
+      "question",
+      "answer",
+      "data",
+      "sid",
+      "questionItem",
+      "answerItem",
+      "chatId"
+    ],
+    "Date": [
+      "createTime"
+    ],
+    "Boolean": [
+      "deleted"
+    ],
+    "Integer": [
+      "type"
+    ],
+    "allNullableInDTO": true,
+    "fieldValidationAnnotations": [],
+    "databaseNullableDifferent": [
+      "type NOT NULL DEFAULT1"
+    ]
+  },
+  "actualPureDto": {
+    "declaredFields": [
+      "answer",
+      "answerItem",
+      "chatId",
+      "createTime",
+      "data",
+      "deleted",
+      "id",
+      "question",
+      "questionItem",
+      "sid",
+      "type",
+      "uid",
+      "workflowId"
+    ],
+    "cases": [
+      {
+        "id": "empty-object-all-null",
+        "serialized": {
+          "id": null,
+          "uid": null,
+          "workflowId": null,
+          "question": null,
+          "answer": null,
+          "data": null,
+          "createTime": null,
+          "deleted": null,
+          "sid": null,
+          "type": null,
+          "questionItem": null,
+          "answerItem": null,
+          "chatId": null
+        }
+      },
+      {
+        "id": "numeric-workflow-id-empty-sid-unknown-ignored",
+        "serialized": {
+          "id": null,
+          "uid": null,
+          "workflowId": 123,
+          "question": "[]",
+          "answer": "{}",
+          "data": null,
+          "createTime": null,
+          "deleted": null,
+          "sid": "",
+          "type": 1,
+          "questionItem": null,
+          "answerItem": null,
+          "chatId": "group"
+        }
+      },
+      {
+        "id": "decimal-string-workflow-id",
+        "serialized": {
+          "id": null,
+          "uid": null,
+          "workflowId": 123,
+          "question": null,
+          "answer": null,
+          "data": null,
+          "createTime": null,
+          "deleted": null,
+          "sid": null,
+          "type": null,
+          "questionItem": null,
+          "answerItem": null,
+          "chatId": null
+        }
+      },
+      {
+        "id": "uuid-cannot-be-workflow-id",
+        "rejected": true,
+        "exception": "InvalidFormatException"
+      },
+      {
+        "id": "explicit-null-no-default",
+        "serialized": {
+          "id": null,
+          "uid": null,
+          "workflowId": null,
+          "question": null,
+          "answer": null,
+          "data": null,
+          "createTime": null,
+          "deleted": null,
+          "sid": null,
+          "type": null,
+          "questionItem": null,
+          "answerItem": null,
+          "chatId": null
+        }
+      },
+      {
+        "id": "untrusted-fields-and-inner-json-unvalidated-by-dto",
+        "serialized": {
+          "id": 999,
+          "uid": "client-owner",
+          "workflowId": null,
+          "question": "not-json",
+          "answer": "not-json",
+          "data": "opaque",
+          "createTime": null,
+          "deleted": true,
+          "sid": null,
+          "type": null,
+          "questionItem": null,
+          "answerItem": "\"a\\nb\"",
+          "chatId": null
+        }
+      }
+    ],
+    "caseCount": 6,
+    "serviceExecuted": false,
+    "mapperExecuted": false,
+    "httpExecuted": false,
+    "databaseAccessed": false
+  },
+  "actualOriginalAndCurrentAst": {
+    "caseCount": 11,
+    "sourceHashesBefore": {
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+      "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba"
+    },
+    "sourceHashesAfter": {
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+      "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba"
+    },
+    "sourceWindowChanges": [],
+    "originalResults": [
+      {
+        "id": "save-eight-fields-and-immediate-reset",
+        "request": {
+          "chatId": "group_new",
+          "type": 1,
+          "workflowId": "123",
+          "sid": "550e8400-e29b-41d4-a716-446655440000",
+          "questionItem": "[{\"name\":\"AGENT_USER_INPUT\",\"content\":\"保留\"},{\"name\":\"files\",\"content\":[\"file-a\",\"file-b\"]}]",
+          "answerItem": "\"a\\\\nb\"",
+          "question": "[{\"name\":\"AGENT_USER_INPUT\",\"content\":\"保留\"},{\"name\":\"files\",\"content\":[\"file-a\",\"file-b\"]}]",
+          "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"思考\",\"content\":\"回复\",\"option\":null}"
+        },
+        "resetBeforeSaveAck": true,
+        "responseChatIdIgnored": true
+      },
+      {
+        "id": "save-null-and-undefined-JSON-stringification",
+        "request": {
+          "chatId": "group_new",
+          "type": 1,
+          "workflowId": "123",
+          "questionItem": "null",
+          "question": "null",
+          "answer": "null"
+        }
+      },
+      {
+        "id": "descending-list-reversed-and-chat-group-divider",
+        "query": {
+          "api": "list",
+          "id": "123",
+          "type": 1
+        },
+        "response": [
+          {
+            "id": 3,
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"QA第二段\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"QA第二段\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:03.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": 1,
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-new"
+          },
+          {
+            "id": 2,
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"QA第一段\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"QA第一段\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:02.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": 1,
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-new"
+          },
+          {
+            "id": 1,
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"旧组\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"旧组\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:01.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": 1,
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-old"
+          }
+        ],
+        "display": [
+          {
+            "id": "generated_4",
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"旧组\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"旧组\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:01.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "ask",
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-old",
+            "inputs": [
+              {
+                "name": "text",
+                "content": "旧组"
+              }
+            ]
+          },
+          {
+            "id": 1,
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"旧组\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"旧组\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:01.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "answer",
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-old",
+            "messageContent": "",
+            "reasoningContent": "推理",
+            "content": "旧组",
+            "option": null
+          },
+          {
+            "id": "generated_3",
+            "type": "divider"
+          },
+          {
+            "id": "generated_2",
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"QA第一段\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"QA第一段\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:02.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "ask",
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-new",
+            "inputs": [
+              {
+                "name": "text",
+                "content": "QA第一段"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"QA第一段\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"QA第一段\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:02.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "answer",
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-new",
+            "messageContent": "",
+            "reasoningContent": "推理",
+            "content": "QA第一段",
+            "option": null
+          },
+          {
+            "id": "generated_1",
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"QA第二段\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"QA第二段\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:03.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "ask",
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-new",
+            "inputs": [
+              {
+                "name": "text",
+                "content": "QA第二段"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "[{\"name\":\"text\",\"content\":\"QA第二段\"}]",
+            "answer": "{\"messageContent\":\"\",\"reasoningContent\":\"推理\",\"content\":\"QA第二段\",\"option\":null}",
+            "data": null,
+            "createTime": "2026-10-03T00:00:03.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "answer",
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "group-new",
+            "messageContent": "",
+            "reasoningContent": "推理",
+            "content": "QA第二段",
+            "option": null
+          },
+          {
+            "id": "generated_5",
+            "type": "divider"
+          }
+        ],
+        "sameSidMultipleSegments": 3
+      },
+      {
+        "id": "empty-list-no-divider",
+        "display": []
+      },
+      {
+        "id": "inner-json-null",
+        "display": [
+          {
+            "id": "generated_1",
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "null",
+            "answer": "null",
+            "data": null,
+            "createTime": "2026-10-03T00:00:01.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "ask",
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "g",
+            "inputs": null
+          },
+          {
+            "id": 1,
+            "uid": "fixture-owner",
+            "workflowId": 123,
+            "question": "null",
+            "answer": "null",
+            "data": null,
+            "createTime": "2026-10-03T00:00:01.000Z",
+            "deleted": false,
+            "sid": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "answer",
+            "questionItem": "[]",
+            "answerItem": "text",
+            "chatId": "g",
+            "messageContent": "",
+            "reasoningContent": "",
+            "content": ""
+          }
+        ]
+      },
+      {
+        "id": "malformed-answer",
+        "rejectedByConsumer": true,
+        "exception": "SyntaxError"
+      },
+      {
+        "id": "missing-question",
+        "rejectedByConsumer": true,
+        "exception": "SyntaxError"
+      },
+      {
+        "id": "clear-count-0-ignored",
+        "responseData": 0,
+        "calls": [
+          {
+            "api": "clear",
+            "id": "123",
+            "type": 1
+          },
+          {
+            "setter": "deleteAllModal",
+            "value": false
+          },
+          {
+            "setter": "chatList"
+          },
+          {
+            "setter": "interruptChat"
+          },
+          {
+            "setter": "canvasesDisabled",
+            "value": false
+          }
+        ],
+        "newChatGroup": "generated_1"
+      },
+      {
+        "id": "clear-count-2-ignored",
+        "responseData": 2,
+        "calls": [
+          {
+            "api": "clear",
+            "id": "123",
+            "type": 1
+          },
+          {
+            "setter": "deleteAllModal",
+            "value": false
+          },
+          {
+            "setter": "chatList"
+          },
+          {
+            "setter": "interruptChat"
+          },
+          {
+            "setter": "canvasesDisabled",
+            "value": false
+          }
+        ],
+        "newChatGroup": "generated_1"
+      },
+      {
+        "id": "history-clear-does-not-unlock-canvas",
+        "calls": [
+          {
+            "api": "clear",
+            "id": "123",
+            "type": 1
+          },
+          {
+            "setter": "deleteAllModal",
+            "value": false
+          },
+          {
+            "setter": "chatList"
+          },
+          {
+            "setter": "interruptChat"
+          }
+        ]
+      },
+      {
+        "id": "qa-intermediate-end-is-not-run-terminal",
+        "interrupt": {
+          "interrupt": true,
+          "eventId": "checkpoint-fixture",
+          "nodeId": "question-answer::q",
+          "option": [
+            {
+              "id": "a",
+              "content": "甲"
+            }
+          ],
+          "type": "option",
+          "needReply": true
+        },
+        "consumerQueueDrainedEnd": true,
+        "centreTerminalObserved": false,
+        "drawerSaveEffect": "源 drawer:231 使用 !debuggering && buildPassRef，没有run-terminal条件；drawer timer:269-270在isChatEnd后setDebuggering(false)，本probe不执行React effect。"
+      }
+    ],
+    "currentEqualsOriginal": true,
+    "limitations": [
+      "仅原/当前AST函数+memory API/store spies，不执行React/DOM/浏览器、HTTP或Mapper",
+      "固定输入是有区分力的手造golden，不冒充原库数据或真实Run",
+      "QA队列isChatEnd实际执行；React两个effect连接只由原源码推导，未运行React生命周期"
+    ],
+    "businessVerified": false
+  },
+  "actualCommands": {
+    "node": {
+      "exitCode": 0,
+      "log": {
+        "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/工作流原对话消费者AST-实际执行.log",
+        "sha256": "6fad8eb61ce0e27fc2cf2f3e89a558ba6ffa0256b550acbfd994c0e06f042c4d"
+      }
+    },
+    "javac": {
+      "exitCode": 0,
+      "privateTemp": true,
+      "log": {
+        "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/工作流原对话DTO-私有编译.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "java": {
+      "exitCode": 0,
+      "log": {
+        "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/工作流原对话DTO-实际纯执行.log",
+        "sha256": "dba4db4d41c92e859cb96d175a81b5976ef8721c90df41f7b4f4d0aa3b137482"
+      }
+    }
+  },
+  "cacheInputs": [
+    {
+      "name": "jackson-databind-2.17.2.jar",
+      "sha256": "c04993f33c0f845342653784f14f38373d005280e6359db5f808701cfae73c0c"
+    },
+    {
+      "name": "jackson-core-2.17.2.jar",
+      "sha256": "721a189241dab0525d9e858e5cb604d3ecc0ede081e2de77d6f34fa5779a5b46"
+    },
+    {
+      "name": "jackson-annotations-2.17.2.jar",
+      "sha256": "873a606e23507969f9bbbea939d5e19274a88775ea5a169ba7e2d795aa5156e1"
+    },
+    {
+      "name": "jackson-datatype-jsr310-2.17.2.jar",
+      "sha256": "9b80024a9822e70b07f6bb13824c76c137c1064a1b5eb518374ab141870fdbcc"
+    },
+    {
+      "name": "lombok-1.18.32.jar",
+      "sha256": "97574674e2a25f567a313736ace00df8787d443de316407d57fc877d9f19a65d"
+    },
+    {
+      "name": "mybatis-plus-annotation-3.5.5.jar",
+      "sha256": "df553c917ee75174cc57591342d967158494ddca6c2c4f78a3a69f2eca205e2a"
+    },
+    {
+      "name": "spring-context-6.1.14.jar",
+      "sha256": "da76b53f6a20f09b38052a300435f3245780d30deb46ec5dd75314cda06fd365"
+    },
+    {
+      "name": "spring-beans-6.1.14.jar",
+      "sha256": "6cad84b2a35a33a85a313a19445a43e5432b68e4f0bbf6c2bfc4a885a93dd727"
+    },
+    {
+      "name": "spring-core-6.1.14.jar",
+      "sha256": "e15a1179fc9642ffed13ca55e2863e2da524ccd1083b7c6f1b5cfd5733f3b2c5"
+    },
+    {
+      "name": "spring-jcl-6.1.14.jar",
+      "sha256": "9975c462bacee7a0c1aa79e55aa4faed02bd28dc78d1252404da87f5f7fb4cb1"
+    }
+  ],
+  "ormReturnTypeCorroboration": {
+    "originalDeclaredVersion": "3.5.7",
+    "actualCachedInspectionVersion": "3.5.5",
+    "methodSignatures": [
+      "public abstract int update(T, com.baomidou.mybatisplus.core.conditions.Wrapper<T>);",
+      "public default int update(com.baomidou.mybatisplus.core.conditions.Wrapper<T>);"
+    ],
+    "jarSha256": "4d047e499186ae9c31a065a66199961877e12f0d3ad09552ce6d2189ef265a4f",
+    "log": {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/工作流原对话clear返回类型-缓存API旁证.log",
+      "sha256": "c41d6a0996c2996ddf320855d288ddd4f0bfd598e65ff57d93fb98246ad57c12"
+    },
+    "actualOriginal3_5_7RuntimeExecuted": false,
+    "scope": "缓存API只辅助确认BaseMapper受影响行数签名，不执行SQL，不冒充原完整运行环境"
+  },
+  "sourceFacts": [
+    {
+      "id": "controller-body",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java",
+      "lines": [
+        207
+      ],
+      "symbolOrAnchor": "saveDialog(@RequestBody",
+      "fact": "POST /workflow/dialog 接收原WorkflowDialog实体，body本身@NotNull，无字段级必填注解。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "controller-list",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java",
+      "lines": [
+        212
+      ],
+      "symbolOrAnchor": "listDialog(@RequestParam",
+      "fact": "GET /workflow/dialog/list 的workflowId是@NotNull Long；type是可选Integer。无pageNum/pageSize/offset。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "controller-clear",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java",
+      "lines": [
+        217
+      ],
+      "symbolOrAnchor": "clearDialog(@RequestParam",
+      "fact": "GET /workflow/dialog/clear 参数同list；原请求改变数据但必须保留既有原请求兼容。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "save-source",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "lines": [
+        1700
+      ],
+      "symbolOrAnchor": "public ApiResult<String> saveDialog",
+      "fact": "按内部workflowId查Workflow、检查visible，仅覆盖uid/createTime后insert；返回chatId String。没有Run/终态/段序号/幂等校验。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "answeritem-outer-quote",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "lines": [
+        1706
+      ],
+      "symbolOrAnchor": "answerItem.substring",
+      "fact": "只删除answerItem最外一对双引号，保反斜杠转义字面内容，不等同JSON.parse/反转义。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "list-source",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "lines": [
+        1714
+      ],
+      "symbolOrAnchor": "public List<WorkflowDialog> listDialog",
+      "fact": "where uid=当前用户 AND workflowId AND type AND deleted=false；createTime DESC、limit10。无ID次排序、无工作流权限再次检查。nullable type不代表查询所有type。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "clear-source-bug",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "lines": [
+        2985
+      ],
+      "symbolOrAnchor": "public Object clearDialog",
+      "fact": "调用BaseMapper.update(Wrapper)并返回受影响行数；条件只有workflowId/type，漏uid与工作流权限，会影响别人的历史。迁移应收紧为本人clear，不能照搬。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "old-visible",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/DataPermissionCheckTool.java",
+      "lines": [
+        331,
+        344,
+        362,
+        404
+      ],
+      "symbolOrAnchor": "checkWorkflowVisible",
+      "fact": "原visible个人分支含public/owner/原admin fallback，团队分支仅原space匹配。不能把原UID/public标志当现平台权限或Runowner证明。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "response-wrapper",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/config/aop/ResponseResultBodyAdvice.java",
+      "lines": [
+        46
+      ],
+      "symbolOrAnchor": "return ApiResult.success(body)",
+      "fact": "原已是ApiResult保持原样；其余List/Integer统一包装ApiResult，nullbody包装success。不是直接裸数组。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "frontend-unwrapping",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/utils/http.ts",
+      "lines": [
+        420
+      ],
+      "symbolOrAnchor": "return result.data",
+      "fact": "code===0后返回data；原消费者收到chatId字符串、列表数组、clear受影响计数。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "dto-workflow-id",
+      "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/WorkflowDialog.java",
+      "lines": [
+        14
+      ],
+      "symbolOrAnchor": "Long workflowId;",
+      "fact": "实体字段是Long内部工作流ID，不是UUID flowId；13字段均wrapper/reference可null，无字段validation/default。",
+      "basis": "actual_dto_jackson_checked"
+    },
+    {
+      "id": "schema-table",
+      "path": "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql",
+      "lines": [
+        4464
+      ],
+      "symbolOrAnchor": "CREATE TABLE `workflow_dialog`",
+      "fact": "原MySQL table仅PK(id)/workflow_id索引；type tinyint NOT NULL DEFAULT1，sid varchar255可null，chat_id varchar100可null。DTO接受null不证明DB会接受。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "save-consumer",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts",
+      "lines": [
+        174
+      ],
+      "symbolOrAnchor": "const handleSaveDialogue",
+      "fact": "实际save8字段，type=1、workflowId=currentFlow.id、question/questionItem同JSON串；同步清chatInfoRef，ACK后刷新列表，不使用返回chatId值。",
+      "basis": "actual_original_and_current_ast_checked"
+    },
+    {
+      "id": "sid-from-frame",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts",
+      "lines": [
+        437
+      ],
+      "symbolOrAnchor": "get().chatInfoRef.sid =",
+      "fact": "handleMessage将公开frame.id写sid；旧id不代表Run。新受信桥frame.id为真实Run，才可server核owner/WF/version/space。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "list-consumer",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts",
+      "lines": [
+        77
+      ],
+      "symbolOrAnchor": "const getDialogues",
+      "fact": "每条question/answer JSON.parse；倒序响应通过unshift变正序ask/answer，按chatId隔divider，同sid不会去重。",
+      "basis": "actual_original_and_current_ast_checked"
+    },
+    {
+      "id": "clear-consumer",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts",
+      "lines": [
+        936
+      ],
+      "symbolOrAnchor": "const deleteAllChat",
+      "fact": "then完全忽略clear data数值；count0/2都清本地列表/interrupt并换chatId；history=true不解锁canvas。",
+      "basis": "actual_original_and_current_ast_checked"
+    },
+    {
+      "id": "qa-interrupt",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts",
+      "lines": [
+        227,
+        499
+      ],
+      "symbolOrAnchor": "get().wsMessageStatus = 'end'",
+      "fact": "handleInterrupt可把QA等待标queue end；isChatEnd只看end+三个文本queue空，并不证明Run终态。",
+      "basis": "actual_queue_functions_checked_effect_chain_source_only"
+    },
+    {
+      "id": "drawer-save-effect",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx",
+      "lines": [
+        231
+      ],
+      "symbolOrAnchor": "!debuggering && buildPassRef && handleSaveDialogue",
+      "fact": "已mounted时debuggering下降且buildPassRef才保存，无Run terminal条件。React effect本身没有在本probe运行。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "drawer-queue",
+      "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx",
+      "lines": [
+        270
+      ],
+      "symbolOrAnchor": "setDebuggering(false)",
+      "fact": "timer排空文字且isChatEnd后设置false；来源链可触发QA中途保存，不宜terminal-only新增规则。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "current-run-owner",
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/domain/RunRecord.java",
+      "lines": [
+        15
+      ],
+      "symbolOrAnchor": "private Long ownerUserId;",
+      "fact": "Run正式行含workflowId/workflowVersionId/spaceId/ownerUserId，允许做严格服务器关联，不信client uid/id。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "current-detail-insufficient",
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java",
+      "lines": [
+        34
+      ],
+      "symbolOrAnchor": "private RunRecord permitted",
+      "fact": "现detail查询检查平台run query+同space权限，但不强制本人owner；不能直接视为本人历史授权。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "current-boundrun",
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+      "lines": [
+        82
+      ],
+      "symbolOrAnchor": "private RunRecord boundRun",
+      "fact": "既有桥同域、Run↔固定WF/version、owner==捕获actor、固定assignment检查及返回前主体复查可复用；本方法private，不建议复制第二套授权真相。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "current-live-identity",
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java",
+      "lines": [
+        33
+      ],
+      "symbolOrAnchor": "public LoginUser current",
+      "fact": "读取当前实际用户和当前菜单权限；client uid只作不可受信输入。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "original-resume-new-span",
+      "path": "参考项目/PaiFlow-main/core/workflow/api/v1/chat/debug.py",
+      "lines": [
+        123
+      ],
+      "symbolOrAnchor": "span = Span(app_id=\"\", uid=\"\", chat_id=\"\")",
+      "fact": "原resume入口新建Span，不使用原Run或请求sid做正式归属。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "original-span-sid",
+      "path": "参考项目/PaiFlow-main/core/workflow/extensions/otlp/trace/span.py",
+      "lines": [
+        61
+      ],
+      "symbolOrAnchor": "self.sid = sid_gen.sid_generator2.gen()",
+      "fact": "无active span时生成新的Spark sid；有active span则复用其sid。不能假定原sid稳定跨所有resume。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "original-resume-frame-id",
+      "path": "参考项目/PaiFlow-main/core/workflow/service/chat_service.py",
+      "lines": [
+        1213,
+        1229
+      ],
+      "symbolOrAnchor": "response.id = span_context.sid",
+      "fact": "resume输出公开response.id被改为本次Span.sid，所以原显示sid不是固定跨段RunID。",
+      "basis": "source_derived_not_executed"
+    },
+    {
+      "id": "current-public-run-id",
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java",
+      "lines": [
+        65
+      ],
+      "symbolOrAnchor": "!Objects.equals(run.getId(),frame.getString(\"id\"))",
+      "fact": "现在公开原节点frame必须真实run.id；中心终帧也写run.id。新同Run多个QA段sid相同，需明确原不同sid段标识差异。",
+      "basis": "source_derived_not_executed"
+    }
+  ],
+  "answerItemOuterQuoteSourceDerivedOnly": [
+    {
+      "input": null,
+      "sourceExpected": null
+    },
+    {
+      "input": "",
+      "sourceExpected": ""
+    },
+    {
+      "input": "\"\"",
+      "sourceExpected": ""
+    },
+    {
+      "input": "\"a\\nb\"",
+      "sourceExpected": "a\\nb"
+    },
+    {
+      "input": "[\"a\"]",
+      "sourceExpected": "[\"a\"]"
+    },
+    {
+      "input": "\"a\"tail",
+      "sourceExpected": "\"a\"tail"
+    }
+  ],
+  "mappingAndRejectionRequirements": [
+    "workflowId=当前Workflow行Long，flowId=原UUID，两者必须查正式记录映射；拒将UUID当Long或由sid猜工作流。",
+    "新save原sid必须对应真实Run；服务器严格核当前actor=Run.owner、当前域=Run.space、请求workflowId=Run.workflowId、固定version真实存在且归该WF。禁止client uid/id/createTime/deleted成为正式管理事实。",
+    "现RunService.detail非本人严格门；需复用/提取现中心权威授权路径并在等待行锁后实时重查权限/成员和actor，而不是仅凭space membership能保存或清他人历史。",
+    "原空sid、原Spark非Run sid、旧UID历史没有真实映射材料；不能自动借用最近Run、chatId、任意相同WF或现用户建立伪关联。本批不导入原dump。",
+    "type=1是现页面调试显示历史；type=2正式App会话未接，不把新debug日志冒充App/runtime历史。未知type/缺type的正式兼容策略应在唯一设计明确，原optional查询不等于全类型查询。",
+    "允许同Run多次QA显示段；不能unique(runId)或unique(runId,chatId)，也不能用纯bodyhash永久去重相同文本的合法重复段。原8字段没有CP/seq/稳定saveKey，需要明确同次段标识的最小协议或记录非幂等原语义。",
+    "原resume每次以本次Span.sid覆盖frame.id，新桥固定公开id=runId，因此不能把sid视为天然显示段ID或保存重试幂等键。SSE eventid仍承担runId:seq位置，不能拿它虚构原8字段已经携带段回执。",
+    "QA保存不是terminal-only；仅页面展示记录，保存/clear绝不能改变Run state/event/result/Checkpoint/cancel或释放费用许可。",
+    "list/clear以本人行和实际可访问WF域为边界；清空软删除本人行，保留执行真相和别人的历史。无记录count0也能正常清本地展示，不能据count0称业务写失败。",
+    "historyVersionData不进入原save body，不能按当前selected version猜固定Run版本。历史版本回放的归属来自sid实际Run/version。",
+    "question/answer为内部JSON字符串，原页面直接JSON.parse；新行需严格可解析且保全原字段/null/顺序，不能用吞错空串伪装成功。原DTO本身没有该保证。"
+  ],
+  "corrections": {
+    "previousFrozenEvidence": {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/下一本地功能纵向来源只读核对.json",
+      "sha256": "9bcaea648bef8819a8addd4b5062b188faa803f6938cf0d62d39ebb2da33f734"
+    },
+    "clearReturnType": "此前草稿误写boolean，精确代码返回BaseMapper.update的Integer受影响数；旧证据冻结不覆盖，本资料更正。",
+    "initialAstRunnerIssue": "首次AST runner在跨VM数组deepStrictEqual出现同形prototype断言错误；改为structuredClone/JSON序列值比较。不是原功能或DTO业务失败，不伪称首次执行通过。",
+    "preservedAstFixtureFailureLog": {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/工作流原对话消费者AST-跨VM夹具首失败.log",
+      "sha256": "be8ff54ac44fe522a8ac1f61a6b72b8e2ef409618c226f2adca107da6d14e69d"
+    }
+  },
+  "toolSources": [
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/BuildWorkflowDialogueContractGolden.py",
+      "sha256": "9e7b496eefecb7e4d663c3c3f82b3f8c6eb03220d8ba4e60bf7c41e8b46fdfe4"
+    },
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowDialogueOriginalConsumerProbe.cjs",
+      "sha256": "c8dabc10a665bb18ad5074ebabb9907ed9890d0195811ebe055ec310bee8ed1a"
+    },
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowDialogueDtoSourceProbe.java",
+      "sha256": "bc0db5c5b966560465602cea1a232440a23c7a7102c71023639de8f3b21f6b75"
+    }
+  ],
+  "limitations": [
+    "只执行原DTO+原JacksonConfig和原/当前所选前端函数AST；原WorkflowService/Mapper/ResponseBodyAdvice/Auth完整业务仅源码推导。",
+    "Jackson2.17.2与Lombok1.18.32按原POM和现缓存；ORM注解3.5.5/compile-time Spring6.1.14是只读缓存，非原全部依赖闭环。",
+    "当前Run/Bridge仅核源、未调用；当前源窗口只涵盖本报告before/after，不代表root此前219输入或Maven执行窗口。",
+    "手造golden不能证明真实数据库、HTTP、React生命周期、用户界面、旧数据迁移或原功能已通过。"
+  ],
+  "MavenExecuted": false,
+  "targetWritten": false,
+  "productionModified": false,
+  "databaseAccessed": false,
+  "network": false,
+  "servicesStarted": false,
+  "businessVerified": false
+}

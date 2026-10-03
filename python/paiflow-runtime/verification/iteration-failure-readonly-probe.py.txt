@@ -1,0 +1,21 @@
+import asyncio
+import hashlib
+import json
+from pathlib import Path
+from worker.engine_adapter import create_task_runner
+from tests.test_original_engine import node, output, ref, edge, raw_workflow
+from tests.test_worker import RecordingCenter
+
+async def main():
+    raw=raw_workflow([
+        node('node-start::s',outputs=[output('items','array',items={'type':'string'})]),
+        node('iteration::i',inputs=[ref('items','node-start::s','items','array')],outputs=[output('value','array',items={'type':'string'})],IterationStartNodeId='iteration-node-start::is'),
+        node('iteration-node-start::is',outputs=[output('items')]),
+        node('text-joiner::j',inputs=[ref('item','iteration-node-start::is','items')],outputs=[output('value','array',items={'type':'string'})],mode=1,separator=''),
+        node('iteration-node-end::ie',inputs=[ref('value','text-joiner::j','value','array')],outputs=[output('value','array',items={'type':'string'})],outputMode=0),
+        node('node-end::e',inputs=[ref('answer','iteration::i','value','array')],outputs=[output('answer','array',items={'type':'string'})],outputMode=0)
+    ],[edge('node-start::s','iteration::i'),edge('iteration::i','node-end::e'),edge('iteration-node-start::is','text-joiner::j'),edge('text-joiner::j','iteration-node-end::ie')],{'items':['first','second']})
+    center=RecordingCenter(raw)
+    await asyncio.wait_for(create_task_runner(center).run(raw),8)
+    print(json.dumps({'scope':'one actual original Factory pure failed-inner iteration, in-memory center fixture only; no Provider/DB/network/source write','terminal':center.results[-1], 'nodeFailures':[(e.get('nodeId'),e.get('iterationId')) for e in center.events if e['eventType']=='node.failed'],'iterationCompletions':sum(e['eventType']=='node.completed' and e.get('nodeId')=='iteration::i' for e in center.events)},ensure_ascii=True))
+asyncio.run(main())

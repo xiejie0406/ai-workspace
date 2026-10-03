@@ -1,0 +1,28 @@
+{
+  "说明": "实际OpenAI SDK1.60.2和原测试内存HTTPX fixture，socket.connect禁止；未修改Python源码，未Provider调用，执行摘要",
+  "exitCode": 0,
+  "observed": {
+    "files": {
+      "worker\\producers\\openai_chat.py": "fb325b5a46a56d128cf9ee11426ab54ffb52638eef60ce746dc4ff84a4d8deb1",
+      "worker\\producers\\chat_lifecycle.py": "147df50e712994c6ca79c03b93077cc6538e6385f40ab6f06d694a05ebb13fe7"
+    },
+    "scenario": "actual SDK constructor rejects nonprintable base URL after transport creation; no HTTPsend",
+    "result": {
+      "error": {
+        "type": "ChatBoundaryError",
+        "code": "RESOURCE_UNAVAILABLE",
+        "localClosed": false,
+        "sendAttempted": false
+      },
+      "privateTransportCreated": 1,
+      "httpRequests": 0,
+      "httpTransportClosed": 0,
+      "centerFrames": 0,
+      "centerFinishes": 0,
+      "centerStopCalls": 0,
+      "centerFailures": 1
+    }
+  },
+  "技术结论": "存在本地transport资源未关闭缺口，已交Python处理",
+  "业务验证": false
+}

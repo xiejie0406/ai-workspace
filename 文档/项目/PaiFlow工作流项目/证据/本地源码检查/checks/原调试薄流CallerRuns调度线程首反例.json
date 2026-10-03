@@ -1,0 +1,62 @@
+{
+  "recordType": "实际首反例，exit0代表复现到了未满足的发送线程不变量，不代表候选通过",
+  "scope": "原ThreadPoolConfig真实bean只构造未initialize；提取实际CallerRunsPolicy对实际Stream tick提交任务直接施用。Bridge/Token/Identity/Emitter/手动Scheduler为明确内存ports，不是真实共享pool饱和、Servlet、HTTP/JWT/Redis或数据库联机。",
+  "sharedPoolThreadsStarted": 0,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "redisCalls": 0,
+  "mavenInvocations": 0,
+  "sharedTargetWrites": 0,
+  "sourceBefore": {
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\adapter\\legacy\\LegacyDebugStreamService.java": "8af1d04ded19e0ac1447b3dc96321c297f50dcf878db1f6791eb600ff3f5d525",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-framework\\src\\main\\java\\com\\ruoyi\\framework\\config\\ThreadPoolConfig.java": "44800f73209b0d1b7cea4e01270f2044b73546c9dbef8f9978f7976d36c37cf4"
+  },
+  "sourceAfter": {
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\adapter\\legacy\\LegacyDebugStreamService.java": "8af1d04ded19e0ac1447b3dc96321c297f50dcf878db1f6791eb600ff3f5d525",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-framework\\src\\main\\java\\com\\ruoyi\\framework\\config\\ThreadPoolConfig.java": "44800f73209b0d1b7cea4e01270f2044b73546c9dbef8f9978f7976d36c37cf4"
+  },
+  "changed": [],
+  "baselineSourceDirectory": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\调试薄流CallerRuns首反例源码",
+  "fixtureSourceSha256": "a45947cdfe887eb3fc49bee3fcb3fcf2e424ee49a922d3e0595fc8166f6e2c94",
+  "temp": "C:\\Users\\admin\\AppData\\Local\\Temp\\paiflow-debug-caller-runs-l8c7wql0",
+  "compiledInputsSha256": {
+    "com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java": "a04d7d25c1fdbf2d6cb765198c142a7e4bdad0f3ff3a57c2f8ec05f83aa67061",
+    "com/ruoyi/framework/config/ThreadPoolConfig.java": "44800f73209b0d1b7cea4e01270f2044b73546c9dbef8f9978f7976d36c37cf4",
+    "com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "2ca527dd31e0b9c104ad9e954649d5f26c0db0ce9a15f9a69a69cbf0897e7470",
+    "com/ruoyi/framework/web/service/TokenService.java": "7ac1c7d19acfe6d1295cd731b038ca9b6b0e073dc01af53cd08e7550ed82c7c4",
+    "com/ruoyi/paiflow/service/IdentityMappingService.java": "355e66a45b9941ddf16cae0e549518f0129d2e4ed344859ca72bab8d6b86f380",
+    "DebugStreamLifecycleProbe.java": "09d2b9c6c50a23f83408c53d355e623ee71c31fea1a6f5c2b41c5c64785e4d4d",
+    "DebugStreamCallerRunsProbe.java": "bce350733e8cccc58b943198fbfa86113a6280f14ef0c60717a8118aab5ef33c"
+  },
+  "classpathOrigin": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\target\\surefire-reports\\TEST-com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest.xml",
+  "classpathEntries": 162,
+  "compileExit": 0,
+  "compileStderr": "",
+  "runExit": 0,
+  "stdout": "{\"actualBeanPolicy\":\"java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy\",\"corePoolSize\":50,\"maxPoolSize\":200,\"queueCapacity\":1000,\"submissions\":1,\"tickThread\":1,\"submitterThread\":1,\"pageThread\":1,\"sendThread\":1,\"bridgeCalls\":1,\"sends\":1,\"serverAfter\":1,\"permitsBeforeCleanup\":63,\"invariantExpected\":{\"bridgeCalls\":0,\"sends\":0,\"code\":503,\"permits\":64},\"invariantSatisfied\":false,\"permitsAfterExplicitCleanup\":64}\n",
+  "stderr": "",
+  "observed": {
+    "actualBeanPolicy": "java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy",
+    "corePoolSize": 50,
+    "maxPoolSize": 200,
+    "queueCapacity": 1000,
+    "submissions": 1,
+    "tickThread": 1,
+    "submitterThread": 1,
+    "pageThread": 1,
+    "sendThread": 1,
+    "bridgeCalls": 1,
+    "sends": 1,
+    "serverAfter": 1,
+    "permitsBeforeCleanup": 63,
+    "invariantExpected": {
+      "bridgeCalls": 0,
+      "sends": 0,
+      "code": 503,
+      "permits": 64
+    },
+    "invariantSatisfied": false,
+    "permitsAfterExplicitCleanup": 64
+  },
+  "suggestedMinimalFix": "tick捕获提交线程；提交给现pool的job仅当实际执行线程不同才readSend。同线程降级明确503，关闭流并释放capacity，finally清inFlight；不改原共享CallerRunsPolicy，不新建池。"
+}

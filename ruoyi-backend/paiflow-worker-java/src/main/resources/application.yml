@@ -1,0 +1,21 @@
+paiflow:
+  worker:
+    enabled: false
+    max-run-seconds: 600
+    heartbeat-seconds: 10
+    polling:
+      enabled: false
+      interval-millis: 1000
+      max-backoff-millis: 30000
+spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+server:
+  address: 127.0.0.1
+  port: 0
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

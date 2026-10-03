@@ -1,0 +1,9 @@
+{
+  "kind": "execution_summary_not_full_raw_log",
+  "command": "python -X utf8 -B 文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/ReviewInputTypesPolicy.py",
+  "exitCode": 1,
+  "observedFailure": "Python subprocess UTF-8读取当前Java stdout时报UnicodeDecodeError byte 0xb9 position74；stdout变None后证据write_text再报TypeError。",
+  "cause": "私有探针Java命令仅-Dfile.encoding=UTF-8，未指定Windows Java stdout编码；原来源探针已有显式sun.stdout.encoding。本次补显式stdout/stderr UTF-8，不改生产代码或预期。",
+  "productionBusinessFailure": false,
+  "currentPolicyOutcomeBeforeRepairClaimed": false
+}

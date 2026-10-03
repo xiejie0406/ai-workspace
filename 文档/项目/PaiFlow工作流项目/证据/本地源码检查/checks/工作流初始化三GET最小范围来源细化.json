@@ -1,0 +1,2148 @@
+{
+  "schemaVersion": "paiflow.workflow-init-three-get-scope-review.v1",
+  "startedAt": "2026-10-03T12:50:41.212403+00:00",
+  "endedAt": "2026-10-03T12:50:41.597714+00:00",
+  "scope": "下一初始化显示目录3GET只读源码/字面种子分析，不是已迁、产品决定或第二长期状态",
+  "sourceHashesBefore": {
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/common/constant/CommonConst.java": "36aaf3d11a8b3e2ba94699155d502c3367c2f1814b91e350b7488a8207f7c9f5",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/AgentStrategy.java": "63f21260d756e7e3cb39598e99a20a51b0206f8ae8466b03095f581dd8210e64",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/ConfigInfo.java": "d644c70e4218f2eb90c93f67686415f32ba584b40a441131fb6169a868c41e83",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/mapper/ConfigInfoMapper.java": "4233e9b5fb3b787522f3e475b1776255a58efbebdeecaffc94a1c770fb886afa",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/resources/mybatis/mapper/mysql/ConfigInfoMapper.xml": "b871a163d6c1c61b62aa79f0a190fadb62c3da9b2e9e843c36718c005a2ed791",
+    "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc",
+    "contracts/paiflow/generate-public-config-catalog.py": "46407b2195132340f1aa5d6abd816909430829fd5c162589bf268eb18d293cb5",
+    "frontend/paiflow-web/src/services/flow.ts": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+    "frontend/paiflow-web/src/components/workflow/store/flow-manager-function.ts": "1a9a2b85c7eadede2362f5624c56b4ae36e8490943601dff2ff00378a9326fd0",
+    "frontend/paiflow-web/src/components/workflow/hooks/use-flow-common.ts": "8dc3e4957ef4d4ee16351286642be0f9a38f0775378292a6ee42d48bde5da351",
+    "frontend/paiflow-web/src/components/workflow/nodes/agent/index.tsx": "98c000289bff67131aa655522507f52db7d31c8507c17e6b6aee80c0fd43a4f2",
+    "frontend/paiflow-web/src/components/workflow/nodes/knowledge-pro/index.tsx": "34363a72f033148f3a276d7bd840fc04dbab36520fa389dfa05bd4f5b4e4dd8d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ConfigInfoService.java": "acd42b4ce11e1366317149b41cf4a941216e151e3bb58877d4cacda8677b3ef4",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/PublicConfigMapper.java": "13200f88dae549d9c87e2c2f9bbe2b208a21ee7d1da949e0e342b86d5281bde2",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/PublicConfigMapper.xml": "19055e9e01c167f451ce9e1f4bdf377def9f0f49a6dd566f99106be2e9efe9b8",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/paiflow/public-config-source.json": "6dbb2171d88cbbcf5a6dadc9ce45704e4cd38fe350fd3c1d7f83db011a658a2b",
+    "ruoyi-backend/ruoyi-paiflow/sql/014-paiflow-public-config.sql": "80539328b5e3cbe28b32caac09193fca2c50b09b81ca92fadaa8cd0cfdd3ee6b"
+  },
+  "sourceHashesAfter": {
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/common/constant/CommonConst.java": "36aaf3d11a8b3e2ba94699155d502c3367c2f1814b91e350b7488a8207f7c9f5",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/AgentStrategy.java": "63f21260d756e7e3cb39598e99a20a51b0206f8ae8466b03095f581dd8210e64",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/ConfigInfo.java": "d644c70e4218f2eb90c93f67686415f32ba584b40a441131fb6169a868c41e83",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/mapper/ConfigInfoMapper.java": "4233e9b5fb3b787522f3e475b1776255a58efbebdeecaffc94a1c770fb886afa",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/resources/mybatis/mapper/mysql/ConfigInfoMapper.xml": "b871a163d6c1c61b62aa79f0a190fadb62c3da9b2e9e843c36718c005a2ed791",
+    "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc",
+    "contracts/paiflow/generate-public-config-catalog.py": "46407b2195132340f1aa5d6abd816909430829fd5c162589bf268eb18d293cb5",
+    "frontend/paiflow-web/src/services/flow.ts": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+    "frontend/paiflow-web/src/components/workflow/store/flow-manager-function.ts": "1a9a2b85c7eadede2362f5624c56b4ae36e8490943601dff2ff00378a9326fd0",
+    "frontend/paiflow-web/src/components/workflow/hooks/use-flow-common.ts": "8dc3e4957ef4d4ee16351286642be0f9a38f0775378292a6ee42d48bde5da351",
+    "frontend/paiflow-web/src/components/workflow/nodes/agent/index.tsx": "98c000289bff67131aa655522507f52db7d31c8507c17e6b6aee80c0fd43a4f2",
+    "frontend/paiflow-web/src/components/workflow/nodes/knowledge-pro/index.tsx": "34363a72f033148f3a276d7bd840fc04dbab36520fa389dfa05bd4f5b4e4dd8d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ConfigInfoService.java": "acd42b4ce11e1366317149b41cf4a941216e151e3bb58877d4cacda8677b3ef4",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/PublicConfigMapper.java": "13200f88dae549d9c87e2c2f9bbe2b208a21ee7d1da949e0e342b86d5281bde2",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/PublicConfigMapper.xml": "19055e9e01c167f451ce9e1f4bdf377def9f0f49a6dd566f99106be2e9efe9b8",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/paiflow/public-config-source.json": "6dbb2171d88cbbcf5a6dadc9ce45704e4cd38fe350fd3c1d7f83db011a658a2b",
+    "ruoyi-backend/ruoyi-paiflow/sql/014-paiflow-public-config.sql": "80539328b5e3cbe28b32caac09193fca2c50b09b81ca92fadaa8cd0cfdd3ee6b"
+  },
+  "sourceWindowChanges": [],
+  "literalParserOnly": {
+    "actualFunction": "现generate-public-config-catalog.py parse_rows单函数AST，未调用main",
+    "mysqlEscapeAssumption": "MySQL标准反斜杠语义，与原dump一致；真实旧库sql_mode/新增行未核",
+    "sqlExecuted": false,
+    "databaseConnected": false,
+    "rowsSelected": 40
+  },
+  "categories": [
+    {
+      "category": "WORKFLOW_NODE_TEMPLATE",
+      "rows": 19,
+      "activeRows": 18,
+      "allSourceCodes": [
+        "1,2"
+      ],
+      "sourceRowsInDumpOrderForAuditOnly": [
+        {
+          "id": 1421,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "固定节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 611,
+          "valueSha256": "996f816ccaf168ce015f3195b157a4d3b401bc8d4453ecae4f4bbd8b0f4530b8",
+          "idType": "node-start",
+          "topLevelFields": [
+            "idType",
+            "type",
+            "position",
+            "data"
+          ],
+          "dataFields": [
+            "label",
+            "description",
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1423,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "固定节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 611,
+          "valueSha256": "03d85a8be8e8ea15f109e1c50f035f7d94b17600081cdd53d4a2e5a934181c1f",
+          "idType": "node-end",
+          "topLevelFields": [
+            "idType",
+            "type",
+            "position",
+            "data"
+          ],
+          "dataFields": [
+            "label",
+            "description",
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "outputMode",
+            "template",
+            "streamOutput"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1425,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 1653,
+          "valueSha256": "215d52d4304079db4bd540f9050e3cc27fcae3195819cce0d44f3ec0c6102d30",
+          "idType": "spark-llm",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "maxTokens",
+            "temperature",
+            "topK",
+            "auditing",
+            "template",
+            "respFormat",
+            "patchId",
+            "appId",
+            "uid",
+            "enableChatHistoryV2"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.patchId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.uid",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": true,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1427,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 3158,
+          "valueSha256": "18ef48727c38d0d47736279d2d0f3cc3ce3cc09bf1922d8aea494fd86bfca818",
+          "idType": "ifly-code",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "code"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1429,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 1207,
+          "valueSha256": "610964408e7f290ca741c4f452cfb9a6221689ec390b532a5fb1f96874006016",
+          "idType": "knowledge-base",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "repoId",
+            "repoList",
+            "topN",
+            "score"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.repoId",
+              "credentialNamed": false,
+              "valueType": "list",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.repoList",
+              "credentialNamed": false,
+              "valueType": "list",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1431,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "工具",
+          "isValid": 1,
+          "valueUTF8Bytes": 445,
+          "valueSha256": "6669db0cee97f77c6809d250626aa0ccced6923c0355a56ca21eed2761627f63",
+          "idType": "flow",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "appId",
+            "flowId",
+            "uid"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": true,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.uid",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": true,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1433,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "逻辑",
+          "isValid": 1,
+          "valueUTF8Bytes": 2248,
+          "valueSha256": "aaf092a38b39173abaae45593da48101ca2628564536a677f60f415ceaa36282",
+          "idType": "decision-making",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "maxTokens",
+            "temperature",
+            "topK",
+            "auditing",
+            "enableChatHistoryV2",
+            "uid",
+            "intentChains",
+            "reasonMode",
+            "model",
+            "useFunctionCall",
+            "promptPrefix",
+            "patchId",
+            "appId"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.uid",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.patchId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1435,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "逻辑",
+          "isValid": 1,
+          "valueUTF8Bytes": 875,
+          "valueSha256": "f5979054c7f4e089873beaa68f1f38f740cd9684cb4165e23efc2f84402565ad",
+          "idType": "if-else",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "cases"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1437,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "逻辑",
+          "isValid": 1,
+          "valueUTF8Bytes": 620,
+          "valueSha256": "ca9a63bfaecd4bee38125c98014334f809b836e537fa6b1a6fdf51d247bff75a",
+          "idType": "iteration",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "iteratorNodes",
+            "iteratorEdges",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1439,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "转换",
+          "isValid": 1,
+          "valueUTF8Bytes": 580,
+          "valueSha256": "c58f44a1c761ac7222294ad769e387a11fa97536403b40961e4a3723cc0ad577",
+          "idType": "node-variable",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "method"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1441,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "转换",
+          "isValid": 1,
+          "valueUTF8Bytes": 1597,
+          "valueSha256": "336c2b1d931495ee03e7fb2109992e9eadc0673aac18993d61d8beaadb8a5588",
+          "idType": "extractor-parameter",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "maxTokens",
+            "temperature",
+            "topK",
+            "auditing",
+            "model",
+            "patchId",
+            "appId",
+            "uid",
+            "reasonMode"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.patchId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.uid",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1443,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "转换",
+          "isValid": 1,
+          "valueUTF8Bytes": 592,
+          "valueSha256": "6117deea5d075a41046e8158642d4671205e57cf48bca4d9d518c510d8756d51",
+          "idType": "text-joiner",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "prompt"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1445,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "其他",
+          "isValid": 1,
+          "valueUTF8Bytes": 1084,
+          "valueSha256": "4125de6b0f4ee8008932f07b11d5f7e947415d71100446e9223afd77f1464573",
+          "idType": "message",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "template",
+            "startFrameEnabled"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1447,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "工具",
+          "isValid": 1,
+          "valueUTF8Bytes": 447,
+          "valueSha256": "e111f919736b2f16b5f7b8bd2d57058d357bfbcaba580656946b180cb50bd95b",
+          "idType": "plugin",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "appId",
+            "code"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1578,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "逻辑",
+          "isValid": 1,
+          "valueUTF8Bytes": 2353,
+          "valueSha256": "384aa0dd92d754d05a316db3ab1f38787270df402652a46c66f45c617adbefd4",
+          "idType": "agent",
+          "topLevelFields": [
+            "aliasName",
+            "idType",
+            "data",
+            "description",
+            "nodeType"
+          ],
+          "dataFields": [
+            "outputs",
+            "references",
+            "allowInputReference",
+            "inputs",
+            "icon",
+            "allowOutputReference",
+            "nodeMeta",
+            "nodeParam"
+          ],
+          "nodeParamFields": [
+            "appId",
+            "enableChatHistoryV2",
+            "modelConfig",
+            "instruction",
+            "plugin",
+            "maxLoopCount"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": true,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1649,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 0,
+          "valueUTF8Bytes": 3879,
+          "valueSha256": "dc0707be916a7a7ad327eff9ec3ccde1a2944cd4786c5cc7d0584f6f8e50b0cb",
+          "idType": "knowledge-pro-base",
+          "topLevelFields": [
+            "aliasName",
+            "idType",
+            "data",
+            "description",
+            "nodeType"
+          ],
+          "dataFields": [
+            "outputs",
+            "references",
+            "allowInputReference",
+            "inputs",
+            "icon",
+            "allowOutputReference",
+            "nodeMeta",
+            "nodeParam"
+          ],
+          "nodeParamFields": [
+            "repoTopK",
+            "llmId",
+            "topK",
+            "repoIds",
+            "repoList",
+            "ragType",
+            "temperature",
+            "maxTokens",
+            "answerRole",
+            "repoType",
+            "score"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.llmId",
+              "credentialNamed": false,
+              "valueType": "int",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.repoList",
+              "credentialNamed": false,
+              "valueType": "list",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1743,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 2892,
+          "valueSha256": "5e4a7a60828cf3570c20f99814cde01697adc1c95182d40459477dee2b33a580",
+          "idType": "question-answer",
+          "topLevelFields": [
+            "aliasName",
+            "idType",
+            "data",
+            "description",
+            "nodeType"
+          ],
+          "dataFields": [
+            "outputs",
+            "references",
+            "allowInputReference",
+            "inputs",
+            "icon",
+            "allowOutputReference",
+            "nodeMeta",
+            "nodeParam"
+          ],
+          "nodeParamFields": [
+            "question",
+            "timeout",
+            "needReply",
+            "answerType",
+            "directAnswer",
+            "optionAnswer",
+            "maxTokens",
+            "temperature",
+            "topK",
+            "model"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1791,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 987,
+          "valueSha256": "ee6b5a5214e6fc6e8b2b7c1722f8b66d97b9f67b70390d7f55f5dcdc0369b05d",
+          "idType": "database",
+          "topLevelFields": [
+            "aliasName",
+            "idType",
+            "data",
+            "description",
+            "nodeType"
+          ],
+          "dataFields": [
+            "outputs",
+            "references",
+            "allowInputReference",
+            "inputs",
+            "icon",
+            "allowOutputReference",
+            "nodeMeta",
+            "nodeParam"
+          ],
+          "nodeParamFields": [
+            "mode"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1823,
+          "category": "WORKFLOW_NODE_TEMPLATE",
+          "code": "1,2",
+          "groupOrName": "工具",
+          "isValid": 1,
+          "valueUTF8Bytes": 941,
+          "valueSha256": "bab483cd8f6124113eea3dc6770bb6d51bd43bcda8b74f8746f22259f2cbd4ef",
+          "idType": "rpa",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "projectId",
+            "header",
+            "rpaParams",
+            "source",
+            "icon"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.projectId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.header.apiKey",
+              "credentialNamed": true,
+              "valueType": "str",
+              "null": false,
+              "emptyString": true,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        }
+      ]
+    },
+    {
+      "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+      "rows": 18,
+      "activeRows": 18,
+      "allSourceCodes": [
+        "1,2"
+      ],
+      "sourceRowsInDumpOrderForAuditOnly": [
+        {
+          "id": 1488,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "固定节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 611,
+          "valueSha256": "996f816ccaf168ce015f3195b157a4d3b401bc8d4453ecae4f4bbd8b0f4530b8",
+          "idType": "node-start",
+          "topLevelFields": [
+            "idType",
+            "type",
+            "position",
+            "data"
+          ],
+          "dataFields": [
+            "label",
+            "description",
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1490,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "固定节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 611,
+          "valueSha256": "03d85a8be8e8ea15f109e1c50f035f7d94b17600081cdd53d4a2e5a934181c1f",
+          "idType": "node-end",
+          "topLevelFields": [
+            "idType",
+            "type",
+            "position",
+            "data"
+          ],
+          "dataFields": [
+            "label",
+            "description",
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "outputMode",
+            "template",
+            "streamOutput"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1492,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 1838,
+          "valueSha256": "0a648802dad52931b72b3f715e5e5da6a918c78495377b6f01fb4862e1a7810b",
+          "idType": "spark-llm",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "maxTokens",
+            "temperature",
+            "topK",
+            "auditing",
+            "domain",
+            "template",
+            "model",
+            "serviceId",
+            "respFormat",
+            "llmId",
+            "patchId",
+            "url",
+            "appId",
+            "uid",
+            "enableChatHistoryV2"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.serviceId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.llmId",
+              "credentialNamed": false,
+              "valueType": "int",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.patchId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.url",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.uid",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1494,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 1098,
+          "valueSha256": "a827bb2662a8cc5810a7649970dda599464d73989538c42bb74ff10a001fc6b6",
+          "idType": "ifly-code",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "code"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1496,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 1207,
+          "valueSha256": "610964408e7f290ca741c4f452cfb9a6221689ec390b532a5fb1f96874006016",
+          "idType": "knowledge-base",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "repoId",
+            "repoList",
+            "topN",
+            "score"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.repoId",
+              "credentialNamed": false,
+              "valueType": "list",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.repoList",
+              "credentialNamed": false,
+              "valueType": "list",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1498,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "工具",
+          "isValid": 1,
+          "valueUTF8Bytes": 447,
+          "valueSha256": "e111f919736b2f16b5f7b8bd2d57058d357bfbcaba580656946b180cb50bd95b",
+          "idType": "plugin",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "appId",
+            "code"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1500,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "工具",
+          "isValid": 1,
+          "valueUTF8Bytes": 445,
+          "valueSha256": "6669db0cee97f77c6809d250626aa0ccced6923c0355a56ca21eed2761627f63",
+          "idType": "flow",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "inputs",
+            "outputs",
+            "nodeParam",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "appId",
+            "flowId",
+            "uid"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": true,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.uid",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": true,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1502,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "逻辑",
+          "isValid": 1,
+          "valueUTF8Bytes": 2399,
+          "valueSha256": "b36bc8f12d17783f9869c762481d0e457a363e814e3915eaa64553437616913f",
+          "idType": "decision-making",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "maxTokens",
+            "temperature",
+            "topK",
+            "auditing",
+            "domain",
+            "llmId",
+            "enableChatHistoryV2",
+            "uid",
+            "intentChains",
+            "reasonMode",
+            "model",
+            "useFunctionCall",
+            "serviceId",
+            "promptPrefix",
+            "patchId",
+            "url",
+            "appId"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.llmId",
+              "credentialNamed": false,
+              "valueType": "int",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.uid",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.serviceId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.patchId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.url",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1504,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "逻辑",
+          "isValid": 1,
+          "valueUTF8Bytes": 875,
+          "valueSha256": "f5979054c7f4e089873beaa68f1f38f740cd9684cb4165e23efc2f84402565ad",
+          "idType": "if-else",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "cases"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1506,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "逻辑",
+          "isValid": 1,
+          "valueUTF8Bytes": 620,
+          "valueSha256": "ca9a63bfaecd4bee38125c98014334f809b836e537fa6b1a6fdf51d247bff75a",
+          "idType": "iteration",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "iteratorNodes",
+            "iteratorEdges",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1508,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "转换",
+          "isValid": 1,
+          "valueUTF8Bytes": 667,
+          "valueSha256": "9ea4be0275fdf3b63bd5b75aca3b4dbb1deaec8b5a256458b81924ace5d49897",
+          "idType": "node-variable",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "method"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1510,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "转换",
+          "isValid": 1,
+          "valueUTF8Bytes": 1748,
+          "valueSha256": "ea8aec90a983bf320883b636b0857d257c282a5dc4a2ffd56df5fb7a571e318b",
+          "idType": "extractor-parameter",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "maxTokens",
+            "temperature",
+            "topK",
+            "auditing",
+            "domain",
+            "llmId",
+            "model",
+            "serviceId",
+            "patchId",
+            "url",
+            "appId",
+            "uid",
+            "reasonMode"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.llmId",
+              "credentialNamed": false,
+              "valueType": "int",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.serviceId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.patchId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.url",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.uid",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1512,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "转换",
+          "isValid": 1,
+          "valueUTF8Bytes": 592,
+          "valueSha256": "6117deea5d075a41046e8158642d4671205e57cf48bca4d9d518c510d8756d51",
+          "idType": "text-joiner",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "prompt"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1514,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "其他",
+          "isValid": 1,
+          "valueUTF8Bytes": 612,
+          "valueSha256": "8d788fc2415f010fbb191ee5b6f9b7f6c23090d912ceda560b20c3a7a821bcee",
+          "idType": "message",
+          "topLevelFields": [
+            "idType",
+            "nodeType",
+            "aliasName",
+            "description",
+            "data"
+          ],
+          "dataFields": [
+            "nodeMeta",
+            "nodeParam",
+            "inputs",
+            "outputs",
+            "references",
+            "allowInputReference",
+            "allowOutputReference",
+            "icon"
+          ],
+          "nodeParamFields": [
+            "template",
+            "startFrameEnabled"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1553,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "逻辑",
+          "isValid": 1,
+          "valueUTF8Bytes": 2534,
+          "valueSha256": "d8572ec1ad166f3304e01779b23d2deba494e6f26bb3c1e37f3372d615a1774b",
+          "idType": "agent",
+          "topLevelFields": [
+            "aliasName",
+            "idType",
+            "data",
+            "description",
+            "nodeType"
+          ],
+          "dataFields": [
+            "outputs",
+            "references",
+            "allowInputReference",
+            "inputs",
+            "icon",
+            "allowOutputReference",
+            "nodeMeta",
+            "nodeParam"
+          ],
+          "nodeParamFields": [
+            "appId",
+            "serviceId",
+            "llmId",
+            "enableChatHistoryV2",
+            "modelConfig",
+            "instruction",
+            "plugin",
+            "maxLoopCount"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": true,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.serviceId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.llmId",
+              "credentialNamed": false,
+              "valueType": "int",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1639,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 3105,
+          "valueSha256": "515daa9affcee0a1a7ee5f469438cf29f8e954624a44d629caa166463b05f5cc",
+          "idType": "knowledge-pro-base",
+          "topLevelFields": [
+            "aliasName",
+            "idType",
+            "data",
+            "description",
+            "nodeType"
+          ],
+          "dataFields": [
+            "outputs",
+            "references",
+            "allowInputReference",
+            "inputs",
+            "icon",
+            "allowOutputReference",
+            "nodeMeta",
+            "nodeParam"
+          ],
+          "nodeParamFields": [
+            "repoTopK",
+            "topK",
+            "repoIds",
+            "repoList",
+            "ragType",
+            "url",
+            "domain",
+            "temperature",
+            "maxTokens",
+            "model",
+            "llmId",
+            "serviceId",
+            "answerRole",
+            "repoType"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.repoList",
+              "credentialNamed": false,
+              "valueType": "list",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.url",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.llmId",
+              "credentialNamed": false,
+              "valueType": "int",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.serviceId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1717,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 3076,
+          "valueSha256": "37d4f7734d7e3bf89c18cd25c93877b8ad82ac8eda9b9145ab56a261e423fe1a",
+          "idType": "question-answer",
+          "topLevelFields": [
+            "aliasName",
+            "idType",
+            "data",
+            "description",
+            "nodeType"
+          ],
+          "dataFields": [
+            "outputs",
+            "references",
+            "allowInputReference",
+            "inputs",
+            "icon",
+            "allowOutputReference",
+            "nodeMeta",
+            "nodeParam"
+          ],
+          "nodeParamFields": [
+            "question",
+            "timeout",
+            "needReply",
+            "answerType",
+            "directAnswer",
+            "optionAnswer",
+            "url",
+            "domain",
+            "appId",
+            "maxTokens",
+            "temperature",
+            "topK",
+            "model",
+            "llmId",
+            "serviceId"
+          ],
+          "credentialAndReferencePaths": [
+            {
+              "path": "$.data.nodeParam.url",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.appId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.llmId",
+              "credentialNamed": false,
+              "valueType": "int",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": false,
+              "valueDisclosed": false
+            },
+            {
+              "path": "$.data.nodeParam.serviceId",
+              "credentialNamed": false,
+              "valueType": "str",
+              "null": false,
+              "emptyString": false,
+              "nonEmptyString": true,
+              "valueDisclosed": false
+            }
+          ],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        },
+        {
+          "id": 1787,
+          "category": "WORKFLOW_NODE_TEMPLATE_PRE",
+          "code": "1,2",
+          "groupOrName": "基础节点",
+          "isValid": 1,
+          "valueUTF8Bytes": 987,
+          "valueSha256": "ee6b5a5214e6fc6e8b2b7c1722f8b66d97b9f67b70390d7f55f5dcdc0369b05d",
+          "idType": "database",
+          "topLevelFields": [
+            "aliasName",
+            "idType",
+            "data",
+            "description",
+            "nodeType"
+          ],
+          "dataFields": [
+            "outputs",
+            "references",
+            "allowInputReference",
+            "inputs",
+            "icon",
+            "allowOutputReference",
+            "nodeMeta",
+            "nodeParam"
+          ],
+          "nodeParamFields": [
+            "mode"
+          ],
+          "credentialAndReferencePaths": [],
+          "nodeObject": true,
+          "dataObject": true,
+          "nodeParamObject": true
+        }
+      ]
+    },
+    {
+      "category": "WORKFLOW_AGENT_STRATEGY",
+      "rows": 1,
+      "activeRows": 1,
+      "allSourceCodes": [
+        "agentStrategy"
+      ],
+      "sourceRowsInDumpOrderForAuditOnly": [
+        {
+          "id": 1557,
+          "category": "WORKFLOW_AGENT_STRATEGY",
+          "code": "agentStrategy",
+          "groupOrName": "ReACT (支持MCP Tools)",
+          "isValid": 1,
+          "valueUTF8Bytes": 72,
+          "valueSha256": "413e8a42d3c04788ed0396f7403ade64d6ee0119896f15b2821bbe03d3ac9dfd",
+          "returnFieldNames": [
+            "name",
+            "description",
+            "code"
+          ],
+          "returnCodeFromRemarks": 1,
+          "descriptionIsOriginalValueString": true
+        }
+      ]
+    },
+    {
+      "category": "WORKFLOW_KNOWLEDGE_PRO_STRATEGY",
+      "rows": 2,
+      "activeRows": 2,
+      "allSourceCodes": [
+        "knowledgeProStrategy"
+      ],
+      "sourceRowsInDumpOrderForAuditOnly": [
+        {
+          "id": 1615,
+          "category": "WORKFLOW_KNOWLEDGE_PRO_STRATEGY",
+          "code": "knowledgeProStrategy",
+          "groupOrName": "Agentic RAG",
+          "isValid": 1,
+          "valueUTF8Bytes": 93,
+          "valueSha256": "3b3dea94aaa476a9163af64ade8d42b9d25e40081640b4d844a4e0fdca5b5464",
+          "returnFieldNames": [
+            "name",
+            "description",
+            "code"
+          ],
+          "returnCodeFromRemarks": 1,
+          "descriptionIsOriginalValueString": true
+        },
+        {
+          "id": 1617,
+          "category": "WORKFLOW_KNOWLEDGE_PRO_STRATEGY",
+          "code": "knowledgeProStrategy",
+          "groupOrName": "Long RAG",
+          "isValid": 1,
+          "valueUTF8Bytes": 51,
+          "valueSha256": "92d938995071645459ccc7724b2790046c91602232da4b7e300373eaf0dc086e",
+          "returnFieldNames": [
+            "name",
+            "description",
+            "code"
+          ],
+          "returnCodeFromRemarks": 2,
+          "descriptionIsOriginalValueString": true
+        }
+      ]
+    }
+  ],
+  "facts": [
+    {
+      "route": "GET /workflow/node-template",
+      "controllerLines": [
+        269
+      ],
+      "serviceLines": [
+        2956
+      ],
+      "query": "source optional Integer，原Service完全忽略；固定COMMON=1，用code LIKE %1%；节点is_valid=1；完整profile字符串只有pre切WORKFLOW_NODE_TEMPLATE_PRE；其他profile用WORKFLOW_NODE_TEMPLATE。",
+      "return": "JSONArray<{name:config.name,nodes:[JSON.parseObject(config.value),...]}>；不返回配置9字段/分页。",
+      "ordering": "SQL无ORDER BY；LinkedHashMap以Mapper encounter次序分组、组内List保encounter序，不能把dump顺序冒作正式排序合同。"
+    },
+    {
+      "route": "GET /workflow/get-agent-strategy",
+      "controllerLines": [
+        369
+      ],
+      "serviceLines": [
+        3472
+      ],
+      "query": "category=WORKFLOW_AGENT_STRATEGY AND code=agentStrategy，原不筛is_valid、不分页、不排序。",
+      "return": "List<AgentStrategy>{name:String=config.name,description:String=config.value,code:Integer=Integer.valueOf(remarks)}；remarks非整数/null原异常，非空success占位。"
+    },
+    {
+      "route": "GET /workflow/get-knowledge-pro-strategy",
+      "controllerLines": [
+        374
+      ],
+      "serviceLines": [
+        3487
+      ],
+      "query": "category=WORKFLOW_KNOWLEDGE_PRO_STRATEGY AND code=knowledgeProStrategy，原不筛is_valid、不分页、不排序。",
+      "return": "与AgentStrategy相同三字段，code必须Integer；原UI严格===匹配ragType，不可返回字符串code。"
+    },
+    {
+      "consumer": "frontend/paiflow-web/src/components/workflow/store/flow-manager-function.ts",
+      "lines": [
+        339,
+        349
+      ],
+      "effect": "detail、node-template、text/list、两strategy在同Promise.all；三GET缺失会使赋currentFlow/nodeList前reject；此为源码事实，没有实际挂载页面。"
+    },
+    {
+      "consumer": "frontend/paiflow-web/src/components/workflow/hooks/use-flow-common.ts",
+      "lines": [
+        78,
+        249,
+        310
+      ],
+      "effect": "原add/insert/copy节点会把登录user.uid写nodeParam.uid；catalog的真实UID不可成为归属/费用/资源授权。初始化模板应无个人运行发起者，不误删schema/业务HTTP UID。"
+    },
+    {
+      "consumer": "frontend/paiflow-web/src/components/workflow/nodes/agent/index.tsx",
+      "lines": [
+        36,
+        77
+      ],
+      "effect": "Agent node策略code严格对modelConfig.agentStrategy，name显示、description tooltip；仅策略描述不授Model/Agent执行。"
+    },
+    {
+      "consumer": "frontend/paiflow-web/src/components/workflow/nodes/knowledge-pro/index.tsx",
+      "lines": [
+        38,
+        42,
+        46
+      ],
+      "effect": "KnowledgePro策略code严格匹配ragType且点击赋相同code；显示模板不授知识库访问。"
+    }
+  ],
+  "currentGap": {
+    "threeTargetRoutesDeclared": false,
+    "current014WhitelistHasAnyFourCategories": false,
+    "mapperOriginalStrategySemanticDifference": "现PublicConfigMapper.byCategory/byCategoryAndCode总is_valid=1，ConfigInfoService.view也只允许1；不能把原Strategy动态inactive/null行静默删掉。",
+    "publicSafetyDifference": "ConfigInfoService.privateFields对凭据key无条件拒，空apiKey也拒；不能把四类别加入白名单就说可公开完整目录。"
+  },
+  "recommendedMinimum": [
+    "同paiflow_public_config唯一实时表扩四个精确category/code授权与未执行增量；来源catalog只记录审查/种子SHA，不当动态读结果；不新建第二目录真相。",
+    "3薄legacy GET+只读目录Service，复用current活动平台身份与最后同主体核对，不依赖真实App/Provider，也不初始化defaultspace。",
+    "Node读固定COMMON substring+is_valid1+精确pre profile；strategy用专用受限pair读真实所有is_valid状态并作安全三字段投影，不放宽现generic Config5语义。",
+    "保持Mapper encounter次序及分组/组内顺序；无源码排序保证，不新增page或任意按名称/ID排序替代原合同。",
+    "审查40原候选且按profile/active实际保36节点? 正式主18、pre18分别选择，不混拼；1Agent+2Knowledge策略。缺配置/坏JSON/remarks/unsafe字段明确失败，不用只返回纯节点空占位假成功。"
+  ],
+  "credentialAndUidProjectionRecommendation": [
+    "只在经审查的共享显示模板副本/种子上处理具体占位：RPA id1823 $.data.nodeParam.header.apiKey恰为空String可去掉该空key（保header{}及其他字段）；这是明确声明差异，不放宽Config5/Workflow/Run正式秘密规则。",
+    "后续动态非空凭据/secretRef/privateURL/credential-key即拒绝并只报路径，不静默删除真实值，不导入环境，不建立resource绑定；嵌套JSON字符串同审。",
+    "原40所见凭据named仅空RPA apiKey；其他UID/资源ID只报类型/路径不输出值。若模板nodeParam.uid具体非空String，应在显示副本置空或拒绝并显式记录，不能相信其owner；业务schema/default/HTTP UID按上下文保留。",
+    "template节点类型Agent/flow/knowledge/RPA仍是编辑描述；已有Compiler/Run/App/资源门保持，目录存在不把所有用户Workflow变public、不给资源/Provider执行ready。"
+  ],
+  "verificationRecommendation": [
+    "实际Mapper动态update后3GET读取、Node inactive排除、Strategy inactive/null仍按原读、固定COMMON与source忽略、精确pre vs pre,test、encounter分组顺序；隔离H2不是MySQL部署。",
+    "实际原initFlowData AST用同形三返回读取icons/group/strictnumber策略，不用实际页面通过称技术VM；对应真实MockMVC路由/LegacyResult合同独立。",
+    "RPA空占位确定path变更与储存原SHA/审查记录、非空秘密及encoded/privateURL拒绝、nodeParam.uid不授权、DB当前unsafe行拒；整体预算/深度/rows有限且不静默截断。"
+  ],
+  "businessVerified": false,
+  "limits": [
+    "仅源码与现有SQL字面解析，未执行原Service/DTO策略算法、UI、Mapper/DB/Provider，未生成新catalog/DDL/源码/索引。",
+    "原SQLdump顺序仅审计，SQL无ORDER BY不冒称执行顺序；原动态配置真实数据仍未导入/连接。",
+    "现有175旧索引保历史不读取新Export路由作最终source统计；本JSON无长期实施状态。"
+  ]
+}

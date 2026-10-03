@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.SpaceMapper">
+  <sql id="columns">s.id, s.name, s.description, s.avatar_url AS avatarUrl, s.owner_user_id AS ownerUserId,
+    s.dept_id AS deptId, s.team_id AS teamId, s.kind, s.revision, s.deleted,
+    s.create_by AS createBy, s.update_by AS updateBy, s.create_time AS createTime, s.update_time AS updateTime</sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.SpaceRecord">
+    SELECT <include refid="columns"/> FROM paiflow_space s WHERE s.id = #{id} AND s.deleted = 0
+  </select>
+  <select id="lock" resultType="com.ruoyi.paiflow.domain.SpaceRecord">
+    SELECT <include refid="columns"/> FROM paiflow_space s WHERE s.id = #{id} AND s.deleted = 0 FOR UPDATE
+  </select>
+  <select id="defaultPersonal" resultType="com.ruoyi.paiflow.domain.SpaceRecord">
+    SELECT <include refid="columns"/> FROM paiflow_space s
+    WHERE s.owner_user_id=#{ownerUserId} AND s.kind='default_personal' AND s.deleted=0
+  </select>
+  <select id="defaultPersonalVisit" resultType="com.ruoyi.paiflow.domain.SpaceVisit">
+    SELECT v.space_id AS spaceId,v.user_id AS userId,v.last_visit_time AS lastVisitTime
+    FROM paiflow_space_visit v JOIN paiflow_space s ON s.id=v.space_id AND s.deleted=0
+    JOIN paiflow_space_member m ON m.space_id=s.id AND m.user_id=v.user_id AND m.status='active' AND m.role=1
+    WHERE v.user_id=#{userId} AND s.owner_user_id=#{userId} AND s.kind='default_personal'
+  </select>
+  <select id="member" resultType="com.ruoyi.paiflow.domain.SpaceMember">
+    SELECT space_id AS spaceId, user_id AS userId, role, status FROM paiflow_space_member
+    WHERE space_id = #{spaceId} AND user_id = #{userId}
+  </select>
+  <insert id="insert" parameterType="com.ruoyi.paiflow.domain.SpaceRecord" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (#{name}, #{description}, #{avatarUrl}, #{ownerUserId}, #{deptId}, #{teamId}, #{kind},
+      0, 0, #{createBy}, #{updateBy}, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+  </insert>
+  <insert id="insertOwner">
+    INSERT INTO paiflow_space_member (space_id, user_id, role, status, revision, create_by, update_by, create_time, update_time)
+    VALUES (#{spaceId}, #{userId}, 1, 'active', 0, #{actor}, #{actor}, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+  </insert>
+  <update id="update">
+    UPDATE paiflow_space SET name = #{name}, description = #{description}, avatar_url = #{avatarUrl},
+      revision = revision + 1, update_by = #{updateBy}, update_time = UTC_TIMESTAMP()
+    WHERE id = #{id} AND revision = #{revision} AND deleted = 0 AND kind &lt;&gt; 'default_personal'
+  </update>
+  <update id="transfer">
+    UPDATE paiflow_space SET owner_user_id = #{userId}, revision = revision + 1,
+      update_by = #{actor}, update_time = UTC_TIMESTAMP()
+    WHERE id = #{spaceId} AND revision = #{revision} AND deleted = 0 AND kind &lt;&gt; 'default_personal'
+  </update>
+  <update id="setRole">
+    UPDATE paiflow_space_member SET role = #{role}, revision = revision + 1, update_by = #{actor}, update_time = UTC_TIMESTAMP()
+    WHERE space_id = #{spaceId} AND user_id = #{userId} AND status = 'active'
+  </update>
+  <update id="removeMember">
+    UPDATE paiflow_space_member SET status = 'removed', revision = revision + 1, update_by = #{actor}, update_time = UTC_TIMESTAMP()
+    WHERE space_id = #{spaceId} AND user_id = #{userId} AND status = 'active' AND role &lt;&gt; 1
+  </update>
+  <select id="countName" resultType="long">
+    SELECT COUNT(*) FROM paiflow_space WHERE owner_user_id = #{ownerUserId} AND kind = 'personal' AND deleted = 0 AND name = #{name}
+    <if test="excludeId != null">AND id &lt;&gt; #{excludeId}</if>
+  </select>
+  <select id="list" resultType="com.ruoyi.paiflow.domain.SpaceRecord">
+    SELECT <include refid="columns"/> FROM paiflow_space s
+    JOIN paiflow_space_member m ON m.space_id = s.id AND m.user_id = #{userId} AND m.status = 'active'
+    WHERE s.deleted = 0 AND s.kind = #{kind}
+    <if test="owned">AND s.owner_user_id = #{userId}</if>
+    <if test="name != null and name != ''">AND LOCATE(#{name}, s.name) &gt; 0</if>
+    ORDER BY s.id DESC
+  </select>
+  <select id="members" resultType="com.ruoyi.paiflow.domain.SpaceMember">
+    SELECT space_id AS spaceId, user_id AS userId, role, status FROM paiflow_space_member
+    WHERE space_id = #{spaceId} AND status = 'active' ORDER BY role, user_id
+  </select>
+  <insert id="visit">
+    INSERT INTO paiflow_space_visit (space_id, user_id, last_visit_time)
+    VALUES (#{spaceId}, #{userId}, UTC_TIMESTAMP(3))
+    ON DUPLICATE KEY UPDATE last_visit_time = UTC_TIMESTAMP(3)
+  </insert>
+  <select id="recent" resultType="com.ruoyi.paiflow.domain.SpaceVisit">
+    SELECT v.space_id AS spaceId, v.user_id AS userId, v.last_visit_time AS lastVisitTime FROM paiflow_space_visit v
+    JOIN paiflow_space s ON s.id = v.space_id AND s.deleted = 0
+    JOIN paiflow_space_member m ON m.space_id = v.space_id AND m.user_id = v.user_id AND m.status = 'active'
+    WHERE v.user_id = #{userId} AND s.kind IN ('personal','team') ORDER BY v.last_visit_time DESC, v.space_id DESC
+  </select>
+
+  <sql id="teamColumns">t.id,t.name,t.avatar_url AS avatarUrl,t.logo_url AS logoUrl,t.owner_user_id AS ownerUserId,t.service_type AS serviceType,t.expire_time AS expireTime,t.revision,t.deleted,t.create_by AS createBy,t.update_by AS updateBy,t.create_time AS createTime,t.update_time AS updateTime</sql>
+  <select id="team" resultType="com.ruoyi.paiflow.domain.TeamRecord">SELECT <include refid="teamColumns"/> FROM paiflow_team t WHERE id=#{id} AND deleted=0</select>
+  <select id="lockTeam" resultType="com.ruoyi.paiflow.domain.TeamRecord">SELECT <include refid="teamColumns"/> FROM paiflow_team t WHERE id=#{id} AND deleted=0 FOR UPDATE</select>
+  <sql id="teamMemberColumns">m.id,m.team_id AS teamId,m.user_id AS userId,m.role,m.status,m.revision,m.create_time AS createTime,m.update_time AS updateTime</sql>
+  <select id="teamMember" resultType="com.ruoyi.paiflow.domain.TeamMember">SELECT <include refid="teamMemberColumns"/> FROM paiflow_team_member m WHERE team_id=#{teamId} AND user_id=#{userId}</select>
+  <select id="joinedTeams" resultType="com.ruoyi.paiflow.domain.TeamRecord">SELECT <include refid="teamColumns"/> FROM paiflow_team t JOIN paiflow_team_member m ON m.team_id=t.id AND m.user_id=#{userId} AND m.status='active' WHERE t.deleted=0 ORDER BY t.id DESC</select>
+  <insert id="insertTeam" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_team(name,avatar_url,logo_url,owner_user_id,service_type,expire_time,revision,deleted,create_by,update_by,create_time,update_time) VALUES(#{name},#{avatarUrl},#{logoUrl},#{ownerUserId},#{serviceType},#{expireTime},0,0,#{createBy},#{updateBy},UTC_TIMESTAMP(),UTC_TIMESTAMP())</insert>
+  <update id="updateTeam">UPDATE paiflow_team SET name=#{name},avatar_url=#{avatarUrl},logo_url=#{logoUrl},revision=revision+1,update_by=#{updateBy},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision} AND deleted=0</update>
+  <select id="countTeamName" resultType="long">SELECT COUNT(*) FROM paiflow_team WHERE deleted=0 AND name=#{name}<if test="excludeId != null"> AND id &lt;&gt; #{excludeId}</if></select>
+  <select id="countOwnedTeams" resultType="long">SELECT COUNT(*) FROM paiflow_team WHERE deleted=0 AND owner_user_id=#{userId}</select>
+  <insert id="insertTeamMember">INSERT INTO paiflow_team_member(team_id,user_id,role,status,revision,create_by,update_by,create_time,update_time) VALUES(#{teamId},#{userId},#{role},'active',0,#{actor},#{actor},UTC_TIMESTAMP(),UTC_TIMESTAMP())</insert>
+  <update id="reactivateTeamMember">UPDATE paiflow_team_member SET status='active',role=#{role},revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE team_id=#{teamId} AND user_id=#{userId} AND status='removed' AND role &lt;&gt; 1</update>
+  <update id="setTeamRole">UPDATE paiflow_team_member SET role=#{role},revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE team_id=#{teamId} AND user_id=#{userId} AND status='active' AND role &lt;&gt; 1</update>
+  <update id="removeTeamMember">UPDATE paiflow_team_member SET status='removed',revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE team_id=#{teamId} AND user_id=#{userId} AND status='active' AND role &lt;&gt; 1</update>
+  <select id="teamMembers" resultType="com.ruoyi.paiflow.domain.TeamMember">SELECT <include refid="teamMemberColumns"/> FROM paiflow_team_member m WHERE team_id=#{teamId} AND status='active' ORDER BY role,user_id</select>
+  <select id="teamSpaces" resultType="com.ruoyi.paiflow.domain.SpaceRecord">SELECT <include refid="columns"/> FROM paiflow_space s WHERE team_id=#{teamId} AND deleted=0 ORDER BY id</select>
+  <insert id="visitTeam">INSERT INTO paiflow_team_visit(user_id,team_id,last_visit_time) VALUES(#{userId},#{teamId},UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE team_id=#{teamId},last_visit_time=UTC_TIMESTAMP()</insert>
+  <delete id="clearTeamVisit">DELETE FROM paiflow_team_visit WHERE user_id=#{userId}</delete>
+  <insert id="insertMember">INSERT INTO paiflow_space_member(space_id,user_id,role,status,revision,create_by,update_by,create_time,update_time) VALUES(#{spaceId},#{userId},#{role},'active',0,#{actor},#{actor},UTC_TIMESTAMP(),UTC_TIMESTAMP())</insert>
+  <update id="reactivateMember">UPDATE paiflow_space_member SET status='active',role=#{role},revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE space_id=#{spaceId} AND user_id=#{userId} AND status='removed' AND role &lt;&gt; 1</update>
+  <sql id="memberFilter">AND m.status='active'<if test="nickname != null and nickname != ''"> AND LOCATE(#{nickname},u.nick_name)&gt;0</if><if test="role != null and role != 0"> AND m.role=#{role}</if></sql>
+  <!-- 平台表仅查询所属成员的昵称过滤；不复制账号、密码或角色，响应资料由平台Service提供。 -->
+  <select id="countMembers" resultType="long">SELECT COUNT(*) FROM paiflow_space_member m LEFT JOIN sys_user u ON u.user_id=m.user_id WHERE m.space_id=#{spaceId} <include refid="memberFilter"/></select>
+  <select id="memberPage" resultType="com.ruoyi.paiflow.domain.SpaceMember">SELECT m.id,m.space_id AS spaceId,m.user_id AS userId,m.role,m.status,m.revision,m.create_time AS createTime,m.update_time AS updateTime,v.last_visit_time AS lastVisitTime FROM paiflow_space_member m LEFT JOIN sys_user u ON u.user_id=m.user_id LEFT JOIN paiflow_space_visit v ON v.space_id=m.space_id AND v.user_id=m.user_id WHERE m.space_id=#{spaceId} <include refid="memberFilter"/> ORDER BY m.role,m.id LIMIT #{limit} OFFSET #{offset}</select>
+  <select id="countTeamMembers" resultType="long">SELECT COUNT(*) FROM paiflow_team_member m LEFT JOIN sys_user u ON u.user_id=m.user_id WHERE m.team_id=#{teamId} <include refid="memberFilter"/></select>
+  <select id="teamMemberPage" resultType="com.ruoyi.paiflow.domain.TeamMember">SELECT <include refid="teamMemberColumns"/> FROM paiflow_team_member m LEFT JOIN sys_user u ON u.user_id=m.user_id WHERE m.team_id=#{teamId} <include refid="memberFilter"/> ORDER BY m.role,m.id LIMIT #{limit} OFFSET #{offset}</select>
+  <insert id="lockOwnerScope">INSERT INTO paiflow_membership_scope_lock(owner_user_id) VALUES(#{ownerUserId}) ON DUPLICATE KEY UPDATE owner_user_id=#{ownerUserId}</insert>
+  <select id="countCapacityMembers" resultType="long">
+    <choose><when test="teamId != null">SELECT COUNT(*) FROM paiflow_team_member WHERE team_id=#{teamId} AND status='active'</when>
+      <otherwise>SELECT COUNT(DISTINCT m.user_id) FROM paiflow_space_member m JOIN paiflow_space s ON s.id=m.space_id AND s.deleted=0 AND s.kind='personal' AND s.owner_user_id=#{ownerUserId} WHERE m.status='active'</otherwise></choose>
+  </select>
+  <sql id="capacityFilter"><choose><when test="teamId != null">team_id=#{teamId}</when><otherwise>team_id IS NULL AND owner_user_id=#{ownerUserId}</otherwise></choose></sql>
+  <select id="countCapacityInvites" resultType="long">
+    SELECT COUNT(DISTINCT i.invitee_user_id) FROM paiflow_membership_invite i WHERE i.status=1 AND i.expire_time&gt;UTC_TIMESTAMP()
+    <choose><when test="teamId != null">AND i.team_id=#{teamId} AND NOT EXISTS(SELECT 1 FROM paiflow_team_member m WHERE m.team_id=i.team_id AND m.user_id=i.invitee_user_id AND m.status='active')</when>
+      <otherwise>AND i.team_id IS NULL AND i.owner_user_id=#{ownerUserId} AND EXISTS(SELECT 1 FROM paiflow_space s WHERE s.id=i.space_id AND s.kind='personal' AND s.deleted=0) AND NOT EXISTS(SELECT 1 FROM paiflow_space_member m WHERE m.space_id=i.space_id AND m.user_id=i.invitee_user_id AND m.status='active')</otherwise></choose>
+  </select>
+  <select id="countPendingSpaceInvites" resultType="long">SELECT COUNT(DISTINCT i.invitee_user_id) FROM paiflow_membership_invite i WHERE i.space_id=#{spaceId} AND i.type=1 AND i.status=1 AND i.expire_time&gt;UTC_TIMESTAMP() AND NOT EXISTS(SELECT 1 FROM paiflow_space_member m WHERE m.space_id=i.space_id AND m.user_id=i.invitee_user_id AND m.status='active')</select>
+  <update id="expireInvites">UPDATE paiflow_membership_invite SET status=5,revision=revision+1,update_time=UTC_TIMESTAMP() WHERE <include refid="capacityFilter"/> AND status=1 AND expire_time&lt;=UTC_TIMESTAMP()</update>
+  <sql id="inviteColumns">i.id,i.type,i.space_id AS spaceId,i.team_id AS teamId,i.owner_user_id AS ownerUserId,i.invitee_user_id AS inviteeUserId,i.role,i.inviter_user_id AS inviterUserId,i.status,i.revision,i.notification_status AS notificationStatus,i.expire_time AS expireTime,i.create_time AS createTime,i.update_time AS updateTime</sql>
+  <select id="invitation" resultType="com.ruoyi.paiflow.domain.MembershipInvitation">SELECT <include refid="inviteColumns"/> FROM paiflow_membership_invite i WHERE id=#{id}</select>
+  <insert id="insertInvitation" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_membership_invite(type,space_id,team_id,owner_user_id,invitee_user_id,role,inviter_user_id,status,revision,notification_status,expire_time,create_time,update_time) VALUES(#{type},#{spaceId},#{teamId},#{ownerUserId},#{inviteeUserId},#{role},#{inviterUserId},1,0,'not_connected',#{expireTime},UTC_TIMESTAMP(),UTC_TIMESTAMP())</insert>
+  <select id="pendingInvitation" resultType="long">SELECT COUNT(*) FROM paiflow_membership_invite WHERE type=#{type} AND invitee_user_id=#{userId} AND status=1 AND expire_time&gt;UTC_TIMESTAMP() AND <choose><when test="type == 1">space_id=#{scopeId}</when><otherwise>team_id=#{scopeId}</otherwise></choose></select>
+  <update id="invitationTransition">UPDATE paiflow_membership_invite SET status=#{status},revision=revision+1,update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision} AND status=1 AND expire_time&gt;UTC_TIMESTAMP()</update>
+  <sql id="inviteFilter"><choose><when test="type == 1">i.type=1 AND i.space_id=#{scopeId}</when><otherwise>i.team_id=#{scopeId}</otherwise></choose><if test="nickname != null and nickname != ''"> AND LOCATE(#{nickname},u.nick_name)&gt;0</if><if test="status != null and status != 0"> AND CASE WHEN i.status=1 AND i.expire_time&lt;=UTC_TIMESTAMP() THEN 5 ELSE i.status END=#{status}</if></sql>
+  <select id="countInvitations" resultType="long">SELECT COUNT(*) FROM paiflow_membership_invite i LEFT JOIN sys_user u ON u.user_id=i.invitee_user_id WHERE <include refid="inviteFilter"/></select>
+  <select id="invitationPage" resultType="com.ruoyi.paiflow.domain.MembershipInvitation">SELECT <include refid="inviteColumns"/> FROM paiflow_membership_invite i LEFT JOIN sys_user u ON u.user_id=i.invitee_user_id WHERE <include refid="inviteFilter"/> ORDER BY i.id DESC LIMIT #{limit} OFFSET #{offset}</select>
+  <sql id="applyColumns">a.id,a.team_id AS teamId,a.space_id AS spaceId,a.applicant_user_id AS applicantUserId,a.status,a.audit_user_id AS auditUserId,a.audit_time AS auditTime,a.revision,a.create_time AS createTime,a.update_time AS updateTime</sql>
+  <select id="application" resultType="com.ruoyi.paiflow.domain.MembershipApplication">SELECT <include refid="applyColumns"/> FROM paiflow_membership_apply a WHERE id=#{id}</select>
+  <select id="pendingApplication" resultType="long">SELECT COUNT(*) FROM paiflow_membership_apply WHERE space_id=#{spaceId} AND applicant_user_id=#{userId} AND status=1</select>
+  <insert id="insertApplication" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_membership_apply(team_id,space_id,applicant_user_id,status,revision,create_time,update_time) VALUES(#{teamId},#{spaceId},#{applicantUserId},1,0,UTC_TIMESTAMP(),UTC_TIMESTAMP())</insert>
+  <update id="applicationTransition">UPDATE paiflow_membership_apply SET status=#{status},audit_user_id=#{auditUserId},audit_time=UTC_TIMESTAMP(),revision=revision+1,update_time=UTC_TIMESTAMP() WHERE id=#{id} AND status=1 AND revision=#{revision}</update>
+  <sql id="applyFilter">a.space_id=#{spaceId}<if test="nickname != null and nickname != ''"> AND LOCATE(#{nickname},u.nick_name)&gt;0</if><if test="status != null and status != 0"> AND a.status=#{status}</if></sql>
+  <select id="countApplications" resultType="long">SELECT COUNT(*) FROM paiflow_membership_apply a LEFT JOIN sys_user u ON u.user_id=a.applicant_user_id WHERE <include refid="applyFilter"/></select>
+  <select id="applicationPage" resultType="com.ruoyi.paiflow.domain.MembershipApplication">SELECT <include refid="applyColumns"/> FROM paiflow_membership_apply a LEFT JOIN sys_user u ON u.user_id=a.applicant_user_id WHERE <include refid="applyFilter"/> ORDER BY a.id DESC LIMIT #{limit} OFFSET #{offset}</select>
+</mapper>

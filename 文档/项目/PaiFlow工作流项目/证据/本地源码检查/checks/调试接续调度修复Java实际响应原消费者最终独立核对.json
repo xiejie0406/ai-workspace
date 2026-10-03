@@ -1,0 +1,61 @@
+{
+  "checkedAt": "2026-10-03T08:28:48.995Z",
+  "status": "actual_java_artifacts_private_consumer_checked",
+  "assertions": 9,
+  "facts": [
+    "实际构建源域与读条件0建立",
+    "实际原服务保持build body对象与专用key头，并用原读If-Match",
+    "实际Java构建回执完整且普通构建条件推进到1",
+    "实际SSE原UTF8 bytes逐字一致",
+    "实际原fetch-event-source解析器得到真实runId:seq499终帧",
+    "当前helper接收实际终帧并固定同Run游标",
+    "实际Java499终帧进入未改原handleMessage停止分支，原结果failed",
+    "实际abort ACK RESUMED/stoppedfalse只确认受理，不冒充Run已停",
+    "同真实检查点abort请求窄补空串并保首次replyKey/revision"
+  ],
+  "artifacts": {
+    "调试构建实际MVC响应.json": {
+      "sha256": "c8ce80ae5949b91d52f0787e72ee2b153b05e9fca7fcaee971506d9fcde050fb"
+    },
+    "调试流调度修复实际MVC响应.json": {
+      "sha256": "ed3b58fd492c4e59ea8fcd3001aff2ca790de461cb677e12da0b69b7df00d38d"
+    },
+    "调试回复调度修复实际MVC响应.json": {
+      "sha256": "735f766bebaf7c918f24b318d248a240d6f860e7070a2311b994b64657570924"
+    }
+  },
+  "sourceHashes": {
+    "src/utils/workflow-debug.ts": "e2d233a5b8c4e03d28c70c759bdc060d5aa9427d7d767a70584263473111a800",
+    "src/utils/workflow-revision.ts": "e6fd8f9854e7ffd071eedb724f26ce4edb3d26e2d4c2479f1fdcfed2efe709ce",
+    "src/services/flow.ts": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+    "originalFlowChat": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac"
+  },
+  "sourceWindowChanges": [],
+  "actualJavaStage": "第二次10项实际H2/MVC调度复验生成；第三次只跑1项未重生成这两份",
+  "priorActualConsumerProof": {
+    "path": "调试接续Java实际响应原消费者最终独立核对.json",
+    "sha256": "fed9ab725fe2e1e95181e38069486622ce344bddf2cf06e5b8b20e988e7c4f2a"
+  },
+  "currentFlowSourceHashForViewStage": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba",
+  "originalConsumerObservation": {
+    "pushed": [
+      {
+        "name": "endNodeTextQueue",
+        "value": "运行已取消"
+      }
+    ],
+    "flowResult": {
+      "status": "failed",
+      "timeCost": "0",
+      "totalTokens": "0"
+    }
+  },
+  "streamWireSha256": "c502e9a4dd292fd60fd153909ff00116b9a0980a66de7d1f2fc6572f5a896a08",
+  "limitations": [
+    "Content-Type/status为公共SSE探针上下文，artifact未实录这两项",
+    "ACK探针用真实request CP条件建立隔离已读上下文，未实录CP SSE帧",
+    "原handleMessage由AST在VM执行，UI/store更新用spy",
+    "HTTP客户端为内存适配器，未启动正式服务/页面/Worker/Provider；不计业务验收"
+  ],
+  "businessVerified": false
+}

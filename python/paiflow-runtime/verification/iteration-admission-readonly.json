@@ -1,0 +1,79 @@
+{
+  "timestamp": "2026-10-03T02:31:49.442438+00:00",
+  "scope": "read-only runtime admission inventory and parent-authorized one failed-inner pure iteration probe; evidence writes only; no Provider/DB/service/network/Git/production-source modification",
+  "probe": {
+    "executedVia": "PowerShell stdin to .venv/Scripts/python.exe -B -",
+    "commandExitCode": 0,
+    "expectedRunState": "FAILED",
+    "actual": {
+      "scope": "one actual original Factory pure failed-inner iteration, in-memory center fixture only; no Provider/DB/network/source write",
+      "terminal": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "ENGINE_FAILED",
+          "message": "原引擎执行失败，需按关联运行核对诊断"
+        }
+      },
+      "nodeFailures": [
+        [
+          "text-joiner::j",
+          "iteration::i:0"
+        ],
+        [
+          "iteration::i",
+          null
+        ]
+      ],
+      "iterationCompletions": 0
+    },
+    "matchedExpectedRejection": true,
+    "inferredFalseSuccessConfirmed": false,
+    "reproduction": "verification/iteration-failure-readonly-probe.py.txt",
+    "note": "No new test-count claim; one in-memory probe, not full226 rerun or formal centre business proof"
+  },
+  "sourceHashes": {
+    "python/paiflow-runtime/worker/engine_adapter.py": "12e4f0b2dd0e6a9f05830fe92576f408801a95d8ea90940014dfaaaf6c540489",
+    "python/paiflow-runtime/worker/task_runner.py": "78a82a1681afe906b4f1aa962d7ba73e9fc7e2c4130207f8696aa4c2e40eb51a",
+    "python/paiflow-runtime/worker/node_context.py": "b03dc7eb44513ee7c93b7ddaf79bada8e07df0b176a40827a1e364ce530d3363",
+    "python/paiflow-runtime/workflow/engine/nodes/iteration/iteration_node.py": "2eff41396ea1eef90dd5895fc7ec28ea70d2b7da10edb830e2d08d0985d084dd",
+    "python/paiflow-runtime/workflow/engine/node.py": "2847a8446f4b799f880d1fbf3511e4e857c7050a64360dde23a51eaf277ac8bc",
+    "python/paiflow-runtime/workflow/engine/dsl_engine.py": "81da26340b13e312743ad6c9a464d657e198179dc77ab377b83042eef87e2529",
+    "参考项目/PaiFlow-main/core/workflow/engine/nodes/iteration/iteration_node.py": "1a12fa51f61f1ec2c1b357f8572711846d3c96fa9743d47928113aaf82a3b9f2",
+    "参考项目/PaiFlow-main/core/workflow/engine/nodes/question_answer/question_answer_node.py": "1ccbb05588947bf41768c5915b858712de594c2a57dba73c21362117ea1aab30",
+    "参考项目/PaiFlow-main/core/workflow/engine/nodes/global_variables/global_variables_node.py": "9654bebafbfba8877255ec83676bb2582bc8a5b325c0ca4f723b88e36c137c64",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java": "097304efe9332db35f2ebf84f09e4b9b90e720c93cbee0cac6ff156924f8d809",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/DslValidationService.java": "cfb0edacc289d26de60280cf421e97fd2b81e910697ee51736c3bb00d951de3b",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowModelCompiler.java": "fed57a79ef00e1c9fd6df8eb045c8b363bdf0848b809052050c5650474a79626",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CheckpointService.java": "7ce501b7fae7ac29359cfb10e04ce1cb6fb2ddb251ee065efd950bb2f7d874c0"
+  },
+  "sourceWindows": {
+    "python/paiflow-runtime/workflow/engine/nodes/iteration/iteration_node.py": {
+      "firstLine": 90,
+      "lastLine": 119,
+      "source": "                span_context.add_info_events({\"inputs\": f\"{inputs}\"})\n\n                batch_result_dict: dict[str, list] = {}\n                temp_variable_pool = copy.deepcopy(variable_pool)\n                for batch_index, batch_data in enumerate(batch_datas):\n                    iteration_one_engine.engine_ctx.built_nodes = built_nodes\n                    # 只添加中心事件关联，原批次顺序和内部引擎算法保持一致。\n                    with iteration_scope(self.node_id, batch_index):\n                        res = await self._process_single_batch(\n                            batch_data,\n                            temp_variable_pool,\n                            source_iteration_chains,\n                            span_context,\n                            iteration_one_engine,\n                            variable_pool,\n                            callbacks,\n                            event_log_trace,\n                        )\n                    cur_batch_res = res.outputs\n                    for res_k, res_v in cur_batch_res.items():\n                        if res_k not in batch_result_dict:\n                            batch_result_dict[res_k] = []\n                        batch_result_dict[res_k].append(res_v)\n\n                return_result = {}\n                for out_put_key_name in self.output_identifier:\n                    return_result[out_put_key_name] = batch_result_dict.get(\n                        out_put_key_name, []\n                    )\n                span_context.add_info_events({\"ret\": f\"{return_result}\"})"
+    },
+    "python/paiflow-runtime/workflow/engine/node.py": {
+      "firstLine": 194,
+      "lastLine": 250,
+      "source": "\n    async def _handle_execution_result(\n        self, result: NodeRunResult, span_context: Span, **kwargs: Any\n    ) -> None:\n        \"\"\"Handle node execution result based on status.\n\n        :param result: Node execution result\n        :param span_context: Tracing span context\n        :param kwargs: Additional parameters for result handling\n        \"\"\"\n        if result.status == WorkflowNodeExecutionStatus.CANCELLED:\n            self._handle_cancelled_result(\n                result, span_context, cast(WorkflowLog, kwargs.get(\"event_log_trace\"))\n            )\n            return\n\n        if result.status != WorkflowNodeExecutionStatus.SUCCEEDED:\n            self._handle_failed_result(result, span_context)\n            return\n\n        await self._handle_successful_result(result, span_context, **kwargs)\n\n    def _handle_cancelled_result(\n        self, result: NodeRunResult, span_context: Span, event_log_trace: WorkflowLog\n    ) -> None:\n        \"\"\"Handle cancelled execution result.\n\n        :param result: Cancelled node execution result\n        :param span_context: Tracing span context\n        :param event_log_trace: Workflow event log trace\n        \"\"\"\n        if event_log_trace:\n            event_log_trace.add_node_log([self.node.node_log])\n        self.node.node_log.running_status = False\n        span_context.add_info_event(f\"node {result.node_id} run cancelled.\")\n\n    def _handle_failed_result(self, result: NodeRunResult, span_context: Span) -> None:\n        \"\"\"Handle failed execution result.\n\n        :param result: Failed node execution result\n        :param span_context: Tracing span context\n        :raises CustomException: When node execution fails\n        \"\"\"\n\n        if not result.error:\n            raise CustomException(\n                CodeEnum.NODE_RUN_ERROR,\n                cause_error=f\"node {result.node_id} run failed, not error\",\n            )\n\n        self.node.node_log.running_status = False\n        span_context.add_error_event(\n            f\"node {result.node_id} run failed, \"\n            f\"err code {result.error.code}, err reason: {result.error}\"\n        )\n        raise result.error\n"
+    },
+    "python/paiflow-runtime/workflow/engine/dsl_engine.py": {
+      "firstLine": 1166,
+      "lastLine": 1199,
+      "source": "\n        error: CustomException | None = None\n        try:\n            strategy = self.strategy_manager.get_strategy(node.node_id.split(\"::\")[0])\n            run_result = await asyncio.wait_for(\n                strategy.execute_node(node, self.engine_ctx, span_context),\n                timeout=node.node_instance._private_config.timeout,\n            )\n            return run_result, False\n        except Exception as err:\n            if isinstance(err, CustomException):\n                error = err\n            else:\n                error = CustomException(CodeEnum.NODE_RUN_ERROR, cause_error=err)\n        finally:\n            if error:\n                current_task = asyncio.current_task()\n                for task in self.engine_ctx.dfs_tasks:\n                    # not cancel current task, need to wait for it to complete\n                    if current_task and task == current_task:\n                        continue\n                    task.cancel()\n                await self.engine_ctx.callback.on_node_end(\n                    node_id=node.node_id,\n                    alias_name=node.node_alias_name,\n                    error=error,\n                )\n                raise error\n        raise RuntimeError(\"Unexpected end of execute without error handling\")\n\n    async def _execute_with_error_handling(\n        self,\n        node: SparkFlowEngineNode,\n        span_context: Span,"
+    },
+    "参考项目/PaiFlow-main/core/workflow/engine/nodes/iteration/iteration_node.py": {
+      "firstLine": 91,
+      "lastLine": 115,
+      "source": "                batch_result_dict: dict[str, list] = {}\n                temp_variable_pool = copy.deepcopy(variable_pool)\n                for batch_data in batch_datas:\n                    iteration_one_engine.engine_ctx.built_nodes = built_nodes\n                    res = await self._process_single_batch(\n                        batch_data,\n                        temp_variable_pool,\n                        source_iteration_chains,\n                        span_context,\n                        iteration_one_engine,\n                        variable_pool,\n                        callbacks,\n                        event_log_trace,\n                    )\n                    cur_batch_res = res.outputs\n                    for res_k, res_v in cur_batch_res.items():\n                        if res_k not in batch_result_dict:\n                            batch_result_dict[res_k] = []\n                        batch_result_dict[res_k].append(res_v)\n\n                return_result = {}\n                for out_put_key_name in self.output_identifier:\n                    return_result[out_put_key_name] = batch_result_dict.get(\n                        out_put_key_name, []\n                    )"
+    }
+  },
+  "findings": [
+    "Original NodeExecutionTemplate failed-result path raises the actual error; failed child engine does not normally return FAILED+empty outputs to aggregation in this probe. No algorithm fix inferred from isolated res.outputs statement.",
+    "Pure iteration remains blocked by RunService allowlist; current DslValidationService does not validate container ownership or expansion budgets. Worker ContextVar iteration strings annotate events but are not centre operation/checkpoint authorization.",
+    "Top-level QA directAnswer.handleResponse=false and static option branch do not invoke _get_chat_ai; BaseLLM inherited domain/appId remain required string compatibility fields, not a model binding.",
+    "node-variable always calls centre persistent scope get_all even on local fallback; current executionContext requires flow/user/app/chat binding. It must not be admitted as run-local memory."
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "paiflow.input-types.freeze.v1",
+  "createdAt": "2026-10-03T06:20:55.7494929Z",
+  "status": "test_loop_cleanup_repaired_frozen_checks_not_run",
+  "scope": "local original workflow input typed projection and bound Agent metadata only",
+  "inputs": [
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowInputTypesPolicy.java",
+      "sha256": "5328d7d2b1cc3af74cb6d1c727cc6eca388e4bcb8621cb1b76cc2bcfc0ad4713"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/dto/LegacyWorkflowInputTypeDto.java",
+      "sha256": "5fe2a1e1f1ab2dee7d84df26fdebc97909a3bb6941f528633d028240d3d6df69"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java",
+      "sha256": "8bae862475b12de8116610c615fc7380badbe1cc802373fe1c83bbb79c79df64"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentWorkflowController.java",
+      "sha256": "73008fb824b82d2407ca1c931b0bb0359acb8f4d4fe8a64eb526c4c877205177"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowInputTypesPolicyTest.java",
+      "sha256": "e04e04fc23cc601c94bf795b9517570f705244c97b57c2dc250d7965721dc704"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/AgentInputTypesPersistenceTest.java",
+      "sha256": "8f3149ee141010819dc93e5623e473c0ec82a2c32a8d44aff1728a5ca59122d7"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentContractTest.java",
+      "sha256": "9d4f05338bdb1d3c1dea553b29f831d915614ec2fe88bac24778ed28ead8da7b"
+    },
+    {
+      "path": "contracts/paiflow/fixtures/workflow-input-types.json",
+      "sha256": "3a487d63289d0dfd3195df10c732e033f3062eb0efac38e958b91fc9b6572909"
+    }
+  ],
+  "expectedSuites": 4,
+  "expectedTests": 68,
+  "existingTests": 42,
+  "newTests": 26,
+  "testCounts": [
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/AgentPersistenceTest.java",
+      "testCount": 31
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentContractTest.java",
+      "testCount": 15
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowInputTypesPolicyTest.java",
+      "testCount": 6
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/AgentInputTypesPersistenceTest.java",
+      "testCount": 16
+    }
+  ],
+  "unchangedAgentPersistenceSha256": "8277b963e1f1d700e7edc759a2bb6577f06601a615e0f3e9c1abbecbe38d8eaa",
+  "beforeChangeEvidence": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/输入类型同步修改前快照/输入.json",
+  "pureOriginalTypedAssertions": 90,
+  "originalMaasFullMethodExecuted": false,
+  "maasMetadataEvidenceKind": "exact source derivation, checked separately from actual typed DTO observations",
+  "businessVerified": false,
+  "realDbWrites": false,
+  "providerCalls": false,
+  "frontendOwnedChanges": [],
+  "ddlChanges": [],
+  "notes": [
+    "原响应仍为12 nullable typed DTO数组，Agent实际ETag及X-PaiFlow-Agent-Id；无Workflow revision header",
+    "原动态extra metadata依原JSON默认省null；外围Agentconfig及workflowSaved局部保null",
+    "原指令型supportUpload来自BotCreateForm115；非来源extraInputs按opaque config保全，不代表上传可用",
+    "source keys全部Agent类型禁客户端制造；三metadata仅Workflow类型保护；view同步状态由当前真实WF绑定计算",
+    "真实H2+Mapper+Service+MockMVC通过后由test保存actual raw response到target/input-types-actual-response.json",
+    "Reserved AGENT typed fields remain in 12-field ordered response, skipped before metadata schema/allowed validation exactly as original Maas; non-reserved invalid schema/allowed still400 with no write"
+  ],
+  "repair": "Third22=20passed+2cleanupErrors retained. Only two loop methods now use distinct names without business delete cleanup; isolated DB closes AfterEach. No authorization or production changes. Fourth only reruns those two methods.",
+  "targetedSuites": [
+    "AgentInputTypesPersistenceTest"
+  ],
+  "expectedTargetedTests": 2,
+  "retainedTests": 66,
+  "targetedMethods": [
+    "emptyNullFirstAndSchemaLessFilesAllRejectWithZeroDerivedUpdate",
+    "reservedMalformedMetadataFieldsRemainNullableInActualMvcButNeverEnterSavedExtras"
+  ]
+}

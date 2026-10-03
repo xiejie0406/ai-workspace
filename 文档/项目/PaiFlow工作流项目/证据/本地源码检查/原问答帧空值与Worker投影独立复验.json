@@ -1,0 +1,274 @@
+{
+  "schemaVersion": "paiflow.worker-null-projection-independent-recheck.v1",
+  "checkedAt": "2026-10-03T04:36:16.291019+00:00",
+  "status": "same_actual_dto_adapter_and_original_consumer_probe_passed",
+  "historicalFailureEvidence": "原问答帧空值与Worker投影独立反例.json",
+  "historicalFailureSha256": "2ae87244c6096811cceaf15d062b2d19d4394fd7b93c0604e26419f3b0f86ae1",
+  "sourceHashesBefore": {
+    "python/paiflow-runtime/worker/engine_adapter.py": "724a6d1f3b3d7b2e22cd3ed6c1ffc75eac01bce6c7cb7c513e88d98222ed61f8",
+    "python/paiflow-runtime/workflow/engine/callbacks/openai_types_sse.py": "490bfcbab8697cb5b0313489f789e08483bd8d5954fa390c81575754c6a4f403",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "参考项目/PaiFlow-main/core/workflow/service/chat_service.py": "132b267e592b7a2e17b2a04de401f1c288c0aab4e67c7c761fab3a72c6e1451f"
+  },
+  "sourceHashesAfter": {
+    "python/paiflow-runtime/worker/engine_adapter.py": "724a6d1f3b3d7b2e22cd3ed6c1ffc75eac01bce6c7cb7c513e88d98222ed61f8",
+    "python/paiflow-runtime/workflow/engine/callbacks/openai_types_sse.py": "490bfcbab8697cb5b0313489f789e08483bd8d5954fa390c81575754c6a4f403",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "参考项目/PaiFlow-main/core/workflow/service/chat_service.py": "132b267e592b7a2e17b2a04de401f1c288c0aab4e67c7c761fab3a72c6e1451f"
+  },
+  "sourceWindowChanges": [],
+  "frames": [
+    {
+      "name": "original Pydantic node-start",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1791002175,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "fixture QA",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.5
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "name": "new actual Worker node.started",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1791002175,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "fixture QA",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.5
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "name": "original Pydantic node-completed",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1791002175,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "",
+            "finish_reason": "stop",
+            "inputs": {
+              "query": "fixture"
+            },
+            "outputs": {
+              "answer": "fixture",
+              "opaqueNull": null
+            },
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.75
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "name": "new actual Worker node.completed",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1791002175,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "",
+            "finish_reason": "stop",
+            "inputs": {
+              "query": "fixture"
+            },
+            "outputs": {
+              "answer": "fixture",
+              "opaqueNull": null
+            },
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.75
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    }
+  ],
+  "originalConsumerObservations": {
+    "source": "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\paiflow-web\\src\\components\\workflow\\store\\flow-chat-function.ts",
+    "cases": [
+      {
+        "name": "original Pydantic node-start",
+        "choiceFinishKeyPresent": true,
+        "nodeFinishKeyPresent": true,
+        "choiceIsNull": true,
+        "choiceIsUndefined": false,
+        "nodeIsNull": true,
+        "nodeIsUndefined": false,
+        "originalNodeBranch": true,
+        "originalNodeStatus": "ing",
+        "originalInterruptBranch": false,
+        "originalStopBranch": false,
+        "nodeId": "question-answer::fixture",
+        "outputs": {}
+      },
+      {
+        "name": "new actual Worker node.started",
+        "choiceFinishKeyPresent": true,
+        "nodeFinishKeyPresent": true,
+        "choiceIsNull": true,
+        "choiceIsUndefined": false,
+        "nodeIsNull": true,
+        "nodeIsUndefined": false,
+        "originalNodeBranch": true,
+        "originalNodeStatus": "ing",
+        "originalInterruptBranch": false,
+        "originalStopBranch": false,
+        "nodeId": "question-answer::fixture",
+        "outputs": {}
+      },
+      {
+        "name": "original Pydantic node-completed",
+        "choiceFinishKeyPresent": true,
+        "nodeFinishKeyPresent": true,
+        "choiceIsNull": true,
+        "choiceIsUndefined": false,
+        "nodeIsNull": false,
+        "nodeIsUndefined": false,
+        "originalNodeBranch": true,
+        "originalNodeStatus": "stop",
+        "originalInterruptBranch": false,
+        "originalStopBranch": false,
+        "nodeId": "question-answer::fixture",
+        "outputs": {
+          "answer": "fixture",
+          "opaqueNull": null
+        }
+      },
+      {
+        "name": "new actual Worker node.completed",
+        "choiceFinishKeyPresent": true,
+        "nodeFinishKeyPresent": true,
+        "choiceIsNull": true,
+        "choiceIsUndefined": false,
+        "nodeIsNull": false,
+        "nodeIsUndefined": false,
+        "originalNodeBranch": true,
+        "originalNodeStatus": "stop",
+        "originalInterruptBranch": false,
+        "originalStopBranch": false,
+        "nodeId": "question-answer::fixture",
+        "outputs": {
+          "answer": "fixture",
+          "opaqueNull": null
+        }
+      }
+    ]
+  },
+  "command": [
+    "node",
+    "-e",
+    "\nconst fs=require('fs'),vm=require('vm'),ts=require(process.argv[1]);\nconst file=process.argv[2],raw=fs.readFileSync(file,'utf8');\nconst ast=ts.createSourceFile(file,raw,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);\nconst statement=ast.statements.find(s=>ts.isVariableStatement(s)&&s.declarationList.declarations.some(d=>d.name.getText(ast)==='extractNodeInfo'));\nif(!statement)throw Error('original extractNodeInfo not found');\nconst source=ts.transpileModule(statement.getText(ast)+'\\nmodule.exports=extractNodeInfo;', {compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}}).outputText;\nconst sandbox={module:{exports:{}}};vm.runInNewContext(source,sandbox,{timeout:1000});\nconst frames=JSON.parse(fs.readFileSync(0,'utf8'));\nconst cases=frames.map(({name,frame})=>{const r=sandbox.module.exports(frame);return{name,\n choiceFinishKeyPresent:Object.prototype.hasOwnProperty.call(frame.choices[0],'finish_reason'),\n nodeFinishKeyPresent:Object.prototype.hasOwnProperty.call(frame.workflow_step.node,'finish_reason'),\n choiceIsNull:r.flowResult===null,choiceIsUndefined:r.flowResult===undefined,\n nodeIsNull:r.nodeStatus===null,nodeIsUndefined:r.nodeStatus===undefined,\n originalNodeBranch:r.flowResult===null&&r.nodeId!=='flow_obj',\n originalNodeStatus:r.nodeStatus===null?'ing':(r.nodeStatus===undefined?'undefined':r.nodeStatus),\n originalInterruptBranch:r.flowResult==='interrupt',originalStopBranch:r.flowResult==='stop',\n nodeId:r.nodeId,outputs:r.responseResult.outputs};});\nconsole.log(JSON.stringify({source:file,cases}));\n",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\paiflow-web\\node_modules\\typescript",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\paiflow-web\\src\\components\\workflow\\store\\flow-chat-function.ts"
+  ],
+  "workingDirectory": "D:\\2025Ai\\26-05-23\\java-workspace",
+  "exitCode": 0,
+  "productionSourceModified": false,
+  "network": false,
+  "providerCalls": false,
+  "factoryCalled": false,
+  "taskRunnerCalled": false,
+  "centerCalls": 0,
+  "browserUsed": false,
+  "businessVerified": false,
+  "limitations": [
+    "惰性DTO帧与Context.emit收集器，没有运行正式QA/检查点/租约。",
+    "只执行原TS extractNodeInfo及严格null分支，不挂载组件/store、不验证真实页面。",
+    "不是265全量或54定向重跑；不改变中心旧V1历史事件已经省略的null事实。",
+    "秘密边界/Provider/实际Factory留在各owner正式测试，本探针没有扩大其结论。"
+  ]
+}

@@ -1,0 +1,754 @@
+-------------------------------------------------------------------------------
+Test set: com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest
+-------------------------------------------------------------------------------
+Tests run: 15, Failures: 0, Errors: 15, Skipped: 0, Time elapsed: 11.24 s <<< FAILURE! -- in com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.repeatedSyncOfSameSourceAndMetadataIsReadOnlyIdempotent -- Time elapsed: 5.534 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.emptyNullFirstAndSchemaLessFilesAllRejectWithZeroDerivedUpdate -- Time elapsed: 0.599 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.databaseCasConstraintFailureRollsBackAllDerivedMetadata -- Time elapsed: 0.466 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.onlyAgentEditAndWorkflowQueryAreNeededAndMissingAgentEditWritesNothing -- Time elapsed: 0.351 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.actualOrderedResponseMetadataSourceAndRevisionAreBoundWithoutChangingCanvas -- Time elapsed: 0.353 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.workflowFormCanEchoButCannotOverwriteDerivedMetadataAndPromptCannotForgeSource -- Time elapsed: 0.487 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.metadataBudgetFailureDoesNotPatchAgentOrWorkflow -- Time elapsed: 0.298 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.copiesClearDerivedSourcesAndMetadataWithoutRecompilingOrChangingCopiedCanvas -- Time elapsed: 0.560 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.actualMenuRevokedWhileWaitingForSpaceLockIsReadAgainBeforeAnyWrite -- Time elapsed: 0.306 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.laterCanvasRevisionIsRecordedOnlyByExplicitSyncAndKeepsUnknownConfigNull -- Time elapsed: 0.404 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.emptyAndAbsentHeadersResolveOnlyTheActorsActualDefaultBinding -- Time elapsed: 0.430 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.defaultScopeIsExactAndForeignDomainOrUnboundPromptCannotSync -- Time elapsed: 0.303 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.currentAccountAndMembershipRevocationRefuseWithNoMetadataWrite -- Time elapsed: 0.320 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.realMvcOriginalBotIdOnlyReturnsTwelveNullableFieldsAndBoundHeaders -- Time elapsed: 0.399 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+
+com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.actorChangeAfterFirstPermissionReadCannotUseAnotherAuthorizedMembersIdentity -- Time elapsed: 0.337 s <<< ERROR!
+org.h2.jdbc.JdbcSQLSyntaxErrorException: 
+Syntax error in SQL statement "\000a\000aCREATE TABLE paiflow_team (\000a  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,\000a  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,\000a  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,\000a  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,\000a  active_name VARCHAR(200) GENERATED ALWAYS AS ([*]IF(deleted=0,name,NULL)),\000a  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),\000a  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,\000a  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,\000a  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),\000a  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))\000a)"; expected "), INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+
+
+CREATE TABLE paiflow_team (
+  id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(200) NOT NULL,
+  avatar_url VARCHAR(2048) NULL, logo_url VARCHAR(2048) NULL,
+  owner_user_id BIGINT NOT NULL, service_type TINYINT NULL, expire_time DATETIME(3) NULL,
+  revision BIGINT NOT NULL DEFAULT 0, deleted TINYINT NOT NULL DEFAULT 0,
+  active_name VARCHAR(200) GENERATED ALWAYS AS (IF(deleted=0,name,NULL)),
+  active_owner BIGINT GENERATED ALWAYS AS (IF(deleted=0,owner_user_id,NULL)),
+  create_by VARCHAR(64) NOT NULL, update_by VARCHAR(64) NOT NULL,
+  create_time DATETIME(3) NOT NULL, update_time DATETIME(3) NOT NULL,
+  PRIMARY KEY(id), UNIQUE KEY uq_paiflow_team_name(active_name), UNIQUE KEY uq_paiflow_team_owner(active_owner),
+  CONSTRAINT ck_paiflow_team_service CHECK(service_type IS NULL OR service_type IN(1,2))
+) [42001-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261)
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:5144)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.readTermWithoutIdentifier(Parser.java:4939)
+	at org.h2.command.Parser.readTerm(Parser.java:4844)
+	at org.h2.command.Parser.readFactor(Parser.java:3326)
+	at org.h2.command.Parser.readSum(Parser.java:3313)
+	at org.h2.command.Parser.readConcat(Parser.java:3278)
+	at org.h2.command.Parser.readCondition(Parser.java:3068)
+	at org.h2.command.Parser.readExpression(Parser.java:2988)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:5636)
+	at org.h2.command.Parser.parseTableColumnDefinition(Parser.java:8983)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:8926)
+	at org.h2.command.Parser.parseCreate(Parser.java:6483)
+	at org.h2.command.Parser.parsePrepared(Parser.java:648)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.ruoyi.paiflow.service.AgentInputTypesPersistenceTest.setupAgent(AgentInputTypesPersistenceTest.java:35)
+

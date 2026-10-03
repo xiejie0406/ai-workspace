@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.IdentityMapper">
+  <select id="findPlatformUserId" resultType="java.lang.Long">
+    SELECT platform_user_id FROM paiflow_identity_map
+    WHERE source = #{source} AND old_uid = #{oldUid} AND status = 'mapped' AND deleted = 0
+  </select>
+  <select id="findAgreement" resultType="com.ruoyi.paiflow.domain.UserAgreement">
+    SELECT user_id AS userId, user_agreement AS userAgreement, agreed_at AS agreedAt, revision
+    FROM paiflow_user_preference WHERE user_id = #{userId} AND deleted = 0
+  </select>
+  <insert id="agree">
+    INSERT INTO paiflow_user_preference
+      (user_id, user_agreement, agreed_at, revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (#{userId}, 1, UTC_TIMESTAMP(), 0, 0, #{actor}, #{actor}, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+    ON DUPLICATE KEY UPDATE
+      agreed_at = CASE WHEN user_agreement = 1 AND deleted = 0 THEN agreed_at ELSE UTC_TIMESTAMP() END,
+      revision = CASE WHEN user_agreement = 1 AND deleted = 0 THEN revision ELSE revision + 1 END,
+      user_agreement = 1, deleted = 0, update_by = #{actor}, update_time = UTC_TIMESTAMP()
+  </insert>
+</mapper>

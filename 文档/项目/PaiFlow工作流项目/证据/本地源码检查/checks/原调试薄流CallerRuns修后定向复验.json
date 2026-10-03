@@ -1,0 +1,125 @@
+{
+  "scope": "actual修后Stream＋原真实bean CallerRunsPolicy，在Temp独立编译。旧10组断言原样，测试IO交付改为真实不同私有线程并join以表达正常异步；实际增加交付线程上下文恢复断言。新CallerRuns同提交线程则要求503且不读不发、release一次、清inFlight。端口为明确内存fixtures，不是真实共享pool/HTTP/JWT/Redis/数据库。",
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "redisCalls": 0,
+  "mavenInvocations": 0,
+  "sharedTargetWrites": 0,
+  "sharedPoolThreadsStarted": 0,
+  "sourceBefore": {
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\adapter\\legacy\\LegacyDebugStreamService.java": "9b26838ad9e23cca68b5a1778980fdab9a8dfa81e019e66464a925b7cb278c38",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-framework\\src\\main\\java\\com\\ruoyi\\framework\\config\\ThreadPoolConfig.java": "44800f73209b0d1b7cea4e01270f2044b73546c9dbef8f9978f7976d36c37cf4"
+  },
+  "sourceAfter": {
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\adapter\\legacy\\LegacyDebugStreamService.java": "9b26838ad9e23cca68b5a1778980fdab9a8dfa81e019e66464a925b7cb278c38",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-framework\\src\\main\\java\\com\\ruoyi\\framework\\config\\ThreadPoolConfig.java": "44800f73209b0d1b7cea4e01270f2044b73546c9dbef8f9978f7976d36c37cf4"
+  },
+  "changed": [],
+  "temp": "C:\\Users\\admin\\AppData\\Local\\Temp\\paiflow-debug-caller-runs-fixed-kht8ghde",
+  "compiledInputsSha256": {
+    "com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java": "24b975f44ba14b654f16ca2972707a5f2ec3fe67f0f5ca63eb91e8f04ad025fd",
+    "com/ruoyi/framework/config/ThreadPoolConfig.java": "44800f73209b0d1b7cea4e01270f2044b73546c9dbef8f9978f7976d36c37cf4",
+    "com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "2ca527dd31e0b9c104ad9e954649d5f26c0db0ce9a15f9a69a69cbf0897e7470",
+    "com/ruoyi/framework/web/service/TokenService.java": "7ac1c7d19acfe6d1295cd731b038ca9b6b0e073dc01af53cd08e7550ed82c7c4",
+    "com/ruoyi/paiflow/service/IdentityMappingService.java": "355e66a45b9941ddf16cae0e549518f0129d2e4ed344859ca72bab8d6b86f380",
+    "DebugStreamLifecycleProbe.java": "b3177d35013144984bdb386b592d528d3632433ef514f53510bb19873480b190",
+    "DebugStreamCallerRunsFixedProbe.java": "a793a9cd14db880e80cfe66f907a983897b94049d4ba7e83e6f7264e73276514"
+  },
+  "oldLifecycleFixtureSha256": "a45947cdfe887eb3fc49bee3fcb3fcf2e424ee49a922d3e0595fc8166f6e2c94",
+  "preservedCounterexample": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\原调试薄流CallerRuns调度线程首反例.json",
+    "sha256": "c69b34982e72eb2bf89f3026bb533799c0382840af4e0295b504afb24785484f"
+  },
+  "classpathOrigin": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\target\\surefire-reports\\TEST-com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest.xml",
+  "classpathEntries": 162,
+  "compileExit": 0,
+  "compileStderr": "",
+  "runs": [
+    {
+      "main": "DebugStreamLifecycleProbe",
+      "exit": 0,
+      "stdout": "{\"actorCapacity\":{\"limit\":4,\"fifth503\":true,\"permitsRestored\":64,\"actorsEmpty\":true},\"globalCapacity\":{\"limit\":64,\"sixtyFifth503\":true,\"permitsRestored\":64},\"schedulerRejected\":{\"code\":503,\"permitsRestored\":64,\"bridgeCalls\":0},\"sessionInvalidated\":{\"initialFrames\":1,\"pageCalls\":1,\"subsequent401\":true,\"permitsRestored\":64,\"contextsRestored\":true},\"sessionChanged\":{\"bridgeCalls\":0,\"error401\":true},\"waitingEOF\":{\"memoryPageWaiting\":true,\"actualSends\":1,\"completeCalls\":1,\"permitsRestored\":64,\"manufacturedFrames\":0},\"emptyTerminalEOF\":{\"actualSends\":0,\"completeCalls\":1,\"permitsRestored\":64},\"earlyDisconnect\":{\"pageFrames\":2,\"actualSends\":1,\"serverAfter\":0,\"pageCalls\":1,\"permitsRestored\":64},\"singleInFlight\":{\"queued\":1,\"pageCalls\":1,\"permitsRestored\":64},\"ioRejected\":{\"code\":503,\"pageCalls\":0,\"permitsRestored\":64}}\n",
+      "stderr": "",
+      "observed": {
+        "actorCapacity": {
+          "limit": 4,
+          "fifth503": true,
+          "permitsRestored": 64,
+          "actorsEmpty": true
+        },
+        "globalCapacity": {
+          "limit": 64,
+          "sixtyFifth503": true,
+          "permitsRestored": 64
+        },
+        "schedulerRejected": {
+          "code": 503,
+          "permitsRestored": 64,
+          "bridgeCalls": 0
+        },
+        "sessionInvalidated": {
+          "initialFrames": 1,
+          "pageCalls": 1,
+          "subsequent401": true,
+          "permitsRestored": 64,
+          "contextsRestored": true
+        },
+        "sessionChanged": {
+          "bridgeCalls": 0,
+          "error401": true
+        },
+        "waitingEOF": {
+          "memoryPageWaiting": true,
+          "actualSends": 1,
+          "completeCalls": 1,
+          "permitsRestored": 64,
+          "manufacturedFrames": 0
+        },
+        "emptyTerminalEOF": {
+          "actualSends": 0,
+          "completeCalls": 1,
+          "permitsRestored": 64
+        },
+        "earlyDisconnect": {
+          "pageFrames": 2,
+          "actualSends": 1,
+          "serverAfter": 0,
+          "pageCalls": 1,
+          "permitsRestored": 64
+        },
+        "singleInFlight": {
+          "queued": 1,
+          "pageCalls": 1,
+          "permitsRestored": 64
+        },
+        "ioRejected": {
+          "code": 503,
+          "pageCalls": 0,
+          "permitsRestored": 64
+        }
+      }
+    },
+    {
+      "main": "DebugStreamCallerRunsFixedProbe",
+      "exit": 0,
+      "stdout": "{\"actualBeanPolicy\":\"java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy\",\"submissions\":1,\"submitterThread\":1,\"bridgeCalls\":0,\"sends\":0,\"serverAfter\":0,\"errorCode\":503,\"permits\":64,\"inFlight\":false,\"scheduleCancelled\":true,\"invariantSatisfied\":true,\"permitsAfterDuplicateClose\":64}\n",
+      "stderr": "",
+      "observed": {
+        "actualBeanPolicy": "java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy",
+        "submissions": 1,
+        "submitterThread": 1,
+        "bridgeCalls": 0,
+        "sends": 0,
+        "serverAfter": 0,
+        "errorCode": 503,
+        "permits": 64,
+        "inFlight": false,
+        "scheduleCancelled": true,
+        "invariantSatisfied": true,
+        "permitsAfterDuplicateClose": 64
+      }
+    }
+  ],
+  "passedGroups": 11,
+  "scopeChanged": "旧10组主断言没有削弱；因修后guard真实比较线程身份，先前同线程手动队列无法代表正常异步，fixture必须使用独立私有交付线程；旧10组结果及源不覆盖。"
+}

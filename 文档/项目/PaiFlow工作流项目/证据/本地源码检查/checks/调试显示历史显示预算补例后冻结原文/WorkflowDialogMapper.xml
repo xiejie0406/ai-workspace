@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.WorkflowDialogMapper">
+  <sql id="columns">id,space_id AS spaceId,owner_user_id AS ownerUserId,workflow_id AS workflowId,workflow_version_id AS workflowVersionId,run_id AS runId,event_watermark AS eventWatermark,question,answer,question_item AS questionItem,answer_item AS answerItem,data,sid,chat_id AS chatId,type,deleted,create_time AS createTime</sql>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO paiflow_workflow_dialog(space_id,owner_user_id,workflow_id,workflow_version_id,run_id,event_watermark,question,answer,question_item,answer_item,data,sid,chat_id,type,deleted,create_time)
+    VALUES(#{spaceId},#{ownerUserId},#{workflowId},#{workflowVersionId},#{runId},#{eventWatermark},#{question},#{answer},#{questionItem},#{answerItem},#{data},#{sid},#{chatId},#{type},0,UTC_TIMESTAMP(3))
+  </insert>
+  <select id="list" resultType="com.ruoyi.paiflow.domain.WorkflowDialogRecord">
+    SELECT <include refid="columns"/> FROM paiflow_workflow_dialog
+    WHERE space_id=#{space} AND workflow_id=#{workflow} AND owner_user_id=#{owner} AND type=#{type} AND deleted=0
+    ORDER BY create_time DESC,id DESC LIMIT 10
+  </select>
+  <update id="clear">
+    UPDATE paiflow_workflow_dialog SET deleted=1
+    WHERE space_id=#{space} AND workflow_id=#{workflow} AND owner_user_id=#{owner} AND type=#{type} AND deleted=0
+  </update>
+</mapper>

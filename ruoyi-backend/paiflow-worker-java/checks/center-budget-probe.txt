@@ -1,0 +1,69 @@
+SLF4J(W): Class path contains multiple SLF4J providers.
+SLF4J(W): Found provider [ch.qos.logback.classic.spi.LogbackServiceProvider@32115b28]
+SLF4J(W): Found provider [org.slf4j.simple.SimpleServiceProvider@2ad48653]
+SLF4J(W): See https://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J(I): Actual provider is of type [ch.qos.logback.classic.spi.LogbackServiceProvider@32115b28]
+03:49:02.785 [main] INFO com.iflytek.astron.workflow.engine.ParallelWorkflowEngine -- Registered 2 node executors for ParallelEngine
+03:49:02.790 [main] INFO com.iflytek.astron.workflow.engine.WorkflowEngine -- Registered 2 node executors: [node-start, node-end]
+03:49:02.876 [virtual-29] INFO com.iflytek.astron.workflow.engine.ParallelWorkflowEngine -- Starting parallel workflow execution with 2 nodes
+03:49:03.020 [virtual-29] INFO com.iflytek.astron.workflow.engine.domain.callbacks.ChatCallBacks -- putFrameIntoQueue nodeId: WorkflowStart, finishReason: null
+03:49:03.042 [pool-1-thread-1] INFO com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor -- Executing node: node-start::1 (type: node-start)
+03:49:03.052 [pool-1-thread-1] INFO com.iflytek.astron.workflow.engine.domain.callbacks.ChatCallBacks -- putFrameIntoQueue nodeId: node-start::1, finishReason: 
+03:49:03.081 [workflow-1] ERROR com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback -- Error in stream callback
+com.ruoyi.paiflow.worker.service.WorkerException: 中心租约已失效，停止后续节点
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.check(ExecutionScope.java:48)
+	at com.ruoyi.paiflow.worker.service.WorkerTaskRunner$CenterStreamCallback.callback(WorkerTaskRunner.java:203)
+	at com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback.lambda$new$0(WorkflowMsgCallback.java:57)
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.lambda$wrap$1(ExecutionScope.java:125)
+	at com.alibaba.ttl.TtlRunnable.run(TtlRunnable.java:60)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+03:49:03.080 [pool-1-thread-1] ERROR com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor -- Exception executing node node-start::1: 实际中心事件预算拒绝
+com.ruoyi.paiflow.worker.service.WorkerException: 实际中心事件预算拒绝
+	at com.ruoyi.paiflow.worker.BudgetWireProbe$1.event(BudgetWireProbe.java:39)
+	at com.ruoyi.paiflow.worker.service.WorkerTaskRunner$CenterStreamCallback.callback(WorkerTaskRunner.java:220)
+	at com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback.onNodeEnd(WorkflowMsgCallback.java:137)
+	at com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback.onStartNodeExecuted(WorkflowMsgCallback.java:184)
+	at com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor.successResponse(AbstractNodeExecutor.java:288)
+	at com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor.doExecute(AbstractNodeExecutor.java:158)
+	at com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor.execute(AbstractNodeExecutor.java:46)
+	at com.iflytek.astron.workflow.engine.ParallelWorkflowEngine.executeNode(ParallelWorkflowEngine.java:200)
+	at com.iflytek.astron.workflow.engine.ParallelWorkflowEngine.lambda$execute$1(ParallelWorkflowEngine.java:100)
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.lambda$wrap$1(ExecutionScope.java:125)
+	at com.alibaba.ttl.TtlRunnable.run(TtlRunnable.java:60)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: com.ruoyi.common.exception.ServiceException: 运行JSON超出允许大小
+	at com.ruoyi.paiflow.service.RunJsonBoundary.check(RunJsonBoundary.java:19)
+	at com.ruoyi.paiflow.worker.BudgetWireProbe$1.event(BudgetWireProbe.java:38)
+	... 15 common frames omitted
+03:49:03.087 [virtual-29] ERROR com.iflytek.astron.workflow.engine.ParallelWorkflowEngine -- Workflow execution failed
+java.util.concurrent.ExecutionException: com.ruoyi.paiflow.worker.service.WorkerException: 中心租约已失效，停止后续节点
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:396)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2073)
+	at com.iflytek.astron.workflow.engine.ParallelWorkflowEngine.execute(ParallelWorkflowEngine.java:104)
+	at com.ruoyi.paiflow.worker.service.WorkerTaskRunner.lambda$executeVerified$3(WorkerTaskRunner.java:109)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.lang.VirtualThread.run(VirtualThread.java:329)
+Caused by: com.ruoyi.paiflow.worker.service.WorkerException: 中心租约已失效，停止后续节点
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.check(ExecutionScope.java:48)
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.current(ExecutionScope.java:43)
+	at com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor.errorResponse(AbstractNodeExecutor.java:303)
+	at com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor.doExecute(AbstractNodeExecutor.java:174)
+	at com.iflytek.astron.workflow.engine.node.AbstractNodeExecutor.execute(AbstractNodeExecutor.java:46)
+	at com.iflytek.astron.workflow.engine.ParallelWorkflowEngine.executeNode(ParallelWorkflowEngine.java:200)
+	at com.iflytek.astron.workflow.engine.ParallelWorkflowEngine.lambda$execute$1(ParallelWorkflowEngine.java:100)
+	at com.ruoyi.paiflow.worker.service.ExecutionScope.lambda$wrap$1(ExecutionScope.java:125)
+	at com.alibaba.ttl.TtlRunnable.run(TtlRunnable.java:60)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+03:49:03.087 [virtual-29] INFO com.iflytek.astron.workflow.engine.domain.callbacks.ChatCallBacks -- putFrameIntoQueue nodeId: WorkflowEnd, finishReason: null
+inputAcceptedBytes=307215,assignmentAcceptedBytes=310061,largestActualEventBytes=307684,actualTerminal=EFFECT_UNKNOWN

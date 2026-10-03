@@ -1,0 +1,849 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PaiFlow站内通知与运行查询",
+    "version": "1.0.0",
+    "description": "本地源码接口；通知020两表未执行，需paiflow.enabled与实际平台权限。不是运行/页面通过证据。"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "platformBearer": []
+    }
+  ],
+  "paths": {
+    "/paiflow/legacy/notifications/list": {
+      "get": {
+        "summary": "读取本人可见通知与当前页分组",
+        "x-platform-permission": "paiflow:notification:query",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "0",
+                "PERSONAL",
+                "BROADCAST",
+                "SYSTEM",
+                "PROMOTION"
+              ]
+            }
+          },
+          {
+            "name": "unreadOnly",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际数据成功回执",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NotificationPage"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "desc": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效"
+          },
+          "401": {
+            "description": "平台身份失效"
+          },
+          "403": {
+            "description": "权限/主体/资源拒绝"
+          },
+          "404": {
+            "description": "资源不存在或不可访问"
+          },
+          "409": {
+            "description": "记录/事件不一致"
+          },
+          "413": {
+            "description": "超预算"
+          },
+          "503": {
+            "description": "适配未配置"
+          }
+        }
+      }
+    },
+    "/paiflow/legacy/notifications/unread-count": {
+      "get": {
+        "summary": "读取本人未读数",
+        "x-platform-permission": "paiflow:notification:query",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际数据成功回执",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    "data": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "desc": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效"
+          },
+          "401": {
+            "description": "平台身份失效"
+          },
+          "403": {
+            "description": "权限/主体/资源拒绝"
+          },
+          "404": {
+            "description": "资源不存在或不可访问"
+          },
+          "409": {
+            "description": "记录/事件不一致"
+          },
+          "413": {
+            "description": "超预算"
+          },
+          "503": {
+            "description": "适配未配置"
+          }
+        }
+      }
+    },
+    "/paiflow/legacy/notifications/mark-read": {
+      "post": {
+        "summary": "本人通知已读",
+        "x-platform-permission": "paiflow:notification:query",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际数据成功回执",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    "data": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "desc": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效"
+          },
+          "401": {
+            "description": "平台身份失效"
+          },
+          "403": {
+            "description": "权限/主体/资源拒绝"
+          },
+          "404": {
+            "description": "资源不存在或不可访问"
+          },
+          "409": {
+            "description": "记录/事件不一致"
+          },
+          "413": {
+            "description": "超预算"
+          },
+          "503": {
+            "description": "适配未配置"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkRead"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/legacy/notifications/{id}": {
+      "delete": {
+        "summary": "软删本人通知状态",
+        "x-platform-permission": "paiflow:notification:query",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际数据成功回执",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        0
+                      ]
+                    },
+                    "data": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "desc": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效"
+          },
+          "401": {
+            "description": "平台身份失效"
+          },
+          "403": {
+            "description": "权限/主体/资源拒绝"
+          },
+          "404": {
+            "description": "资源不存在或不可访问"
+          },
+          "409": {
+            "description": "记录/事件不一致"
+          },
+          "413": {
+            "description": "超预算"
+          },
+          "503": {
+            "description": "适配未配置"
+          }
+        }
+      }
+    },
+    "/paiflow/runs": {
+      "get": {
+        "summary": "空间运行分页",
+        "x-platform-permission": "paiflow:run:query",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "workflowId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "QUEUED",
+                "RUNNING",
+                "CANCEL_REQUESTED",
+                "COMPLETED",
+                "FAILED",
+                "CANCELLED",
+                "EFFECT_UNKNOWN"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际数据成功回执",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RunPage"
+                    },
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效"
+          },
+          "401": {
+            "description": "平台身份失效"
+          },
+          "403": {
+            "description": "权限/主体/资源拒绝"
+          },
+          "404": {
+            "description": "资源不存在或不可访问"
+          },
+          "409": {
+            "description": "记录/事件不一致"
+          },
+          "413": {
+            "description": "超预算"
+          },
+          "503": {
+            "description": "适配未配置"
+          }
+        }
+      }
+    },
+    "/paiflow/runs/statistics": {
+      "get": {
+        "summary": "空间真实运行状态统计",
+        "x-platform-permission": "paiflow:run:query",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "workflowId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际数据成功回执",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RunStatistics"
+                    },
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效"
+          },
+          "401": {
+            "description": "平台身份失效"
+          },
+          "403": {
+            "description": "权限/主体/资源拒绝"
+          },
+          "404": {
+            "description": "资源不存在或不可访问"
+          },
+          "409": {
+            "description": "记录/事件不一致"
+          },
+          "413": {
+            "description": "超预算"
+          },
+          "503": {
+            "description": "适配未配置"
+          }
+        }
+      }
+    },
+    "/paiflow/runs/{id}/traces/export": {
+      "get": {
+        "summary": "固定中心事件水位NDJSON导出；最多一万事件、16MiB，缺行拒绝",
+        "x-platform-permission": "paiflow:run:query",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际完整事件行；Content-Disposition固定文件名，Cache-Control:no-store，nosniff；不是AjaxResult信封",
+            "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效"
+          },
+          "401": {
+            "description": "平台身份失效"
+          },
+          "403": {
+            "description": "权限/主体/资源拒绝"
+          },
+          "404": {
+            "description": "资源不存在或不可访问"
+          },
+          "409": {
+            "description": "记录/事件不一致"
+          },
+          "413": {
+            "description": "超预算"
+          },
+          "503": {
+            "description": "适配未配置"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "platformBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Notification": {
+        "type": "object",
+        "required": [
+          "title",
+          "body",
+          "templateCode",
+          "payload",
+          "creatorUid",
+          "createdAt",
+          "expireAt",
+          "meta",
+          "readAt",
+          "receivedAt",
+          "id",
+          "type",
+          "isRead"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "templateCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "payload": {
+            "type": "string",
+            "nullable": true
+          },
+          "creatorUid": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "expireAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "meta": {
+            "type": "string",
+            "nullable": true
+          },
+          "readAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "receivedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PERSONAL",
+              "BROADCAST",
+              "SYSTEM",
+              "PROMOTION"
+            ]
+          },
+          "isRead": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NotificationPage": {
+        "type": "object",
+        "required": [
+          "notifications",
+          "notificationsByType",
+          "pageIndex",
+          "pageSize",
+          "totalCount",
+          "totalPages",
+          "unreadCount"
+        ],
+        "properties": {
+          "notifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Notification"
+            }
+          },
+          "notificationsByType": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Notification"
+              }
+            }
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unreadCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MarkRead": {
+        "type": "object",
+        "required": [
+          "notificationIds",
+          "markAll"
+        ],
+        "properties": {
+          "notificationIds": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "format": "int64"
+            }
+          },
+          "markAll": {
+            "type": "boolean"
+          }
+        },
+        "description": "markAll=true仅处理本用户可见通知，超过一万未读拒绝；false只处理传入可见IDs。"
+      },
+      "RunSummary": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "workflowVersionId": {
+            "type": "string"
+          },
+          "spaceId": {
+            "type": "string"
+          },
+          "ownerUid": {
+            "type": "string"
+          },
+          "engineProfile": {
+            "type": "string"
+          },
+          "createTime": {
+            "type": "string"
+          },
+          "updateTime": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING",
+              "CANCEL_REQUESTED",
+              "COMPLETED",
+              "FAILED",
+              "CANCELLED",
+              "EFFECT_UNKNOWN"
+            ]
+          },
+          "attempt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastEventSeq": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "runId",
+          "workflowId",
+          "workflowVersionId",
+          "spaceId",
+          "ownerUid",
+          "engineProfile",
+          "createTime",
+          "updateTime",
+          "state",
+          "attempt",
+          "lastEventSeq",
+          "revision"
+        ]
+      },
+      "RunPage": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunSummary"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "current": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pages": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RunStatistics": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "QUEUED": {
+                "type": "integer",
+                "minimum": 0,
+                "format": "int64"
+              },
+              "RUNNING": {
+                "type": "integer",
+                "minimum": 0,
+                "format": "int64"
+              },
+              "CANCEL_REQUESTED": {
+                "type": "integer",
+                "minimum": 0,
+                "format": "int64"
+              },
+              "COMPLETED": {
+                "type": "integer",
+                "minimum": 0,
+                "format": "int64"
+              },
+              "FAILED": {
+                "type": "integer",
+                "minimum": 0,
+                "format": "int64"
+              },
+              "CANCELLED": {
+                "type": "integer",
+                "minimum": 0,
+                "format": "int64"
+              },
+              "EFFECT_UNKNOWN": {
+                "type": "integer",
+                "minimum": 0,
+                "format": "int64"
+              }
+            }
+          }
+        },
+        "description": "只统计实际Run状态，不含估算Token/成本。"
+      }
+    }
+  },
+  "x-source-review-date": "2026-10-03T15:36:25.538579+00:00",
+  "x-database-notifications": "020增量未执行；001至019的25表回读属于此前建表记录",
+  "x-business-verified": false
+}

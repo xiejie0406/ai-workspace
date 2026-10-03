@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "paiflow.pure-variable.implicit.readonly.v1",
+  "recordedAt": "2026-10-03T03:05:58.672446+00:00",
+  "scope": "实际原 VariablePool.add_variable 隐式错误字段只读反例；非 Factory/中心业务通过",
+  "command": ".venv/Scripts/python.exe -B checks/PureVariableImplicitReview.py <workspace>",
+  "exitCode": 0,
+  "probe": {
+    "scope": "actual VariablePool.add_variable only; no Factory execution or formal guard",
+    "explicitAddress": [
+      "text-joiner::a",
+      "x-errorMessage"
+    ],
+    "implicitAddress": [
+      "text-joiner::a-x",
+      "errorMessage"
+    ],
+    "mappingKey": "text-joiner::a-x-errorMessage",
+    "beforeAdd": "BODY_FIXTURE",
+    "afterActualAdd": "ROOT_ERROR_FIXTURE",
+    "confirmed": true,
+    "sourceSha256Before": "16f740fd787a5dfa9b3e5be218c9962ec1b85eb277fefd90cf19eaab0a4dcf35",
+    "sourceSha256After": "16f740fd787a5dfa9b3e5be218c9962ec1b85eb277fefd90cf19eaab0a4dcf35",
+    "productionSourceModified": false,
+    "network": false,
+    "databaseCalls": 0,
+    "servicesStarted": false,
+    "targetWrites": 0
+  },
+  "files": [
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/PureVariableImplicitReview.py",
+      "sha256": "0757d8774c2f320a34f6e88d7fb2b645fd505662b7722db9184f92c8ef181c23"
+    },
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/纯迭代隐式错误字段-独立检查.log",
+      "sha256": "45da84c813e437af1c0d1a1b0e1454dd85f8f6dcb5a72ecdafc8e75d64196696"
+    }
+  ],
+  "recommendation": "全图 outputs 地址去重须包含每节点自动 errorCode/errorMessage；同节点声明同名允许，跨节点复合地址撞名必须拒绝。inputs/outputs 是两映射，不能错误拒同节点合法 input/output 同名。",
+  "limits": "未把原 do_validate 的 startswith 前缀污染直接当作跨读；该差异需独立反例。未执行新 Java/Python 准入候选。"
+}

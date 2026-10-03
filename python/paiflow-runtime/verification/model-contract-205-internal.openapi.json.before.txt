@@ -1,0 +1,488 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PaiFlow中心执行协议",
+    "version": "1.0.0",
+    "description": "本地源码实施中的协议；租约/事件/结果/问答检查点与一次性执行许可已有中心持久化实现。模块默认关闭，真实MySQL、Worker联机、全部资源/副作用端点和原页面尚未验证。受限Worker过滤器在MVC解析前认证并限制实际字节。"
+  },
+  "security": [
+    {
+      "WorkerBearer": []
+    }
+  ],
+  "paths": {
+    "/internal/paiflow/v1/runs/claim": {
+      "post": {
+        "operationId": "claimRun",
+        "description": "按服务身份引擎领取一个正式QUEUED任务；无任务data=null。中心原子保存租约后返回完整assignment。",
+        "responses": {
+          "200": {
+            "description": "AjaxResult code=200,data为worker.schema或null"
+          },
+          "401": {
+            "description": "短期服务身份无效/过期"
+          }
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/lease/verify": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunId"
+        }
+      ],
+      "post": {
+        "operationId": "verifyLease",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "worker.schema.json#/$defs/LeaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AjaxResult code=200,data为LeaseVerification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "服务身份失效"
+          },
+          "403": {
+            "description": "发起者账户/空间/平台运行权限撤销"
+          },
+          "409": {
+            "description": "租约/Worker/引擎不匹配"
+          },
+          "410": {
+            "description": "失租约/已终态/超过截止时间"
+          }
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/execution/begin": {
+      "parameters": [{"$ref": "#/components/parameters/RunId"}],
+      "post": {
+        "operationId": "beginExecutionOnce",
+        "description": "Worker完成verify快照与本地预检后、进入原引擎前仅调用一次。中心在运行行锁/CAS内持久化签发时间；许可不重发。任何409、超时、ACK未知或绑定不一致均不得执行，也不得由该失败路径提交终态，以免关闭首个持许可方的运行。签发登记不证明节点执行或外部副作用完成。",
+        "requestBody": {
+          "required": true,
+          "content": {"application/json": {"schema": {"$ref": "worker.schema.json#/$defs/LeaseRequest"}}}
+        },
+        "responses": {
+          "200": {
+            "description": "仅首次许可成功，code=200/data严格核对当前运行、租约、次数、固定版本和DSL哈希",
+            "content": {"application/json": {"schema": {
+              "type": "object", "required": ["code", "data"],
+              "properties": {"code": {"const": 200}, "msg": {"type": "string"}, "data": {"$ref": "worker.schema.json#/$defs/ExecutionBeginAck"}}
+            }}}
+          },
+          "400": {"description": "未知字段或租约次数类型无效"},
+          "401": {"description": "短期服务身份无效"},
+          "403": {"description": "运行发起者平台或空间权限撤销"},
+          "409": {"description": "许可已签发或Worker/租约绑定冲突；禁止重试执行"},
+          "410": {"description": "租约失效、已终态、超过期限或已请求取消"},
+          "413": {"description": "原始控制正文超过16KiB"}
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/heartbeat": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunId"
+        }
+      ],
+      "post": {
+        "operationId": "heartbeat",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "worker.schema.json#/$defs/LeaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "code=200,data={valid:true,cancelRequested:boolean,leaseExpiresAt:UTC时间}；新租约最长60秒且不越过deadline"
+          },
+          "409": {
+            "description": "租约不匹配"
+          },
+          "410": {
+            "description": "租约过期"
+          }
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/events": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunId"
+        }
+      ],
+      "post": {
+        "operationId": "appendEvent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "events.schema.json"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "code=200,data={accepted:true,seq:实际提交序号}；同序号同内容幂等"
+          },
+          "400": {
+            "description": "未知字段/节点/类型/终态事件或凭据拒绝"
+          },
+          "409": {
+            "description": "跳号、同号不同内容或尚未取得一次性执行许可"
+          },
+          "413": {
+            "description": "原始/编码事件正文超过4MiB；不裁剪原节点生命周期输入/输出"
+          }
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/result": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunId"
+        }
+      ],
+      "post": {
+        "operationId": "completeRun",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "worker.schema.json#/$defs/Result"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "code=200,data={accepted:true,state:提交状态}；中心原子保存终态与事件；完全相同结果重复确认"
+          },
+          "409": {
+            "description": "已有不同终态或结果，COMPLETED尚未取得一次性执行许可，或用户取消先保存后提交新的COMPLETED；已记录节点/用量事实保留"
+          },
+          "410": {
+            "description": "失租约/超过deadline"
+          },
+          "413": {
+            "description": "结果正文超过2MiB"
+          }
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/checkpoints": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunId"
+        }
+      ],
+      "post": {
+        "operationId": "createCheckpoint",
+        "description": "当前仅顶层原question-answer；固定nodeParam核对等待/重问策略。Worker只读等待/一次性消费，真实回复来自受保护中心用户入口。RunService尚未派发QA资源图。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "checkpoints.schema.json#/$defs/CreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AjaxResult code=200,data为检查点回执；已停止消费返回consumed=false并确认stopped=true",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "data"
+                  ],
+                  "properties": {
+                    "code": {
+                      "const": 200
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "checkpoints.schema.json#/$defs/CreateAck"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "固定节点/原题面/等待策略或字段类型无效"
+          },
+          "401": {
+            "description": "服务身份无效"
+          },
+          "403": {
+            "description": "运行发起者或当前权限撤销"
+          },
+          "404": {
+            "description": "检查点不在当前run/lease/attempt域"
+          },
+          "409": {
+            "description": "版本、重复请求或消费状态冲突"
+          },
+          "503": {
+            "description": "嵌套迭代问答归属尚未接通"
+          }
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/checkpoints/{checkpointId}/resume/poll": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunId"
+        },
+        {
+          "name": "checkpointId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "pollCheckpoint",
+        "description": "当前仅顶层原question-answer；固定nodeParam核对等待/重问策略。Worker只读等待/一次性消费，真实回复来自受保护中心用户入口。RunService尚未派发QA资源图。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "checkpoints.schema.json#/$defs/PollRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AjaxResult code=200,data为检查点回执；已停止消费返回consumed=false并确认stopped=true",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "data"
+                  ],
+                  "properties": {
+                    "code": {
+                      "const": 200
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "checkpoints.schema.json#/$defs/PollAck"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "固定节点/原题面/等待策略或字段类型无效"
+          },
+          "401": {
+            "description": "服务身份无效"
+          },
+          "403": {
+            "description": "运行发起者或当前权限撤销"
+          },
+          "404": {
+            "description": "检查点不在当前run/lease/attempt域"
+          },
+          "409": {
+            "description": "版本、重复请求或消费状态冲突"
+          },
+          "503": {
+            "description": "嵌套迭代问答归属尚未接通"
+          }
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/checkpoints/{checkpointId}/consume": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunId"
+        },
+        {
+          "name": "checkpointId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "consumeCheckpoint",
+        "description": "当前仅顶层原question-answer；固定nodeParam核对等待/重问策略。Worker只读等待/一次性消费，真实回复来自受保护中心用户入口。RunService尚未派发QA资源图。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "checkpoints.schema.json#/$defs/ConsumeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AjaxResult code=200,data为检查点回执；已停止消费返回consumed=false并确认stopped=true",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "data"
+                  ],
+                  "properties": {
+                    "code": {
+                      "const": 200
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "checkpoints.schema.json#/$defs/ConsumeAck"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "固定节点/原题面/等待策略或字段类型无效"
+          },
+          "401": {
+            "description": "服务身份无效"
+          },
+          "403": {
+            "description": "运行发起者或当前权限撤销"
+          },
+          "404": {
+            "description": "检查点不在当前run/lease/attempt域"
+          },
+          "409": {
+            "description": "版本、重复请求或消费状态冲突"
+          },
+          "503": {
+            "description": "嵌套迭代问答归属尚未接通"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "WorkerBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "短期独立服务token格式workerId.secret，中心只持SHA256与明确过期时间，并绑定engineProfile；用户token不能使用。无默认有效身份。"
+      }
+    },
+    "parameters": {
+      "RunId": {
+        "name": "runId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "schemas": {
+      "LeaseVerification": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "valid",
+          "cancelRequested",
+          "dslHash",
+          "workflowVersionId",
+          "lastEventSeq",
+          "assignment"
+        ],
+        "properties": {
+          "valid": {
+            "const": true
+          },
+          "cancelRequested": {
+            "type": "boolean"
+          },
+          "dslHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "workflowVersionId": {
+            "type": "string"
+          },
+          "lastEventSeq": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "assignment": {
+            "$ref": "worker.schema.json"
+          }
+        }
+      },
+      "VerifyEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data"
+        ],
+        "properties": {
+          "code": {
+            "const": 200
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LeaseVerification"
+          }
+        }
+      }
+    }
+  }
+}

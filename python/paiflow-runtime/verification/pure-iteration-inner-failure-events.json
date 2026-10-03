@@ -1,0 +1,88 @@
+{
+  "result": {
+    "leaseId": "lease-1",
+    "attempt": 1,
+    "state": "FAILED",
+    "error": {
+      "code": "ENGINE_FAILED",
+      "message": "原引擎执行失败，需按关联运行核对诊断"
+    }
+  },
+  "events": [
+    {
+      "nodeId": "node-start::s",
+      "iterationId": null,
+      "eventType": "node.started",
+      "progress": 0.0,
+      "code": 0,
+      "finishReason": null
+    },
+    {
+      "nodeId": "node-start::s",
+      "iterationId": null,
+      "eventType": "node.completed",
+      "progress": 0.0,
+      "code": 0,
+      "finishReason": "stop"
+    },
+    {
+      "nodeId": "iteration::i",
+      "iterationId": null,
+      "eventType": "node.started",
+      "progress": 0.3333333333333333,
+      "code": 0,
+      "finishReason": null
+    },
+    {
+      "nodeId": "iteration-node-start::is",
+      "iterationId": "iteration::i:0",
+      "eventType": "node.started",
+      "progress": 0.0,
+      "code": 0,
+      "finishReason": null
+    },
+    {
+      "nodeId": "iteration-node-start::is",
+      "iterationId": "iteration::i:0",
+      "eventType": "node.completed",
+      "progress": 0.0,
+      "code": 0,
+      "finishReason": "stop"
+    },
+    {
+      "nodeId": "node-end::e",
+      "iterationId": null,
+      "eventType": "node.started",
+      "progress": 0.6666666666666666,
+      "code": 0,
+      "finishReason": null
+    },
+    {
+      "nodeId": "text-joiner::j",
+      "iterationId": "iteration::i:0",
+      "eventType": "node.started",
+      "progress": 0.0,
+      "code": 0,
+      "finishReason": null
+    },
+    {
+      "nodeId": "text-joiner::j",
+      "iterationId": "iteration::i:0",
+      "eventType": "node.failed",
+      "progress": 0.0,
+      "code": 23500,
+      "finishReason": "stop"
+    },
+    {
+      "nodeId": "iteration::i",
+      "iterationId": null,
+      "eventType": "node.failed",
+      "progress": 0.3333333333333333,
+      "code": 23500,
+      "finishReason": "stop"
+    }
+  ],
+  "observation": "Original engine pre-processing emits main End start before dependency completion; no End or container completion, run FAILED",
+  "factory": true,
+  "memoryCenterOnly": true
+}

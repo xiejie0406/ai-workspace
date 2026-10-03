@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.RunMapper">
+  <sql id="columns">id,workflow_id AS workflowId,workflow_version_id AS workflowVersionId,space_id AS spaceId,
+    owner_user_id AS ownerUserId,engine_profile AS engineProfile,state,assignment_json AS assignmentJson,model_permit_json AS modelPermitJson,
+    input_hash AS inputHash,run_json_codec AS runJsonCodec,idempotency_key AS idempotencyKey,worker_id AS workerId,lease_id AS leaseId,
+    attempt,lease_expires_at AS leaseExpiresAt,execution_started_at AS executionStartedAt,deadline,last_event_seq AS lastEventSeq,revision,
+    result_json AS resultJson,result_hash AS resultHash,create_by AS createBy,create_time AS createTime,update_time AS updateTime</sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.RunRecord">SELECT <include refid="columns"/> FROM paiflow_run WHERE id=#{id}</select>
+  <select id="lock" resultType="com.ruoyi.paiflow.domain.RunRecord">SELECT <include refid="columns"/> FROM paiflow_run WHERE id=#{id} FOR UPDATE</select>
+  <select id="byRequest" resultType="com.ruoyi.paiflow.domain.RunRecord">SELECT <include refid="columns"/> FROM paiflow_run WHERE owner_user_id=#{ownerUserId} AND idempotency_key=#{idempotencyKey}</select>
+  <select id="queued" resultType="com.ruoyi.paiflow.domain.RunRecord">SELECT <include refid="columns"/> FROM paiflow_run WHERE state='QUEUED' AND engine_profile=#{engineProfile} ORDER BY create_time,id LIMIT #{limit}</select>
+  <select id="expired" resultType="com.ruoyi.paiflow.domain.RunRecord">
+    SELECT <include refid="columns"/> FROM paiflow_run WHERE engine_profile=#{engineProfile} AND
+      ((state='QUEUED' AND deadline &lt;= #{now}) OR
+       (state IN('RUNNING','CANCEL_REQUESTED') AND (deadline &lt;= #{now} OR lease_expires_at &lt;= #{now})))
+    ORDER BY create_time,id LIMIT #{limit}
+  </select>
+  <insert id="insert">
+    INSERT INTO paiflow_run(id,workflow_id,workflow_version_id,space_id,owner_user_id,engine_profile,state,
+      assignment_json,model_permit_json,input_hash,run_json_codec,idempotency_key,attempt,deadline,last_event_seq,revision,create_by,create_time,update_time)
+    VALUES(#{id},#{workflowId},#{workflowVersionId},#{spaceId},#{ownerUserId},#{engineProfile},#{state},
+      #{assignmentJson},#{modelPermitJson},#{inputHash},#{runJsonCodec},#{idempotencyKey},0,#{deadline},0,0,#{createBy},UTC_TIMESTAMP(),UTC_TIMESTAMP())
+  </insert>
+  <update id="update">
+    UPDATE paiflow_run SET state=#{state},worker_id=#{workerId},lease_id=#{leaseId},attempt=#{attempt},
+      lease_expires_at=#{leaseExpiresAt},execution_started_at=#{executionStartedAt},last_event_seq=#{lastEventSeq},result_json=#{resultJson},result_hash=#{resultHash},
+      revision=revision+1,update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision}
+  </update>
+  <select id="event" resultType="string">SELECT event_json FROM paiflow_run_event WHERE run_id=#{runId} AND seq=#{seq}</select>
+  <insert id="insertEvent">INSERT INTO paiflow_run_event(run_id,seq,event_json,create_time) VALUES(#{runId},#{seq},#{eventJson},UTC_TIMESTAMP())</insert>
+  <select id="events" resultType="string">SELECT event_json FROM paiflow_run_event WHERE run_id=#{runId} AND seq &gt; #{after} ORDER BY seq LIMIT #{limit}</select>
+</mapper>

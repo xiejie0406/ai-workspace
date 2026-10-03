@@ -1,0 +1,431 @@
+{
+  "schemaVersion": "paiflow.readonly.vertical-source-review.v1",
+  "createdAt": "2026-10-03T09:50:03.557313+00:00",
+  "purpose": "下一段本地纵向功能的来源核对，不是新长期计划、实现状态或业务验收",
+  "recommendation": {
+    "name": "原工作流调试对话历史保存、最近记录回读及本人清空",
+    "why": "三个原请求都有真实当前React消费者；原实现全本地Mapper；现Workflow/平台身份/空间/固定Run及版本已存在，无需真实App/旧UID/Provider或旧库导入",
+    "routes": [
+      {
+        "method": "POST",
+        "path": "/workflow/dialog",
+        "body": "chatId,type=1,workflowId,sid,questionItem,answerItem,question,answer",
+        "response": "code0,data=原chatId字符串"
+      },
+      {
+        "method": "GET",
+        "path": "/workflow/dialog/list",
+        "query": "workflowId,type=1",
+        "response": "WorkflowDialog[]，每用户/工作流/类型最新10条，createTime倒序"
+      },
+      {
+        "method": "GET",
+        "path": "/workflow/dialog/clear",
+        "query": "workflowId,type=1",
+        "response": "原boolean更新回执，仅本人显示记录软删除，不动Run/event/checkpoint"
+      }
+    ],
+    "dtoFields": [
+      "id",
+      "uid",
+      "workflowId",
+      "question",
+      "answer",
+      "data",
+      "createTime",
+      "deleted",
+      "sid",
+      "type",
+      "questionItem",
+      "answerItem",
+      "chatId"
+    ],
+    "originalRuleLimits": [
+      "save验证工作流可见，不声明独立workflow/edit权限；当前中心按钮权限要沿已批准read/write边界明确映射",
+      "list UID过滤但无再次workflow可见性检查；clear无UID/空间过滤，不能保留越权漏洞",
+      "原type缺省/nullable行为不等于支持所有正式App聊天；原实际调试三消费者均传1",
+      "原无Run存在/终态验证及幂等唯一；不得把拟加约束冒充原规则",
+      "原QA本地消息结束可能触发保存，不能凭猜测只允许Run terminal并删掉已有阶段历史"
+    ],
+    "minimumCandidateFiles": [
+      "独立WorkflowDialog domain/mapper/XML/service",
+      "薄legacy /workflow/dialog、/dialog/list、/dialog/clear适配",
+      "下一编号未执行增量DDL（以root分配号为准）",
+      "真实Mapper/事务归属与原HTTP/原AST消费定向测试"
+    ],
+    "safetyAndReuse": [
+      "平台current用户与ResourceAccess/DefaultPersonalSpace仅用已有事实；default只读不创建/不选recent",
+      "个人历史始终owner限定，即使同域admin/member也不得清另一用户历史",
+      "uid/createTime/deleted/id/spaceId/workflowVersionId/runId受控，不信客户端管理字段",
+      "当前sid=受信frame.id可查真实Run，必须同owner+workflow+space+固定版本，不按chatId猜Run，不用RunService.detail单独替代owner检查",
+      "新增显示记录只存合法JSON字符串/原形、预算及凭据拒绝，不修改Run结果/事件/Checkpoint事实；清历史不取消或删除Run审计",
+      "原answerItem外引号剥离行为须有针对fixture；原13字段/nullable/JSON string返回与顺序保全",
+      "不导入schema.sql中的历史记录/admin UID/旧App关系；无正式type2来源则明确未接通"
+    ],
+    "conditionsToResolve": [
+      "sid缺失（例如纯本地detach触发原setter）须识别真实无运行的空显示提交，不伪造Run；决定明确拒绝/忽略空记录时需保原consumer失败证据",
+      "QA多段同Run保存须核段键与payload hash，不能仅UNIQUE(runId)吞后续回复；源没有明确幂等键，需从真实消费者调用顺序制定最小合同",
+      "若限制为terminal或要求额外receipt必须先证明原WAITING记录不受影响；否则允许有真实已投影事件的阶段显示记录并明确非终态",
+      "按原列表desc createTime增加稳定id tie-break可避免并发同时间乱序；保最近10条，不改成分页UI",
+      "严格未配置正式聊天/App、附件/音频资源与用户旧历史导入仍独立阻塞"
+    ],
+    "boundary": "仅原调试显示记录；不替代正式App会话、Runtime history、variable truth或中心执行结果。"
+  },
+  "alternatives": [
+    {
+      "name": "TextNode分隔符CRUD",
+      "assessment": "已有TextConfigService/native+legacy，非下一缺后端纵向"
+    },
+    {
+      "name": "个人Agent收藏",
+      "assessment": "原3接口本地实现明确，owner未上架分支可先迁；但实际create/delete消费者在App聊天页，getFavoriteList仅声明；PersonalCenter收藏列表未render。可作后续后端候选，不称现原页面闭环",
+      "originalRules": "global UID+botId；已收藏/未收藏delete均幂等；无market需bot owner；有market非1/2/4仅owner可收；分页默认1/15、上限50、bf.id desc；原搜索/类型字段实际未进入query。原表没有user+bot唯一，需中心事务唯一而不复制竞态",
+      "blocked": "公开/团队可见性、正式market/chatId/addStatus不能由draft/publication假字段生成"
+    },
+    {
+      "name": "站内通知4接口",
+      "assessment": "完整原Service/3表，但原notification services模块缺失，不能仅后端接通原页面",
+      "originalRules": "接收UID；personal/system/promotion映射表、broadcast独立read表；expired过滤；page1/20最多100，mark IDs最多100。delete只删除该用户个人关联，broadcast delete原不支持",
+      "blocked": "真实sender/receivers及邀请outlink需要正式来源；当前invite容量port仍未接，通知not_connected；type查询实际未使用、broadcast分页/注册时间list与count不一致需明确修复，不复用原问题"
+    },
+    {
+      "name": "prompt/manage CRUD",
+      "assessment": "原前端调用+SQL存在但本地Controller/service缺失；不得当原完整实现。现PromptController4个辅助API全部Provider依赖"
+    },
+    {
+      "name": "agent-node/prompt-template",
+      "assessment": "原Mapper/list+原prompt_template种子与select-agent-prompt消费者存在，但adaptationModel包含旧Provider/LLM资源配置；仅文本选择可迁，资源绑定必须映射，不能直接把原seed当当前正式模型或调用资格"
+    }
+  ],
+  "sourceFacts": [
+    {
+      "fact": "原写入只验证工作流可见性，uid及时间由服务写；返回chatId",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+        "line": 1700,
+        "match": "public ApiResult<String> saveDialog"
+      }
+    },
+    {
+      "fact": "原读取按当前uid/workflowId/type/deleted过滤、时间倒序、最近10条",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+        "line": 1714,
+        "match": "public List<WorkflowDialog> listDialog"
+      }
+    },
+    {
+      "fact": "原清空只按workflowId/type软删除，遗漏uid和可见性检查；必须修正而非照搬",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+        "line": 2985,
+        "match": "public Object clearDialog"
+      }
+    },
+    {
+      "fact": "原保存显示字段由原UI组装，不能转为中心Run结果、费用或发布验收事实",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts",
+        "line": 174,
+        "match": "const handleSaveDialogue"
+      }
+    },
+    {
+      "fact": "原读取JSON字符串question/answer，倒序结果在UI用unshift重排并按chatId加分隔",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts",
+        "line": 77,
+        "match": "const getDialogues"
+      }
+    },
+    {
+      "fact": "原抽屉当前工作流切换读取历史",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx",
+        "line": 180,
+        "match": "currentFlow?.id && getDialogues"
+      }
+    },
+    {
+      "fact": "原抽屉debuggering转false且buildPassRef会保存，不只中心terminal；QA等待可结束本地消息阶段",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx",
+        "line": 231,
+        "match": "!debuggering && buildPassRef && handleSaveDialogue"
+      }
+    },
+    {
+      "fact": "当前原UI sid仍读取已验证SSE frame.id（桥固定真实runId）",
+      "source": {
+        "path": "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts",
+        "line": 534,
+        "match": "get().chatInfoRef.sid = data?.id"
+      }
+    },
+    {
+      "fact": "当前清空仍真实调用原workflowDialogClear",
+      "source": {
+        "path": "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts",
+        "line": 1005,
+        "match": "workflowDialogClear(currentFlow?.id, 1)"
+      }
+    },
+    {
+      "fact": "当前RunService.detail仅平台权限/空间访问，不含个人owner核验，不能独用作个人历史归属证明",
+      "source": {
+        "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java",
+        "line": 34,
+        "match": "private RunRecord permitted"
+      }
+    },
+    {
+      "fact": "当前debug桥已有严格RunOwner+space+workflow+version的实际绑定判定可复用",
+      "source": {
+        "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+        "line": 82,
+        "match": "private RunRecord boundRun"
+      }
+    },
+    {
+      "fact": "原收藏允许无market记录但属于当前uid的bot_base",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/bot/impl/BotFavoriteServiceImpl.java",
+        "line": 200,
+        "match": "public void create"
+      }
+    },
+    {
+      "fact": "原收藏删除按当前uid+botId，无记录视为幂等成功",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/bot/impl/BotFavoriteServiceImpl.java",
+        "line": 226,
+        "match": "public void delete"
+      }
+    },
+    {
+      "fact": "原收藏列表JOIN bot_base/market/chat_list并按收藏id倒序，App/chat展示字段有依赖",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/backend/commons/src/main/resources/mapper/BotFavoriteMapper.xml",
+        "line": 16,
+        "match": "<select id=\"selectBotPage\""
+      }
+    },
+    {
+      "fact": "原个人中心只实际渲染最近使用tab；收藏组件定义未调用，不能声称现页完整收藏已接通",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/frontend/src/components/sidebar/personal-center/index.tsx",
+        "line": 432,
+        "match": "{activeIndex === 0 && ("
+      }
+    },
+    {
+      "fact": "原通知页面导入缺失服务模块，且现迁入目录同样缺失",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/frontend/src/components/sidebar/notice-modal/index.tsx",
+        "line": 9,
+        "match": "from '@/services/notification'"
+      }
+    },
+    {
+      "fact": "原提示辅助不是prompt/manage CRUD，依赖真实Spark Provider",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/bot/PromptService.java",
+        "line": 54,
+        "match": "onceChatReturnSseByWs"
+      }
+    },
+    {
+      "fact": "原agent prompt模板UI把adaptationModel url/id/domain写入真实节点；旧Provider配置不得当资源已绑定",
+      "source": {
+        "path": "参考项目/PaiFlow-main/console/frontend/src/components/workflow/modal/select-agent-prompt/index.tsx",
+        "line": 188,
+        "match": "data.nodeParam.url = value?.url"
+      }
+    },
+    {
+      "fact": "当前分隔符CRUD已经有真实中心Service，不列为尚缺后端功能",
+      "source": {
+        "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/TextConfigService.java",
+        "line": 38,
+        "match": "public View create"
+      }
+    }
+  ],
+  "sourceSnapshotHashes": {
+    "文档/项目/PaiFlow工作流项目/完整迁移设计.md": "9cc2ba32f738245758df605bb454265eb989117d0a1e9e05c59c87c9547c624e",
+    "文档/项目/PaiFlow工作流项目/源码覆盖索引.md": "318f277890a8501a4d682538f1c8eb30bae53a59af8384e2a72ea0dd9def0b88",
+    "文档/项目/PaiFlow工作流项目/设计资料核对记录.md": "45d6c250e9b72b5cf43b2a5b71dfaee88440a8ce8b24199af7d5f106db323ebd",
+    "contracts/paiflow/source-api-inventory.json": "6fd861415232ff0db7f0a71d76fdd5daa196cb5aca609d9240da59fc20f3103a",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/WorkflowDialog.java": "19d5fcb1521e45b9fb475082b31abb60551b91d3f366d1d4ca975e3d938443b4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/mapper/workflow/WorkflowDialogMapper.java": "fd0af4c3fffd4b59c9c4a5264b305b6eb9f8077bbe137d1901e1770ee3de6e2d",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/DataPermissionCheckTool.java": "2a1e8be54f72e8428c5583895f020f1c2acc9e5f8381080dec6e4a4ceb148403",
+    "参考项目/PaiFlow-main/console/frontend/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx": "e515a1c30c213327f92638fc30bced097e6e0ad98f6b41d98b94043361c8f43d",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/modal/delete-chat-history/index.tsx": "a74b6fa7c4c4bce074bd73b3b1be1f318687d8e13d07f55ca11a082a72efb17e",
+    "frontend/paiflow-web/src/services/flow.ts": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "a529c6518f5569bb419959a760d67f6e838dbf8c90120f43f243ced6f4b004d4",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java": "7e5d655b263c12d3c3d964e20ed9243514a2da53c223b80f4d53ff7fb12e97f9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java": "5d7c4e653c8fcd9158b724651d7ab342ef401f0de38a67e384e6ebe959731124",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/RunMapper.java": "ff0c1f5a2b854555e95c871b75a3ce57e9ebe446e5db719f5abeb9540682884d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "5a67dad6f7669f3edf4ea87a27d90adce42ff1c2a9a1e6d9cead3458f2daa469",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java": "227d193d68972a2fe57c7eb037784097fd54c69b220fa78464413eb891467588",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/bot/BotFavoriteController.java": "b50efe7cace58da015882db99cab09325a366290f71a2e12102b2ea65ee5976a",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/bot/impl/BotFavoriteServiceImpl.java": "2698abd6edf60b46035839a1ee04dc0de56ea732a42254d2fb17e3bf07c52182",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/resources/mapper/BotFavoriteMapper.xml": "f9fb81f1a945c02ab155bef9388e523d83f8ab71f99de1828f01f5de6e191473",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/bot/BotFavoritePageDto.java": "2e07100bc998d0706f1768d0ef630053fbee38871ed0dc7776402afcfded4ac2",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/bot/BotFavoriteItemDto.java": "239a7f335b2f4d91ee2e440431a86f3d012b59fa03edda6910c1599ce04835e4",
+    "参考项目/PaiFlow-main/console/frontend/src/services/agent-square.ts": "94293675215d4b9c976e39cd0b538eaf366869917d4dbab9a15afb6e41c31755",
+    "参考项目/PaiFlow-main/console/frontend/src/pages/chat-page/components/chat-header.tsx": "96b7897aa39f5a913c50a4c4e8315382fc01dee3be8a4b4a831e15eb41fe03b7",
+    "参考项目/PaiFlow-main/console/frontend/src/components/sidebar/personal-center/index.tsx": "76a81c225904a36a1922d5161ef8557757a28a58402b5aa66ff9f05c527310eb",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/notification/NotificationController.java": "c101bed4fdff1a22a092c7a4fa8d0c44a5140af11e68c893ec2b44e174e83120",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/service/notification/impl/NotificationServiceImpl.java": "e08f88d60001adad7c7785284f89139ae5baa5b477a46f18cd39e1483dd340c5",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/data/impl/NotificationDataServiceImpl.java": "8ba53fd9f32d2509c01fde09c4179f935c7a2702376097d953a72a6f7cfb6a6e",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/resources/mapper/notification/UserNotificationMapper.xml": "53916c57166dc2a499f5c6628f8d2b661d8d2a14a013f66a6cad2f5ff7f4e31a",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/resources/mapper/notification/NotificationMapper.xml": "77bbfe62afbae95e1acb8ac288ef8265426ac4c1e0d9c5d0bb68a4319ad27fdd",
+    "参考项目/PaiFlow-main/console/frontend/src/components/sidebar/notice-modal/index.tsx": "57d35f1fbb8025e6b4145fcf85b3f18db110d90af783adf3afac094515c3862d",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/bot/PromptController.java": "594a42f91cdadd705ec94a9ea730932bb0bd2f7ae21138f52a26e3638e446217",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/bot/PromptService.java": "5cabda5f8c077abc835e23a76a9c1a990b73c8a3cf55ec7d14fa6f9983ccc1ca",
+    "参考项目/PaiFlow-main/console/frontend/src/services/prompt.ts": "be9344710c3cf621000a5320312758236778d372f1950f1249205a7589726f62",
+    "参考项目/PaiFlow-main/console/frontend/src/services/spark-common.ts": "dcfd9c9b12928a3114c109d10488a6c08f6a6f68274aa70e269a430472688f54",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/PromptTemplate.java": "e4b360e005d4dcf092b29a4a9e79e26370b2d92503e22659a43e59d4fcc982ef",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/modal/select-agent-prompt/index.tsx": "453b83631a44048ee1cc3ef245b86baaa3e4d925b4c5f7e358eb1ccb1e642c86",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/TextConfigService.java": "d5ed4443a1babd58b5280e40e039df4bbdcf145b356ad46018f2c7ef827f3faa",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentTemplateCatalog.java": "5c2a66766728edbfab78ec0a3cf4abdee5ed04f168e2df759b2ac7a212bd6934",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java": "d2b2a3ccd741d0b75756402b6e8e0c135397148b4cc8d0fc37b352c442a5af1c",
+    "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc"
+  },
+  "missingFrontendFiles": [
+    "参考项目/PaiFlow-main/console/frontend/src/services/notification.ts",
+    "frontend/paiflow-web/src/services/notification.ts"
+  ],
+  "targetRouteNarrowSearch": {
+    "matchedMappings": [],
+    "scope": "只针对候选路径检查当前Java映射，不是重新生成完整API索引，不证明HTTP运行"
+  },
+  "execution": {
+    "sourceOnly": true,
+    "originalJavaMethodsExecuted": false,
+    "mavenRun": false,
+    "targetWrite": false,
+    "sourceWrite": false,
+    "contractsOrIndexWrite": false,
+    "docsBodyWrite": false,
+    "realDatabase": false,
+    "providerCalls": false,
+    "businessVerified": 0
+  },
+  "evidenceCaptureWindow": {
+    "scope": "本JSON采集前后所列46个文件字节，不宣称覆盖此前全部阅读或他人Maven执行窗",
+    "before": {
+      "文档/项目/PaiFlow工作流项目/完整迁移设计.md": "9cc2ba32f738245758df605bb454265eb989117d0a1e9e05c59c87c9547c624e",
+      "文档/项目/PaiFlow工作流项目/源码覆盖索引.md": "318f277890a8501a4d682538f1c8eb30bae53a59af8384e2a72ea0dd9def0b88",
+      "文档/项目/PaiFlow工作流项目/设计资料核对记录.md": "45d6c250e9b72b5cf43b2a5b71dfaee88440a8ce8b24199af7d5f106db323ebd",
+      "contracts/paiflow/source-api-inventory.json": "6fd861415232ff0db7f0a71d76fdd5daa196cb5aca609d9240da59fc20f3103a",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/WorkflowDialog.java": "19d5fcb1521e45b9fb475082b31abb60551b91d3f366d1d4ca975e3d938443b4",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/mapper/workflow/WorkflowDialogMapper.java": "fd0af4c3fffd4b59c9c4a5264b305b6eb9f8077bbe137d1901e1770ee3de6e2d",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/DataPermissionCheckTool.java": "2a1e8be54f72e8428c5583895f020f1c2acc9e5f8381080dec6e4a4ceb148403",
+      "参考项目/PaiFlow-main/console/frontend/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5",
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx": "e515a1c30c213327f92638fc30bced097e6e0ad98f6b41d98b94043361c8f43d",
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/modal/delete-chat-history/index.tsx": "a74b6fa7c4c4bce074bd73b3b1be1f318687d8e13d07f55ca11a082a72efb17e",
+      "frontend/paiflow-web/src/services/flow.ts": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+      "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "a529c6518f5569bb419959a760d67f6e838dbf8c90120f43f243ced6f4b004d4",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java": "7e5d655b263c12d3c3d964e20ed9243514a2da53c223b80f4d53ff7fb12e97f9",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java": "5d7c4e653c8fcd9158b724651d7ab342ef401f0de38a67e384e6ebe959731124",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/RunMapper.java": "ff0c1f5a2b854555e95c871b75a3ce57e9ebe446e5db719f5abeb9540682884d",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "5a67dad6f7669f3edf4ea87a27d90adce42ff1c2a9a1e6d9cead3458f2daa469",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java": "227d193d68972a2fe57c7eb037784097fd54c69b220fa78464413eb891467588",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/bot/BotFavoriteController.java": "b50efe7cace58da015882db99cab09325a366290f71a2e12102b2ea65ee5976a",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/bot/impl/BotFavoriteServiceImpl.java": "2698abd6edf60b46035839a1ee04dc0de56ea732a42254d2fb17e3bf07c52182",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/resources/mapper/BotFavoriteMapper.xml": "f9fb81f1a945c02ab155bef9388e523d83f8ab71f99de1828f01f5de6e191473",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/bot/BotFavoritePageDto.java": "2e07100bc998d0706f1768d0ef630053fbee38871ed0dc7776402afcfded4ac2",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/bot/BotFavoriteItemDto.java": "239a7f335b2f4d91ee2e440431a86f3d012b59fa03edda6910c1599ce04835e4",
+      "参考项目/PaiFlow-main/console/frontend/src/services/agent-square.ts": "94293675215d4b9c976e39cd0b538eaf366869917d4dbab9a15afb6e41c31755",
+      "参考项目/PaiFlow-main/console/frontend/src/pages/chat-page/components/chat-header.tsx": "96b7897aa39f5a913c50a4c4e8315382fc01dee3be8a4b4a831e15eb41fe03b7",
+      "参考项目/PaiFlow-main/console/frontend/src/components/sidebar/personal-center/index.tsx": "76a81c225904a36a1922d5161ef8557757a28a58402b5aa66ff9f05c527310eb",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/notification/NotificationController.java": "c101bed4fdff1a22a092c7a4fa8d0c44a5140af11e68c893ec2b44e174e83120",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/service/notification/impl/NotificationServiceImpl.java": "e08f88d60001adad7c7785284f89139ae5baa5b477a46f18cd39e1483dd340c5",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/data/impl/NotificationDataServiceImpl.java": "8ba53fd9f32d2509c01fde09c4179f935c7a2702376097d953a72a6f7cfb6a6e",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/resources/mapper/notification/UserNotificationMapper.xml": "53916c57166dc2a499f5c6628f8d2b661d8d2a14a013f66a6cad2f5ff7f4e31a",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/resources/mapper/notification/NotificationMapper.xml": "77bbfe62afbae95e1acb8ac288ef8265426ac4c1e0d9c5d0bb68a4319ad27fdd",
+      "参考项目/PaiFlow-main/console/frontend/src/components/sidebar/notice-modal/index.tsx": "57d35f1fbb8025e6b4145fcf85b3f18db110d90af783adf3afac094515c3862d",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/bot/PromptController.java": "594a42f91cdadd705ec94a9ea730932bb0bd2f7ae21138f52a26e3638e446217",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/bot/PromptService.java": "5cabda5f8c077abc835e23a76a9c1a990b73c8a3cf55ec7d14fa6f9983ccc1ca",
+      "参考项目/PaiFlow-main/console/frontend/src/services/prompt.ts": "be9344710c3cf621000a5320312758236778d372f1950f1249205a7589726f62",
+      "参考项目/PaiFlow-main/console/frontend/src/services/spark-common.ts": "dcfd9c9b12928a3114c109d10488a6c08f6a6f68274aa70e269a430472688f54",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/PromptTemplate.java": "e4b360e005d4dcf092b29a4a9e79e26370b2d92503e22659a43e59d4fcc982ef",
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/modal/select-agent-prompt/index.tsx": "453b83631a44048ee1cc3ef245b86baaa3e4d925b4c5f7e358eb1ccb1e642c86",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/TextConfigService.java": "d5ed4443a1babd58b5280e40e039df4bbdcf145b356ad46018f2c7ef827f3faa",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentTemplateCatalog.java": "5c2a66766728edbfab78ec0a3cf4abdee5ed04f168e2df759b2ac7a212bd6934",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java": "d2b2a3ccd741d0b75756402b6e8e0c135397148b4cc8d0fc37b352c442a5af1c",
+      "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc"
+    },
+    "after": {
+      "文档/项目/PaiFlow工作流项目/完整迁移设计.md": "9cc2ba32f738245758df605bb454265eb989117d0a1e9e05c59c87c9547c624e",
+      "文档/项目/PaiFlow工作流项目/源码覆盖索引.md": "318f277890a8501a4d682538f1c8eb30bae53a59af8384e2a72ea0dd9def0b88",
+      "文档/项目/PaiFlow工作流项目/设计资料核对记录.md": "45d6c250e9b72b5cf43b2a5b71dfaee88440a8ce8b24199af7d5f106db323ebd",
+      "contracts/paiflow/source-api-inventory.json": "6fd861415232ff0db7f0a71d76fdd5daa196cb5aca609d9240da59fc20f3103a",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/WorkflowDialog.java": "19d5fcb1521e45b9fb475082b31abb60551b91d3f366d1d4ca975e3d938443b4",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/mapper/workflow/WorkflowDialogMapper.java": "fd0af4c3fffd4b59c9c4a5264b305b6eb9f8077bbe137d1901e1770ee3de6e2d",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/DataPermissionCheckTool.java": "2a1e8be54f72e8428c5583895f020f1c2acc9e5f8381080dec6e4a4ceb148403",
+      "参考项目/PaiFlow-main/console/frontend/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5",
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/index.tsx": "e515a1c30c213327f92638fc30bced097e6e0ad98f6b41d98b94043361c8f43d",
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/modal/delete-chat-history/index.tsx": "a74b6fa7c4c4bce074bd73b3b1be1f318687d8e13d07f55ca11a082a72efb17e",
+      "frontend/paiflow-web/src/services/flow.ts": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+      "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "a529c6518f5569bb419959a760d67f6e838dbf8c90120f43f243ced6f4b004d4",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java": "7e5d655b263c12d3c3d964e20ed9243514a2da53c223b80f4d53ff7fb12e97f9",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java": "5d7c4e653c8fcd9158b724651d7ab342ef401f0de38a67e384e6ebe959731124",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/RunMapper.java": "ff0c1f5a2b854555e95c871b75a3ce57e9ebe446e5db719f5abeb9540682884d",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "5a67dad6f7669f3edf4ea87a27d90adce42ff1c2a9a1e6d9cead3458f2daa469",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java": "227d193d68972a2fe57c7eb037784097fd54c69b220fa78464413eb891467588",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/bot/BotFavoriteController.java": "b50efe7cace58da015882db99cab09325a366290f71a2e12102b2ea65ee5976a",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/bot/impl/BotFavoriteServiceImpl.java": "2698abd6edf60b46035839a1ee04dc0de56ea732a42254d2fb17e3bf07c52182",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/resources/mapper/BotFavoriteMapper.xml": "f9fb81f1a945c02ab155bef9388e523d83f8ab71f99de1828f01f5de6e191473",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/bot/BotFavoritePageDto.java": "2e07100bc998d0706f1768d0ef630053fbee38871ed0dc7776402afcfded4ac2",
+      "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/bot/BotFavoriteItemDto.java": "239a7f335b2f4d91ee2e440431a86f3d012b59fa03edda6910c1599ce04835e4",
+      "参考项目/PaiFlow-main/console/frontend/src/services/agent-square.ts": "94293675215d4b9c976e39cd0b538eaf366869917d4dbab9a15afb6e41c31755",
+      "参考项目/PaiFlow-main/console/frontend/src/pages/chat-page/components/chat-header.tsx": "96b7897aa39f5a913c50a4c4e8315382fc01dee3be8a4b4a831e15eb41fe03b7",
+      "参考项目/PaiFlow-main/console/frontend/src/components/sidebar/personal-center/index.tsx": "76a81c225904a36a1922d5161ef8557757a28a58402b5aa66ff9f05c527310eb",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/notification/NotificationController.java": "c101bed4fdff1a22a092c7a4fa8d0c44a5140af11e68c893ec2b44e174e83120",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/service/notification/impl/NotificationServiceImpl.java": "e08f88d60001adad7c7785284f89139ae5baa5b477a46f18cd39e1483dd340c5",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/data/impl/NotificationDataServiceImpl.java": "8ba53fd9f32d2509c01fde09c4179f935c7a2702376097d953a72a6f7cfb6a6e",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/resources/mapper/notification/UserNotificationMapper.xml": "53916c57166dc2a499f5c6628f8d2b661d8d2a14a013f66a6cad2f5ff7f4e31a",
+      "参考项目/PaiFlow-main/console/backend/hub/src/main/resources/mapper/notification/NotificationMapper.xml": "77bbfe62afbae95e1acb8ac288ef8265426ac4c1e0d9c5d0bb68a4319ad27fdd",
+      "参考项目/PaiFlow-main/console/frontend/src/components/sidebar/notice-modal/index.tsx": "57d35f1fbb8025e6b4145fcf85b3f18db110d90af783adf3afac094515c3862d",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/bot/PromptController.java": "594a42f91cdadd705ec94a9ea730932bb0bd2f7ae21138f52a26e3638e446217",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/bot/PromptService.java": "5cabda5f8c077abc835e23a76a9c1a990b73c8a3cf55ec7d14fa6f9983ccc1ca",
+      "参考项目/PaiFlow-main/console/frontend/src/services/prompt.ts": "be9344710c3cf621000a5320312758236778d372f1950f1249205a7589726f62",
+      "参考项目/PaiFlow-main/console/frontend/src/services/spark-common.ts": "dcfd9c9b12928a3114c109d10488a6c08f6a6f68274aa70e269a430472688f54",
+      "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/table/workflow/PromptTemplate.java": "e4b360e005d4dcf092b29a4a9e79e26370b2d92503e22659a43e59d4fcc982ef",
+      "参考项目/PaiFlow-main/console/frontend/src/components/workflow/modal/select-agent-prompt/index.tsx": "453b83631a44048ee1cc3ef245b86baaa3e4d925b4c5f7e358eb1ccb1e642c86",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/TextConfigService.java": "d5ed4443a1babd58b5280e40e039df4bbdcf145b356ad46018f2c7ef827f3faa",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentTemplateCatalog.java": "5c2a66766728edbfab78ec0a3cf4abdee5ed04f168e2df759b2ac7a212bd6934",
+      "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java": "d2b2a3ccd741d0b75756402b6e8e0c135397148b4cc8d0fc37b352c442a5af1c",
+      "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc"
+    },
+    "mismatches": [],
+    "fileCount": 46
+  },
+  "postCaptureSourceCheck": {
+    "at": "2026-10-03T09:52:16.105472+00:00",
+    "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+    "capturedSha256": "5a67dad6f7669f3edf4ea87a27d90adce42ff1c2a9a1e6d9cead3458f2daa469",
+    "currentSha256": "5a67dad6f7669f3edf4ea87a27d90adce42ff1c2a9a1e6d9cead3458f2daa469",
+    "changedSinceEvidenceCapture": false,
+    "scope": "只复核Bridge。46文件零差异仅为JSON采集窗口，不扩为此前阅读/Maven窗或后续源码零差异。root正在修chat深JSON入口，当前候选来源不是最终freeze索引。"
+  }
+}

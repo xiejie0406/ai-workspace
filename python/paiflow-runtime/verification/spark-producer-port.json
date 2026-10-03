@@ -1,0 +1,183 @@
+{
+  "timestamp": "2026-10-02T23:02:46.088666+00:00",
+  "scope": "独立Spark Chat Producer原算法与私有受控端口离线技术检查，未注册/联机/业务验收",
+  "fullTests": 171,
+  "newProducerTests": 27,
+  "preservedBaselineTests": 144,
+  "firstProducerTests": 24,
+  "checks": [
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exitCode": 0,
+      "log": "verification/unittest.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/verify_source.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/source-check.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/analyze_port_dependencies.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/dependency-analysis.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exitCode": 0,
+      "log": "verification/dependency-check.log"
+    }
+  ],
+  "sourceScan": {
+    "pythonFiles": 467,
+    "introducedFiles": 427,
+    "missingIntroducedFiles": [],
+    "syntaxErrors": [],
+    "suspiciousLiteralCredentialBindings": [],
+    "executableExamples": [],
+    "hostExecCalls": []
+  },
+  "frozenBaseline": {
+    "originalReport": "verification/remaining-capabilities-port.json",
+    "unchangedCodeTestProtocolFiles": 16,
+    "changedFiles": [
+      "README.md"
+    ],
+    "authorizedException": "仅README追加本次事实；原文在verification/producer-144-readme-baseline.md",
+    "readmeBaselineSha256": "01bad9ebce9b530e800613bba6bb1cebaa694308503c4f932589b06a78c3bd17"
+  },
+  "changedFiles": [
+    {
+      "path": "worker/producers/__init__.py",
+      "sha256": "f488ae465fff2162a7ca16b94cc223fb85c822288072a739ff2f136446988eb1"
+    },
+    {
+      "path": "worker/producers/spark_chat.py",
+      "sha256": "67ea6eee539006ea20a41a337c245fbdc5ac3cba83feabb3ef1956544b94b055"
+    },
+    {
+      "path": "tests/test_spark_producer.py",
+      "sha256": "8957120d3a27e8711972aa9a0c992935412c8201e6e30a9e31e4ed444ebb5501"
+    },
+    {
+      "path": "README.md",
+      "sha256": "eddcb0991a388480a2b4aabbdd9af643025758880a87ac00a01aa82bb9f02715"
+    }
+  ],
+  "installedOriginalLockedPackages": [
+    {
+      "name": "annotated-types",
+      "version": "0.7.0"
+    },
+    {
+      "name": "attrs",
+      "version": "23.2.0"
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6"
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.23.0"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2023.12.1"
+    },
+    {
+      "name": "loguru",
+      "version": "0.7.2"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.9.2"
+    },
+    {
+      "name": "pydantic-core",
+      "version": "2.23.4"
+    },
+    {
+      "name": "referencing",
+      "version": "0.35.1"
+    },
+    {
+      "name": "rpds-py",
+      "version": "0.19.0"
+    },
+    {
+      "name": "typing-extensions",
+      "version": "4.12.2"
+    },
+    {
+      "name": "win32-setctime",
+      "version": "1.1.0"
+    },
+    {
+      "name": "websockets",
+      "version": "12.0"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.1.2"
+    }
+  ],
+  "newDependencyDownloads": 0,
+  "entrypoint": "SparkChatProducer(center, private_transport).produce(operationId)",
+  "centerPort": [
+    "acquire(operationId)->SparkGrant",
+    "assert_active(grant)->None",
+    "commit_frame(grant,sequence,rawFrame,terminal,provider_error_code)->FrameCommit",
+    "confirm_stop(grant,reason)->StopConfirmation",
+    "record_failure(grant,FailureFacts)->None"
+  ],
+  "privateTransport": "open(authenticated_url,connect_timeout,close_timeout)->PrivateSparkStream(send/recv/close);无默认连接器",
+  "independentReadOnlyReview": [
+    "root:未确认阻断",
+    "api_inventory:未确认阻断；未跑测试或网络"
+  ],
+  "productionCapabilitiesReady": false,
+  "limits": [
+    "中心CAS/审批/固定DSL分支和动态messages输入归属未实现",
+    "中心资源/operations/frames/cancel及效果费用账本未实现",
+    "真实私有TLS/出口/进程强制停止与Provider停止证据未实现",
+    "原Spark无Provider取消ACK，local close不能说明费用停止",
+    "原14包环境不具备OpenAI真实SDK，未下载其11缺包",
+    "Producer不注册default，不修改21消费者，不代表21正式能力完成"
+  ],
+  "baselineLogs": [
+    "verification/producer-144-unittest-baseline.log",
+    "verification/producer-144-checks-baseline.json",
+    "verification/producer-144-readme-baseline.md"
+  ],
+  "currentLogs": [
+    "verification/spark-producer-first.log",
+    "verification/spark-producer-current.log",
+    "verification/unittest.log",
+    "verification/source-check.log",
+    "verification/dependency-analysis.log",
+    "verification/dependency-check.log"
+  ]
+}

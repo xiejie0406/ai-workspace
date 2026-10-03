@@ -1,0 +1,80 @@
+{
+  "checkedAt": "2026-10-03T04:03:52.659837+00:00",
+  "status": "confirmed_non_dsl_canonical_default_compatibility_gap",
+  "method": "actual compiled DslCodec and RunJsonBoundary from previous 378/29 freeze; explicit V1 versus V2 and actual default on inert request/event/result JSON",
+  "command": [
+    "java",
+    "--class-path",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\target\\classes;D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-common\\target\\classes;C:\\Users\\admin\\.m2\\repository\\com\\alibaba\\fastjson2\\fastjson2\\2.0.64\\fastjson2-2.0.64.jar",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\RunCanonicalNullReview.java"
+  ],
+  "exitCode": 0,
+  "workingDirectory": "D:\\2025Ai\\26-05-23\\java-workspace",
+  "observations": {
+    "request": {
+      "case": "run-inputHash",
+      "oldV1Bytes": "{\"engineProfile\":\"python\",\"input\":{\"text\":\"fixture\"},\"timeoutSeconds\":900,\"workflowVersionId\":7}",
+      "currentV2Bytes": "{\"engineProfile\":\"python\",\"input\":{\"opaqueNull\":null,\"text\":\"fixture\"},\"timeoutSeconds\":900,\"workflowVersionId\":7}",
+      "actualBoundaryBytes": "{\"engineProfile\":\"python\",\"input\":{\"opaqueNull\":null,\"text\":\"fixture\"},\"timeoutSeconds\":900,\"workflowVersionId\":7}",
+      "oldV1Hash": "6cddefea3e75ac1d01aee809b64292a2f86d39dce58631790e0d46cbad535bb5",
+      "currentV2Hash": "e4ef9b5fdb7df09ea14c81fe341ee7566f50edd5b0aad19435684ec10ae991da",
+      "actualBoundaryHash": "e4ef9b5fdb7df09ea14c81fe341ee7566f50edd5b0aad19435684ec10ae991da",
+      "bytesChanged": true,
+      "currentBoundaryUsesV2": true,
+      "sameRequestAgainstOldHashWouldCompareDifferent": true
+    },
+    "event": {
+      "case": "event-duplicate-bytes",
+      "oldV1Bytes": "{\"attempt\":1,\"eventType\":\"node.completed\",\"leaseId\":\"fixture-lease\",\"payload\":{\"legacyFrame\":{\"code\":0}},\"runId\":\"fixture-run\",\"schemaVersion\":\"paiflow.events.v1\",\"seq\":1,\"timestamp\":\"2026-10-03T03:00:00Z\"}",
+      "currentV2Bytes": "{\"attempt\":1,\"eventType\":\"node.completed\",\"leaseId\":\"fixture-lease\",\"payload\":{\"legacyFrame\":{\"code\":0,\"opaqueNull\":null}},\"runId\":\"fixture-run\",\"schemaVersion\":\"paiflow.events.v1\",\"seq\":1,\"timestamp\":\"2026-10-03T03:00:00Z\"}",
+      "actualBoundaryBytes": "{\"attempt\":1,\"eventType\":\"node.completed\",\"leaseId\":\"fixture-lease\",\"payload\":{\"legacyFrame\":{\"code\":0,\"opaqueNull\":null}},\"runId\":\"fixture-run\",\"schemaVersion\":\"paiflow.events.v1\",\"seq\":1,\"timestamp\":\"2026-10-03T03:00:00Z\"}",
+      "oldV1Hash": "2ed2a8520b0cb50bc85db6c9a6f8a9a6d4d809656916fb83a3f44ff1f39fce9e",
+      "currentV2Hash": "563a94f8c0b1ca799eaeed5a0be5a398d5f7849f54b20edef8ad5ee848624a9d",
+      "actualBoundaryHash": "563a94f8c0b1ca799eaeed5a0be5a398d5f7849f54b20edef8ad5ee848624a9d",
+      "bytesChanged": true,
+      "currentBoundaryUsesV2": true,
+      "sameRequestAgainstOldHashWouldCompareDifferent": true
+    },
+    "result": {
+      "case": "resultHash",
+      "oldV1Bytes": "{\"attempt\":1,\"leaseId\":\"fixture-lease\",\"output\":{\"answer\":\"fixture\"},\"state\":\"COMPLETED\"}",
+      "currentV2Bytes": "{\"attempt\":1,\"leaseId\":\"fixture-lease\",\"output\":{\"answer\":\"fixture\",\"opaqueNull\":null},\"state\":\"COMPLETED\"}",
+      "actualBoundaryBytes": "{\"attempt\":1,\"leaseId\":\"fixture-lease\",\"output\":{\"answer\":\"fixture\",\"opaqueNull\":null},\"state\":\"COMPLETED\"}",
+      "oldV1Hash": "d23048ca0d007219fcaa3ed95eacf42b464e20e85fffe5f8188cf0293d227e88",
+      "currentV2Hash": "bd746409c35420eeec01b6f61bc6ce3d43333de2f458fcdcf57ae9ff079ef0a3",
+      "actualBoundaryHash": "bd746409c35420eeec01b6f61bc6ce3d43333de2f458fcdcf57ae9ff079ef0a3",
+      "bytesChanged": true,
+      "currentBoundaryUsesV2": true,
+      "sameRequestAgainstOldHashWouldCompareDifferent": true
+    }
+  },
+  "sourcesAndCompiledClassesBefore": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "3dc53486c3ce925afb2fe663ac1391a51fff646f3185d723c21a7ee76701108a",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/DslCodec.java": "619a8f28807da4b989ea474e5b0acbaf2949db15bdc218049f9439d3734d28b8",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/RunJsonBoundary.class": "1319ef88dca4b803ac2b31980835d7d5caa8f8ff3c641cf03eefbb3135a0771c",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/DslCodec.class": "0fc49a63be6e77f7b7a1d851e1093843a51917d700aee1df64882a0202d216c2"
+  },
+  "sourcesAndCompiledClassesAfter": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "3dc53486c3ce925afb2fe663ac1391a51fff646f3185d723c21a7ee76701108a",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/DslCodec.java": "619a8f28807da4b989ea474e5b0acbaf2949db15bdc218049f9439d3734d28b8",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/RunJsonBoundary.class": "1319ef88dca4b803ac2b31980835d7d5caa8f8ff3c641cf03eefbb3135a0771c",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/DslCodec.class": "0fc49a63be6e77f7b7a1d851e1093843a51917d700aee1df64882a0202d216c2"
+  },
+  "sourceWindowChanges": [],
+  "claims": [
+    "RunService same owner/idempotencyKey uses hash inequality as409, so old V1 inputHash differs for same nullable request under accidental V2 default",
+    "RunLease append compares duplicate stored canonical bytes, result compares stored resultHash; switching default without record codec changes both comparisons",
+    "No existing real database replay was executed; this proves actual serialization/hash difference plus source comparison trigger"
+  ],
+  "rootProposedFix": "非DSL RunJsonBoundary canonical explicitly pins previous V1; DSL version V2/null-preserving canonical remains independent",
+  "noMaven": true,
+  "targetWritten": false,
+  "realDatabaseWrites": false,
+  "network": false,
+  "servicesStarted": false,
+  "businessVerified": false,
+  "limitations": [
+    "Current DslCodec source may include newly planned V3 while loaded classes are previous frozen V2; functions exercised explicit V1/V2 existed in recorded previous build.",
+    "Java source-file launcher compiles only its private probe to JVM temporary space; production classes are read-only."
+  ]
+}

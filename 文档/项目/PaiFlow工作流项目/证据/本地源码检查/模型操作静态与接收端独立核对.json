@@ -1,0 +1,89 @@
+{
+  "recordedAt": "2026-10-03T01:43:49.445594+00:00",
+  "command": "python -X utf8 -B 文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/ModelOperationContractReview.py",
+  "exitCode": 0,
+  "sourceHashes": {
+    "python/paiflow-runtime/worker/model_contract.py": "cf0cc3686a8f7f44fc345f7de817b1b512c04d9d567b15df23902a3ad57d9243",
+    "contracts/paiflow/model-operations.schema.json": "4c21e19040a161eab1ea6b406e403829cc5188656636109cd06932989a5ac887",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ModelOperationService.java": "db0d66a697325ba031b7871fa43bb419582da7632982078239dd0609f5083212",
+    "ruoyi-backend/ruoyi-paiflow/sql/003-paiflow-run.sql": "c0e073e5b8de408d64e691a2cb00f177e318cb8a6f380f1dbf2a24d5a74949fb",
+    "ruoyi-backend/ruoyi-paiflow/sql/013-paiflow-model-operation.sql": "12399a5adf4e84318277e13eea3fd32ed08dbad80ac4b5bd4c885c522cc6253d"
+  },
+  "sourceWindowChanges": [],
+  "actualClient": {
+    "actualClientHelper": true,
+    "actualCenterService": false,
+    "databaseCalls": 0,
+    "networkCalls": 0,
+    "providerCalls": 0,
+    "cases": [
+      {
+        "failureKind": "transport",
+        "acceptedByCurrentConsumer": true
+      },
+      {
+        "failureKind": "cancelled",
+        "acceptedByCurrentConsumer": true
+      },
+      {
+        "failureKind": "lease",
+        "acceptedByCurrentConsumer": true
+      },
+      {
+        "failureKind": "budget",
+        "acceptedByCurrentConsumer": true
+      }
+    ]
+  },
+  "schemaFailureEnums": {
+    "FramesAck": [
+      null,
+      "provider",
+      "authorization",
+      "protocol",
+      "transport",
+      "deadline",
+      "lease",
+      "cancelled",
+      "budget"
+    ],
+    "OpenAIChatFramesAck": [
+      null,
+      "provider",
+      "authorization",
+      "protocol",
+      "transport",
+      "deadline",
+      "lease",
+      "cancelled",
+      "budget"
+    ]
+  },
+  "log": "模型操作接收端枚举-独立当前检查.log",
+  "logSha256": "5ef27a02ad18cf7654a54a6a179fae47d237266269c3a807c1c20775124fdb1a",
+  "probeSha256": "fc75609987bb06f76b6bb1a7e896c5e095c6960303f09fbaf273c42fd12e4b94",
+  "actualCenterService": false,
+  "actualMapper": false,
+  "mavenExecuted": false,
+  "targetWrites": 0,
+  "sqlExecuted": false,
+  "businessVerified": false,
+  "findings": [
+    {
+      "type": "静态首发现，非旧源执行失败",
+      "kind": "cancelled/lease/budget缺枚举",
+      "status": "当前枚举与实际消费者4场景通过",
+      "source": "ModelOperationService的cancel/recordFailure/frames直接返回事实类型；两ACK枚举现已补齐"
+    },
+    {
+      "type": "静态首发现，尚无独立中心事务复验",
+      "kind": "usage-only空Map覆盖用量且finish可完成",
+      "status": "当前Service所有非null usage及usage-only均校验3个非负整数，等待统一实际事务测试"
+    }
+  ],
+  "sqlReadOnlyFacts": [
+    "013.run_id与003.paiflow_run.id均VARCHAR36 CHARACTER SET ascii COLLATE ascii_bin",
+    "013.frame.operation_id与operation.id均VARCHAR64和相同默认utf8mb4，实际MySQL未执行",
+    "request_key TEXT可容纳当前16384字节上限，parameters/approval/frame用MEDIUMTEXT，未执行真实DDL"
+  ]
+}

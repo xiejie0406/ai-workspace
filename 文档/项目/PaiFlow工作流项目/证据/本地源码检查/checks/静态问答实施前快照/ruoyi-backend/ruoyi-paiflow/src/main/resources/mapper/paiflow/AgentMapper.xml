@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.AgentMapper">
+  <sql id="columns">id,space_id AS spaceId,owner_user_id AS ownerUserId,workflow_id AS workflowId,revision,version,bot_type AS botType,name,description,avatar,config_json AS configJson,deleted,create_by AS createBy,update_by AS updateBy,create_time AS createTime,update_time AS updateTime</sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.AgentRecord">SELECT <include refid="columns"/> FROM paiflow_agent WHERE id=#{id} AND deleted=0</select>
+  <select id="lock" resultType="com.ruoyi.paiflow.domain.AgentRecord">SELECT <include refid="columns"/> FROM paiflow_agent WHERE id=#{id} AND deleted=0 FOR UPDATE</select>
+  <select id="byWorkflow" resultType="com.ruoyi.paiflow.domain.AgentRecord">SELECT <include refid="columns"/> FROM paiflow_agent WHERE workflow_id=#{workflowId} AND deleted=0</select>
+  <sql id="filters">space_id=#{spaceId} AND deleted=0
+    <if test="search != null and search != ''">AND LOCATE(#{search},name)&gt;0</if>
+    <if test="version != null">AND version=#{version}</if>
+  </sql>
+  <select id="count" resultType="long">SELECT COUNT(*) FROM paiflow_agent WHERE <include refid="filters"/></select>
+  <select id="list" resultType="com.ruoyi.paiflow.domain.AgentRecord">SELECT <include refid="columns"/> FROM paiflow_agent WHERE <include refid="filters"/>
+    <choose><when test="sort == 'updateTime'">ORDER BY update_time DESC,id DESC</when><otherwise>ORDER BY create_time DESC,id DESC</otherwise></choose> LIMIT #{limit} OFFSET #{offset}</select>
+  <select id="countName" resultType="long">SELECT COUNT(*) FROM paiflow_agent WHERE space_id=#{spaceId} AND name=#{name} AND deleted=0 <if test="excludeId != null">AND id&lt;&gt;#{excludeId}</if></select>
+  <select id="countOwner" resultType="long">SELECT COUNT(*) FROM paiflow_agent WHERE space_id=#{spaceId} AND owner_user_id=#{ownerUserId} AND deleted=0</select>
+  <select id="countAllOwner" resultType="long">SELECT COUNT(*) FROM paiflow_agent WHERE owner_user_id=#{ownerUserId} AND deleted=0</select>
+  <insert id="lockOwnerGuard">INSERT INTO paiflow_agent_owner_guard(owner_user_id) VALUES(#{ownerUserId}) ON DUPLICATE KEY UPDATE owner_user_id=#{ownerUserId}</insert>
+  <insert id="insert" parameterType="com.ruoyi.paiflow.domain.AgentRecord" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO paiflow_agent(space_id,owner_user_id,workflow_id,revision,version,bot_type,name,description,avatar,config_json,deleted,create_by,update_by,create_time,update_time)
+    VALUES(#{spaceId},#{ownerUserId},#{workflowId},0,#{version},#{botType},#{name},#{description},#{avatar},#{configJson},0,#{createBy},#{updateBy},UTC_TIMESTAMP(),UTC_TIMESTAMP())
+  </insert>
+  <update id="update">UPDATE paiflow_agent SET workflow_id=#{workflowId},bot_type=#{botType},name=#{name},description=#{description},avatar=#{avatar},config_json=#{configJson},revision=revision+1,update_by=#{updateBy},update_time=UTC_TIMESTAMP()
+    WHERE id=#{id} AND space_id=#{spaceId} AND revision=#{revision} AND deleted=0</update>
+  <update id="delete">UPDATE paiflow_agent SET deleted=1,revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND space_id=#{spaceId} AND revision=#{revision} AND deleted=0</update>
+</mapper>

@@ -1,0 +1,121 @@
+Compiled from "SynchronizeHalfDuplexApi.java"
+public final class com.alibaba.dashscope.api.SynchronizeHalfDuplexApi<ParamT extends com.alibaba.dashscope.base.HalfDuplexParamBase> {
+  final com.alibaba.dashscope.protocol.HalfDuplexClient client;
+
+  com.alibaba.dashscope.protocol.ConnectionOptions connectionOptions;
+
+  final com.alibaba.dashscope.protocol.ServiceOption serviceOptions;
+
+  public com.alibaba.dashscope.api.SynchronizeHalfDuplexApi(com.alibaba.dashscope.protocol.ServiceOption);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: invokeinterface #2,  1            // InterfaceMethod com/alibaba/dashscope/protocol/ServiceOption.getProtocol:()Lcom/alibaba/dashscope/protocol/Protocol;
+      11: invokevirtual #3                  // Method com/alibaba/dashscope/protocol/Protocol.getValue:()Ljava/lang/String;
+      14: invokestatic  #4                  // Method com/alibaba/dashscope/protocol/ClientProviders.getHalfDuplexClient:(Ljava/lang/String;)Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      17: putfield      #5                  // Field client:Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      20: aload_0
+      21: aconst_null
+      22: putfield      #6                  // Field connectionOptions:Lcom/alibaba/dashscope/protocol/ConnectionOptions;
+      25: aload_0
+      26: aload_1
+      27: putfield      #7                  // Field serviceOptions:Lcom/alibaba/dashscope/protocol/ServiceOption;
+      30: return
+
+  public com.alibaba.dashscope.api.SynchronizeHalfDuplexApi(com.alibaba.dashscope.protocol.ConnectionOptions, com.alibaba.dashscope.protocol.ServiceOption);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: aload_2
+       7: invokeinterface #2,  1            // InterfaceMethod com/alibaba/dashscope/protocol/ServiceOption.getProtocol:()Lcom/alibaba/dashscope/protocol/Protocol;
+      12: invokevirtual #3                  // Method com/alibaba/dashscope/protocol/Protocol.getValue:()Ljava/lang/String;
+      15: invokestatic  #8                  // Method com/alibaba/dashscope/protocol/ClientProviders.getHalfDuplexClient:(Lcom/alibaba/dashscope/protocol/ConnectionOptions;Ljava/lang/String;)Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      18: putfield      #5                  // Field client:Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      21: aload_0
+      22: aload_1
+      23: putfield      #6                  // Field connectionOptions:Lcom/alibaba/dashscope/protocol/ConnectionOptions;
+      26: aload_0
+      27: aload_2
+      28: putfield      #7                  // Field serviceOptions:Lcom/alibaba/dashscope/protocol/ServiceOption;
+      31: return
+
+  public com.alibaba.dashscope.common.DashScopeResult call(ParamT) throws com.alibaba.dashscope.exception.ApiException, com.alibaba.dashscope.exception.NoApiKeyException;
+    Code:
+       0: new           #9                  // class com/alibaba/dashscope/protocol/HalfDuplexRequest
+       3: dup
+       4: aload_1
+       5: aload_0
+       6: getfield      #7                  // Field serviceOptions:Lcom/alibaba/dashscope/protocol/ServiceOption;
+       9: invokespecial #10                 // Method com/alibaba/dashscope/protocol/HalfDuplexRequest."<init>":(Lcom/alibaba/dashscope/base/HalfDuplexParamBase;Lcom/alibaba/dashscope/protocol/ServiceOption;)V
+      12: astore_2
+      13: aload_0
+      14: getfield      #5                  // Field client:Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      17: aload_2
+      18: invokeinterface #11,  2           // InterfaceMethod com/alibaba/dashscope/protocol/HalfDuplexClient.send:(Lcom/alibaba/dashscope/protocol/HalfDuplexRequest;)Lcom/alibaba/dashscope/common/DashScopeResult;
+      23: areturn
+
+  public void call(ParamT, com.alibaba.dashscope.common.ResultCallback<com.alibaba.dashscope.common.DashScopeResult>) throws com.alibaba.dashscope.exception.ApiException, com.alibaba.dashscope.exception.NoApiKeyException;
+    Code:
+       0: new           #9                  // class com/alibaba/dashscope/protocol/HalfDuplexRequest
+       3: dup
+       4: aload_1
+       5: aload_0
+       6: getfield      #7                  // Field serviceOptions:Lcom/alibaba/dashscope/protocol/ServiceOption;
+       9: invokespecial #10                 // Method com/alibaba/dashscope/protocol/HalfDuplexRequest."<init>":(Lcom/alibaba/dashscope/base/HalfDuplexParamBase;Lcom/alibaba/dashscope/protocol/ServiceOption;)V
+      12: astore_3
+      13: aload_0
+      14: getfield      #5                  // Field client:Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      17: aload_3
+      18: aload_2
+      19: invokeinterface #12,  3           // InterfaceMethod com/alibaba/dashscope/protocol/HalfDuplexClient.send:(Lcom/alibaba/dashscope/protocol/HalfDuplexRequest;Lcom/alibaba/dashscope/common/ResultCallback;)V
+      24: return
+
+  public io.reactivex.Flowable<com.alibaba.dashscope.common.DashScopeResult> streamCall(ParamT) throws com.alibaba.dashscope.exception.ApiException, com.alibaba.dashscope.exception.NoApiKeyException;
+    Code:
+       0: new           #9                  // class com/alibaba/dashscope/protocol/HalfDuplexRequest
+       3: dup
+       4: aload_1
+       5: aload_0
+       6: getfield      #7                  // Field serviceOptions:Lcom/alibaba/dashscope/protocol/ServiceOption;
+       9: invokespecial #10                 // Method com/alibaba/dashscope/protocol/HalfDuplexRequest."<init>":(Lcom/alibaba/dashscope/base/HalfDuplexParamBase;Lcom/alibaba/dashscope/protocol/ServiceOption;)V
+      12: astore_2
+      13: aload_0
+      14: getfield      #5                  // Field client:Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      17: aload_2
+      18: invokeinterface #13,  2           // InterfaceMethod com/alibaba/dashscope/protocol/HalfDuplexClient.streamOut:(Lcom/alibaba/dashscope/protocol/HalfDuplexRequest;)Lio/reactivex/Flowable;
+      23: areturn
+
+  public void streamCall(ParamT, com.alibaba.dashscope.common.ResultCallback<com.alibaba.dashscope.common.DashScopeResult>) throws com.alibaba.dashscope.exception.ApiException, com.alibaba.dashscope.exception.NoApiKeyException;
+    Code:
+       0: new           #9                  // class com/alibaba/dashscope/protocol/HalfDuplexRequest
+       3: dup
+       4: aload_1
+       5: aload_0
+       6: getfield      #7                  // Field serviceOptions:Lcom/alibaba/dashscope/protocol/ServiceOption;
+       9: invokespecial #10                 // Method com/alibaba/dashscope/protocol/HalfDuplexRequest."<init>":(Lcom/alibaba/dashscope/base/HalfDuplexParamBase;Lcom/alibaba/dashscope/protocol/ServiceOption;)V
+      12: astore_3
+      13: aload_0
+      14: getfield      #5                  // Field client:Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      17: aload_3
+      18: aload_2
+      19: invokeinterface #14,  3           // InterfaceMethod com/alibaba/dashscope/protocol/HalfDuplexClient.streamOut:(Lcom/alibaba/dashscope/protocol/HalfDuplexRequest;Lcom/alibaba/dashscope/common/ResultCallback;)V
+      24: return
+
+  public boolean close(int, java.lang.String);
+    Code:
+       0: aload_0
+       1: getfield      #5                  // Field client:Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+       4: ifnull        19
+       7: aload_0
+       8: getfield      #5                  // Field client:Lcom/alibaba/dashscope/protocol/HalfDuplexClient;
+      11: iload_1
+      12: aload_2
+      13: invokeinterface #15,  3           // InterfaceMethod com/alibaba/dashscope/protocol/HalfDuplexClient.close:(ILjava/lang/String;)Z
+      18: ireturn
+      19: iconst_1
+      20: ireturn
+}

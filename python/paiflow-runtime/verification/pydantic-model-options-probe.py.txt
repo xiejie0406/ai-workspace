@@ -1,0 +1,62 @@
+"""原锁Pydantic实际Node参数转换只读探针；不执行Node/Factory/Provider。"""
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from worker.engine_adapter import OriginalWorkflowEngine
+from workflow.engine.nodes.llm.spark_llm_node import SparkLLMNode
+
+fields = ('temperature', 'maxTokens', 'topK', 'respFormat', 'searchDisable', 'enableChatHistory', 'enableChatHistoryV2')
+base = {'input_identifier': [], 'output_identifier': [], 'node_id': 'spark-llm::probe',
+        'appId': '', 'domain': 'offline-model', 'source': 'openai'}
+vectors = {
+    'temperature': [1, .5, '0.5', '1', True, False, None, 'NaN', ' 0.5 ', '1e-1'],
+    'maxTokens': [2048, '2048', '2048.0', ' 2048 ', '2e3', True, False, 3.0, 3.5, None],
+    'topK': [3, '3', '3.0', '-3', True, False, 3.0, 3.5, None],
+    'respFormat': [0, 1, 2, '0', '1', '2', True, False, 1.0, 2.0, 3, None],
+    'searchDisable': [True, False, 0, 1, 0.0, 1.0, 2, 'true', 'TRUE', 'yes', 'off', '  true ', None],
+    'enableChatHistory': [True, False, 'yes', 'off', 1, 0],
+    'enableChatHistoryV2': [{}, {'isEnabled': False}, {'isEnabled': 'yes'}, {'is_enabled': True},
+        {'is_enabled': 'yes'}, {'isEnabled': 'off', 'rounds': '2.0'}, {'rounds': True}, {'rounds': False},
+        {'rounds': 2.0}, {'rounds': 2.5}, {'unknown': 'ignored'}, None],
+}
+integer_strings = ['3.', '+3', '-3', '003', '3e0', '3_000', '\t3\n', '+03.0', '-0.0', '3.00', '3_0.0', 'Infinity', 'nan']
+vectors['maxTokens'].extend(integer_strings)
+vectors['topK'].extend(integer_strings)
+vectors['enableChatHistoryV2'].extend({'rounds': value} for value in integer_strings)
+vectors['temperature'].extend(['0.1_0', '1e-1', '0.1e0', '+0.1', '003', '0.0_1', '\t0.3\n',
+    '1_000', 'Infinity', 'NaN', '0x0.1', '-.1', '+0.1_0', '0.1e-0', '0.1e+0'])
+results = []
+for field, values in vectors.items():
+    for value in values:
+        try:
+            node = SparkLLMNode.model_validate({**base, field: value})
+            output = getattr(node, field)
+            dumped = output.model_dump(by_alias=True) if hasattr(output, 'model_dump') else output
+            result = {'field': field, 'input': value, 'inputType': type(value).__name__, 'accepted': True,
+                      'effective': dumped, 'effectiveType': type(output).__name__}
+        except Exception as error:
+            result = {'field': field, 'input': value, 'inputType': type(value).__name__, 'accepted': False,
+                      'errorTypes': [item['type'] for item in error.errors()]}
+        results.append(result)
+default = SparkLLMNode.model_validate(base)
+defaults = {field: (getattr(default, field).model_dump(by_alias=True)
+    if hasattr(getattr(default, field), 'model_dump') else getattr(default, field)) for field in fields}
+root = Path('.')
+sources = ('workflow/engine/nodes/base_node.py', 'workflow/engine/entities/history.py',
+           'workflow/engine/nodes/llm/spark_llm_node.py',
+           '../../ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowModelCompiler.java',
+           '../../ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ModelOperationOptions.java')
+evidence = {'scope': 'actual isolated Workflow Pydantic2.9.2 model_validate only; no Node execution, Provider, DB or network',
+    'count': len(results), 'defaults': defaults, 'cases': results,
+    'sources': {s: hashlib.sha256((root/s).read_bytes()).hexdigest() for s in sources},
+    'findings': ['temperature coerces number/string/bool to float subject to gt0 le1',
+        'integer fields accept bool, integral floats, decimal strings including .0; respFormat Literal accepts exact int0/1/2 only, rejects strings/bool/float',
+        'bool accepts standard lowercase/case-insensitive tokens or numeric0/1, no whitespace trimming',
+        'history alias isEnabled only; is_enabled/unknown fields ignored, rounds validated/coerced even if disabled',
+        'center compiler strict primitive rules currently differ; do not treat unsupported history capability as successful migration']}
+(root/'verification/pydantic-model-options-probe.json').write_text(json.dumps(evidence, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+print(json.dumps({'count': len(results), 'accepted': sum(r['accepted'] for r in results), 'defaults': defaults}, ensure_ascii=True))

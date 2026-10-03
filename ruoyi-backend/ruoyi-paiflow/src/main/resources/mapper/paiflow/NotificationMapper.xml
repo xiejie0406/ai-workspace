@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.NotificationMapper">
+  <sql id="visible">(n.type='BROADCAST' OR r.user_id IS NOT NULL) AND COALESCE(r.deleted,0)=0 AND (n.expire_at IS NULL OR n.expire_at &gt; UTC_TIMESTAMP(3))</sql>
+  <sql id="join">FROM paiflow_notification n LEFT JOIN paiflow_notification_recipient r ON r.notification_id=n.id AND r.user_id=#{userId}</sql>
+  <sql id="filter"><include refid="visible"/><if test="type != null"> AND n.type=#{type}</if><if test="unreadOnly"> AND COALESCE(r.is_read,0)=0</if></sql>
+  <select id="page" resultType="map">
+    SELECT n.id,n.type,n.title,n.body,n.template_code AS templateCode,n.payload_json AS payload,n.meta_json AS meta,
+      n.creator_user_id AS creatorUserId,n.create_time AS createdAt,n.expire_at AS expireAt,
+      COALESCE(r.is_read,0) AS isRead,r.read_at AS readAt,r.received_at AS receivedAt
+    <include refid="join"/> WHERE <include refid="filter"/> ORDER BY n.create_time DESC,n.id DESC LIMIT #{limit} OFFSET #{offset}
+  </select>
+  <select id="count" resultType="long">SELECT COUNT(*) <include refid="join"/> WHERE <include refid="filter"/></select>
+  <select id="visible" resultType="long">SELECT n.id <include refid="join"/> WHERE n.id=#{id} AND <include refid="visible"/></select>
+  <select id="unreadIds" resultType="long">SELECT n.id <include refid="join"/> WHERE <include refid="visible"/> AND COALESCE(r.is_read,0)=0 ORDER BY n.id LIMIT #{limit}</select>
+  <insert id="markRead">
+    INSERT INTO paiflow_notification_recipient(notification_id,user_id,is_read,deleted,read_at,received_at)
+    SELECT n.id,#{userId},1,0,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3) <include refid="join"/>
+    WHERE <include refid="visible"/>
+    AND n.id IN <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    ON DUPLICATE KEY UPDATE is_read=1,read_at=COALESCE(read_at,UTC_TIMESTAMP(3))
+  </insert>
+  <insert id="remove">
+    INSERT INTO paiflow_notification_recipient(notification_id,user_id,is_read,deleted,read_at,received_at)
+    SELECT n.id,#{userId},COALESCE(r.is_read,0),1,r.read_at,COALESCE(r.received_at,UTC_TIMESTAMP(3))
+    <include refid="join"/> WHERE n.id=#{id} AND <include refid="visible"/>
+    ON DUPLICATE KEY UPDATE deleted=1
+  </insert>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO paiflow_notification(type,title,body,template_code,payload_json,meta_json,creator_user_id,expire_at,create_time)
+    VALUES(#{type},#{title},#{body},#{templateCode},#{payload},#{meta},#{creatorUserId},#{expireAt},UTC_TIMESTAMP(3))
+  </insert>
+  <insert id="recipient">INSERT INTO paiflow_notification_recipient(notification_id,user_id,is_read,deleted,received_at) VALUES(#{id},#{userId},0,0,UTC_TIMESTAMP(3))</insert>
+</mapper>

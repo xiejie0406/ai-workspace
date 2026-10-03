@@ -1,0 +1,30 @@
+{
+  "type": "执行摘要，完整独立探针输出另有log",
+  "sourcePath": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ConfigInfoService.java",
+  "sourceSha256": "90efb39745567490d458332859b917de8f6919c839c6869f5fe31bdd788df10b",
+  "sourceBefore": "checks/ConfigInfoService编码首复现源码.java.txt",
+  "probe": "checks/PublicConfigBoundaryReview.java",
+  "probeSha256": "e5c6df93f64b4ac8dd886b88269fcdbad0b96216e9780b907290eb677661b558",
+  "log": "公开配置编码边界-独立首复现.log",
+  "logSha256": "3630351b8deead03d0eafc04a6515ec196d2fd5328d7d3fa2a2a56a29d9a11cb",
+  "execution": {
+    "command": "javac -encoding UTF-8 -proc:none -classpath <既有离线依赖/已编译共用模块> -d <隔离临时目录> PublicConfigRecord.java PublicConfigMapper.java ConfigInfoService.java; java --class-path <临时目录+相同依赖> checks/PublicConfigBoundaryReview.java",
+    "workingDirectory": "D:\\2025Ai\\26-05-23\\java-workspace",
+    "exitCode": 1,
+    "compileExitCode": 0,
+    "cases": 2,
+    "mismatches": 2,
+    "actualHelper": true,
+    "actualMapperExecuted": false,
+    "junitTestsExecuted": 0,
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "targetWrites": 0
+  },
+  "observed": [
+    "top_level_encoded_private_url rejected=false",
+    "percent_encoded_credential_key rejected=false"
+  ],
+  "expected": "两个实际helper输入都应以公开内容code503拒绝；失败不冒称正式Mapper/HTTP已执行",
+  "businessVerified": false
+}

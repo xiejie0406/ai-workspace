@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-03",
+  "sourceFilesIntroduced": 1703,
+  "unchangedOriginalFiles": 1691,
+  "changedOriginalFiles": 12,
+  "missingOriginalFiles": [],
+  "referenceChangedSinceIntroduction": [],
+  "changes": [
+    {
+      "path": "vite-env.d.ts",
+      "originalSha256": "0d228cb82ccc9f0028d31a3b122d3b45b468cfbebbb07e3942aa2a75f70a1dde",
+      "currentSha256": "f81acb8db183a38e976e431a88d3690a423cd009c69f6b9ec5a45b3a5f41e3c6",
+      "reason": "声明WebSocket与平台接口运行时配置"
+    },
+    {
+      "path": "vite.config.js",
+      "originalSha256": "33e31cb37e05b6fce8f7cb180b67dde046f1ff441c57b9252e8d7b281c16095a",
+      "currentSha256": "3ff76ec500be249d5ff768a4fc52d47cfb727e906e80b83ad5efd506eeb8a23d",
+      "reason": "开发代理必须明确配置中心地址，不占用旧通道"
+    },
+    {
+      "path": "src/hooks/use-login.ts",
+      "originalSha256": "3ece39a17618de33946ff271caf704810faecb2b7dff39ef1e5c8452aab29abf",
+      "currentSha256": "bad8d5ae73e63efae5b664317c6e95a2a869455a090382cd85e1e1e5442d6806",
+      "reason": "平台会话验证及清除旧refreshToken"
+    },
+    {
+      "path": "src/services/flow.ts",
+      "originalSha256": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5",
+      "currentSha256": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+      "reason": "原build/comparison调用仅新增可选同次buildKey请求头，保留body与原页面调用链"
+    },
+    {
+      "path": "src/services/login.ts",
+      "originalSha256": "6133e2172ebd41acd6f680782d4fe9442280d70a043e25faba4f5c3c972605ee",
+      "currentSha256": "e3f7b0a073ace9aa3534a927286bb4f0f2dd9af1b4c45d8cb1d2ea77e713d55f",
+      "reason": "原退出函数调用平台退出"
+    },
+    {
+      "path": "src/utils/auth.ts",
+      "originalSha256": "8e6e3e5cc7776e8fb2ce238ad6895bafcc256fe0a88f3550cabaff2419ee43e5",
+      "currentSha256": "76cd74a3ed65ebe5052bac4a54b6faae0902a28e7373297f979c2824b5ff1cbd",
+      "reason": "平台登录/退出和站内返回路径"
+    },
+    {
+      "path": "src/utils/http.ts",
+      "originalSha256": "ff154ed4dfdecb24d9893f892d275ba5f0ebf1be3e4bd96181ecbbd72545690a",
+      "currentSha256": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917",
+      "reason": "原请求实例接入若依会话/响应并替换地址默认值；仅为已读取草稿透传ETag/If-Match，保持原响应形状"
+    },
+    {
+      "path": "src/components/workflow/store/flow-chat-function.ts",
+      "originalSha256": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+      "currentSha256": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba",
+      "reason": "原消费者保留，局部绑定同次固定receipt/Run/SSE/检查点，断开释放本地视图且保历史只读；不伪造中心terminal或副作用"
+    },
+    {
+      "path": "src/components/workflow/utils/index.ts",
+      "originalSha256": "daf9eb46876cdd2ddb5f1735f0a9ea4bfc35ada06fc37b94259363de2f221f50",
+      "currentSha256": "382ac1c965aef6f91cf5da5f21558a0ac95c96440cdae32aa2c09dc72f715e63",
+      "reason": "WebSocket沿用中心地址和TLS，不回退旧私网"
+    },
+    {
+      "path": "src/components/workflow/types/drawer/chat-debugger.ts",
+      "originalSha256": "3fe8be4d2c05f96ebd4f77b94bcee0e936705ef1371bd999bcbb5d23842785a6",
+      "currentSha256": "810b80233e74fe1dd97d3b8cb0cdb8a6a7a96b030cea599dfe85ab434519948e",
+      "reason": "仅补原问答中断真实checkpoint revision/state/waiting字段，未修原ChatStoreType全局欠账"
+    },
+    {
+      "path": "src/pages/callback/index.tsx",
+      "originalSha256": "5ccc0737d89f789dd4d3f09eb26ca8765b75b890ac50cbffde3237a538de3c1e",
+      "currentSha256": "310eea7ed58435f2afdca6cddebb992e6dbe3f3c4f5114ea9087b0b5d1e9ed1c",
+      "reason": "旧Casdoor回调引导到平台登录，SSO待协议决定"
+    },
+    {
+      "path": "src/pages/login/index.tsx",
+      "originalSha256": "bc4935674ff10ce750f95acb3cdd075ae2e5eac2c1b765a0f56cda331087582b",
+      "currentSha256": "11922a96854f50a9b45644e2cce42b2edc3a01fd6201236647353dadea96a502",
+      "reason": "保留Ant Design表单并增加平台验证码"
+    }
+  ],
+  "added": [
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "src/services/platform-auth.ts",
+    "tests/runtime-websocket.test.cjs",
+    "tests/platform-auth.test.cjs",
+    "tests/compare-reference-types.cjs",
+    "src/utils/workflow-revision.ts",
+    "tests/workflow-revision.test.cjs",
+    "src/utils/workflow-debug.ts",
+    "tests/workflow-debug.test.cjs"
+  ],
+  "scope": "保留原React/ReactFlow/Ant Design/Recoil/Zustand/Router和页面布局；已授权认证及必要revision/debug传输局部接入，不重写界面，业务迁移未完成",
+  "revisionTransportFiles": [
+    {
+      "path": "src/utils/workflow-revision.ts",
+      "sha256": "e6fd8f9854e7ffd071eedb724f26ce4edb3d26e2d4c2479f1fdcfed2efe709ce",
+      "kind": "new_helper_or_test"
+    },
+    {
+      "path": "tests/workflow-revision.test.cjs",
+      "sha256": "2f80cbfadff12496cdc28fda47793dbcf896df4e7cd3e1ea0c4182fd4c5662d9",
+      "kind": "new_helper_or_test"
+    },
+    {
+      "path": "tests/platform-auth.test.cjs",
+      "sha256": "2f17c29e7a27a1aa52a8ed94147acee472feedc0bcec337d3a8f7693e5668d0c",
+      "kind": "modified_existing_test"
+    }
+  ],
+  "checkedAt": "2026-10-03T09:03:22.998268+00:00",
+  "revisionTransportCheckedAt": "2026-10-03T08:35:17.775724+08:00",
+  "debugTransportFiles": [
+    {
+      "path": "frontend/paiflow-web/src/services/flow.ts",
+      "sha256": "bfc85e8a9c90f009c447f08f496791a594bab0074141b805bbcb47fd5581d196",
+      "kind": "local_minimal_debug_transport_or_test"
+    },
+    {
+      "path": "frontend/paiflow-web/src/utils/workflow-revision.ts",
+      "sha256": "e6fd8f9854e7ffd071eedb724f26ce4edb3d26e2d4c2479f1fdcfed2efe709ce",
+      "kind": "local_minimal_debug_transport_or_test"
+    },
+    {
+      "path": "frontend/paiflow-web/src/utils/workflow-debug.ts",
+      "sha256": "e2d233a5b8c4e03d28c70c759bdc060d5aa9427d7d767a70584263473111a800",
+      "kind": "local_minimal_debug_transport_or_test"
+    },
+    {
+      "path": "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts",
+      "sha256": "dab0ff83812a544fd37b3acd7bd6f145acea03d5d7d1da4a919362781713feba",
+      "kind": "local_minimal_debug_transport_or_test"
+    },
+    {
+      "path": "frontend/paiflow-web/src/components/workflow/types/drawer/chat-debugger.ts",
+      "sha256": "810b80233e74fe1dd97d3b8cb0cdb8a6a7a96b030cea599dfe85ab434519948e",
+      "kind": "local_minimal_debug_transport_or_test"
+    },
+    {
+      "path": "frontend/paiflow-web/tests/workflow-revision.test.cjs",
+      "sha256": "2f80cbfadff12496cdc28fda47793dbcf896df4e7cd3e1ea0c4182fd4c5662d9",
+      "kind": "local_minimal_debug_transport_or_test"
+    },
+    {
+      "path": "frontend/paiflow-web/tests/workflow-debug.test.cjs",
+      "sha256": "dba6162d7a660ab34b3e6ee27bb5698b09cbbc6ca2aef91bbd11fb168227ad60",
+      "kind": "local_minimal_debug_transport_or_test"
+    }
+  ],
+  "previousSourceImportBaseline": {
+    "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/调试接续索引更新前原文/原前端接入差异.json",
+    "sha256": "75e48f8aed63507386a2df4e31274d05c1e8fc3606764cb3e49f8b580551b336",
+    "unchangedOriginalFiles": 1694,
+    "changedOriginalFiles": 9
+  },
+  "latestTechnicalEvidence": {
+    "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/调试聊天接续本地源码检查.json",
+    "sha256": "62e1e8bc6e9cbcde21083205a96415f11c31eeaaa8dc93aa9d909318a8aab1c1",
+    "nodePassed": 110,
+    "referenceTypeErrors": 3712,
+    "currentTypeErrors": 3698,
+    "newTypeErrors": 0,
+    "fullTypeCheckPassed": false,
+    "latestSourceProductionBundleBuilt": false,
+    "priorProductionOutputs": 242,
+    "businessVerified": false
+  }
+}

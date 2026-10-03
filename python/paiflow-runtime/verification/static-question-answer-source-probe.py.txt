@@ -1,0 +1,101 @@
+"""原 QA Pydantic 与 NodeFactory 静态构造实证；无引擎/Provider/中心执行。"""
+import copy
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import sys
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from worker.boundaries import install_legacy_guard
+install_legacy_guard()
+from workflow.engine.nodes.question_answer.question_answer_node import QuestionAnswerNode
+from workflow.engine.entities.workflow_dsl import Node
+from workflow.engine.node import NodeFactory
+from workflow.extensions.otlp.trace.span import Span
+from tests.test_question_answer import qa_raw
+
+FIELDS = {'question','answerType','timeout','needReply','directAnswer','optionAnswer','domain','appId',
+          'temperature','maxTokens','topK','respFormat','source','enableChatHistory','enableChatHistoryV2',
+          'searchDisable','extraParams','patch_id','remarkVisible','remark','uid','template','systemTemplate'}
+BASE = {'appId':'','domain':'','question':'请回答{{question}}','answerType':'direct','timeout':1,
+        'needReply':True,'directAnswer':{'handleResponse':False,'maxRetryCounts':5}}
+OPTION = {'id':'branch-A','name':'A','type':2,'content_type':'text','content':'选项{{question}}'}
+CASES = []
+def add(group, field, values):
+    for value in values:
+        params = copy.deepcopy(BASE)
+        if field.startswith('directAnswer.'):
+            params['directAnswer'][field.split('.')[1]] = value
+        elif field.startswith('optionAnswer.'):
+            params['answerType'] = 'option'
+            item = copy.deepcopy(OPTION)
+            item[field.split('.')[1]] = value
+            params['optionAnswer'] = [item]
+        else:
+            params[field] = value
+        CASES.append({'id':f'{group}-{len(CASES)}','group':group,'field':field,'input':value,'parameters':params})
+
+add('need-reply','needReply',[True,False,1,0,1.0,0.0,'false','OFF','yes','t','',None,2,' false '])
+add('handle-response','directAnswer.handleResponse',[True,False,'false','OFF',1.0,0.0,None,''])
+add('timeout','timeout',[0,1,5,6,-1,1.0,1.5,True,False,'1','3.0','3.','+3','003','3e0','3_000','\t3\n',None,''])
+add('max-retry','directAnswer.maxRetryCounts',[0,1,5,6,-1,10**30,5.0,True,False,'5','5.0','5e0',None,''])
+add('option-type','optionAnswer.type',[1,2,True,False,1.0,2.0,3,'1','2',None])
+add('option-name','optionAnswer.name',['A','Z','default','a','AA','',1,None])
+add('option-id','optionAnswer.id',['',1,None,'branch-A'])
+add('option-content','optionAnswer.content',['',1,None,'原内容'])
+add('option-content-type','optionAnswer.content_type',['',1,None,'text','image'])
+add('option-list','optionAnswer',[[],None,''])
+add('history-v1','enableChatHistory',[False,'false',True,'true',None,''])
+add('history-v2','enableChatHistoryV2',[{}, {'isEnabled':False}, {'isEnabled':'false'},
+    {'isEnabled':True},{'is_enabled':True},{'rounds':'3.0'},None,{'rounds':0}])
+add('question','question',['',None,3])
+add('base-app','appId',['',None,3])
+add('base-domain','domain',['',None,3])
+for field in ['appId','domain','question','timeout','needReply','directAnswer']:
+    params=copy.deepcopy(BASE);del params[field]
+    CASES.append({'id':f'missing-{field}','group':'missing','field':field,'inputAbsent':True,'parameters':params})
+
+sources = ['workflow/engine/nodes/question_answer/question_answer_node.py','workflow/engine/nodes/base_node.py',
+           'workflow/engine/node.py','workflow/engine/entities/workflow_dsl.py','workflow/engine/entities/retry_config.py',
+           'workflow/engine/entities/history.py','workflow/extensions/otlp/trace/span.py']
+sha = lambda data:hashlib.sha256(data).hexdigest()
+before={p:sha((ROOT/p).read_bytes()) for p in sources}
+results=[]
+with patch('socket.socket.connect',side_effect=AssertionError('no socket in source probe')):
+    for case in CASES:
+        entry={**case,'inputJSONType':'absent' if case.get('inputAbsent') else type(case.get('input')).__name__}
+        try:
+            node=QuestionAnswerNode(input_identifier=['question'],output_identifier=['id','query','content'],**case['parameters'])
+            entry.update(accepted=True,effective=node.model_dump(mode='json',include=FIELDS))
+        except Exception as error:
+            entry.update(accepted=False,errorClass=type(error).__name__)
+            if hasattr(error,'errors'):
+                entry['errors']=[{'loc':list(e['loc']),'type':e['type']} for e in error.errors()]
+        results.append(entry)
+    raw=qa_raw(**BASE)
+    factory=[]
+    for name,custom in [('default',{}),('valid-disabled',{'id':'','query':'','content':''}),('invalid-disabled',{'fixture':None})]:
+        target=copy.deepcopy(raw['dsl']['nodes'][1])
+        target['data']['outputs']=[{'name':name,'schema':{'type':'string'},'required':False} for name in ['id','query','content']]
+        target['data']['retryConfig']={'shouldRetry':False,'maxRetries':2,'customOutput':custom}
+        entry={'name':name,'input':target}
+        try:
+            instance=NodeFactory.create(Node.model_validate(target),Span(app_id='',uid='',sid='source-only')).node_instance
+            entry.update(accepted=True,effective=instance.model_dump(mode='json',include=FIELDS))
+        except Exception as error:
+            entry.update(accepted=False,errorClass=type(error).__name__,code=getattr(error,'code',None))
+        factory.append(entry)
+after={p:sha((ROOT/p).read_bytes()) for p in sources}
+assert before==after
+report={'timestamp':datetime.now(timezone.utc).isoformat(),'scope':'actual original Pydantic2.9.2 and NodeFactory static construction; no WorkflowEngineFactory/Chains/run/checkpoint/Provider/DB/network/service',
+    'sourcesBefore':before,'sourcesAfter':after,'sourceChanged':False,'cases':results,'count':len(results),'factoryStaticCases':factory,
+    'actualTabNewlineCaseInput': '\t3\n','note':'input/parameters are exact JSON values; bool/float/string types preserved, not repr or unicode_escape substitution'}
+dest=ROOT/'verification/static-question-answer-source-probe.json'
+if dest.exists():
+    backup=dest.with_name(dest.stem+'-prior-'+sha(dest.read_bytes())[:12]+'.json')
+    if not backup.exists():backup.write_bytes(dest.read_bytes())
+dest.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'count':len(results),'sourceChanged':False,'optionType':[{'input':c['input'],'inputType':c['inputJSONType'],'accepted':c['accepted'],'effective':c.get('effective',{}).get('optionAnswer')} for c in results if c['group']=='option-type'],'staticFactory':[{k:v for k,v in c.items() if k!='input' and k!='effective'} for c in factory]},ensure_ascii=True))

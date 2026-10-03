@@ -1,0 +1,256 @@
+{
+  "checkedAt": "2026-10-03T10:37:04.759Z",
+  "scope": "原/当前MessageAsk+原renderInputElement实际表达式的私有有限入口；不执行ReactDOM",
+  "caseCount": 18,
+  "sourceHashesBefore": {
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/components/chat-content.tsx": "de901c30f726edce80b31816eca61b332f854c55465d08f45f65c61fe4dd9f2d",
+    "frontend/paiflow-web/src/components/workflow/drawer/chat-debugger/components/chat-content.tsx": "de901c30f726edce80b31816eca61b332f854c55465d08f45f65c61fe4dd9f2d"
+  },
+  "sourceHashesAfter": {
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/drawer/chat-debugger/components/chat-content.tsx": "de901c30f726edce80b31816eca61b332f854c55465d08f45f65c61fe4dd9f2d",
+    "frontend/paiflow-web/src/components/workflow/drawer/chat-debugger/components/chat-content.tsx": "de901c30f726edce80b31816eca61b332f854c55465d08f45f65c61fe4dd9f2d"
+  },
+  "sourceWindowChanges": [],
+  "originalResults": [
+    {
+      "id": "missing-all-fields",
+      "exactInputs": [
+        {}
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "null-item",
+      "exactInputs": [
+        null
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "number-item",
+      "exactInputs": [
+        0
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "boolean-item",
+      "exactInputs": [
+        false
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "string-item",
+      "exactInputs": [
+        "输入"
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "nested-array-item",
+      "exactInputs": [
+        []
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "default-null",
+      "exactInputs": [
+        {
+          "default": null
+        }
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "default-boolean-number",
+      "exactInputs": [
+        {
+          "default": false
+        },
+        {
+          "default": 0
+        }
+      ],
+      "error": null,
+      "renderCalls": 2
+    },
+    {
+      "id": "normal-unicode-input",
+      "exactInputs": [
+        {
+          "name": "中文😀",
+          "type": "string",
+          "default": "正文😀\t\n",
+          "description": "",
+          "required": true,
+          "validationSchema": null,
+          "errorMsg": "",
+          "originErrorMsg": ""
+        }
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "default-array",
+      "exactInputs": [
+        {
+          "default": [
+            "a",
+            "b"
+          ]
+        }
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "default-object",
+      "exactInputs": [
+        {
+          "default": {
+            "field": "value",
+            "opaque": null
+          }
+        }
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "default-object-own-toString",
+      "exactInputs": [
+        {
+          "default": {
+            "toString": 0
+          }
+        }
+      ],
+      "error": "TypeError",
+      "renderCalls": 1
+    },
+    {
+      "id": "default-array-own-coercion-object",
+      "exactInputs": [
+        {
+          "default": [
+            {
+              "toString": null
+            }
+          ]
+        }
+      ],
+      "error": "TypeError",
+      "renderCalls": 1
+    },
+    {
+      "id": "file-string-valid",
+      "exactInputs": [
+        {
+          "name": "file",
+          "type": "string",
+          "fileType": "file",
+          "default": [
+            {
+              "name": "fixture.txt",
+              "url": "private-fixture-no-request"
+            }
+          ]
+        }
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "file-image-valid",
+      "exactInputs": [
+        {
+          "name": "image",
+          "type": "string",
+          "fileType": "image",
+          "default": [
+            {
+              "url": "private-fixture-no-request"
+            }
+          ]
+        }
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "file-default-empty-null",
+      "exactInputs": [
+        {
+          "fileType": "file",
+          "default": []
+        },
+        {
+          "fileType": "file",
+          "default": null
+        }
+      ],
+      "error": null,
+      "renderCalls": 2
+    },
+    {
+      "id": "file-default-null-entry",
+      "exactInputs": [
+        {
+          "fileType": "file",
+          "default": [
+            null
+          ]
+        }
+      ],
+      "error": null,
+      "renderCalls": 1
+    },
+    {
+      "id": "unknown-and-hidden-null",
+      "exactInputs": [
+        {
+          "name": "保留",
+          "default": "",
+          "opaque": null,
+          "unknown": {
+            "nullable": null
+          }
+        }
+      ],
+      "error": null,
+      "renderCalls": 1
+    }
+  ],
+  "currentEqualsOriginal": true,
+  "facts": [
+    "数组项的name/type/default等均由optional chain或guard读取，未见必须字段的直接解引用；{}、null、primitive项在此入口不会直接崩溃，缺default会显示undefined。此事实不能把这些异常项宣称为正式业务输入。",
+    "正常保存项来自Start输出和resume AGENT_USER_INPUT描述对象，保name/type/default/description/required/validationSchema/errorMsg/originErrorMsg、fileType等原字段及unknown/null。不能无来源强制八字段全非空。",
+    "无fileType时非string default会执行模板字符串`${input?.default}`；default={toString:0}及default=[{toString:null}]实际抛TypeError。这是JSON对象自身属性阻断原toString，不是代码执行。",
+    "file default的Array.isArray/length及entry?.name/entry?.url有guard，空/null/数组null项不会直接解引用；这不证明链接已上传/可访问或图片安全。",
+    "多项时name作为React child，复杂对象name未通过本内存createElement校验；实际DOM/React children另有类型要求。本轮只证明源码表达式调用，不声称未知形状都可页面显示。"
+  ],
+  "recommendations": [
+    "优先保留原正常array item对象或null及原字段；无直接解引用依据时不要强制原八字段必填。若本批为安全收窄异常primitive项，标成明确profile限制而非原Pydantic要求。",
+    "文本可选name/type/fileType/description等若提供应按原字段String/null界限；default需要保原string/number/bool/null、对象/数组及file元数据，不可全部改成字符串。",
+    "在显示校验中拒JSON对象key toString/valueOf（至少default子树）或对会进入文本coercion的值做有限安全验证，避免已有原coercion表达式崩溃；不要执行客户端自带方法。unknown普通键/显式null保留。",
+    "用codePointCount核chatId<=100而非UTF16 length，合法补充Unicode保留；另有整体UTF8 byte预算。null和空chatId不合并。"
+  ],
+  "limitations": [
+    "仅18组私有输入，不是新中心HTTP/真实Run业务",
+    "React.createElement为memory tree，没有DOM/Markdown/图片请求；渲染树返回不等同页面通过",
+    "两处确认失败按源码原行为保留，生产未修、旧22proof不覆盖"
+  ],
+  "productionModified": false,
+  "targetWritten": false,
+  "businessVerified": false
+}

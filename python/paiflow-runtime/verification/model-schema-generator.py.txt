@@ -1,0 +1,192 @@
+"""共享模型契约生成证据；只写已经授权的两个契约和本地草案引用。"""
+import copy
+import json
+from pathlib import Path
+
+contracts = Path('../../contracts/paiflow')
+worker = 'worker.schema.json'
+text = {'type': 'string', 'minLength': 1, 'maxLength': 256}
+states = ['RUNNING', 'COMPLETED', 'FAILED', 'CANCELLED', 'EFFECT_UNKNOWN']
+kinds = ['provider', 'authorization', 'protocol', 'transport', 'deadline']
+
+def obj(properties, required=None, **extra):
+    return {'type': 'object', 'additionalProperties': False,
+            'required': list(properties) if required is None else required,
+            'properties': properties, **extra}
+
+def ref(name):
+    return {'$ref': '#/$defs/' + name}
+
+binding = {
+    'runId': {'$ref': worker + '#/properties/runId'},
+    'leaseId': {'$ref': worker + '#/properties/leaseId'},
+    'attempt': {'$ref': worker + '#/properties/attempt'},
+    'nodeId': text,
+    'iterationId': {'anyOf': [{'type': 'null'}, text]},
+    'workflowVersionId': {'$ref': worker + '#/properties/workflowVersionId'},
+    'dslHash': {'$ref': worker + '#/properties/dslHash'},
+    'operationId': {'type': 'string', 'minLength': 1, 'maxLength': 128},
+    'resourceId': text,
+    'resourceVersion': text,
+    'provider': {'enum': ['xinghuo', 'openai']}}
+
+def bound(properties, *, formal=False, required=None, **extra):
+    fields = {k: {'$ref': '#/$defs/PrivateBinding/properties/' + k} for k in binding}
+    if formal:
+        fields.update(provider={'const': 'openai'}, iterationId={'type': 'null'},
+                      nodeId={'type': 'string', 'pattern': '^spark-llm::.+$', 'maxLength': 256})
+    fields.update(properties)
+    return obj(fields, list(fields) if required is None else list(binding) + required, **extra)
+
+options = {
+    'temperature': {'type': 'number', 'exclusiveMinimum': 0, 'maximum': 1},
+    'maxTokens': {'type': 'integer', 'minimum': 1},
+    'topK': {'type': 'integer'},
+    'patchId': {'type': 'array'}, 'respFormat': {'enum': [0, 1, 2]},
+    'searchDisable': {'type': 'boolean'}, 'extraParams': {'type': 'object'},
+    'questionType': {'type': 'string'}, 'functionChoice': {'type': 'string'}}
+option_required = ['temperature', 'maxTokens', 'topK', 'patchId', 'respFormat', 'searchDisable', 'extraParams']
+parameters = obj({
+    'resourceId': text, 'resourceVersion': text, 'provider': binding['provider'],
+    'modelName': text, 'mode': {'enum': ['chat', 'function_call']},
+    'messages': {'type': 'array', 'minItems': 1, 'items': {'type': 'object'}},
+    'options': obj(options, option_required),
+    'functions': {'type': 'array', 'items': {'type': 'object'}},
+    'timeoutSeconds': {'type': 'number', 'exclusiveMinimum': 0, 'maximum': 600}},
+    ['resourceId', 'resourceVersion', 'provider', 'modelName', 'mode', 'messages', 'options'],
+    **{'x-status': 'target_contract_not_enabled', 'allOf': [{
+        'if': {'properties': {'mode': {'const': 'function_call'}}},
+        'then': {'required': ['functions'], 'properties': {'provider': {'const': 'xinghuo'},
+                 'options': {'required': ['questionType', 'functionChoice']}}}}]})
+chat = copy.deepcopy(parameters)
+chat['x-status'] = 'current_http_contract_requires_real_admission_ports'
+chat['properties']['provider'] = {'const': 'openai'}
+chat['properties']['mode'] = {'const': 'chat'}
+chat['properties'].pop('functions')
+chat['properties']['options'] = obj({k: options[k] for k in option_required})
+chat.pop('allOf')
+
+snapshot = obj({'kind': {'const': 'model'}, 'provider': binding['provider'],
+    'version': text, 'modelName': text, 'enabled': {'const': True},
+    'capabilities': {'type': 'array', 'uniqueItems': True, 'items': {'enum': ['chat', 'function_call']}}},
+    ['kind', 'provider', 'version', 'modelName', 'enabled'], **{'x-status': 'target_contract_not_enabled'})
+formal_snapshot = copy.deepcopy(snapshot)
+formal_snapshot['required'].append('capabilities')
+formal_snapshot['properties']['provider'] = {'const': 'openai'}
+formal_snapshot['properties']['capabilities'] = {'const': ['chat']}
+formal_snapshot['x-status'] = 'current_http_contract_requires_real_admission_ports'
+
+request_props = {
+    'leaseId': binding['leaseId'], 'attempt': binding['attempt'],
+    'nodeId': text, 'iterationId': binding['iterationId'],
+    'operation': {'const': 'model.invoke'}, 'parameters': ref('ModelParameters'),
+    'idempotencyKey': {'type': 'string', 'minLength': 1, 'maxLength': 4096,
+                       'pattern': '^[^\\u0000-\\u001f\\u007f]+$'}}
+operation = obj(request_props, **{'x-status': 'target_contract_not_enabled', 'x-max-json-utf8-bytes': 2097152})
+formal_operation = copy.deepcopy(operation)
+formal_operation['properties'].update(parameters=ref('OpenAIChatParameters'), iterationId={'type': 'null'},
+    nodeId={'type': 'string', 'pattern': '^spark-llm::.+$', 'maxLength': 256})
+formal_operation['x-status'] = 'current_http_contract_requires_real_admission_ports'
+
+frame_fields = {
+    'state': {'enum': states}, 'operationState': {'enum': states},
+    'frames': {'type': 'array', 'maxItems': 64, 'items': {'type': 'object', 'x-max-json-utf8-bytes': 65536}},
+    'nextCursor': {'type': 'integer', 'minimum': 0, 'maximum': 10000},
+    'done': {'type': 'boolean'}, 'lastSeq': {'type': 'integer', 'minimum': 0, 'maximum': 10000},
+    'finishSeq': {'anyOf': [{'type': 'null'}, {'type': 'integer', 'minimum': 1, 'maximum': 10000}]},
+    'failureKind': {'enum': [None, *kinds]}}
+frame_rules = [
+    {'if': {'properties': {'operationState': {'const': 'FAILED'}}},
+     'then': {'properties': {'failureKind': {'enum': kinds}}}},
+    {'if': {'properties': {'state': {'const': 'COMPLETED'}}},
+     'then': {'properties': {'operationState': {'const': 'COMPLETED'}, 'done': {'const': True},
+                            'finishSeq': {'type': 'integer', 'minimum': 1}, 'failureKind': {'type': 'null'}}}}]
+
+defs = {
+    'LeaseRequest': {'$ref': worker + '#/$defs/LeaseRequest'},
+    'PrivateBinding': obj(binding, **{'x-private-internal-bridge-only': True,
+        'description': '完整内部绑定，不能授予费用或执行许可；私有SDK Grant桥未装配，无私有Grant HTTP路由。'}),
+    'ModelSnapshot': snapshot, 'OpenAIChatSnapshot': formal_snapshot,
+    'ModelParameters': parameters, 'OpenAIChatParameters': chat,
+    'OperationRequest': operation, 'OpenAIChatOperationRequest': formal_operation,
+    'StartAck': bound({'state': {'const': 'RUNNING'}}, **{'x-status': 'target_contract_not_enabled'}),
+    'OpenAIChatStartAck': bound({'state': {'const': 'RUNNING'}}, formal=True),
+    'FramesRequest': obj({'leaseId': binding['leaseId'], 'attempt': binding['attempt'],
+        'afterCursor': {'type': 'integer', 'minimum': 0, 'maximum': 10000},
+        'limit': {'type': 'integer', 'minimum': 1, 'maximum': 64}}),
+    'FramesAck': bound(frame_fields, **{'allOf': frame_rules, 'x-status': 'target_contract_not_enabled'}),
+    'OpenAIChatFramesAck': bound(frame_fields, formal=True, **{'allOf': frame_rules}),
+    'CancelAck': bound({'state': {'enum': states}, 'stopped': {'type': 'boolean'},
+        'proofId': {'anyOf': [{'type': 'null'}, text]}}, **{'allOf': [{
+        'if': {'properties': {'stopped': {'const': True}}}, 'then': {'properties': {
+            'state': {'enum': ['COMPLETED', 'FAILED', 'CANCELLED']}, 'proofId': text}}}]}),
+    'PrivateParameters': obj({'binding': ref('PrivateBinding'),
+        'parametersCanonicalBase64': {'type': 'string', 'minLength': 1, 'contentEncoding': 'base64'},
+        'parametersSha256': binding['dslHash'],
+        'optionsCanonicalBase64': {'type': 'string', 'minLength': 1, 'contentEncoding': 'base64'},
+        'deadline': {'$ref': worker + '#/properties/deadline'}},
+        **{'x-private-internal-bridge-only': True,
+           'description': '中心实际WriteMapNull规范字节；解码原字节核SHA256，保全null与缺字段差异。没有credential/endpoint字段或默认桥。'})}
+defs['OpenAIChatCancelAck'] = copy.deepcopy(defs['CancelAck'])
+defs['OpenAIChatCancelAck']['properties'].update(provider={'const': 'openai'},
+    iterationId={'type': 'null'}, nodeId={'type': 'string', 'pattern': '^spark-llm::.+$', 'maxLength': 256})
+
+schema = {'$schema': 'https://json-schema.org/draft/2020-12/schema',
+    '$id': 'urn:paiflow:model-operations:v1', 'title': 'PaiFlow中心模型资源与逐次操作契约',
+    'description': '正式本批仅Python顶层spark-llm/OpenAI chat；全部授权/固定资源/动态消息/审批/受控transport桥缺任何项503且零operation写。基础两provider/FC仅保全完整目标，未启用。',
+    'x-ownership': '中心唯一持有模型资源版本、授权、许可、审批、收费、原帧、幂等、停止及终态；SDK在独立能力环境，无默认Provider或网络桥。',
+    'x-current-scope': ['python', 'top-level spark-llm', 'openai', 'chat'],
+    'x-not-enabled': ['xinghuo正式HTTP', 'function_call', 'QA', 'nested iteration', 'history', 'multimodal', 'private Grant HTTP'],
+    'x-rules': [
+        'runId来自路径；lease/attempt/node/iteration与完整ACK绑定，workflowVersion/dslHash/resourceVersion由中心不可变版本推出，不信Worker授予权限。模型操作必须已begin且发起者平台/空间权限持续有效。',
+        'resourceId是不透明标识；公开模型仅六字段kind/provider/version/modelName/enabled/capabilities，modelName为原domain，version为不可变ModelVersion.id字符串；endpoint/ref/材料不进assignment/events/log。',
+        '模型费用须逐次批准/配额/真实资源及动态消息授权Port；profile无默认，Hello批准不能代替执行许可。当前只有顶层spark-llm OpenAI chat，其他范围503。',
+        '同key同完整绑定请求返回同operation；异内容409。key1..4096字符且受JSON UTF8总预算，中心保存原key和SHA256索引。acquire另一次CAS，ACK未知/重复不重授，不重发Provider。',
+        '正式OperationRequest整体JSON UTF8最多2MiB；frame单64KiB、总10000帧/8MiB。cursor单调nextCursor=afterCursor+frames.length，每批最多64且信封须适配Worker2MiB响应预算，可减少本批帧数。',
+        'state为本批交付投影，operationState保全正式表真态。完成或有原合法Provider终帧失败的分页在读到lastSeq前state=RUNNING/done=false，到最后才给真态/done；afterCursor==lastSeq允许空最终ACK。授权/协议/传输/期限/取消及无合法终帧失败粘性拒绝，不伪造finish。',
+        'OpenAI真实finish先存原帧RUNNING，尾usage-only完整保全；finish CAS引用已存finishSeq/lastSeq，不造choices/finish或改原帧。COMPLETED须真实stop；合法非stop FAILED/provider保留原错误。bare EOF/[DONE]/APIError不补stop。',
+        'failureKind明确provider/authorization/protocol/transport/deadline，失败没有原合法帧时finishSeq可null，不能触发原DEFAULT。SDK合法usage是累计快照，保最新完整值不累加tokens。',
+        'Cancel只确认真实停止事实。未派发可由中心真实未签发状态产生proof；已派发无实际Provider停止/终止proof则stopped=false/EFFECT_UNKNOWN。本地close不证明Provider停，不造费用或回滚。',
+        '所有JSON整数须拒bool，未知字段/绑定/游标/版本拒绝；单凭done不能完成。JSONSchema的字节注解由MVC/客户端真实UTF8计数执行。私有绑定/规范字节只供未装配内部SDK桥，不开放通用Worker私有Grant路由。'],
+    '$defs': defs}
+(contracts/'model-operations.schema.json').write_text(json.dumps(schema, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+
+api_path = contracts/'internal.openapi.json'
+api = json.loads(api_path.read_text(encoding='utf-8-sig'))
+def add_path(path, operation_id, request, ack, description, parameters):
+    api['paths'][path] = {'parameters': parameters, 'post': {'operationId': operation_id,
+        'description': description, 'requestBody': {'required': True, 'content': {'application/json': {
+            'schema': {'$ref': 'model-operations.schema.json#/$defs/'+request}}}},
+        'responses': {'200': {'description': 'AjaxResult code=200/data，完整绑定及停止/尾帧仍须严格核对',
+            'content': {'application/json': {'schema': obj({'code': {'const': 200}, 'msg': {'type': 'string'},
+                'data': {'$ref': 'model-operations.schema.json#/$defs/'+ack}}, ['code', 'data'])}}},
+            '400': {'description': '未知字段/非法类型/游标/参数'}, '401': {'description': '独立服务身份失效'},
+            '403': {'description': '平台/空间/资源/费用授权拒绝'}, '409': {'description': '租约/固定版本/幂等/CAS冲突'},
+            '410': {'description': '已到期/取消/失租约'}, '413': {'description': '真实UTF8正文预算超限'},
+            '503': {'description': '缺真实资源/动态消息/审批/Producer受控transport桥，零operation写'}}}}
+run_param = {'$ref': '#/components/parameters/RunId'}
+resource_param = {'name': 'resourceId', 'in': 'path', 'required': True, 'schema': text}
+op_param = {'name': 'operationId', 'in': 'path', 'required': True, 'schema': binding['operationId']}
+prefix = '/internal/paiflow/v1/runs/{runId}'
+add_path(prefix+'/resources/{resourceId}', 'modelResource', 'LeaseRequest', 'OpenAIChatSnapshot',
+    '当前模型资源仅公开六字段，按当前租约及固定版本授权；私有endpoint/引用不出现在assignment或本响应。其他资源种类由所属能力另行实现。', [run_param, resource_param])
+add_path(prefix+'/operations', 'invokeModel', 'OpenAIChatOperationRequest', 'OpenAIChatStartAck',
+    '本批model.invoke仅Python顶层spark-llm/OpenAI chat，iterationId必null。真实运行已begin、权限/资源/动态消息/审批/受控transport全就绪后才可保存操作；其他能力仍有各自未接契约。', [run_param])
+add_path(prefix+'/operations/{operationId}/frames', 'modelFrames', 'FramesRequest', 'OpenAIChatFramesAck',
+    '只读正式原帧；分页交付投影及operationState分开，真实finish/lastSeq保全尾usage，支持空最终ACK。读取不新发Provider。', [run_param, op_param])
+add_path(prefix+'/operations/{operationId}/cancel', 'cancelModel', 'LeaseRequest', 'OpenAIChatCancelAck',
+    '请求停止后回真实事实；已派发无Provider proof仍stopped=false/EFFECT_UNKNOWN，不以本地关闭假称停止。', [run_param, op_param])
+api['info']['description'] += ' 模型逐次操作共享契约已保存；正式能力仍依赖真实固定资源、动态消息授权、审批和Producer内部受控桥，缺任何项503/零operation写；没有新增私有Grant HTTP路由。'
+api_path.write_text(json.dumps(api, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+
+draft_path = Path('protocols/model-operations-draft.schema.json')
+draft = json.loads(draft_path.read_text(encoding='utf-8-sig'))
+shared = '../../../contracts/paiflow/model-operations.schema.json#/$defs/'
+mapping = {'Lease': 'LeaseRequest', 'ModelResource': 'ModelSnapshot', 'ModelParameters': 'ModelParameters',
+           'StartAck': 'StartAck', 'FramesRequest': 'FramesRequest', 'FramesAck': 'FramesAck', 'StopAck': 'CancelAck'}
+draft['$defs'] = {k: {'$ref': shared+v} for k,v in mapping.items()}
+draft['description'] = '原算法/source事实与草案历史保留；请求响应唯一引用共享模型契约。基础Spark/FC目标尚未启用，正式本批仅顶层普通LLM/OpenAI chat。'
+draft['x-status'] = 'historical-source-facts-shared-contract-refs'
+draft['x-original-draft'] = '../verification/model-contract-205-model-operations-draft.schema.json.before.txt'
+draft_path.write_text(json.dumps(draft, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+print('saved shared model schema, OpenAPI four model routes, historical draft refs')

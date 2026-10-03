@@ -1,0 +1,201 @@
+{
+  "schemaVersion": "paiflow.input-types.python-independent-review.v1",
+  "checkedAt": "2026-10-03T05:29:35.525643+00:00",
+  "reviewConclusion": "有条件可实施；以下为提案约束，不表示正式同步端点已完成或业务已通过。",
+  "approvedReadOnlyScope": "原授权Agent绑定草稿rawStart.outputs的输入类型同步；不修改rawcanvas，不建立App/发布/上传/Provider能力。",
+  "basis": {
+    "material": "文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\工作流原输入类型合同材料.json",
+    "materialSha256": "0c0c113bac365b03c2f3de10537d769bc647c0074e2abab544fde8f830c5baa2",
+    "priorPureCases": 15,
+    "priorPureAssertions": 90,
+    "rerunPriorAssertions": false,
+    "newActualPureCases": 4,
+    "newProbe": "文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\工作流原输入类型Python独立探针.json",
+    "newProbeSha256": "929dd1919f25ef442213e4415fe10e5d6b78bf0cc778b98e9cf326807259d188",
+    "fullMaasOrToolkitServiceExecuted": false,
+    "httpSerializerExecuted": false
+  },
+  "sourceRefs": {
+    "maas": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java",
+    "originalWorkflow": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+    "originalBotController": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/workflow/WorkflowBotController.java",
+    "originalAuth": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/util/BotPermissionUtil.java",
+    "agent": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java",
+    "agentMapper": "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/AgentMapper.xml",
+    "identityScope": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java",
+    "workflow": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java",
+    "frontendSync": "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts",
+    "frontendAgentPage": "frontend/paiflow-web/src/pages/space-page/agent-page/index.tsx",
+    "frontendRevision": "frontend/paiflow-web/src/utils/workflow-revision.ts",
+    "frontendHttp": "frontend/paiflow-web/src/utils/http.ts"
+  },
+  "facts": [
+    {
+      "fact": "原读取仅从草稿root nodes按START id前缀取首个开始节点outputs，先Biz typed，再默认JSON序列化；不是compiled execution，不递归找Iteration内部Start。",
+      "source": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java",
+      "lines": "3366-3386",
+      "evidenceKind": "source"
+    },
+    {
+      "fact": "原响应WorkflowInputTypeDto完整12个引用类型字段；AGENT_USER_INPUT仅从metadata过滤，不从响应删除。",
+      "source": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/workflow/WorkflowBotController.java",
+      "lines": "81-92",
+      "evidenceKind": "source plus previous actual DTO material"
+    },
+    {
+      "fact": "Maas输出extraInputsConfig是ordered JSON字符串，extraInputs是首个旧有效项JSON字符串；非file配置与file配置字段不同，不用JsonConverter模板替代。",
+      "source": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java",
+      "lines": "546-597",
+      "evidenceKind": "source-derived; no Mapper/HTTP execution"
+    },
+    {
+      "fact": "keepOldValue排除schema.type array-string（忽略大小写）与精确10种NO_SUPPORT_TYPE，然后保第一个其它type；未知type也可能遮住后续文件；supportUpload仅getFileType派生标签，不是实际上传授权。",
+      "source": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java",
+      "lines": "106-108,271-294,606-636",
+      "evidenceKind": "source-derived"
+    },
+    {
+      "fact": "同步消费者仅side effect；AgentPage按响应长度/第二项fileType/schema.type判断，不按name查AGENT_USER_INPUT，所以响应过滤或排序会改变行为。",
+      "source": "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts",
+      "lines": "478-486,744",
+      "relatedSource": "frontend/paiflow-web/src/pages/space-page/agent-page/index.tsx",
+      "relatedLines": "409-424",
+      "evidenceKind": "source; no UI execution"
+    },
+    {
+      "fact": "四新纯DTO观察：typed root/schema/property/value未知键裁剪；item/default/value.content/refId开放业务键保留；getInputsInfo默认序列化连开放对象内部null也省略，null数组项则保留。schema.item是单数，items被裁掉。",
+      "source": "文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\工作流原输入类型Python独立探针.json",
+      "evidenceKind": "actual original cached pure DTO/JsonConverter execution"
+    },
+    {
+      "fact": "原Bot授权从认证uid+个人nullspace或请求具名space限定botId；中心应复用平台权限与space membership，不回退旧metadata uid/flowId/name/type。",
+      "source": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/util/BotPermissionUtil.java",
+      "lines": "27-48",
+      "evidenceKind": "source"
+    }
+  ],
+  "findings": [
+    {
+      "id": "derived-metadata-write-path",
+      "priority": "P2",
+      "status": "当前源已确认风险，需在新实现收敛",
+      "source": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java",
+      "lines": "30-31,217,228-240",
+      "finding": "CONTROLLED/FORGED未包括extraInputsConfig、extraInputs、supportUpload；apply允许未知字段写config，view读取supportUpload生成supportUploadList。",
+      "impact": "仅在同步成功时overwrite不能阻止客户端通过标准/legacy create/update随后伪造派生元数据；当前不证明真实upload已可越权。",
+      "recommendation": "三项作为唯一server-derived字段，由同一Service统一拒客户端提供；历史copy/restore不能把旧扩展当已核输入能力，应重新派生或保持明确未同步。只在固定三键写JSON字符串/数值，不将按name构造的extraInput putAll到Agent根配置。"
+    },
+    {
+      "id": "array-and-sync-headers",
+      "priority": "P2",
+      "status": "当前消费者强制合同",
+      "source": "frontend/paiflow-web/src/utils/workflow-revision.ts",
+      "lines": "154,237-273",
+      "finding": "sync响应必须code0/data对象数组，且X-PaiFlow-Agent-Id等于botId、ETag有效；sync不会附加If-Match或workflowRevision条件。",
+      "impact": "正确数组缺header会在http accept阶段变409，可能中心已提交但原UI以失败响应；新增强制客户端revision会使原{botId}请求失效。",
+      "recommendation": "锁下serverderived current revision做CAS并回真实AgentId/ETag，复用现transport失效旧缓存；不要拿同步回执解锁旧表单。AgentPage收到的数据保原次序/AGENT字段。"
+    },
+    {
+      "id": "typed-null-open-shapes",
+      "priority": "P2",
+      "status": "新增实际纯类证据",
+      "source": "文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\工作流原输入类型Python独立探针.json",
+      "finding": "一般递归白名单会误删开放Object/JSONObject内部业务键；只omit typed null又漏掉原默认序列化对开放map内部null的省略。",
+      "impact": "输入类型metadata/响应可与原getInputsInfo不符，rawCanvas若被复用投影改写会永久丢失unknown/null。",
+      "recommendation": "按原Biz四类typed投影，再按原默认序列化生成metadata源；原rawcanvas字节独立保留。WorkflowInputTypeDto的内存nullable字段状态与实际HTTP null输出分开核，不把WriteNulls探针当原HTTP字节。"
+    },
+    {
+      "id": "malformed-before-write",
+      "priority": "P2",
+      "status": "原纯DTO实际接受，Maas异常为源码推导",
+      "source": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java",
+      "lines": "567-580",
+      "finding": "除了empty allowedFileType与非file nullSchema，allowedFileType=[null,image]会在首项toLowerCase发生NPE。file allowedType非空+nullSchema的原typed返回成功形状，与非file nullSchema原失败不同。",
+      "impact": "只判空数组未判null首项仍可能残留500；不能把所有nullSchema的400描述为原代码都必然异常。",
+      "recommendation": "按本批明确安全边界全量typed/结构校验后再CAS，empty列表/null首项/nullSchema明确400且0write；不修改rawcanvas，不以选后续image静默修复原首项优先。"
+    },
+    {
+      "id": "binding-lock-cas",
+      "priority": "P2",
+      "status": "方案应沿用当前Service，不是实测事务结论",
+      "source": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java",
+      "lines": "196-208",
+      "relatedSource": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java",
+      "relatedLines": "35-59",
+      "finding": "现统一space→Workflow→Agent行锁；权限/主体等待锁后复核，Agent Mapper用id+space+revision+deleted CAS。",
+      "recommendation": "新同步复用legacy existing默认域解析，不materialize空间；require agent:edit/WF:edit、核version3/真实双向绑定与space后读锁定rawCanvas。完整typed/metadata/大小检查必须在mapper写前；仅更新Agent config，保持Workflow/rawCanvas/version不变，任何CAS !=1回滚/409。不得根据请求flowId/uid/name/type/refId或metadata授予resource/upload能力。"
+    }
+  ],
+  "minimumChecksForOwnerImplementation": [
+    "15原材料case逐个读取真实policy产物并核投影/JSON字符串/选择supportUpload；malformed2+null-head新增case零Mapper写。",
+    "原[AGENT,array-file]响应仍两项原次序；仅metadata过滤；empty typed/null字段不造false/空串/default。",
+    "同步code0裸Array+AgentId/ETag通过既有sync transport；身份/space/WF绑定变化或CAS冲突时0/回滚写，old form cache不解锁。",
+    "标准及legacy Agent create/update三derived字段注入拒绝；副本/历史meta不能成为正式resource/app/upload批准。",
+    "原rawCanvas bytes、其它config以及WF revision均前后核对；metadata JSON物理预算与秘密规则沿现WorkflowJsonBoundary校验。"
+  ],
+  "sourceWindowScope": "23-source zero-change window belongs to new four-case pure probe; final report checks current25-source snapshot only, not retrospective whole review window",
+  "productionWritten": false,
+  "contractsWritten": false,
+  "targetWritten": false,
+  "qaRerun": false,
+  "mavenExecuted": false,
+  "network": false,
+  "realDatabase": false,
+  "servicesStarted": false,
+  "businessVerified": false,
+  "sourceHashesBeforeReport": {
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java": "6ab3d18a54b18a3c470532b52469b5060e13f4319c9420937cfa092891468e52",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/workflow/impl/WorkflowBotParamServiceImpl.java": "c0e3dd14cf408ece0d66a1658a882bc959f2f7c977d3a7e3aa2df46ff636d9ec",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/workflow/WorkflowInputTypeDto.java": "655005ce3d003ea090e38d6b50633e60679041431a6612495619d06a9ac311ba",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/enums/bot/BotUploadEnum.java": "afa141a2f0ed3039cc13fc70f8e11a436dbb7115a33d5652e83897c9d9455eda",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/JsonConverter.java": "a57bf7584a73e3d424f9d9cab80521a61de6eda4be54c1995980eb2a840b05d7",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/workflow/WorkflowBotController.java": "39f8a1f01efa71aa4319d890683f3338a975eb52b98637fe58dd6a98ac662253",
+    "参考项目/PaiFlow-main/console/backend/pom.xml": "d169a9a674a8c49bc38e2a7ab2acc90dfd1552e19782a49ddad740bdbe1bfa4b",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "frontend/paiflow-web/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java": "0a42e22741be69e45aa252e8c7bd390a5fd3fe30db05bc802e300a92fa98e4d8",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "031fc7ad67e154efdb474447fe3b2e4218821e3ce561fbb698e288381879d12f",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "fe7b4d572080b91bb1e804d72e06f31fe624e6162e79afbaecf88c647dfeec2a",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyBotController.java": "8669579a0120507445466033d321e18e93270375591b21cd6e1c7842790f1ad6",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/AgentMapper.xml": "2510a33766f3c421a0b0bb39d660516a2a56cdb2af7eafaaf8e3f95dad8b5867",
+    "frontend/paiflow-web/src/pages/space-page/agent-page/index.tsx": "20b1ba9f4c3f71659e0839b1fca88f948920aa6d3d7b9c725a00fbecd4388340",
+    "frontend/paiflow-web/src/utils/http.ts": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/util/BotPermissionUtil.java": "b964b498496e4457e5f024d7406df18fa0e524296a31b6c7536b964271beabb0",
+    "frontend/paiflow-web/src/utils/workflow-revision.ts": "e3aff553f278e1cc53882de05cc97149e957c428affa5239a36f22c3c0a40543",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentWorkflowController.java": "fd0b9832ff04d2ae7d783f6e58202dec4e4163d59e9764457d1412972dae09b2"
+  },
+  "sourceHashesAfterReport": {
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java": "6ab3d18a54b18a3c470532b52469b5060e13f4319c9420937cfa092891468e52",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/workflow/impl/WorkflowBotParamServiceImpl.java": "c0e3dd14cf408ece0d66a1658a882bc959f2f7c977d3a7e3aa2df46ff636d9ec",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/dto/workflow/WorkflowInputTypeDto.java": "655005ce3d003ea090e38d6b50633e60679041431a6612495619d06a9ac311ba",
+    "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/enums/bot/BotUploadEnum.java": "afa141a2f0ed3039cc13fc70f8e11a436dbb7115a33d5652e83897c9d9455eda",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/tool/JsonConverter.java": "a57bf7584a73e3d424f9d9cab80521a61de6eda4be54c1995980eb2a840b05d7",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowService.java": "34c70d52c5c605bc399e96374d09e600355588d9bd4475321e3465a1f47530f3",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/workflow/WorkflowBotController.java": "39f8a1f01efa71aa4319d890683f3338a975eb52b98637fe58dd6a98ac662253",
+    "参考项目/PaiFlow-main/console/backend/pom.xml": "d169a9a674a8c49bc38e2a7ab2acc90dfd1552e19782a49ddad740bdbe1bfa4b",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "frontend/paiflow-web/src/services/flow.ts": "ff049c23de2226913786a02c1de8e285c77d3a3d5c84f057d4a85687cdc6d6b5",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java": "0a42e22741be69e45aa252e8c7bd390a5fd3fe30db05bc802e300a92fa98e4d8",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "031fc7ad67e154efdb474447fe3b2e4218821e3ce561fbb698e288381879d12f",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "fe7b4d572080b91bb1e804d72e06f31fe624e6162e79afbaecf88c647dfeec2a",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyBotController.java": "8669579a0120507445466033d321e18e93270375591b21cd6e1c7842790f1ad6",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/AgentMapper.xml": "2510a33766f3c421a0b0bb39d660516a2a56cdb2af7eafaaf8e3f95dad8b5867",
+    "frontend/paiflow-web/src/pages/space-page/agent-page/index.tsx": "20b1ba9f4c3f71659e0839b1fca88f948920aa6d3d7b9c725a00fbecd4388340",
+    "frontend/paiflow-web/src/utils/http.ts": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917",
+    "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/util/BotPermissionUtil.java": "b964b498496e4457e5f024d7406df18fa0e524296a31b6c7536b964271beabb0",
+    "frontend/paiflow-web/src/utils/workflow-revision.ts": "e3aff553f278e1cc53882de05cc97149e957c428affa5239a36f22c3c0a40543",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentWorkflowController.java": "fd0b9832ff04d2ae7d783f6e58202dec4e4163d59e9764457d1412972dae09b2"
+  },
+  "reportSourceChanges": []
+}

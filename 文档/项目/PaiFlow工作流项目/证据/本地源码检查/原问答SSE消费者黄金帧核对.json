@@ -1,0 +1,689 @@
+{
+  "schemaVersion": "paiflow.qa.original-consumer-golden-review.v1",
+  "checkedAt": "2026-10-03T04:12:37.415687+00:00",
+  "status": "original_dto_and_pure_consumer_branches_checked_backend_codec_not_verified",
+  "sourceHashesBefore": {
+    "python/paiflow-runtime/workflow/engine/callbacks/openai_types_sse.py": "490bfcbab8697cb5b0313489f789e08483bd8d5954fa390c81575754c6a4f403",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "frontend/paiflow-web/src/components/workflow/drawer/chat-debugger/components/chat-content.tsx": "de901c30f726edce80b31816eca61b332f854c55465d08f45f65c61fe4dd9f2d"
+  },
+  "sourceHashesAfter": {
+    "python/paiflow-runtime/workflow/engine/callbacks/openai_types_sse.py": "490bfcbab8697cb5b0313489f789e08483bd8d5954fa390c81575754c6a4f403",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "fd54882e699770c8219f849e4dc921d6d82f4ad97a38ef76cae2c7584103d8ac",
+    "frontend/paiflow-web/src/components/workflow/drawer/chat-debugger/components/chat-content.tsx": "de901c30f726edce80b31816eca61b332f854c55465d08f45f65c61fe4dd9f2d"
+  },
+  "sourceWindowChanges": [],
+  "fixtureOrigin": "原LLMGenerate真实构造器/声明字段，输入为隔离惰性fixture；不是已授权run或正式checkpoint数据",
+  "frames": [
+    {
+      "name": "node.started",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1700000000,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "fixture QA",
+            "finish_reason": null,
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.5
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "name": "checkpoint.option",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1700000000,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "fixture QA",
+            "finish_reason": "interrupt",
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.1,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.5
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": "interrupt"
+          }
+        ],
+        "usage": null,
+        "event_data": {
+          "event_id": "fixture-checkpoint",
+          "event_type": "interrupt",
+          "need_reply": false,
+          "value": {
+            "type": "option",
+            "content": "fixture question",
+            "option": [
+              {
+                "id": "default",
+                "text": "fallback",
+                "content_type": "text"
+              },
+              {
+                "id": "A",
+                "text": "fixture A",
+                "content_type": "text"
+              },
+              {
+                "id": "B",
+                "text": "fixture B",
+                "content_type": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "checkpoint.direct",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1700000000,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "fixture QA",
+            "finish_reason": "interrupt",
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.1,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.5
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": "interrupt"
+          }
+        ],
+        "usage": null,
+        "event_data": {
+          "event_id": "fixture-checkpoint-direct",
+          "event_type": "interrupt",
+          "need_reply": true,
+          "value": {
+            "type": "direct",
+            "content": "fixture direct question"
+          }
+        }
+      }
+    },
+    {
+      "name": "node.completed",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1700000000,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "",
+            "finish_reason": "stop",
+            "inputs": {
+              "query": "fixture"
+            },
+            "outputs": {
+              "answer": "fixture",
+              "opaqueNull": null
+            },
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.25,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.75
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "name": "node.failed",
+      "frame": {
+        "code": 22101,
+        "message": "fixture safe node failure",
+        "id": "fixture-run",
+        "created": 1700000000,
+        "workflow_step": {
+          "node": {
+            "id": "question-answer::fixture",
+            "alias_name": "",
+            "finish_reason": "stop",
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {
+              "errorCode": 22101,
+              "errorMessage": "fixture safe node failure"
+            },
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": null
+          },
+          "seq": 0,
+          "progress": 0.75
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": null,
+            "finish_reason": null
+          }
+        ],
+        "usage": null,
+        "event_data": null
+      }
+    },
+    {
+      "name": "run.completed wire shape from original DTO",
+      "frame": {
+        "code": 0,
+        "message": "Success",
+        "id": "fixture-run",
+        "created": 1700000000,
+        "workflow_step": {
+          "node": {
+            "id": "flow_obj",
+            "alias_name": "",
+            "finish_reason": "stop",
+            "inputs": {},
+            "outputs": {},
+            "error_outputs": {},
+            "ext": null,
+            "executed_time": 0.0,
+            "usage": {
+              "completion_tokens": 0,
+              "prompt_tokens": 0,
+              "total_tokens": 0
+            }
+          },
+          "seq": 0,
+          "progress": 1.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        },
+        "event_data": null,
+        "executedTime": 0.75
+      }
+    },
+    {
+      "name": "run.failed wire shape from original DTO",
+      "frame": {
+        "code": 22101,
+        "message": "fixture safe workflow failure",
+        "id": "fixture-run",
+        "created": 1700000000,
+        "workflow_step": {
+          "node": null,
+          "seq": 0,
+          "progress": 1.0
+        },
+        "choices": [
+          {
+            "delta": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": ""
+            },
+            "index": 0,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "completion_tokens": 0,
+          "prompt_tokens": 0,
+          "total_tokens": 0
+        },
+        "event_data": null,
+        "executedTime": 0.75
+      }
+    },
+    {
+      "name": "malformed original error-only body",
+      "frame": {
+        "code": -1,
+        "message": "fixture original error only"
+      }
+    }
+  ],
+  "actualOriginalConsumerObservations": [
+    {
+      "name": "node.started",
+      "nodeUpdates": [
+        {
+          "nodeId": "question-answer::fixture",
+          "nodeStatus": "ing",
+          "responseResult": {
+            "timeCost": 0,
+            "inputs": {},
+            "outputs": {},
+            "errorOutputs": {},
+            "nodeAnswerContent": "",
+            "reasoningContent": "",
+            "status": "success",
+            "failedReason": "Success"
+          }
+        }
+      ],
+      "pushed": [],
+      "flowResult": null,
+      "interrupt": null,
+      "auditCalled": false,
+      "sid": "fixture-run",
+      "messageStatus": "old",
+      "extracted": {
+        "flowResult": null,
+        "nodeId": "question-answer::fixture",
+        "nodeStatus": null,
+        "responseResult": {
+          "timeCost": 0,
+          "inputs": {},
+          "outputs": {},
+          "errorOutputs": {},
+          "nodeAnswerContent": "",
+          "reasoningContent": "",
+          "status": "success",
+          "failedReason": "Success"
+        }
+      }
+    },
+    {
+      "name": "checkpoint.option",
+      "nodeUpdates": [
+        {
+          "nodeId": "question-answer::fixture",
+          "nodeStatus": "interrupt",
+          "responseResult": {
+            "timeCost": 0.1,
+            "inputs": {},
+            "outputs": {},
+            "errorOutputs": {},
+            "nodeAnswerContent": "",
+            "reasoningContent": "",
+            "status": "success",
+            "failedReason": "Success"
+          }
+        }
+      ],
+      "pushed": [
+        {
+          "queue": "endNodeTextQueue",
+          "content": "fixture question"
+        }
+      ],
+      "flowResult": null,
+      "interrupt": {
+        "interrupt": true,
+        "eventId": "fixture-checkpoint",
+        "nodeId": "question-answer::fixture",
+        "option": [
+          {
+            "id": "A",
+            "text": "fixture A",
+            "content_type": "text"
+          },
+          {
+            "id": "B",
+            "text": "fixture B",
+            "content_type": "text"
+          }
+        ],
+        "type": "option",
+        "needReply": false
+      },
+      "auditCalled": false,
+      "sid": "fixture-run",
+      "messageStatus": "end",
+      "extracted": {
+        "flowResult": "interrupt",
+        "nodeId": "question-answer::fixture",
+        "nodeStatus": "interrupt",
+        "responseResult": {
+          "timeCost": 0.1,
+          "inputs": {},
+          "outputs": {},
+          "errorOutputs": {},
+          "nodeAnswerContent": "",
+          "reasoningContent": "",
+          "status": "success",
+          "failedReason": "Success"
+        }
+      }
+    },
+    {
+      "name": "checkpoint.direct",
+      "nodeUpdates": [
+        {
+          "nodeId": "question-answer::fixture",
+          "nodeStatus": "interrupt",
+          "responseResult": {
+            "timeCost": 0.1,
+            "inputs": {},
+            "outputs": {},
+            "errorOutputs": {},
+            "nodeAnswerContent": "",
+            "reasoningContent": "",
+            "status": "success",
+            "failedReason": "Success"
+          }
+        }
+      ],
+      "pushed": [
+        {
+          "queue": "endNodeTextQueue",
+          "content": "fixture direct question"
+        }
+      ],
+      "flowResult": null,
+      "interrupt": {
+        "interrupt": true,
+        "eventId": "fixture-checkpoint-direct",
+        "nodeId": "question-answer::fixture",
+        "option": null,
+        "type": "direct",
+        "needReply": true
+      },
+      "auditCalled": false,
+      "sid": "fixture-run",
+      "messageStatus": "end",
+      "extracted": {
+        "flowResult": "interrupt",
+        "nodeId": "question-answer::fixture",
+        "nodeStatus": "interrupt",
+        "responseResult": {
+          "timeCost": 0.1,
+          "inputs": {},
+          "outputs": {},
+          "errorOutputs": {},
+          "nodeAnswerContent": "",
+          "reasoningContent": "",
+          "status": "success",
+          "failedReason": "Success"
+        }
+      }
+    },
+    {
+      "name": "node.completed",
+      "nodeUpdates": [
+        {
+          "nodeId": "question-answer::fixture",
+          "nodeStatus": "stop",
+          "responseResult": {
+            "timeCost": 0.25,
+            "inputs": {
+              "query": "fixture"
+            },
+            "outputs": {
+              "answer": "fixture",
+              "opaqueNull": null
+            },
+            "errorOutputs": {},
+            "nodeAnswerContent": "",
+            "reasoningContent": "",
+            "status": "success",
+            "failedReason": "Success"
+          }
+        }
+      ],
+      "pushed": [],
+      "flowResult": null,
+      "interrupt": null,
+      "auditCalled": false,
+      "sid": "fixture-run",
+      "messageStatus": "old",
+      "extracted": {
+        "flowResult": null,
+        "nodeId": "question-answer::fixture",
+        "nodeStatus": "stop",
+        "responseResult": {
+          "timeCost": 0.25,
+          "inputs": {
+            "query": "fixture"
+          },
+          "outputs": {
+            "answer": "fixture",
+            "opaqueNull": null
+          },
+          "errorOutputs": {},
+          "nodeAnswerContent": "",
+          "reasoningContent": "",
+          "status": "success",
+          "failedReason": "Success"
+        }
+      }
+    },
+    {
+      "name": "node.failed",
+      "nodeUpdates": [
+        {
+          "nodeId": "question-answer::fixture",
+          "nodeStatus": "stop",
+          "responseResult": {
+            "timeCost": 0,
+            "inputs": {},
+            "outputs": {},
+            "errorOutputs": {
+              "errorCode": 22101,
+              "errorMessage": "fixture safe node failure"
+            },
+            "nodeAnswerContent": "",
+            "reasoningContent": "",
+            "status": "failed",
+            "failedReason": "fixture safe node failure"
+          }
+        }
+      ],
+      "pushed": [],
+      "flowResult": null,
+      "interrupt": null,
+      "auditCalled": false,
+      "sid": "fixture-run",
+      "messageStatus": "old",
+      "extracted": {
+        "flowResult": null,
+        "nodeId": "question-answer::fixture",
+        "nodeStatus": "stop",
+        "responseResult": {
+          "timeCost": 0,
+          "inputs": {},
+          "outputs": {},
+          "errorOutputs": {
+            "errorCode": 22101,
+            "errorMessage": "fixture safe node failure"
+          },
+          "nodeAnswerContent": "",
+          "reasoningContent": "",
+          "status": "failed",
+          "failedReason": "fixture safe node failure"
+        }
+      }
+    },
+    {
+      "name": "run.completed wire shape from original DTO",
+      "nodeUpdates": [],
+      "pushed": [],
+      "flowResult": {
+        "status": "success",
+        "timeCost": "0.75",
+        "totalTokens": "5"
+      },
+      "interrupt": {
+        "eventId": "",
+        "interrupt": false,
+        "nodeId": "",
+        "type": "",
+        "option": null,
+        "needReply": true
+      },
+      "auditCalled": false,
+      "sid": "fixture-run",
+      "messageStatus": "end",
+      "extracted": {
+        "flowResult": "stop",
+        "nodeId": "flow_obj",
+        "nodeStatus": "stop",
+        "responseResult": {
+          "timeCost": 0,
+          "tokenCost": 0,
+          "inputs": {},
+          "outputs": {},
+          "errorOutputs": {},
+          "nodeAnswerContent": "",
+          "reasoningContent": "",
+          "status": "success",
+          "failedReason": "Success"
+        }
+      }
+    },
+    {
+      "name": "run.failed wire shape from original DTO",
+      "nodeUpdates": [],
+      "pushed": [
+        {
+          "queue": "endNodeTextQueue",
+          "content": "fixture safe workflow failure"
+        }
+      ],
+      "flowResult": {
+        "status": "failed",
+        "timeCost": "0.75",
+        "totalTokens": "0"
+      },
+      "interrupt": {
+        "eventId": "",
+        "interrupt": false,
+        "nodeId": "",
+        "type": "",
+        "option": null,
+        "needReply": true
+      },
+      "auditCalled": false,
+      "sid": "fixture-run",
+      "messageStatus": "end",
+      "extracted": {
+        "flowResult": "stop",
+        "responseResult": {
+          "nodeAnswerContent": "",
+          "reasoningContent": "",
+          "status": "failed",
+          "failedReason": "fixture safe workflow failure"
+        }
+      }
+    },
+    {
+      "name": "malformed original error-only body",
+      "nodeUpdates": [],
+      "pushed": [],
+      "flowResult": null,
+      "interrupt": null,
+      "auditCalled": false,
+      "messageStatus": "old",
+      "extracted": {
+        "responseResult": {
+          "reasoningContent": "",
+          "status": "failed",
+          "failedReason": "fixture original error only"
+        }
+      }
+    }
+  ],
+  "consumerScope": "AST提取实际extractNodeInfo/handleMessage/handleInterrupt/handleFlowStop/handleMessageEnd，在Node VM执行；UI/store渲染与setNode细节用显式spy，不计页面检查",
+  "adapterRecommendations": [
+    "node.started/delta/completed/failed只投choice.finish_reason=null；node.finish_reason依node事件nullable/stop，不能将node完成变flow stop",
+    "checkpoint必须关联已授权当前run/lease/attempt/固定node的中心真实question和revision；原event_data.value.type/content/option与need_reply不能从任意Worker字符串信任",
+    "center run.completed/failed/cancelled持久终态才投choice.stop；失败/取消code非0且safe message，usage/executedTime从中心已确认记录读取",
+    "恢复原DTO已声明nullable字段供旧UI严格null，不更改canonical/event/model原帧或猜填未知输出",
+    "原error-only code/message会被旧UI忽略；无授权terminal不能包装成成功/stop，可以HTTP拒绝或由真实失败结果投安全终帧",
+    "原option点击的是interrupt.id，即原QA配置name，不是配置UUID id；default由原UI过滤",
+    "缺合法legacyFrame的reasoning.delta不能直接泛化完整模型SSE；同text.delta内reasoning与下一reasoning.delta可能重复，应建立可核对关联"
+  ],
+  "productionSourceModified": false,
+  "network": false,
+  "providerCalls": false,
+  "factoryCalled": false,
+  "taskRunnerCalled": false,
+  "centerCalls": 0,
+  "browserUsed": false,
+  "businessVerified": false
+}

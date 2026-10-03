@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "paiflow.public-config.local-source-check.v1",
+  "recordedAt": "2026-10-03T01:29:07.094873+00:00",
+  "status": "当前源码候选已冻结；实际Mapper/HTTP18项尚未执行，待三方统一Maven",
+  "sourceInputs": [
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyConfigInfoController.java",
+      "sha256": "c7196bbef931250347d31010795feb9150e07226e5832c931e164107daaa7ec5",
+      "bytes": 1684
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/controller/ConfigInfoController.java",
+      "sha256": "f27de03609e23fc9dc90b08f63c0f2d178545717378f98045e430a286a38fb88",
+      "bytes": 1533
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/domain/PublicConfigRecord.java",
+      "sha256": "2b0774773b1af68eebb9e6abdef81203398ebc56fa90f758f7d147da972dcf5e",
+      "bytes": 1360
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/PublicConfigMapper.java",
+      "sha256": "13200f88dae549d9c87e2c2f9bbe2b208a21ee7d1da949e0e342b86d5281bde2",
+      "bytes": 627
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ConfigInfoService.java",
+      "sha256": "f1b9c0c6d7997fd40c421627cc7f08e85807fd27c01f8d9b178203de5e03036f",
+      "bytes": 11123
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/adapter/legacy/LegacyConfigInfoContractTest.java",
+      "sha256": "7b1a61280394d003898aeda20c837e4788275e7093e571b619ed10c4e2759162",
+      "bytes": 5884
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/PublicConfigPersistenceTest.java",
+      "sha256": "d982ce43559911d662cfcd46823b2471787b96e40dfa4e45a802101f1c92f19b",
+      "bytes": 10894
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/PublicConfigTestFixture.java",
+      "sha256": "265cee7ca1a163ef751dfe0318e1d68b9336d9cb25f507353fcccdcc9881d554",
+      "bytes": 5072
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/PublicConfigMapper.xml",
+      "sha256": "19055e9e01c167f451ce9e1f4bdf377def9f0f49a6dd566f99106be2e9efe9b8",
+      "bytes": 1700
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/resources/paiflow/public-config-source.json",
+      "sha256": "6dbb2171d88cbbcf5a6dadc9ce45704e4cd38fe350fd3c1d7f83db011a658a2b",
+      "bytes": 86961
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/sql/014-paiflow-public-config.sql",
+      "sha256": "80539328b5e3cbe28b32caac09193fca2c50b09b81ca92fadaa8cd0cfdd3ee6b",
+      "bytes": 124622
+    },
+    {
+      "path": "contracts/paiflow/generate-public-config-catalog.py",
+      "sha256": "46407b2195132340f1aa5d6abd816909430829fd5c162589bf268eb18d293cb5",
+      "bytes": 13801
+    },
+    {
+      "path": "contracts/paiflow/check-public-config-catalog.py",
+      "sha256": "9d56886dd1fee6de974623a48b52d75e83ca059fee0466be6b258fda1d9349e6",
+      "bytes": 3894
+    },
+    {
+      "path": "contracts/paiflow/public-config.openapi.json",
+      "sha256": "6363cb3f3c2b9632244e7761f2e13e75d125c8dffff6c723642446610fc6181e",
+      "bytes": 21419
+    }
+  ],
+  "sourceCatalog": "公开配置来源核对.json",
+  "sourceChecks": {
+    "sourceRows": 381,
+    "publicRows": 147,
+    "activeRows": 141,
+    "excludedRows": 234,
+    "exactNineFieldAndHexSeedMismatches": 0,
+    "missingCategories": [
+      "WORKFLOW_CATEGORY"
+    ],
+    "contracts": 10,
+    "sourceHashesMatched": 5,
+    "sensitiveAndEncodedPrivateProbes": 4,
+    "sqlExecuted": false,
+    "network": false,
+    "businessVerified": false
+  },
+  "staticJavaAnalysis": {
+    "command": "java --class-path <既有离线依赖及已编译共用模块> 文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/JavaSourceAnalysis.java <8个owned Java>",
+    "classPathSource": "checks/WorkflowJsonNullReview.args + ruoyi-framework/target/classes（只读）",
+    "sourceFiles": 8,
+    "analysisErrors": 0,
+    "exitCode": 0,
+    "noBytecode": true,
+    "testsExecuted": 0,
+    "log": "公开配置源码静态分析-编码修正后候选.log",
+    "logSha256": "d86dba9afb5f3dea5f4be1ee01959353e0bc4dcc323a1bfa8e45a39588dfa108"
+  },
+  "readOnlyCheck": {
+    "command": "python -X utf8 -B contracts/paiflow/check-public-config-catalog.py",
+    "exitCode": 0,
+    "log": "公开配置来源与契约编码修正后检查.log",
+    "logSha256": "0064ea3d63ade3d105f281d33a6c5dd91566a07374d32d1a8979c3548a150f92"
+  },
+  "syntaxCheck": {
+    "command": "python -X utf8 -m py_compile contracts/paiflow/generate-public-config-catalog.py contracts/paiflow/check-public-config-catalog.py",
+    "exitCode": 0
+  },
+  "plannedMavenTests": [
+    "PublicConfigPersistenceTest",
+    "LegacyConfigInfoContractTest"
+  ],
+  "plannedTestCounts": {
+    "actualMapperAndPlatformIdentity": 12,
+    "actualHttpToServiceAndMapper": 6
+  },
+  "fieldCount": 9,
+  "routes": {
+    "legacyPrefix": "/paiflow/legacy/config-info",
+    "nativePrefix": "/paiflow/config-info",
+    "getSuffixes": [
+      "/get-list-by-category",
+      "/get-by-category-and-code",
+      "/list-by-category-and-code",
+      "/tags",
+      "/workflow/categories"
+    ],
+    "writeRoutes": []
+  },
+  "compatibility": [
+    "原3个query未声明ORDER；正式Mapper不套XML未被调用排序，也不伪造分页",
+    "原tags update_time DESC，完整profile dev/test exact映射，不将dev,test当dev",
+    "原value保留String，包括JSON字符串；日期按原yyyy-MM-dd HH:mm:ss",
+    "unknown flag原真实空；已知缺类别/pair或WORKFLOW_CATEGORY无有效单行拒绝code503",
+    "活动平台账号读取前后重新核对；公共元数据无私有scope/写权限",
+    "沿用真实GlobalExceptionHandler：HTTP200/code503为未配置，普通参数/方法错误code500；实际成功legacy code0/native code200，不把HTTP状态当业务通过"
+  ],
+  "h2Fixture": [
+    "实际014 CREATE保留PK/全部CHECK；移除MySQL字集/引擎/索引声明，H2 IGNORECASE近似case比较，未证明MySQL重音/NO PAD语义",
+    "ON UPDATE CURRENT_TIMESTAMP在H2夹具移除，fixture显式更新时间；实际MySQL自动timestamp未验证",
+    "147seed通过准备语句逐字段插入，source-check另逐字核对014每个hex字段；没有执行任何正式DDL"
+  ],
+  "network": false,
+  "realDatabaseWrites": false,
+  "sqlExecuted": false,
+  "servicesStarted": false,
+  "providerCalls": false,
+  "businessVerified": false,
+  "remaining": [
+    "三方集中Maven实际18候选尚未运行",
+    "真实MySQL及已授权正式部署/数据迁移未执行",
+    "真实旧库新增公开配置/sql_mode/公共URL可用性未核对",
+    "真实WORKFLOW_CATEGORY未配置；234非公开/环境类别不由本接口解锁"
+  ],
+  "beforeEncodingReview": "公开配置本地源码检查-首稿时点.json",
+  "independentEncodingReview": {
+    "first": "公开配置编码边界独立首复现.json",
+    "after": "公开配置编码边界独立复验.json",
+    "firstProbeExitCode": 1,
+    "firstMismatches": 2,
+    "afterProbeExitCode": 0,
+    "afterMismatches": 0,
+    "actualMapperExecuted": false,
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "targetWrites": 0
+  }
+}

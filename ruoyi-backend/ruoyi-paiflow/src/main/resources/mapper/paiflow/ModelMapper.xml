@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.ModelMapper">
+  <sql id="columns">id,space_id AS spaceId,owner_user_id AS ownerUserId,revision,latest_version_id AS latestVersionId,type,name,state,enabled,configuration_json AS configurationJson,candidate_hash AS candidateHash,credential_version AS credentialVersion,receipt_json AS receiptJson,deleted,create_by AS createBy,update_by AS updateBy,create_time AS createTime,update_time AS updateTime</sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.ModelRecord">SELECT <include refid="columns"/> FROM paiflow_model WHERE id=#{id} AND deleted=0</select>
+  <select id="lock" resultType="com.ruoyi.paiflow.domain.ModelRecord">SELECT <include refid="columns"/> FROM paiflow_model WHERE id=#{id} AND deleted=0 FOR UPDATE</select>
+  <sql id="filters">space_id=#{spaceId} AND deleted=0 <if test="search != null and search != ''">AND LOCATE(#{search},name)&gt;0</if><if test="type != null">AND type=#{type}</if></sql>
+  <select id="count" resultType="long">SELECT COUNT(*) FROM paiflow_model WHERE <include refid="filters"/></select>
+  <select id="list" resultType="com.ruoyi.paiflow.domain.ModelRecord">SELECT <include refid="columns"/> FROM paiflow_model WHERE <include refid="filters"/> ORDER BY create_time DESC,id DESC LIMIT #{limit} OFFSET #{offset}</select>
+  <select id="countName" resultType="long">SELECT COUNT(*) FROM paiflow_model WHERE space_id=#{spaceId} AND name=#{name} AND deleted=0 <if test="excludeId != null">AND id&lt;&gt;#{excludeId}</if></select>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_model(space_id,owner_user_id,revision,type,name,state,enabled,configuration_json,candidate_hash,credential_version,receipt_json,deleted,create_by,update_by,create_time,update_time)
+    VALUES(#{spaceId},#{ownerUserId},0,#{type},#{name},#{state},#{enabled},#{configurationJson},#{candidateHash},#{credentialVersion},#{receiptJson},0,#{createBy},#{updateBy},UTC_TIMESTAMP(),UTC_TIMESTAMP())</insert>
+  <update id="update">UPDATE paiflow_model SET name=#{name},state=#{state},enabled=#{enabled},configuration_json=#{configurationJson},candidate_hash=#{candidateHash},credential_version=#{credentialVersion},receipt_json=#{receiptJson},revision=revision+1,update_by=#{updateBy},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND space_id=#{spaceId} AND revision=#{revision} AND deleted=0</update>
+  <update id="delete">UPDATE paiflow_model SET deleted=1,enabled=0,revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND space_id=#{spaceId} AND revision=#{revision} AND deleted=0</update>
+  <insert id="insertVersion" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_model_version(model_id,space_id,owner_user_id,revision,type,state,enabled,configuration_json,candidate_hash,credential_version,receipt_json,create_by,create_time)
+    VALUES(#{modelId},#{spaceId},#{ownerUserId},#{revision},#{type},#{state},#{enabled},#{configurationJson},#{candidateHash},#{credentialVersion},#{receiptJson},#{createBy},UTC_TIMESTAMP())</insert>
+  <update id="selectVersion">UPDATE paiflow_model SET latest_version_id=#{versionId} WHERE id=#{id} AND revision=#{revision} AND deleted=0</update>
+  <sql id="versionColumns">id,model_id AS modelId,space_id AS spaceId,owner_user_id AS ownerUserId,revision,type,state,enabled,configuration_json AS configurationJson,candidate_hash AS candidateHash,credential_version AS credentialVersion,receipt_json AS receiptJson,create_by AS createBy,create_time AS createTime</sql>
+  <select id="version" resultType="com.ruoyi.paiflow.domain.ModelVersionRecord">SELECT <include refid="versionColumns"/> FROM paiflow_model_version WHERE id=#{id}</select>
+  <select id="countVersions" resultType="long">SELECT COUNT(*) FROM paiflow_model_version WHERE model_id=#{modelId}</select>
+  <select id="versions" resultType="com.ruoyi.paiflow.domain.ModelVersionRecord">SELECT <include refid="versionColumns"/> FROM paiflow_model_version WHERE model_id=#{modelId} ORDER BY revision DESC,id DESC LIMIT #{limit} OFFSET #{offset}</select>
+</mapper>

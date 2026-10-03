@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.WorkflowMapper">
+  <sql id="columns">id, flow_id AS flowId, space_id AS spaceId, owner_user_id AS ownerUserId,
+    revision, name, description, canvas_json AS canvasJson, metadata_json AS metadataJson,
+    advanced_config_json AS advancedConfigJson, flow_config_json AS flowConfigJson,
+    engine_profile AS engineProfile, latest_version_id AS latestVersionId, deleted,
+    create_by AS createBy, update_by AS updateBy, create_time AS createTime, update_time AS updateTime</sql>
+  <sql id="versionColumns">id, workflow_id AS workflowId, space_id AS spaceId, owner_user_id AS ownerUserId,
+    snapshot_revision AS snapshotRevision, flow_id AS flowId, version_num AS versionNum, name, description,
+    canvas_json AS canvasJson, execution_json AS executionJson, resource_snapshots_json AS resourceSnapshotsJson, execution_codec AS executionCodec, dsl_hash AS dslHash,
+    debug_mode AS debugMode, debug_owner_user_id AS debugOwnerUserId, debug_comparison_id AS debugComparisonId,
+    debug_request_key AS debugRequestKey, debug_request_hash AS debugRequestHash, debug_agent_id AS debugAgentId,
+    canonical_dsl_base64 AS canonicalDslBase64, metadata_json AS metadataJson,
+    advanced_config_json AS advancedConfigJson, flow_config_json AS flowConfigJson,
+    engine_profile AS engineProfile, create_by AS createBy, create_time AS createTime</sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.WorkflowRecord">SELECT <include refid="columns"/> FROM paiflow_workflow WHERE id=#{id} AND deleted=0</select>
+  <select id="lock" resultType="com.ruoyi.paiflow.domain.WorkflowRecord">SELECT <include refid="columns"/> FROM paiflow_workflow WHERE id=#{id} AND deleted=0 FOR UPDATE</select>
+  <select id="findByFlowId" resultType="com.ruoyi.paiflow.domain.WorkflowRecord">SELECT <include refid="columns"/> FROM paiflow_workflow WHERE flow_id=#{flowId} AND deleted=0</select>
+  <sql id="filters">space_id=#{spaceId} AND deleted=0
+    <if test="search != null and search != ''">AND (LOCATE(#{search},name)&gt;0 OR LOCATE(#{search},flow_id)&gt;0)</if>
+    <if test="flowId != null and flowId != ''">AND flow_id=#{flowId}</if>
+  </sql>
+  <select id="list" resultType="com.ruoyi.paiflow.domain.WorkflowRecord">SELECT <include refid="columns"/> FROM paiflow_workflow WHERE <include refid="filters"/>
+    <choose><when test="order == 1">ORDER BY create_time DESC,id DESC</when><otherwise>ORDER BY update_time DESC,id DESC</otherwise></choose> LIMIT #{limit} OFFSET #{offset}</select>
+  <select id="count" resultType="long">SELECT COUNT(*) FROM paiflow_workflow WHERE <include refid="filters"/></select>
+  <select id="countName" resultType="long">SELECT COUNT(*) FROM paiflow_workflow WHERE space_id=#{spaceId} AND name=#{name} AND deleted=0 <if test="excludeId != null">AND id&lt;&gt;#{excludeId}</if></select>
+  <insert id="insert" parameterType="com.ruoyi.paiflow.domain.WorkflowRecord" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO paiflow_workflow(flow_id,space_id,owner_user_id,revision,name,description,canvas_json,metadata_json,advanced_config_json,flow_config_json,engine_profile,deleted,create_by,update_by,create_time,update_time)
+    VALUES(#{flowId},#{spaceId},#{ownerUserId},0,#{name},#{description},#{canvasJson},#{metadataJson},#{advancedConfigJson},#{flowConfigJson},#{engineProfile},0,#{createBy},#{updateBy},UTC_TIMESTAMP(),UTC_TIMESTAMP())
+  </insert>
+  <update id="update">UPDATE paiflow_workflow SET name=#{name},description=#{description},canvas_json=#{canvasJson},metadata_json=#{metadataJson},advanced_config_json=#{advancedConfigJson},flow_config_json=#{flowConfigJson},engine_profile=#{engineProfile},latest_version_id=#{latestVersionId},revision=revision+1,update_by=#{updateBy},update_time=UTC_TIMESTAMP()
+    WHERE id=#{id} AND space_id=#{spaceId} AND revision=#{revision} AND deleted=0</update>
+  <update id="delete">UPDATE paiflow_workflow SET deleted=1,revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND space_id=#{spaceId} AND revision=#{revision} AND deleted=0</update>
+  <insert id="insertVersion" parameterType="com.ruoyi.paiflow.domain.WorkflowVersionRecord" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO paiflow_workflow_version(workflow_id,space_id,owner_user_id,snapshot_revision,flow_id,version_num,name,description,canvas_json,execution_json,resource_snapshots_json,execution_codec,dsl_hash,canonical_dsl_base64,metadata_json,advanced_config_json,flow_config_json,engine_profile,debug_mode,debug_owner_user_id,debug_comparison_id,debug_request_key,debug_request_hash,debug_agent_id,create_by,create_time)
+    VALUES(#{workflowId},#{spaceId},#{ownerUserId},#{snapshotRevision},#{flowId},#{versionNum},#{name},#{description},#{canvasJson},#{executionJson},#{resourceSnapshotsJson},#{executionCodec},#{dslHash},#{canonicalDslBase64},#{metadataJson},#{advancedConfigJson},#{flowConfigJson},#{engineProfile},#{debugMode},#{debugOwnerUserId},#{debugComparisonId},#{debugRequestKey},#{debugRequestHash},#{debugAgentId},#{createBy},UTC_TIMESTAMP())
+  </insert>
+  <select id="version" resultType="com.ruoyi.paiflow.domain.WorkflowVersionRecord">SELECT <include refid="versionColumns"/> FROM paiflow_workflow_version WHERE id=#{id}</select>
+  <select id="debugVersion" resultType="com.ruoyi.paiflow.domain.WorkflowVersionRecord">SELECT <include refid="versionColumns"/> FROM paiflow_workflow_version WHERE debug_owner_user_id=#{owner} AND debug_request_key=#{key}</select>
+  <select id="versions" resultType="com.ruoyi.paiflow.domain.WorkflowVersionRecord">SELECT <include refid="versionColumns"/> FROM paiflow_workflow_version WHERE workflow_id=#{workflowId} AND debug_mode IS NULL ORDER BY id DESC LIMIT #{limit} OFFSET #{offset}</select>
+  <select id="countVersions" resultType="long">SELECT COUNT(*) FROM paiflow_workflow_version WHERE workflow_id=#{workflowId} AND debug_mode IS NULL</select>
+  <select id="latestVersion" resultType="com.ruoyi.paiflow.domain.WorkflowVersionRecord">SELECT <include refid="versionColumns"/> FROM paiflow_workflow_version WHERE workflow_id=#{workflowId} AND debug_mode IS NULL ORDER BY id DESC LIMIT 1</select>
+  <select id="versionByName" resultType="com.ruoyi.paiflow.domain.WorkflowVersionRecord">SELECT <include refid="versionColumns"/> FROM paiflow_workflow_version WHERE workflow_id=#{workflowId} AND name=#{name} ORDER BY id DESC LIMIT 1</select>
+  <update id="selectVersion">UPDATE paiflow_workflow SET latest_version_id=#{versionId},revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE id=#{workflowId} AND space_id=#{spaceId} AND revision=#{revision} AND deleted=0</update>
+</mapper>

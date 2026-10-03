@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:python:persistence-draft:v1",
+  "title": "原会话变量与历史的中心端口草案（尚未部署）",
+  "description": "不是已部署公共契约；正式中心尚未绑定应用/会话时拒绝持久节点。所有身份与作用域由验证租约导出。",
+  "x-status": "draft-center-persistence-not-implemented",
+  "x-prefix": "/internal/paiflow/v1/runs/{runId}",
+  "x-ownership": "RuoYi 是正式变量/历史/revision/幂等真相；Worker 只保存当前调用的瞬时请求/ACK 关联",
+  "x-variable-scope": {
+    "chatId-null": ["flowId", "userId", "appId"],
+    "chatId-string-including-empty": ["flowId", "userId", "appId", "chatId"],
+    "scope-source": "verify.executionContext 的真实中心应用/会话绑定；不可使用 runId/workflowVersionId 代替",
+    "original-source": "core/workflow/engine/nodes/global_variables/global_variables_node.py:VariablesManage",
+    "ttl": null
+  },
+  "x-history-scope": {
+    "write": ["flowId", "nodeId", "userId", "chatId(nullable)"],
+    "original-read": ["flowId", "userId", "nodeId"],
+    "original-max-rows-per-node": 10,
+    "original-source": "core/workflow/service/history_service.py",
+    "raw-json": "完整 question/answer 消息对象；保留额外键与 content_type；不压平多模态列表"
+  },
+  "x-rules": [
+    "验证 Worker 服务身份、当前有效 leaseId/attempt、nodeId 属于固定 DSL、节点 method 和中心绑定 scope",
+    "当前中心没有正式 app/chat 绑定时不返回 executionContext，不创建虚构会话或 run 私有记忆",
+    "variables set/clear 使用中心 revision CAS；同 idempotencyKey 同请求返回同 ACK，异请求拒绝 409",
+    "variables get/get_all 无状态副作用；set 节点写前 get_all 获取中心 revision，单次 Worker 并行只用瞬时锁",
+    "history 同 run/attempt/node/iteration 幂等键同完整 raw JSON 去重；异内容拒绝 409",
+    "ACK 缺 accepted/stored/revision 或形状错误为 RESOURCE_UNAVAILABLE；无旧 Redis/SQL 回退",
+    "403 策略/作用域拒绝停止；409 CAS/幂等冲突停止；租约失效不得继续写入",
+    "终态由中心 CAS；此草案不定义或代替 run/events/result 的正式共享契约"
+  ],
+  "x-endpoints": {
+    "POST /variables": {"request": "#/$defs/VariablesRequest", "responseData": "#/$defs/VariablesAck"},
+    "POST /history": {"request": "#/$defs/HistoryRequest", "responseData": "#/$defs/HistoryAck"},
+    "POST /lease/verify": {"optionalResponseDataProperty": "executionContext", "schema": "#/$defs/ExecutionContext"}
+  },
+  "$defs": {
+    "ExecutionContext": {
+      "type": "object", "additionalProperties": false,
+      "required": ["flowId", "userId", "appId", "chatId"],
+      "properties": {
+        "flowId": {"type": "string", "minLength": 1},
+        "userId": {"type": "string", "minLength": 1},
+        "appId": {"type": "string", "minLength": 1},
+        "chatId": {"type": ["string", "null"]}
+      }
+    },
+    "VariablesRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["leaseId", "attempt", "nodeId", "operation"],
+      "properties": {
+        "leaseId": {"type": "string", "minLength": 1},
+        "attempt": {"type": "integer", "minimum": 1},
+        "nodeId": {"type": "string", "pattern": "^node-variable::[0-9a-zA-Z-]+$"},
+        "operation": {"enum": ["get_all", "get", "set", "clear"]},
+        "variableName": {"type": "string", "minLength": 1},
+        "value": {},
+        "expectedRevision": {"type": "integer", "minimum": 0},
+        "idempotencyKey": {"type": "string", "minLength": 1}
+      },
+      "allOf": [
+        {"if": {"properties": {"operation": {"const": "set"}}}, "then": {"required": ["variableName", "value", "expectedRevision", "idempotencyKey"]}},
+        {"if": {"properties": {"operation": {"const": "get"}}}, "then": {"required": ["variableName"]}},
+        {"if": {"properties": {"operation": {"const": "clear"}}}, "then": {"required": ["expectedRevision", "idempotencyKey"]}}
+      ]
+    },
+    "VariablesAck": {
+      "type": "object", "additionalProperties": false,
+      "required": ["accepted", "revision"],
+      "properties": {
+        "accepted": {"const": true},
+        "revision": {"type": "integer", "minimum": 0},
+        "variables": {"type": "object"},
+        "found": {"type": "boolean"},
+        "value": {}
+      },
+      "description": "get_all 必须含 variables；get 必须含 found，found=true 必须含 value；set/clear 必须为 CAS 确认后的 revision"
+    },
+    "HistoryRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["leaseId", "attempt", "nodeId", "question", "answer", "idempotencyKey"],
+      "properties": {
+        "leaseId": {"type": "string", "minLength": 1},
+        "attempt": {"type": "integer", "minimum": 1},
+        "nodeId": {"type": "string", "minLength": 1},
+        "iterationId": {"type": "string", "minLength": 1},
+        "question": {"type": "object"},
+        "answer": {"type": "object"},
+        "idempotencyKey": {"type": "string", "minLength": 1}
+      }
+    },
+    "HistoryAck": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stored", "revision"],
+      "properties": {"stored": {"const": true}, "revision": {"type": "integer", "minimum": 1}}
+    }
+  }
+}

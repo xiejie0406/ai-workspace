@@ -1,0 +1,201 @@
+"""真实 Java 领取产物的固定字节与原 Factory 隔离消费；不续租或改期限。"""
+import asyncio
+import base64
+import copy
+from dataclasses import asdict
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import re
+import sys
+from types import SimpleNamespace
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+WORKSPACE = ROOT.parents[1]
+sys.path.insert(0, str(ROOT))
+from jsonschema import Draft202012Validator
+from worker.errors import WorkerError
+from worker.task_runner import Assignment, _same_json, CURRENT_CONTEXT
+from worker.pure_iteration import validate_assignment
+from worker.node_context import CURRENT_ITERATION_ID
+
+SOURCE = WORKSPACE / 'ruoyi-backend/ruoyi-paiflow/target/pure-iteration-canvas-assignment.json'
+COPY = WORKSPACE / '文档/项目/PaiFlow工作流项目/证据/本地源码检查/纯迭代原画布中心实际领取任务-重试夹具修正后.json'
+DEST = ROOT / 'verification'
+if len(sys.argv) != 2 or not re.fullmatch('[0-9a-f]{64}', sys.argv[1]):
+    raise SystemExit('supply the center owner confirmed exact artifact SHA256')
+EXPECTED_ARTIFACT_SHA = sys.argv[1]
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def save_new(name, data):
+    path = DEST / name
+    if path.exists() and path.read_bytes() != data:
+        backup = path.with_name(path.stem + '-prior-' + sha(path.read_bytes())[:12] + path.suffix)
+        if not backup.exists():
+            backup.write_bytes(path.read_bytes())
+    path.write_bytes(data)
+
+class LocalFrames:
+    """只收原 callback 帧，未持有正式状态或中心 ACK。"""
+    def __init__(self):
+        self.frames = []
+    async def put(self, frame):
+        self.frames.append({'iterationId': getattr(frame, '_worker_iteration_id', None),
+                            'raw': frame.model_dump(mode='json', exclude_none=False)})
+
+async def consume_factory(raw):
+    from workflow.engine.callbacks.callback_handler import ChatCallBacks, ChatCallBackConsumer, StructuredConsumer
+    from workflow.engine.dsl_engine import WorkflowEngineFactory
+    from workflow.engine.entities.variable_pool import ParamKey
+    from workflow.engine.entities.workflow_dsl import WorkflowDSL
+    from workflow.engine.nodes.entities.node_run_result import WorkflowNodeExecutionStatus
+    from workflow.extensions.otlp.log_trace.workflow_log import WorkflowLog
+    from workflow.extensions.otlp.trace.span import Span
+
+    assert CURRENT_CONTEXT.get() is None
+    span = Span(app_id='', uid='', chat_id=None, sid=raw['runId'])
+    dsl = WorkflowDSL.model_validate(raw['dsl'])
+    engine = WorkflowEngineFactory.create_engine(dsl, span)
+    engine.engine_ctx.variable_pool.system_params.set(ParamKey.FlowId, '')
+    engine.engine_ctx.variable_pool.system_params.set(ParamKey.IsRelease, True)
+    frames = LocalFrames()
+    ordered, node_order, structured = asyncio.Queue(maxsize=128), asyncio.Queue(maxsize=128), {}
+    callback_consumer = ChatCallBackConsumer(ordered, node_order, structured)
+    structured_consumer = StructuredConsumer(node_order, structured, frames,
+        callback_consumer.support_stream_node_id_set)
+    class OriginalCallbacks(ChatCallBacks):
+        async def _put_frame_into_queue(self, node_id, resp, finish_reason=''):
+            object.__setattr__(resp, '_worker_iteration_id', CURRENT_ITERATION_ID.get())
+            await super()._put_frame_into_queue(node_id, resp, finish_reason)
+    callbacks = OriginalCallbacks(sid=raw['runId'], stream_queue=frames,
+        end_node_output_mode=engine.end_node_output_mode, support_stream_node_ids=engine.support_stream_node_ids,
+        need_order_stream_result_q=ordered, chains=engine.engine_ctx.chains,
+        event_id=raw['leaseId'], flow_id=raw['workflowVersionId'])
+    trace = WorkflowLog(sid=raw['runId'], service_id=raw['workflowVersionId'], flow_id='', uid='', app_id='')
+    consumers = [asyncio.create_task(callback_consumer.consume()),
+                 asyncio.create_task(structured_consumer.consume())]
+    execution = asyncio.create_task(engine.async_run(raw['input'], span, callbacks, [], [], trace))
+    try:
+        result = await asyncio.wait_for(execution, 10)
+        await asyncio.wait_for(asyncio.gather(*consumers), 3)
+        assert result.error is None and result.status == WorkflowNodeExecutionStatus.SUCCEEDED
+        assert result.outputs == {'answer': ['item=乙', 'item=甲', 'item=丙']}
+        completed = [item for item in frames.frames if item['raw'].get('workflow_step')
+            and item['raw']['workflow_step'].get('node')
+            and item['raw']['workflow_step']['node'].get('id') == 'text-joiner::j'
+            and item['raw']['workflow_step']['node'].get('finish_reason') == 'stop']
+        assert len(completed) == 3
+        assert [item['iterationId'] for item in completed] == ['iteration::i:0', 'iteration::i:1', 'iteration::i:2']
+        assert all(item['raw']['code'] == 0 for item in completed)
+        return {'status': result.status.value, 'outputs': result.outputs,
+                'nodeId': result.node_id, 'content': result.node_answer_content,
+                'completedInnerCount': len(completed),
+                'completedInnerIterationIds': [item['iterationId'] for item in completed],
+                'originalCallbackFrames': frames.frames}
+    finally:
+        tasks = {execution, *consumers}
+        for item in [engine, *engine.engine_ctx.iteration_engine.values()]:
+            tasks.update(item.engine_ctx.dfs_tasks)
+        tasks.discard(asyncio.current_task())
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+async def main():
+    started = datetime.now(timezone.utc)
+    stage = json.loads((DEST / 'pure-iteration-stage.json').read_text(encoding='utf-8-sig'))
+    paths = set(stage['sourceSha256']) | set(stage['unchangedFrozen']) | {
+        'workflow/engine/dsl_engine.py', 'workflow/engine/entities/workflow_dsl.py',
+        'workflow/engine/callbacks/callback_handler.py'}
+    before = {path: sha((ROOT / path).read_bytes()) for path in sorted(paths)}
+    save_new('pure-iteration-java-assignment-source-before.json',
+             (json.dumps({'at': started.isoformat(), 'sha256': before}, indent=2) + '\n').encode('utf-8'))
+    original = SOURCE.read_bytes()
+    assert sha(original) == EXPECTED_ARTIFACT_SHA
+    assert original == COPY.read_bytes()
+    save_new('pure-iteration-java-assignment-original.json', original)
+    raw = json.loads(original.decode('utf-8'))
+    unchanged = copy.deepcopy(raw)
+    canonical = base64.b64decode(raw['dslCanonicalBase64'], validate=True)
+    assert base64.b64encode(canonical).decode('ascii') == raw['dslCanonicalBase64']
+    assert sha(canonical) == raw['dslHash']
+    assert _same_json(json.loads(canonical.decode('utf-8')), raw['dsl'])
+    save_new('pure-iteration-java-canonical-original.json', canonical)
+    worker_schema = WORKSPACE / 'contracts/paiflow/worker.schema.json'
+    Draft202012Validator(json.loads(worker_schema.read_text(encoding='utf-8-sig'))).validate(raw)
+    deadline = datetime.fromisoformat(raw['deadline'].replace('Z', '+00:00'))
+    parse_error = None
+    try:
+        Assignment.parse(raw)
+        assignment_parse_accepted = True
+    except WorkerError as error:
+        assignment_parse_accepted = False
+        parse_error = {'code': error.code, 'message': str(error)}
+        assert error.code == 'DEPENDENCY_TIMEOUT'
+    # 字段视图仅用于固定图预算，不是假造可执行 Assignment，也不绕过正式 TaskRunner。
+    view = SimpleNamespace(dsl=raw['dsl'], input=raw['input'], resources=raw['resourceSnapshots'],
+                           effect_policy=raw['effectPolicy'])
+    plan = asdict(validate_assignment(view))
+    assert plan == {'graph_nodes': 6, 'expanded_nodes': 12, 'path_count': 2,
+        'max_path_length': 3, 'batch_sizes': (('iteration::i', 3),)}
+    nodes = {n['id']: n['data'] for n in raw['dsl']['nodes']}
+    start_schema = nodes['node-start::s']['outputs'][0]['schema']
+    assert start_schema == {'items': {'type': 'string'}, 'type': 'array'}
+    retry = nodes['text-joiner::j']['retryConfig']
+    assert retry['maxRetries'] == 2 and retry['shouldRetry'] is False
+    assert set(retry['customOutput']) == {'value'} and type(retry['customOutput']['value']) is str
+    assert 'opaqueNull' in nodes['text-joiner::j']['nodeParam']
+    assert nodes['text-joiner::j']['nodeParam']['opaqueNull'] is None
+    assert raw['dsl']['edges'][0]['sourceHandle'] == 'original-output'
+    assert raw['dsl']['edges'][0]['targetHandle'] == 'original-input'
+    # 原 Factory 独立离线消费 exact DSL/input；没有正式租约/HTTP/Provider 调用。
+    with patch('socket.socket.connect', side_effect=AssertionError('network prohibited in offline Factory check')):
+        try:
+            result = await consume_factory(raw)
+            passed = True
+        except Exception as error:
+            passed = False
+            result = {'status': 'FACTORY_OR_ALGORITHM_FAILED', 'outputs': None,
+                      'errorClass': type(error).__name__, 'errorCode': getattr(error, 'code', None),
+                      'completedInnerIterationIds': [], 'message': str(error)}
+    assert _same_json(raw, unchanged)
+    assert SOURCE.read_bytes() == original and COPY.read_bytes() == original
+    after = {path: sha((ROOT / path).read_bytes()) for path in sorted(paths)}
+    assert before == after
+    assert all(before[path] == digest for path, digest in stage['sourceSha256'].items())
+    assert all(before[path] == data['after'] for path, data in stage['unchangedFrozen'].items())
+    fixture = WORKSPACE / 'contracts/paiflow/fixtures/pure-iteration.json'
+    assert sha(fixture.read_bytes()) == stage['sharedFixture']['sha256']
+    report = {'startedAt': started.isoformat(), 'finishedAt': datetime.now(timezone.utc).isoformat(),
+        'scope': 'Java actual WF createVersion/run/claim/begin artifact -> exact JSON canonical/guard/original Factory offline; not live TaskRunner authority or UI/business acceptance',
+        'artifactPath': str(SOURCE), 'artifactSha256': sha(original), 'copyPath': str(COPY),
+        'exactBytesCopied': True, 'canonicalSha256': sha(canonical), 'canonicalBytes': len(canonical),
+        'dslHashMatched': True, 'canonicalParsedExactDsl': True, 'schemaAccepted': True,
+        'deadlineUnmodified': raw['deadline'], 'deadlineExpiredAtProbeStart': deadline <= started,
+        'leaseExpiresAt': None, 'leaseExpiryExplanation': 'Assignment does not carry leaseExpiresAt; no center verify/renew executed. Expired deadline cannot authorize execution.',
+        'assignmentParseAccepted': assignment_parse_accepted, 'assignmentParseError': parse_error,
+        'runtimeAuthorityValidated': False, 'taskRunnerCalled': False, 'centerBeginCalls': 0,
+        'centerResultCalls': 0, 'centerEventCalls': 0, 'centerOperationCalls': 0, 'centerResourceCalls': 0,
+        'payloadUnchanged': True, 'budget': plan,
+        'nullsPreserved': ['dsl.nodes[text-joiner::j].data.nodeParam.opaqueNull'],
+        'validDisabledRetryCustomOutput': retry,
+        'normalizedArrayVerified': start_schema, 'originalSourceTargetHandlesVerified': True,
+        'sourceHashesBefore': before, 'sourceHashesAfter': after, 'sourceChanged': False,
+        'sharedFixtureSha256': sha(fixture.read_bytes()), 'workerSchemaSha256': sha(worker_schema.read_bytes()),
+        'originalFactory': result, 'networkConnectProhibited': True, 'dbProviderServicesUsed': False,
+        'full247Rerun': False, 'result': 'PASS' if passed else 'FAILED',
+        'retainedFirstFailure': 'verification/pure-iteration-java-assignment-first-failure.json'}
+    save_new('pure-iteration-java-assignment-check.json',
+             (json.dumps(report, ensure_ascii=False, indent=2) + '\n').encode('utf-8'))
+    print(json.dumps({'result': report['result'], 'artifactSha256': sha(original), 'canonicalSha256': sha(canonical),
+        'assignmentParseAccepted': assignment_parse_accepted, 'assignmentParseError': parse_error,
+        'budget': plan, 'outputs': result['outputs'], 'completedInnerIterationIds': result['completedInnerIterationIds'],
+        'sourceChanged': False, 'taskRunnerCalled': False}, ensure_ascii=True))
+    raise SystemExit(0 if passed else 1)
+
+asyncio.run(main())

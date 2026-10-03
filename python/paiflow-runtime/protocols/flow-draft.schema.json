@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:python:flow-draft:v1",
+  "title": "原子流程节点的中心子运行协议草案（尚未部署）",
+  "x-status": "draft-no-center-workflow-resource-child-run-producer",
+  "description": "原FlowNode inputs/delta/reasoning/usage及输出模式算法保留；正式子run、父子关系、固定版本与事件由中心创建和持有。Worker不执行本地递归或持有第二套运行状态。",
+  "x-source": {
+    "node": "core/workflow/engine/nodes/flow/flow_node.py:async_execute,req_flow_api_with_see,_handle_outputs",
+    "binding": "原_assemble_request查询App凭据与WORKFLOW_BASE_URL路由已封禁；原appId/uid保持参数标签但不授权，旧flowId/version与中心固定资源核对。",
+    "output-mode": "原chat_service注入ParamKey.FlowOutputMode；迁移从verify中已固定快照注入相同pool参数，并在操作前再验证中心实时版本。"
+  },
+  "x-endpoints": {
+    "POST /internal/paiflow/v1/runs/{runId}/operations": {
+      "operation": "workflow.invoke",
+      "parameters": "#/$defs/Parameters",
+      "responseData": "#/$defs/StartAck"
+    },
+    "POST /internal/paiflow/v1/runs/{runId}/operations/{operationId}/frames": {
+      "request": "同现有leaseId/attempt/afterCursor/limit<=64",
+      "responseData": "#/$defs/FrameAck"
+    },
+    "POST /internal/paiflow/v1/runs/{runId}/operations/{operationId}/cancel": {
+      "request": "leaseId/attempt",
+      "responseData": "stopped:true仅在正式子run与全部工作已确认停止时返回"
+    }
+  },
+  "x-rules": [
+    "resourceSnapshot与实时kind=workflow/provider=python/version/flowId/workflowVersionId/dslHash/outputMode/enabled一致；原version有值时匹配中心legacyVersion。没有固定版本拒绝，不依赖最新编辑图。",
+    "参数不含任意DSL、URL、appId/uid凭据或子run策略；中心从已授权父run、节点、资源推导身份、空间、能力、费用审批和固定子版本。approved_write与approvalRef只表示请求前提，中心仍逐次授权。",
+    "中心持有childRunId与父run/operation/node/iteration关系；child不能等于parent，中心必须拒绝祖先循环及超过深度/预算，祖先取消/截止必须停止子run。Worker无权限按任意childRunId读取。",
+    "同run/attempt/node/iteration/完整参数hash的幂等请求回同operation/childRunId；异内容拒绝，ACK及后续frames固定绑定必须一致，nextCursor=afterCursor+实际frames条数。中心保存操作与子run状态；没有有费用请求自动重试。",
+    "原SSE JSON以dict保留code/message/choices/delta/content/reasoning_content/finish_reason/usage。原VARIABLE_MODE=0解析完整JSON，PROMPT_MODE=1流出并输出content/reasoning_content，OLD_PROMPT_MODE=2输出首个声明变量；真实输出继续原节点schema验证。",
+    "原stop与无choices终止仅在中心COMPLETED/done=true最后一帧确认后允许；先到终帧而中心RUNNING拒绝。流最多10000帧/8MiB，输入最多2MiB，原retry timeout仅限制等待间隔，正式run deadline更严格。",
+    "只有FAILED/failureKind=child_run/done=true+同绑定合法单个原非零整数code错误帧走原WORKFLOW_EXECUTION_ERROR；授权/协议/传输/截止失败粘性拒绝，不因伪错误帧变成功。原变量JSON格式错误保留WORKFLOW_EXEC_RESP_FORMAT_ERROR。中心子run仍FAILED，不被父节点映射反改。",
+    "取消前已请求但operationId ACK未知或中心未确认stopped=true，父结果EFFECT_UNKNOWN；不以本地Task.cancel当成正式停止。",
+    "原enableChatHistoryV2需要正式会话scope和中心历史端口，目前明确拒绝；不虚造app/chat或空历史替代已启用记忆。",
+    "当前无中心workflow.invoke资源/子run Producer，离线frame fixture仅证明原算法与边界；不能称原前端子流程或生产迁移已通。",
+    "通用OperationRequest目前没有正式iterationId/中心轮次实例绑定；幂等键不能代替实际归属，因此迭代内Flow明确拒绝。后续须中心关联实际轮次及子run，不能仅信任Worker字符串。"
+  ],
+  "$defs": {
+    "Resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "workflowVersionId",
+        "dslHash",
+        "outputMode",
+        "flowId",
+        "enabled"
+      ],
+      "properties": {
+        "kind": {
+          "const": "workflow"
+        },
+        "provider": {
+          "const": "python"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflowVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dslHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "outputMode": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "flowId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "const": true
+        },
+        "legacyVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "Parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "resourceVersion",
+        "workflowVersionId",
+        "dslHash",
+        "outputMode",
+        "input"
+      ],
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflowVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dslHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "outputMode": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "input": {
+          "type": "object"
+        },
+        "timeoutSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        }
+      }
+    },
+    "StartAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "resourceVersion",
+        "workflowVersionId",
+        "dslHash",
+        "outputMode",
+        "kind",
+        "state",
+        "operationId",
+        "childRunId"
+      ],
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflowVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dslHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "outputMode": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "kind": {
+          "const": "workflow"
+        },
+        "state": {
+          "const": "RUNNING"
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "childRunId": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "FrameAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "resourceVersion",
+        "workflowVersionId",
+        "dslHash",
+        "outputMode",
+        "kind",
+        "childRunId",
+        "state",
+        "nextCursor",
+        "done",
+        "frames"
+      ],
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflowVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dslHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "outputMode": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "kind": {
+          "const": "workflow"
+        },
+        "childRunId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "nextCursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "done": {
+          "type": "boolean"
+        },
+        "frames": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object"
+          }
+        },
+        "failureKind": {
+          "enum": [
+            "child_run",
+            "authorization",
+            "protocol",
+            "transport",
+            "deadline"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "FAILED"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "failureKind"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

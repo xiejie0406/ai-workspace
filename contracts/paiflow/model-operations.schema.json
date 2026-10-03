@@ -1,0 +1,1359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:model-operations:v1",
+  "title": "PaiFlow中心模型资源与逐次操作契约",
+  "description": "正式本批仅Python顶层spark-llm/OpenAI chat；全部授权/固定资源/动态消息/审批/受控transport桥缺任何项503且零operation写。基础两provider/FC仅保全完整目标，未启用。",
+  "x-ownership": "中心唯一持有模型资源版本、授权、许可、审批、收费、原帧、幂等、停止及终态；SDK在独立能力环境，无默认Provider或网络桥。",
+  "x-current-scope": [
+    "python",
+    "top-level spark-llm",
+    "openai",
+    "chat"
+  ],
+  "x-not-enabled": [
+    "xinghuo正式HTTP",
+    "function_call",
+    "QA",
+    "nested iteration",
+    "history",
+    "multimodal",
+    "private Grant HTTP"
+  ],
+  "x-rules": [
+    "runId来自路径；lease/attempt/node/iteration与完整ACK绑定，workflowVersion/dslHash/resourceVersion由中心不可变版本推出，不信Worker授予权限。模型操作必须已begin且发起者平台/空间权限持续有效。",
+    "resourceId是不透明标识；公开模型仅六字段kind/provider/version/modelName/enabled/capabilities，modelName为原domain，version为不可变ModelVersion.id字符串；endpoint/ref/材料不进assignment/events/log。",
+    "模型费用须逐次批准/配额/真实资源及动态消息授权Port；profile无默认，Hello批准不能代替执行许可。当前只有顶层spark-llm OpenAI chat，其他范围503。",
+    "同key同完整绑定请求返回同operation；异内容409。key1..4096字符且受JSON UTF8总预算，中心保存原key和SHA256索引。acquire另一次CAS，ACK未知/重复不重授，不重发Provider。",
+    "正式OperationRequest整体JSON UTF8最多2MiB；frame单64KiB、总10000帧/8MiB。cursor单调nextCursor=afterCursor+frames.length，每批最多64且信封须适配Worker2MiB响应预算，可减少本批帧数。",
+    "state为本批交付投影，operationState保全正式表真态。完成或有原合法Provider终帧失败的分页在读到lastSeq前state=RUNNING/done=false，到最后才给真态/done；afterCursor==lastSeq允许空最终ACK。授权/协议/传输/期限/取消及无合法终帧失败粘性拒绝，不伪造finish。",
+    "OpenAI真实finish先存原帧RUNNING，尾usage-only完整保全；finish CAS引用已存finishSeq/lastSeq，不造choices/finish或改原帧。COMPLETED须真实stop；合法非stop FAILED/provider保留原错误。bare EOF/[DONE]/APIError不补stop。",
+    "failureKind明确provider/authorization/protocol/transport/deadline，失败没有原合法帧时finishSeq可null，不能触发原DEFAULT。SDK合法usage是累计快照，保最新完整值不累加tokens。",
+    "Cancel只确认真实停止事实。未派发可由中心真实未签发状态产生proof；已派发无实际Provider停止/终止proof则stopped=false/EFFECT_UNKNOWN。本地close不证明Provider停，不造费用或回滚。",
+    "所有JSON整数须拒bool，未知字段/绑定/游标/版本拒绝；单凭done不能完成。JSONSchema的字节注解由MVC/客户端真实UTF8计数执行。私有绑定/规范字节只供未装配内部SDK桥，不开放通用Worker私有Grant路由。",
+    "中心公开failureKind另保lease/cancelled/budget真实原因，全部属于sticky边界；冻结内部Producer的FailureFacts.cancel由未装配内部桥明确转换为cancelled，SDK协议预算原因可保protocol，不伪造provider错误。"
+  ],
+  "$defs": {
+    "LeaseRequest": {
+      "$ref": "urn:paiflow:worker:v1#/$defs/LeaseRequest"
+    },
+    "PrivateBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "urn:paiflow:worker:v1#/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "iterationId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          ]
+        },
+        "workflowVersionId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "urn:paiflow:worker:v1#/properties/dslHash"
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "provider": {
+          "enum": [
+            "xinghuo",
+            "openai"
+          ]
+        }
+      },
+      "x-private-internal-bridge-only": true,
+      "description": "完整内部绑定，不能授予费用或执行许可；私有SDK Grant桥未装配，无私有Grant HTTP路由。"
+    },
+    "ModelSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "modelName",
+        "enabled"
+      ],
+      "properties": {
+        "kind": {
+          "const": "model"
+        },
+        "provider": {
+          "enum": [
+            "xinghuo",
+            "openai"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "modelName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "enabled": {
+          "const": true
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "chat",
+              "function_call"
+            ]
+          }
+        }
+      },
+      "x-status": "target_contract_not_enabled"
+    },
+    "OpenAIChatSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "modelName",
+        "enabled",
+        "capabilities"
+      ],
+      "properties": {
+        "kind": {
+          "const": "model"
+        },
+        "provider": {
+          "const": "openai"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "modelName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "enabled": {
+          "const": true
+        },
+        "capabilities": {
+          "const": [
+            "chat"
+          ]
+        }
+      },
+      "x-status": "current_http_contract_requires_real_admission_ports"
+    },
+    "ModelParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "modelName",
+        "mode",
+        "messages",
+        "options"
+      ],
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "provider": {
+          "enum": [
+            "xinghuo",
+            "openai"
+          ]
+        },
+        "modelName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mode": {
+          "enum": [
+            "chat",
+            "function_call"
+          ]
+        },
+        "messages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object"
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "temperature",
+            "maxTokens",
+            "topK",
+            "patchId",
+            "respFormat",
+            "searchDisable",
+            "extraParams"
+          ],
+          "properties": {
+            "temperature": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "maxTokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "topK": {
+              "type": "integer"
+            },
+            "patchId": {
+              "type": "array"
+            },
+            "respFormat": {
+              "enum": [
+                0,
+                1,
+                2
+              ]
+            },
+            "searchDisable": {
+              "type": "boolean"
+            },
+            "extraParams": {
+              "type": "object"
+            },
+            "questionType": {
+              "type": "string"
+            },
+            "functionChoice": {
+              "type": "string"
+            }
+          }
+        },
+        "functions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "timeoutSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        }
+      },
+      "x-status": "target_contract_not_enabled",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "function_call"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "functions"
+            ],
+            "properties": {
+              "provider": {
+                "const": "xinghuo"
+              },
+              "options": {
+                "required": [
+                  "questionType",
+                  "functionChoice"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "OpenAIChatParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "modelName",
+        "mode",
+        "messages",
+        "options"
+      ],
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "provider": {
+          "const": "openai"
+        },
+        "modelName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mode": {
+          "const": "chat"
+        },
+        "messages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "content"
+            ],
+            "properties": {
+              "role": {
+                "enum": [
+                  "system",
+                  "user"
+                ]
+              },
+              "content": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "temperature",
+            "maxTokens",
+            "topK",
+            "patchId",
+            "respFormat",
+            "searchDisable",
+            "extraParams"
+          ],
+          "properties": {
+            "temperature": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "maxTokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "topK": {
+              "type": "integer"
+            },
+            "patchId": {
+              "type": "array"
+            },
+            "respFormat": {
+              "enum": [
+                0,
+                1,
+                2
+              ]
+            },
+            "searchDisable": {
+              "type": "boolean"
+            },
+            "extraParams": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "temperature": {},
+                "top_p": {},
+                "max_tokens": {},
+                "presence_penalty": {},
+                "frequency_penalty": {},
+                "seed": {},
+                "stop": {},
+                "n": {
+                  "const": 1
+                },
+                "response_format": {},
+                "stream_options": {},
+                "logprobs": {},
+                "top_logprobs": {},
+                "user": {},
+                "tools": {},
+                "tool_choice": {},
+                "functions": {},
+                "function_call": {},
+                "parallel_tool_calls": {},
+                "max_completion_tokens": {},
+                "reasoning_effort": {},
+                "store": {},
+                "metadata": {},
+                "audio": {},
+                "modalities": {},
+                "prediction": {},
+                "service_tier": {}
+              },
+              "description": "原Workflow OpenAI1.60.2支持字段名范围；固定DSL/profile/消息/副作用授权仍由中心真实Port核对，不凭SDK字段自授FC或多模态能力。"
+            }
+          }
+        },
+        "timeoutSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        }
+      },
+      "x-status": "current_http_contract_requires_real_admission_ports"
+    },
+    "OperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "operation",
+        "parameters",
+        "idempotencyKey"
+      ],
+      "properties": {
+        "leaseId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "urn:paiflow:worker:v1#/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "iterationId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          ]
+        },
+        "operation": {
+          "const": "model.invoke"
+        },
+        "parameters": {
+          "$ref": "#/$defs/ModelParameters"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+        }
+      },
+      "x-status": "target_contract_not_enabled",
+      "x-max-json-utf8-bytes": 2097152
+    },
+    "OpenAIChatOperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "operation",
+        "parameters",
+        "idempotencyKey"
+      ],
+      "properties": {
+        "leaseId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "urn:paiflow:worker:v1#/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^spark-llm::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "operation": {
+          "const": "model.invoke"
+        },
+        "parameters": {
+          "$ref": "#/$defs/OpenAIChatParameters"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+        }
+      },
+      "x-status": "current_http_contract_requires_real_admission_ports",
+      "x-max-json-utf8-bytes": 2097152
+    },
+    "StartAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/PrivateBinding/properties/nodeId"
+        },
+        "iterationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/iterationId"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "$ref": "#/$defs/PrivateBinding/properties/provider"
+        },
+        "state": {
+          "const": "RUNNING"
+        }
+      },
+      "x-status": "target_contract_not_enabled"
+    },
+    "OpenAIChatStartAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^spark-llm::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "const": "openai"
+        },
+        "state": {
+          "const": "RUNNING"
+        }
+      }
+    },
+    "FramesRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt",
+        "afterCursor",
+        "limit"
+      ],
+      "properties": {
+        "leaseId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "urn:paiflow:worker:v1#/properties/attempt"
+        },
+        "afterCursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        }
+      }
+    },
+    "FramesAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state",
+        "operationState",
+        "frames",
+        "nextCursor",
+        "done",
+        "lastSeq",
+        "finishSeq",
+        "failureKind"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/PrivateBinding/properties/nodeId"
+        },
+        "iterationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/iterationId"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "$ref": "#/$defs/PrivateBinding/properties/provider"
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "operationState": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "frames": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "x-max-json-utf8-bytes": 65536
+          }
+        },
+        "nextCursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "done": {
+          "type": "boolean"
+        },
+        "lastSeq": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "finishSeq": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            }
+          ]
+        },
+        "failureKind": {
+          "enum": [
+            null,
+            "provider",
+            "authorization",
+            "protocol",
+            "transport",
+            "deadline",
+            "lease",
+            "cancelled",
+            "budget"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operationState": {
+                "const": "FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failureKind": {
+                "enum": [
+                  "provider",
+                  "authorization",
+                  "protocol",
+                  "transport",
+                  "deadline",
+                  "lease",
+                  "cancelled",
+                  "budget"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "operationState": {
+                "const": "COMPLETED"
+              },
+              "done": {
+                "const": true
+              },
+              "finishSeq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operationState": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "finishSeq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "x-status": "target_contract_not_enabled"
+    },
+    "OpenAIChatFramesAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state",
+        "operationState",
+        "frames",
+        "nextCursor",
+        "done",
+        "lastSeq",
+        "finishSeq",
+        "failureKind"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^spark-llm::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "const": "openai"
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "operationState": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "frames": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "x-max-json-utf8-bytes": 65536
+          }
+        },
+        "nextCursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "done": {
+          "type": "boolean"
+        },
+        "lastSeq": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "finishSeq": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            }
+          ]
+        },
+        "failureKind": {
+          "enum": [
+            null,
+            "provider",
+            "authorization",
+            "protocol",
+            "transport",
+            "deadline",
+            "lease",
+            "cancelled",
+            "budget"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operationState": {
+                "const": "FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failureKind": {
+                "enum": [
+                  "provider",
+                  "authorization",
+                  "protocol",
+                  "transport",
+                  "deadline",
+                  "lease",
+                  "cancelled",
+                  "budget"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "operationState": {
+                "const": "COMPLETED"
+              },
+              "done": {
+                "const": true
+              },
+              "finishSeq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operationState": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "finishSeq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CancelAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state",
+        "stopped",
+        "proofId"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/PrivateBinding/properties/nodeId"
+        },
+        "iterationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/iterationId"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "$ref": "#/$defs/PrivateBinding/properties/provider"
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "stopped": {
+          "type": "boolean"
+        },
+        "proofId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "COMPLETED",
+                  "FAILED",
+                  "CANCELLED"
+                ]
+              },
+              "proofId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PrivateParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "binding",
+        "parametersCanonicalBase64",
+        "parametersSha256",
+        "optionsCanonicalBase64",
+        "deadline"
+      ],
+      "properties": {
+        "binding": {
+          "$ref": "#/$defs/PrivateBinding"
+        },
+        "parametersCanonicalBase64": {
+          "type": "string",
+          "minLength": 1,
+          "contentEncoding": "base64"
+        },
+        "parametersSha256": {
+          "$ref": "urn:paiflow:worker:v1#/properties/dslHash"
+        },
+        "optionsCanonicalBase64": {
+          "type": "string",
+          "minLength": 1,
+          "contentEncoding": "base64"
+        },
+        "deadline": {
+          "$ref": "urn:paiflow:worker:v1#/properties/deadline"
+        }
+      },
+      "x-private-internal-bridge-only": true,
+      "description": "中心实际WriteMapNull规范字节；解码原字节核SHA256，保全null与缺字段差异。没有credential/endpoint字段或默认桥。"
+    },
+    "OpenAIChatCancelAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state",
+        "stopped",
+        "proofId"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^spark-llm::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "const": "openai"
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "stopped": {
+          "type": "boolean"
+        },
+        "proofId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "COMPLETED",
+                  "FAILED",
+                  "CANCELLED"
+                ]
+              },
+              "proofId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

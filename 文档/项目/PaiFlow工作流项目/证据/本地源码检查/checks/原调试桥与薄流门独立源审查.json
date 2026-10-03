@@ -1,0 +1,403 @@
+{
+  "recordType": "只读源码审查与私有隔离检查证据，不是第二套状态或设计",
+  "generatedAtUtc": "2026-10-03T07:47:36.156191+00:00",
+  "scope": "只读新调试桥与原设施，实际探针只写checks/OS Temp；0Provider/服务/HTTP/DB/Redis调用，0Maven/共享target写。",
+  "facts": [
+    {
+      "id": "nested_http_shape",
+      "kind": "原实证失败后候选源码已收敛",
+      "statement": "实际Jackson3.1.2/2.21.2把JSONObject HTTP DTO的嵌套receipt/inputs解成LinkedHashMap；当前候选先窄验Map再getJSONObject，不接受字符串或数组。旧反例与旧源保留。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 54,
+          "anchor": "instanceof Map<?,?>"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 74,
+          "anchor": "JSONObject input=body.getJSONObject(\"inputs\")"
+        }
+      ]
+    },
+    {
+      "id": "lease_waiting",
+      "kind": "原源码缺口后候选源码已收敛",
+      "statement": "旧WAITING仅检查CP deadline。当前projection同时要求实际CP WAITING、run RUNNING、CP/run deadline未来和当前租约未来，并提供checkpoint_waiting；不在投影中伪写EXPIRED或终态。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 144,
+          "anchor": "waiting=\"WAITING\""
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CheckpointService.java",
+          "line": 64,
+          "anchor": "getLeaseExpiresAt()==null"
+        }
+      ]
+    },
+    {
+      "id": "receipt_authority",
+      "kind": "源码核对",
+      "statement": "回执10字段由实际不可变debug version推出；requireDebugReceipt按实际debugOwner、WF/Agent/space绑定复核。comparison仍由不可变版本的mode/id推出，不能由metadata自授权。普通保存一次、不selectLatest；比较快照不保存草稿。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java",
+          "line": 224,
+          "anchor": "JSONObject debugBuild("
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java",
+          "line": 271,
+          "anchor": "requireDebugReceipt("
+        }
+      ]
+    },
+    {
+      "id": "same_run",
+      "kind": "源码核对",
+      "statement": "chat把固定workflowVersionId/engine/input/requestKey/timeout交现有RunService.create；相同key固定请求返回原Run，改变权威请求409。chatId和regen仅校验原兼容输入，不是workflowVersionId/RunId/发布App绑定，也不因客户端断线新生成key。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 77,
+          "anchor": "var run=runs.create("
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java",
+          "line": 59,
+          "anchor": "var existing=runs.byRequest(actor,key)"
+        }
+      ]
+    },
+    {
+      "id": "transaction_scope",
+      "kind": "源码核对",
+      "statement": "Bridge事务先校验回执并持有SPACE→WF→真实Agent，再boundRun取Run锁，reply再复用CP锁/CAS。page的CP读取无需另制造状态；原CP写入同样先锁Run。后台发送和等待在短读取事务之后。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 56,
+          "anchor": "var debug=workflows.requireDebugReceipt"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 123,
+          "anchor": "var run=boundRun(attachment.runId()"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CheckpointService.java",
+          "line": 175,
+          "anchor": "var run=userRun(runId,\"paiflow:run:resume\")"
+        }
+      ]
+    },
+    {
+      "id": "resume_abort",
+      "kind": "源码核对",
+      "statement": "resume固定run/receipt/checkpoint/revision/key，复用唯一CheckpointService.reply。只把原abort缺content收窄成空字符串；显式null及非法eventType仍拒。JSON ACK不是Run停止或成功。原QA abort最终23802/FAILED语义不被CP RESUMED冒充取消。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 104,
+          "anchor": "!body.containsKey(\"content\") && \"abort\""
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 106,
+          "anchor": "var response=checkpoints.reply("
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CheckpointService.java",
+          "line": 176,
+          "anchor": "if(value.getReplyKey()!=null)"
+        }
+      ]
+    },
+    {
+      "id": "actual_cursor",
+      "kind": "源码核对",
+      "statement": "Last-Event-ID须runId:十进制实际序号，跨Run前缀和超实际watermark拒绝。锁内取得watermark，SQL只读after<seq<=through的32行，并检查实际SQL行seq连续且JSON.seq相等；辅助事件只推进scan，不造陌生cursor JSON。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 157,
+          "anchor": "public static long cursor("
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 130,
+          "anchor": "row.seq()!=scanned+1"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/RunMapper.xml",
+          "line": 33,
+          "anchor": "<select id=\"eventsThrough\""
+        }
+      ]
+    },
+    {
+      "id": "session_refresh",
+      "kind": "源码＋实际Stream内存端口探针",
+      "statement": "每batch用原TokenService重新读取JWT/Redis session的设计，核同actor/session且未到期；任务内建立该次SecurityContext/私有RequestAttributes，finally恢复。Bridge权限会再走IdentityMapping当前账号/实时菜单及ResourceAccess实时成员检查。探针仅模拟端口失效，不宣称真实Redis/logout联机。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java",
+          "line": 63,
+          "anchor": "public <T>T withSession("
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java",
+          "line": 37,
+          "anchor": "SysUser user = users.selectUserById"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java",
+          "line": 38,
+          "anchor": "if(actor!=requirePermission(permission))"
+        }
+      ]
+    },
+    {
+      "id": "permission_label",
+      "kind": "实际私有scope＋原ss探针",
+      "statement": "原PermissionService确会写PermissionContextHolder.request标签。候选scope只提供本次请求属性、拒HTTP session；实际两个actor隔离探针表明伪写权限标签不能授予权限、原上下文恢复且scope清空。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java",
+          "line": 129,
+          "anchor": "private static final class PermissionRequestScope"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/PermissionService.java",
+          "line": 38,
+          "anchor": "PermissionContextHolder.setContext(permission)"
+        }
+      ]
+    },
+    {
+      "id": "capacity_disconnect",
+      "kind": "实际Stream源码＋内存端口探针",
+      "statement": "每actor4/总64，reservation在创建Run或回复CP前取得，AtomicBoolean只release一次。实际验证上限拒绝、schedule/IO失败释放、会话失效不再page、一次inFlight、early disconnect仅交首帧且页after不提前推进。不是Servlet实际断线压测。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java",
+          "line": 39,
+          "anchor": "new Semaphore(64)"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java",
+          "line": 78,
+          "anchor": "if(next>4)"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java",
+          "line": 91,
+          "anchor": "released.compareAndSet(false,true)"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java",
+          "line": 118,
+          "anchor": "after=page.scannedThrough()"
+        }
+      ]
+    },
+    {
+      "id": "thin_eof",
+      "kind": "源码＋实际Stream内存端口探针",
+      "statement": "实际有效WAITING及已扫至watermark的官方terminal才主动EOF；流关闭不改Run或CP，不制造Provider停止。内存探针WAITING只交给定原帧，空terminal零send仍释放资源。正式flow stop只由Codec读取中心run.*终态事件投影。",
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java",
+          "line": 119,
+          "anchor": "if(page.waiting() || page.terminal())"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java",
+          "line": 154,
+          "anchor": "boolean terminal=TERMINAL.contains"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java",
+          "line": 109,
+          "anchor": "run.completed"
+        }
+      ]
+    },
+    {
+      "id": "frontend_binding",
+      "kind": "只读当前源码核对，执行归API独立证据",
+      "statement": "原React依旧使用原消费者；helper核双响应头与同Run游标、固定body/key续读、EOF不是终态、onerror throw阻止原库隐式重发。comparison cancel需同version/promptDebugger，已通知API并在当前候选收敛；不声称页面验收。",
+      "sources": [
+        {
+          "path": "frontend/paiflow-web/src/utils/workflow-debug.ts",
+          "line": 168,
+          "anchor": "cancelBody()"
+        },
+        {
+          "path": "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts",
+          "line": 108,
+          "anchor": "onerror(error) { throw error; }"
+        }
+      ]
+    }
+  ],
+  "sourceBeforeSha256": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "e311162cb74a5e5ba13637cb7bf26fed9f333df944ee414429a562ed178d01be",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java": "8af1d04ded19e0ac1447b3dc96321c297f50dcf878db1f6791eb600ff3f5d525",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugController.java": "4a7ca3eb0183e96c9b83fc2f0f81bb10e81fa9ce60df34800e005cfb3c75064f",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java": "3a4c3cf471cc696e98a380780175f289ccc7fa5acdd7138e40852f7b01145676",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "a529c6518f5569bb419959a760d67f6e838dbf8c90120f43f243ced6f4b004d4",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java": "d2b2a3ccd741d0b75756402b6e8e0c135397148b4cc8d0fc37b352c442a5af1c",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java": "7e5d655b263c12d3c3d964e20ed9243514a2da53c223b80f4d53ff7fb12e97f9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CheckpointService.java": "0f029733f066e2f38ec4a588f721a01d796284295a2022cc08fd941092008218",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java": "5d7c4e653c8fcd9158b724651d7ab342ef401f0de38a67e384e6ebe959731124",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/RunMapper.java": "ff0c1f5a2b854555e95c871b75a3ce57e9ebe446e5db719f5abeb9540682884d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/RunMapper.xml": "626d60a1bbd6e5252a7a8abd303cb845b3f71481d5a36894479377d51734fbd8",
+    "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/TokenService.java": "6ab06ec5a64ea63901ba0864b4efe7edb374f75905d97674ebc78fd83b5b9580",
+    "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/PermissionService.java": "5a857c94c78b8bd33407e3523f60398395898ff7a0c841d510cc77ec12711009",
+    "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/security/context/PermissionContextHolder.java": "f590d2e502a42dfc9e28efba5d655c4ac0e6a914e3677fa3448b56b006a078b9",
+    "frontend/paiflow-web/src/utils/workflow-debug.ts": "e2d233a5b8c4e03d28c70c759bdc060d5aa9427d7d767a70584263473111a800",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "47e649607d0f4ef42c7b2ce023c0c8d542103a42898f952739ada64ac69f6b14"
+  },
+  "sourceAfterSha256": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "e311162cb74a5e5ba13637cb7bf26fed9f333df944ee414429a562ed178d01be",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java": "8af1d04ded19e0ac1447b3dc96321c297f50dcf878db1f6791eb600ff3f5d525",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyDebugController.java": "4a7ca3eb0183e96c9b83fc2f0f81bb10e81fa9ce60df34800e005cfb3c75064f",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowStreamCodec.java": "3a4c3cf471cc696e98a380780175f289ccc7fa5acdd7138e40852f7b01145676",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "a529c6518f5569bb419959a760d67f6e838dbf8c90120f43f243ced6f4b004d4",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java": "d2b2a3ccd741d0b75756402b6e8e0c135397148b4cc8d0fc37b352c442a5af1c",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunService.java": "7e5d655b263c12d3c3d964e20ed9243514a2da53c223b80f4d53ff7fb12e97f9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CheckpointService.java": "0f029733f066e2f38ec4a588f721a01d796284295a2022cc08fd941092008218",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ResourceAccessService.java": "02c03ca5446212e2bb1f59812e1a3ef9898191f8f15d8d4379bb873f6ceaaea9",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/IdentityMappingService.java": "5d7c4e653c8fcd9158b724651d7ab342ef401f0de38a67e384e6ebe959731124",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/RunMapper.java": "ff0c1f5a2b854555e95c871b75a3ce57e9ebe446e5db719f5abeb9540682884d",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/RunMapper.xml": "626d60a1bbd6e5252a7a8abd303cb845b3f71481d5a36894479377d51734fbd8",
+    "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/TokenService.java": "6ab06ec5a64ea63901ba0864b4efe7edb374f75905d97674ebc78fd83b5b9580",
+    "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/PermissionService.java": "5a857c94c78b8bd33407e3523f60398395898ff7a0c841d510cc77ec12711009",
+    "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/security/context/PermissionContextHolder.java": "f590d2e502a42dfc9e28efba5d655c4ac0e6a914e3677fa3448b56b006a078b9",
+    "frontend/paiflow-web/src/utils/workflow-debug.ts": "e2d233a5b8c4e03d28c70c759bdc060d5aa9427d7d767a70584263473111a800",
+    "frontend/paiflow-web/src/components/workflow/store/flow-chat-function.ts": "47e649607d0f4ef42c7b2ce023c0c8d542103a42898f952739ada64ac69f6b14"
+  },
+  "generationWindowChanged": [],
+  "preservedOriginalBridge": {
+    "path": "文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\调试桥Jackson反例源码\\LegacyDebugBridgeService.java",
+    "sha256": "1e804d99f5c1e6fd359f2e5833d0cba9043b7f2de70839afc8e1512ad81316ec"
+  },
+  "proofs": [
+    {
+      "path": "文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\原调试桥Jackson嵌套对象独立反例.json",
+      "sha256": "d462511507a75fa655dda08628bf66850d89a71c43a889124d14b6b035db3961",
+      "result": {
+        "scope": "真实Jackson3.1.2(原Boot4BOM)+Jackson2.21.2比较/Fastjson2.0.64内存DTO; 未执行候选桥、HTTP/DB/Provider/Maven",
+        "compileExit": 0,
+        "exit": 0,
+        "stdout": "{\"tools.jackson.databind.ObjectMapper\":{\"receiptType\":\"java.util.LinkedHashMap\",\"inputsType\":\"java.util.LinkedHashMap\",\"currentSnapshotInstanceofAccepted\":false,\"currentChatInstanceofAccepted\":false,\"getJSONObjectAccepted\":true,\"rawInputsNullPreserved\":true,\"adaptedInputsNullPreserved\":true},\"com.fasterxml.jackson.databind.ObjectMapper\":{\"receiptType\":\"java.util.LinkedHashMap\",\"inputsType\":\"java.util.LinkedHashMap\",\"currentSnapshotInstanceofAccepted\":false,\"currentChatInstanceofAccepted\":false,\"getJSONObjectAccepted\":true,\"rawInputsNullPreserved\":true,\"adaptedInputsNullPreserved\":true}}\n",
+        "stderr": "",
+        "tempClassDirectory": "C:\\Users\\admin\\AppData\\Local\\Temp\\paiflow-debug-jackson-wtfed7nn",
+        "jarHashes": {
+          "C:\\Users\\admin\\.m2\\repository\\com\\alibaba\\fastjson2\\fastjson2\\2.0.64\\fastjson2-2.0.64.jar": "c3de8edf8705981deaf53f344c01544479f6db6925968bf934e3b9ef6f0b1f98",
+          "C:\\Users\\admin\\.m2\\repository\\tools\\jackson\\core\\jackson-databind\\3.1.2\\jackson-databind-3.1.2.jar": "0a366b1c2f6321e466c2970847b1251a5dc7201b680f320594230b77bfc8ddb2",
+          "C:\\Users\\admin\\.m2\\repository\\tools\\jackson\\core\\jackson-core\\3.1.2\\jackson-core-3.1.2.jar": "bbb00763f5998f03a26f21e47ed500f253c7fc5c158fa3e8a41dbf97aa7416fd",
+          "C:\\Users\\admin\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-annotations\\2.21\\jackson-annotations-2.21.jar": "53ca085f4a150f703f49e1aabd935bd03b43e1ea3d55d135438292af22cef56b",
+          "C:\\Users\\admin\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-databind\\2.21.2\\jackson-databind-2.21.2.jar": "8c982f01f148d805f0aaac2339011244757e0df7c6ff8951f2fa3f433b8ed849",
+          "C:\\Users\\admin\\.m2\\repository\\com\\fasterxml\\jackson\\core\\jackson-core\\2.21.2\\jackson-core-2.21.2.jar": "12e8655b100267b44d0f14d01b1f5082a5105e616174dc4307be1a761e92407b"
+        },
+        "cases": {
+          "tools.jackson.databind.ObjectMapper": {
+            "receiptType": "java.util.LinkedHashMap",
+            "inputsType": "java.util.LinkedHashMap",
+            "currentSnapshotInstanceofAccepted": false,
+            "currentChatInstanceofAccepted": false,
+            "getJSONObjectAccepted": true,
+            "rawInputsNullPreserved": true,
+            "adaptedInputsNullPreserved": true
+          },
+          "com.fasterxml.jackson.databind.ObjectMapper": {
+            "receiptType": "java.util.LinkedHashMap",
+            "inputsType": "java.util.LinkedHashMap",
+            "currentSnapshotInstanceofAccepted": false,
+            "currentChatInstanceofAccepted": false,
+            "getJSONObjectAccepted": true,
+            "rawInputsNullPreserved": true,
+            "adaptedInputsNullPreserved": true
+          }
+        },
+        "candidateBridgeSource": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\adapter\\legacy\\LegacyDebugBridgeService.java",
+          "sha256": "1e804d99f5c1e6fd359f2e5833d0cba9043b7f2de70839afc8e1512ad81316ec",
+          "preserved": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\调试桥Jackson反例源码\\LegacyDebugBridgeService.java",
+          "containsFirstInstanceofGuards": true
+        }
+      }
+    },
+    {
+      "path": "文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\原调试桥私有权限作用域独立核对.json",
+      "sha256": "604b864fb3072906d1573a00e483322232885aedd6f2dcc5d533d1507ac6985b",
+      "result": {
+        "scope": "实际候选私有RequestAttributes摘录＋原PermissionService/PermissionContextHolder，在Temp编译；LoginUser/Spring依既有真实Mavenclasspath。不是withSession/TokenService/Bridge整体执行，HTTP/DB/Redis/session调用均0。",
+        "compiledSource": "C:\\Users\\admin\\AppData\\Local\\Temp\\paiflow-debug-permission-cve_ykbs\\DebugPermissionScopeProbe.java",
+        "privateScopeSha256": "ddfc2b07329c0d7234592116431957226a23d64426e4ee8f13f7d77012be16ff",
+        "classpathOrigin": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\target\\surefire-reports\\TEST-com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest.xml",
+        "classpathEntries": 162,
+        "compileExit": 0,
+        "compileStderr": "",
+        "runExit": 0,
+        "stdout": "{\"42\":{\"missingScopeRejected\":true,\"granted\":true,\"grantedLabel\":\"paiflow:run:query\",\"denied\":true,\"deniedLabel\":\"paiflow:run:create\",\"labelCannotGrant\":true,\"noHttpSession\":true,\"closedScopeEmpty\":true,\"previousContextsRestored\":true},\"43\":{\"missingScopeRejected\":true,\"granted\":true,\"grantedLabel\":\"paiflow:run:query\",\"denied\":true,\"deniedLabel\":\"paiflow:run:create\",\"labelCannotGrant\":true,\"noHttpSession\":true,\"closedScopeEmpty\":true,\"previousContextsRestored\":true}}\n",
+        "stderr": "",
+        "sourceBefore": {
+          "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\adapter\\legacy\\LegacyDebugStreamService.java": "8af1d04ded19e0ac1447b3dc96321c297f50dcf878db1f6791eb600ff3f5d525",
+          "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-framework\\src\\main\\java\\com\\ruoyi\\framework\\web\\service\\PermissionService.java": "5a857c94c78b8bd33407e3523f60398395898ff7a0c841d510cc77ec12711009",
+          "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-framework\\src\\main\\java\\com\\ruoyi\\framework\\security\\context\\PermissionContextHolder.java": "f590d2e502a42dfc9e28efba5d655c4ac0e6a914e3677fa3448b56b006a078b9"
+        },
+        "sourceAfter": {
+          "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\adapter\\legacy\\LegacyDebugStreamService.java": "8af1d04ded19e0ac1447b3dc96321c297f50dcf878db1f6791eb600ff3f5d525",
+          "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-framework\\src\\main\\java\\com\\ruoyi\\framework\\web\\service\\PermissionService.java": "5a857c94c78b8bd33407e3523f60398395898ff7a0c841d510cc77ec12711009",
+          "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-framework\\src\\main\\java\\com\\ruoyi\\framework\\security\\context\\PermissionContextHolder.java": "f590d2e502a42dfc9e28efba5d655c4ac0e6a914e3677fa3448b56b006a078b9"
+        },
+        "changed": []
+      }
+    },
+    {
+      "path": "文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\原调试流生命周期独立检查.json",
+      "sha256": "178adea7aa77548978b141a0376164bc577a99acc166396f556e7587185f9498",
+      "result": {
+        "scope": "实际LegacyDebugStreamService源码在Temp独立编译；TokenService/IdentityMappingService/Bridge为明确内存端口，Scheduler/IO/Emitter为受控内存交付。不是实际Bridge事务/Redis/JWT/Servlet/SSE联机或HTTP业务。",
+        "networkCalls": 0,
+        "databaseCalls": 0,
+        "redisCalls": 0,
+        "mavenInvocations": 0,
+        "sharedTargetWrites": 0,
+        "sourcePath": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\adapter\\legacy\\LegacyDebugStreamService.java",
+        "sourceBeforeSha256": "8af1d04ded19e0ac1447b3dc96321c297f50dcf878db1f6791eb600ff3f5d525",
+        "sourceAfterSha256": "8af1d04ded19e0ac1447b3dc96321c297f50dcf878db1f6791eb600ff3f5d525",
+        "changed": false,
+        "temp": "C:\\Users\\admin\\AppData\\Local\\Temp\\paiflow-debug-stream-lsg6ci5t",
+        "compiledInputsSha256": {
+          "com/ruoyi/paiflow/adapter/legacy/LegacyDebugStreamService.java": "a04d7d25c1fdbf2d6cb765198c142a7e4bdad0f3ff3a57c2f8ec05f83aa67061",
+          "com/ruoyi/paiflow/adapter/legacy/LegacyDebugBridgeService.java": "2ca527dd31e0b9c104ad9e954649d5f26c0db0ce9a15f9a69a69cbf0897e7470",
+          "com/ruoyi/framework/web/service/TokenService.java": "7ac1c7d19acfe6d1295cd731b038ca9b6b0e073dc01af53cd08e7550ed82c7c4",
+          "com/ruoyi/paiflow/service/IdentityMappingService.java": "355e66a45b9941ddf16cae0e549518f0129d2e4ed344859ca72bab8d6b86f380",
+          "DebugStreamLifecycleProbe.java": "09d2b9c6c50a23f83408c53d355e623ee71c31fea1a6f5c2b41c5c64785e4d4d"
+        },
+        "classpathOrigin": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\target\\surefire-reports\\TEST-com.ruoyi.paiflow.adapter.legacy.LegacyAgentContractTest.xml",
+        "classpathEntries": 162,
+        "compileExit": 0,
+        "compileStdout": "",
+        "compileStderr": "",
+        "runExit": 0,
+        "stdout": "{\"actorCapacity\":{\"limit\":4,\"fifth503\":true,\"permitsRestored\":64,\"actorsEmpty\":true},\"globalCapacity\":{\"limit\":64,\"sixtyFifth503\":true,\"permitsRestored\":64},\"schedulerRejected\":{\"code\":503,\"permitsRestored\":64,\"bridgeCalls\":0},\"sessionInvalidated\":{\"initialFrames\":1,\"pageCalls\":1,\"subsequent401\":true,\"permitsRestored\":64,\"contextsRestored\":true},\"sessionChanged\":{\"bridgeCalls\":0,\"error401\":true},\"waitingEOF\":{\"memoryPageWaiting\":true,\"actualSends\":1,\"completeCalls\":1,\"permitsRestored\":64,\"manufacturedFrames\":0},\"emptyTerminalEOF\":{\"actualSends\":0,\"completeCalls\":1,\"permitsRestored\":64},\"earlyDisconnect\":{\"pageFrames\":2,\"actualSends\":1,\"serverAfter\":0,\"pageCalls\":1,\"permitsRestored\":64},\"singleInFlight\":{\"queued\":1,\"pageCalls\":1,\"permitsRestored\":64},\"ioRejected\":{\"code\":503,\"pageCalls\":0,\"permitsRestored\":64}}\n",
+        "stderr": ""
+      }
+    }
+  ],
+  "remainingBoundaries": [
+    "读取/授权粒度是每batch最多32行；emitter逐帧发送在该批事务和withSession之后，不是逐帧重新核JWT/菜单。尚无真实HTTP慢发送中途撤权场景实测。",
+    "64/actor4是活动连接reservation限制；共享IO/scheduler有各自实际线程与队列限制，探针不是负载或跨进程容量测试。",
+    "本审查未编译或执行真实Bridge/Workflow/Run/CP事务；父任务Maven结果、H2链及API消费者检查必须按各自实际证据独立记录。",
+    "无真实App/发布/接口App、Worker部署、服务启动、Provider调用或数据库迁移声明。"
+  ],
+  "confirmedOpenDefects": []
+}

@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-10-03T04:29:11.664575+00:00",
+  "scope": "original Factory/isolated centre/checkpoint/SDK fixtures; no real centre HTTP, Provider, database, services, frontend, Git or business acceptance",
+  "checks": [
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exitCode": 0,
+      "log": "verification/static-question-answer-full.log"
+    },
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "scripts/verify_source.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/static-question-answer-source-check.log"
+    },
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "scripts/analyze_port_dependencies.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/static-question-answer-dependency-analysis.log"
+    },
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exitCode": 0,
+      "log": "verification/static-question-answer-pip-check.log"
+    }
+  ]
+}

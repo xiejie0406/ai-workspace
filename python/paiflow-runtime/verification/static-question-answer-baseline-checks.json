@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-10-03T03:21:45.585597+00:00",
+  "scope": "247 actual original21 consumers/pure-iteration pre-begin/SDK offline tests; no Provider/DB/services/frontend/business acceptance",
+  "checks": [
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exitCode": 0,
+      "log": "verification/pure-iteration-full-direct.log"
+    },
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "scripts/verify_source.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/pure-iteration-source-check.log"
+    },
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "scripts/analyze_port_dependencies.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/pure-iteration-dependency-analysis.log"
+    },
+    {
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exitCode": 0,
+      "log": "verification/pure-iteration-pip-check.log"
+    }
+  ]
+}

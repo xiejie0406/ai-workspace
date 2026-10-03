@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-10-03T08:43:42.194234+00:00",
+  "scope": "实际原21类引擎消费者/受控模型及代码/QA共享检查点/普通知识/子run/Plugin/专业RAG/Agent/结构化数据库/RPA/一次性执行许可及取消CAS/Worker/知识派生离线定向检查；没有联机/业务验收",
+  "checks": [
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exitCode": 0,
+      "log": "verification/unittest.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/verify_source.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/source-check.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/analyze_port_dependencies.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/dependency-analysis.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exitCode": 0,
+      "log": "verification/dependency-check.log"
+    }
+  ]
+}

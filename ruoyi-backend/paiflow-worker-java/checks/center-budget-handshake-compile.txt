@@ -1,0 +1,31 @@
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:91: ����: δ������쳣����Exception; ���������в���������Ա��׳�
+            if (path.endsWith("/claim")) response = call(controller, "claim", new Class<?>[]{String.class}, authorization);
+                                                        ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:92: ����: δ������쳣����Exception; ���������в���������Ա��׳�
+            else if (path.endsWith("/lease/verify")) response = call(controller, "verify", arguments, authorization, runId, values);
+                                                                    ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:94: ����: δ������쳣����Exception; ���������в���������Ա��׳�
+                begin[0]++; response = call(controller, "beginExecution", arguments, authorization, runId, values);
+                                           ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:95: ����: δ������쳣����Exception; ���������в���������Ա��׳�
+                if (invoke(call(runs, "find", new Class<?>[]{String.class}, runId), "getExecutionStartedAt") == null) throw new AssertionError("begin����ǰ����־û�����");
+                               ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:95: ����: δ������쳣����Exception; ���������в���������Ա��׳�
+                if (invoke(call(runs, "find", new Class<?>[]{String.class}, runId), "getExecutionStartedAt") == null) throw new AssertionError("begin����ǰ����־û�����");
+                          ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:96: ����: δ������쳣����Exception; ���������в���������Ա��׳�
+            } else if (path.endsWith("/heartbeat")) response = call(controller, "heartbeat", arguments, authorization, runId, values);
+                                                                   ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:99: ����: δ������쳣����Exception; ���������в���������Ա��׳�
+                largest[0] = Math.max(largest[0], bytes.length); response = call(controller, "event", arguments, authorization, runId, values);
+                                                                                ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:100: ����: δ������쳣����Exception; ���������в���������Ա��׳�
+            } else if (path.endsWith("/result")) response = call(controller, "result", arguments, authorization, runId, values);
+                                                                ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:102: ����: δ������쳣����NoSuchMethodException; ���������в���������Ա��׳�
+            return new HttpCenterClient.WireResponse(200, ((String) centerJson.getMethod("toJSONString", Object.class).invoke(null, response)).getBytes(StandardCharsets.UTF_8));
+                                                                                        ^
+ruoyi-backend\paiflow-worker-java\checks\CenterBudgetHandshakeProbe.java:102: ����: δ������쳣����IllegalAccessException; ���������в���������Ա��׳�
+            return new HttpCenterClient.WireResponse(200, ((String) centerJson.getMethod("toJSONString", Object.class).invoke(null, response)).getBytes(StandardCharsets.UTF_8));
+                                                                                                                             ^
+10 ������

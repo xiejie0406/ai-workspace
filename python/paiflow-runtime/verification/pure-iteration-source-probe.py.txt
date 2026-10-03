@@ -1,0 +1,92 @@
+"""纯迭代候选实际原Factory行为探针；不执行Provider/DB，不修改Node/Chains。"""
+import asyncio
+import copy
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import sys
+from unittest.mock import patch
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from worker.engine_adapter import create_task_runner
+from tests.test_original_engine import node, output, ref, edge, raw_workflow
+from tests.test_worker import RecordingCenter
+
+ROOT = Path(__file__).resolve().parents[1]
+
+def example(values, kind='string', *, missing=False, required=True, default_marker=False, default=None):
+    array_schema = {'items': {'type': kind}}
+    if default_marker:
+        array_schema['default'] = default
+    declaration = output('items', 'array', **array_schema)
+    declaration['required'] = required
+    raw = raw_workflow([
+        node('node-start::s', outputs=[declaration]),
+        node('iteration::i', inputs=[ref('items','node-start::s','items','array')],
+             outputs=[output('value','array',items={'type':'string'})], IterationStartNodeId='iteration-node-start::is'),
+        node('iteration-node-start::is', outputs=[output('items',kind)]),
+        node('text-joiner::j', inputs=[ref('item','iteration-node-start::is','items',kind)],
+             outputs=[output('value')], mode=0, prompt='item={{item}}'),
+        node('iteration-node-end::ie', inputs=[ref('value','text-joiner::j','value')], outputs=[output('value')], outputMode=0),
+        node('node-end::e', inputs=[ref('answer','iteration::i','value','array')],
+             outputs=[output('answer','array',items={'type':'string'})], outputMode=0)
+    ],[edge('node-start::s','iteration::i'),edge('iteration::i','node-end::e'),
+        edge('iteration-node-start::is','text-joiner::j'),edge('text-joiner::j','iteration-node-end::ie')],
+        {} if missing else {'items': values})
+    raw['resourceSnapshots'] = {}
+    raw['effectPolicy'] = {'mode':'read_only','allowedOperations':[]}
+    return raw
+
+CASES = [
+    ('ordered-string-items',example(['乙','甲','丙']),'COMPLETED',{'answer':['item=乙','item=甲','item=丙']}),
+    ('empty-array',example([]),'COMPLETED',{'answer':[]}),
+    ('character-array',example(['a','b','c']),'COMPLETED',{'answer':['item=a','item=b','item=c']}),
+    ('string-is-not-array',example('abc'),'FAILED',None),
+    ('empty-string-item',example(['']),'COMPLETED',{'answer':['item=']}),
+    ('supplementary-unicode-item',example(['\U0001f600']),'COMPLETED',{'answer':['item=\U0001f600']}),
+    ('wrong-typed-string-item',example(['A',3]),'FAILED',None),
+    ('integer-items',example([3,1],kind='integer'),'COMPLETED',{'answer':['item=3','item=1']}),
+    ('bool-is-not-integer-item',example([True],kind='integer'),'FAILED',None),
+    ('optional-missing-no-default',example(None,missing=True,required=False),'COMPLETED',{'answer':[]}),
+    ('optional-missing-array-default',example(None,missing=True,required=False,default_marker=True,default=['D','E']),'COMPLETED',{'answer':['item=D','item=E']}),
+    ('required-missing-despite-default',example(None,missing=True,default_marker=True,default=['D']),'FAILED',None),
+    ('null-does-not-select-default',example(None,required=False,default_marker=True,default=['D']),'FAILED',None),
+    ('present-array-overrides-default',example(['X'],required=False,default_marker=True,default=['D']),'COMPLETED',{'answer':['item=X']}),
+    ('wrong-typed-default',example(None,kind='integer',missing=True,required=False,default_marker=True,default=['1']),'FAILED',None),
+]
+
+async def main():
+    sources = ('worker/engine_adapter.py','workflow/engine/nodes/iteration/iteration_node.py',
+               'workflow/engine/entities/chains.py','workflow/engine/entities/workflow_dsl.py',
+               'workflow/engine/entities/variable_pool.py','workflow/engine/node.py')
+    before = {name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in sources}
+    results = []
+    # event loop已创建；只禁止任何业务socket连接，内存RecordingCenter没有真实HTTP发送。
+    with patch('socket.socket.connect', side_effect=AssertionError('network forbidden in pure probe')):
+        for name, raw, expected_state, expected_outputs in CASES:
+            center = RecordingCenter(raw)
+            await asyncio.wait_for(create_task_runner(center,heartbeat_seconds=.03).run(raw),8)
+            terminal = center.results[-1]
+            actual_outputs = terminal.get('output',{}).get('outputs')
+            results.append({'name':name,'dsl':copy.deepcopy(raw['dsl']),'input':copy.deepcopy(raw['input']),
+                'expectedState':expected_state,'expectedOutputs':expected_outputs,'actualState':terminal['state'],
+                'actualOutputs':actual_outputs,'matched':terminal['state']==expected_state and actual_outputs==expected_outputs,
+                'failureCode':terminal.get('error',{}).get('code'),
+                'iterationIds':[e.get('iterationId') for e in center.events if e['eventType']=='node.completed' and e.get('nodeId')=='text-joiner::j']})
+    after = {name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in sources}
+    report = {'timestamp':datetime.now(timezone.utc).isoformat(),
+        'scope':'15 actual original Factory pure iteration cases; memory centre only, socket connect prohibited, no Provider/DB/service/Git/production source write; not a226 rerun',
+        'sourceHashesBefore':before,'sourceHashesAfter':after,'sourceChanged':before!=after,'cases':results,
+        'matched':sum(case['matched'] for case in results),'count':len(results)}
+    destination = ROOT/'verification/pure-iteration-source-probe.json'
+    if destination.exists():
+        old = destination.read_bytes()
+        backup = destination.with_name('pure-iteration-source-probe-prior-'+hashlib.sha256(old).hexdigest()[:12]+'.json')
+        if not backup.exists():backup.write_bytes(old)
+    destination.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    print(json.dumps({'count':len(results),'matched':report['matched'],'sourceChanged':report['sourceChanged'],
+        'differences':[case['name'] for case in results if not case['matched']]},ensure_ascii=True))
+    raise SystemExit(0 if report['matched']==len(results) and not report['sourceChanged'] else 1)
+
+asyncio.run(main())

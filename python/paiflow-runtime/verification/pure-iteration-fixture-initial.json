@@ -1,0 +1,3884 @@
+{
+  "schemaVersion": "paiflow.pure-iteration.fixture.v1",
+  "status": "local-source-admission-contract; no Provider or formal runtime proof",
+  "limits": {
+    "MAX_BATCH": 64,
+    "MAX_GRAPH_NODES": 128,
+    "MAX_EXPANDED": 4096,
+    "MAX_PATHS": 128,
+    "MAX_PATH_LEN": 64
+  },
+  "rules": {
+    "types": [
+      "node-start",
+      "node-end",
+      "if-else",
+      "text-joiner",
+      "message",
+      "iteration",
+      "iteration-node-start",
+      "iteration-node-end"
+    ],
+    "singleLayer": true,
+    "internalUniqueStartAndEnd": true,
+    "allNodesAssignedExactlyOneScope": true,
+    "noCrossScopeControlEdge": true,
+    "refs": "same-scope declared upstream output; iteration container first/only array input directly references main Start declared array",
+    "mappingKeys": "input and output maps checked separately; nodeId + hyphen + name must be unique in each map",
+    "retry": "only absent/default-disabled or shouldRetry=false,maxRetries=0; no active retries in expansion estimate",
+    "schema": "do not copy CNValidator; actual list and structural schema/ref checked here; detailed item/schema constraints remain original Factory execution. $ref or remote schema resolution not enabled",
+    "batch": "input actual array; optional absent uses declaration default or type default []; required absent rejects even with default; explicit null never selects default",
+    "expanded": "rootScope node count + sum(actual batchLength * innerScope node count); include each scope Start/End",
+    "paths": "sum materialized simple paths of root and inner scopes after source/target adjacency deduplication, independent of batchLength; DP saturation avoids path enumeration",
+    "pathLength": "number of nodes including Start/End, maximum over every scope"
+  },
+  "baseline": {
+    "dsl": {
+      "nodes": [
+        {
+          "id": "node-start::s",
+          "data": {
+            "nodeMeta": {
+              "nodeType": "node-start",
+              "aliasName": "node-start::s"
+            },
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "items",
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "required": true
+              }
+            ],
+            "nodeParam": {}
+          }
+        },
+        {
+          "id": "iteration::i",
+          "data": {
+            "nodeMeta": {
+              "nodeType": "iteration",
+              "aliasName": "iteration::i"
+            },
+            "inputs": [
+              {
+                "id": "",
+                "name": "items",
+                "schema": {
+                  "type": "array",
+                  "value": {
+                    "type": "ref",
+                    "content": {
+                      "nodeId": "node-start::s",
+                      "name": "items"
+                    }
+                  }
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "value",
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "required": true
+              }
+            ],
+            "nodeParam": {
+              "IterationStartNodeId": "iteration-node-start::is"
+            }
+          }
+        },
+        {
+          "id": "iteration-node-start::is",
+          "data": {
+            "nodeMeta": {
+              "nodeType": "iteration-node-start",
+              "aliasName": "iteration-node-start::is"
+            },
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "items",
+                "schema": {
+                  "type": "string"
+                },
+                "required": true
+              }
+            ],
+            "nodeParam": {}
+          }
+        },
+        {
+          "id": "text-joiner::j",
+          "data": {
+            "nodeMeta": {
+              "nodeType": "text-joiner",
+              "aliasName": "text-joiner::j"
+            },
+            "inputs": [
+              {
+                "id": "",
+                "name": "item",
+                "schema": {
+                  "type": "string",
+                  "value": {
+                    "type": "ref",
+                    "content": {
+                      "nodeId": "iteration-node-start::is",
+                      "name": "items"
+                    }
+                  }
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "value",
+                "schema": {
+                  "type": "string"
+                },
+                "required": true
+              }
+            ],
+            "nodeParam": {
+              "mode": 0,
+              "prompt": "item={{item}}"
+            }
+          }
+        },
+        {
+          "id": "iteration-node-end::ie",
+          "data": {
+            "nodeMeta": {
+              "nodeType": "iteration-node-end",
+              "aliasName": "iteration-node-end::ie"
+            },
+            "inputs": [
+              {
+                "id": "",
+                "name": "value",
+                "schema": {
+                  "type": "string",
+                  "value": {
+                    "type": "ref",
+                    "content": {
+                      "nodeId": "text-joiner::j",
+                      "name": "value"
+                    }
+                  }
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "value",
+                "schema": {
+                  "type": "string"
+                },
+                "required": true
+              }
+            ],
+            "nodeParam": {
+              "outputMode": 0
+            }
+          }
+        },
+        {
+          "id": "node-end::e",
+          "data": {
+            "nodeMeta": {
+              "nodeType": "node-end",
+              "aliasName": "node-end::e"
+            },
+            "inputs": [
+              {
+                "id": "",
+                "name": "answer",
+                "schema": {
+                  "type": "array",
+                  "value": {
+                    "type": "ref",
+                    "content": {
+                      "nodeId": "iteration::i",
+                      "name": "value"
+                    }
+                  }
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "answer",
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "required": true
+              }
+            ],
+            "nodeParam": {
+              "outputMode": 0
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "sourceNodeId": "node-start::s",
+          "targetNodeId": "iteration::i",
+          "sourceHandle": ""
+        },
+        {
+          "sourceNodeId": "iteration::i",
+          "targetNodeId": "node-end::e",
+          "sourceHandle": ""
+        },
+        {
+          "sourceNodeId": "iteration-node-start::is",
+          "targetNodeId": "text-joiner::j",
+          "sourceHandle": ""
+        },
+        {
+          "sourceNodeId": "text-joiner::j",
+          "targetNodeId": "iteration-node-end::ie",
+          "sourceHandle": ""
+        }
+      ]
+    },
+    "input": {
+      "items": [
+        "乙",
+        "甲",
+        "丙"
+      ]
+    },
+    "expectedOutputs": {
+      "answer": [
+        "item=乙",
+        "item=甲",
+        "item=丙"
+      ]
+    },
+    "bindings": [
+      {
+        "iterationNodeId": "iteration::i",
+        "inputName": "items",
+        "sourceNodeId": "node-start::s",
+        "sourceOutputName": "items",
+        "iterationStartNodeId": "iteration-node-start::is",
+        "itemOutputName": "items"
+      }
+    ],
+    "scopes": {
+      "main": [
+        "node-start::s",
+        "iteration::i",
+        "node-end::e"
+      ],
+      "iteration::i": [
+        "iteration-node-start::is",
+        "text-joiner::j",
+        "iteration-node-end::ie"
+      ]
+    },
+    "expectedStats": {
+      "graphNodes": 6,
+      "expandedNodes": 12,
+      "pathCount": 2,
+      "maxPathLength": 3
+    }
+  },
+  "cases": [
+    {
+      "name": "ordered-string-items",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": [
+          "乙",
+          "甲",
+          "丙"
+        ]
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": [
+          "item=乙",
+          "item=甲",
+          "item=丙"
+        ]
+      }
+    },
+    {
+      "name": "empty-array",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": []
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": []
+      }
+    },
+    {
+      "name": "character-array",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": [
+          "item=a",
+          "item=b",
+          "item=c"
+        ]
+      }
+    },
+    {
+      "name": "string-is-not-array",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": "abc"
+      },
+      "expectedAdmission": false,
+      "originalFactoryState": "FAILED",
+      "originalFactoryOutputs": null
+    },
+    {
+      "name": "empty-string-item",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": [
+          ""
+        ]
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": [
+          "item="
+        ]
+      }
+    },
+    {
+      "name": "supplementary-unicode-item",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": [
+          "😀"
+        ]
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": [
+          "item=😀"
+        ]
+      }
+    },
+    {
+      "name": "wrong-typed-string-item",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": [
+          "A",
+          3
+        ]
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "FAILED",
+      "originalFactoryOutputs": null
+    },
+    {
+      "name": "integer-items",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": [
+          3,
+          1
+        ]
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": [
+          "item=3",
+          "item=1"
+        ]
+      }
+    },
+    {
+      "name": "bool-is-not-integer-item",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": [
+          true
+        ]
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "FAILED",
+      "originalFactoryOutputs": null
+    },
+    {
+      "name": "optional-missing-no-default",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": false
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {},
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": []
+      }
+    },
+    {
+      "name": "optional-missing-array-default",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [
+                      "D",
+                      "E"
+                    ]
+                  },
+                  "required": false
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {},
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": [
+          "item=D",
+          "item=E"
+        ]
+      }
+    },
+    {
+      "name": "required-missing-despite-default",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [
+                      "D"
+                    ]
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {},
+      "expectedAdmission": false,
+      "originalFactoryState": "FAILED",
+      "originalFactoryOutputs": null
+    },
+    {
+      "name": "null-does-not-select-default",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [
+                      "D"
+                    ]
+                  },
+                  "required": false
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": null
+      },
+      "expectedAdmission": false,
+      "originalFactoryState": "FAILED",
+      "originalFactoryOutputs": null
+    },
+    {
+      "name": "present-array-overrides-default",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [
+                      "D"
+                    ]
+                  },
+                  "required": false
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {
+        "items": [
+          "X"
+        ]
+      },
+      "expectedAdmission": true,
+      "originalFactoryState": "COMPLETED",
+      "originalFactoryOutputs": {
+        "answer": [
+          "item=X"
+        ]
+      }
+    },
+    {
+      "name": "wrong-typed-default",
+      "dsl": {
+        "nodes": [
+          {
+            "id": "node-start::s",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-start",
+                "aliasName": "node-start::s"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "default": [
+                      "1"
+                    ]
+                  },
+                  "required": false
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "iteration::i",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration",
+                "aliasName": "iteration::i"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "items",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "node-start::s",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "IterationStartNodeId": "iteration-node-start::is"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-start::is",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-start",
+                "aliasName": "iteration-node-start::is"
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "name": "items",
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {}
+            }
+          },
+          {
+            "id": "text-joiner::j",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "text-joiner",
+                "aliasName": "text-joiner::j"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "item",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration-node-start::is",
+                        "name": "items"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "item={{item}}"
+              }
+            }
+          },
+          {
+            "id": "iteration-node-end::ie",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "iteration-node-end",
+                "aliasName": "iteration-node-end::ie"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "value",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "text-joiner::j",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "value",
+                  "schema": {
+                    "type": "string"
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          },
+          {
+            "id": "node-end::e",
+            "data": {
+              "nodeMeta": {
+                "nodeType": "node-end",
+                "aliasName": "node-end::e"
+              },
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "value": {
+                      "type": "ref",
+                      "content": {
+                        "nodeId": "iteration::i",
+                        "name": "value"
+                      }
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": true
+                }
+              ],
+              "nodeParam": {
+                "outputMode": 0
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "iteration::i",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration::i",
+            "targetNodeId": "node-end::e",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "iteration-node-start::is",
+            "targetNodeId": "text-joiner::j",
+            "sourceHandle": ""
+          },
+          {
+            "sourceNodeId": "text-joiner::j",
+            "targetNodeId": "iteration-node-end::ie",
+            "sourceHandle": ""
+          }
+        ]
+      },
+      "input": {},
+      "expectedAdmission": true,
+      "originalFactoryState": "FAILED",
+      "originalFactoryOutputs": null
+    }
+  ],
+  "sourceFacts": {
+    "engineEvidence": "python/paiflow-runtime/verification/pure-iteration-source-probe.json",
+    "caseCount": 15,
+    "actualMatched": 15,
+    "actualFactoryNotCentreService": true,
+    "paths": "python/paiflow-runtime/workflow/engine/entities/chains.py:108-143/145-168/182-215; dsl_engine.py:2044-2067",
+    "types": "WorkflowDSL InputSchema.type Literal array; Value.type ref with NodeRef nodeId/name non-empty strings; OutputItem.schema Dict[str,Any], required bool default false"
+  },
+  "sourceHashes": {
+    "worker/engine_adapter.py": "12e4f0b2dd0e6a9f05830fe92576f408801a95d8ea90940014dfaaaf6c540489",
+    "workflow/engine/nodes/iteration/iteration_node.py": "2eff41396ea1eef90dd5895fc7ec28ea70d2b7da10edb830e2d08d0985d084dd",
+    "workflow/engine/entities/chains.py": "5e8cdaeb8ed83ee6da5eb74ed07f548d42ede6a440ecdb08e9291754c924b5c3",
+    "workflow/engine/entities/workflow_dsl.py": "b8f6dc6d3bd1a28586aababf735f8c043e8d70cc4038ef5542dc8104b3b343bb",
+    "workflow/engine/entities/variable_pool.py": "16f740fd787a5dfa9b3e5be218c9962ec1b85eb277fefd90cf19eaab0a4dcf35",
+    "workflow/engine/node.py": "2847a8446f4b799f880d1fbf3511e4e857c7050a64360dde23a51eaf277ac8bc"
+  }
+}

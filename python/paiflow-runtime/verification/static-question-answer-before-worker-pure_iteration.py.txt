@@ -1,0 +1,336 @@
+"""原单层纯迭代在 begin/Factory 之前的有界准入；不替代原节点算法。
+
+仅消费中心已核固定 JSON。指标和作用域是本次预检的临时值，没有新的许可、
+变量或执行真相。详细 items/schema 校验仍由原 WorkflowDSL/CNValidator 执行。
+"""
+from __future__ import annotations
+
+from collections import deque
+from dataclasses import dataclass
+
+from .errors import WorkerError
+
+
+MAX_BATCH, MAX_GRAPH_NODES, MAX_EXPANDED, MAX_PATHS, MAX_PATH_LEN = 64, 128, 4096, 128, 64
+PURE_TYPES = frozenset({"node-start", "node-end", "if-else", "text-joiner", "message",
+                       "iteration", "iteration-node-start", "iteration-node-end"})
+ITERATION_TYPES = frozenset({"iteration", "iteration-node-start", "iteration-node-end"})
+RESOURCE_TYPES = frozenset({"spark-llm", "plugin", "knowledge-base", "knowledge-pro-base", "agent", "flow",
+                           "mcp", "decision-making", "extractor-parameter", "ifly-code", "database", "rpa",
+                           "question-answer", "node-variable"})
+ERROR_NAMES = frozenset({"errorCode", "errorMessage"})
+
+
+@dataclass(frozen=True)
+class IterationBudget:
+    graph_nodes: int
+    expanded_nodes: int
+    path_count: int
+    max_path_length: int
+    batch_sizes: tuple[tuple[str, int], ...]
+
+
+def _invalid(message):
+    raise WorkerError("DSL_INVALID", message)
+
+
+def _unavailable():
+    raise WorkerError("RESOURCE_UNAVAILABLE", "本批仅准入单层纯迭代、同域上游引用及主开始数组直接输入")
+
+
+def _budget(message):
+    raise WorkerError("QUOTA_EXCEEDED", message)
+
+
+def _object(value):
+    if not isinstance(value, dict):
+        _invalid("迭代节点字段须为对象")
+    return value
+
+
+def _array(value):
+    if not isinstance(value, list):
+        _invalid("迭代节点字段须为数组")
+    return value
+
+
+def _text(value):
+    if not isinstance(value, str) or not value.strip():
+        _invalid("迭代节点标识或引用名须非空")
+    return value
+
+
+def _type(identifier):
+    return identifier.split("::", 1)[0]
+
+
+def _boolean(value):
+    # 原 Pydantic 2.9.2 bool 的 JSON 有效语义，不能把字符串 "false" 当真。
+    if type(value) is bool:
+        return value
+    if type(value) in (int, float) and value in (0, 1):
+        return bool(value)
+    if isinstance(value, str):
+        value = value.lower()
+        if value in {"0", "off", "f", "false", "n", "no"}:
+            return False
+        if value in {"1", "on", "t", "true", "y", "yes"}:
+            return True
+    _invalid("迭代 required/shouldRetry 不符合原布尔语义")
+
+
+def _data(nodes, identifier):
+    return nodes[identifier]["data"]
+
+
+def _fields(data, field):
+    return _array(data.get(field, []))
+
+
+def _output(nodes, identifier, name):
+    matches = [item for item in _fields(_data(nodes, identifier), "outputs") if item.get("name") == name]
+    if len(matches) != 1:
+        _invalid("迭代绑定或引用缺少唯一声明输出")
+    return matches[0]
+
+
+def _check_data(data):
+    pending = [data]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            identifier = value.get("id")
+            if isinstance(identifier, str) and _type(identifier) in RESOURCE_TYPES:
+                _unavailable()
+            if "$ref" in value:
+                _unavailable()  # 原 Draft7 的外部 schema 解析不属于纯图能力。
+            pending.extend(child for child in value.values() if isinstance(child, (dict, list)))
+        elif isinstance(value, list):
+            pending.extend(child for child in value if isinstance(child, (dict, list)))
+    if "retryConfig" in data:
+        config = _object(data["retryConfig"])
+        if _boolean(config.get("shouldRetry", False)):
+            _unavailable()
+        # 原算法在 shouldRetry=false 时不执行 maxRetries 轮次；不另造重试规则。
+
+
+def _pool_keys(nodes):
+    for field in ("inputs", "outputs"):
+        keys = {}
+        for identifier, node in nodes.items():
+            names = set()
+            for raw in _fields(node["data"], field):
+                item = _object(raw)
+                name = _text(item.get("name"))
+                _object(item.get("schema"))
+                if name in names:
+                    _invalid("迭代节点输入或输出名重复")
+                names.add(name)
+            if field == "outputs":
+                # add_variable 在输出后写入这些隐式地址；同节点显式同名合法。
+                names |= ERROR_NAMES
+            for name in names:
+                key = identifier + "-" + name
+                if key in keys and keys[key] != identifier:
+                    _invalid("原变量池复合地址发生跨节点碰撞")
+                keys[key] = identifier
+
+
+def _reachable(start, next_nodes):
+    seen, pending = set(), [start]
+    while pending:
+        identifier = pending.pop()
+        if identifier not in seen:
+            seen.add(identifier)
+            pending.extend(next_nodes[identifier])
+    return seen
+
+
+def _topological(next_nodes):
+    degree = dict.fromkeys(next_nodes, 0)
+    for targets in next_nodes.values():
+        for target in targets:
+            degree[target] += 1
+    pending = deque(identifier for identifier, count in degree.items() if count == 0)
+    order = []
+    while pending:
+        identifier = pending.popleft()
+        order.append(identifier)
+        for target in next_nodes[identifier]:
+            degree[target] -= 1
+            if degree[target] == 0:
+                pending.append(target)
+    if len(order) != len(next_nodes):
+        _invalid("迭代普通连线存在循环")
+    return order
+
+
+def _scope(start, end, next_nodes):
+    members = _reachable(start, next_nodes)
+    if end not in members or next_nodes[end]:
+        _invalid("迭代作用域结束缺失或仍有出边")
+    if any(not next_nodes[identifier] and identifier != end for identifier in members):
+        _invalid("迭代每条作用域路径须到达结束节点")
+    if any(start in targets for targets in next_nodes.values()):
+        _invalid("迭代作用域开始不能有入边")
+    return members
+
+
+def _paths(start, end, members, order, next_nodes):
+    counts, lengths = {end: 1}, {end: 1}
+    for identifier in reversed(order):
+        if identifier not in members or identifier == end:
+            continue
+        count = 0
+        longest = 0
+        for target in next_nodes[identifier]:
+            count = min(MAX_PATHS + 1, count + counts.get(target, 0))
+            longest = max(longest, lengths.get(target, 0))
+        if count == 0:
+            _invalid("迭代节点无法到达作用域结束")
+        counts[identifier], lengths[identifier] = count, longest + 1
+    return counts[start], lengths[start]
+
+
+def _batch(owner, inner_start, main_start, nodes, run_input):
+    inputs = _fields(_data(nodes, owner), "inputs")
+    if len(inputs) != 1:
+        _unavailable()
+    first = inputs[0]
+    schema = first["schema"]
+    value = _object(schema.get("value"))
+    reference = _object(value.get("content"))
+    if schema.get("type") != "array" or value.get("type") != "ref" or reference.get("nodeId") != main_start:
+        _unavailable()
+    name = _text(reference.get("name"))
+    if "." in name or "[" in name:
+        _unavailable()
+    declaration = _output(nodes, main_start, name)
+    source_schema = declaration["schema"]
+    if source_schema.get("type") != "array":
+        _invalid("迭代来源须为主开始声明的数组")
+    _output(nodes, inner_start, first["name"])
+    if name in run_input:
+        actual = run_input[name]
+    else:
+        if _boolean(declaration.get("required", False)):
+            _invalid("迭代必填数组输入缺失")
+        actual = source_schema.get("default", [])
+    if not isinstance(actual, list):
+        _invalid("迭代批次输入须为真实 JSON 数组，null 不选择默认值")
+    if len(actual) > MAX_BATCH:
+        _budget("迭代批次数超过64")
+    return len(actual)
+
+
+def validate(dsl: dict, run_input: dict) -> IterationBudget | None:
+    """无迭代时保持既有准入；迭代图只提供本批纯节点 profile。"""
+    raw_nodes = _array(_object(dsl).get("nodes"))
+    if not any(isinstance(node, dict) and isinstance(node.get("id"), str)
+               and _type(node["id"]) in ITERATION_TYPES for node in raw_nodes):
+        return None
+    _object(run_input)
+    if not raw_nodes or len(raw_nodes) > MAX_GRAPH_NODES:
+        _budget("迭代图节点数超过128")
+    nodes, next_nodes = {}, {}
+    starts, ends, iterations = [], [], []
+    for raw in raw_nodes:
+        node = _object(raw)
+        identifier = _text(node.get("id"))
+        if identifier in nodes:
+            _invalid("迭代节点标识重复")
+        kind = _type(identifier)
+        if kind not in PURE_TYPES:
+            _unavailable()
+        data = _object(node.get("data"))
+        _check_data(data)
+        nodes[identifier], next_nodes[identifier] = node, set()
+        if kind == "node-start":
+            starts.append(identifier)
+        elif kind == "node-end":
+            ends.append(identifier)
+        elif kind == "iteration":
+            iterations.append(identifier)
+    if len(starts) != 1 or len(ends) != 1 or not iterations:
+        _invalid("本批单层迭代须有唯一主开始/结束及迭代容器")
+    for raw in _array(dsl.get("edges")):
+        edge = _object(raw)
+        source, target = _text(edge.get("sourceNodeId")), _text(edge.get("targetNodeId"))
+        if source not in nodes or target not in nodes:
+            _invalid("迭代连线指向不存在节点")
+        next_nodes[source].add(target)  # 原 Chains 按 source/target 去重，不按 handle 算路径。
+    _pool_keys(nodes)
+    order = _topological(next_nodes)
+    main_start, main_end = starts[0], ends[0]
+    scopes = [("main", main_start, main_end, _scope(main_start, main_end, next_nodes))]
+    owners = {identifier: "main" for identifier in scopes[0][3]}
+    for identifier in iterations:
+        if identifier not in scopes[0][3]:
+            _unavailable()
+        inner_start = _text(_object(_data(nodes, identifier).get("nodeParam", {})).get("IterationStartNodeId"))
+        if inner_start not in nodes or _type(inner_start) != "iteration-node-start":
+            _invalid("迭代内部开始引用无效")
+        inner = _reachable(inner_start, next_nodes)
+        inner_ends = [item for item in inner if _type(item) == "iteration-node-end"]
+        if len(inner_ends) != 1:
+            _invalid("迭代内部须有唯一结束节点")
+        members = _scope(inner_start, inner_ends[0], next_nodes)
+        if any(item in owners for item in members):
+            _invalid("迭代节点被多个作用域同时引用")
+        scopes.append((identifier, inner_start, inner_ends[0], members))
+        owners.update({item: identifier for item in members})
+    if len(owners) != len(nodes):
+        _invalid("迭代图含不属于作用域的孤儿节点")
+    for owner, start, _, members in scopes:
+        for identifier in members:
+            kind = _type(identifier)
+            if owner == "main" and kind.startswith("iteration-node-"):
+                _invalid("迭代内部节点不能进入主作用域")
+            if owner != "main" and kind in {"iteration", "node-start", "node-end"}:
+                _unavailable()
+            if kind == "iteration-node-start" and identifier != start:
+                _invalid("迭代内部开始节点重复")
+    if any(owners[source] != owners[target] for source, targets in next_nodes.items() for target in targets):
+        _invalid("迭代控制连线不能跨作用域")
+    expanded, total_paths, longest, batches = len(scopes[0][3]), 0, 0, []
+    for owner, start, end, members in scopes:
+        paths, length = _paths(start, end, members, order, next_nodes)
+        total_paths += paths
+        longest = max(longest, length)
+        if total_paths > MAX_PATHS or longest > MAX_PATH_LEN:
+            _budget("迭代路径数超过128或路径长度超过64")
+        if owner != "main":
+            batch = _batch(owner, start, main_start, nodes, run_input)
+            batches.append((owner, batch))
+            expanded += batch * len(members)
+            if expanded > MAX_EXPANDED:
+                _budget("迭代展开节点数超过4096")
+    closure = {}
+    for identifier, node in nodes.items():
+        for entry in _fields(node["data"], "inputs"):
+            value = _object(entry["schema"].get("value"))
+            if value.get("type") == "ref":
+                reference = _object(value.get("content"))
+                source, name = _text(reference.get("nodeId")), _text(reference.get("name"))
+                if source not in nodes:
+                    _unavailable()
+                declared = name.split(".", 1)[0]
+                if declared not in ERROR_NAMES:
+                    _output(nodes, source, declared)
+                if owners[source] != owners[identifier]:
+                    _unavailable()
+                if source not in closure:
+                    closure[source] = _reachable(source, next_nodes)
+                if source == identifier or identifier not in closure[source]:
+                    _invalid("迭代变量引用须来自同域上游声明输出")
+            elif value.get("type") != "literal":
+                _invalid("迭代输入值须为原 literal/ref")
+    return IterationBudget(len(nodes), expanded, total_paths, longest, tuple(batches))
+
+
+def validate_assignment(assignment) -> IterationBudget | None:
+    plan = validate(assignment.dsl, assignment.input)
+    if plan is not None and (assignment.resources or assignment.effect_policy.get("mode") != "read_only"
+                             or assignment.effect_policy.get("allowedOperations") != []):
+        _unavailable()
+    return plan

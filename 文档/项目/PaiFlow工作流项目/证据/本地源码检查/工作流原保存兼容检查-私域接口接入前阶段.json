@@ -1,0 +1,72 @@
+{
+  "recordedAt": "2026-10-03T08:01:22.830132+08:00",
+  "sourceFiles": [
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java",
+      "sha256": "88490c69222520c9940f8d656a6c8909912cc2f0eb6049689956c542f793ed15"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java",
+      "sha256": "223afbb4e79e8f2c5e9577f824fbf47d238fa5cf9f8618572e72f270bde2a516"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowPersistenceTest.java",
+      "sha256": "133365849656562640c8d7789566d070faee9369e631a2ef2e4dbf2a92f89d6e"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowContractTest.java",
+      "sha256": "948529d3db00342111e60688079023e90eceaabbabd2f69ed7079ffa49885867"
+    }
+  ],
+  "sourceFacts": "工作流原局部保存来源核对.json",
+  "checks": [
+    {
+      "log": "工作流真实JSON对象绑定-原问题复现.log",
+      "tests": 2,
+      "failures": 0,
+      "errors": 1,
+      "sha256": "3430e180342e46dbbe48fd4ba8f2acb634f7a26b467696deb48227d2822f2ce3"
+    },
+    {
+      "log": "工作流真实JSON对象绑定与既有资源-定向复验.log",
+      "tests": 86,
+      "failures": 1,
+      "errors": 0,
+      "sha256": "aa4714056b889c9be139478db010ab48ec325d3eb70f7128c711ac74da907b4f"
+    },
+    {
+      "log": "工作流原局部保存语义-原问题复现.log",
+      "tests": 2,
+      "failures": 1,
+      "errors": 1,
+      "sha256": "0db9e0e6ab3870067424da475c1dd7f339f3dd3b77353d9a97816abd90966680"
+    },
+    {
+      "log": "工作流原局部保存与既有资源-联合复验.log",
+      "tests": 88,
+      "failures": 0,
+      "errors": 0,
+      "sha256": "235c7a9e7169ac82f7aa2526171543c82d9351bea556d40b5f26228e2ce53dc8"
+    }
+  ],
+  "realOriginalFailure": "实际Jackson嵌套Map画布被拒；原partial advancedConfig丢未提交字段，原nodes/edges对象保存丢未提交根字段。",
+  "intermediateFixtureFailure": "86项中新增JSON对象equals比较Double/BigDecimal夹具类型失败；改为完整JSON字符串比较以核对实际存储，不改生产数值或降低字段保全要求。",
+  "independentNullFailure": "工作流画布显式空值独立复现.log",
+  "currentFix": "Map序列化明确保留null；advanced对象递归，数组/标量/null替换；对象canvas保留未提交根键，String完整canvas逐字保存；合并后敏感字段/16MiB预算检查。",
+  "currentValidation": {
+    "latest88": {
+      "finishedAt": "2026-10-03T07:54:36+08:00",
+      "result": "PASS",
+      "scope": "当时15WF+25Agent+33Model+15Text，null及合并预算两新增用例尚未在此轮执行"
+    },
+    "pending": [
+      "actualJsonCanvasPreservesExplicitRootAndNestedNullForCreateAndSave",
+      "advancedConfigurationBudgetAppliesAfterMergingAndRejectsWithoutPersistingPatch"
+    ],
+    "plannedWorkflowTests": 17
+  },
+  "businessVerified": false,
+  "servicesStarted": false,
+  "realDatabaseWrites": false,
+  "externalCalls": false
+}

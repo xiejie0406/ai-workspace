@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.TextConfigMapper">
+  <sql id="columns">id,owner_user_id AS ownerUserId,`separator`,`comment`,revision,create_by AS createBy,update_by AS updateBy,create_time AS createTime,update_time AS updateTime</sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.TextConfigRecord">SELECT <include refid="columns"/> FROM paiflow_text_config WHERE id=#{id}</select>
+  <select id="lockOwned" resultType="com.ruoyi.paiflow.domain.TextConfigRecord">SELECT <include refid="columns"/> FROM paiflow_text_config WHERE id=#{id} AND owner_user_id=#{owner} AND owner_user_id&gt;0 FOR UPDATE</select>
+  <select id="list" resultType="com.ruoyi.paiflow.domain.TextConfigRecord">SELECT <include refid="columns"/> FROM paiflow_text_config WHERE owner_user_id IN(0,#{owner}) ORDER BY create_time DESC,id DESC</select>
+  <select id="countSeparator" resultType="long">SELECT COUNT(*) FROM paiflow_text_config WHERE owner_user_id IN(0,#{owner}) AND `separator`=#{separator} <if test="excludeId != null">AND id&lt;&gt;#{excludeId}</if></select>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO paiflow_text_config(owner_user_id,`separator`,`comment`,revision,create_by,update_by,create_time,update_time)
+    VALUES(#{ownerUserId},#{separator},#{comment},0,#{createBy},#{updateBy},UTC_TIMESTAMP(),UTC_TIMESTAMP())
+  </insert>
+  <update id="update">UPDATE paiflow_text_config SET `separator`=#{separator},`comment`=#{comment},revision=revision+1,update_by=#{updateBy},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND owner_user_id=#{ownerUserId} AND owner_user_id&gt;0 AND revision=#{revision}</update>
+  <delete id="delete">DELETE FROM paiflow_text_config WHERE id=#{id} AND owner_user_id=#{owner} AND owner_user_id&gt;0 AND revision=#{revision}</delete>
+</mapper>

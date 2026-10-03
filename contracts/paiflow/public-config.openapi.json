@@ -1,0 +1,672 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PaiFlow公开配置只读契约",
+    "version": "1.0-local",
+    "description": "本地源码合同，实际HTTP/Mapper技术检查待统一执行；真实MySQL/页面未验收。公开白名单和未执行014来源见public-config-source.json。"
+  },
+  "paths": {
+    "/paiflow/legacy/config-info/get-list-by-category": {
+      "get": {
+        "description": "按category/is_valid=1，无原ORDER BY；额外code参数按原Controller不参与过滤；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 0
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PublicConfig"
+                          }
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/legacy/config-info/get-by-category-and-code": {
+      "get": {
+        "description": "按category/code/is_valid=1 LIMIT 1；原无ORDER BY；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 0
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/PublicConfig"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/legacy/config-info/list-by-category-and-code": {
+      "get": {
+        "description": "按category/code/is_valid=1；原无ORDER BY；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 0
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PublicConfig"
+                          }
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/legacy/config-info/tags": {
+      "get": {
+        "description": "tool/bot/tool_v2三flag、update_time DESC；dev/test完整profile字符串精确remarks ID映射；未知flag原真实空；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "flag",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 0
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PublicConfig"
+                          }
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/legacy/config-info/workflow/categories": {
+      "get": {
+        "description": "正式WORKFLOW_CATEGORY单有效行按Java split逗号、不trim；原种子没有此行，缺失/多行503；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 0
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/config-info/get-list-by-category": {
+      "get": {
+        "description": "按category/is_valid=1，无原ORDER BY；额外code参数按原Controller不参与过滤；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 200
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PublicConfig"
+                          }
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/config-info/get-by-category-and-code": {
+      "get": {
+        "description": "按category/code/is_valid=1 LIMIT 1；原无ORDER BY；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 200
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/PublicConfig"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/config-info/list-by-category-and-code": {
+      "get": {
+        "description": "按category/code/is_valid=1；原无ORDER BY；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 200
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PublicConfig"
+                          }
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/config-info/tags": {
+      "get": {
+        "description": "tool/bot/tool_v2三flag、update_time DESC；dev/test完整profile字符串精确remarks ID映射；未知flag原真实空；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "flag",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 200
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PublicConfig"
+                          }
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paiflow/config-info/workflow/categories": {
+      "get": {
+        "description": "正式WORKFLOW_CATEGORY单有效行按Java split逗号、不trim；原种子没有此行，缺失/多行503；仅查询已审查公开表，没有写接口，catalog不是运行期值。",
+        "security": [
+          {
+            "platformBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功或沿用平台GlobalExceptionHandler错误信封；成功legacy code0/native code200，未配置code503，参数/方法平台错误code500，不将HTTP200当业务成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "data"
+                      ],
+                      "properties": {
+                        "code": {
+                          "const": 200
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "$ref": "#/components/schemas/PlatformError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "platformBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "复用平台认证；Service逐次核对平台账号当前活动状态。"
+      }
+    },
+    "schemas": {
+      "PublicConfig": {
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "code",
+          "name",
+          "value",
+          "isValid",
+          "remarks",
+          "createTime",
+          "updateTime"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "category": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "remarks": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isValid": {
+            "type": "integer",
+            "const": 1
+          },
+          "createTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "原yyyy-MM-dd HH:mm:ss，无偏移；旧GMT+8展示语义"
+          },
+          "updateTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "原yyyy-MM-dd HH:mm:ss，无偏移；旧GMT+8展示语义"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlatformError": {
+        "type": "object",
+        "required": [
+          "code",
+          "msg"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "enum": [
+              400,
+              401,
+              403,
+              413,
+              500,
+              503
+            ]
+          },
+          "msg": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}

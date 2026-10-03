@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-03",
+  "type": "isolated-local-technical-check",
+  "scope": "original React HTTP revision transport; stale response delivery and exact path; no UI rewrite",
+  "tests": {
+    "count": 49,
+    "passed": 49,
+    "failed": 0,
+    "log": "迟到详情交付与路径范围定向复验.log"
+  },
+  "typeBaseline": {
+    "baselineErrors": 3712,
+    "currentErrors": 3710,
+    "newErrors": 0,
+    "fullTypeCheck": "fails-original-errors",
+    "log": "迟到详情交付类型基线比较.log"
+  },
+  "build": {
+    "status": "passed",
+    "log": "迟到详情交付最终生产构建.log",
+    "exitCode": 0,
+    "durationSeconds": 105,
+    "sourceUnchangedDuringBuild": true,
+    "sourceHashMismatches": [],
+    "logSha256": "a6ee778cb8e394d4a2c33dd669a4dc1bbf216849c4dc2846d210709a25a64095"
+  },
+  "independentReview": {
+    "initial": "../../../../../ruoyi-backend/paiflow-worker-java/checks/frontend-revision-review.txt",
+    "recheck": "../../../../../ruoyi-backend/paiflow-worker-java/checks/frontend-revision-recheck.txt",
+    "businessAcceptance": false
+  },
+  "originalFiles": {
+    "total": 1703,
+    "unchanged": 1694,
+    "necessaryAdapted": 9,
+    "missing": [],
+    "referenceChanged": []
+  },
+  "frozenSource": [
+    {
+      "path": "vite-env.d.ts",
+      "originalSha256": "0d228cb82ccc9f0028d31a3b122d3b45b468cfbebbb07e3942aa2a75f70a1dde",
+      "currentSha256": "f81acb8db183a38e976e431a88d3690a423cd009c69f6b9ec5a45b3a5f41e3c6",
+      "reason": "声明WebSocket与平台接口运行时配置"
+    },
+    {
+      "path": "vite.config.js",
+      "originalSha256": "33e31cb37e05b6fce8f7cb180b67dde046f1ff441c57b9252e8d7b281c16095a",
+      "currentSha256": "3ff76ec500be249d5ff768a4fc52d47cfb727e906e80b83ad5efd506eeb8a23d",
+      "reason": "开发代理必须明确配置中心地址，不占用旧通道"
+    },
+    {
+      "path": "src/hooks/use-login.ts",
+      "originalSha256": "3ece39a17618de33946ff271caf704810faecb2b7dff39ef1e5c8452aab29abf",
+      "currentSha256": "bad8d5ae73e63efae5b664317c6e95a2a869455a090382cd85e1e1e5442d6806",
+      "reason": "平台会话验证及清除旧refreshToken"
+    },
+    {
+      "path": "src/services/login.ts",
+      "originalSha256": "6133e2172ebd41acd6f680782d4fe9442280d70a043e25faba4f5c3c972605ee",
+      "currentSha256": "e3f7b0a073ace9aa3534a927286bb4f0f2dd9af1b4c45d8cb1d2ea77e713d55f",
+      "reason": "原退出函数调用平台退出"
+    },
+    {
+      "path": "src/utils/auth.ts",
+      "originalSha256": "8e6e3e5cc7776e8fb2ce238ad6895bafcc256fe0a88f3550cabaff2419ee43e5",
+      "currentSha256": "76cd74a3ed65ebe5052bac4a54b6faae0902a28e7373297f979c2824b5ff1cbd",
+      "reason": "平台登录/退出和站内返回路径"
+    },
+    {
+      "path": "src/utils/http.ts",
+      "originalSha256": "ff154ed4dfdecb24d9893f892d275ba5f0ebf1be3e4bd96181ecbbd72545690a",
+      "currentSha256": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917",
+      "reason": "原请求实例接入若依会话/响应并替换地址默认值；仅为已读取草稿透传ETag/If-Match，保持原响应形状"
+    },
+    {
+      "path": "src/components/workflow/utils/index.ts",
+      "originalSha256": "daf9eb46876cdd2ddb5f1735f0a9ea4bfc35ada06fc37b94259363de2f221f50",
+      "currentSha256": "382ac1c965aef6f91cf5da5f21558a0ac95c96440cdae32aa2c09dc72f715e63",
+      "reason": "WebSocket沿用中心地址和TLS，不回退旧私网"
+    },
+    {
+      "path": "src/pages/callback/index.tsx",
+      "originalSha256": "5ccc0737d89f789dd4d3f09eb26ca8765b75b890ac50cbffde3237a538de3c1e",
+      "currentSha256": "310eea7ed58435f2afdca6cddebb992e6dbe3f3c4f5114ea9087b0b5d1e9ed1c",
+      "reason": "旧Casdoor回调引导到平台登录，SSO待协议决定"
+    },
+    {
+      "path": "src/pages/login/index.tsx",
+      "originalSha256": "bc4935674ff10ce750f95acb3cdd075ae2e5eac2c1b765a0f56cda331087582b",
+      "currentSha256": "11922a96854f50a9b45644e2cce42b2edc3a01fd6201236647353dadea96a502",
+      "reason": "保留Ant Design表单并增加平台验证码"
+    },
+    {
+      "path": "src/utils/workflow-revision.ts",
+      "sha256": "0b583c170533457bf9aac0ac230325078066230bb5bfa731091a2090fc5babde",
+      "kind": "new_helper_or_test"
+    },
+    {
+      "path": "tests/workflow-revision.test.cjs",
+      "sha256": "8909c473c94e63fc097ede1bc4cc158990ac97d13d77f121c1e1cb479ae3c1ac",
+      "kind": "new_helper_or_test"
+    },
+    {
+      "path": "tests/platform-auth.test.cjs",
+      "sha256": "2f17c29e7a27a1aa52a8ed94147acee472feedc0bcec337d3a8f7693e5668d0c",
+      "kind": "modified_existing_test"
+    }
+  ],
+  "network": false,
+  "databaseWrites": false,
+  "servicesStarted": false,
+  "checkedAt": "2026-10-02T22:24:01.330448+00:00"
+}

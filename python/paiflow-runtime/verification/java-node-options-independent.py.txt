@@ -1,0 +1,119 @@
+"""真实Java源码隔离编译/126组Pydantic有效值对照；无Maven、网络或业务运行。"""
+from collections import Counter
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tempfile
+
+runtime = Path(__file__).resolve().parents[1]
+workspace = runtime.parents[1]
+verification = runtime / 'verification'
+fixture_path = verification / 'pydantic-model-options-probe.json'
+fixture = json.loads(fixture_path.read_text(encoding='utf-8'))
+classpath_source = workspace / '文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowJsonNullReview.args'
+arg_lines = classpath_source.read_text(encoding='utf-8-sig').splitlines()
+classpath = arg_lines[arg_lines.index('--class-path') + 1].strip().strip('"')
+java_bin = Path('C:/Users/admin/AppData/Local/Programs/Eclipse Adoptium/jdk-21.0.10.7-hotspot/bin')
+source_root = workspace / 'ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service'
+sources = [source_root / name for name in ('ModelNodeOptions.java', 'ModelOperationJson.java', 'RunJsonBoundary.java', 'DslCodec.java')]
+probe = verification / 'ModelNodeOptionsIndependent.java'
+frozen_names = ('worker/producers/openai_chat.py', 'worker/producers/chat_lifecycle.py',
+                'worker/producers/spark_chat.py', 'workflow/engine/nodes/base_node.py',
+                'worker/model_bridge.py', 'worker/center_client.py', 'worker/model_contract.py')
+frozen_expected = {
+    'worker/producers/openai_chat.py': '85751ffa33f3b933b131ebac1dd0d1030d0bb5d56bf19bdc9cf7e289bae82ea2',
+    'worker/producers/chat_lifecycle.py': '8a91b8a35541dad6010544f18c54445f92471a0a3fd074c46aceb71cff422eb6',
+    'worker/producers/spark_chat.py': '67ea6eee539006ea20a41a337c245fbdc5ac3cba83feabb3ef1956544b94b055',
+    'workflow/engine/nodes/base_node.py': '0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f',
+    'worker/model_bridge.py': '450515af08d53ef6c941ebf9d239824c7a1bbb5504db28142e76d48102437f94',
+    'worker/center_client.py': 'acda8d3eccfcd6dab9729c048ff91a7b6b20287bbcdbd103475a09a491d58e71',
+    'worker/model_contract.py': 'e0eca5bfc3f8603cf204a4c35ee1f88355cf44a2c27da6b072f2e48bfe45f1c5',
+}
+frozen = [runtime / name for name in frozen_names]
+tracked = sources + [probe, fixture_path, Path(__file__).resolve()] + frozen
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def types(value):
+    if isinstance(value, dict):
+        return {key: types(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [types(item) for item in value]
+    return type(value).__name__
+
+def quote(value):
+    return '"' + str(value).replace('\\', '/').replace('"', '\\"') + '"'
+
+report = {'timestamp': datetime.now(timezone.utc).isoformat(),
+    'scope': 'actual fresh Java source compiled to unique temporary directory; original exact JSON fixture; no Maven/target write, network, Provider, database, service or Node algorithm execution',
+    'sourceHashesBefore': {str(path.relative_to(workspace)): sha(path) for path in tracked},
+    'classpathSource': str(classpath_source.relative_to(workspace)), 'classpathSourceSha256': sha(classpath_source),
+    'fixtureCount': len(fixture['cases']), 'frozen226BaselineRerun': False}
+with tempfile.TemporaryDirectory(prefix='paiflow-node-options-independent-') as temporary:
+    temp = Path(temporary)
+    classes = temp / 'classes'
+    classes.mkdir()
+    compile_args = temp / 'javac.args'
+    compile_args.write_text('\n'.join(['-encoding', 'UTF-8', '-proc:none', '-classpath', quote(classpath),
+                                      '-d', quote(classes)] + [quote(path) for path in sources + [probe]]) + '\n', encoding='utf-8')
+    compiled = subprocess.run([str(java_bin / 'javac.exe'), '@' + str(compile_args)], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=60)
+    report['compile'] = {'exitCode': compiled.returncode, 'stdout': compiled.stdout, 'stderr': compiled.stderr,
+                         'sourceFiles': [str(path.relative_to(workspace)) for path in sources + [probe]],
+                         'outputScope': 'unique Temp/classes, deleted by TemporaryDirectory'}
+    if compiled.returncode == 0:
+        output = temp / 'actual.json'
+        run_args = temp / 'java.args'
+        run_args.write_text('\n'.join(['--class-path', quote(str(classes) + ';' + classpath),
+            'com.ruoyi.paiflow.service.ModelNodeOptionsIndependent', quote(fixture_path), quote(output)]) + '\n', encoding='utf-8')
+        executed = subprocess.run([str(java_bin / 'java.exe'), '@' + str(run_args)], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=60)
+        report['execute'] = {'exitCode': executed.returncode, 'stdout': executed.stdout, 'stderr': executed.stderr}
+        if executed.returncode == 0:
+            actual = json.loads(output.read_text(encoding='utf-8'))
+            mismatches = []
+            for expected, result in zip(fixture['cases'], actual['cases'], strict=True):
+                differences = []
+                if result.get('unexpectedErrorClass'):
+                    differences.append('unexpectedErrorClass')
+                if expected['input'] != result['input'] or expected['inputType'] != result['javaInputCategory']:
+                    differences.append('exactInputOrJsonType')
+                if expected['accepted'] != result.get('actualAccepted'):
+                    differences.append('accepted')
+                if expected['accepted'] and result.get('actualAccepted'):
+                    expected_category = 'dict' if expected['effectiveType'] == 'EnableChatHistoryV2' else expected['effectiveType']
+                    if expected['effective'] != result['actualEffective']:
+                        differences.append('effectiveValue')
+                    if expected_category != result['actualEffectiveCategory'] or types(expected['effective']) != result['actualEffectiveTypes']:
+                        differences.append('effectiveTypes')
+                result['expected'] = expected
+                result['differences'] = differences
+                if differences:
+                    mismatches.append(result)
+            key_mismatches = [item for item in actual['keys'] if item['expectedAccepted'] != item['actualAccepted'] or item.get('unchanged') is False]
+            default_mismatches = [key for key, value in fixture['defaults'].items() if value != actual['defaults'][key] or types(value) != actual['defaultTypes'][key]]
+            report.update({'actual': actual, 'mismatches': mismatches, 'keyMismatches': key_mismatches,
+                'defaultMismatches': default_mismatches,
+                'summary': {'fixtureCases': len(actual['cases']), 'accepted': sum(item.get('actualAccepted') is True for item in actual['cases']),
+                    'rejected': sum(item.get('actualAccepted') is False for item in actual['cases']),
+                    'matched': len(actual['cases']) - len(mismatches), 'differences': len(mismatches),
+                    'byField': dict(Counter(item['field'] for item in actual['cases'])),
+                    'keyCases': len(actual['keys']), 'keyDifferences': len(key_mismatches),
+                    'defaultFields': len(fixture['defaults']), 'defaultDifferences': len(default_mismatches)}})
+report['sourceHashesAfter'] = {str(path.relative_to(workspace)): sha(path) for path in tracked}
+report['changedDuringCheck'] = [name for name, digest in report['sourceHashesBefore'].items() if report['sourceHashesAfter'][name] != digest]
+report['frozenBaselineComparison'] = {name: {'expectedSha256': expected, 'actualSha256': sha(runtime / name),
+    'matches': sha(runtime / name) == expected} for name, expected in frozen_expected.items()}
+report['frozenDifferences'] = [name for name, item in report['frozenBaselineComparison'].items() if not item['matches']]
+result_path = verification / 'java-node-options-independent.json'
+if result_path.exists():
+    prior = result_path.read_bytes()
+    prior_path = verification / ('java-node-options-independent-prior-' + hashlib.sha256(prior).hexdigest()[:12] + '.json')
+    if not prior_path.exists():
+        prior_path.write_bytes(prior)
+result_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+print(json.dumps({key: report.get(key) for key in ('summary', 'changedDuringCheck', 'frozenDifferences')}, ensure_ascii=True))
+raise SystemExit(0 if report.get('summary', {}).get('matched') == 126 and not report.get('mismatches')
+                 and not report.get('keyMismatches') and not report.get('defaultMismatches')
+                 and not report['changedDuringCheck'] and not report['frozenDifferences'] else 1)

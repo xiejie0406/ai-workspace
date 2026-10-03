@@ -1,0 +1,205 @@
+{
+  "timestamp": "2026-10-02T22:19:03.035071+00:00",
+  "scope": "Only python/paiflow-runtime; no service/DB/Provider/host user code/Git writes; original frontend unchanged",
+  "nodeConsumerCount": 21,
+  "pureNodeTypes": 9,
+  "controlledNodeTypes": 12,
+  "productionCapabilitiesReady": false,
+  "fullTests": {
+    "count": 144,
+    "success": true,
+    "log": "verification/unittest.log"
+  },
+  "newTests": {
+    "count": 25,
+    "module": "tests/test_remaining_nodes.py",
+    "scope": "Actual original Factory/nodes with isolated center fixture; not producer or business acceptance"
+  },
+  "checks": [
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exitCode": 0,
+      "log": "verification/unittest.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/verify_source.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/source-check.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/analyze_port_dependencies.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/dependency-analysis.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exitCode": 0,
+      "log": "verification/dependency-check.log"
+    }
+  ],
+  "sourceScan": {
+    "pythonFiles": 464,
+    "introducedFiles": 427,
+    "missingIntroducedFiles": [],
+    "syntaxErrors": [],
+    "suspiciousLiteralCredentialBindings": [],
+    "executableExamples": [],
+    "hostExecCalls": []
+  },
+  "installedOriginalLockedPackages": {
+    "annotated-types": "0.7.0",
+    "attrs": "23.2.0",
+    "colorama": "0.4.6",
+    "jsonschema": "4.23.0",
+    "jsonschema-specifications": "2023.12.1",
+    "loguru": "0.7.2",
+    "pydantic": "2.9.2",
+    "pydantic-core": "2.23.4",
+    "referencing": "0.35.1",
+    "rpds-py": "0.19.0",
+    "typing-extensions": "4.12.2",
+    "win32-setctime": "1.1.0",
+    "tenacity": "9.1.2",
+    "websockets": "12.0"
+  },
+  "newDependencyDownloads": false,
+  "sqlCompilerDependency": {
+    "name": "SQLAlchemy",
+    "originalWorkflowLockVersion": "2.0.31",
+    "installed": false,
+    "executed": false
+  },
+  "changedFiles": [
+    {
+      "path": "worker/node_capabilities.py",
+      "sha256": "364d0ec3872ed687d9910665e641b33e818c9ed1665e5482217f66e1aa50a8a6"
+    },
+    {
+      "path": "worker/legacy_operations.py",
+      "sha256": "3dc1ba1f8e2baa6e62c9111bb4abb390f05f5534bcc2fbadc4e3165fc533fb6d"
+    },
+    {
+      "path": "worker/center_client.py",
+      "sha256": "a2fb713bd3664d4ef2f2d99a3e09c1484469f177732e38bcf7ef7193d4eba068"
+    },
+    {
+      "path": "worker/engine_adapter.py",
+      "sha256": "12e4f0b2dd0e6a9f05830fe92576f408801a95d8ea90940014dfaaaf6c540489"
+    },
+    {
+      "path": "workflow/engine/nodes/plugin_tool/plugin_node.py",
+      "sha256": "0bd959156850bc001494cdc6ad5e39bfc10e5a3b2fda986f803ae8f534a64cbc"
+    },
+    {
+      "path": "workflow/engine/nodes/plugin_tool/link_client.py",
+      "sha256": "347037c323db036adb93265b4cbb58575be784474f8dfaba7a79e9b72a53ca43"
+    },
+    {
+      "path": "workflow/engine/nodes/knowledge_pro/knowledge_pro_node.py",
+      "sha256": "5e24338d38afa2d850c41d4a0a5510972422d7ae99a498fdf3fb3461411013ee"
+    },
+    {
+      "path": "workflow/engine/nodes/agent/agent_node.py",
+      "sha256": "d374c97b4e36c42f77312edf48202155c3463e5c224063074efda8f144341187"
+    },
+    {
+      "path": "workflow/engine/nodes/pgsql/pgsql_node.py",
+      "sha256": "d82511ac78fa86cef578b39f15b6003630f55a0c11d69054aa42f7baf574dded"
+    },
+    {
+      "path": "workflow/engine/nodes/pgsql/pgsql_client.py",
+      "sha256": "39743af5a831e5eb3b6a80909918d9cc0237c478e11a1f5c7e4a903adca121bd"
+    },
+    {
+      "path": "workflow/engine/nodes/rpa/rpa_node.py",
+      "sha256": "d2ce9c51fe4393718faaad4e5664ec0b68cc1b1a271c18ce594dd5b3c2a6bc55"
+    },
+    {
+      "path": "protocols/remaining-capabilities-draft.schema.json",
+      "sha256": "35aa68ce7d73070285741eaf86a844f47f52049110e81297fa7601ac97bb56fe"
+    },
+    {
+      "path": "tests/test_remaining_nodes.py",
+      "sha256": "7eb7e8bbff660fd4f0c5c6e2a187a43a211c7dbaedae9709f65f62ce5b26bd52"
+    },
+    {
+      "path": "tests/test_original_engine.py",
+      "sha256": "4ecd6554579654404955b9f9f124ac069432d746dcf138cbbd7835c89ee4cb46"
+    },
+    {
+      "path": "tests/test_worker.py",
+      "sha256": "b7a2158cadd3893017f46df3f1b1395648a986e64837163113a80c9f0e4c8bda"
+    },
+    {
+      "path": "scripts/run_offline_checks.py",
+      "sha256": "cc78c7d3c590fd7cf3bb64a7bd8bddfd349c4fcf55052c6afcde84c003b95dce"
+    },
+    {
+      "path": "README.md",
+      "sha256": "01bad9ebce9b530e800613bba6bb1cebaa694308503c4f932589b06a78c3bd17"
+    }
+  ],
+  "failureEvidence": [
+    "verification/remaining-nodes-first.log",
+    "verification/remaining-nodes-full-first-failure.log",
+    "verification/remaining-nodes-schema-ref-failure.log"
+  ],
+  "additionalExecutionFailures": [
+    {
+      "action": "single-module unittest from workspace root",
+      "result": "ModuleNotFoundError: tests",
+      "recovery": "use python/paiflow-runtime cwd; no algorithm pass claimed"
+    },
+    {
+      "action": "read captured test log with assumed utf-16 encoding",
+      "result": "UnicodeDecodeError",
+      "recovery": "detect actual bytes and save original failure as utf-8"
+    }
+  ],
+  "coreRefs": {
+    "assignment": "contracts/paiflow/worker.schema.json#",
+    "begin": "contracts/paiflow/worker.schema.json#/$defs/ExecutionBeginAck",
+    "checkpoint": "contracts/paiflow/checkpoints.schema.json#/$defs/CreateAck"
+  },
+  "centerGaps": {
+    "source": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/controller/WorkerRunController.java",
+    "readOnlyEvidence": "Only claim/verify/heartbeat/begin/events/result and separate checkpoints routes currently found; no resources/operations/frames/cancel producer routes",
+    "paths": [
+      "POST /internal/paiflow/v1/runs/{runId}/resources/{resourceId}",
+      "POST /internal/paiflow/v1/runs/{runId}/operations",
+      "POST /internal/paiflow/v1/runs/{runId}/operations/{operationId}/frames",
+      "POST /internal/paiflow/v1/runs/{runId}/operations/{operationId}/cancel"
+    ]
+  },
+  "notRestored": [
+    "Production resource mapping/authorization/effect ledger/approval/quota/billing/Provider/Runner stop confirmation",
+    "Standalone core/agent ReAct + Link/MCP/AITools producer environments",
+    "Database mode0 CUSTOM parser/translation and original SQLAlchemy literal compilation",
+    "History app/chat formal scopes and enabled memory",
+    "Nested iteration operation instance ownership",
+    "Real QA/21-node dispatch and cross-process resumed-engine restore"
+  ]
+}

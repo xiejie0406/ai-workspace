@@ -1,0 +1,301 @@
+"""真实原QA算法+中心检查点fixture回归；不造正式用户回复或联机验收。"""
+import asyncio
+import copy
+from datetime import datetime, timedelta, timezone
+import json
+from pathlib import Path
+import time
+import unittest
+
+from worker.center_client import CenterClient
+from worker.engine_adapter import create_task_runner
+from worker.errors import CenterUnavailable, WorkerError
+from tests.test_controlled_nodes import ModelCenter, spark_frame
+from tests.test_original_engine import node, output, ref, edge, raw_workflow
+from tests.test_worker import MemoryTransport, refresh_test_canonical
+
+
+def qa_raw(**params):
+    fields = {"appId": "legacy-app-label", "domain": "model-fixture", "question": "请回答{{question}}", "answerType": "direct",
+        "timeout": 1, "needReply": True, "directAnswer": {"handleResponse": False, "maxRetryCounts": 3}, **params}
+    return raw_workflow([node("node-start::s", outputs=[output("question")]),
+        node("question-answer::qa", inputs=[ref("question", "node-start::s", "question")],
+            outputs=[output("content"), output("query")], **fields),
+        node("node-end::e", inputs=[ref("answer", "question-answer::qa", "content")],
+            outputs=[output("answer")], outputMode=0)],
+        [edge("node-start::s", "question-answer::qa"), edge("question-answer::qa", "node-end::e")],
+        {"question": "中心检查点问题"})
+
+
+class CheckpointCenter(ModelCenter):
+    def __init__(self, raw, responses=None, frames=None):
+        super().__init__(raw, frames or [])
+        self.responses = responses or [{"event_type": "resume", "content": "用户fixture完整回复"}]
+        self.checkpoint_calls = []
+        self.poll_calls = []
+        self.consume_calls = []
+        self.checkpoint_acks = {}
+        self.poll_state = "RESUMED"
+        self.consume_state = "CONSUMED"
+        self.reject_checkpoint = False
+        self.reply_mutator = None
+        self.waiting = None
+        self.create_state = "WAITING"
+
+    async def create_checkpoint(self, *args, **kwargs):
+        self.checkpoint_calls.append((copy.deepcopy(args), copy.deepcopy(kwargs)))
+        if self.reject_checkpoint:
+            raise CenterUnavailable()
+        ordinal, timeout = args[4], args[7]
+        checkpoint_id = "checkpoint-" + str(ordinal)
+        ack = {"checkpointId": checkpoint_id, "revision": 0, "state": self.create_state,
+            "stopped": self.create_state in {"CONSUMED", "EXPIRED", "CANCELLED"},
+            "deadline": min(datetime.fromisoformat(self.raw["deadline"]), datetime.now(timezone.utc) + timedelta(seconds=timeout)).isoformat()}
+        self.checkpoint_acks[checkpoint_id] = ack
+        return copy.deepcopy(ack)
+
+    async def poll_checkpoint(self, *args):
+        self.poll_calls.append(copy.deepcopy(args))
+        if self.waiting is not None:
+            self.waiting.set()
+            await asyncio.Event().wait()
+        ack = self.checkpoint_acks[args[3]]
+        return {"checkpointId": args[3], "revision": 1, "state": self.poll_state, "deadline": ack["deadline"],
+            "stopped": self.poll_state in {"EXPIRED", "CANCELLED", "CONSUMED"}}
+
+    async def consume_checkpoint(self, *args):
+        self.consume_calls.append(copy.deepcopy(args))
+        ordinal = int(args[3].rsplit("-", 1)[1])
+        ack = self.checkpoint_acks[args[3]]
+        response = {"checkpointId": args[3], "revision": args[4] + 1, "state": self.consume_state,
+            "deadline": ack["deadline"], "stopped": True, "consumed": self.consume_state == "CONSUMED"}
+        if self.consume_state == "CONSUMED":
+            response["resumeData"] = {"message": json.dumps(self.responses[ordinal - 1], ensure_ascii=False),
+                "metadata": {"retries": ordinal - 1, "timestamp": int(time.time())}}
+            if self.reply_mutator:
+                self.reply_mutator(response)
+        return response
+
+
+class OriginalQuestionAnswerTest(unittest.IsolatedAsyncioTestCase):
+    async def execute(self, raw, center=None, state="COMPLETED"):
+        center = center or CheckpointCenter(raw)
+        await asyncio.wait_for(create_task_runner(center, heartbeat_seconds=.02).run(raw), 8)
+        self.assertEqual(center.results[-1]["state"], state, center.results[-1])
+        return center
+
+    async def test_original_direct_question_reply_and_checkpoint_ack_event(self):
+        raw = qa_raw()
+        center = await self.execute(raw)
+        self.assertEqual(center.results[-1]["output"]["outputs"], {"answer": "用户fixture完整回复"})
+        call = center.checkpoint_calls[0][0]
+        self.assertEqual(call[3:8], ("question-answer::qa", 1, {"type": "direct", "content": "请回答中心检查点问题"}, True, 60))
+        events = [item for item in center.events if item["eventType"] == "checkpoint"]
+        self.assertEqual(events[0]["payload"]["checkpointId"], "checkpoint-1")
+        self.assertEqual(events[0]["payload"]["legacyFrame"]["event_data"]["value"]["content"], "请回答中心检查点问题")
+        self.assertEqual(center.resource_calls, [])
+
+    def option_raw(self, *, default_first=False, need_reply=True):
+        options = [{"id": "branch-A", "name": "A", "type": 2, "content_type": "image", "content": "图片{{question}}"},
+            {"id": "branch-default", "name": "default", "type": 1, "content_type": "text", "content": "默认"}]
+        if default_first:
+            options.reverse()
+        raw = qa_raw(answerType="option", optionAnswer=options, needReply=need_reply)
+        raw["dsl"]["nodes"][1]["data"]["outputs"] = [output("id"), output("query"), output("content")]
+        raw["dsl"]["nodes"][-1] = node("node-end::e", inputs=[ref("chosen", "text-joiner::chosen", "value"),
+            ref("fallback", "text-joiner::fallback", "value")], outputMode=0)
+        raw["dsl"]["nodes"].extend([node("text-joiner::chosen", outputs=[output("value")], prompt="A-branch", mode=0),
+            node("text-joiner::fallback", outputs=[output("value")], prompt="default-branch", mode=0)])
+        raw["dsl"]["edges"] = [edge("node-start::s", "question-answer::qa"), edge("question-answer::qa", "text-joiner::chosen", "branch-A"),
+            edge("question-answer::qa", "text-joiner::fallback", "branch-default"), edge("text-joiner::chosen", "node-end::e"),
+            edge("text-joiner::fallback", "node-end::e")]
+        refresh_test_canonical(raw)
+        return raw
+
+    async def test_original_option_branch_name_and_content_type_keep_order(self):
+        for default_first, expected in [(False, {"chosen": "A-branch", "fallback": ""}),
+                (True, {"chosen": "", "fallback": "default-branch"})]:
+            raw = self.option_raw(default_first=default_first)
+            center = await self.execute(raw, CheckpointCenter(raw, [{"event_type": "resume", "content": "A"}]))
+            self.assertEqual(center.results[-1]["output"]["outputs"], expected)
+            options = center.checkpoint_calls[0][0][5]["option"]
+            self.assertIn({"id": "A", "text": "图片中心检查点问题", "content_type": "image"}, options)
+
+    async def test_original_ignore_only_without_need_reply_and_abort_failure(self):
+        raw = self.option_raw(need_reply=False)
+        center = await self.execute(raw, CheckpointCenter(raw, [{"event_type": "ignore", "content": ""}]))
+        self.assertEqual(center.results[-1]["output"]["outputs"], {"chosen": "", "fallback": "default-branch"})
+        for event_type in ["ignore", "abort"]:
+            raw = qa_raw()
+            await self.execute(raw, CheckpointCenter(raw, [{"event_type": event_type, "content": "原字符串"}]), state="FAILED")
+
+    def slot_raw(self, max_rounds=3):
+        raw = qa_raw(directAnswer={"handleResponse": True, "maxRetryCounts": max_rounds}, domain="model-fixture",
+            modelResourceId="model-1", source="xinghuo")
+        raw["dsl"]["nodes"][1]["data"]["outputs"].append(output("age", "integer"))
+        raw["dsl"]["nodes"][-1] = node("node-end::e", inputs=[ref("age", "question-answer::qa", "age", "integer")], outputMode=0)
+        raw["resourceSnapshots"] = {"model-1": {"kind": "model", "provider": "xinghuo", "version": "model-version-1",
+            "modelName": "model-fixture", "enabled": True}}
+        raw["effectPolicy"] = {"mode": "approved_write", "approvalRef": "center-fixture-approval", "allowedOperations": ["model.invoke"]}
+        refresh_test_canonical(raw)
+        return raw
+
+    async def test_original_slot_complete_and_reprompt_metadata_retries(self):
+        raw = self.slot_raw()
+        center = CheckpointCenter(raw, [{"event_type": "resume", "content": "还没年龄"}, {"event_type": "resume", "content": "年龄8"}])
+        frames = [spark_frame('{"completed":{},"incomplete":{"age":"required"},"content":"请补充年龄"}'),
+            spark_frame('```json\n{"completed":{"age":"8"},"incomplete":{}}\n```')]
+        async def next_model_operation(*args):
+            center.frames = [frames[len(center.operations)]]
+            return await ModelCenter.operation(center, *args)
+        center.operation = next_model_operation
+        center = await self.execute(raw, center)
+        self.assertEqual(center.results[-1]["output"]["outputs"], {"age": 8})
+        self.assertEqual([item[0][4] for item in center.checkpoint_calls], [1, 2])
+        self.assertEqual(center.checkpoint_calls[1][0][5]["content"], "请补充年龄")
+        self.assertEqual([item[4] for item in center.consume_calls], [1, 1])
+
+    async def test_original_slot_reaches_declared_retry_limit(self):
+        raw = self.slot_raw(max_rounds=1)
+        center = CheckpointCenter(raw, frames=[spark_frame('{"completed":{},"incomplete":{"age":"required"}}')])
+        await self.execute(raw, center, state="FAILED")
+        self.assertEqual(len(center.checkpoint_calls), 1)
+
+    async def test_checkpoint_unavailable_has_no_empty_or_invented_reply(self):
+        raw = qa_raw()
+        center = CheckpointCenter(raw)
+        center.reject_checkpoint = True
+        with self.assertRaises(CenterUnavailable):
+            await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+        self.assertEqual(center.results, [])
+        self.assertEqual(center.consume_calls, [])
+
+    async def test_expired_checkpoint_keeps_original_timeout_error(self):
+        from workflow.exception.errors.err_code import CodeEnum
+        raw = qa_raw()
+        center = CheckpointCenter(raw)
+        center.poll_state = "EXPIRED"
+        center = await self.execute(raw, center, state="FAILED")
+        failed = [item for item in center.events if item["eventType"] == "node.failed"]
+        self.assertEqual(failed[-1]["payload"]["legacyFrame"]["code"], CodeEnum.EVENT_REGISTRY_NOT_FOUND_ERROR.code)
+        self.assertEqual(center.consume_calls, [])
+
+    async def test_cancel_and_expire_race_with_consume_is_not_reply(self):
+        for checkpoint_state, run_state in [("CANCELLED", "CANCELLED"), ("EXPIRED", "FAILED")]:
+            raw = qa_raw()
+            center = CheckpointCenter(raw)
+            center.consume_state = checkpoint_state
+            await self.execute(raw, center, state=run_state)
+            self.assertFalse(any(item["nodeId"] == "node-end::e" and item["eventType"] == "node.started" for item in center.events))
+
+    async def test_waiting_keeps_heartbeat_and_actual_task_cancellation(self):
+        raw = qa_raw()
+        center = CheckpointCenter(raw)
+        center.waiting = asyncio.Event()
+        task = asyncio.create_task(create_task_runner(center, heartbeat_seconds=.02).run(raw))
+        await asyncio.wait_for(center.waiting.wait(), 5)
+        center.cancel_requested = True
+        await asyncio.wait_for(task, 8)
+        self.assertEqual(center.results[-1]["state"], "CANCELLED")
+        self.assertEqual(center.consume_calls, [])
+        self.assertEqual(len(center.begin_calls), 1)
+
+    async def test_wrong_reply_shape_or_metadata_never_completes(self):
+        for mutate in [lambda ack: ack["resumeData"]["metadata"].update(retries=4),
+                lambda ack: ack["resumeData"].update(message='{"event_type":"invented","content":"x"}')]:
+            raw = qa_raw()
+            center = CheckpointCenter(raw)
+            center.reply_mutator = mutate
+            with self.assertRaises(CenterUnavailable):
+                await asyncio.wait_for(create_task_runner(center).run(raw), 8)
+            self.assertEqual(center.results, [])
+
+    async def test_iteration_question_context_explicitly_refused(self):
+        from worker.checkpoints import CenterCheckpoints
+        from worker.events import EventPublisher
+        from worker.node_context import CURRENT_ITERATION_ID
+        from worker.task_runner import CURRENT_CONTEXT, RunContext, Assignment
+        raw = qa_raw()
+        center = CheckpointCenter(raw)
+        assignment = Assignment.parse(raw)
+        context = RunContext(center, assignment, EventPublisher(center, assignment.run_id, assignment.lease_id, 1, assignment.last_event_seq))
+        tokens = CURRENT_CONTEXT.set(context), CURRENT_ITERATION_ID.set("iteration::outer:0")
+        try:
+            with self.assertRaises(WorkerError) as error:
+                CenterCheckpoints("question-answer::qa", True, 60, 1)
+            self.assertEqual(error.exception.code, "RESOURCE_UNAVAILABLE")
+            self.assertEqual(center.checkpoint_calls, [])
+        finally:
+            CURRENT_ITERATION_ID.reset(tokens[1])
+            CURRENT_CONTEXT.reset(tokens[0])
+
+    async def test_http_consume_retains_original_queue_wrapper_and_fixed_path(self):
+        ack = {"checkpointId": "checkpoint/1", "revision": 3, "state": "CONSUMED", "stopped": True,
+            "consumed": True, "deadline": "2026-12-01T00:00:00Z", "resumeData": {
+                "message": '{"event_type":"resume","content":"内容"}', "metadata": {"retries": 0, "timestamp": 1}}}
+        transport = MemoryTransport(response={"code": 200, "data": ack})
+        client = CenterClient("https://center.example", "fixture-service-identity", transport=transport)
+        self.assertEqual(await client.consume_checkpoint("run-1", "lease-1", 1, "checkpoint/1", 2, "consume-1"), ack)
+        self.assertTrue(transport.calls[0][1].endswith("/checkpoints/checkpoint%2F1/consume"))
+        self.assertEqual(transport.calls[0][3], {"leaseId": "lease-1", "attempt": 1, "expectedRevision": 2, "idempotencyKey": "consume-1"})
+
+    async def test_schema_and_http_create_poll_accept_center_revision_zero(self):
+        from jsonschema import Draft202012Validator
+        root = Path(__file__).resolve().parents[1]
+        document = json.loads((root.parents[1] / "contracts/paiflow/checkpoints.schema.json").read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(document)
+        local = json.loads((root / "protocols/checkpoints-draft.schema.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(local["$defs"]), set(document["$defs"]))
+        self.assertTrue(all(set(value) == {"$ref"} for value in local["$defs"].values()))
+        ack = {"checkpointId": "cp-0", "revision": 0, "state": "WAITING", "stopped": False, "deadline": "2026-12-01T00:00:00Z"}
+        transport = MemoryTransport(response={"code": 200, "data": ack})
+        client = CenterClient("https://center.example", "fixture-identity", transport=transport)
+        self.assertEqual(await client.create_checkpoint("r", "l", 1, "question-answer::qa", 1,
+            {"type": "direct", "content": "问题"}, True, 60, "create-0"), ack)
+        self.assertEqual(await client.poll_checkpoint("r", "l", 1, "cp-0", 0), ack)
+        for definition, value in [("CreateRequest", transport.calls[0][3]), ("CreateAck", ack),
+                ("PollRequest", transport.calls[1][3]), ("PollAck", ack)]:
+            Draft202012Validator({"$ref": "#/$defs/" + definition, "$defs": document["$defs"]}).validate(value)
+        raced = {**ack, "state": "EXPIRED", "revision": 1, "consumed": False, "stopped": True}
+        transport.response = {"code": 200, "data": raced}
+        self.assertEqual(await client.consume_checkpoint("r", "l", 1, "cp-0", 0, "consume-race"), raced)
+        Draft202012Validator({"$ref": "#/$defs/ConsumeAck", "$defs": document["$defs"]}).validate(raced)
+
+    async def test_stopped_create_ack_never_reopens_or_polls(self):
+        from jsonschema import Draft202012Validator
+        root = Path(__file__).resolve().parents[1]
+        document = json.loads((root.parents[1] / "contracts/paiflow/checkpoints.schema.json").read_text(encoding="utf-8"))
+        for state in ("CONSUMED", "EXPIRED", "CANCELLED"):
+            raw = qa_raw()
+            center = CheckpointCenter(raw)
+            center.create_state = state
+            await self.execute(raw, center, state="CANCELLED" if state == "CANCELLED" else "FAILED")
+            self.assertEqual(center.poll_calls, [])
+            self.assertEqual(center.consume_calls, [])
+            ack = center.checkpoint_acks["checkpoint-1"]
+            Draft202012Validator({"$ref": "#/$defs/CreateAck", "$defs": document["$defs"]}).validate(ack)
+            transport = MemoryTransport(response={"code": 200, "data": ack})
+            client = CenterClient("https://center.example", "fixture-identity", transport=transport)
+            self.assertEqual(await client.create_checkpoint("r", "l", 1, "question-answer::qa", 1,
+                {"type": "direct", "content": "问题"}, True, 60, "create-0"), ack)
+
+    async def test_checkpoint_keys_are_stable_bounded_safe_and_preserve_null_empty(self):
+        from worker.checkpoints import CenterCheckpoints
+        long_id = "12345678-1234-1234-1234-123456789012" * 5
+        first = CenterCheckpoints._key("checkpoint", long_id, 1, long_id, None, 1, long_id)
+        self.assertRegex(first, r"^[A-Za-z0-9_-]{8,128}$")
+        self.assertEqual(first, CenterCheckpoints._key("checkpoint", long_id, 1, long_id, None, 1, long_id))
+        self.assertNotEqual(first, CenterCheckpoints._key("checkpoint", long_id, 1, long_id, "", 1, long_id))
+        center = await self.execute(qa_raw())
+        self.assertRegex(center.checkpoint_calls[0][0][8], r"^[A-Za-z0-9_-]{8,128}$")
+        self.assertRegex(center.consume_calls[0][5], r"^[A-Za-z0-9_-]{8,128}$")
+        transport = MemoryTransport()
+        client = CenterClient("https://center.example", "fixture-identity", transport=transport)
+        for bad in ("short", "contains:colon", "a" * 129):
+            with self.assertRaises(WorkerError):
+                await client.consume_checkpoint("r", "l", 1, "cp", 1, bad)
+        self.assertEqual(transport.calls, [])
+
+
+if __name__ == "__main__":
+    unittest.main()

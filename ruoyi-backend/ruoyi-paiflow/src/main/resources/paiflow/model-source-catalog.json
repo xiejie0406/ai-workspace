@@ -1,0 +1,33 @@
+{
+  "source": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit",
+  "license": "Apache-2.0; 上游根LICENSE与NOTICE按既有引入资料保留",
+  "modelTypes": [
+    {"id": 1, "meaning": "第三方OpenAI兼容模型", "source": "service/model/ModelService.java:validateModel"},
+    {"id": 2, "meaning": "受控本地模型部署", "source": "service/model/ModelService.java:localModel"}
+  ],
+  "llmSources": [
+    {"id": 0, "meaning": "自定义模型", "source": "service/model/ModelService.java:getDetail"},
+    {"id": 1, "meaning": "官方模型", "status": "not_connected"},
+    {"id": 2, "meaning": "微调模型", "status": "not_connected"}
+  ],
+  "providerHello": {
+    "source": "service/model/ModelService.java:buildValidationPayload/isValidModelResponse",
+    "request": {"model": "候选domain", "messages": [{"role": "user", "content": "Hello!"}], "stream": false},
+    "requiredResponse": ["真实HTTP200", "非空choices", "usage对象", "完整候选和已批准凭据版本绑定的脱敏回执"],
+    "status": "没有默认真实端口，不生成测试模型种子"
+  },
+  "preservedCompatibility": [
+    "ModelInfo.config返回JSON字符串；原页面JSON.parse",
+    "env别名按原modal规则规范化，不解析系统环境或本机文件",
+    "已有模型apiKeyMasked=false沿用旧引用；true更换候选引用",
+    "原list Page records/total/size/current/pages及分类四维key保留"
+  ],
+  "endpointBoundary": "此模块只做URI语法/规范化；正式引用授权与网络端口必须绑定批准的endpoint/provider/credential版本并实施DNS/IP、redirect与出网限制，当前没有真实网络实现。",
+  "excluded": [
+    "真实Provider配置、secret、旧LLM数据库行、任意env与ancestor .env resolver",
+    "原裸ID无归属检查、兼容ID编码充当授权",
+    "edit自动改写其他工作流、物理删除不可变资源快照",
+    "官方远端目录、RSA公钥、部署目录或发布渠道空成功"
+  ],
+  "categoryPolicy": "model-category-source.json保留原102行ID/pid/key/isDelete；只以实际根可达关系组装四维树，不修复猜测父级。自定义类别目前仅草稿保全，正式实体绑定未接通。"
+}

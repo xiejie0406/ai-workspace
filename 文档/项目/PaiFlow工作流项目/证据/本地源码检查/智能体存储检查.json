@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-10-02T22:31:40.185529+00:00",
+  "status": "本地技术检查完成，业务和真实部署未执行",
+  "sourceSnapshotScope": "仅Agent/Workflow相关源码；不能代替其他中心新增模块最终快照",
+  "sourceSnapshotHashes": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/domain/AgentRecord.java": "225b17cef0757aac063a458a939023d1292421d9dd36d87f96566755e7aab91f",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/mapper/AgentMapper.java": "ee2bc9bc17ea488637e55b155a64881fa218250d4f190800991f1d0dc9fce9bf",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/AgentMapper.xml": "1f70405cb7374b975c1d0bb5f3557451ee4397d53e13494e7cdca1fa930d2fd7",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentService.java": "60ab0954c94fc3f53313535cc8e78da5cab941b28dbded41122baf9c8a765ef4",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/AgentTemplateCatalog.java": "5c2a66766728edbfab78ec0a3cf4abdee5ed04f168e2df759b2ac7a212bd6934",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "8bf2ae9033e41dbbdeae196e8aabaa22668d614bf1d951e1f5a86105cb2758d8",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/controller/AgentController.java": "b7b94fdfa9b27aadf1f8183b3235eaa56cb1f51a948bb886792200b915ce5ba6",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyBotController.java": "c1418f04c86d3635a52600021f3719c48cf3a0c02081cdb2752a14bbf3549520",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyMyBotController.java": "2841d4e2e9f15035cea7726b17809afc4f494f9ae1592a3228b5b13459abefce",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentWorkflowController.java": "e31d9678ebb19a81c82b1cf59d01f690525459303754cff3b8ed27938aeb97d7",
+    "ruoyi-backend/ruoyi-paiflow/src/main/resources/paiflow/agent-source-catalog.json": "6b034c06cc422c2743cbd71077af3cbf88fdfc372937dff1a8f65401e5e61553",
+    "ruoyi-backend/ruoyi-paiflow/sql/007-paiflow-agent.sql": "b1073f27aae4fc5fe98dc1a06b180386797e7964bd02e96b1782875d560ddff6",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/AgentPersistenceTest.java": "19d8fddea0f61ceee3abe183a8eb16cea2d84bcb1acf80b6f3de06c451cc4e4b",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/adapter/legacy/LegacyAgentContractTest.java": "30cb9cd7b90d4c3a7bf2dbf439bb27940dd24556f79fec81e242ab8ea3fae314",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowPersistenceTest.java": "870e46d8e1749da4da91fdbb211f1b7299f8b2c8e5d5feff5e6dbeca03359794"
+  },
+  "checks": [
+    {
+      "scope": "历史首轮",
+      "command": "mvn -o -pl ruoyi-paiflow -am test -Dtest=AgentPersistenceTest,LegacyAgentContractTest,WorkflowPersistenceTest,LegacyWorkflowContractTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "workdir": "ruoyi-backend",
+      "log": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/智能体绑定定向测试-首轮.log",
+      "logKind": "complete_original_command_output",
+      "sha256": "06e287aa06d5bbf8bc2b0b857bf4e6ff6d66cd2192dab5d1e47465132df5468a",
+      "finishedAt": "2026-10-03T06:07:21+08:00",
+      "result": "BUILD FAILURE",
+      "exitCode": 1,
+      "counts": {
+        "tests": 33,
+        "failures": 2,
+        "errors": 14,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "历史夹具复验",
+      "command": "mvn -o -pl ruoyi-paiflow -am test -Dtest=AgentPersistenceTest,LegacyAgentContractTest,WorkflowPersistenceTest,LegacyWorkflowContractTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "workdir": "ruoyi-backend",
+      "log": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/智能体绑定定向测试-夹具复验.log",
+      "logKind": "complete_original_command_output",
+      "sha256": "5d13a71e1687d72ffe19b393d32f793ef2e35803fa915e99371803aafdc30cf0",
+      "finishedAt": "2026-10-03T06:09:33+08:00",
+      "result": "BUILD FAILURE",
+      "exitCode": 1,
+      "counts": {
+        "tests": 33,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "历史34项稳定快照",
+      "command": "mvn -o -pl ruoyi-paiflow -am test -Dtest=AgentPersistenceTest,LegacyAgentContractTest,WorkflowPersistenceTest,LegacyWorkflowContractTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "workdir": "ruoyi-backend",
+      "log": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/智能体绑定定向测试-最终复验.log",
+      "logKind": "complete_original_command_output",
+      "sha256": "7794230a3319404ebb57fbcd5ccf1369bcaaf51780d865e82d5236c1b04a1143",
+      "finishedAt": "2026-10-03T06:12:30+08:00",
+      "result": "BUILD SUCCESS",
+      "exitCode": 0,
+      "counts": {
+        "tests": 34,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "语言模板受影响8项",
+      "command": "mvn -o -pl ruoyi-paiflow -am test -Dtest=LegacyAgentContractTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "workdir": "ruoyi-backend",
+      "log": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/智能体原语言模板契约复验.log",
+      "logKind": "complete_original_command_output",
+      "sha256": "f2a2ff1118889861643343095c9bf6499de4196b8064ef83795d670f92148e35",
+      "finishedAt": "2026-10-03T06:14:35+08:00",
+      "result": "BUILD SUCCESS",
+      "exitCode": 0,
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "单一绑定首复验名称冲突",
+      "command": "mvn -o -pl ruoyi-paiflow -am test -Dtest=AgentPersistenceTest,LegacyAgentContractTest,WorkflowPersistenceTest,LegacyWorkflowContractTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "workdir": "ruoyi-backend",
+      "log": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/智能体单一绑定边界复验.log",
+      "logKind": "complete_original_command_output",
+      "sha256": "f6bd8cf2a04d4dd400337503e10e91077ee0362009d69e302910737fa406ec22",
+      "finishedAt": "2026-10-03T06:22:33+08:00",
+      "result": "BUILD FAILURE",
+      "exitCode": 1,
+      "counts": {
+        "tests": 36,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "最终36项冻结源码",
+      "command": "mvn -o -pl ruoyi-paiflow -am test -Dtest=AgentPersistenceTest,LegacyAgentContractTest,WorkflowPersistenceTest,LegacyWorkflowContractTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "workdir": "ruoyi-backend",
+      "log": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/智能体单一绑定边界最终复验.log",
+      "logKind": "complete_original_command_output",
+      "sha256": "883bc802cb02b51cf63355e320ae3beb87d829a6caa6814edb9140f6036ac85a",
+      "finishedAt": "2026-10-03T06:24:28+08:00",
+      "result": "BUILD SUCCESS",
+      "exitCode": 0,
+      "counts": {
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "mapperCheck": {
+    "methods": 10,
+    "statements": 10,
+    "missing": [],
+    "extra": [],
+    "duplicates": [],
+    "dynamicInterpolation": 0
+  },
+  "sourceSeeds": {
+    "source": "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql",
+    "sourceSha256": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc",
+    "promptTemplates": 8,
+    "zh": 4,
+    "en": 4,
+    "types": 7,
+    "workflowTemplateEntitiesSeeded": 0
+  },
+  "ddl": {
+    "file": "ruoyi-backend/ruoyi-paiflow/sql/007-paiflow-agent.sql",
+    "executed": false
+  },
+  "limitations": [
+    "H2、平台用户与菜单权限均为隔离fixture，不是真实MySQL或正式菜单授权",
+    "正式Agent执行、模型/知识/额外输入资源绑定、Tenant App和发布渠道未接通",
+    "未选space默认私人入口与原null-space数据映射尚需正式迁移/页面核验",
+    "原React业务页面、真实数据库、Provider、通知与渠道未验收",
+    "各次测试计数重叠，不相加为业务通过；业务验证完成数0"
+  ],
+  "independentBindingReview": {
+    "status": "修正后隔离探针通过",
+    "scope": "真Service/Mapper/事务随机H2；无网络调用，不加为业务通过",
+    "evidenceHashes": {
+      "ruoyi-backend/paiflow-worker-java/checks/agent-binding-review.txt": "305367ae24d89037c92355d0553231a82092c480d7a9f3afe9ad10a338f0c211",
+      "ruoyi-backend/paiflow-worker-java/checks/agent-binding-recheck.txt": "d439c3ed998b6a49949692bbba3aa413e83b210c4164fa0a623cd6c39ce233db",
+      "ruoyi-backend/paiflow-worker-java/checks/AgentBindingReviewRecheck.java": "a8fd1205ac7c0eafdb56d44a41527d830e12661b6002ef0f0f7fefd38005ada5"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "recordType": "readonly_compiled_private_helper_probe",
+  "recordedAt": "2026-10-03T00:03:17.088634+00:00",
+  "commands": [
+    "java '@文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowJsonNullReview.args' '文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowJsonNullReview.java'",
+    "java '@文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowJsonNullReview.args' '文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowJsonMergeReview.java'"
+  ],
+  "exitCodes": [
+    0,
+    0
+  ],
+  "method": "88项联合已编译WorkflowService私有helper的反射调用，实际Jackson构造LinkedHashMap/JSONObject；Java单文件源码模式，不输出class到业务target",
+  "compiledClassSha256BeforeProbes": "1fd32adcf2ca1c467ef2e8648aada044b268aafaf9c0c57fa6b088256c23e438",
+  "compiledClassSha256AfterProbes": "1fd32adcf2ca1c467ef2e8648aada044b268aafaf9c0c57fa6b088256c23e438",
+  "currentFileHashes": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "88490c69222520c9940f8d656a6c8909912cc2f0eb6049689956c542f793ed15",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "223afbb4e79e8f2c5e9577f824fbf47d238fa5cf9f8618572e72f270bde2a516",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "3dc53486c3ce925afb2fe663ac1391a51fff646f3185d723c21a7ee76701108a",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowPersistenceTest.java": "133365849656562640c8d7789566d070faee9369e631a2ef2e4dbf2a92f89d6e",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/WorkflowService.class": "1fd32adcf2ca1c467ef2e8648aada044b268aafaf9c0c57fa6b088256c23e438",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowJsonNullReview.java": "c338fea23cb9a91d4d7027753b415b58b09afb672482b4db9b5981d712abc5ab",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowJsonNullReview.args": "79603470e0c9b7cc849acb712c8969e0fc26aa1e46a379fda5818b1ffbd5a39a",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowJsonMergeReview.java": "aa0e7c28dc7844314d86f1c4503b8270e4deeef21e58cb9462151e4083bd1054",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/工作流画布显式空值独立复现.log": "da9e8f5634a6530e79ff0c0bf01ac5d5df90de4c1872885c3769607fb4fdb2f5",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/工作流合并预算与数组独立审查.log": "d404acf972ba974815cc52a6d738eef8abcf23a4d4bfbd0f4ecd9d7157c8d8ad"
+  },
+  "limits": [
+    "没有执行Service/Mapper/事务或真实数据库；探针结果仅证明已编译helper行为",
+    "中心随后已只改Map serializer null保全，新source未在这两次探针重编译；此时source与compiled artifact分别保留hash，不混称同一快照",
+    "日志退出码0表示探针执行成功，以下三个业务预期均未通过；正式修复需真实持久化检查",
+    "没有执行Maven、写target、启动HTTP或调用外部服务"
+  ],
+  "findings": [
+    {
+      "id": "canvas_explicit_null_lost",
+      "expected": "create保存根/嵌套null，patch显式null替换旧root",
+      "observed": {
+        "createRootNullPreserved": false,
+        "createNestedNullPreserved": false,
+        "explicitPatchNullClearedOld": false,
+        "unmentionedOldPreserved": true
+      },
+      "sourceLocation": "WorkflowService.canvas Map branch default toJSONString; updateCanvas first serializes patch",
+      "status": "confirmed_failed_before_fix"
+    },
+    {
+      "id": "serialized_null_key_budget_omitted",
+      "expected": "最终序列化超过16777216字节拒绝413",
+      "observed": {
+        "accepted": true,
+        "resultBytes": 18874391,
+        "limit": 16777216
+      },
+      "sourceLocation": "WorkflowJsonBoundary.check -> RunJsonBoundary.check default JSON serialization drops null keys while mergeAdvanced output includes them",
+      "status": "confirmed_failed_before_fix"
+    },
+    {
+      "id": "canvas_string_arrays_coerced",
+      "expected": "nodes/edges为真实JSON数组",
+      "observed": {
+        "accepted": true,
+        "nodesType": "String",
+        "edgesType": "String"
+      },
+      "sourceLocation": "WorkflowService.canvas getJSONArray coercing accessor",
+      "status": "confirmed_failed_before_fix"
+    },
+    {
+      "id": "advanced_merge_and_historic_credential",
+      "expected": "object深合并，null/scalar/array直接替换；历史未托管apiSecret拒绝，不泄值",
+      "observed": {
+        "advancedResult": "{\"part\":{\"a\":null,\"b\":2},\"arr\":[2],\"scalar\":false}",
+        "secretCode": 400,
+        "containsPath": true,
+        "leaksValue": false
+      },
+      "status": "helper_expected_behavior_observed"
+    }
+  ],
+  "businessRuntimeVerified": false,
+  "sourceEdited": false,
+  "mavenRun": false,
+  "targetWritten": false
+}

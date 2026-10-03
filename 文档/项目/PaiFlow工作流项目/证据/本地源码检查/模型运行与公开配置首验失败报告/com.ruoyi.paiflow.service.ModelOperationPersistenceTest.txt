@@ -1,0 +1,1600 @@
+-------------------------------------------------------------------------------
+Test set: com.ruoyi.paiflow.service.ModelOperationPersistenceTest
+-------------------------------------------------------------------------------
+Tests run: 19, Failures: 0, Errors: 19, Skipped: 0, Time elapsed: 2.072 s <<< FAILURE! -- in com.ruoyi.paiflow.service.ModelOperationPersistenceTest
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.wrongAttemptNodeScopeOrModelVersionNeverCreatesAnotherOperation -- Time elapsed: 0.095 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.privateGrantDeadlineIsMinimumApprovalDeadlineAndExpiredFramesAreRefused -- Time elapsed: 0.213 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.modelDisableAndMembershipRevocationRejectFurtherStreamWritesButPreserveFacts -- Time elapsed: 0.069 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.frameInsertAndSequenceCasRollBackTogetherOnActualConstraintFailure -- Time elapsed: 0.170 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.missingAnyRequiredPortProducesZeroRunAndZeroOperationWrites -- Time elapsed: 0.184 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.workerMessagesNeedActualInputAndFixedNodeApprovalInsteadOfSelfReportedHash -- Time elapsed: 0.178 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.confirmedStopUsesExactGrantProofAndDoesNotClaimUndeliveredOutput -- Time elapsed: 0.082 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.providerFrameCannotPersistKnownPrivateKeyBaseOrReferenceEvenInsideText -- Time elapsed: 0.068 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.revokedRunMenuWithModelQueryStillPresentCannotReadExistingFramesAfterPolicyWait -- Time elapsed: 0.079 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.originalFramesKeepNullUsageTailAndOnlyActualStreamEndCompletes -- Time elapsed: 0.057 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.actualRunAdmissionPersistsBoundApprovalAndNeverPublicPrivateMaterial -- Time elapsed: 0.082 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.bareEofAndUnknownStopPreserveEffectUnknownAndNeverRedispatch -- Time elapsed: 0.072 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.oversizedFrameIsRejectedBeforeAnyFrameOrSequenceWrite -- Time elapsed: 0.059 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.expiryDuringLocalCallPolicyPreventsDispatchAndSdkSubmit -- Time elapsed: 0.068 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.finishEvidenceCannotBeInventedAndKnownProviderNonStopReasonIsFailure -- Time elapsed: 0.115 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.invalidUsageTailCannotOverwriteFactsOrInventCompletion -- Time elapsed: 0.089 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.sameActualKeyReplaysReceiptButDifferentRequestCannotReuseItsApproval -- Time elapsed: 0.111 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.exactFrameReplayIsIdempotentButChangedFramesAndGapsAreRejected -- Time elapsed: 0.134 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+
+com.ruoyi.paiflow.service.ModelOperationPersistenceTest.twoConcurrentCallersDispatchOneActualOperationAndNoAutomaticRetry -- Time elapsed: 0.111 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+
+### Error updating database.  Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+### The error may exist in SpaceMapper
+### The error may involve com.ruoyi.paiflow.mapper.SpaceMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,       revision, deleted, create_by, update_by, create_time, update_time)     VALUES (?, ?, ?, ?, ?, ?, ?,       0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+### Cause: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+; Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.springframework.jdbc.support.SQLExceptionSubclassTranslator.doTranslate(SQLExceptionSubclassTranslator.java:106)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy118.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy2/jdk.proxy2.$Proxy121.insert(Unknown Source)
+	at com.ruoyi.paiflow.service.ModelOperationPersistenceTest.setup(ModelOperationPersistenceTest.java:86)
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Check constraint invalid: "CK_PAIFLOW_SPACE_KIND: "; SQL statement:
+INSERT INTO paiflow_space (name, description, avatar_url, owner_user_id, dept_id, team_id, kind,
+      revision, deleted, create_by, update_by, create_time, update_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?,
+      0, 0, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP()) [23514-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:104)
+	at org.h2.table.Table.fireConstraints(Table.java:1208)
+	at org.h2.table.Table.fireBeforeRow(Table.java:1199)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:171)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:212)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:133)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcPreparedStatement.execute(JdbcPreparedStatement.java:262)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+Caused by: org.h2.message.DbException: The database has been closed [90098-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.SessionLocal.getDatabase(SessionLocal.java:674)
+	at org.h2.engine.SessionLocal.getCompareMode(SessionLocal.java:2137)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:2001)
+	at org.h2.engine.SessionLocal.compare(SessionLocal.java:77)
+	at java.base/java.util.TreeMap.getEntryUsingComparator(TreeMap.java:409)
+	at java.base/java.util.TreeMap.getEntry(TreeMap.java:379)
+	at java.base/java.util.TreeMap.containsKey(TreeMap.java:244)
+	at java.base/java.util.TreeSet.contains(TreeSet.java:238)
+	at org.h2.expression.condition.ConditionInConstantSet.getValue(ConditionInConstantSet.java:80)
+	at org.h2.expression.condition.ConditionIn.getValue(ConditionIn.java:53)
+	at org.h2.constraint.ConstraintCheck.checkRow(ConstraintCheck.java:99)
+	... 26 more
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The database has been closed [90098-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 40 more
+

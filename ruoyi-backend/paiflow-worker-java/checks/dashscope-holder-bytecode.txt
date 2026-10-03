@@ -1,0 +1,129 @@
+Compiled from "OkHttpClientFactory.java"
+class com.alibaba.dashscope.protocol.okhttp.OkHttpClientFactory$Holder {
+  private static final okhttp3.OkHttpClient INSTANCE;
+
+  private com.alibaba.dashscope.protocol.okhttp.OkHttpClientFactory$Holder();
+    Code:
+       0: aload_0
+       1: invokespecial #2                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  private static okhttp3.OkHttpClient createInstance();
+    Code:
+       0: getstatic     #3                  // Field com/alibaba/dashscope/utils/Constants.connectionConfigurations:Lcom/alibaba/dashscope/protocol/ConnectionConfigurations;
+       3: astore_0
+       4: aload_0
+       5: ifnonnull     15
+       8: invokestatic  #4                  // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.builder:()Lcom/alibaba/dashscope/protocol/ConnectionConfigurations$ConnectionConfigurationsBuilder;
+      11: invokevirtual #5                  // Method com/alibaba/dashscope/protocol/ConnectionConfigurations$ConnectionConfigurationsBuilder.build:()Lcom/alibaba/dashscope/protocol/ConnectionConfigurations;
+      14: astore_0
+      15: invokestatic  #6                  // Method com/alibaba/dashscope/protocol/ClientOptions.builder:()Lcom/alibaba/dashscope/protocol/ClientOptions$ClientOptionsBuilder;
+      18: invokevirtual #7                  // Method com/alibaba/dashscope/protocol/ClientOptions$ClientOptionsBuilder.build:()Lcom/alibaba/dashscope/protocol/ClientOptions;
+      21: astore_1
+      22: new           #8                  // class okhttp3/logging/HttpLoggingInterceptor
+      25: dup
+      26: invokespecial #9                  // Method okhttp3/logging/HttpLoggingInterceptor."<init>":()V
+      29: astore_2
+      30: aload_2
+      31: aload_1
+      32: invokevirtual #10                 // Method com/alibaba/dashscope/protocol/ClientOptions.getNetworkLoggingLevel:()Ljava/lang/String;
+      35: invokestatic  #11                 // Method okhttp3/logging/HttpLoggingInterceptor$Level.valueOf:(Ljava/lang/String;)Lokhttp3/logging/HttpLoggingInterceptor$Level;
+      38: invokevirtual #12                 // Method okhttp3/logging/HttpLoggingInterceptor.setLevel:(Lokhttp3/logging/HttpLoggingInterceptor$Level;)Lokhttp3/logging/HttpLoggingInterceptor;
+      41: pop
+      42: aload_0
+      43: invokevirtual #13                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getConnectionPoolSize:()Ljava/lang/Integer;
+      46: invokevirtual #14                 // Method java/lang/Integer.intValue:()I
+      49: istore_3
+      50: invokestatic  #15                 // Method com/alibaba/dashscope/protocol/okhttp/OkHttpClientFactory.access$100:()Lorg/slf4j/Logger;
+      53: ldc           #16                 // String [connectionPool Config] connectionPoolSize: {}
+      55: iload_3
+      56: invokestatic  #17                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      59: invokeinterface #18,  3           // InterfaceMethod org/slf4j/Logger.debug:(Ljava/lang/String;Ljava/lang/Object;)V
+      64: new           #19                 // class okhttp3/Dispatcher
+      67: dup
+      68: invokespecial #20                 // Method okhttp3/Dispatcher."<init>":()V
+      71: astore        4
+      73: aload         4
+      75: aload_0
+      76: invokevirtual #21                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getMaximumAsyncRequests:()Ljava/lang/Integer;
+      79: invokevirtual #14                 // Method java/lang/Integer.intValue:()I
+      82: invokevirtual #22                 // Method okhttp3/Dispatcher.setMaxRequests:(I)V
+      85: invokestatic  #15                 // Method com/alibaba/dashscope/protocol/okhttp/OkHttpClientFactory.access$100:()Lorg/slf4j/Logger;
+      88: ldc           #23                 // String [connectionPool Config] maxRequests: {}
+      90: aload         4
+      92: invokevirtual #24                 // Method okhttp3/Dispatcher.getMaxRequests:()I
+      95: invokestatic  #17                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      98: invokeinterface #18,  3           // InterfaceMethod org/slf4j/Logger.debug:(Ljava/lang/String;Ljava/lang/Object;)V
+     103: aload         4
+     105: aload_0
+     106: invokevirtual #25                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getMaximumAsyncRequestsPerHost:()Ljava/lang/Integer;
+     109: invokevirtual #14                 // Method java/lang/Integer.intValue:()I
+     112: invokevirtual #26                 // Method okhttp3/Dispatcher.setMaxRequestsPerHost:(I)V
+     115: invokestatic  #15                 // Method com/alibaba/dashscope/protocol/okhttp/OkHttpClientFactory.access$100:()Lorg/slf4j/Logger;
+     118: ldc           #27                 // String [connectionPool Config] maxRequestsPerHost: {}
+     120: aload         4
+     122: invokevirtual #28                 // Method okhttp3/Dispatcher.getMaxRequestsPerHost:()I
+     125: invokestatic  #17                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+     128: invokeinterface #18,  3           // InterfaceMethod org/slf4j/Logger.debug:(Ljava/lang/String;Ljava/lang/Object;)V
+     133: new           #29                 // class okhttp3/OkHttpClient$Builder
+     136: dup
+     137: invokespecial #30                 // Method okhttp3/OkHttpClient$Builder."<init>":()V
+     140: astore        5
+     142: aload         5
+     144: aload_0
+     145: invokevirtual #31                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getConnectTimeout:()Ljava/time/Duration;
+     148: invokevirtual #32                 // Method okhttp3/OkHttpClient$Builder.connectTimeout:(Ljava/time/Duration;)Lokhttp3/OkHttpClient$Builder;
+     151: aload_0
+     152: invokevirtual #33                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getReadTimeout:()Ljava/time/Duration;
+     155: invokevirtual #34                 // Method okhttp3/OkHttpClient$Builder.readTimeout:(Ljava/time/Duration;)Lokhttp3/OkHttpClient$Builder;
+     158: aload_0
+     159: invokevirtual #35                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getWriteTimeout:()Ljava/time/Duration;
+     162: invokevirtual #36                 // Method okhttp3/OkHttpClient$Builder.writeTimeout:(Ljava/time/Duration;)Lokhttp3/OkHttpClient$Builder;
+     165: aload_2
+     166: invokevirtual #37                 // Method okhttp3/OkHttpClient$Builder.addInterceptor:(Lokhttp3/Interceptor;)Lokhttp3/OkHttpClient$Builder;
+     169: aload         4
+     171: invokevirtual #38                 // Method okhttp3/OkHttpClient$Builder.dispatcher:(Lokhttp3/Dispatcher;)Lokhttp3/OkHttpClient$Builder;
+     174: getstatic     #39                 // Field okhttp3/Protocol.HTTP_1_1:Lokhttp3/Protocol;
+     177: invokestatic  #40                 // Method java/util/Collections.singletonList:(Ljava/lang/Object;)Ljava/util/List;
+     180: invokevirtual #41                 // Method okhttp3/OkHttpClient$Builder.protocols:(Ljava/util/List;)Lokhttp3/OkHttpClient$Builder;
+     183: new           #42                 // class okhttp3/ConnectionPool
+     186: dup
+     187: iload_3
+     188: aload_0
+     189: invokevirtual #43                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getConnectionIdleTimeout:()Ljava/time/Duration;
+     192: invokevirtual #44                 // Method java/time/Duration.getSeconds:()J
+     195: getstatic     #45                 // Field java/util/concurrent/TimeUnit.SECONDS:Ljava/util/concurrent/TimeUnit;
+     198: invokespecial #46                 // Method okhttp3/ConnectionPool."<init>":(IJLjava/util/concurrent/TimeUnit;)V
+     201: invokevirtual #47                 // Method okhttp3/OkHttpClient$Builder.connectionPool:(Lokhttp3/ConnectionPool;)Lokhttp3/OkHttpClient$Builder;
+     204: pop
+     205: aload_0
+     206: invokevirtual #48                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getProxy:()Ljava/net/Proxy;
+     209: ifnull        222
+     212: aload         5
+     214: aload_0
+     215: invokevirtual #48                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getProxy:()Ljava/net/Proxy;
+     218: invokevirtual #49                 // Method okhttp3/OkHttpClient$Builder.proxy:(Ljava/net/Proxy;)Lokhttp3/OkHttpClient$Builder;
+     221: pop
+     222: aload_0
+     223: invokevirtual #50                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getProxyAuthenticator:()Lokhttp3/Authenticator;
+     226: ifnull        239
+     229: aload         5
+     231: aload_0
+     232: invokevirtual #50                 // Method com/alibaba/dashscope/protocol/ConnectionConfigurations.getProxyAuthenticator:()Lokhttp3/Authenticator;
+     235: invokevirtual #51                 // Method okhttp3/OkHttpClient$Builder.proxyAuthenticator:(Lokhttp3/Authenticator;)Lokhttp3/OkHttpClient$Builder;
+     238: pop
+     239: aload         5
+     241: invokevirtual #52                 // Method okhttp3/OkHttpClient$Builder.build:()Lokhttp3/OkHttpClient;
+     244: areturn
+
+  static okhttp3.OkHttpClient access$000();
+    Code:
+       0: getstatic     #1                  // Field INSTANCE:Lokhttp3/OkHttpClient;
+       3: areturn
+
+  static {};
+    Code:
+       0: invokestatic  #53                 // Method createInstance:()Lokhttp3/OkHttpClient;
+       3: putstatic     #1                  // Field INSTANCE:Lokhttp3/OkHttpClient;
+       6: return
+}

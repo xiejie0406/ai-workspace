@@ -1,0 +1,79 @@
+"""对账实际日志与当前 discovery；仅加载测试清单，不执行测试。"""
+import hashlib
+import json
+from pathlib import Path
+import re
+import sys
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def identity(value):
+    # unittest discover -s tests 使用裸 test_*，定向模块使用 tests.test_*。
+    return value.removeprefix('tests.')
+
+
+def from_log(path, count):
+    data = path.read_text(encoding='utf-8-sig')
+    match = re.search(r'Ran (\d+) tests in ([0-9.]+)s', data)
+    assert match and int(match[1]) == count and data.rstrip().endswith('OK')
+    entries = re.findall(r'^test_\S+ \(([^)\r\n]+)\) \.\.\.', data, re.M)
+    assert len(entries) == count
+    return [identity(item) for item in entries]
+
+
+def flatten(suite):
+    for item in suite:
+        if isinstance(item, unittest.TestSuite):
+            yield from flatten(item)
+        else:
+            yield identity(item.id())
+
+
+stage_path = ROOT / 'verification/static-question-answer-default-stage.json'
+stage = json.loads(stage_path.read_text(encoding='utf-8'))
+frozen = {**stage['sourceSha256'], **{p: fact['after'] for p, fact in stage['unchangedFrozen'].items()}}
+before = {p: sha(ROOT / p) for p in frozen}
+assert before == frozen
+full_log = ROOT / 'verification/static-question-answer-full.log'
+current_log = ROOT / 'verification/static-question-answer-default-targeted.log'
+old = from_log(full_log, 265)
+current = from_log(current_log, 34)
+with patch('socket.socket.connect', side_effect=AssertionError('discovery must not connect')):
+    discovery = list(flatten(unittest.defaultTestLoader.discover(str(ROOT / 'tests'))))
+old_set, current_set, discovered_set = set(old), set(current), set(discovery)
+carry, rerun, added = old_set - current_set, old_set & current_set, current_set - old_set
+combined = carry | current_set
+assert len(old) == len(old_set)
+assert len(current) == len(current_set)
+assert len(discovery) == len(discovered_set)
+assert combined == discovered_set
+assert len(added) == 1
+after = {p: sha(ROOT / p) for p in frozen}
+assert before == after
+report = {
+    'scope': 'actual test identity reconciliation; discovery/import only, no test bodies/Factory/TaskRunner/network/Maven run',
+    'baselineFull': {'path': str(full_log), 'sha256': sha(full_log), 'actualPass': len(old), 'identities': old},
+    'currentTargeted': {'path': str(current_log), 'sha256': sha(current_log), 'actualPass': len(current), 'identities': current},
+    'currentDiscovery': {'executed': False, 'count': len(discovery), 'identities': discovery},
+    'carryFrom265': {'count': len(carry), 'identities': sorted(carry), 'rerun': False,
+        'reason': 'Only static QA guard direct unused duplicate DEFAULT condition changed; existing non-QA/iteration admission and all original algorithm/Producer sources preserved. Static QA and original QA identities all rechecked in current34.'},
+    'recheckedFrom265': {'count': len(rerun), 'identities': sorted(rerun)},
+    'newCurrent': {'count': len(added), 'identities': sorted(added)},
+    'combinedIdentityUnion': len(combined), 'matchesCurrentDiscovery': True,
+    'duplicates': {'baseline': len(old) - len(old_set), 'targeted': len(current) - len(current_set), 'discovery': len(discovery) - len(discovered_set)},
+    'fullCurrentRerun': False, 'sourceHashesBefore': before, 'sourceHashesAfter': after,
+    'frozenManifest': {'path': str(stage_path), 'sha256': sha(stage_path)},
+}
+output = ROOT / 'verification/static-question-answer-test-identities.json'
+output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+print(json.dumps({'oldActual': len(old), 'currentActual': len(current), 'carry': len(carry), 'rechecked': len(rerun),
+    'new': sorted(added), 'union': len(combined), 'discovery': len(discovery), 'sourceChanges': before != after,
+    'reportSha256': sha(output)}, ensure_ascii=False))

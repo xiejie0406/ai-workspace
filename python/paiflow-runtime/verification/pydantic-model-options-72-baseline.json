@@ -1,0 +1,680 @@
+{
+  "scope": "actual isolated Workflow Pydantic2.9.2 model_validate only; no Node execution, Provider, DB or network",
+  "count": 72,
+  "defaults": {
+    "temperature": 1.0,
+    "maxTokens": 2048,
+    "topK": 3,
+    "respFormat": 0,
+    "searchDisable": true,
+    "enableChatHistory": false,
+    "enableChatHistoryV2": {
+      "isEnabled": false,
+      "rounds": 1
+    }
+  },
+  "cases": [
+    {
+      "field": "temperature",
+      "input": 1,
+      "inputType": "int",
+      "accepted": true,
+      "effective": 1.0,
+      "effectiveType": "float"
+    },
+    {
+      "field": "temperature",
+      "input": 0.5,
+      "inputType": "float",
+      "accepted": true,
+      "effective": 0.5,
+      "effectiveType": "float"
+    },
+    {
+      "field": "temperature",
+      "input": "0.5",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 0.5,
+      "effectiveType": "float"
+    },
+    {
+      "field": "temperature",
+      "input": "1",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 1.0,
+      "effectiveType": "float"
+    },
+    {
+      "field": "temperature",
+      "input": true,
+      "inputType": "bool",
+      "accepted": true,
+      "effective": 1.0,
+      "effectiveType": "float"
+    },
+    {
+      "field": "temperature",
+      "input": false,
+      "inputType": "bool",
+      "accepted": false,
+      "errorTypes": [
+        "greater_than"
+      ]
+    },
+    {
+      "field": "temperature",
+      "input": null,
+      "inputType": "NoneType",
+      "accepted": false,
+      "errorTypes": [
+        "float_type"
+      ]
+    },
+    {
+      "field": "temperature",
+      "input": "NaN",
+      "inputType": "str",
+      "accepted": false,
+      "errorTypes": [
+        "less_than_equal"
+      ]
+    },
+    {
+      "field": "temperature",
+      "input": " 0.5 ",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 0.5,
+      "effectiveType": "float"
+    },
+    {
+      "field": "temperature",
+      "input": "1e-1",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 0.1,
+      "effectiveType": "float"
+    },
+    {
+      "field": "maxTokens",
+      "input": 2048,
+      "inputType": "int",
+      "accepted": true,
+      "effective": 2048,
+      "effectiveType": "int"
+    },
+    {
+      "field": "maxTokens",
+      "input": "2048",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 2048,
+      "effectiveType": "int"
+    },
+    {
+      "field": "maxTokens",
+      "input": "2048.0",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 2048,
+      "effectiveType": "int"
+    },
+    {
+      "field": "maxTokens",
+      "input": " 2048 ",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 2048,
+      "effectiveType": "int"
+    },
+    {
+      "field": "maxTokens",
+      "input": "2e3",
+      "inputType": "str",
+      "accepted": false,
+      "errorTypes": [
+        "int_parsing"
+      ]
+    },
+    {
+      "field": "maxTokens",
+      "input": true,
+      "inputType": "bool",
+      "accepted": true,
+      "effective": 1,
+      "effectiveType": "int"
+    },
+    {
+      "field": "maxTokens",
+      "input": false,
+      "inputType": "bool",
+      "accepted": false,
+      "errorTypes": [
+        "greater_than"
+      ]
+    },
+    {
+      "field": "maxTokens",
+      "input": 3.0,
+      "inputType": "float",
+      "accepted": true,
+      "effective": 3,
+      "effectiveType": "int"
+    },
+    {
+      "field": "maxTokens",
+      "input": 3.5,
+      "inputType": "float",
+      "accepted": false,
+      "errorTypes": [
+        "int_from_float"
+      ]
+    },
+    {
+      "field": "maxTokens",
+      "input": null,
+      "inputType": "NoneType",
+      "accepted": false,
+      "errorTypes": [
+        "int_type"
+      ]
+    },
+    {
+      "field": "topK",
+      "input": 3,
+      "inputType": "int",
+      "accepted": true,
+      "effective": 3,
+      "effectiveType": "int"
+    },
+    {
+      "field": "topK",
+      "input": "3",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 3,
+      "effectiveType": "int"
+    },
+    {
+      "field": "topK",
+      "input": "3.0",
+      "inputType": "str",
+      "accepted": true,
+      "effective": 3,
+      "effectiveType": "int"
+    },
+    {
+      "field": "topK",
+      "input": "-3",
+      "inputType": "str",
+      "accepted": true,
+      "effective": -3,
+      "effectiveType": "int"
+    },
+    {
+      "field": "topK",
+      "input": true,
+      "inputType": "bool",
+      "accepted": true,
+      "effective": 1,
+      "effectiveType": "int"
+    },
+    {
+      "field": "topK",
+      "input": false,
+      "inputType": "bool",
+      "accepted": true,
+      "effective": 0,
+      "effectiveType": "int"
+    },
+    {
+      "field": "topK",
+      "input": 3.0,
+      "inputType": "float",
+      "accepted": true,
+      "effective": 3,
+      "effectiveType": "int"
+    },
+    {
+      "field": "topK",
+      "input": 3.5,
+      "inputType": "float",
+      "accepted": false,
+      "errorTypes": [
+        "int_from_float"
+      ]
+    },
+    {
+      "field": "topK",
+      "input": null,
+      "inputType": "NoneType",
+      "accepted": false,
+      "errorTypes": [
+        "int_type"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": 0,
+      "inputType": "int",
+      "accepted": true,
+      "effective": 0,
+      "effectiveType": "int"
+    },
+    {
+      "field": "respFormat",
+      "input": 1,
+      "inputType": "int",
+      "accepted": true,
+      "effective": 1,
+      "effectiveType": "int"
+    },
+    {
+      "field": "respFormat",
+      "input": 2,
+      "inputType": "int",
+      "accepted": true,
+      "effective": 2,
+      "effectiveType": "int"
+    },
+    {
+      "field": "respFormat",
+      "input": "0",
+      "inputType": "str",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": "1",
+      "inputType": "str",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": "2",
+      "inputType": "str",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": true,
+      "inputType": "bool",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": false,
+      "inputType": "bool",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": 1.0,
+      "inputType": "float",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": 2.0,
+      "inputType": "float",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": 3,
+      "inputType": "int",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "respFormat",
+      "input": null,
+      "inputType": "NoneType",
+      "accepted": false,
+      "errorTypes": [
+        "literal_error"
+      ]
+    },
+    {
+      "field": "searchDisable",
+      "input": true,
+      "inputType": "bool",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": false,
+      "inputType": "bool",
+      "accepted": true,
+      "effective": false,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": 0,
+      "inputType": "int",
+      "accepted": true,
+      "effective": false,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": 1,
+      "inputType": "int",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": 0.0,
+      "inputType": "float",
+      "accepted": true,
+      "effective": false,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": 1.0,
+      "inputType": "float",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": 2,
+      "inputType": "int",
+      "accepted": false,
+      "errorTypes": [
+        "bool_parsing"
+      ]
+    },
+    {
+      "field": "searchDisable",
+      "input": "true",
+      "inputType": "str",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": "TRUE",
+      "inputType": "str",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": "yes",
+      "inputType": "str",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": "off",
+      "inputType": "str",
+      "accepted": true,
+      "effective": false,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "searchDisable",
+      "input": "  true ",
+      "inputType": "str",
+      "accepted": false,
+      "errorTypes": [
+        "bool_parsing"
+      ]
+    },
+    {
+      "field": "searchDisable",
+      "input": null,
+      "inputType": "NoneType",
+      "accepted": false,
+      "errorTypes": [
+        "bool_type"
+      ]
+    },
+    {
+      "field": "enableChatHistory",
+      "input": true,
+      "inputType": "bool",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "enableChatHistory",
+      "input": false,
+      "inputType": "bool",
+      "accepted": true,
+      "effective": false,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "enableChatHistory",
+      "input": "yes",
+      "inputType": "str",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "enableChatHistory",
+      "input": "off",
+      "inputType": "str",
+      "accepted": true,
+      "effective": false,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "enableChatHistory",
+      "input": 1,
+      "inputType": "int",
+      "accepted": true,
+      "effective": true,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "enableChatHistory",
+      "input": 0,
+      "inputType": "int",
+      "accepted": true,
+      "effective": false,
+      "effectiveType": "bool"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {},
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": false,
+        "rounds": 1
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "isEnabled": false
+      },
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": false,
+        "rounds": 1
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "isEnabled": "yes"
+      },
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": true,
+        "rounds": 1
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "is_enabled": true
+      },
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": false,
+        "rounds": 1
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "is_enabled": "yes"
+      },
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": false,
+        "rounds": 1
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "isEnabled": "off",
+        "rounds": "2.0"
+      },
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": false,
+        "rounds": 2
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "rounds": true
+      },
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": false,
+        "rounds": 1
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "rounds": false
+      },
+      "inputType": "dict",
+      "accepted": false,
+      "errorTypes": [
+        "greater_than"
+      ]
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "rounds": 2.0
+      },
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": false,
+        "rounds": 2
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "rounds": 2.5
+      },
+      "inputType": "dict",
+      "accepted": false,
+      "errorTypes": [
+        "int_from_float"
+      ]
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": {
+        "unknown": "ignored"
+      },
+      "inputType": "dict",
+      "accepted": true,
+      "effective": {
+        "isEnabled": false,
+        "rounds": 1
+      },
+      "effectiveType": "EnableChatHistoryV2"
+    },
+    {
+      "field": "enableChatHistoryV2",
+      "input": null,
+      "inputType": "NoneType",
+      "accepted": false,
+      "errorTypes": [
+        "model_type"
+      ]
+    }
+  ],
+  "sources": {
+    "workflow/engine/nodes/base_node.py": "0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f",
+    "workflow/engine/entities/history.py": "253d2238fd2c3d04c15535647bde33ea7bdb7bad681a3fe8fd5c701207373898",
+    "workflow/engine/nodes/llm/spark_llm_node.py": "d79a048195749e9035fd6e472fa2fee7229327dfddcff8745888d4a37a92af5c",
+    "../../ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowModelCompiler.java": "5de2a363dbbe477c9eaa2072d7ff26962d9390db4b1931784f71e736052e5ef5",
+    "../../ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/ModelOperationOptions.java": "13ab01f306bd388ba192683d43b83419b3826ff4e40f9e106fe7ba214fbd14d4"
+  },
+  "findings": [
+    "temperature coerces number/string/bool to float subject to gt0 le1",
+    "integer fields accept bool, integral floats, decimal strings including .0; respFormat Literal accepts exact int0/1/2 only, rejects strings/bool/float",
+    "bool accepts standard lowercase/case-insensitive tokens or numeric0/1, no whitespace trimming",
+    "history alias isEnabled only; is_enabled/unknown fields ignored, rounds validated/coerced even if disabled",
+    "center compiler strict primitive rules currently differ; do not treat unsupported history capability as successful migration"
+  ]
+}

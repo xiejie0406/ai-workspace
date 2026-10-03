@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "paiflow.local-source-freeze.v1",
+  "frozenAt": "2026-10-03T09:18:21.503806+00:00",
+  "status": "candidate frozen; source-only checks; no Java compilation or JUnit execution",
+  "inputs": [
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/PureIterationPolicy.java",
+      "sha256": "07df720d4b2b505a4b50b95a44058c5a102353ad9ae216eecba5160f6d1c4684",
+      "bytes": 21018,
+      "savedSource": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/纯迭代事件作用域候选冻结原文/PureIterationPolicy.java",
+      "testMethods": [],
+      "testCount": 0
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunLeaseService.java",
+      "sha256": "6f3a17e1dc56943f5266a1bbc4c34ea5ca8d4e1f2889f99aea9d27c9d4de11b3",
+      "bytes": 17455,
+      "savedSource": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/纯迭代事件作用域候选冻结原文/RunLeaseService.java",
+      "testMethods": [],
+      "testCount": 0
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/RunLeasePolicyTest.java",
+      "sha256": "cfd87aa9707f86ae908f60b3724f786011d20a78aa39866ed09c3319842dd739",
+      "bytes": 15439,
+      "savedSource": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/纯迭代事件作用域候选冻结原文/RunLeasePolicyTest.java",
+      "testMethods": [
+        "workerIdentityRequiresExactCredentialAndUnexpiredEngineBinding",
+        "wrongWorkerExpiredLeaseAndRevokedMembershipCannotReadAssignment",
+        "gapOrConflictingDuplicateCannotAdvanceSequence",
+        "workerCannotCreateTerminalEventsOrInjectCredentialsAndUnknownNodes",
+        "terminalResultIsCasPersistedAndDuplicateReceiptDoesNotEmitAgain",
+        "heartbeatPersistsBoundedLeaseAndActualCancellationRequest",
+        "originalLifecycleRetainsAcceptedInputAndOutputWithinSharedBudget",
+        "optionalEventIdsMustFollowPublishedSchemaWithoutCoercion",
+        "exactHistoricalIterationReceiptStaysIdempotentWithoutRewritingOrGrantingNewScope",
+        "historicalExactReplayStillRequiresCurrentWorkerAuthorityAndActiveLease",
+        "newRawFrameMustMatchRunAndOuterNodeBeforeAnyWrite",
+        "runWideAuxiliaryWithoutNodeOrFrameRemainsValidButTagAloneCannotAcquireScope",
+        "newIterationEventUsesFixedOwnerAndBatchWithoutAdvancingOnInvalidNextSequence"
+      ],
+      "testCount": 13
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/PureIterationEventScopeTest.java",
+      "sha256": "68f7ee7de03fd64a17ec9dc330a6a66b01e594b7f1d302aa7d7a97f314c5cf61",
+      "bytes": 10468,
+      "savedSource": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/纯迭代事件作用域候选冻结原文/PureIterationEventScopeTest.java",
+      "testMethods": [
+        "originalBudgetRemainsUnchangedAndAllActualNodesHaveTheirFixedScope",
+        "canonicalIndexRejectsAlternateSpellingsWrongOwnersAndNestedTags",
+        "lastValidIndexIsBoundToTheFixedThreeItemInput",
+        "emptyBatchHasNoInnerIndexButContainerStillBelongsToMain",
+        "batchSixtyFourAllowsSixtyThreeAndDoesNotRelaxTheOriginalBatchLimit",
+        "absentOptionalArrayUsesItsDeclaredDefaultAndPresentArrayOverridesIt",
+        "requiredMissingAndExplicitNullNeverSelectTheDefaultArray",
+        "missingGraphInputOrActualNodeCannotAcquireIterationScope",
+        "multipleOwnersUseTheirOwnBatchAndOwnerMayContainAdditionalColons",
+        "parentMetadataCannotMoveAnInnerNodeToMainOrAnotherOwner",
+        "fullAnalysisStillRejectsCrossScopeEdgesAndSharedInternalStarts",
+        "hiddenResourcesQuestionAnswerNestedIterationAndActiveRetryRemainUnavailable",
+        "ordinaryGraphOnlyAssociatesActualNodesWithoutReAdmittingItsResourceTypes"
+      ],
+      "testCount": 13
+    }
+  ],
+  "readOnlyInputs": [
+    {
+      "path": "contracts/paiflow/fixtures/pure-iteration.json",
+      "sha256": "51697ff7e5ca9ca5fc2741b26ea676b20d84c3a65958c5cd3339e1e89282dea1"
+    }
+  ],
+  "originalSourceEvidence": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/纯迭代事件作用域修改前原文/输入.json",
+  "sourceChecks": {
+    "existingFullAnalysisBodyUnchangedExceptPrivateResult": true,
+    "allEightExistingLeaseTestMethodsRetained": true,
+    "oldExactStoredReplayBeforeNewScopeCheck": true,
+    "changedOldAcceptance": "原非迭代batch-0仅通过非空字段检查；本批新seq拒400，已存相同canonical历史回执不重写。"
+  },
+  "candidateTests": {
+    "RunLeasePolicyTest": 13,
+    "PureIterationEventScopeTest": 13,
+    "total": 26,
+    "existingMethods": 8,
+    "newMethods": 18,
+    "existingChangedBehaviorMethods": [
+      "optionalEventIdsMustFollowPublishedSchemaWithoutCoercion"
+    ]
+  },
+  "interface": "public static void requireEventScope(JSONObject execution,JSONObject input,String nodeId,String iterationId)",
+  "immutablePublicBudget": [
+    "expandedNodes",
+    "pathCount",
+    "maxPathLength",
+    "batchSizes"
+  ],
+  "executionLimits": {
+    "MavenRuns": 0,
+    "javacRuns": 0,
+    "JUnitRuns": 0,
+    "targetWrites": 0,
+    "EngineRuns": 0,
+    "databaseConnections": 0,
+    "providerCalls": 0
+  },
+  "notChanged": "SQL/contract/README/唯一记录/前端/Root-owned LegacyCodec、Bridge、Controller与H2测试不在owned修改中；不声称技术或业务通过。"
+}

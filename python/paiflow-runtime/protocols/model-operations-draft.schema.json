@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:python:model-operations-draft:v1",
+  "title": "原模型 SDK 帧与中心操作端口草案（尚未部署）",
+  "description": "原算法/source事实与草案历史保留；请求响应唯一引用共享模型契约。基础Spark/FC目标尚未启用，正式本批仅顶层普通LLM/OpenAI chat。",
+  "x-status": "historical-source-facts-shared-contract-refs",
+  "x-prefix": "/internal/paiflow/v1/runs/{runId}",
+  "x-ownership": "中心持有资源权限、固定版本、审批、操作状态、审计、幂等和正式费用真相；SDK 在隔离的 Python Worker 能力环境中执行，不能由节点自由选择 URL/凭据",
+  "x-binding": "保留原前端请求结构；中心保存执行版本时把已授权 nodeParam.modelId 映射为 modelResourceId，固定 resourceSnapshots。llmId/serviceId/domain 是原供应商标签，不授予资源权限。apiKey/apiSecret/url/env 不进入 assignment。",
+  "x-endpoints": {
+    "POST /resources/{resourceId}": {
+      "request": "#/$defs/Lease",
+      "responseData": "#/$defs/ModelResource"
+    },
+    "POST /operations (operation=model.invoke)": {
+      "parameters": "#/$defs/ModelParameters",
+      "responseData": "#/$defs/StartAck"
+    },
+    "POST /operations/{operationId}/frames": {
+      "request": "#/$defs/FramesRequest",
+      "responseData": "#/$defs/FramesAck"
+    },
+    "POST /operations/{operationId}/cancel": {
+      "request": "#/$defs/Lease",
+      "responseData": "#/$defs/StopAck"
+    }
+  },
+  "x-rules": [
+    "请求/ACK字段、完整绑定、分页投影、failureKind、真实finish/尾usage、停止proof及预算唯一维护于共享model-operations.schema.json；本地defs只引用共享URN。",
+    "基础两provider/FC保全原完整目标且target_contract_not_enabled，正式HTTP当前只接顶层spark-llm/OpenAI chat，其他21类范围继续保留但不因此就绪。",
+    "原Spark/OpenAI/FC/Decision算法及sandbox source事实仍保全；205草案规则原文见x-original-draft，不能将原阶段缺iteration字段或较少ACK字段继续作为现HTTP协议。"
+  ],
+  "x-sandbox": {
+    "operation": "sandbox.execute",
+    "parameters": {
+      "language": "python",
+      "code": "原 CodeNode main 注入/输出模板，最多 256KiB",
+      "timeoutSeconds": "1..600，非布尔整数"
+    },
+    "response": {
+      "state": "completed",
+      "output": "string；保留原 JSON/type 校验与非 JSON fallback"
+    },
+    "unverified": "真实 Runner 未装配；必须实证只读挂载、禁网、CPU/内存/时间限制、停止回读。代码不会由 Worker exec/eval；离线原算法测试不等于沙箱就绪。"
+  },
+  "$defs": {
+    "Lease": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/LeaseRequest"
+    },
+    "ModelResource": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/ModelSnapshot"
+    },
+    "ModelParameters": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/ModelParameters"
+    },
+    "StartAck": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/StartAck"
+    },
+    "FramesRequest": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/FramesRequest"
+    },
+    "FramesAck": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/FramesAck"
+    },
+    "StopAck": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/CancelAck"
+    }
+  },
+  "x-original-draft": "../verification/model-contract-205-model-operations-draft.schema.json.before.txt",
+  "x-current-rules-ref": "urn:paiflow:model-operations:v1#/x-rules"
+}

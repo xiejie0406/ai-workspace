@@ -1,0 +1,697 @@
+{
+  "scope": "最小受控OpenAI Chat Producer、两处原消费者必要兼容及真实SDK/Factory离线技术检查；无真实Provider/服务/数据库/费用调用，未默认注册，未业务验收",
+  "baseline": {
+    "original14": "verification/openai-14-packages-baseline.json",
+    "original14Tests171": [
+      "verification/openai-171-unittest-baseline.log",
+      "verification/openai-171-checks-baseline.json",
+      "verification/openai-171-source-baseline.json",
+      "verification/openai-171-readme-baseline.md"
+    ],
+    "restored25Tests171": [
+      "verification/openai-sdk-171-unittest.log",
+      "verification/openai-sdk-171-checks.json",
+      "verification/openai-sdk-467-source.json",
+      "verification/openai-sdk-readme-before-producer.md"
+    ],
+    "productionConsumerBefore": "verification/openai-consumer-before.json",
+    "originalEngineTestBefore": "verification/openai-original-engine-test-before.py.txt",
+    "preservedBaselineTests": 171,
+    "newProducerTests": 23,
+    "newRealFactoryConsumerTests": 11,
+    "newCombinedTests": 34,
+    "combinedSummary": "Ran 34 tests in 6.576s; OK",
+    "fullTests": 205,
+    "fullSummary": "Ran 205 tests in 32.707s; OK"
+  },
+  "entrypoint": "OpenAIChatProducer(center: CenterOpenAIChatPort, private_transport: PrivateOpenAITransport).produce(operation_id) -> ProducerOutcome",
+  "onceOnly": "实例used在acquire前置位；中心仍须独立服务身份/当前许可/固定DSL/资源/审批/收费校验与跨进程CAS。acquire或ACK未知不打开出口、不重领、不重发。首次create前send_attempted置true，取消不假称从未发送。",
+  "privateGrant": {
+    "fields": [
+      "operation_id",
+      "run_id",
+      "lease_id",
+      "attempt",
+      "node_id",
+      "workflow_version_id",
+      "dsl_hash",
+      "parameters_json",
+      "parameters_sha256",
+      "deadline_epoch",
+      "config",
+      "private"
+    ],
+    "publicConfig": [
+      "resource_id",
+      "kind=model",
+      "provider=openai",
+      "version",
+      "model_name",
+      "enabled=true",
+      "options_json",
+      "limits"
+    ],
+    "privateMaterial": [
+      "base_url",
+      "api_key"
+    ],
+    "source": "仅中心私有通道，不能进入assignment/events/log；repr不展开，错误不带异常原文/URL/材料。URL仅HTTPS443，无userinfo/query/fragment/control/whitespace/非法UTF8；授权头材料无控制/空白。真实固定TLS/出口/禁日志仍由私有transport实现。",
+    "hash": "sha256(parameters_json原字节)==parameters_sha256；固定options_json解析后与请求options严格一致，不重序列化替代参数hash"
+  },
+  "parameters": {
+    "required": [
+      "resourceId",
+      "resourceVersion",
+      "provider",
+      "modelName",
+      "mode",
+      "messages",
+      "options"
+    ],
+    "optional": [
+      "timeoutSeconds"
+    ],
+    "mode": "chat",
+    "fixedOptions": [
+      "temperature",
+      "maxTokens",
+      "topK",
+      "patchId",
+      "respFormat",
+      "searchDisable",
+      "extraParams"
+    ],
+    "effectiveSDKRequest": "model=固定model_name/messages=已核messages/stream=true，加固定extraParams白名单；通用temperature/maxTokens/topK不自动透传，沿用原Workflow行为",
+    "blockedOverrides": [
+      "extra_body",
+      "extra_headers",
+      "extra_query",
+      "timeout",
+      "model",
+      "messages",
+      "stream"
+    ],
+    "limitedProfile": "n仅1，多choice正式语义未恢复。extraParams只能是实际SDK1.60.2支持的已核固定白名单；仅白名单不能替代中心业务授权。"
+  },
+  "nodeOperationWhitelist": {
+    "operation": "model.invoke",
+    "nodeTypes": [
+      "spark-llm",
+      "extractor-parameter",
+      "decision-making",
+      "question-answer"
+    ],
+    "enforcement": "nodeId前缀仅补充校验；中心按固定DSL核对普通LLM chat、Extractor reasonMode=1 Prompt/chat、Decision reasonMode=1 Prompt/chat或非FC Normal/chat、QA resume+direct+handleResponse与动态messages模板/输入引用。原FC仅Spark，不以OpenAI chat替代。缺正式iteration实例统一拒绝嵌套。",
+    "effect": "模型调用可能收费，逐次审批/配额/费用/取消/真实停止及Provider FAILED均由中心持有；关闭本地HTTP连接不是Provider停止证明。"
+  },
+  "sdkSettings": {
+    "sdk": "openai==1.60.2",
+    "httpx": "httpx==0.27.0",
+    "maxRetries": 0,
+    "followRedirects": false,
+    "trustEnv": false,
+    "acceptEncoding": "identity",
+    "nonIdentityResponse": "handle_async_request在SDK解压前拒绝；存下原response供cleanup关闭，避免仅压缩wire预算不能约束解压膨胀",
+    "defaultNetworkTransport": false,
+    "timeoutProfileUpperBoundsSeconds": {
+      "connect": 60,
+      "read": 600,
+      "write": 600,
+      "pool": 60,
+      "total": 86400,
+      "close": 10,
+      "acquire": 30
+    },
+    "budgetUpperBounds": {
+      "frames": 10000,
+      "frameBytes": 8388608,
+      "responseBytes": 8388608,
+      "requestBytes": 2097152
+    },
+    "actualBudgets": "中心固定profile值必须有限正数/精确整数；所有请求/帧同时受中心绝对deadline。read取原timeoutSeconds较小值，初始create有界，响应wire/行/SDK frame/总量分别有界。"
+  },
+  "centerPort": {
+    "acquire(operation_id) -> OpenAIGrant": "一次CAS许可；未知不重授。必须核服务身份、已begin当前run/lease/attempt、固定节点分支/版本/参数、资源启用/撤权、动态messages、逐次费用审批和配额；grant仅私有通道。当前无正式中心实现。",
+    "assert_active(grant) -> None": "发送前、读取与提交帧前、finish前核对许可/租约/取消/撤权；边界等待同时受总deadline。",
+    "commit_frame(grant, sequence, frame, terminal=False, provider_error_code=None) -> FrameCommit": "持久完整实际SDK model_dump JSON帧，不删nullable delta/reasoning/usage扩展、不造choices。帧序号独立于run events，从1递增；同seq同原帧幂等、异帧拒绝。每帧ACK operation_id/resource_id/resource_version/provider/sequence/state=RUNNING/done=false/failure_kind=null；真实finish也先以RUNNING持久。",
+    "finish_stream(grant, last_sequence, terminal_sequence, finish_reason) -> StreamFinishCommit": "中心行锁/CAS引用已经持久真实finish帧与最后usage帧，不增/改/伪造帧；校验所有序号连续、原finish_reason及绑定、末尾仅合法usage。ACK包含FrameCommit全部字段和finish_sequence/last_sequence，sequence=last_sequence；stop=>COMPLETED/done=true/failure_kind=null，合法非stop=>FAILED/done=true/failure_kind=provider。未知/坏ACK不交成功，不重发许可。",
+    "confirm_stop(grant, reason) -> StopConfirmation": "相同绑定、状态CANCELLED/COMPLETED/FAILED、provider_stopped精确true和真实非空proof_id才确认。没有真实Provider停止接口/证据时EFFECT_UNKNOWN；本地close不授予此证明。",
+    "record_failure(grant, FailureFacts) -> None": "只含failure_kind/code/send_attempted/local_closed/provider_stop_confirmed；中心持久操作/费用/effect/审计，不覆写已确认COMPLETED/FAILED，不造rollback或run终态。"
+  },
+  "privateTransportPort": {
+    "create_transport(material: OpenAIPrivateMaterial, limits: OpenAILimits) -> httpx.AsyncBaseTransport": "只构造可协作取消、有界清理、无日志的私有固定TLS/出口，不发送业务请求；没有默认实现。包装层只接受一次固定目标POST/正确私有Authorization，禁止redirect/env代理，response要可aclose。返回前取消/超时由实现清理未交付句柄。",
+    "cleanup": "跟踪SDK stream、transport.response、AsyncOpenAI client或部分构造http_client/transport；优先aclose，兼容close，每个有界。SDK构造失败仍关闭HTTPX和私有transport；已知中心终态后清理失败只报PRODUCER_CLEANUP_UNKNOWN，不覆盖操作终态。"
+  },
+  "consumerCompatibility": {
+    "bridge": "worker/model_bridge.py::_BoundModel._frames保存本次真实OpenAI finish原帧，保全并交付合法usage-only raw。只有绑定中心COMPLETED或合法FAILED/provider、finishSeq==真实finish序号且lastSeq==游标才交真实finish一次；missing/bool/错误绑定/耗尽列表不完成。",
+    "baseLLM": "workflow/engine/nodes/base_node.py::_chat_with_llm在choices读取前分支合法usage-only，保留最近有效累计usage快照、不逐帧相加；延后真实finish不能擦掉更晚tail usage。局部调用状态避免并发/迭代串值，Spark原分支保持。",
+    "draft": "protocols/model-operations-draft.schema.json FramesAck仅增加OpenAI已终态finishSeq/lastSeq要求，待中心实现；共享Assignment/Begin/Checkpoint未改。",
+    "originalSemantics": "真实length/content_filter/function_call/tool_calls保持原OPEN_AI_REQUEST_ERROR20380；SDK bareEOF/[DONE]不生成finish，HTTP/SSE APIError不造合法choices错误帧、不触发假DEFAULT。"
+  },
+  "newSourceFiles": [
+    "worker/producers/chat_lifecycle.py",
+    "worker/producers/openai_chat.py",
+    "tests/test_openai_producer.py",
+    "tests/test_openai_consumer.py"
+  ],
+  "modifiedExistingPython": [
+    "worker/model_bridge.py",
+    "workflow/engine/nodes/base_node.py",
+    "tests/test_controlled_nodes.py",
+    "tests/test_original_engine.py"
+  ],
+  "modifiedOtherFiles": [
+    "protocols/model-operations-draft.schema.json",
+    "README.md",
+    "verification/openai-sdk-review.json"
+  ],
+  "preservedFailures": [
+    {
+      "file": "verification/openai-producer-first.log",
+      "fact": "首19项17通过+SDK懒加载logger过滤遗漏/过短正向fixturedeadline；已按实际SDK使用时安装任务局部过滤并保留定向deadline失败，未弱化生产限制"
+    },
+    {
+      "file": "verification/openai-consumer-first.log",
+      "fact": "首10项8通过+猜测错误码断言/真实Iteration tail usage被旧finish覆写；修断言与本次调用最新usage，不改原20380规则"
+    },
+    {
+      "file": "verification/openai-full-201-first-failure.log",
+      "fact": "首完整201项200通过+旧全局OpenAI未导入断言不适用于实际SDK测试；改模块身份不变断言，非法Agent仍DSL_INVALID/0events/0operations"
+    },
+    {
+      "file": "verification/openai-sdk-review-first-failure.log",
+      "fact": "SDK恢复审查生成器路径错误，原FileNotFoundError保留；不是SDK/引擎失败"
+    }
+  ],
+  "testEvidence": [
+    "verification/openai-combined-current.log",
+    "verification/openai-producer-current.log",
+    "verification/openai-consumer-current.log",
+    "verification/unittest.log",
+    "verification/checks.json",
+    "verification/source-check.log",
+    "verification/dependency-analysis.log",
+    "verification/dependency-check.log",
+    "source-verification.json"
+  ],
+  "notDone": [
+    "中心resources/operations/model.invoke/frames/cancel/Producer grant分发/finish引用CAS/费用与effect ledger",
+    "真正私有固定TLS出口与Provider停止证明",
+    "正式动态messages/多模态对象与迭代实例归属",
+    "多choice n>1及独立Agent/Link/AITools Producer环境",
+    "Provider联机/真实收费/服务启动/数据库DDL/任务派发/业务验收/上线"
+  ],
+  "registeredDefault": false,
+  "providerRequests": 0,
+  "installedDuringProducerImplementation": [],
+  "independentReview": {
+    "status": "Producer修复后真实SDK四场景独立复验通过；两处消费者深入只读审查继续中",
+    "producerRepairScenarios": 4,
+    "sourceHashMismatchCount": 0,
+    "evidence": {
+      "file": "../../文档/项目/PaiFlow工作流项目/证据/本地源码检查/OpenAI-Producer清理与压缩独立复验.json",
+      "sha256": "97b2139615b2a517885bc90deb9be581b3c83f25680fcb7c67ee1fd782a30a4f"
+    },
+    "command": ".venv/Scripts/python.exe -B D:/2025Ai/26-05-23/java-workspace/文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/OpenAIProducerCleanupReview.py",
+    "providerCalls": 0,
+    "socketBlocked": true,
+    "originalFailureEvidence": [
+      {
+        "file": "../../文档/项目/PaiFlow工作流项目/证据/本地源码检查/OpenAI-Producer构造失败清理独立复现.json",
+        "sha256": "62d6896852f499d201894c0cdc489bb3c6be0ade07ddb6fb992b283d0118c624"
+      }
+    ]
+  },
+  "timestamp": "2026-10-03T00:33:48.515715+00:00",
+  "verificationTimestamp": "2026-10-03T00:20:10.714026+00:00",
+  "checks": [
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exitCode": 0,
+      "log": "verification/unittest.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/verify_source.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/source-check.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "scripts/analyze_port_dependencies.py"
+      ],
+      "exitCode": 0,
+      "log": "verification/dependency-analysis.log"
+    },
+    {
+      "command": [
+        ".venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exitCode": 0,
+      "log": "verification/dependency-check.log"
+    }
+  ],
+  "sourceScan": {
+    "pythonFiles": 471,
+    "introducedFiles": 427,
+    "missingIntroducedFiles": [],
+    "syntaxErrors": [],
+    "suspiciousLiteralCredentialBindings": [],
+    "executableExamples": [],
+    "hostExecCalls": []
+  },
+  "sourceScanLimits": [
+    "静态检查不是秘密扫描器，不能证明没有别名/拼接/动态外部调用",
+    "凭据/exec/示例扫描包含全部生产Python（含worker），排除测试fixture和检查脚本；所有Python仍执行语法检查",
+    "21 节点源码存在不证明各节点已接通中心或联机运行",
+    "引入基线的完整源 hash 不含原文"
+  ],
+  "dependencyFreeze": {
+    "packages": [
+      {
+        "name": "annotated-types",
+        "version": "0.7.0"
+      },
+      {
+        "name": "attrs",
+        "version": "23.2.0"
+      },
+      {
+        "name": "colorama",
+        "version": "0.4.6"
+      },
+      {
+        "name": "jsonschema",
+        "version": "4.23.0"
+      },
+      {
+        "name": "jsonschema-specifications",
+        "version": "2023.12.1"
+      },
+      {
+        "name": "loguru",
+        "version": "0.7.2"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.9.2"
+      },
+      {
+        "name": "pydantic-core",
+        "version": "2.23.4"
+      },
+      {
+        "name": "referencing",
+        "version": "0.35.1"
+      },
+      {
+        "name": "rpds-py",
+        "version": "0.19.0"
+      },
+      {
+        "name": "typing-extensions",
+        "version": "4.12.2"
+      },
+      {
+        "name": "win32-setctime",
+        "version": "1.1.0"
+      },
+      {
+        "name": "websockets",
+        "version": "12.0"
+      },
+      {
+        "name": "tenacity",
+        "version": "9.1.2"
+      },
+      {
+        "name": "openai",
+        "version": "1.60.2"
+      },
+      {
+        "name": "anyio",
+        "version": "4.4.0"
+      },
+      {
+        "name": "certifi",
+        "version": "2024.7.4"
+      },
+      {
+        "name": "distro",
+        "version": "1.9.0"
+      },
+      {
+        "name": "h11",
+        "version": "0.14.0"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.5"
+      },
+      {
+        "name": "httpx",
+        "version": "0.27.0"
+      },
+      {
+        "name": "idna",
+        "version": "3.7"
+      },
+      {
+        "name": "jiter",
+        "version": "0.10.0"
+      },
+      {
+        "name": "sniffio",
+        "version": "1.3.1"
+      },
+      {
+        "name": "tqdm",
+        "version": "4.67.1"
+      }
+    ],
+    "original14VersionOrMetadataChanged": [],
+    "newDependencyInstallsAfter25Baseline": [],
+    "baselineEvidence": {
+      "file": "verification/openai-sdk-import.json",
+      "sha256": "7e3eb4a9a5d96bb8f8c302b0ba3046e2dc437df558dfbe6c05ad1cbfbcd77c35"
+    }
+  },
+  "sourceFreeze": {
+    "baselinePythonFiles": 467,
+    "currentPythonFiles": 471,
+    "changedExistingPython": [
+      {
+        "file": "tests/test_controlled_nodes.py",
+        "beforeSha256": "71186cb9ee61f807c81ce6c269596600661a9cd7a006caba67d7d9d18c8057cb",
+        "sha256": "5588f6304ae6aaa8729a5ba003e865c25b1f170ec8a1d086d678f14383188d1f"
+      },
+      {
+        "file": "tests/test_original_engine.py",
+        "beforeSha256": "4ecd6554579654404955b9f9f124ac069432d746dcf138cbbd7835c89ee4cb46",
+        "sha256": "eb4fe001d46f7f1b3dbbba49553a9737c132c87daec4a91856dfd45af9bd10b3"
+      },
+      {
+        "file": "worker/model_bridge.py",
+        "beforeSha256": "3598252ac1cf11dc7a5a995ce03c8ba75dbdc63ec0dbee6d22c13942f5f942d0",
+        "sha256": "f74230fdf83b43d537f9a23043bfb834bbc6bb43dcbc6d77fd7b0cdc9d4d79a6"
+      },
+      {
+        "file": "workflow/engine/nodes/base_node.py",
+        "beforeSha256": "b01cfc8833f16814f6ad6a1061f13fe3559aca9f51ca6bed0a6aaa15069b7ea3",
+        "sha256": "0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f"
+      }
+    ],
+    "newPython": [
+      {
+        "file": "tests/test_openai_consumer.py",
+        "sha256": "3624f6b6c17b273ba4100be9a6731ba926c2b755cb245e5e7632a3b4298fdc60"
+      },
+      {
+        "file": "tests/test_openai_producer.py",
+        "sha256": "843444cd99f18114c60d83985ec0f5cb9ab28617c017074a9b833542e92a2cb6"
+      },
+      {
+        "file": "worker/producers/chat_lifecycle.py",
+        "sha256": "8a91b8a35541dad6010544f18c54445f92471a0a3fd074c46aceb71cff422eb6"
+      },
+      {
+        "file": "worker/producers/openai_chat.py",
+        "sha256": "85751ffa33f3b933b131ebac1dd0d1030d0bb5d56bf19bdc9cf7e289bae82ea2"
+      }
+    ],
+    "unchangedExistingPython": 463
+  },
+  "sourceHashes": [
+    {
+      "file": "worker/producers/chat_lifecycle.py",
+      "sha256": "8a91b8a35541dad6010544f18c54445f92471a0a3fd074c46aceb71cff422eb6"
+    },
+    {
+      "file": "worker/producers/openai_chat.py",
+      "sha256": "85751ffa33f3b933b131ebac1dd0d1030d0bb5d56bf19bdc9cf7e289bae82ea2"
+    },
+    {
+      "file": "tests/test_openai_producer.py",
+      "sha256": "843444cd99f18114c60d83985ec0f5cb9ab28617c017074a9b833542e92a2cb6"
+    },
+    {
+      "file": "tests/test_openai_consumer.py",
+      "sha256": "3624f6b6c17b273ba4100be9a6731ba926c2b755cb245e5e7632a3b4298fdc60"
+    },
+    {
+      "file": "worker/model_bridge.py",
+      "sha256": "f74230fdf83b43d537f9a23043bfb834bbc6bb43dcbc6d77fd7b0cdc9d4d79a6"
+    },
+    {
+      "file": "workflow/engine/nodes/base_node.py",
+      "sha256": "0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f"
+    },
+    {
+      "file": "tests/test_controlled_nodes.py",
+      "sha256": "5588f6304ae6aaa8729a5ba003e865c25b1f170ec8a1d086d678f14383188d1f"
+    },
+    {
+      "file": "tests/test_original_engine.py",
+      "sha256": "eb4fe001d46f7f1b3dbbba49553a9737c132c87daec4a91856dfd45af9bd10b3"
+    },
+    {
+      "file": "protocols/model-operations-draft.schema.json",
+      "sha256": "d42abad37ff634404ac1cc648048ac7934064bba316157ea43642a0a40b2201f"
+    },
+    {
+      "file": "README.md",
+      "sha256": "fec777d32f3d751b64f0369bee28da25660b6a3f909601cbe9941fcdda3022fc"
+    },
+    {
+      "file": "verification/openai-sdk-review.json",
+      "sha256": "979aa7f37d047bf160a47c9999f6ce2ef21b5f3ee6c6d0d683e46d05815d43a2"
+    }
+  ],
+  "frozenSparkAndOriginalOpenAI": [
+    {
+      "file": "worker/producers/spark_chat.py",
+      "sha256": "67ea6eee539006ea20a41a337c245fbdc5ac3cba83feabb3ef1956544b94b055"
+    },
+    {
+      "file": "tests/test_spark_producer.py",
+      "sha256": "8957120d3a27e8711972aa9a0c992935412c8201e6e30a9e31e4ed444ebb5501"
+    },
+    {
+      "file": "worker/producers/__init__.py",
+      "sha256": "f488ae465fff2162a7ca16b94cc223fb85c822288072a739ff2f136446988eb1"
+    },
+    {
+      "file": "workflow/infra/providers/llm/openai/openai_chat_llm.py",
+      "sha256": "341853c203b55ce0421a0cfbc1c27c8619ff5f55fc8411b14f81b7ec55467b32"
+    }
+  ],
+  "protectedFiveDependencyTrees": [
+    {
+      "file": "upstream-dependencies/agent/pyproject.toml",
+      "sha256": "3e83611999aabd0c72be19322401f153b2206ced02276767cba6171e33c1c6a5"
+    },
+    {
+      "file": "upstream-dependencies/agent/uv.lock",
+      "sha256": "9945957c663318d6391be7367c3c0c51d6e2a7a3b0c4f8e9a6c8fd349c58a8cb"
+    },
+    {
+      "file": "upstream-dependencies/common/poetry.lock",
+      "sha256": "3be2d7b5330e1c3b89490d4e907c7b8d8caaf5fbd6089f73c84bd119398292eb"
+    },
+    {
+      "file": "upstream-dependencies/common/pyproject.toml",
+      "sha256": "cb49f722d39419d36d240a3fae33d81fe43ab54ae7ce3c10d87e1cdb3bbf9e8f"
+    },
+    {
+      "file": "upstream-dependencies/common/uv.lock",
+      "sha256": "e2e233add1cd171eadaab7aeae96f53ab9c095579b9b96abd7d2dbf39eb802dd"
+    },
+    {
+      "file": "upstream-dependencies/workflow/pyproject.toml",
+      "sha256": "4e1ddf57b12a15abc6b3707eae6cb92ef3747f2ae65de797b49a4449ed7be598"
+    },
+    {
+      "file": "upstream-dependencies/workflow/uv.lock",
+      "sha256": "4742b18f938abba000f50fa7b330bf0d64aa9e02cc4fd39d91f764da56496811"
+    }
+  ],
+  "evidenceHashes": [
+    {
+      "file": "verification/openai-combined-current.log",
+      "sha256": "4298697bd645d8d86de07dc2027a647d6e99261cd1fdc1232fe6c4cf546b44e9"
+    },
+    {
+      "file": "verification/openai-producer-current.log",
+      "sha256": "2bf3013a1fac8e88d59dd17667ba0536028d3ddd11ade6178af1a99d8dc8cf5c"
+    },
+    {
+      "file": "verification/openai-consumer-current.log",
+      "sha256": "18f018f334972402ce6de0d1934a34cb16ab0a1c4949d7a94cbc936133de190d"
+    },
+    {
+      "file": "verification/unittest.log",
+      "sha256": "309ac7d9f61b4f477d87309cdbf2df7e9569d57832419d7691f25aacf91aab70"
+    },
+    {
+      "file": "verification/checks.json",
+      "sha256": "8b828db2d767027f1814ecf4a2268f51eedb06170d4f8106da9d134aa0460bd5"
+    },
+    {
+      "file": "verification/source-check.log",
+      "sha256": "65d01e0aa4fc2885b3c032c7a3edc0f85b3a6a4446a78df353af0cd37520082c"
+    },
+    {
+      "file": "verification/dependency-analysis.log",
+      "sha256": "9e08c22ed1c07c55312cbc9ea52ffcd8561ecf59676fcf72237bab6bb1a79889"
+    },
+    {
+      "file": "verification/dependency-check.log",
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "file": "source-verification.json",
+      "sha256": "91aeab8b903f7d9942d20520909da7edd40a51472a16644e01783b39e6ffa599"
+    },
+    {
+      "file": "verification/openai-producer-first.log",
+      "sha256": "6b767a9cf9bfa81080a5ed974ddebc37ba8154480569a4d95e973b43eae34c46"
+    },
+    {
+      "file": "verification/openai-consumer-first.log",
+      "sha256": "54b9c249080e2e07d746923c096742ec43fcc2572bd73aa4b5c8c5039d0d6f83"
+    },
+    {
+      "file": "verification/openai-full-201-first-failure.log",
+      "sha256": "b98e7b03200bff3e32a54621456579a5c4b24cc07dfa502ee3b21dfe34e0c0e1"
+    },
+    {
+      "file": "verification/openai-sdk-review-first-failure.log",
+      "sha256": "b56793019985cb64a20e6a852808d7f6a722531e72b69cbae5867e7125a62091"
+    },
+    {
+      "file": "verification/openai-consumer-before.json",
+      "sha256": "6d9b18f8e081ddab3b73947db5b54e46dcaf3db4b661fc51d02aece6451e4f6d"
+    },
+    {
+      "file": "verification/openai-sdk-review-before-producer.json",
+      "sha256": "d7ef42132e3822caef880ce1ea4d6739c712cc8a3ef457b5a004e324a47d7c11"
+    }
+  ],
+  "consumerBackupsVerified": true,
+  "independentSdkSourceEvidence": {
+    "file": "../../文档/项目/PaiFlow工作流项目/证据/本地源码检查/OpenAI-SDK原适配只读核对.json",
+    "sha256": "c0d07f12ec86f6e668d321d7d8d774ef888c8a0cab69a3e73367072c140a9515"
+  },
+  "draftSchemaCheck": [
+    {
+      "file": "protocols/checkpoints-draft.schema.json",
+      "schemaValid": true,
+      "localRefsResolved": [
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/Question",
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/CreateRequest",
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/CreateAck",
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/PollRequest",
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/PollAck",
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/ConsumeRequest",
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/ResumeData",
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/ConsumeAck"
+      ],
+      "sha256": "1ae0d067785291bba41d22d1a9a3f734e22f3069238defc432ae8cd024c94462"
+    },
+    {
+      "file": "protocols/flow-draft.schema.json",
+      "schemaValid": true,
+      "localRefsResolved": [],
+      "sha256": "1dcaa6d5492dc72c774dd9f3f2462f25f6d5dd9b31487d1465814a213bccf8c5"
+    },
+    {
+      "file": "protocols/knowledge-draft.schema.json",
+      "schemaValid": true,
+      "localRefsResolved": [],
+      "sha256": "66b9130b00112ad00c2e21592f74c8d1c1bb29ca97880ac4b839c2691664fc9e"
+    },
+    {
+      "file": "protocols/model-operations-draft.schema.json",
+      "schemaValid": true,
+      "localRefsResolved": [],
+      "sha256": "d42abad37ff634404ac1cc648048ac7934064bba316157ea43642a0a40b2201f"
+    },
+    {
+      "file": "protocols/persistence-draft.schema.json",
+      "schemaValid": true,
+      "localRefsResolved": [],
+      "sha256": "cf235a089bc459813bc6d65419a6d23f895c8dd0c56a626e9dfd2b822e2e7267"
+    },
+    {
+      "file": "protocols/remaining-capabilities-draft.schema.json",
+      "schemaValid": true,
+      "localRefsResolved": [
+        "../../../contracts/paiflow/worker.schema.json#",
+        "../../../contracts/paiflow/worker.schema.json#/$defs/ExecutionBeginAck",
+        "../../../contracts/paiflow/checkpoints.schema.json#/$defs/CreateAck",
+        "#/$defs/Dependency",
+        "#/$defs/ResourceBindings",
+        "#/$defs/DatabaseTable",
+        "#/$defs/Condition",
+        "#/$defs/ResourceBindings",
+        "#/$defs/PluginPayload",
+        "#/$defs/ProPayload",
+        "#/$defs/AgentPayload",
+        "#/$defs/DatabasePayload",
+        "#/$defs/RpaPayload",
+        "#/$defs/Parameters",
+        "#/$defs/ProviderErrorFrame",
+        "#/$defs/AgentSuccessFrame",
+        "#/$defs/ProviderErrorFrame",
+        "#/$defs/ResourceBindings",
+        "#/$defs/ResourceBindings",
+        "#/$defs/ResourceBindings"
+      ],
+      "sha256": "35aa68ce7d73070285741eaf86a844f47f52049110e81297fa7601ac97bb56fe"
+    }
+  ],
+  "readmeLocalPathsChecked": {
+    "uniqueConcreteCodePaths": 13,
+    "missing": []
+  },
+  "preservedCurrentCopies": [
+    {
+      "originalPathAtStage": "verification/unittest.log",
+      "preservedPath": "verification/openai-producer-205-unittest.log",
+      "sha256": "309ac7d9f61b4f477d87309cdbf2df7e9569d57832419d7691f25aacf91aab70"
+    },
+    {
+      "originalPathAtStage": "verification/checks.json",
+      "preservedPath": "verification/openai-producer-205-checks.json",
+      "sha256": "8b828db2d767027f1814ecf4a2268f51eedb06170d4f8106da9d134aa0460bd5"
+    },
+    {
+      "originalPathAtStage": "source-verification.json",
+      "preservedPath": "verification/openai-producer-471-source.json",
+      "sha256": "91aeab8b903f7d9942d20520909da7edd40a51472a16644e01783b39e6ffa599"
+    },
+    {
+      "originalPathAtStage": "README.md",
+      "preservedPath": "verification/openai-producer-readme-frozen.md",
+      "sha256": "fec777d32f3d751b64f0369bee28da25660b6a3f909601cbe9941fcdda3022fc"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "checkedAt": "2026-10-03T04:53:31.691752+00:00",
+  "method": "actual current compiled RunJsonBoundary.check and WorkflowJsonBoundary.check; old source catch mapping is explicitly simulated, not an old full Service rerun",
+  "command": [
+    "java",
+    "--class-path",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\target\\classes;D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-common\\target\\classes;C:\\Users\\admin\\.m2\\repository\\com\\alibaba\\fastjson2\\fastjson2\\2.0.64\\fastjson2-2.0.64.jar",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\WorkflowNullBudgetReview.java"
+  ],
+  "workingDirectory": "D:\\2025Ai\\26-05-23\\java-workspace",
+  "exitCode": 0,
+  "observations": {
+    "fieldLength": 32769,
+    "oldSingletonBudget": 4096,
+    "actualNullSingletonBytes": 32778,
+    "actualTinyBudgetCode": 413,
+    "oldSourceCatchWouldWrapAsCode": 400,
+    "finalMergedBytes": 19270791,
+    "actualFinalMergedBudget": 16777216,
+    "currentBoundaryFinalMergedCode": 413
+  },
+  "sourceHashesBefore": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "fe7b4d572080b91bb1e804d72e06f31fe624e6162e79afbaecf88c647dfeec2a",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "d3f9b27bdda647770e94414781f2dcf0032fe9877a52c8ff0bfe09a776678e07",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowPersistenceTest.java": "b618ef0dda45be8522d5464b8e3b192c246d2842b64ce816e75d4bd6fa59b652",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/WorkflowJsonBoundary.class": "7121ffaa7e9236de251f1d7a718560a79881bbff44925c514dbed8f1761e244d",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/RunJsonBoundary.class": "47936f35a0ae841b0ff77dbc923cea2286f483790effd4d30970640eee7175a5",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/静态问答实施前快照/ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "dd1981de18adaec81460be9c30e14b3028d29a8fddac9ab4e798915521d89420",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/静态问答与运行JSON-联合回归输入.json": "8d937f3d87efb3164c1b35260c7fc7c9382a82669f90610193c261d641ecb081"
+  },
+  "sourceHashesAfter": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "fe7b4d572080b91bb1e804d72e06f31fe624e6162e79afbaecf88c647dfeec2a",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "d3f9b27bdda647770e94414781f2dcf0032fe9877a52c8ff0bfe09a776678e07",
+    "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowPersistenceTest.java": "b618ef0dda45be8522d5464b8e3b192c246d2842b64ce816e75d4bd6fa59b652",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/WorkflowJsonBoundary.class": "7121ffaa7e9236de251f1d7a718560a79881bbff44925c514dbed8f1761e244d",
+    "ruoyi-backend/ruoyi-paiflow/target/classes/com/ruoyi/paiflow/service/RunJsonBoundary.class": "47936f35a0ae841b0ff77dbc923cea2286f483790effd4d30970640eee7175a5",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/静态问答实施前快照/ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "dd1981de18adaec81460be9c30e14b3028d29a8fddac9ab4e798915521d89420",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/静态问答与运行JSON-联合回归输入.json": "8d937f3d87efb3164c1b35260c7fc7c9382a82669f90610193c261d641ecb081"
+  },
+  "sourceWindowChanges": [],
+  "cause": "445首败的WorkflowJsonBoundary在逐key秘密字段检查复用4096预算；RunJsonBoundary本批保null后，大null字段名先413，被旧catch(ServiceException)包装为400，未走到merged16MiB预算。",
+  "currentFixObserved": "当前WorkflowJsonBoundary改为Integer.MAX_VALUE仅复用秘密字段规则；同null大包最终物理预算真实413。",
+  "noMaven": true,
+  "targetWritten": false,
+  "productionSourceWritten": false,
+  "realDatabaseWrites": false,
+  "network": false,
+  "businessVerified": false,
+  "limitations": [
+    "未重跑旧WorkflowPersistenceTest或完整445；旧异常包装由已保全源码和实际tiny check输出共同定位。",
+    "当前磁盘class的编译轮次不由本探针认定；Maven归属必须用root正式执行startedAt/end与编译输入SHA核对，不能视为首445类或集中JUnit通过。",
+    "Java source launcher只为证据探针临时编译，不写target；当前实际Mapper回滚仍交集中JUnit复验。"
+  ],
+  "currentClassDisassemblyRead": {
+    "method": "walk",
+    "absolutePath": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\target\\classes\\com\\ruoyi\\paiflow\\service\\WorkflowJsonBoundary.class",
+    "sha256": "7121ffaa7e9236de251f1d7a718560a79881bbff44925c514dbed8f1761e244d",
+    "lastWriteTimeUtc": "2026-10-03T04:48:23.8422035Z",
+    "offsets": {
+      "186": "Collections.singletonMap",
+      "189": "ldc2147483647",
+      "191": "RunJsonBoundary.check",
+      "197": "catchServiceException"
+    },
+    "compilationProvenance": "not asserted; parent sole directed Maven36987 may update classes"
+  }
+}

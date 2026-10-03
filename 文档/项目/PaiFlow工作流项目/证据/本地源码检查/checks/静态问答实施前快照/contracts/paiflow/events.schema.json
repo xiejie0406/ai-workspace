@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:events:v1",
+  "title": "PaiFlow中心运行事件",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "leaseId",
+    "attempt",
+    "seq",
+    "eventType",
+    "timestamp",
+    "payload"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "paiflow.events.v1"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leaseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 0,
+      "$comment": "0仅用于中心生成的未派发排队终态（leaseId=center）；Worker事件必须对应有效租约且attempt>=1。"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "nodeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "iterationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "eventType": {
+      "enum": [
+        "node.started",
+        "node.completed",
+        "node.failed",
+        "text.delta",
+        "reasoning.delta",
+        "usage",
+        "artifact",
+        "checkpoint",
+        "run.completed",
+        "run.failed",
+        "run.cancelled"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "$comment": "事件序号从中心派发lastEventSeq+1开始；中心校验租约、去重、落库和终态。不得将secret/token/密码写入payload。"
+}

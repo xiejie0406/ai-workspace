@@ -1,0 +1,143 @@
+"""待真实 Java QA claim ready 后消费原字节；仅原 Engine/隔离检查点，不续租。"""
+import argparse
+import asyncio
+import base64
+import copy
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import re
+import sys
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+WORKSPACE = ROOT.parents[1]
+sys.path.insert(0, str(ROOT))
+from jsonschema import Draft202012Validator
+from worker.engine_adapter import OriginalWorkflowEngine
+from worker.events import EventPublisher
+from worker.errors import WorkerError
+from worker.static_question_answer import validate_assignment
+from worker.task_runner import Assignment, CURRENT_CONTEXT, RunContext, _unique_object, _deny_constant, _same_json
+from tests.test_question_answer import CheckpointCenter
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def strict_json(data):
+    return json.loads(data, object_pairs_hook=_unique_object, parse_constant=_deny_constant)
+
+
+def save(name, value):
+    path = ROOT / 'verification' / name
+    data = value if isinstance(value, bytes) else (json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + '\n').encode('utf-8')
+    if path.exists() and path.read_bytes() != data:
+        prior = path.with_name(path.stem + '-prior-' + sha(path.read_bytes())[:12] + path.suffix)
+        if not prior.exists():
+            prior.write_bytes(path.read_bytes())
+    path.write_bytes(data)
+    return sha(data)
+
+
+async def main(args):
+    started = datetime.now(timezone.utc)
+    stage = strict_json((ROOT / 'verification/static-question-answer-stage.json').read_text(encoding='utf-8'))
+    fixture_path = WORKSPACE / 'contracts/paiflow/fixtures/static-question-answer.json'
+    fixture = strict_json(fixture_path.read_text(encoding='utf-8'))
+    assert sha(fixture_path.read_bytes()) == stage['sharedFixture']['sha256']
+    case = next(item for item in fixture['algorithmCases'] if item['name'] == args.fixture_case)
+    assert case['event'] is not None and case['expectedErrorCode'] is None
+    expected = strict_json(args.expected_output)
+    assert isinstance(expected, dict)
+    hashes = {**stage['sourceSha256'], **{p: fact['after'] for p, fact in stage['unchangedFrozen'].items()}}
+    before = {p: sha((ROOT / p).read_bytes()) for p in hashes}
+    assert before == hashes
+    source = Path(args.assignment).resolve(strict=True)
+    original = source.read_bytes()
+    assert sha(original) == args.sha256
+    if args.copy:
+        assert Path(args.copy).read_bytes() == original
+    prefix = 'static-question-answer-java-' + args.sha256[:12]
+    save(prefix + '-assignment-original.json', original)
+    raw = strict_json(original.decode('utf-8'))
+    untouched = copy.deepcopy(raw)
+    canonical = base64.b64decode(raw['dslCanonicalBase64'], validate=True)
+    assert base64.b64encode(canonical).decode('ascii') == raw['dslCanonicalBase64']
+    assert sha(canonical) == raw['dslHash']
+    assert _same_json(strict_json(canonical.decode('utf-8')), raw['dsl'])
+    save(prefix + '-canonical-original.json', canonical)
+    Draft202012Validator(strict_json((WORKSPACE / 'contracts/paiflow/worker.schema.json').read_text(encoding='utf-8'))).validate(raw)
+    report = {'startedAt': started.isoformat(), 'artifact': str(source), 'artifactSha256': sha(original),
+        'canonicalSha256': sha(canonical), 'canonicalMatchesDsl': True, 'schemaAccepted': True,
+        'deadlineUnmodified': raw['deadline'], 'leaseExpiresAt': None,
+        'scope': 'actual Java claim raw bytes -> original Engine/Factory with isolated checkpoint fixture only; no real centre HTTP/lease authority/UI/business acceptance',
+        'replyFixtureCase': case['name'], 'replyFixture': case['event'], 'replyFixtureMetadata': case['metadata'],
+        'expectedOutputs': expected, 'sourceHashesBefore': before,
+        'taskRunnerCalls': 0, 'realCenterVerifyBeginResultEventOperationResourceCalls': 0,
+        'assignmentChanges': 0, 'full265Rerun': False}
+    try:
+        # 截止时间必须原样仍有效；过期保存拒绝，禁止改 payload 或伪造时钟。
+        assignment = Assignment.parse(raw)
+        report['assignmentParseAccepted'] = True
+        budget = validate_assignment(assignment)
+        assert budget is not None
+        from dataclasses import asdict
+        report['budget'] = asdict(budget)
+        class IsolatedCheckpointFixture(CheckpointCenter):
+            async def consume_checkpoint(self, *values):
+                ack = await super().consume_checkpoint(*values)
+                ack['resumeData']['metadata'] = copy.deepcopy(case['metadata'])
+                self.resume_ack = copy.deepcopy(ack['resumeData'])
+                return ack
+        center = IsolatedCheckpointFixture(raw, [copy.deepcopy(case['event'])])
+        context = RunContext(center, assignment, EventPublisher(center, assignment.run_id, assignment.lease_id,
+            assignment.attempt, assignment.last_event_seq))
+        token = CURRENT_CONTEXT.set(context)
+        try:
+            # 仅已固定图的原算法；真实中心的 begin 已由 Java 测试另行保存，
+            # 这里不重新取得许可、不向中心写终态，内存帧 ACK 也不是正式持久确认。
+            with patch('socket.socket.connect', side_effect=AssertionError('no socket in isolated QA check')):
+                result = await asyncio.wait_for(OriginalWorkflowEngine().execute(assignment, context),
+                    min(10, max(0, (assignment.deadline - datetime.now(timezone.utc)).total_seconds())))
+        finally:
+            CURRENT_CONTEXT.reset(token)
+        assert result['outputs'] == expected
+        assert center.begin_calls == [] and center.results == []
+        assert center.operations == [] and center.resource_calls == []
+        assert len(center.checkpoint_calls) == 1 and len(center.consume_calls) == 1
+        assert strict_json(center.resume_ack['message']) == case['event']
+        assert center.resume_ack['metadata'] == case['metadata']
+        report.update(result='PASS', originalEngineOutputs=result, localEvents=center.events,
+            isolatedCheckpointCreate=center.checkpoint_calls, isolatedCheckpointPoll=center.poll_calls,
+            isolatedCheckpointConsume=center.consume_calls, isolatedResumeData=center.resume_ack)
+    except Exception as error:
+        report.update(result='FAILED', errorClass=type(error).__name__, errorCode=getattr(error, 'code', None),
+            assignmentParseAccepted=report.get('assignmentParseAccepted', False))
+        if isinstance(error, WorkerError) and error.code == 'DEPENDENCY_TIMEOUT':
+            report['deadlineExpired'] = True
+        # 不输出任意异常的参数原文；原错误类型/码足以保全边界事实。
+    after = {p: sha((ROOT / p).read_bytes()) for p in hashes}
+    assert before == after
+    assert _same_json(raw, untouched) and source.read_bytes() == original
+    report.update(sourceHashesAfter=after, sourceChanged=False, finishedAt=datetime.now(timezone.utc).isoformat())
+    digest = save(prefix + '-check.json', report)
+    print(json.dumps({'result': report['result'], 'report': prefix + '-check.json', 'reportSha256': digest,
+        'artifactSha256': sha(original), 'dslHash': raw['dslHash'],
+        'outputs': report.get('originalEngineOutputs', {}).get('outputs'),
+        'errorCode': report.get('errorCode'), 'sourceChanged': False}, ensure_ascii=True))
+    raise SystemExit(0 if report['result'] == 'PASS' else 1)
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--assignment', required=True)
+parser.add_argument('--sha256', required=True)
+parser.add_argument('--copy')
+parser.add_argument('--fixture-case', required=True)
+parser.add_argument('--expected-output', required=True, help='independent expected output JSON; never taken from actual result')
+args = parser.parse_args()
+if not re.fullmatch('[0-9a-f]{64}', args.sha256):
+    raise SystemExit('exact artifact SHA256 required')
+asyncio.run(main(args))

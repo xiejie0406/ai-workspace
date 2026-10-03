@@ -1,0 +1,76 @@
+{
+  "kind": "read-only-source-audit",
+  "observedAt": "2026-10-03T10:43:30.9351096+08:00",
+  "sources": [
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/controller/publish/PublishApiController.java",
+      "sha256": "34fa5a2502ab08a13d6b52d03d4d0cf35c556a4b64b210a00d6bb6566f90b119"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/service/publish/impl/PublishApiServiceImpl.java",
+      "sha256": "765dd9384a7cf87d35381c37838940c979b2b8c2552c537c53583946f10cbb26"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/service/publish/impl/TenantServiceImpl.java",
+      "sha256": "0e51016c2f2733bed091c112befb04003b826b223db0a5abdd158e8676d3f7ff"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/service/publish/impl/ReleaseManageClientServiceImpl.java",
+      "sha256": "7f300a16c51063512e122780a4090bb8cc36c1d683343a8b7760e3c7e67be03a"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/service/chat/impl/ChatBotApiServiceImpl.java",
+      "sha256": "e38cf3f379cf1d461897aafdc1e4e7655b72f73a0a6b2c81c1158e3f95c070d4"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/user/Impl/AppMstServiceImpl.java",
+      "sha256": "5041b5e0ab6a3a9c00131753bcc9ca97c7679840a70d278b1ae560465e754be3"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/MaasUtil.java",
+      "sha256": "6ab3d18a54b18a3c470532b52469b5060e13f4319c9420937cfa092891468e52"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/space/SpaceInfoUtil.java",
+      "sha256": "efb28fd99c6f819543f6471bdda9d2ab92d4cb8360bb8cae9003315bbcd829b8"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/strategy/publish/impl/ApiPublishStrategy.java",
+      "sha256": "48af100276a7d4ed4bd6c274a283fc575abb4845ceaa6a34b609d19af861aa4f"
+    },
+    {
+      "path": "参考项目/PaiFlow-main/docker/PaiFlow/mysql/schema.sql",
+      "sha256": "d70ebafb77c3fb7df21196d021928055013f310eef8fe89a49238e8f4e4c1cdc"
+    },
+    {
+      "path": "frontend/paiflow-web/src/services/spark-common.ts",
+      "sha256": "dcfd9c9b12928a3114c109d10488a6c08f6a6f68274aa70e269a430472688f54"
+    }
+  ],
+  "sourceFacts": [
+    "原四路由为POST /publish-api/create-user-app、GET /publish-api/app-list、POST /publish-api/create-bot-api、GET /publish-api/get-bot-api-info。React四个服务导出已保存，静态未见src内调用方；未验证运行中页面。",
+    "create-user-app先按全局appName检查，再真实Tenant createApp/getAppDetail取得外部app_id和auth_list，之后插app_mst；缺Tenant真实回执不能迁为本地metadata成功。App列表、查App按UID而非space_id，create/list没有space字段。",
+    "原app-list和bot-api详情反复返回明文appKey/appSecret；与批准设计的一次展示、hash/keyId及受控凭据引用冲突，不能以假值或masked值声称原外部正式成功。",
+    "原create-bot-api核当前空间owner、UID Bot/App，Redis三秒UID锁；取得Flow与Release version后，Maas真实publish再bind，之后Release记录，再ChatBotApi数据库写。跨系统不是原子事务，失败/未知需中心持久事实，不能盲重试新UUID。",
+    "Maas createApiInternal逐次校验publish/bind响应code=0；返回空JSONObject只是全部验证成功后的函数形状。ReleaseManageClient releaseBotApi是void且内部catch返回null，调用者不能据void返回证明真实Release成功。",
+    "原app_mst仅非唯一UID/appId/appName索引，global-name预检有竞态；chat_bot_api仅assistant_id唯一、UID+bot无唯一约束。字段长度AppId128与32、keySecret128与64不一致。",
+    "原ChatBotApiService insertOrUpdate只按assistantId存在选updateById，不代表UID+Bot固定版本CAS；查询UID+bot最新id。原SpaceInfoUtil未知具名空间owner空则fallback当前UID不可照搬。",
+    "另ApiPublishStrategy publish/offline是TODO+success(null)，BotPublish API prepare有Generated API Key占位；不是已经真实迁移完成的正式发布算法。"
+  ],
+  "minimalLocalScope": [
+    "原App UID归属与批准空间资源模型需明确映射，禁止根据当前或最近Space暗中重归属。可先本地真实App draft CRUD、版本和revisionCAS，禁用/软删不销毁历史，不造外部appId/凭据/available。",
+    "legacy formal create必须受控作用域端口+真实候选绑定Tenant回执；缺端口503且零App写。实际外调用之前留中心稳定job/grant/idempotency键，无数据库锁网络等待，未知保留。",
+    "发布须绑定真实Agent/WF/App不可变版本、目标参数hash与一次许可；确认真实Tenant/Maas/Release回执再提交中心结果。仅本地CRUD不解除当前Agent资源、OpenAPI及正式发布503。"
+  ],
+  "checks": {
+    "noSecretConfigRead": true,
+    "noGit": true,
+    "noDDL": true,
+    "noRealDatabase": true,
+    "noService": true,
+    "sourceOnly": true,
+    "businessAcceptance": "未执行",
+    "noProvider": true,
+    "noMaven": true
+  }
+}

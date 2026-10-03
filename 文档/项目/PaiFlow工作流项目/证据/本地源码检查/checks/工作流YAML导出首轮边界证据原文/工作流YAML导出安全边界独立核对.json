@@ -1,0 +1,543 @@
+{
+  "checkedAt": "2026-10-03T11:58:45.753280+00:00",
+  "executionStartedAt": "2026-10-03T11:58:43.023100+00:00",
+  "scope": "批27现有边界与原YAML导出独立核对；新导出候选尚未冻结，不审其未完成源码",
+  "method": "当前4个纯source+ServiceException privateTemp javac；真实WorkflowJsonBoundary22人工case；原导出/DTO/前端uid链为源码事实",
+  "cases": [
+    {
+      "id": "credential-apikey",
+      "input": {
+        "nodeParam": {
+          "apiKey": "SYNTHETIC_PLACEHOLDER"
+        }
+      },
+      "expectedAccepted": false
+    },
+    {
+      "id": "credential-normalized",
+      "input": {
+        "nodeParam": {
+          "API_SECRET": "SYNTHETIC_PLACEHOLDER"
+        }
+      },
+      "expectedAccepted": false
+    },
+    {
+      "id": "credential-null",
+      "input": {
+        "nodeParam": {
+          "apiKey": null
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "credential-empty",
+      "input": {
+        "nodeParam": {
+          "apiKey": ""
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "credential-whitespace",
+      "input": {
+        "nodeParam": {
+          "apiKey": " "
+        }
+      },
+      "expectedAccepted": false
+    },
+    {
+      "id": "logical-secret-reference",
+      "input": {
+        "nodeParam": {
+          "secretRef": "fixture:resource"
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "input-name-token",
+      "input": {
+        "inputs": [
+          {
+            "name": "token",
+            "schema": {
+              "type": "string",
+              "default": "ordinary word"
+            }
+          }
+        ]
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "business-default-token-key",
+      "input": {
+        "inputs": [
+          {
+            "name": "request",
+            "schema": {
+              "default": {
+                "token": "ordinary word"
+              }
+            }
+          }
+        ]
+      },
+      "expectedAccepted": false
+    },
+    {
+      "id": "business-default-identity-keys",
+      "input": {
+        "schema": {
+          "default": {
+            "uid": "business-value",
+            "userId": "business-value",
+            "runId": "business-value"
+          }
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "business-literal-prompt",
+      "input": {
+        "nodeParam": {
+          "template": "Explain token and Authorization in an API example."
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "business-json-prompt-token",
+      "input": {
+        "nodeParam": {
+          "template": "{\"token\":\"ordinary word\"}"
+        }
+      },
+      "expectedAccepted": false
+    },
+    {
+      "id": "business-nonjson-prompt",
+      "input": {
+        "nodeParam": {
+          "template": "{token: ordinary word"
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "advanced-encoded-credential",
+      "input": {
+        "advancedConfig": "{\"settings\":{\"password\":\"SYNTHETIC_PLACEHOLDER\"}}"
+      },
+      "expectedAccepted": false
+    },
+    {
+      "id": "advanced-ordinary-text",
+      "input": {
+        "advancedConfig": {
+          "openingRemarks": "The word password is a field name."
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "resource-references",
+      "input": {
+        "nodeParam": {
+          "appId": "fixture:app",
+          "modelId": 17,
+          "llmId": "fixture:llm",
+          "repoId": [
+            "fixture:repo"
+          ],
+          "serviceId": "fixture:service"
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "nodeparam-uid-not-secret-rule",
+      "input": {
+        "nodeParam": {
+          "uid": "fixture:actor"
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "unknown-layout-business-identities",
+      "input": {
+        "layoutExtension": {
+          "uid": "business-value",
+          "userId": "business-value",
+          "runId": "business-value"
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "http-header-object-authorization",
+      "input": {
+        "nodeParam": {
+          "headers": {
+            "Authorization": "SYNTHETIC_PLACEHOLDER"
+          }
+        }
+      },
+      "expectedAccepted": false
+    },
+    {
+      "id": "http-header-name-value",
+      "input": {
+        "nodeParam": {
+          "headers": [
+            {
+              "name": "Authorization",
+              "value": "SYNTHETIC_PLACEHOLDER"
+            }
+          ]
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "nonlisted-sensitive-name",
+      "input": {
+        "nodeParam": {
+          "apiToken": "SYNTHETIC_PLACEHOLDER"
+        }
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "managed-owner-not-secret-rule",
+      "input": {
+        "ownerUserId": 17,
+        "createBy": "fixture:actor"
+      },
+      "expectedAccepted": true
+    },
+    {
+      "id": "internal-runtime-not-secret-rule",
+      "input": {
+        "runId": "fixture:run",
+        "leaseId": "fixture:lease",
+        "attempt": 1,
+        "debugReceipt": {
+          "runId": "fixture:run"
+        }
+      },
+      "expectedAccepted": true
+    }
+  ],
+  "observations": [
+    {
+      "id": "credential-apikey",
+      "accepted": false,
+      "code": 400,
+      "message": "工作流不得保存未托管凭据字段：exportCandidate/nodeParam/apiKey；请先绑定受控secretRef",
+      "inputUnchanged": true
+    },
+    {
+      "id": "credential-normalized",
+      "accepted": false,
+      "code": 400,
+      "message": "工作流不得保存未托管凭据字段：exportCandidate/nodeParam/API_SECRET；请先绑定受控secretRef",
+      "inputUnchanged": true
+    },
+    {
+      "id": "credential-null",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "credential-empty",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "credential-whitespace",
+      "accepted": false,
+      "code": 400,
+      "message": "工作流不得保存未托管凭据字段：exportCandidate/nodeParam/apiKey；请先绑定受控secretRef",
+      "inputUnchanged": true
+    },
+    {
+      "id": "logical-secret-reference",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "input-name-token",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "business-default-token-key",
+      "accepted": false,
+      "code": 400,
+      "message": "工作流不得保存未托管凭据字段：exportCandidate/inputs/0/schema/default/token；请先绑定受控secretRef",
+      "inputUnchanged": true
+    },
+    {
+      "id": "business-default-identity-keys",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "business-literal-prompt",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "business-json-prompt-token",
+      "accepted": false,
+      "code": 400,
+      "message": "工作流不得保存未托管凭据字段：exportCandidate/nodeParam/template/token；请先绑定受控secretRef",
+      "inputUnchanged": true
+    },
+    {
+      "id": "business-nonjson-prompt",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "advanced-encoded-credential",
+      "accepted": false,
+      "code": 400,
+      "message": "工作流不得保存未托管凭据字段：exportCandidate/advancedConfig/settings/password；请先绑定受控secretRef",
+      "inputUnchanged": true
+    },
+    {
+      "id": "advanced-ordinary-text",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "resource-references",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "nodeparam-uid-not-secret-rule",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "unknown-layout-business-identities",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "http-header-object-authorization",
+      "accepted": false,
+      "code": 400,
+      "message": "工作流不得保存未托管凭据字段：exportCandidate/nodeParam/headers/Authorization；请先绑定受控secretRef",
+      "inputUnchanged": true
+    },
+    {
+      "id": "http-header-name-value",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "nonlisted-sensitive-name",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "managed-owner-not-secret-rule",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    },
+    {
+      "id": "internal-runtime-not-secret-rule",
+      "accepted": true,
+      "code": null,
+      "inputUnchanged": true
+    }
+  ],
+  "caseCount": 22,
+  "passed": 22,
+  "facts": [
+    {
+      "id": "original-meta",
+      "source": "WorkflowExportService.java:125-138",
+      "fact": "原flowMeta仅name、description、avatarIcon、avatarColor、edgeType、category、advancedConfig，剔除null后加dslVersion=v1；不能直接导出WorkflowRecord或legacyView。"
+    },
+    {
+      "id": "original-param-cleaning-inert",
+      "source": "WorkflowExportService.java:108-120",
+      "fact": "uid/appId/repoList/repoId/modelId/llmId/serviceId删除块为注释，原typed导出实际保留nodeParam内容；不能声称原包已去凭据。"
+    },
+    {
+      "id": "typed-closed-surface",
+      "source": "BizWorkflowData/BizWorkflowNode/BizWorkflowEdge/BizNodeData",
+      "fact": "原typed flowData只有nodes/edges以及声明节点、连线、data字段；未声明根/节点/data扩展会被DTO裁剪。该旧行为不证明未知布局应删除，迁移设计366要求布局/引用/unknown保全。"
+    },
+    {
+      "id": "typed-open-values",
+      "source": "BizWorkflowNode.position/positionAbsolute/zIndex/draggable；BizNodeData.nodeMeta/nodeParam/retryConfig/errorOutputs；BizWorkflowEdge.data/markerEnd；BizSchema.default/item；BizValue.content",
+      "fact": "这些Object/JSONObject声明允许合法业务嵌套内容；任意uid/userId/runId名称不足以判定平台账号或运行状态。"
+    },
+    {
+      "id": "uid-exact-source",
+      "source": "use-flow-common.ts:77-78,248-249,308-310；nodes/components/model-select/index.tsx:276；BaseLLMNode:1048,1089；node_debug.py:88",
+      "fact": "真实node.data.nodeParam.uid由原user.uid写入并供模型请求/Span发起者使用；此精确path非空可按导出账号边界拒绝，不扩大到schema/default/HTTP业务uid。appId及model/llm/repo/service等保留为引用，不能由导出动作授予授权。"
+    },
+    {
+      "id": "boundary-exact-keys",
+      "source": "RunJsonBoundary.java:17-31；WorkflowJsonBoundary.java:25-41",
+      "fact": "唯一现有规则对password/passwd/secret/apikey/apisecret/token/accesstoken/refreshtoken/authorization/privatekey/clientsecret忽略大小写并去下划线/横线；非null且不等于空字符串则400。JSON字符串仅可解析为object/array时递归。不得新增宽泛敏感名称模式。"
+    },
+    {
+      "id": "boundary-preserves-or-rejects",
+      "source": "WorkflowJsonBoundary.java:13-43；实际22case",
+      "fact": "边界只检查不改输入；null/空凭据字段可保留，空格不等于空串；business input.name=token可保留，但business default对象token键或JSON示例prompt同名键会被现有规则拒绝。该误杀是已有保存边界，不应声称YAML新清理造成或再扩大。"
+    },
+    {
+      "id": "boundary-not-universal-detector",
+      "source": "实际22case header-name-value/nonlisted-sensitive-name/managed-owner/internal-runtime",
+      "fact": "现有规则不识别{name:Authorization,value:...}、apiToken以及owner/run/lease字段；有限key规则不能证明任意文本不存在秘密。根元数据7白名单和精确nodeParam.uid边界应独立于secret规则，禁止泛递归删除身份同名业务字段。"
+    },
+    {
+      "id": "current-save-fresh-export",
+      "source": "WorkflowService.java:88,108,201-204,327-332,372-386",
+      "fact": "当前保存/版本已用WorkflowJsonBoundary，rawcanvas与扩展metadata独立存储；导出仍须对实际row候选包重核以防历史/直接导入脏row，而不是依旧保存成功推断安全。"
+    },
+    {
+      "id": "no-runtime-or-identity-columns",
+      "source": "WorkflowRecord.java；WorkflowService.java:59,346",
+      "fact": "ownerUserId/spaceId/createBy/updateBy/latestVersion/revision及debugReceipt等是中心字段；七meta白名单不能夹带其legacyView。flowData真实业务同名字段需按已识别path审，不以名称递归剥除。"
+    },
+    {
+      "id": "authorization-original-current",
+      "source": "WorkflowController.java:450-473；WorkflowExportService.java:100-101",
+      "fact": "原controller直接getById，导出service按SpaceInfoUtil/dataPermission可见性核查；新service应复用当前账号、空间成员、Workflow和真实Agent绑定规则，不移植无授权getById或调用原import/Core/Provider链。"
+    },
+    {
+      "id": "yaml-not-execution",
+      "source": "WorkflowExportService.java:140-152；完整迁移设计.md:366",
+      "fact": "YAML业务包不等于assignment/execution资源快照，不纳入run/lease/checkpoint/privategrant。typed flowData投影不能借用CanvasExecutionCompiler而改变原画布array类型、handles、labels或节点参数。"
+    }
+  ],
+  "factCount": 12,
+  "sourceBefore": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "fe7b4d572080b91bb1e804d72e06f31fe624e6162e79afbaecf88c647dfeec2a",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "d3f9b27bdda647770e94414781f2dcf0032fe9877a52c8ff0bfe09a776678e07",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/DslCodec.java": "619a8f28807da4b989ea474e5b0acbaf2949db15bdc218049f9439d3734d28b8",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CanvasExecutionCompiler.java": "61df3cccfb166f35b16d3d980edad8ec40f0d1b3512851bd8282def35150a559",
+    "ruoyi-backend/ruoyi-common/src/main/java/com/ruoyi/common/exception/ServiceException.java": "d93fd6a3508c9c8a797a489dc1f16c22185032b437e2f3c1a1386fee822fc3ec",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowYamlBoundaryIndependentProbe.java": "3e6ae3aae005b507449e344be890a3262a2c4b1b13c065d6603e90a4fae0a069",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "93f6d2023f1534c3ec080a87ced9890ab5dee795034f912d291726c655feb1cd",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/domain/WorkflowRecord.java": "74677cfad3da0088b63dd14aa1f3b649849ca8c72b98472e0617cb9492a3e0e3",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowExportService.java": "f1d3f5279b5f48833917b6c156c70e418146f9cb4f389489e28099713b8f866f",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowData.java": "975a73d9eaa5c17bf39b4a45a89c75e2b070fa0bccc17cd007b7764076ad87a4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowNode.java": "3dab4126fdd3c14cb05f1276a456b1505d4b76b5eb83b10652e8572f68a83abe",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowEdge.java": "f0eb48a90e83089e2d618144c2cb3233c44d7da6a3aa59d9016938f0f4c078d0",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizNodeData.java": "fef2c9ecee4469165128711024bd321056e6093b2996e11d4340f6bec3e4dc21",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/hooks/use-flow-common.ts": "8dc3e4957ef4d4ee16351286642be0f9a38f0775378292a6ee42d48bde5da351",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/nodes/components/model-select/index.tsx": "ab9623ff11eac418fd1e50dc063407f65fc5e766b69a6c5e95776ef0f2b70a1a",
+    "参考项目/PaiFlow-main/core/workflow/engine/nodes/base_node.py": "ca604f68c158c6c0019fc3054195d2d7c6483886f05767201e6df34c92932a5b",
+    "参考项目/PaiFlow-main/core/workflow/api/v1/chat/node_debug.py": "57c42d9c0a51b99f3118f00e18f04c5c1aa4e95d67b1c60200de41bc1b3eba39",
+    "文档/项目/PaiFlow工作流项目/完整迁移设计.md": "80d25171bf421fdf689e4821ad727d094b11133418da8f1c1bc499e07b1b80e7",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/ReviewWorkflowYamlBoundary.py": "2c5137f73ad61db444c94889a60c56c607cb55d24a4d6bdd68d55ce7a38e3e68"
+  },
+  "sourceAfter": {
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java": "fe7b4d572080b91bb1e804d72e06f31fe624e6162e79afbaecf88c647dfeec2a",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/RunJsonBoundary.java": "d3f9b27bdda647770e94414781f2dcf0032fe9877a52c8ff0bfe09a776678e07",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/DslCodec.java": "619a8f28807da4b989ea474e5b0acbaf2949db15bdc218049f9439d3734d28b8",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/CanvasExecutionCompiler.java": "61df3cccfb166f35b16d3d980edad8ec40f0d1b3512851bd8282def35150a559",
+    "ruoyi-backend/ruoyi-common/src/main/java/com/ruoyi/common/exception/ServiceException.java": "d93fd6a3508c9c8a797a489dc1f16c22185032b437e2f3c1a1386fee822fc3ec",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/WorkflowYamlBoundaryIndependentProbe.java": "3e6ae3aae005b507449e344be890a3262a2c4b1b13c065d6603e90a4fae0a069",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java": "93f6d2023f1534c3ec080a87ced9890ab5dee795034f912d291726c655feb1cd",
+    "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/domain/WorkflowRecord.java": "74677cfad3da0088b63dd14aa1f3b649849ca8c72b98472e0617cb9492a3e0e3",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/controller/workflow/WorkflowController.java": "291e163215e9dd7f0dad46c1fa5a1be62b88457c1708b766a39b76d3088d322b",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/workflow/WorkflowExportService.java": "f1d3f5279b5f48833917b6c156c70e418146f9cb4f389489e28099713b8f866f",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowData.java": "975a73d9eaa5c17bf39b4a45a89c75e2b070fa0bccc17cd007b7764076ad87a4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowNode.java": "3dab4126fdd3c14cb05f1276a456b1505d4b76b5eb83b10652e8572f68a83abe",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/BizWorkflowEdge.java": "f0eb48a90e83089e2d618144c2cb3233c44d7da6a3aa59d9016938f0f4c078d0",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizNodeData.java": "fef2c9ecee4469165128711024bd321056e6093b2996e11d4340f6bec3e4dc21",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizInputOutput.java": "89477caeb1d8fe99621a7edc85f3b91a9460045ba938c3133d0de169681368dd",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizSchema.java": "0decd44fcf46d8cf07cb63fe469cab9dd67201187732c6f1a1f2bdcb5f348b52",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizProperty.java": "b8c16b72b8b27dc66c8264f1d3e1ca396aaf3b4999f272872075e793ff8898d4",
+    "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/entity/biz/workflow/node/BizValue.java": "5c095fb25c8aaf4943ed17056a38e13f0656d99b61a25826330a87ec3c1ceebf",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/hooks/use-flow-common.ts": "8dc3e4957ef4d4ee16351286642be0f9a38f0775378292a6ee42d48bde5da351",
+    "参考项目/PaiFlow-main/console/frontend/src/components/workflow/nodes/components/model-select/index.tsx": "ab9623ff11eac418fd1e50dc063407f65fc5e766b69a6c5e95776ef0f2b70a1a",
+    "参考项目/PaiFlow-main/core/workflow/engine/nodes/base_node.py": "ca604f68c158c6c0019fc3054195d2d7c6483886f05767201e6df34c92932a5b",
+    "参考项目/PaiFlow-main/core/workflow/api/v1/chat/node_debug.py": "57c42d9c0a51b99f3118f00e18f04c5c1aa4e95d67b1c60200de41bc1b3eba39",
+    "文档/项目/PaiFlow工作流项目/完整迁移设计.md": "80d25171bf421fdf689e4821ad727d094b11133418da8f1c1bc499e07b1b80e7",
+    "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/ReviewWorkflowYamlBoundary.py": "2c5137f73ad61db444c94889a60c56c607cb55d24a4d6bdd68d55ce7a38e3e68"
+  },
+  "sourceWindowChanges": [],
+  "sourceCount": 24,
+  "compileCommand": [
+    "javac",
+    "-encoding",
+    "UTF-8",
+    "-cp",
+    "C:\\Users\\admin\\.m2\\repository\\com\\alibaba\\fastjson2\\fastjson2\\2.0.64\\fastjson2-2.0.64.jar",
+    "-d",
+    "C:\\Users\\admin\\AppData\\Local\\Temp\\paiflow-yaml-boundary-6eufxzwu",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\WorkflowJsonBoundary.java",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\RunJsonBoundary.java",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\DslCodec.java",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\CanvasExecutionCompiler.java",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-common\\src\\main\\java\\com\\ruoyi\\common\\exception\\ServiceException.java",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiFlow工作流项目\\证据\\本地源码检查\\checks\\WorkflowYamlBoundaryIndependentProbe.java"
+  ],
+  "compileExitCode": 0,
+  "compileLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "java",
+    "-Dfile.encoding=UTF-8",
+    "-Dsun.stdout.encoding=UTF-8",
+    "-Dsun.stderr.encoding=UTF-8",
+    "-cp",
+    "C:\\Users\\admin\\AppData\\Local\\Temp\\paiflow-yaml-boundary-6eufxzwu;C:\\Users\\admin\\.m2\\repository\\com\\alibaba\\fastjson2\\fastjson2\\2.0.64\\fastjson2-2.0.64.jar",
+    "com.ruoyi.paiflow.service.WorkflowYamlBoundaryIndependentProbe",
+    "C:\\Users\\admin\\AppData\\Local\\Temp\\paiflow-yaml-boundary-6eufxzwu\\cases.json"
+  ],
+  "exitCode": 0,
+  "stdoutSha256": "4f900a9100b1c1737fecb954c1f46366a8110493484ce98e24b09010dd606f78",
+  "compiledOriginalExport": false,
+  "dumpedYaml": false,
+  "actualStoredRowsRead": false,
+  "ServiceMapperHttpExecuted": false,
+  "authorizationExecuted": false,
+  "providerCalls": 0,
+  "MavenExecuted": false,
+  "targetWrites": false,
+  "productionModified": false,
+  "businessVerified": false,
+  "limitations": [
+    "仅22人工纯JSON边界，不是YAML下载/导入往返或真实授权联机。",
+    "原typed投影与uid来源为实际源码事实，未执行完整原ExportService/Jackson/SnakeYaml。",
+    "任意prompt字符串中的真实秘密无法从字段名规则证明不存在；不读取或输出实际凭据。",
+    "本报告不覆盖下一版新导出Service/Controller源码；待独立freeze后按授权复核。"
+  ]
+}

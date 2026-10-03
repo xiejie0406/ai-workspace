@@ -1,0 +1,193 @@
+{
+  "checkedAt": "2026-10-03T09:00:27.052948+00:00",
+  "scope": "仅追加唯一记录第24节，保全准确第23节与README；未运行历史技术检查",
+  "rawPreservation": [
+    {
+      "source": "文档/项目/PaiFlow工作流项目/设计资料核对记录.md",
+      "backup": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/变量许可前预检记录追加前原文/设计资料核对记录.md",
+      "bytes": 139283,
+      "sha256": "f03aec2783969ce67fb820f017a07d6d0061fa33997fa250c6fde454e46d5b5a"
+    },
+    {
+      "source": "ruoyi-backend/ruoyi-paiflow/README.md",
+      "backup": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/变量许可前预检记录追加前原文/README.md",
+      "bytes": 17016,
+      "sha256": "085d311005c193e1b746e9814d7d3e90abc4e421ea034e53bf6233c5919fb260"
+    },
+    {
+      "source": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/调试接续文档局部更新检查.json",
+      "backup": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/变量许可前预检记录追加前原文/调试接续文档局部更新检查.json",
+      "bytes": 6960,
+      "sha256": "6b0fa985177c0b5980620482c1b7ac99a7ca329e915ea7a50e484dcfccd51ee6"
+    }
+  ],
+  "recordBeforeSha256": "f03aec2783969ce67fb820f017a07d6d0061fa33997fa250c6fde454e46d5b5a",
+  "recordAfterSha256": "45d6c250e9b72b5cf43b2a5b71dfaee88440a8ce8b24199af7d5f106db323ebd",
+  "recordBeforeBytes": 139283,
+  "recordAfterBytes": 143928,
+  "oldFullPrefixPreserved": true,
+  "readmeUnchanged": true,
+  "readmeSha256": "085d311005c193e1b746e9814d7d3e90abc4e421ea034e53bf6233c5919fb260",
+  "section24Count": 1,
+  "stageSha256": "5080518a3e0f0cc1a0fc6d3037256aa38aeebc7ca9b5887ee8185b268b0262e9",
+  "stageUnchanged": true,
+  "implementationDelta": [
+    "tests/test_execution_begin.py",
+    "tests/test_original_engine.py",
+    "worker/task_runner.py"
+  ],
+  "stageSourceAfterCount": 478,
+  "currentSourceAfterMismatches": [],
+  "existingExecutionWindows": [
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-targeted-first-check.json",
+      "sha256": "eae45851131df55cf624721334e1be22436901be74c41ba995b729ff20f31d55",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_execution_begin",
+        "tests.test_worker",
+        "tests.test_original_engine"
+      ],
+      "startedAtUtc": "2026-10-03T08:41:33.411529+00:00",
+      "finishedAtUtc": "2026-10-03T08:41:38.469703+00:00",
+      "exitCode": 1,
+      "beforeCount": 478,
+      "afterCount": 478,
+      "changes": []
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-targeted-fixed-check.json",
+      "sha256": "71f48a1df36e25eb86e58a52268f6c2176a11ae3c2f9d772880c02a2110ff5a3",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_execution_begin.ExecutionBeginTest.test_variable_lease_hash_sequence_assignment_validation_precedes_scope_gate"
+      ],
+      "startedAtUtc": "2026-10-03T08:42:53.940265+00:00",
+      "finishedAtUtc": "2026-10-03T08:42:54.530008+00:00",
+      "exitCode": 0,
+      "beforeCount": 478,
+      "afterCount": 478,
+      "changes": []
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-full-check.json",
+      "sha256": "855d247afd444fe67d547068a1fb3ccdbabc34395f416c4d5c3e78f58be5ead2",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-B",
+        "scripts/run_offline_checks.py"
+      ],
+      "startedAtUtc": "2026-10-03T08:43:08.709581+00:00",
+      "finishedAtUtc": "2026-10-03T08:43:42.198248+00:00",
+      "exitCode": 0,
+      "beforeCount": 478,
+      "afterCount": 478,
+      "changes": []
+    }
+  ],
+  "readExistingLogHashes": [
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-before-first-probe.json",
+      "sha256": "f8877ba146b2161a125cfcc1b034702ba07882c79e4c4984ce1aef6616440561"
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-targeted-first.log",
+      "sha256": "0b4073bd853aa3eae54eb820c8b527381e3baec90daa9f66d3d8b38f44f1f997"
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-targeted-fixed.log",
+      "sha256": "87fd399ebcaf67a0b93483b09f412d5a01a29c416901abbd825035d911819bc7"
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-full-unittest.log",
+      "sha256": "5204c6a5206d2d4f4607e6df5cb38e531500a7fda48d17a7c7187ff3aebc3531"
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-full-checks.json",
+      "sha256": "9b3aa23a0f871ce26417824d1e2df038b6f141937bcc880fd2a2b74a08800b28"
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-full-source-check.log",
+      "sha256": "776edbfc94fcc98426d6f709a1901e9fbb0490499d1585a2d3eabb5d6c31277b"
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-full-dependency-analysis.log",
+      "sha256": "9e08c22ed1c07c55312cbc9ea52ffcd8561ecf59676fcf72237bab6bb1a79889"
+    },
+    {
+      "path": "python/paiflow-runtime/verification/variable-scope-full-dependency-check.log",
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    }
+  ],
+  "localLinks": [
+    {
+      "target": "证据/本地源码检查/checks/变量许可前预检记录追加前原文/输入.json",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/README.md#全局变量的许可前作用域边界",
+      "exists": true,
+      "fragmentFound": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/worker/task_runner.py",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-before-first-probe.json",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-before.json",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-targeted-first.log",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-first-test_execution_begin.py.txt",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-targeted-fixed.log",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-full-unittest.log",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-stage.json",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-targeted-first-check.json",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-targeted-fixed-check.json",
+      "exists": true
+    },
+    {
+      "target": "../../../python/paiflow-runtime/verification/variable-scope-full-check.json",
+      "exists": true
+    },
+    {
+      "target": "证据/本地源码检查/checks/原应用身份与全局变量作用域来源只读核对.json",
+      "exists": true
+    }
+  ],
+  "badLocalLinks": [],
+  "sourceSqlTestContractTargetIndexEdits": 0,
+  "MavenOrEngineRuns": 0,
+  "businessVerified": false
+}

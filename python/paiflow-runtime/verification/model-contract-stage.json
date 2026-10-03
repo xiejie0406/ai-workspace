@@ -1,0 +1,237 @@
+{
+  "timestamp": "2026-10-03T01:58:35.725530+00:00",
+  "stage": "shared model operations / top-level OpenAI chat offline contract; no linked Producer",
+  "scope": {
+    "formal": "python / top-level spark-llm / provider openai / chat / iterationId null",
+    "notEnabled": [
+      "Spark HTTP",
+      "FC",
+      "QA model operations",
+      "nested iteration",
+      "history",
+      "multimodal",
+      "private Grant HTTP",
+      "default Provider/transport/approval"
+    ]
+  },
+  "baseline": {
+    "tests": 205,
+    "evidence": "verification/openai-producer-205-unittest.log",
+    "pythonFiles": 471
+  },
+  "current": {
+    "tests": 226,
+    "seconds": 15.644,
+    "addedTests": 21,
+    "pythonFiles": 474,
+    "introducedFiles": 427,
+    "syntaxErrors": 0,
+    "missingIntroducedFiles": 0,
+    "literalCredentialBindings": 0,
+    "executableExamples": 0,
+    "hostExecEval": 0,
+    "dependencyPackages": 25,
+    "checks": {
+      "timestamp": "2026-10-03T01:55:37.868464+00:00",
+      "scope": "实际原21类引擎消费者/受控模型及代码/QA共享检查点/普通知识/子run/Plugin/专业RAG/Agent/结构化数据库/RPA/一次性执行许可及取消CAS/Worker/知识派生离线定向检查；没有联机/业务验收",
+      "checks": [
+        {
+          "command": [
+            ".venv\\Scripts\\python.exe",
+            "-B",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ],
+          "exitCode": 0,
+          "log": "verification/unittest.log"
+        },
+        {
+          "command": [
+            ".venv\\Scripts\\python.exe",
+            "-B",
+            "scripts/verify_source.py"
+          ],
+          "exitCode": 0,
+          "log": "verification/source-check.log"
+        },
+        {
+          "command": [
+            ".venv\\Scripts\\python.exe",
+            "-B",
+            "scripts/analyze_port_dependencies.py"
+          ],
+          "exitCode": 0,
+          "log": "verification/dependency-analysis.log"
+        },
+        {
+          "command": [
+            ".venv\\Scripts\\python.exe",
+            "-B",
+            "-m",
+            "pip",
+            "check"
+          ],
+          "exitCode": 0,
+          "log": "verification/dependency-check.log"
+        }
+      ]
+    },
+    "sourceEvidence": "verification/model-contract-474-source.json"
+  },
+  "changedPythonFrom205": [
+    "tests/test_controlled_nodes.py",
+    "tests/test_openai_consumer.py",
+    "worker/center_client.py",
+    "worker/model_bridge.py"
+  ],
+  "newPythonFrom205": [
+    "tests/schema_support.py",
+    "tests/test_model_contract.py",
+    "worker/model_contract.py"
+  ],
+  "sourceSha256": {
+    "worker/center_client.py": "acda8d3eccfcd6dab9729c048ff91a7b6b20287bbcdbd103475a09a491d58e71",
+    "worker/model_bridge.py": "450515af08d53ef6c941ebf9d239824c7a1bbb5504db28142e76d48102437f94",
+    "worker/model_contract.py": "e0eca5bfc3f8603cf204a4c35ee1f88355cf44a2c27da6b072f2e48bfe45f1c5",
+    "tests/schema_support.py": "be2cb4387f3357ff0affcb3bc8071312873731a890e0a9f547f93fbb4736a964",
+    "tests/test_model_contract.py": "a60e723475b8a322cb610fa6f4ba01f1f1207695b255c76175cdcd7114656fed",
+    "tests/test_controlled_nodes.py": "f25ed4809325d9d0b4fc17b33877ae26abf04e5c4deeb7cfafdd44bbb35c96b7",
+    "tests/test_openai_consumer.py": "874b95e727db21bae422343167656ecbc192302c334a5d34031dc93e106db3de",
+    "protocols/model-operations-draft.schema.json": "d270661dbbd2851c71e3fe3e2efedd89cb4e3d088688559b0633256982b134ee",
+    "README.md": "df713de87b8fa0b36a84169fd0a6494d2a146d8d9d7325564f8f35bfd253c916",
+    "../../contracts/paiflow/model-operations.schema.json": "28ee8d440b4d7a007c15736a1dc2201d3f09fd90aa1b3db3bcf08529cb33d5ef",
+    "../../contracts/paiflow/internal.openapi.json": "50a6d57494237f4abc1b2e63ba7042df8dff309bc5ff0d4dfffc06fb5908b0b4"
+  },
+  "unchangedFrozen": [
+    {
+      "file": "worker/producers/openai_chat.py",
+      "sha256": "85751ffa33f3b933b131ebac1dd0d1030d0bb5d56bf19bdc9cf7e289bae82ea2",
+      "currentSha256": "85751ffa33f3b933b131ebac1dd0d1030d0bb5d56bf19bdc9cf7e289bae82ea2",
+      "unchanged": true
+    },
+    {
+      "file": "worker/producers/chat_lifecycle.py",
+      "sha256": "8a91b8a35541dad6010544f18c54445f92471a0a3fd074c46aceb71cff422eb6",
+      "currentSha256": "8a91b8a35541dad6010544f18c54445f92471a0a3fd074c46aceb71cff422eb6",
+      "unchanged": true
+    },
+    {
+      "file": "worker/producers/spark_chat.py",
+      "sha256": "67ea6eee539006ea20a41a337c245fbdc5ac3cba83feabb3ef1956544b94b055",
+      "currentSha256": "67ea6eee539006ea20a41a337c245fbdc5ac3cba83feabb3ef1956544b94b055",
+      "unchanged": true
+    },
+    {
+      "file": "workflow/engine/nodes/base_node.py",
+      "sha256": "0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f",
+      "currentSha256": "0241e65f1a945d37f5573f5050a43487fd60a35655b55087d65103d3a28b1c8f",
+      "unchanged": true
+    }
+  ],
+  "contract": {
+    "commonBinding": [
+      "attempt",
+      "dslHash",
+      "iterationId",
+      "leaseId",
+      "nodeId",
+      "operationId",
+      "provider",
+      "resourceId",
+      "resourceVersion",
+      "runId",
+      "workflowVersionId"
+    ],
+    "requestBytes": 2097152,
+    "frameBytes": 65536,
+    "frameLimit": 10000,
+    "totalFrameBytes": 8388608,
+    "keyCharacters": [
+      1,
+      4096
+    ],
+    "keyControlCharacters": "C0/C1 forbidden; explicit Unicode codepoint count; unpaired surrogate rejected by actual UTF8 boundary",
+    "failureKinds": [
+      "provider",
+      "authorization",
+      "protocol",
+      "transport",
+      "deadline",
+      "lease",
+      "cancelled",
+      "budget"
+    ],
+    "sourceOfTruth": "shared contracts, center fixed versions/lease/permissions/approval/operation rows/frame+finish CAS/stop proofs",
+    "privateBridge": "DTO only; no HTTP Grant endpoint, no configured SDK/transport/default capability"
+  },
+  "parameterProbe": {
+    "cases": 126,
+    "accepted": 80,
+    "rejected": 46,
+    "evidence": "verification/pydantic-model-options-probe.json",
+    "previous72": "verification/pydantic-model-options-72-baseline.json",
+    "scope": "actual original-lock Pydantic model_validate; no Node/SDK execution"
+  },
+  "failuresPreserved": [
+    {
+      "log": "verification/model-contract-controlled-first.log",
+      "tests": 19,
+      "errors": 1,
+      "cause": "original local draft test had no explicit shared schema registry; added local URN/file registry; original algorithms18 passed"
+    },
+    {
+      "kind": "first full check infrastructure timeout",
+      "command": ".venv/Scripts/python.exe -B scripts/run_offline_checks.py",
+      "error": "subprocess.TimeoutExpired after60s; no completed count or saved partial unittest stdout; not counted as PASS",
+      "status": "subsequent separate22619.321s and standard22617.218s/current22615.644s passed; root cause not inferred"
+    },
+    {
+      "kind": "parameter probe first diagnostic failure",
+      "command": ".venv/Scripts/python.exe -B verification/pydantic-model-options-probe.py.txt",
+      "error": "ModuleNotFoundError: worker because script path verification missing root; fixed explicit this-project sys.path"
+    }
+  ],
+  "checksNotPerformed": [
+    "real center HTTP/service startup",
+    "MySQL read/write/migration",
+    "Provider calls/cost",
+    "host user code",
+    "frontend page acceptance",
+    "Git writes"
+  ],
+  "limits": [
+    "21 classes registered and algorithm tests retained does not mean21 formal capabilities ready",
+    "SDK Producer frozen usage-only dict check alone is weaker than3-int Worker/updated-center guard; internal bridge must not accept malformed tail usage as completed operation",
+    "static secret scan is not proof against dynamic aliases/concatenation"
+  ],
+  "historicalGenerator": "verification/model-schema-generator.py.txt is only initial-generation evidence; do not rerun as current contract source",
+  "centerFollowupsAtFreeze": [
+    "cancel HTTP LeaseRequest shape needs root remove required reason or agree shared DTO change",
+    "Node effective coercion helper and Unicode key length normalization need root implementation using exact126 probe",
+    "private actual controlled Producer bridge/credential/profile/approval/message authorization and real stopping proof remain unassembled;503/zero operation inserts required"
+  ],
+  "centerSourceFollowupReadOnly": {
+    "scope": "source inspection only after parent repairs; not a Java execution result",
+    "facts": [
+      "cancel accepts exact leaseId/attempt and uses internal worker_cancel",
+      "text uses codePointCount and rejects C0/C1/unpaired surrogate",
+      "compiler and operation use unique ModelNodeOptions for original effective coercion"
+    ],
+    "sourceSha256": {
+      "..\\..\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\ModelOperationJson.java": "6e2aad9bfaf1c21ad0a23bf2158c71344c37e50c6a735513cd004ff5a2226544",
+      "..\\..\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\ModelOperationService.java": "fa703cc40744bd69170ec4ec1d41f46f43798f0b98485a08d08f9079814b0d53",
+      "..\\..\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\ModelNodeOptions.java": "bb4c5bff07af265ec12d13a505f6fe37f785536e15c1e60f7054cdb7013a2f9d",
+      "..\\..\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\WorkflowModelCompiler.java": "fed57a79ef00e1c9fd6df8eb045c8b363bdf0848b809052050c5650474a79626",
+      "..\\..\\ruoyi-backend\\ruoyi-paiflow\\src\\main\\java\\com\\ruoyi\\paiflow\\service\\ModelOperationOptions.java": "c052d764e186171a4e056e833afe6590626dd2375503d8874c515be6409abaf0"
+    },
+    "remaining": [
+      "real default-free controlled Producer/profile/credential/approval/dynamic-message bridges absent;503/zero operation inserts",
+      "real MySQL/Provider/stopping/cost and page acceptance not performed"
+    ],
+    "controlCharacterEvidence": "verification/pydantic-control-character-inspection.json"
+  }
+}

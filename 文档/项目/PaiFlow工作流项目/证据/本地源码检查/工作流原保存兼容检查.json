@@ -1,0 +1,102 @@
+{
+  "recordedAt": "2026-10-03T08:35:17.775724+08:00",
+  "sourceFiles": [
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowService.java",
+      "sha256": "80ed7ad2368f409450ef091aeff3a3cb068d1e999f94e388b200ec3537779091"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/WorkflowJsonBoundary.java",
+      "sha256": "dd1981de18adaec81460be9c30e14b3028d29a8fddac9ab4e798915521d89420"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/test/java/com/ruoyi/paiflow/service/WorkflowPersistenceTest.java",
+      "sha256": "7e0f159f7cc66d09c47c430ea24418c62a5bd09fc3386d3943b6149ae36ecfa0"
+    }
+  ],
+  "sourceFacts": "工作流原局部保存来源核对.json",
+  "checks": [
+    {
+      "log": "工作流真实JSON对象绑定-原问题复现.log",
+      "tests": 2,
+      "failures": 0,
+      "errors": 1,
+      "sha256": "3430e180342e46dbbe48fd4ba8f2acb634f7a26b467696deb48227d2822f2ce3"
+    },
+    {
+      "log": "工作流真实JSON对象绑定与既有资源-定向复验.log",
+      "tests": 86,
+      "failures": 1,
+      "errors": 0,
+      "sha256": "aa4714056b889c9be139478db010ab48ec325d3eb70f7128c711ac74da907b4f"
+    },
+    {
+      "log": "工作流原局部保存语义-原问题复现.log",
+      "tests": 2,
+      "failures": 1,
+      "errors": 1,
+      "sha256": "0db9e0e6ab3870067424da475c1dd7f339f3dd3b77353d9a97816abd90966680"
+    },
+    {
+      "log": "工作流原局部保存与既有资源-联合复验.log",
+      "tests": 88,
+      "failures": 0,
+      "errors": 0,
+      "sha256": "235c7a9e7169ac82f7aa2526171543c82d9351bea556d40b5f26228e2ce53dc8"
+    },
+    {
+      "log": "默认个人域基础与既有资源-联合首验.log",
+      "tests": 141,
+      "failures": 0,
+      "errors": 1,
+      "sha256": "3ed5f72cf2ca2c353500e414411be63922cfa825a4e2ff26ddea014a1122513f"
+    },
+    {
+      "log": "默认个人域基础与既有资源-联合复验.log",
+      "tests": 141,
+      "failures": 0,
+      "errors": 0,
+      "sha256": "db205053bb96efdd8f5fb65d4551f4ecd0f40215957a68532b34eb3aa3a7a9a9"
+    }
+  ],
+  "realOriginalFailure": "实际Jackson嵌套Map画布被拒；原partial advancedConfig丢未提交字段，原nodes/edges对象保存丢未提交根字段。",
+  "intermediateFixtureFailure": "86项中新增JSON对象equals比较Double/BigDecimal夹具类型失败；改为完整JSON字符串比较以核对实际存储，不改生产数值或降低字段保全要求。",
+  "independentNullFailure": "工作流画布显式空值独立复现.log",
+  "currentFix": "Map序列化保留null；advanced对象递归合并，数组/标量/null替换；对象canvas保留未提交根键，nodes/edges必须真实数组；字符串完整canvas逐字保存；合并后敏感字段和带null物理16MiB预算检查。",
+  "currentValidation": {
+    "prior88": {
+      "finishedAt": "2026-10-03T07:54:36+08:00",
+      "result": "PASS",
+      "scope": "当时15WF+25Agent+33Model+15Text，null及合并预算两新增用例尚未在此轮执行"
+    },
+    "latest141": {
+      "finishedAt": "2026-10-03T08:09:33+08:00",
+      "result": "PASS",
+      "workflowTests": 19,
+      "scope": "16实际Mapper/事务和3当时legacy合同；上述当前3核心输入hash与该联合freeze一致，后续默认接口选择另在当前集中Maven检查"
+    },
+    "newBoundaryCases": 4,
+    "pending": [],
+    "laterLegacyDefaultScopeCheckPending": false,
+    "fixtureCorrection": "首轮单个9MiB key先被Jackson 50000名称限制拒绝；改300个合法32768+index的key，未调整生产解析限制。",
+    "latestResourceJoint": {
+      "log": "默认个人域三类资源-联合首验.log",
+      "tests": 182,
+      "workflowTests": 32,
+      "result": "PASS",
+      "finishedAt": "2026-10-03T08:35:06+08:00",
+      "coreInputsUnchanged": true,
+      "legacyDefaultEvidence": "工作流默认私域接入检查.json"
+    }
+  },
+  "businessVerified": false,
+  "servicesStarted": false,
+  "realDatabaseWrites": false,
+  "externalCalls": false,
+  "priorSnapshot": "工作流原保存兼容检查-私域接口接入前阶段.json",
+  "independentMergeAndArrayFailure": {
+    "log": "工作流合并预算与数组独立审查.log",
+    "sha256": "d404acf972ba974815cc52a6d738eef8abcf23a4d4bfbd0f4ecd9d7157c8d8ad",
+    "facts": "null键被测量省略使18,874,391 bytes超16MiB仍接收；getJSONArray曾把nodes/edges字符串转数组；两个根因均已修复并纳入实际持久化检查"
+  }
+}

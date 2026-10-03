@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:python:checkpoints-draft:v1",
+  "title": "原交互问答节点的中心检查点协议草案（尚未联机）",
+  "x-status": "shared-center-contract-adopted-local-original-source-facts-no-page-integration",
+  "x-prefix": "/internal/paiflow/v1/runs/{runId}",
+  "description": "原问题/选项/回复结构保留，中心持有正式暂停、回复、revision和一次性消费状态。Worker不用原Redis/EventRegistry，不创建用户回复、会话、nonce或本地业务状态。",
+  "x-source": {
+    "question-shape": "core/workflow/engine/nodes/question_answer/question_answer_node.py:182-196,259-310,364-384",
+    "resume-shape": "core/workflow/engine/nodes/question_answer/question_answer_node.py:312-362",
+    "event-allowlist": "core/workflow/engine/nodes/question_answer/question_answer_node.py:29-38,750-842",
+    "timeout": "core/workflow/engine/nodes/question_answer/question_answer_node.py:185,907; timeout输入1..5分钟，原执行乘60，每次fetch等待相同秒数",
+    "retries-timestamp": "core/workflow/cache/event_registry.py:224-281; 首回复retries=0，后续+1；timestamp为中心写入时Unix秒",
+    "resume-api": "core/workflow/api/v1/chat/debug.py:161-167; open.py:205-211; event_type/content完整JSON，使用event.timeout续TTL",
+    "slot-retry": "core/workflow/engine/nodes/question_answer/question_answer_node.py:606-748; 首轮current_retries=1；不完整则重问；递归使用resume.retries+1，maxRetryCounts=1..5",
+    "option-routing": "core/workflow/engine/nodes/question_answer/question_answer_node.py:386-448; 按原列表顺序首个匹配或默认，输出id实际为选项name，branch为原option.id，默认在前会优先匹配，迁移不重排",
+    "nonce": "原节点无独立nonce约束；当前Worker服务身份+run/lease/attempt/checkpoint/revision+中心CAS去重已绑定消费者"
+  },
+  "x-endpoints": {
+    "POST /checkpoints": {
+      "request": "#/$defs/CreateRequest",
+      "responseData": "#/$defs/CreateAck"
+    },
+    "POST /checkpoints/{checkpointId}/resume/poll": {
+      "request": "#/$defs/PollRequest",
+      "responseData": "#/$defs/PollAck"
+    },
+    "POST /checkpoints/{checkpointId}/consume": {
+      "request": "#/$defs/ConsumeRequest",
+      "responseData": "#/$defs/ConsumeAck"
+    }
+  },
+  "x-rules": [
+    "create/poll/consume检查当前Worker服务身份、有效run/leaseId/attempt、nodeId属于固定question-answer DSL及iteration/ordinal；不能跨run/旧attempt读消费",
+    "create同idempotencyKey同完整请求回同检查点，异请求拒409；同节点/iteration每次重问ordinal+1，最多固定DSL声明maxRetryCounts，普通direct/option只有一次",
+    "题面保留type/content及option的id/text/content_type；options.id是原A-Z/default显示名，不等于路由UUID；needReply和timeout由固定DSL核对，不由Worker自改",
+    "中心deadline为min(run.deadline,创建时刻+timeoutSeconds)；timeoutSeconds来自原1..5分钟乘60；等待继续心跳，过期/取消/失租约停止；不无限扩大等待",
+    "标准用户回复入口只接受当前有效run发起者、平台权限和空间关系；回复只能写一次且CAS到RESUMED，event_type仅resume/ignore/abort，content完整string；中心生成retries=ordinal-1/timestamp，不信任用户metadata",
+    "poll body afterRevision只游标读取当前checkpoint，不提供回复内容或token；可以稳定重发当前状态；每次poll响应有界且不超过HTTP请求超时，不改变状态/费用",
+    "consume只允许RESUMED且expectedRevision匹配，中心行锁/CAS一次转CONSUMED并返回原resumeData={message:原JSON字符串(event_type/content),metadata:{retries,timestamp}}；同幂等键同完全相同请求重发同回执；异请求/未回复/旧revision/过期/取消明确拒绝",
+    "没有resumeToken或额外签名密钥；幂等回执由中心保存，Worker最多保留当前瞬时请求用于相同consume重发",
+    "原ignore在needReply=true时失败；abort原节点失败；非法reply不造默认；原选项DEFAULT与合法模型槽位算法保留",
+    "中心正式run终态/取消负责关闭未消费检查点；Worker不自行保存WAITING成功或伪造回复；原节点跨进程重建/已消费后引擎重启仍未实现",
+    "create成功后Worker提交checkpoint事件含checkpointId/revision/deadline和完整原interrupt，正式事件仍走现有seq/ACK；事件不能代替检查点状态",
+    "RunService尚不派发QA资源图；算法/中心技术测试通过不代表原QA页面、会话、恢复或完整21节点已经联机",
+    "ACK包含deadline/stopped；消费与到期/取消并发时返回consumed=false/state=EXPIRED|CANCELLED/stopped=true，不含resumeData。顶层问答当前可适配；中心尚未绑定迭代内节点，明确拒绝不改为顶层归属。",
+    "revision沿中心现表从0开始：create=0、reply=1、consume=2；afterRevision/expectedRevision允许0，CAS仍严格核对当前状态和revision；ACK所有已定义deadline/stopped保留。",
+    "请求与响应定义唯一来自共享contracts/paiflow/checkpoints.schema.json；本文件仅保留原算法来源与迁移差异。固定幂等键使用JSON tuple的SHA256，允许8..128安全字符；已消费/过期/取消检查点不重开。"
+  ],
+  "$defs": {
+    "Question": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/Question"
+    },
+    "CreateRequest": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/CreateRequest"
+    },
+    "CreateAck": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/CreateAck"
+    },
+    "PollRequest": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/PollRequest"
+    },
+    "PollAck": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/PollAck"
+    },
+    "ConsumeRequest": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/ConsumeRequest"
+    },
+    "ResumeData": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/ResumeData"
+    },
+    "ConsumeAck": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/ConsumeAck"
+    }
+  }
+}

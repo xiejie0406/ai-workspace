@@ -1,0 +1,30 @@
+-------------------------------------------------------------------------------
+Test set: com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest
+-------------------------------------------------------------------------------
+Tests run: 11, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 1.946 s <<< FAILURE! -- in com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest
+com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest.unknownFutureMarkerIsRejectedAcrossUserWorkerAndCheckpointPaths -- Time elapsed: 0.133 s <<< ERROR!
+com.ruoyi.common.exception.ServiceException: 节点字段必须为对象
+	at com.ruoyi.paiflow.service.PureIterationPolicy.invalid(PureIterationPolicy.java:222)
+	at com.ruoyi.paiflow.service.PureIterationPolicy.entry(PureIterationPolicy.java:217)
+	at com.ruoyi.paiflow.service.PureIterationPolicy.object(PureIterationPolicy.java:218)
+	at com.ruoyi.paiflow.service.PureIterationPolicy.checkReferences(PureIterationPolicy.java:161)
+	at com.ruoyi.paiflow.service.PureIterationPolicy.validateTopLevel(PureIterationPolicy.java:50)
+	at com.ruoyi.paiflow.service.StaticQuestionAnswerPolicy.validate(StaticQuestionAnswerPolicy.java:13)
+	at com.ruoyi.paiflow.service.WorkflowModelCompiler.transform(WorkflowModelCompiler.java:33)
+	at com.ruoyi.paiflow.service.WorkflowModelCompiler.compile(WorkflowModelCompiler.java:22)
+	at com.ruoyi.paiflow.service.WorkflowService.createVersion(WorkflowService.java:188)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:190)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:158)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:133)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:371)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:130)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:719)
+	at com.ruoyi.paiflow.service.WorkflowService$$SpringCGLIB$$0.createVersion(<generated>)
+	at com.ruoyi.paiflow.service.StaticQuestionAnswerTestFixture.version(StaticQuestionAnswerTestFixture.java:87)
+	at com.ruoyi.paiflow.service.StaticQuestionAnswerTestFixture.begun(StaticQuestionAnswerTestFixture.java:89)
+	at com.ruoyi.paiflow.service.RunJsonCodecPersistenceTest.unknownFutureMarkerIsRejectedAcrossUserWorkerAndCheckpointPaths(RunJsonCodecPersistenceTest.java:32)
+

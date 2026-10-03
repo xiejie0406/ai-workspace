@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:python:model-operations-draft:v1",
+  "title": "原模型 SDK 帧与中心操作端口草案（尚未部署）",
+  "description": "中心当前未实现这些资源/操作端点；没有真实 Provider producer、联机或费用/停止确认。Worker 原节点使用受控适配；端口缺失明确失败。",
+  "x-status": "draft-center-model-operation-and-worker-producer-not-implemented",
+  "x-prefix": "/internal/paiflow/v1/runs/{runId}",
+  "x-ownership": "中心持有资源权限、固定版本、审批、操作状态、审计、幂等和正式费用真相；SDK 在隔离的 Python Worker 能力环境中执行，不能由节点自由选择 URL/凭据",
+  "x-binding": "保留原前端请求结构；中心保存执行版本时把已授权 nodeParam.modelId 映射为 modelResourceId，固定 resourceSnapshots。llmId/serviceId/domain 是原供应商标签，不授予资源权限。apiKey/apiSecret/url/env 不进入 assignment。",
+  "x-endpoints": {
+    "POST /resources/{resourceId}": {"request": "#/$defs/Lease", "responseData": "#/$defs/ModelResource"},
+    "POST /operations (operation=model.invoke)": {"parameters": "#/$defs/ModelParameters", "responseData": "#/$defs/StartAck"},
+    "POST /operations/{operationId}/frames": {"request": "#/$defs/FramesRequest", "responseData": "#/$defs/FramesAck"},
+    "POST /operations/{operationId}/cancel": {"request": "#/$defs/Lease", "responseData": "#/$defs/StopAck"}
+  },
+  "x-rules": [
+    "沿用已有 operation 请求中的当前 leaseId/attempt/nodeId/operation/parameters/idempotencyKey；验证服务身份、固定 DSL 节点和 approved_write 中心审批，模型费用操作不因只读模型输出而豁免",
+    "同幂等键同完整请求返回同 operationId；异请求拒绝 409。键包含 run/attempt/node/iteration 和规范化参数 hash；中心仍须校验节点和资源权限",
+    "资源仅接受 kind=model、原 provider xinghuo/openai、version、modelName、enabled；中心 descriptor 与 assignment 固定快照逐项一致；凭据托管引用由受控能力通道解析，不进入 assignment/messages/events",
+    "Spark/OpenAI 复用原 decode_message；Spark header/payload 与 OpenAI choices/usage 帧保持不同；extractor/decision 的原 FunctionCall 仅 Spark，禁止把 OpenAI 别名为 Spark",
+    "frames 是原 SDK JSON 帧；cursor 是帧数位置，nextCursor=afterCursor+frames.length，重读同 cursor 不创建 Provider 请求；单次最多 64 帧，整个节点最多 10000 帧/8MiB",
+    "原 SDK 终帧只能在中心 state=COMPLETED 且 done=true 后送原节点；无原终帧、错误码、跨 provider/资源版本/游标、未知协议均失败",
+    "中心资源/操作拒绝是粘性边界失败，不能被原 Decision DEFAULT 算法吞掉后继续分支；合法模型内容的原输出修正/分支/失败语义保留",
+    "FAILED 必须有 failureKind=provider/authorization/protocol/transport/deadline。只有 provider/resourceVersion 匹配、failureKind=provider、done=true 且原最后错误帧合法，才复用原 CodeConvert/节点错误规则；Decision 可以走原 DEFAULT，但中心操作仍为 FAILED。无原错误帧或其他失败来源继续粘性拒绝",
+    "原 Spark 非0整数 code 由原 CodeConvert.sparkCode 映射；原 Spark FC 的敏感快修/无 function_call 等 _process_message 异常保留。原 OpenAI 非 stop 的已知 finish_reason(length/content_filter/function_call/tool_calls) 在明确 provider FAILED 时沿原 OPEN_AI_REQUEST_ERROR 语义；未知帧不捏造 Provider 错误",
+    "取消必须在中心确认 stopped=true 后认为 Producer 已停止；无法确认则 EFFECT_UNKNOWN 并由中心核对费用和外部影响；租约丢失不伪造 CANCELLED 成功",
+    "history/multimodal 对象分发尚未接通；启用历史或原 SYSTEM_IMAGE 任意 URL 明确拒绝，不造空记忆或下载任意地址",
+    "缺中心端点不会构造假 Model 或假 ACK；本草案不替代共享 Worker/事件/结果契约"
+  ],
+  "x-sandbox": {
+    "operation": "sandbox.execute",
+    "parameters": {"language": "python", "code": "原 CodeNode main 注入/输出模板，最多 256KiB", "timeoutSeconds": "1..600，非布尔整数"},
+    "response": {"state": "completed", "output": "string；保留原 JSON/type 校验与非 JSON fallback"},
+    "unverified": "真实 Runner 未装配；必须实证只读挂载、禁网、CPU/内存/时间限制、停止回读。代码不会由 Worker exec/eval；离线原算法测试不等于沙箱就绪。"
+  },
+  "$defs": {
+    "Lease": {"type": "object", "additionalProperties": false, "required": ["leaseId", "attempt"], "properties": {
+      "leaseId": {"type": "string", "minLength": 1}, "attempt": {"type": "integer", "minimum": 1}}},
+    "ModelResource": {"type": "object", "required": ["kind", "provider", "version", "modelName", "enabled"], "properties": {
+      "kind": {"const": "model"}, "provider": {"enum": ["xinghuo", "openai"]}, "version": {"type": "string", "minLength": 1},
+      "modelName": {"type": "string", "minLength": 1}, "enabled": {"const": true}},
+      "description": "可附不含秘密的中心资源元数据；Worker 不读取凭据或 Provider URL"},
+    "ModelParameters": {"type": "object", "additionalProperties": false,
+      "required": ["resourceId", "resourceVersion", "provider", "modelName", "mode", "messages", "options"],
+      "properties": {
+        "resourceId": {"type": "string", "minLength": 1}, "resourceVersion": {"type": "string", "minLength": 1},
+        "provider": {"enum": ["xinghuo", "openai"]}, "modelName": {"type": "string", "minLength": 1},
+        "mode": {"enum": ["chat", "function_call"]}, "messages": {"type": "array", "items": {"type": "object"}},
+        "functions": {"type": "array", "items": {"type": "object"}},
+        "timeoutSeconds": {"type": "number", "exclusiveMinimum": 0, "maximum": 600},
+        "options": {"type": "object", "additionalProperties": false,
+          "required": ["temperature", "maxTokens", "topK", "patchId", "respFormat", "searchDisable", "extraParams"],
+          "properties": {"temperature": {"type": "number"}, "maxTokens": {"type": "integer"}, "topK": {"type": "integer"},
+            "patchId": {"type": "array"}, "respFormat": {"type": "integer"}, "searchDisable": {"type": "boolean"},
+            "extraParams": {"type": "object"}, "questionType": {"type": "string"}, "functionChoice": {"type": "string"}}}
+      },
+      "allOf": [{"if": {"properties": {"mode": {"const": "function_call"}}}, "then": {
+        "required": ["functions"], "properties": {"provider": {"const": "xinghuo"},
+          "options": {"required": ["questionType", "functionChoice"]}}}}]},
+    "StartAck": {"type": "object", "additionalProperties": false,
+      "required": ["state", "operationId", "resourceId", "resourceVersion", "provider"], "properties": {
+        "state": {"const": "RUNNING"}, "operationId": {"type": "string", "minLength": 1},
+        "resourceId": {"type": "string", "minLength": 1}, "resourceVersion": {"type": "string", "minLength": 1},
+        "provider": {"enum": ["xinghuo", "openai"]}}},
+    "FramesRequest": {"type": "object", "additionalProperties": false,
+      "required": ["leaseId", "attempt", "afterCursor", "limit"], "properties": {
+        "leaseId": {"type": "string", "minLength": 1}, "attempt": {"type": "integer", "minimum": 1},
+        "afterCursor": {"type": "integer", "minimum": 0, "maximum": 10000}, "limit": {"type": "integer", "minimum": 1, "maximum": 64}}},
+    "FramesAck": {"type": "object", "additionalProperties": false,
+      "required": ["state", "provider", "resourceVersion", "frames", "nextCursor", "done"], "properties": {
+        "state": {"enum": ["RUNNING", "COMPLETED", "FAILED", "CANCELLED", "EFFECT_UNKNOWN"]},
+        "provider": {"enum": ["xinghuo", "openai"]}, "resourceVersion": {"type": "string", "minLength": 1},
+        "frames": {"type": "array", "maxItems": 64, "items": {"type": "object"}},
+        "nextCursor": {"type": "integer", "minimum": 0, "maximum": 10000}, "done": {"type": "boolean"},
+        "finishSeq": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "lastSeq": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "failureKind": {"enum": ["provider", "authorization", "protocol", "transport", "deadline"]}},
+      "allOf": [{"if": {"properties": {"state": {"const": "FAILED"}}}, "then": {"required": ["failureKind"]}},
+        {"if": {"required": ["provider", "done", "state"], "properties": {"provider": {"const": "openai"}, "done": {"const": true}},
+          "anyOf": [{"properties": {"state": {"const": "COMPLETED"}}},
+            {"required": ["failureKind"], "properties": {"state": {"const": "FAILED"}, "failureKind": {"const": "provider"}}}]},
+         "then": {"required": ["finishSeq", "lastSeq"]}}]},
+    "StopAck": {"type": "object", "additionalProperties": false, "required": ["stopped"], "properties": {"stopped": {"const": true}}}
+  }
+}

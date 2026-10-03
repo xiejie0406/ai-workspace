@@ -1,0 +1,1397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:draft:remaining-capabilities:v1",
+  "title": "原五类节点中心能力草案（尚无生产Producer）",
+  "x-status": "draft-not-deployed",
+  "x-originalSources": {
+    "plugin": [
+      "core/workflow/engine/nodes/plugin_tool/plugin_node.py:get_business_input/execute",
+      "core/workflow/engine/nodes/plugin_tool/link_client.py:parse_react_schema_list/Tool.assemble_parameters/assemble_body/dumps/run"
+    ],
+    "knowledge-pro-base": [
+      "core/workflow/engine/nodes/knowledge_pro/knowledge_pro_node.py:gen_req_payload/_handle_response/execute",
+      "core/workflow/engine/nodes/knowledge_pro/consts.py"
+    ],
+    "agent": [
+      "core/workflow/engine/nodes/agent/agent_node.py:_prepare_instructions/_generate_agent_request/_normalize_tools/_process_stream_response",
+      "core/agent/service/builder/workflow_agent_builder.py:_create_knowledge_tasks",
+      "core/workflow/engine/nodes/util/frame_processor.py:extract_tool_calls_content"
+    ],
+    "database": [
+      "core/workflow/engine/nodes/pgsql/pgsql_node.py:generate_dml/_build_condition/execute",
+      "core/workflow/engine/nodes/pgsql/pgsql_client.py:exec_dml/payload"
+    ],
+    "rpa": [
+      "core/workflow/engine/nodes/rpa/rpa_node.py:_StreamResponse/execute"
+    ]
+  },
+  "x-centerRequirements": [
+    "Same live run/lease/attempt + execution/begin gate + fresh platform permission + space membership + immutable node/version resource mapping",
+    "Resource producer, effect ledger, approval, quota and billing persisted by center; no Worker credentials or arbitrary destinations",
+    "read effectClass guarantees no charge or mutation; all charge/write calls require approved_write and center per-call approval",
+    "operations and idempotency key bound to fixed resource versions, parameter hash and current run; repeat same complete request returns same ACK, different content rejects",
+    "Agent dependencySelections must map each original tool/version,MCP ID,workflow ID,ordered knowledge entry to dependencyBindings and immutable authorized resources",
+    "Database logical identifiers are authorized by center; values parameterized by producer; ADD returning last_inserted_row and UPDATE returning matched_rows use same audited transaction; no raw SQL or Worker follow-up query",
+    "frames cursor equals prior cursor+frame count, stable fixed resourceBindings, done only known terminal; confirmed nonzero Provider error only under FAILED/failureKind=provider",
+    "Cancellation requires stopped=true; missing dispatch ACK or unconfirmed write/fee stop => EFFECT_UNKNOWN; no retries to obtain a new operation",
+    "All new operations reject nested iteration until actual center iteration instance ownership exists",
+    "Agent and professional RAG preserve distinct standalone producer environments; copied Agent/Link/AITools algorithms and locks do not imply these producers are restored"
+  ],
+  "x-originalLimits": {
+    "agent": "30min total/30s connect/retry.timeout read interval; original JSON parse precedes [DONE] check, so no claimed [DONE] support; choices empty or stop supported",
+    "knowledge-pro-base": "30min total/30s connect/retry.timeout interval; DeepSearch/LongRAG and AIUI-RAG2/CBG-RAG distinct; metadata resets on nonmetadata frames preserved",
+    "rpa": "24h original total/30s connect; no explicit terminal marker, use center COMPLETED/done; requires fixed timeoutSeconds and stopSupported",
+    "database": "mode0 CUSTOM parser/SQL translation not restored; SQLAlchemy2.0.31 original Workflow lock retained but not installed; original SQL generators preserved lazy; original output projection kept",
+    "plugin": "original JSON-only body and TODO required-validation limitations retained; no arbitrary old Link schema/run URL"
+  },
+  "$defs": {
+    "Assignment": {
+      "$ref": "../../../contracts/paiflow/worker.schema.json#"
+    },
+    "ExecutionBeginAck": {
+      "$ref": "../../../contracts/paiflow/worker.schema.json#/$defs/ExecutionBeginAck"
+    },
+    "CheckpointCreateAck": {
+      "$ref": "../../../contracts/paiflow/checkpoints.schema.json#/$defs/CreateAck"
+    },
+    "Dependency": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "model",
+            "tool",
+            "mcp",
+            "workflow",
+            "knowledge",
+            "knowledge-pro"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "ResourceBindings": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/Dependency"
+      }
+    },
+    "BaseResource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "tool",
+            "knowledge-pro",
+            "agent",
+            "database",
+            "rpa"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "const": true
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "enabled"
+      ],
+      "additionalProperties": true
+    },
+    "PluginResource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "tool"
+        },
+        "provider": {
+          "const": "spark-link"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "const": true
+        },
+        "pluginId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "legacyVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "legacyAppId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effectClass": {
+          "enum": [
+            "read",
+            "write"
+          ]
+        },
+        "openApiSchema": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "enabled",
+        "pluginId",
+        "operationId",
+        "legacyVersion",
+        "legacyAppId",
+        "effectClass",
+        "openApiSchema"
+      ],
+      "additionalProperties": true
+    },
+    "ProResource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "knowledge-pro"
+        },
+        "provider": {
+          "enum": [
+            "AIUI-RAG2",
+            "CBG-RAG"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "const": true
+        },
+        "ragMode": {
+          "enum": [
+            "DeepSearch",
+            "LongRAG"
+          ]
+        },
+        "repoIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "docIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "modelResourceId": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "enabled",
+        "ragMode",
+        "repoIds",
+        "docIds",
+        "modelResourceId"
+      ],
+      "additionalProperties": true
+    },
+    "AgentResource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "agent"
+        },
+        "provider": {
+          "const": "original-agent"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "const": true
+        },
+        "strategy": {
+          "type": "integer"
+        },
+        "modelResourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "legacyPlugin": {
+          "type": "object"
+        },
+        "dependencyBindings": {
+          "$ref": "#/$defs/ResourceBindings"
+        },
+        "dependencySelections": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "enabled",
+        "strategy",
+        "modelResourceId",
+        "legacyPlugin",
+        "dependencyBindings",
+        "dependencySelections"
+      ],
+      "additionalProperties": true
+    },
+    "DatabaseTable": {
+      "type": "object",
+      "properties": {
+        "allowedModes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ]
+          }
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          }
+        }
+      },
+      "required": [
+        "allowedModes",
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "DatabaseResource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "database"
+        },
+        "provider": {
+          "const": "center-data"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "const": true
+        },
+        "legacyDbId": {
+          "type": "integer"
+        },
+        "legacySpaceId": {
+          "type": [
+            "integer",
+            "string",
+            "null"
+          ]
+        },
+        "tables": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/DatabaseTable"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "enabled",
+        "legacyDbId",
+        "legacySpaceId",
+        "tables"
+      ],
+      "additionalProperties": true
+    },
+    "RpaResource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "rpa"
+        },
+        "provider": {
+          "const": "original-rpa"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "const": true
+        },
+        "projectId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "execPosition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stopSupported": {
+          "const": true
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "timeoutSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 86400
+            }
+          },
+          "required": [
+            "timeoutSeconds"
+          ],
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "enabled",
+        "projectId",
+        "execPosition",
+        "stopSupported",
+        "limits"
+      ],
+      "additionalProperties": true
+    },
+    "PluginPayload": {
+      "type": "object",
+      "properties": {
+        "header": {
+          "type": "object",
+          "properties": {
+            "app_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "app_id"
+          ],
+          "additionalProperties": false
+        },
+        "parameter": {
+          "type": "object",
+          "properties": {
+            "tool_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "operation_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "tool_id",
+            "operation_id",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string",
+                  "contentEncoding": "base64"
+                },
+                "query": {
+                  "type": "string",
+                  "contentEncoding": "base64"
+                },
+                "path": {
+                  "type": "string",
+                  "contentEncoding": "base64"
+                },
+                "body": {
+                  "type": "string",
+                  "contentEncoding": "base64"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "header",
+        "parameter",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "ProPayload": {
+      "type": "object",
+      "properties": {
+        "prompt": {
+          "type": "string"
+        },
+        "rag": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "AIUI-RAG2",
+                "CBG-RAG"
+              ]
+            },
+            "repo_id": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "doc_id": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "topN": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "mode": {
+              "enum": [
+                "DeepSearch",
+                "LongRAG"
+              ]
+            },
+            "threshold": {
+              "type": "number"
+            },
+            "llm": {
+              "type": "object",
+              "properties": {
+                "model": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "max_token": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "top_k": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 6
+                },
+                "temperature": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "model",
+                "max_token",
+                "top_k",
+                "temperature"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "repo_id",
+            "doc_id",
+            "topN",
+            "mode",
+            "threshold",
+            "llm"
+          ],
+          "additionalProperties": false
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "const": "user"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "meta_data": {
+          "type": "object",
+          "properties": {
+            "caller": {
+              "const": "workflow"
+            },
+            "caller_sid": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "caller",
+            "caller_sid"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "prompt",
+        "rag",
+        "messages",
+        "meta_data"
+      ],
+      "additionalProperties": false
+    },
+    "AgentPayload": {
+      "type": "object",
+      "properties": {
+        "model_config": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "domain"
+          ],
+          "additionalProperties": false
+        },
+        "instruction": {
+          "type": "object",
+          "properties": {
+            "reasoning": {
+              "type": "string"
+            },
+            "answer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "reasoning",
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "plugin": {
+          "type": "object",
+          "properties": {
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "mcp_server_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "mcp_server_urls": {
+              "type": "array",
+              "maxItems": 0
+            },
+            "workflow_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "knowledge": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "tools",
+            "mcp_server_ids",
+            "mcp_server_urls",
+            "workflow_ids",
+            "knowledge"
+          ],
+          "additionalProperties": false
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "enum": [
+                  "user",
+                  "assistant",
+                  "system"
+                ]
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "meta_data": {
+          "type": "object",
+          "properties": {
+            "caller": {
+              "type": "string"
+            },
+            "caller_sid": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "caller",
+            "caller_sid"
+          ],
+          "additionalProperties": false
+        },
+        "stream": {
+          "const": true
+        },
+        "max_loop_count": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "model_config",
+        "instruction",
+        "plugin",
+        "messages",
+        "meta_data",
+        "stream",
+        "max_loop_count"
+      ],
+      "additionalProperties": false
+    },
+    "Condition": {
+      "type": "object",
+      "properties": {
+        "fieldName": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "operator": {
+          "enum": [
+            "=",
+            "!=",
+            "like",
+            "not like",
+            "in",
+            "not in",
+            "null",
+            "not null",
+            "<",
+            "<=",
+            ">",
+            ">="
+          ]
+        },
+        "value": {},
+        "zeroEquivalent": {}
+      },
+      "required": [
+        "fieldName",
+        "operator"
+      ],
+      "additionalProperties": false
+    },
+    "DatabasePayload": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "table": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "values": {
+          "type": "object"
+        },
+        "where": {
+          "type": "object",
+          "properties": {
+            "logicalOperator": {
+              "enum": [
+                "and",
+                "or"
+              ]
+            },
+            "conditions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Condition"
+              }
+            }
+          },
+          "required": [
+            "logicalOperator",
+            "conditions"
+          ],
+          "additionalProperties": false
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          }
+        },
+        "order": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fieldName": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+              },
+              "order": {
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              }
+            },
+            "required": [
+              "fieldName",
+              "order"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "limit": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "returning": {
+          "enum": [
+            "last_inserted_row",
+            "matched_rows",
+            "exec_success"
+          ]
+        }
+      },
+      "required": [
+        "mode",
+        "table",
+        "values",
+        "where",
+        "columns",
+        "order",
+        "limit",
+        "returning"
+      ],
+      "additionalProperties": false
+    },
+    "RpaPayload": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sid": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exec_position": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "project_id",
+        "sid",
+        "exec_position",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "Parameters": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "tool",
+            "knowledge-pro",
+            "agent",
+            "database",
+            "rpa"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceBindings": {
+          "$ref": "#/$defs/ResourceBindings"
+        },
+        "legacyPayload": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/PluginPayload"
+            },
+            {
+              "$ref": "#/$defs/ProPayload"
+            },
+            {
+              "$ref": "#/$defs/AgentPayload"
+            },
+            {
+              "$ref": "#/$defs/DatabasePayload"
+            },
+            {
+              "$ref": "#/$defs/RpaPayload"
+            }
+          ]
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        },
+        "readTimeoutSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "legacyPayload"
+      ],
+      "additionalProperties": false
+    },
+    "OperationRequest": {
+      "type": "object",
+      "properties": {
+        "leaseId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operation": {
+          "enum": [
+            "tools.read",
+            "tools.invoke",
+            "knowledge.answer",
+            "agent.invoke",
+            "data.query",
+            "data.mutate",
+            "rpa.execute"
+          ]
+        },
+        "parameters": {
+          "$ref": "#/$defs/Parameters"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "pattern": "^operation_[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "operation",
+        "parameters",
+        "idempotencyKey"
+      ],
+      "additionalProperties": false
+    },
+    "ProviderErrorFrame": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "not": {
+            "const": 0
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "additionalProperties": true
+    },
+    "ProFrame": {
+      "oneOf": [
+        {
+          "const": "[DONE]"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "const": 0
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "content_type": {
+                  "enum": [
+                    "answer",
+                    "knowledge_metadata"
+                  ]
+                },
+                "content": {
+                  "type": [
+                    "string",
+                    "array"
+                  ]
+                }
+              },
+              "required": [
+                "content"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "data"
+          ],
+          "additionalProperties": true
+        },
+        {
+          "$ref": "#/$defs/ProviderErrorFrame"
+        }
+      ]
+    },
+    "RpaFrame": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
+        },
+        "sid": {
+          "type": "string"
+        },
+        "data": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "additionalProperties": true
+    },
+    "AgentFrame": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AgentSuccessFrame"
+        },
+        {
+          "$ref": "#/$defs/ProviderErrorFrame"
+        }
+      ]
+    },
+    "RunningAck": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "tool",
+            "knowledge-pro",
+            "agent",
+            "database",
+            "rpa"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceBindings": {
+          "$ref": "#/$defs/ResourceBindings"
+        },
+        "state": {
+          "const": "RUNNING"
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "state",
+        "operationId"
+      ],
+      "additionalProperties": false
+    },
+    "CompletedAck": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "tool",
+            "knowledge-pro",
+            "agent",
+            "database",
+            "rpa"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceBindings": {
+          "$ref": "#/$defs/ResourceBindings"
+        },
+        "state": {
+          "enum": [
+            "COMPLETED",
+            "FAILED"
+          ]
+        },
+        "failureKind": {
+          "enum": [
+            "provider",
+            "authorization",
+            "protocol",
+            "transport",
+            "deadline"
+          ]
+        },
+        "legacyResponse": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "state",
+        "legacyResponse"
+      ],
+      "additionalProperties": false
+    },
+    "FramesAck": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "tool",
+            "knowledge-pro",
+            "agent",
+            "database",
+            "rpa"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceBindings": {
+          "$ref": "#/$defs/ResourceBindings"
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "failureKind": {
+          "enum": [
+            "provider",
+            "authorization",
+            "protocol",
+            "transport",
+            "deadline"
+          ]
+        },
+        "nextCursor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "done": {
+          "type": "boolean"
+        },
+        "frames": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object"
+              },
+              {
+                "const": "[DONE]"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "state",
+        "nextCursor",
+        "done",
+        "frames"
+      ],
+      "additionalProperties": false
+    },
+    "FramesRequest": {
+      "type": "object",
+      "properties": {
+        "leaseId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "afterCursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        }
+      },
+      "required": [
+        "leaseId",
+        "attempt",
+        "afterCursor",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "CancelAck": {
+      "type": "object",
+      "properties": {
+        "stopped": {
+          "const": true
+        }
+      },
+      "required": [
+        "stopped"
+      ],
+      "additionalProperties": true
+    },
+    "AgentSuccessFrame": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "const": 0
+        },
+        "choices": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "delta": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "reasoning_content": {
+                    "type": "string"
+                  },
+                  "tool_calls": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "required": [],
+                "additionalProperties": true
+              },
+              "finish_reason": {
+                "enum": [
+                  null,
+                  "",
+                  "stop"
+                ]
+              }
+            },
+            "required": [
+              "delta"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "usage": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "choices"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

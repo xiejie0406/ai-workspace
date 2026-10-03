@@ -1,0 +1,82 @@
+{
+  "generatedAt": "2026-10-03T09:55:43.6501024+08:00",
+  "purpose": "实际READ_COMMITTED事务内已提交撤权被MyBatis SESSION缓存掩盖的隔离反例",
+  "status": "reproduced",
+  "environment": "随机H2内存库；实际Model/Space/SysMenu XML及SysPermissionService/SysMenuServiceImpl；无真实DB/Redis/SDK/HTTP/Maven",
+  "steps": [
+    "同RC事务首次读取模型enabled、成员status及用户/角色菜单权限",
+    "独立JDBC autocommit提交模型停用、成员移除与菜单禁用",
+    "同SqlSession二次相同SQL读取",
+    "显式SqlSessionTemplate.clearCache后第三读取"
+  ],
+  "expected": {
+    "secondMenuUser": false,
+    "secondMenuRole": false,
+    "secondMember": "removed",
+    "secondModel": 0
+  },
+  "actual": {
+    "afterClearMember": "removed",
+    "secondMember": "active",
+    "localCacheScope": "SESSION",
+    "afterClearModel": 0,
+    "isolation": 2,
+    "firstAndSecondModelSameDto": true,
+    "secondModel": 1,
+    "afterClearMenuUser": false,
+    "afterClearMenuRole": false,
+    "secondMenuUser": true,
+    "secondMenuRole": true
+  },
+  "inputs": [
+    {
+      "path": "文档/项目/PaiFlow工作流项目/证据/本地源码检查/checks/SessionCacheProbe.java",
+      "sha256": "af7a49966872124ac0e2abdfdd43ed882edcb6ba4ae3754d55c4ba31ece62260"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/ModelMapper.xml",
+      "sha256": "5e61839654d3580e7781eac3ae5c75ce1736f653d72632e76e4af4ae9afb6d2f"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paiflow/src/main/resources/mapper/paiflow/SpaceMapper.xml",
+      "sha256": "c11ae136cd45df9eaf7637ee58c92e4f95881d5fe892b9b3d791dea1c731a71e"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-system/src/main/resources/mapper/system/SysMenuMapper.xml",
+      "sha256": "d826e90d95c58554ccfea7877cdd97a85b2e496a925a7e45b8138236791eae58"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-system/src/main/resources/mapper/system/SysUserMapper.xml",
+      "sha256": "545d44b4f8ab708bb7370b378d6f0def6eb2db5b7b8a4d8c5107c9bbed891c51"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/SysPermissionService.java",
+      "sha256": "ad2cc6aec31b69cf255b2af42183aa308903fc366dfa3deb8a39679a78316832"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-system/src/main/java/com/ruoyi/system/service/impl/SysMenuServiceImpl.java",
+      "sha256": "435d0ea8885dbd9157cc09846f374ad1c67c72e43f0d26c31e56a8cadfa04c14"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-admin/src/main/resources/mybatis/mybatis-config.xml",
+      "sha256": "d2d1c0462999178dcf8519ac9abec66018a44b37f181f716e8f8eed0b3304f1d"
+    }
+  ],
+  "compileClass": {
+    "sha256": "79b01f3975bad4bc8839a07f2992732d477c6ff69949e970ba160671283d0d8c",
+    "path": "checks/session-cache-classes/SessionCacheProbe.class"
+  },
+  "logs": [
+    "checks/Session缓存反例-实际运行.log",
+    "checks/Session缓存反例-运行复验.log"
+  ],
+  "launcherFailure": "首Java @args中文classpath未找到类，未进入反例；保留原日志。直接传Unicodeclasspath后实际运行exit0。",
+  "sourceFacts": [
+    "mybatis-config.xml未设置localCacheScope，实际Configuration默认SESSION",
+    "Model/Space/sys_menu实际Mapper无namespace二级cache，此反例来自事务SqlSession一级缓存",
+    "SysPermissionService.getMenuPermission经SysMenuServiceImpl直接读实际SysMenuMapper，无Redis读取替代",
+    "SysUserMapper.selectUserById也无flushCache标记，用户缓存风险为源推断；本probe未构造实际SysUserMapper查询"
+  ],
+  "proposedFix": "在PaiFlow限定的实时主体/菜单/成员/模型重查之前clear当前SqlSession缓存；保持平台认证和全局Mapper/config不变",
+  "limits": "本probe证明原默认会缓存、显式clear可读已提交值；不证明尚未实施的业务修复或真实MySQL竞态均已通过"
+}

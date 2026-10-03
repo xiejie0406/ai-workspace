@@ -1,0 +1,49 @@
+# PaiFlow 若依业务模块
+
+当前已进入完整迁移的本地源码实施：21类节点目录、原画布/执行DSL转换、结构预检、平台认证委托、受限资料与明确旧UID映射、个人/团队空间及成员、邀请/申请、工作流草稿/不可变版本，以及中心运行/租约/事件/终态、问答检查点和一次性执行登记。原React业务页面、画布、布局和状态库保留；业务Controller复用若依权限与AjaxResult，legacy入口保留原code=0格式。只有`paiflow.enabled=true`时装配，没有打开功能或启动中心。
+
+源码和定向测试不代表业务中心已全量完成。真实套餐/容量和通知端口、全部旧接口、每节点参数与资源快照、正式应用/对话/history/变量、问答资源图/嵌套迭代/跨进程恢复、调试SSE兼容、模型/知识/工具/数据/RPA与渠道闭环仍按唯一完整迁移方案持续补齐。当前RunService沿用已实现的纯图范围，顶层Python `spark-llm`只在固定模型目录、当前审批、精确凭据与受控Producer端口全部接入时排队；这些端口没有默认真实实现，缺项明确503，不能以空快照运行资源节点。
+
+唯一方案与实际记录位于 `文档/项目/PaiFlow工作流项目/`。真实数据库写入、外部调用、发布和Git写操作仍须对应授权。
+
+`/user-info/me`只读取平台当前有效账号与真实协议偏好；昵称/头像更新委托平台Service，不复制密码或角色，协议同意写入业务偏好表。旧UID仅凭显式映射或`ruoyi:<userId>`解析，不按同名/管理员回退。平台权限与空间成员关系同时检查；最后所有者不能退出/删除，个人空间不能转让。
+
+Mapper通过本模块配置复用现有sqlSessionFactory和DataSource。`sql/001-paiflow-schema.sql`至`017-paiflow-run-json-codec.sql`十七份文件都是未执行增量草案；007为智能体单一画布绑定、008为个人分隔符目录、009为模型与不可变版本、010为默认个人区内部表示、011为智能体创建的owner并发锁、012为工作流版本独立模型快照、013为逐次模型操作与原始流事实、014为经审查的原公开配置目录、015为版本化执行编译标识、016扩展顶层静态QA的V3编译标识、017为运行级不可变JSON编码标记，不含CREATE DATABASE、平台账号初始化或应用自动建表。原PaiFlow业务库连接与旧数据来源仍待核实，不能启用模块后把共享默认DataSource当作已确认的目标业务库。H2 2.4.240仅用于隔离Mapper/事务测试，不是新业务库，不能据此证明MySQL DDL已验证。
+
+团队与空间分别持久化；成员角色、所有者保护、邀请七天有效期/一次接受、申请审核和实际成员写入在真实Service事务中执行。`SpaceService.CapacityPolicy`没有默认实现，原团队创建、邀请和容量查询缺真实套餐/容量时明确503且零写入。邀请记录的`notificationStatus=not_connected`不表示消息送达；批量Excel查人/结果成果、商业认证和删除验证码仍未接通。
+
+内部Worker路由复用共享Anonymous标记的受限入口能力，并在每次访问先验证独立短期服务身份。配置`paiflow.workers.identities.<workerId>`的engineProfile、tokenSha256与expiresAt；无默认有效身份，中心不保存明文token。实际Worker token格式为`workerId.secret`，服务身份还须匹配中心租约、引擎和仍有效的发起者权限；用户token不能代替。协议见工作区`contracts/paiflow/internal.openapi.json`和共享schema。
+
+中心保存QUEUED任务，领取时生成租约，60秒有界续期；事件连续、同号同内容幂等、异内容拒绝；结果和中心终态事件在同一事务保存。排队取消直接落终态，已运行取消先记CANCEL_REQUESTED并等待Worker真实结果。领取流程和现有若依Quartz可调用入口`paiflowRunTask.reconcile()`有界核对过期运行及遗留检查点；没有创建/启用真实sys_job或新的调度器。无自动重放费用/写入，正式副作用未知保留EFFECT_UNKNOWN。容量/配额、断线恢复、effects参数绑定与真实资源端点仍需补齐，不能当调度发布版本启用。
+
+Worker只读verify快照后，在本地预检通过、进入原引擎前调用`POST /internal/paiflow/v1/runs/{runId}/execution/begin`。中心行锁/CAS一次保存`execution_started_at`，首次ACK绑定运行/租约/attempt/版本/hash；重复409。ACK丢失、未知或拒绝均不得执行或由该路径提交result，中心后续核对租约；登记不是节点成功或副作用回执。节点事件、COMPLETED和检查点创建要求已经登记。006草案对旧attempt>0记录保守回填，真正切换前须暂停派发并核对旧运行，不清空字段重放。
+
+顶层原`question-answer`检查点保存固定题面/等待策略、中心真实回复和一次消费回执。用户回复入口继续检查平台功能、空间关系、当前运行发起者，并在等到运行行锁后读取实时平台权限；Worker不能代替用户回复。WAITING/RESUMED/CONSUMED/EXPIRED/CANCELLED有revision与CAS，取消/超时竞争返回停止事实；原resumeData的message JSON字符串与中心metadata保持。问答资源图派发、迭代归属、页面等待恢复和跨进程引擎恢复尚未联机。
+
+独立Java21 Worker与Python Worker工程已引入原算法并做隔离检查；中心实际MySQL、双Worker领任务、供应商/渠道和页面尚未联机验证。测试中的平台账号、外部依赖和部分端口是明确隔离夹具，不是真实业务验收证据。
+
+文本分隔符沿用原个人偏好目录与原 React 接口，不按空间复制。系统种子返回数字 uid=-1，普通条目按平台用户归属；默认项不可修改，跨用户不可访问，保存/删除不改历史画布。008用 hex固定原标准 MySQL转义后的 TAB/LF，用户字面反斜杠+n保持原样；正式迁移还需核对旧库实际值与SQL mode。新增10项Mapper/事务和5项MVC与Agent/WF共51项通过，仅为隔离本地技术检查，见[唯一实施记录](../../文档/项目/PaiFlow工作流项目/设计资料核对记录.md#10-2026-10-03文本分隔符目录补迁移)。
+
+原默认个人区继续使用缺省或空 `space-id`。中心仅在明确创建/访问动作中建立当前平台用户的内部 `default_personal` 正ID；只读缺映射返回实际空页或404，legacy资源返回null空间，标准接口与持久化保持正ID，不选最近具名空间。工作流/智能体首次创建与默认表示在同一事务回滚；模型先完成候选与所需端口检查，再独立短事务准备默认表示，authorize/Hello/deploy在事务外，最终保存仍核当前权限/主体、引用、时效与CAS。原NULL空间旧资源及UID映射尚未导入。
+
+2026-10-03 08:35:06默认区与既有资源集中182项隔离检查通过：工作流32、智能体42、模型44、身份/空间/成员/默认基础49、文本15。前后各次有重叠，不相加为独立业务通过数。模型默认启停/删除使用真实事务，版本写失败回滚；缺实际Provider/部署端口时不会写成功模型。检查与输入哈希仍在同一[实施记录](../../文档/项目/PaiFlow工作流项目/设计资料核对记录.md)及其证据中；未启动服务、执行DDL或操作页面。
+
+固定模型编译保留原画布，另保存经当前平台权限核对的不可变模型资源快照；原Pydantic有效参数转换在编译和逐次调用中共用。当前范围为顶层OpenAI兼容文本chat，原Spark、历史、图片、嵌套迭代等迁移目标仍保留，缺运行接入时明确拒绝。模型Hello或版本记录不代表费用许可。中心模型操作绑定运行、租约、attempt、节点、版本及完整消息来源，只允许一次受控派发；明文材料不交Worker或写操作表。原始流按实际序号、内容和字节预算保存，真实finish与usage尾帧、供应商停止证据及未知结果分别处理，协议见工作区`contracts/paiflow/model-operations.schema.json`。
+
+账号、菜单、成员与模型启用复查在PaiFlow读取边界清理当前MyBatis会话缓存，继续复用平台用户、菜单与PermissionService；不改变全局认证或共享MyBatis配置。源码检查与隔离撤权用例将在同一实施记录记录实际结果，不能以本段说明代替验证。
+
+原画布的纯字段转换使用版本化执行副本：非QA新版本采用`paiflow.execution.v2`，保留原数组类型、属性投影、别名、连线handle、禁用重试配置与明确null的实际转换规则；原画布不反写。015的nullable `execution_codec` 不设默认值或回填，旧NULL版本按完整V1转换与规范字节重建；未知标识或损坏快照拒绝409。V2规范字节保留null，运行和Worker从保存的Base64原字节核对SHA256及JSON一致性，不按当前画布算法重新解释旧快照。恢复旧版本只恢复草稿，后续显式创建新版本才生成V2；旧typed-array画布若缺原执行转换仍不能运行，不替历史版本悄悄补写。
+
+Python单层纯迭代准入以`IterationStartNodeId`和原连线推导归属，要求唯一主开始/结束及内部开始/结束，无跨容器连线、孤儿、普通循环、资源、全局变量或主动重试；`parentId`不构成授权。批次只允许主开始声明的数组直接引用，实际数组或原有效默认数组计入64批、128图节点、4096展开节点、128总路径、64路径长度预算。路径通过去重邻接与动态规划计算，在进入原Chains路径枚举前拒绝超限图；原变量池的输入/输出复合地址及隐式errorCode/errorMessage地址同时防碰撞。详细item/schema验证仍交原Factory，结构准入不代表节点必然成功。嵌套迭代、混合模型/资源/QA及变量能力继续按已批准完整迁移目标补齐。
+
+本批集中378项JUnit全部通过，包含重新执行的旧336项及新增Canvas转换11项、纯迭代真实Mapper/Run事务29项、固定模型兼容2项。首次真实领取任务被原Factory拒绝22101：disabled retry仍先校验customOutput，happy夹具的字段不符合节点输出声明；首产物、源码与失败日志均保全。只修正夹具后29项定向全通过，当前378项证据为349项未受影响沿用加29项复验，未重跑新全量。修正后的WF创建版本→Run→claim→begin实际任务保存在`target/pure-iteration-canvas-assignment.json`；Python按同一原规范字节核对hash/null后调用原Factory，实际成功输出三个item并保留原输入顺序。这次Python探针没有调用TaskRunner或真实中心租约/事件/终态接口；实际结果和限制见[唯一实施记录第20节](../../文档/项目/PaiFlow工作流项目/设计资料核对记录.md#20-2026-10-03原画布执行编译与单层纯迭代准入)。未启动中心、执行MySQL迁移、调用真实Provider或做页面验收。
+
+顶层静态`question-answer`现补中心参数编译和队列准入：整图限五个已接纯节点加QA、128节点/128路径/64路径长度，无迭代、资源、global变量、history或主动重试。direct只允许handleResponse=false，option保持原静态分支及选项顺序；needReply=false仍等待真实检查点回复/ignore/超时，abort保留原FAILED。新QA版本选择`paiflow.execution.v3`，非QA继续V2，旧NULL/V1/V2不可变版本不跟随新QA转换；缺domain/appId只在执行副本补空str，无鉴权或App关系。真实Checkpoint装配缺失时零运行写入，公开SSE/原页面等待闭环尚未接入。
+
+运行JSON与DSL编译标记分开：017的nullable run_json_codec在insert时固定，update不可改变；旧NULL/V1保持原request/event/result hash与幂等，新运行V2保留输入、事件、结果及任意输出的明确null，未知marker拒绝409。旧行不回填或改写；每个新assignment保全固定DSL的null与canonical原bytes，Checkpoint独立回执仍用原V1规则。016/017未执行，实际切换须核对旧运行与当前约束。
+
+本次首445检查为416通过/3失败/26错误；修rawCanvas夹具及正式null键marker预算后242定向为241通过/1对象比较失败；隔离探针确认BigDecimal与Double的规范字节相同，只修测试为golden hash/bytes/null断言，最新单项通过。当前445技术组合为203首验沿用+241定向沿用+1最新复验，并未重跑修后全套。真实QA领取任务已由Python按同一原bytes/hash/deadline核对后进入OriginalEngine，内存Checkpoint创建/轮询/消费各1，输出answer=真实回复、7个本地事件；无TaskRunner或真实中心HTTP/结果闭环；失败源码/日志及当前24输入冻结均保全在[唯一实施记录第21节](../../文档/项目/PaiFlow工作流项目/设计资料核对记录.md#21-2026-10-03原静态问答与运行json兼容接续)。本次没有改前端或做页面/业务验收。
+
+原工作流输入类型同步现通过真实Agent/Workflow绑定读取草稿首Start.outputs，按原Toolkit四个Biz DTO投影并返回Hub12 nullable字段数组；不编译DSL或改原画布。AGENT_USER_INPUT保留响应、先从元数据排除；额外输入JSON字符串、首文件类型、array-string旧筛选及未知类型顺序沿原Maas纯本地逻辑。非固定输入的空allowed/首项null/无schema明确400，派生动态秘密字段名仍拒绝，Agent配置1MiB超限413零写。真实同步要求Agentedit+WFquery、Space→WF→Agent锁与当前平台/成员/actor复查，CAS保存来源ID/revision，相同来源和元数据不写；后续画布修改使旧来源状态stale。复制清来源，旧工作流表单只能回显同值；指令型supportUpload沿原字段，元数据不代表上传或App能力。
+
+同步原请求无需新revision，回执仍原数组并带真实Agent ETag及ID。已有transport仅清理落后的Agent条件，不推进旧表单或Workflow条件；原page/store/service未变。前端条件60项、独立strict TS通过，同依赖类型新增0但全项目类型仍有3710项原诊断，未做浏览器/生产构建。Java首轮编译0测试、第二66含15H2初始化错误、第三22含2删除清理权限错误均保留；修后当前68技术身份为46沿用+20沿用+2最新复验，全模块471为403原QA沿用加68，没有重跑修后全套。真实隔离MVC字节经原消费者13项核对通过，chatSpy非真实聊天。准确来源、失败与限制见[唯一实施记录第22节](../../文档/项目/PaiFlow工作流项目/设计资料核对记录.md#22-2026-10-03原工作流输入类型同步接续)。本节无新增/执行DDL，没有真实数据库、Provider、App、文件上传、SSE或页面验收。

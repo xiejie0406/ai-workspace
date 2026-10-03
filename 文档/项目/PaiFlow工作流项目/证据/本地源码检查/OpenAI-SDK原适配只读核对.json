@@ -1,0 +1,289 @@
+{
+  "recordType": "readonly_sdk_source_audit_and_in_memory_probe",
+  "scope": "OpenAI SDK 1.60.2 与原OpenAIChatAI受控Producer所需差异；未修改Python源码或SDK",
+  "sourceHashes": {
+    "python/paiflow-runtime/workflow/infra/providers/llm/openai/openai_chat_llm.py": "341853c203b55ce0421a0cfbc1c27c8619ff5f55fc8411b14f81b7ec55467b32",
+    "参考项目/PaiFlow-main/core/workflow/infra/providers/llm/openai/openai_chat_llm.py": "341853c203b55ce0421a0cfbc1c27c8619ff5f55fc8411b14f81b7ec55467b32",
+    "python/paiflow-runtime/.venv/Lib/site-packages/openai/_constants.py": "2f5a5f121bb3ff0336c36fd4f4fffd259cd36eb378a5b2e8db4ee5f7aaed29c4",
+    "python/paiflow-runtime/.venv/Lib/site-packages/openai/_base_client.py": "769f13251f1906e4b445b8e734a564642fbeb5bb2dc33df743f3ff501edd2821",
+    "python/paiflow-runtime/.venv/Lib/site-packages/openai/_streaming.py": "b75519ae0e777d5241e51b3a936b13f4f05bbe3a7e206ad0cd4abfe67971286e",
+    "python/paiflow-runtime/.venv/Lib/site-packages/openai/_client.py": "14944692b7691c0155d933acd38b4ee6ec8a080f9cb9d964e0196f097dca2374"
+  },
+  "probe": {
+    "method": "实际openai.AsyncStream[ChatCompletionChunk]+httpx.Response+自定义内存AsyncByteStream；仅本地构造AsyncOpenAI并close，未执行HTTP send",
+    "commandInterpreter": "python/paiflow-runtime/.venv/Scripts/python.exe",
+    "exitCode": 0,
+    "result": {
+      "version": "1.60.2",
+      "timeout": "Timeout(connect=5.0, read=600.0, write=600.0, pool=600.0)",
+      "maxRetries": 2,
+      "followRedirects": true,
+      "cases": {
+        "bare_eof": {
+          "chunks": [
+            {
+              "id": "fixture",
+              "choices": [
+                {
+                  "delta": {
+                    "content": "x",
+                    "function_call": null,
+                    "refusal": null,
+                    "role": null,
+                    "tool_calls": null
+                  },
+                  "finish_reason": null,
+                  "index": 0,
+                  "logprobs": null
+                }
+              ],
+              "created": 0,
+              "model": "fixture",
+              "object": "chat.completion.chunk",
+              "service_tier": null,
+              "system_fingerprint": null,
+              "usage": null
+            }
+          ],
+          "error": null,
+          "beforeExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        },
+        "done_after_finish": {
+          "chunks": [
+            {
+              "id": "fixture",
+              "choices": [
+                {
+                  "delta": {
+                    "content": null,
+                    "function_call": null,
+                    "refusal": null,
+                    "role": null,
+                    "tool_calls": null
+                  },
+                  "finish_reason": "length",
+                  "index": 0,
+                  "logprobs": null
+                }
+              ],
+              "created": 0,
+              "model": "fixture",
+              "object": "chat.completion.chunk",
+              "service_tier": null,
+              "system_fingerprint": null,
+              "usage": null
+            }
+          ],
+          "error": null,
+          "beforeExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        },
+        "usage_only": {
+          "chunks": [
+            {
+              "id": "fixture",
+              "choices": [],
+              "created": 0,
+              "model": "fixture",
+              "object": "chat.completion.chunk",
+              "service_tier": null,
+              "system_fingerprint": null,
+              "usage": {
+                "completion_tokens": 1,
+                "prompt_tokens": 1,
+                "total_tokens": 2,
+                "completion_tokens_details": null,
+                "prompt_tokens_details": null
+              }
+            }
+          ],
+          "error": null,
+          "beforeExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        },
+        "sse_error": {
+          "chunks": [],
+          "error": {
+            "type": "APIError",
+            "message": "fixture provider rejected"
+          },
+          "beforeExplicitClose": {
+            "responseClosed": false,
+            "bodyCloseCount": 0
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        },
+        "empty_eof": {
+          "chunks": [],
+          "error": null,
+          "beforeExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        }
+      },
+      "clientClosed": true
+    }
+  },
+  "initialProbe": {
+    "result": {
+      "version": "1.60.2",
+      "timeout": "Timeout(connect=5.0, read=600.0, write=600.0, pool=600.0)",
+      "maxRetries": 2,
+      "followRedirects": true,
+      "cases": {
+        "bare_eof": {
+          "chunks": [],
+          "error": {
+            "type": "ValueError",
+            "message": "not enough values to unpack (expected 2, got 0)"
+          },
+          "beforeExplicitClose": {
+            "responseClosed": false,
+            "bodyCloseCount": 0
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        },
+        "done_after_finish": {
+          "chunks": [],
+          "error": {
+            "type": "ValueError",
+            "message": "not enough values to unpack (expected 2, got 0)"
+          },
+          "beforeExplicitClose": {
+            "responseClosed": false,
+            "bodyCloseCount": 0
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        },
+        "usage_only": {
+          "chunks": [],
+          "error": {
+            "type": "ValueError",
+            "message": "not enough values to unpack (expected 2, got 0)"
+          },
+          "beforeExplicitClose": {
+            "responseClosed": false,
+            "bodyCloseCount": 0
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        },
+        "sse_error": {
+          "chunks": [],
+          "error": {
+            "type": "APIError",
+            "message": "fixture provider rejected"
+          },
+          "beforeExplicitClose": {
+            "responseClosed": false,
+            "bodyCloseCount": 0
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        },
+        "empty_eof": {
+          "chunks": [],
+          "error": null,
+          "beforeExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          },
+          "afterExplicitClose": {
+            "responseClosed": true,
+            "bodyCloseCount": 1
+          }
+        }
+      },
+      "clientClosed": true
+    },
+    "limitation": "第一探针cast_to=dict缺类型参数触发SDK本地构造ValueError；前三流形状因此不构成EOF结论，随后使用真实ChatCompletionChunk重验。错误关闭事实和空EOF仅作为历史保留。"
+  },
+  "sourceFacts": [
+    {
+      "file": "python/paiflow-runtime/.venv/Lib/site-packages/openai/_constants.py",
+      "line": 9,
+      "fact": "默认connect5秒，read/write/pool600秒，max_retries2。"
+    },
+    {
+      "file": "python/paiflow-runtime/.venv/Lib/site-packages/openai/_base_client.py",
+      "line": 1337,
+      "fact": "默认异步HTTPX client follow_redirects=True；711/1587/1627提供连接、超时与状态重试，正式许可不得默认为允许重复费用请求。"
+    },
+    {
+      "file": "python/paiflow-runtime/.venv/Lib/site-packages/openai/_streaming.py",
+      "line": 154,
+      "fact": "bare EOF和[DONE]均结束迭代，无自动finish记录；usage-only choices=[]交付；SSE error抛APIError，本探针需显式stream.close关闭错误response。"
+    },
+    {
+      "file": "python/paiflow-runtime/.venv/Lib/site-packages/openai/_streaming.py",
+      "line": 216,
+      "fact": "close只关response；AsyncOpenAI继承_base_client.py1461的close另外关闭HTTPXclient；两者均不是Provider已停止证明。"
+    },
+    {
+      "file": "python/paiflow-runtime/workflow/infra/providers/llm/openai/openai_chat_llm.py",
+      "line": 113,
+      "fact": "原client没有显式retry/HTTP出口/timeout设置；帧wait_for134不包await create118。"
+    },
+    {
+      "file": "python/paiflow-runtime/workflow/infra/providers/llm/openai/openai_chat_llm.py",
+      "line": 154,
+      "fact": "EOF将最后frame choices[0].finish_reason强写stop再yield；裸EOF可能伪造成stop，length/tool_calls/content_filter被改写，空流/usage-only会KeyError/IndexError。该项为源控制流核对，未执行原业务节点。"
+    },
+    {
+      "file": "python/paiflow-runtime/workflow/infra/providers/llm/openai/openai_chat_llm.py",
+      "line": 145,
+      "fact": "原完整frame、extra_params与user_message进入原trace；新边界须应用正式日志内容/凭据政策。"
+    }
+  ],
+  "minimumControlledProducerDifferences": [
+    "仅在绑定中心许可明确ACK后打开出口；许可未知/请求可能已发送时不自动重试",
+    "显式max_retries=0，受控HTTP出口、禁止任意重定向/私有目标，显式connect/read/write/pool和整体预算",
+    "finally显式关闭stream与client；取消/本地close分别记，不据此报告Provider stopped",
+    "保存原raw choices/index/finish_reason/usage，不把正常EOF伪造为成功stop；SDK高层不暴露[DONE]时须明确终帧判定限制",
+    "usage-only与空流/error独立处理，终帧ACK绑定run/op/resource/version/provider/sequence，而非仅SDK迭代结束"
+  ],
+  "verification": {
+    "providerCalled": false,
+    "networkSent": false,
+    "businessRuntimeVerified": false,
+    "sourceEdited": false,
+    "testsOfOriginalWorkflowNotRun": true
+  }
+}

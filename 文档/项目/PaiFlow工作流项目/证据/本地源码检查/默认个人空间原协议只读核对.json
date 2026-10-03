@@ -1,0 +1,146 @@
+{
+  "recordType": "readonly_source_audit",
+  "generatedAt": "2026-10-02T23:25:59.895439+00:00",
+  "scope": "默认个人入口空spaceId与具名空间分开的原UI/API/归属语义",
+  "evidence": [
+    {
+      "file": "frontend/paiflow-web/src/store/space-store.ts",
+      "line": 30,
+      "fact": "spaceId默认空字符串，spaceType=personal。",
+      "sha256": "19586e02fe1716d5aa5efd5f4e0a416e195913a48c29ae1d8726e829bf81daed"
+    },
+    {
+      "file": "frontend/paiflow-web/src/components/space/person-space/index.tsx",
+      "line": 49,
+      "fact": "默认个人入口是独立空ID项；69-81访问后仍保存空ID，106-111追加在具名空间列表之前。",
+      "sha256": "82e30e2f85c8a71424dc47c0809c72d0184d54397938ce19bf5f37a8679af5df"
+    },
+    {
+      "file": "frontend/paiflow-web/src/hooks/use-space-type.ts",
+      "line": 235,
+      "fact": "getLastVisitSpace无id/enterpriseId走catch并switchToPersonal；没有从visit响应提取真实ID。",
+      "sha256": "333207348d70dc8eee19a6ec1d6fdd89497a10951fd495ab4693c6b9a51c0732"
+    },
+    {
+      "file": "frontend/paiflow-web/src/services/space.ts",
+      "line": 17,
+      "fact": "visitSpace空参数发送GET /space/visit-space?spaceId=。",
+      "sha256": "af4d104104eb823f7bdb2f662090556f8491d43523f902358eeb592644601b7f"
+    },
+    {
+      "file": "frontend/paiflow-web/src/utils/http.ts",
+      "line": 362,
+      "fact": "所有请求使用store的space-id头，默认个人为空字符串。",
+      "sha256": "1ed2820b7838f603a673044c3f8669cc79412cf7a56dac6bc4f7f17929e5a917"
+    },
+    {
+      "file": "frontend/paiflow-web/src/services/agent.ts",
+      "line": 129,
+      "fact": "真实POST /my-bot/list body仅筛选/页码/状态/排序/version，没有spaceId。",
+      "sha256": "68bb86487eb96e301a6fbe79376e82c3de252c3bd5caff5e4d5106e90a0fc4a5"
+    },
+    {
+      "file": "frontend/paiflow-web/src/pages/model-management/hooks/use-model-operations.ts",
+      "line": 38,
+      "fact": "真实模型列表body包含type/page/pageSize/filter，没有spaceId。",
+      "sha256": "189a7e5a15810e2cc1bd453ffc8c5af301e5328d7ea20939ff4b1c1cf21324c9"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/hub/src/main/java/com/iflytek/astron/console/hub/service/space/impl/SpaceBizServiceImpl.java",
+      "line": 195,
+      "fact": "原null/非正space访问清最近企业、记默认个人访问时间、返回空成功，不选择具名空间。",
+      "sha256": "3764f477f760702f7fe0a97e8214ba5efb93e2e50b5acf7e81b0d433394993ca"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/space/impl/SpaceServiceImpl.java",
+      "line": 146,
+      "fact": "原用户默认个人访问时间存在Redis；152-179比最近具名空间更新时last返回null。",
+      "sha256": "78c62e102a3266682c4fbc1e38c8ea8656d84ad07d0ed4126b2eeeab0b532123"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/util/space/SpaceInfoUtil.java",
+      "line": 64,
+      "fact": "原空header解析失败返回null，默认个人资源使用uid归属分支。",
+      "sha256": "efb28fd99c6f819543f6471bdda9d2ab92d4cb8360bb8cae9003315bbcd829b8"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/commons/src/main/resources/mapper/ChatBotListMapper.xml",
+      "line": 50,
+      "fact": "原默认个人Bot查询uid=当前用户 AND space_id IS NULL，具名space另分支。",
+      "sha256": "4c6268490562d237ce95413ea7c71e5bedd4d923472274ac049b7486e854b6db"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/commons/src/main/java/com/iflytek/astron/console/commons/service/bot/impl/BotServiceImpl.java",
+      "line": 289,
+      "fact": "原null-space创建数量用countBotsByUid(uid)，具名空间用uid+space；比较仍count>100。",
+      "sha256": "cc25cfb1053882e8cfdfa838538697a47b048b568328b88b28a59249101f6b82"
+    },
+    {
+      "file": "参考项目/PaiFlow-main/console/backend/toolkit/src/main/java/com/iflytek/astron/console/toolkit/service/model/ModelService.java",
+      "line": 677,
+      "fact": "原模型目录NULL-space使用space_id IS NULL AND uid=当前用户；297-310新建名称检查也是此归属。",
+      "sha256": "ea0e7e3075a509490ea4f1ce84ebb2ebafa92d301714ce1fcb7f86e8560e5183"
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/service/SpaceService.java",
+      "line": 65,
+      "fact": "现null visit返回recent0或具名personal0，未保存默认个人标记。",
+      "sha256": "cf052e8705ea36eee430329eae0357473e0b68424475ae28262e0505b161bf70"
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacySpaceController.java",
+      "line": 42,
+      "fact": "现last直接返回recent0，未比较用户默认个人入口时间。",
+      "sha256": "7b6a95b561826910845019268423a9750e784c596170301bc65f9748efed5765"
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyWorkflowController.java",
+      "line": 46,
+      "fact": "现optionalScope仅允许null或正ID，scope要求非null。",
+      "sha256": "98deed9f7eb1c54f4a48293692ad2c25b7cd3c0c64e7e0a7178c2e141a10fcfb"
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyMyBotController.java",
+      "line": 18,
+      "fact": "现list调用强制scope；空头+原body缺spaceId不能进入Agent列表。",
+      "sha256": "2841d4e2e9f15035cea7726b17809afc4f494f9ae1592a3228b5b13459abefce"
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-paiflow/src/main/java/com/ruoyi/paiflow/adapter/legacy/LegacyModelController.java",
+      "line": 34,
+      "fact": "现list/validate/local强制scope，category-tree长整数必需空间头；detail已知ID允许optionalScope。",
+      "sha256": "1d4eaeba218a4d679adf810ed597983d3184f22a0fb42f67ac973f0ea20777a6"
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-paiflow/sql/007-paiflow-agent.sql",
+      "line": 6,
+      "fact": "现Agent space_id NOT NULL；该草案未执行。",
+      "sha256": "b1073f27aae4fc5fe98dc1a06b180386797e7964bd02e96b1782875d560ddff6"
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-paiflow/sql/009-paiflow-model.sql",
+      "line": 4,
+      "fact": "现Model/Version space_id NOT NULL；该草案未执行。",
+      "sha256": "daf9208031dad804b01da61f2f07c4f2905915319265fe6dea31b20f3da6bf93"
+    }
+  ],
+  "confirmedSourceDivergences": [
+    "空visit在现SpaceService选择具名空间，原服务记录用户默认个人访问",
+    "现last不保留切回默认个人后的null结果",
+    "原默认个人列表/创建无正空间ID，现Agent/Model必需正空间ID且尚未建立默认scope映射"
+  ],
+  "expectedFailureNotExecuted": "根据scope和Spring参数绑定源码，原默认个人列表/创建/category请求会在空间选择处400；本记录没有启动HTTP服务或证明该返回的实际运行。",
+  "constraints": [
+    "只读业务源码与原参考目录；本文件是检查记录",
+    "不得自动挑recent/具名space，不通过GET隐式新建空间",
+    "中心唯一默认个人scope归属策略尚待协调；不能只将null空间绕过成员检查",
+    "原uid-only资源不等于任意具名个人空间或跨用户资源",
+    "当前Model源码随后将修改锁后TTL校验；该文件hash仅此时读快照，不是最终inventory"
+  ],
+  "verification": {
+    "businessRuntimeVerified": false,
+    "databaseTouched": false,
+    "providerCalled": false,
+    "sourceEdited": false
+  }
+}
