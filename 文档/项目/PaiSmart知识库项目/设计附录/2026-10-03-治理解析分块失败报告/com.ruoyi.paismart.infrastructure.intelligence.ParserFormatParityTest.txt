@@ -1,0 +1,30 @@
+-------------------------------------------------------------------------------
+Test set: com.ruoyi.paismart.infrastructure.intelligence.ParserFormatParityTest
+-------------------------------------------------------------------------------
+Tests run: 25, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 9.588 s <<< FAILURE! -- in com.ruoyi.paismart.infrastructure.intelligence.ParserFormatParityTest
+com.ruoyi.paismart.infrastructure.intelligence.ParserFormatParityTest.rtfFallbackHonorsTextBudgetAndUnicode -- Time elapsed: 0.044 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Unexpected exception type thrown, expected: <java.lang.Exception> but was: <java.lang.InternalError>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:68)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:35)
+	at org.junit.jupiter.api.Assertions.assertThrows(Assertions.java:3223)
+	at com.ruoyi.paismart.infrastructure.intelligence.ParserFormatParityTest.rtfFallbackHonorsTextBudgetAndUnicode(ParserFormatParityTest.java:88)
+Caused by: java.lang.InternalError: RTF超过文本预算
+	at java.desktop/javax.swing.text.rtf.RTFReader$DocumentDestination.deliverText(RTFReader.java:1760)
+	at java.desktop/javax.swing.text.rtf.RTFReader$TextHandlingDestination.handleText(RTFReader.java:1684)
+	at java.desktop/javax.swing.text.rtf.RTFReader.handleText(RTFReader.java:271)
+	at java.desktop/javax.swing.text.rtf.RTFParser.write(RTFParser.java:163)
+	at java.desktop/javax.swing.text.rtf.AbstractFilter.write(AbstractFilter.java:162)
+	at java.base/java.io.InputStream.transferTo(InputStream.java:797)
+	at java.base/sun.nio.ch.ChannelInputStream.transferTo(ChannelInputStream.java:268)
+	at java.desktop/javax.swing.text.rtf.AbstractFilter.readFromStream(AbstractFilter.java:96)
+	at java.desktop/javax.swing.text.rtf.RTFEditorKit.read(RTFEditorKit.java:83)
+	at com.ruoyi.paismart.infrastructure.intelligence.ParserWorker.rtfBody(ParserWorker.java:47)
+	at com.ruoyi.paismart.infrastructure.intelligence.ParserFormatParityTest.lambda$rtfFallbackHonorsTextBudgetAndUnicode$2(ParserFormatParityTest.java:88)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:54)
+	... 3 more
+Caused by: javax.swing.text.BadLocationException: RTF超过文本预算
+	at com.ruoyi.paismart.infrastructure.intelligence.ParserWorker$1.insertString(ParserWorker.java:43)
+	at java.desktop/javax.swing.text.rtf.RTFReader$DocumentDestination.deliverText(RTFReader.java:1754)
+	... 14 more
+

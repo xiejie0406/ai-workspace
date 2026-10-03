@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PaiSmart 源码实现与本地技术检查 · 2026-10-03</title>
+  <style>
+    :root{color-scheme:light;--ink:#183042;--muted:#526779;--line:#d9e4eb;--paper:#fff;--bg:#f2f6f8;--accent:#087f75}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}
+    main{max-width:1160px;margin:32px auto;padding:36px;background:var(--paper);border:1px solid var(--line);border-radius:14px}
+    h1{font-size:30px;line-height:1.35;margin:0 0 12px}h2{font-size:22px;margin:32px 0 12px}p{margin:12px 0}
+    a{color:#006b9d;text-underline-offset:3px}code{background:#f0f4f7;padding:2px 5px;border-radius:4px;font-size:14px}
+    .meta{color:var(--muted);font-size:14px}.note{border-left:4px solid var(--accent);padding:12px 18px;background:#eef9f6}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}.stat{border:1px solid var(--line);padding:14px;border-radius:8px}
+    .stat strong{display:block;font-size:28px;color:var(--accent)}.stat span{font-size:14px;color:var(--muted)}
+    table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--line);padding:12px;text-align:left;vertical-align:top}th{background:#eef3f7}
+    .scroll{overflow-x:auto}figure{margin:20px 0;border:1px solid var(--line);padding:12px;border-radius:8px}figure img{display:block;width:100%;height:auto}figcaption{font-size:14px;color:var(--muted);margin-top:10px}
+    ul{padding-left:24px}li{margin:7px 0}.pass{color:#056856;font-weight:700}.pending{color:#785400;font-weight:700}
+    @media(max-width:760px){main{margin:0;padding:22px;border:0;border-radius:0}.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:25px}table{min-width:760px}}
+  </style>
+</head>
+<body><main>
+  <h1>PaiSmart 源码实现与本地技术检查</h1>
+  <p class="meta">记录日期：2026-10-03 · 依据：用户认可完整迁移设计及建议方案，并授权开始编码 · 唯一实施状态：<a href="../完整迁移设计.md#6-实施记录">完整迁移设计第 6 节</a></p>
+  <div class="note">源码与本地技术检查已完成。第 5 节的 31 项真实业务验收均未执行；本记录不表示完整业务迁移、用户接受、上线就绪或发布。</div>
+  <div class="stats">
+    <div class="stat"><strong>134</strong><span>后端测试通过，22 个测试类</span></div>
+    <div class="stat"><strong>20</strong><span>前端组件测试通过，5 个文件</span></div>
+    <div class="stat"><strong>7</strong><span>离线迁移转换测试通过</span></div>
+    <div class="stat"><strong>31</strong><span>真实业务验收项未执行</span></div>
+  </div>
+
+  <h2>实现范围与运行边界</h2>
+  <p>新增 <a href="../../../../ruoyi-backend/ruoyi-paismart/README.md">若依 PaiSmart 后端模块</a>，由共享 admin 装配，复用平台账户、授权、数据源和托管密钥。管理端包含 16 个业务页面，继续使用共享菜单、路由、Layout、请求封装及权限组件。已实现空间与成员、邀请资格、分片续传、文档处理、检索与问答、冲突与索引治理、评测与人工复核、供应商、额度及限流、充值套餐、作业与运维计划等源码。</p>
+  <p>提供 V001—V004 的 51 张业务表及版本检查、<a href="../../../../ruoyi-backend/ruoyi-paismart/src/main/resources/db/paismart-menu/菜单增量预演.sql">16 页面和 31 权限的菜单增量预演 SQL</a>、旧 15 表与 Redis 余额及侧文件的离线转换工具、独立解析 Worker 依赖包，以及 <a href="../../../../contracts/paismart/README.md">正式接口与事件契约</a>。SQL 未执行，菜单预演默认以 ROLLBACK 结束；没有创建、克隆或初始化数据库。</p>
+  <p>所有业务与外部操作开关默认关闭。未启动真实后端通道、调用付费模型或云 OCR、激活支付、执行对象搬迁和清理、发布或进行 Git 写操作。原工程保留只读。</p>
+
+  <h2>定向检查的预期与实际结果</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>检查</th><th>预期</th><th>实际结果与证据</th><th>能证明的范围</th></tr></thead>
+    <tbody>
+      <tr><td>后端边界与工作流</td><td>权限、版本、任务租约、邀请幂等、账务及支付并发、恢复与算法测试无失败。</td><td><span class="pass">134 项通过</span>，22 类，失败/错误/跳过均为 0。<a href="2026-10-03-后端测试汇总.json">合并汇总</a>、<a href="2026-10-03-后端最终定向测试.log">完整轮原记录</a>、<a href="2026-10-03-成员范围版本定向复验.log">成员及文档 20 项复验</a>、<a href="2026-10-03-模型资格定向复验.log">模型资格 6 项复验</a>。</td><td>结果由完整测试基线和受影响定向复验合并。使用 H2、本地夹具和替身；未证明真实 MySQL、外部系统或完整业务流程。</td></tr>
+      <tr><td>前端类型与组件</td><td>PaiSmart 源码类型检查通过；核心显示、状态和调用边界符合夹具预期。</td><td><span class="pass">类型检查退出 0；5 文件 20 项通过</span>。<a href="2026-10-03-管理端最终类型复验.log">类型检查日志</a>、<a href="2026-10-03-管理端组件复验.log">组件测试日志</a>。</td><td>定向组件及类型范围；未使用真实登录、菜单、业务数据或模型。</td></tr>
+      <tr><td>admin 与管理端构建</td><td>共享装配兼容，前端生产构建完成，最终包纳入当前模块。</td><td><span class="pass">均退出 0</span>。<a href="2026-10-03-admin交付装配构建.log">admin 装配日志</a>、<a href="2026-10-03-管理端交付构建.log">管理端构建日志</a>。<a href="2026-10-03-交付产物核对.json">产物哈希核对</a>确认嵌套模块 JAR 与当前模块 JAR 相同，并含可选配置导入。</td><td>可构建及静态装配；构建时跳过测试，测试证据另列。没有部署或启动 admin。</td></tr>
+      <tr><td>默认配置</td><td>打包不会自动连接、写入、付费、消费任务或执行运维。</td><td><span class="pass">11 个关键开关均为 false</span>，模块内原许可与 NOTICE 已打包。见 <a href="2026-10-03-交付产物核对.json">当前打包配置核对</a>。</td><td>实际包内配置；环境覆盖、运行身份及部署配置仍需逐项确认。</td></tr>
+      <tr><td>离线迁移准备</td><td>明确映射、重复转换、校验及缺失条件的测试通过，不连接原库或目标库。</td><td><span class="pass">7 项通过</span>。<a href="2026-10-03-离线迁移测试复验.log">Python 检查日志</a>。</td><td>离线转换算法和文件输出；未证明真实快照完整、账实一致、导入或切换回退可用。</td></tr>
+      <tr><td>独立解析 Worker</td><td>依赖可准备，普通 JAR 与依赖 classpath 可启动独立解析，TXT 输出正确。</td><td><span class="pass">准备退出 0，依赖包含 241 个 JAR；实际 TXT 解析退出 0</span>。<a href="2026-10-03-解析Worker准备.log">准备日志</a>、<a href="2026-10-03-独立Worker样例.txt">脱敏样例</a>、<a href="2026-10-03-独立Worker输出.json">单页输出</a>、<a href="2026-10-03-独立Worker运行.log">运行日志</a>。</td><td>独立 TXT 实际运行；另有 TXT/HTML/XML/PDF 库级夹具检查。全部声明格式、语言包和外部 OCR 未逐种验证；无操作系统沙箱。</td></tr>
+      <tr><td>正式契约</td><td>当前源码路由和前端调用一致，引用及协议样例按 Schema 接受或拒绝。</td><td><span class="pass">88 路径、105 HTTP 操作、992 引用、86 前端路径变体匹配</span>。OpenAPI 完整解析器、18 个作业载荷 Schema、16 个有效和 4 个无效 WS 样例、3 个 Kafka 样例检查通过。<a href="2026-10-03-正式契约静态核对.log">静态核对日志</a>、<a href="2026-10-03-契约检查工具/使用说明.md">复跑说明</a>。</td><td>静态协议一致性；未执行生成客户端或真实联机协议流程。</td></tr>
+      <tr><td>原工程保护</td><td>只读参考工程的文件内容不发生变化。</td><td><span class="pass">808 文件、0 变化</span>。<a href="2026-10-03-原工程只读基线.csv">哈希基线</a>、<a href="2026-10-03-源代码只读复核.json">复核结果</a>。</td><td>本轮核对的原工程文件；共享工作区其他任务修改继续保留。</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>正式组件的本地浏览器检查</h2>
+  <p>在仅绑定本机的隔离组件预览中打开正式问答消息和 PDF 组件，使用脱敏夹具与本地单页 PDF。检查表格、公式、引用高亮、100%/150% 缩放；脚本未执行，外部图片未显示或发出网络请求。<a href="2026-10-03-组件浏览器核对.log">实际 DOM 和网络核对</a>记录：表格 1、公式 1、图片 0、高亮 1、150% 时 canvas 宽 893、外部资源请求为空。</p>
+  <p>下列三张实际截图已保存并逐张回读。此项是组件技术检查，不计入真实业务验收；预览服务与专用浏览器会话已结束。</p>
+  <figure><img src="2026-10-03-组件全页.png" alt="本地组件全页截图，问答表格、公式、安全文本与 PDF 引用高亮"><figcaption>完整组件预览：问答输出及本地 PDF，数据均为脱敏夹具。</figcaption></figure>
+  <figure><img src="2026-10-03-组件100.png" alt="PDF 在100%缩放时的引用高亮"><figcaption>100% 缩放，引用位置高亮。</figcaption></figure>
+  <figure><img src="2026-10-03-组件150.png" alt="PDF 在150%缩放时的引用高亮"><figcaption>150% 缩放，画布与高亮同步。</figcaption></figure>
+
+  <h2>失败记录与定向修复</h2>
+  <p>原失败保留，不覆盖为成功。早期完整检查中的测试夹具缺失 mime_type 和平台用户 status，随后补齐并定向复验。末轮 133 项中出现的 8 项成员/文档错误来自 H2 下重复插入成员版本记录，改为受用户行锁保护的空记录插入及版本 CAS 后，相关 20 项通过。新增当前账号及资格守卫后，模型调用 6 项通过，最新合并总数为 134。</p>
+  <p>原始失败入口：<a href="2026-10-03-后端完整测试复验2.log">早期完整轮日志</a>、<a href="2026-10-03-后端最终定向测试.log">末轮成员问题日志</a>。前端初次类型/构建及组件预览工具错误在原日志中保留，最终复验结果见上表。没有以降低标准或删除业务项获得通过。</p>
+
+  <h2>尚未执行与实质限制</h2>
+  <ul>
+    <li><span class="pending">真实业务验收：31 项未执行。</span>沿用完整迁移设计第 5 节清单；进入获授权环境前保存正式执行清单，逐项截图、回读并独立核对数据。</li>
+    <li>真实 MySQL 约束和数据、平台菜单与 navType 1/2/3、Redis/Kafka/MinIO/ES、真实问答及 WS 恢复均未联机验证。</li>
+    <li>模型与云 OCR 未实际付费调用；微信签名、解密及真实交易未联机验证。Mock 并发测试不能证明支付环境可用。</li>
+    <li>全部文件格式、语言包、完整供应链审查、代表容量和性能指标、迁移快照、旧对象跨环境传输、切换后新增数据及回退未演练。当前对象搬迁使用已配置项目对象存储，不能替代未知旧桶到新桶的独立传输方案。</li>
+    <li>解析进程具备内存、时间、环境和库级限制；未提供操作系统低权限沙箱，部署时仍需落实批准的身份、文件和网络范围。</li>
+    <li>用户接受、真实环境写入、部署与发布尚无执行事实；当前交付为工作区源码、审核文件和本地检查证据。</li>
+  </ul>
+  <p class="meta">维护原则：实施状态继续更新原完整迁移设计；本页只保存 2026-10-03 的技术事实，不建立第二套任务状态。</p>
+</main></body></html>

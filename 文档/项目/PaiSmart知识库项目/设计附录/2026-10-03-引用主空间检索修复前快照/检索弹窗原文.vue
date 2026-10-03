@@ -1,0 +1,12 @@
+<template><el-dialog v-model="visible" title="知识检索" width="min(1000px,96vw)"><el-form inline @submit.prevent="search"><el-form-item label="检索内容"><el-input v-model="query" maxlength="2000" style="width:360px" @keyup.enter="search"/></el-form-item><el-form-item label="结果数"><el-input-number v-model="topK" :min="1" :max="20"/></el-form-item><el-form-item><el-button type="primary" :loading="loading" @click="search">检索</el-button></el-form-item></el-form><el-alert v-if="error" :title="error" type="error" :closable="false"/><el-alert v-if="result?.degraded" :title="`本次检索已降级：${result.reason||'重排或向量服务不可用'}`" type="warning" :closable="false"/><p v-if="result" class="ps-muted">索引版本 {{result.indexRevision}} · 评分类型 {{result.scoreType}} · {{result.hits.length}} 个结果</p><el-table :data="result?.hits||[]" v-loading="loading"><el-table-column prop="title" label="文档" min-width="160"/><el-table-column prop="text" label="原文片段" min-width="300" show-overflow-tooltip/><el-table-column prop="score" label="评分" width="100"/><el-table-column prop="page" label="页" width="70"/><el-table-column label="查看" width="90"><template #default="{row}"><el-button link type="primary" @click="$emit('reference',row)">引用详情</el-button></template></el-table-column></el-table></el-dialog></template>
+<script setup lang="ts">
+import { computed, onBeforeUnmount, ref, shallowRef } from 'vue'
+import { hybridSearch } from '@/api/paismart/search'
+import type { Id, Reference, SearchResult } from '@/types/paismart'
+import { errorText } from '../../composables/usePage'
+const props=defineProps<{modelValue:boolean;spaceId?:Id}>(),emit=defineEmits<{ 'update:modelValue':[boolean];reference:[Reference] }>()
+const visible=computed({get:()=>props.modelValue,set:v=>emit('update:modelValue',v)}),query=ref(''),topK=ref(5),loading=ref(false),error=ref(''),result=shallowRef<SearchResult>()
+let controller:AbortController|undefined,serial=0
+async function search(){if(!query.value.trim()){error.value='请输入检索内容';return}const current=++serial;controller?.abort();controller=new AbortController();loading.value=true;error.value='';try{const response=await hybridSearch(query.value.trim(),topK.value,props.spaceId,controller.signal);if(current===serial)result.value=response.data}catch(e){if(current===serial&&!controller.signal.aborted)error.value=errorText(e)}finally{if(current===serial)loading.value=false}}
+onBeforeUnmount(()=>{serial++;controller?.abort()})
+</script>

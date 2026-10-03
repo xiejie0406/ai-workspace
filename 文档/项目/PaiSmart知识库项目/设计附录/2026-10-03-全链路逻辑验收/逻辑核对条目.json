@@ -1,0 +1,594 @@
+[
+  {
+    "number": 1,
+    "entry": "平台登录/注册 → getRouters → 若依 Layout、TopNav/TopBar、TagsView → /paismart/*。页面请求复用 utils/request。",
+    "identity": "平台 LoginUser 提供稳定 userId、权限和 root 特权；后端 @PreAuthorize 再校验。知识资格与平台角色分开，不建立第二 JWT、独立登录或自动管理员。",
+    "data": "平台注册链路选中至多一个 RegistrationExtension；邀请码支持时复用原 registerUser 与同一事务。sys_user/角色/菜单仍属共享平台，ps_member 属知识库。",
+    "work": "PaismartEnabled 控制本模块装配；业务服务通过共享 JDBC/事务访问原数据库。菜单脚本只是准备，未自动执行或授予角色。",
+    "result": "前端权限指令及动态菜单使用原平台机制；接口保持 AjaxResult/TableDataInfo，错误通过共享请求处理。",
+    "recovery": "无匹配扩展的邀请注册明确拒绝；多个扩展冲突拒绝；资格/登录会话失效由服务端检查。既有普通注册不因模块存在自动变更。",
+    "limit": "三个 navType、平台真实登录与撤销会话、菜单/角色装配未运行；数据库54表已补建这一既有事实不证明导航可用。",
+    "sources": [
+      "PaismartIdentity",
+      "PaismartRegistrationExtension",
+      "PaismartConfiguration",
+      "api/none",
+      "frontend/admin-web/src/api/paismart/client.ts",
+      "ruoyi-backend/ruoyi-framework/src/main/java/com/ruoyi/framework/web/service/SysRegisterService.java"
+    ],
+    "name": "冻结迁移基线与模块骨架",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 2,
+    "entry": "/paismart/invites：单个/批量创建、编辑、启停、兑换；平台邀请注册也调用同一兑换服务。",
+    "identity": "管理动作由邀请码权限限制；业务资格申请绑定当前平台用户，不接收客户端指定新 owner，不写平台管理员角色。",
+    "data": "邀请码规范大小写、用途、空间、到期时间、总次数与初始两类 Token；ps_invite、ps_invite_redemption、ps_member、成员及额度账本在同事务更新。",
+    "work": "先锁平台用户，再锁邀请码；检查有效/未耗尽及既有兑换回执，空间成员与资格、额度通过已有服务完成。",
+    "result": "前端列表筛选/批量入口与后端字段对应；失败返回实际拒绝原因，兑换回执避免相同用户重复领取和计数。",
+    "recovery": "禁用/到期/无效空间拒绝；编辑已消费码的限制保留；并发依赖行锁与唯一约束。事务失败不留半份资格或额度。",
+    "limit": "实际并发、到期、真实注册开关与额度入账未运行；仅核对源码事务、锁序及DDL声明。",
+    "sources": [
+      "InvitationService",
+      "InviteController",
+      "MembershipService",
+      "QuotaService",
+      "frontend/admin-web/src/views/paismart/operations/invites/index.vue"
+    ],
+    "name": "共享身份、邀请资格和组织规则",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 3,
+    "entry": "/paismart/spaces、/paismart/members：组织树、个人空间、主空间、成员、上传与治理授权。",
+    "identity": "资格、平台权限和空间管理范围逐层检查；私人资料限 owner/root；子组成员可读祖先共享，普通祖先成员不自动读子组。管理资格对后代按现有规则扩展。",
+    "data": "ps_space、ps_member_space、ps_member 是正式事实，dept_id 只是关联；API对 rowVersion/expectedVersion 做更新检查。",
+    "work": "树保存检测父环；个人空间显式建立而不自动发资格；上传数/尺寸由 SpaceService 对当前成员和正式文档重新裁决。成员变更与邀请使用同一用户锁序。",
+    "result": "树/成员筛选、描述、默认组织保护与今日用量已有接口和页面；主空间保存正式关系。",
+    "recovery": "在用空间与非法移动拒绝；撤销成员后新读取/检索重新算范围；旧后台任务正式提交仍校验当前身份、版本与租约。",
+    "limit": "真实多角色权限矩阵、撤销后的在途调用和跨会话行为未运行。",
+    "sources": [
+      "SpaceService",
+      "SpaceController",
+      "MemberController",
+      "frontend/admin-web/src/views/paismart/spaces/index.vue",
+      "frontend/admin-web/src/views/paismart/members/index.vue"
+    ],
+    "name": "文件、分片、对象和文档页面",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 4,
+    "entry": "文档页 → UploadDialog/useChunkUpload → uploads 创建/发现续传 → chunks → merge。",
+    "identity": "上传所属用户、空间及可见性绑定请求；服务端限制白名单、总大小、片大小64KiB—10MiB、最多10000片，检查全文件和每片SHA-256。",
+    "data": "ps_upload、ps_upload_chunk 与对象键保存manifest；数据库裁决缺片，Redis缓存不作为唯一事实。相同用户/范围复用回执，不按跨用户hash泄露对象。",
+    "work": "前端重选文件重算摘要并只补缺片；服务端读回对象存在/尺寸，丢失片允许同摘要修复；合并顺序流读各片并核对最终摘要。",
+    "result": "正式文档、处理任务及outbox在同事务形成；前端区分上传/合并/排队/READY，合并不宣称可检索。提交后有限回收临时片。",
+    "recovery": "缺片、片/全文件hash不符、范围变化拒绝；重复merge恢复原文档；暂停只中止前端传输，刷新可继续；片回收失败保留后续清理依据。",
+    "limit": "实际MinIO续传、网络中断、重复merge与并发限额未运行。",
+    "sources": [
+      "UploadService",
+      "UploadController",
+      "DocumentService",
+      "frontend/admin-web/src/views/paismart/composables/useChunkUpload.ts",
+      "frontend/admin-web/src/views/paismart/documents/components/UploadDialog.vue"
+    ],
+    "name": "完整解析、OCR、向量化和费用基础",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 5,
+    "entry": "uploads/supported-types 提供声明格式 → 同一上传与正式解析链路。",
+    "identity": "文件名取安全basename，拒绝路径穿越、非法扩展与预算越界；容器/正文在ParserWorker继续检查，不能仅凭扩展名成功。",
+    "data": "原对象属于知识库对象存储；解析输出进入正式文档正文/页/块，不新增用户可指定主机路径或外部URL读取。",
+    "work": "PDFBox文本页；Tika处理Office/OpenDocument/EPUB/文本等；现代Pages/Numbers/Keynote使用有界IWA/Snappy/protobuf正文适配；RTF有JDK有界回退。XML外部实体/DTD外取与外部解析器禁用。",
+    "result": "空正文/损坏/不支持拒绝；现代Apple读取存储文字和单元格值，不承诺图表绘制、视觉分页或公式执行。",
+    "recovery": "解析退出码、JSON、页数、字符及文件预算核对；毒文件有限重试后终态，源文件保留供排查。",
+    "limit": "历史19份CLI和54项解析检查只覆盖固定样例；本轮新解析0份。所有文件版本、复杂布局及语言包可用性未验证，OS沙箱未实现。",
+    "sources": [
+      "UploadService",
+      "ParserWorker",
+      "IworkBodyExtractor",
+      "IsolatedDocumentParser",
+      "DocumentIntelligenceService"
+    ],
+    "name": "检索、四工具、流式问答与历史",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 6,
+    "entry": "上传/文本/重处理 → ps_job + ps_outbox → PaismartKafkaRuntime → DocumentIntelligenceService → 独立ParserWorker。",
+    "identity": "当前资格与处理绑定在工作执行前核对；正式写入使用任务租约、documentId、contentVersion和process_job_id，旧Worker不能越过取消/换手。",
+    "data": "MySQL任务/通知/检查点与正式文档、页元数据、chunk持有真相；Kafka只是通知。租约、恢复次数及脱敏死信在中心维护。",
+    "work": "受控并发及内存高水位暂停/恢复；TextChunker保留句词边界、重叠和小块合并。进程默认预算100MiB输入、1000页、4MiB文本、300秒、256MiB堆；结果另限16MiB，stdout/stderr直接丢弃。",
+    "result": "阶段与块/页/检查点落库，JobDialog读正式状态。本次修复通知发送耗尽/任务恢复超限时同步当前文档FAILED，避免永远QUEUED/PARSING/INDEXING。",
+    "recovery": "异常退避、重复通知领取保护、有限恢复、死信；中断停止后代进程并回收临时目录；终态回调不覆盖READY、删除文档或后来处理任务。",
+    "limit": "未运行高水位、崩溃/取消、Kafka重复与本轮修复故障场景。资源限制属于源码机制，不能替代OS低权限和网络隔离。",
+    "sources": [
+      "PaismartKafkaRuntime",
+      "JobService",
+      "PaismartJobHandler",
+      "DocumentService",
+      "DocumentIntelligenceService",
+      "TextChunker",
+      "IsolatedDocumentParser"
+    ],
+    "name": "治理、评测与供应商完整界面",
+    "status": "修复后逻辑复核（未运行）"
+  },
+  {
+    "number": 7,
+    "entry": "PDF页预览 → documents/{id}/pages/{number}；解析PDF选择pdfbox/liteparse；启用OCR时中心签发内部作业ticket。",
+    "identity": "页内容复用文档范围/版本检查；OCR ticket只存hash，绑定job/document/version/lease、300秒期限及页数预算。只接受受限PNG/JPEG，不能任意匿名上传付费。",
+    "data": "ps_document保存完整正文与页数，ps_document_chunk保存页码/文本；ps_ocr_ticket/ps_ocr_call保存STARTED/COMPLETED/UNCERTAIN与供应商请求号；托管OCR用途解析，云费用独立核账，不假造Token退款。",
+    "work": "LiteParse须配置绝对执行路径，本机callback地址受限；阿里RecognizeAllText结果适配页块坐标/置信度与阅读顺序。图片大小/像素、页数及HTTP超时均有限制。",
+    "result": "单页API只返回所请求页；OCR配置健康与真实调用健康分列，不将CONFIGURED_NOT_TESTED显示为已真实识别。",
+    "recovery": "当前租约/版本失效拒绝；未知远端结果冻结UNCERTAIN并禁止原请求重发，按实际计费页人工核对后用明确的新处理请求；进程超时清理。",
+    "limit": "本轮未启用或调用本地/云OCR，扫描/混合PDF页锚点、语言包和供应商账单未核验。",
+    "sources": [
+      "OcrService",
+      "IsolatedDocumentParser",
+      "DocumentController",
+      "frontend/admin-web/src/views/paismart/documents/components/PdfPage.vue",
+      "DependencyStatusService"
+    ],
+    "name": "用量、限流、充值及套餐",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 8,
+    "entry": "文档页解析/重索引/向量化重试 → documents/{id}动作 → DOCUMENT_PROCESS/DOCUMENT_PARSE/DOCUMENT_REINDEX。",
+    "identity": "管理范围、行版本和请求键校验；执行前当前平台身份/资格检查，正式保存时检查租约/当前处理指针和内容版本。",
+    "data": "ps_document_chunk向量与Embedding revision、ps_document_chunk.embedding_input_hash、ps_model_call及额度账本关联；正式READY由实际索引完成条件决定。",
+    "work": "分批向量化（批16），维度及模型快照检查；缓存键包含Provider/revision/实际输入hash，同输入复用已完成结果；原文与增强说明分别保存。",
+    "result": "ES写入/refresh后才能READY，Token显示来自正式调用结算。本次补齐排队任务通知耗尽的文档失败状态；不回退已READY结果。",
+    "recovery": "按块/检查点恢复；失败或取消不双扣既有已完成调用。STARTED/UNCERTAIN模型/OCR不自动重发；手动重试复核当前任务与资格。",
+    "limit": "真实Embedding、维度异常、跨版本ES写入、并发额度/失败重试未运行；本轮没有新模型调用或业务数据写入。",
+    "sources": [
+      "DocumentService",
+      "DocumentIntelligenceService",
+      "ModelCallService",
+      "ModelGateway",
+      "JobService",
+      "frontend/admin-web/src/views/paismart/documents/index.vue"
+    ],
+    "name": "系统作业、数据迁移和运行交付",
+    "status": "修复后逻辑复核（未运行）"
+  },
+  {
+    "number": 9,
+    "entry": "/paismart/documents：可访问/仅本人、筛选分页、详情/正文、下载/PDF页、软删与恢复。",
+    "identity": "列表/正文/下载/页统一 getReadable；owner/治理范围再裁决删除/恢复，引用及预览带内容版本。同名使用稳定ID区分。",
+    "data": "ps_document及ps_document_chunk为正式数据；下载对象从已授权文档取得，不接受任意对象key。删除保留原文及账务/tombstone。",
+    "work": "删除后检索以MySQL二次过滤立即排除；删除更新文档版本并使旧处理无效；30天内恢复发当前版本重处理，不把恢复动作直接视为READY。",
+    "result": "前端预览/下载类型对应真实API，分页响应使用共享TableDataInfo；私有元数据读取按现有审计记录。",
+    "recovery": "版本变更拒绝旧操作；超期/已物理清理不能假恢复；跨用户请求不返回正文，旧引用版本失效拒绝。",
+    "limit": "实际下载字节、所有预览类型、权限撤销和软删恢复的索引一致性未运行。",
+    "sources": [
+      "DocumentController",
+      "DocumentService",
+      "SearchService",
+      "frontend/admin-web/src/views/paismart/documents/index.vue",
+      "frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue"
+    ],
+    "name": "定向技术检查与完整业务验收",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 10,
+    "entry": "文档搜索弹窗 → GET search/hybrid；问答工具也复用同一SearchService。",
+    "identity": "资格、TopK范围与空间输入检查；ES先过滤owner/可见空间/public，返回候选再读MySQL确认权限、READY、contentVersion。",
+    "data": "索引revision与provider维度绑定；MySQL是权限/文档正式状态事实，ES只做检索投影。统计不把无权ES数量外露。",
+    "work": "BM25/KNN并行召回，RRF融合、去重；rerank启用时按独立模型得分/阈值处理。可选Embedding/KNN失败显式降级关键词，ES整体失败仍报错。",
+    "result": "响应包含scoreType、degraded/reason及indexRevision；前端按实际得分类型展示，TopK是上限，阈值后可不足。",
+    "recovery": "有界超时/输入/候选；关键词降级仍保留同权限过滤。索引旧投影缺原文字段时明确要求重建，不静默混用。",
+    "limit": "真实检索排序、人工标注精度、延迟、供应商/ES故障和权限时序未运行。",
+    "sources": [
+      "SearchService",
+      "RrfFusion",
+      "IntelligenceController",
+      "frontend/admin-web/src/views/paismart/documents/components/SearchDialog.vue"
+    ],
+    "name": "混合检索与重排",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 11,
+    "entry": "文档处理的contextual-enabled控制增强；检索和引用依据当前查询配置选原文/增强字段。",
+    "identity": "生成说明仍按文档owner、资格、正式模型预算和托管用途处理；生成文本视为派生资料，不作为原始来源。",
+    "data": "正式chunk正文、chunkContext与模型输入摘要分别持久；Embedding缓存包含真正输入，开关变化不会错误复用不同输入。",
+    "work": "每块生成说明有界；说明失败退回原文并记录；ES保留原文与搜索字段，关闭增强查询原文，不继续用旧说明。",
+    "result": "检索/问答展示原文出处与小块引用，说明只用于召回和上下文；消耗记录进入统一调用账本。",
+    "recovery": "失败后原文保留；未知调用状态按ModelCallService冻结而非无限重发；旧投影不兼容要求新索引重建。",
+    "limit": "开关对真实检索质量及费用的影响未运行；生成说明的正确性不能由静态核对确认。",
+    "sources": [
+      "DocumentIntelligenceService",
+      "SearchService",
+      "ModelCallService",
+      "CitationService"
+    ],
+    "name": "上下文增强",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 12,
+    "entry": "SearchService.expand → 问答证据上下文；小块引用继续指向原chunk。",
+    "identity": "每个扩展文档/块复核当前可读版本及空间，不能绕过撤销成员或私人范围。",
+    "data": "同一文档/版本相邻正式ps_document_chunk组装临时父上下文；没有新增持久Parent-Child数据模型。",
+    "work": "邻居数量及总字数预算受限；邻接小块文本去重合并，覆盖相同区间的父上下文复用且只输出一次，独立命中的小块编号保留。",
+    "result": "模型得到扩展上下文，来源预览仍定位原始命中小块与页锚点，不把临时父块当新文档。",
+    "recovery": "无权/旧版本块不纳入；越预算截取有界；恢复从正式块读取，不依赖会话内存缓存。",
+    "limit": "跨块回答质量和生产大文档预算未运行；原项目规划中的持久父子Chunker仍是后续设计，不计已实现。",
+    "sources": [
+      "SearchService",
+      "ChatService",
+      "CitationService",
+      "TextChunker"
+    ],
+    "name": "相邻父块扩展",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 13,
+    "entry": "/paismart/chat：问题 → generations → CHAT_GENERATE → ReAct工具与最终回答。",
+    "identity": "当前身份/资格、会话owner、组织范围、请求键及限流检查；执行过程仍查会话/平台身份。模型传来的工具名和参数不能扩大服务端知识范围。",
+    "data": "正式会话/消息/生成/反馈及引用在MySQL；模型调用、Token预留结算和工具事件进入统一记录。",
+    "work": "固定search_knowledge/generate_summary/submit_feedback/knowledge_stats四工具；最多4轮8调用。摘要内部生成不递归规划，反馈需用户明确意图，统计仅授权MySQL事实；最终输出预算2000。",
+    "result": "自然回答流式持久、工具状态逐条事件、摘要与反馈正式保存；组织会话工具证据限选定共享范围。",
+    "recovery": "未知工具/参数、越权空间拒绝；工具故障有明确结果；达到预算终止后使用已有证据；未知模型结果冻结待核对，不生成虚假完成。",
+    "limit": "真实模型工具遵循率、资料注入、轮次预算和回答质量未运行。",
+    "sources": [
+      "ChatService",
+      "SearchService",
+      "ModelGateway",
+      "ModelCallService",
+      "IntelligenceController",
+      "frontend/admin-web/src/views/paismart/chat/index.vue"
+    ],
+    "name": "四工具与问答规则",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 14,
+    "entry": "POST chat/ws-ticket → WS /paismart/ws/chat → submit/subscribe/resume/stop；useChatStream按序号恢复。",
+    "identity": "ticket60秒单次、Origin与平台会话绑定；连接及生成过程中重查资格/平台会话；owner限定恢复，最多2个订阅，不能使用第二JWT。",
+    "data": "ps_chat_generation/message/event持久，事件seq与request key用于去重；多标签重连只回放，不重复提交原问题。",
+    "work": "流式工具/引用/回答事件先保存；轮询回放持久seq。停止保存已有内容与终态；中心崩溃后RUNNING标中断，按正式核账规则恢复而非假续算。",
+    "result": "本次补齐CHAT_GENERATE通知/恢复耗尽时generation和message FAILED并写终态事件，已COMPLETE/STOPPED/INTERRUPTED内容保持。",
+    "recovery": "取消/租约换手阻止旧写入；新连接用afterSeq去重；原STARTED/UNCERTAIN先核对；重试保留先前内容、引用和账务。",
+    "limit": "WS实际断网、多窗口、撤销会话、崩溃与新增失败回调未运行；本轮不是流式业务验收。",
+    "sources": [
+      "ChatService",
+      "WebSocketTicketService",
+      "PaismartChatWebSocket",
+      "JobService",
+      "frontend/admin-web/src/views/paismart/composables/useChatStream.ts"
+    ],
+    "name": "流式、停止与断线恢复",
+    "status": "修复后逻辑复核（未运行）"
+  },
+  {
+    "number": 15,
+    "entry": "会话侧栏及/paismart/history：创建、切换、归档/恢复；审计入口按用户/日期/关键词筛选。",
+    "identity": "个人会话按owner；审计需独立权限且限制root、owner或空间管理范围，私人对话不因泛用权限自动公开。",
+    "data": "ps_conversation、ps_chat_message及正式引用关联持久；归档只改标记，列表/消息分页不靠前端缓存作为真相。",
+    "work": "生成上下文仅取所属会话尾部与预算；日期过滤及总数在服务端，切换/归档更新行版本。",
+    "result": "重新登录可通过正式API回读历史、引用和工具事件；审计附操作人/时间。",
+    "recovery": "伪造会话ID/越权审计拒绝；并发变更用版本保护；会话归档不物理删除账务或消息。",
+    "limit": "真实账号、历史分页边界与管理范围联机未运行。",
+    "sources": [
+      "ChatService",
+      "IntelligenceController",
+      "frontend/admin-web/src/views/paismart/chat/components/ConversationList.vue",
+      "frontend/admin-web/src/views/paismart/history/index.vue"
+    ],
+    "name": "会话与历史审计",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 16,
+    "entry": "消息引用编号 → references/{id} → 内容/PDF页；可选引用核验状态随消息/历史回读。",
+    "identity": "引用绑定documentId/contentVersion/chunk/page/anchor；预览实时校验文档可读，撤销或版本失效拒绝正文。",
+    "data": "ps_reference及message引用映射正式保存；跨多轮工具累积同一编号映射，不使用标题推断来源。",
+    "work": "CitationExtractor解析文本编号；CitationService登记原文锚点，可选按句/引用对核验；模型只看有界原始证据，增强说明不当原证。",
+    "result": "跨会话历史保留编号及可疑标记；ReferencePreview/PdfPage安全渲染来源，内容版本传入API。",
+    "recovery": "不支持/可疑结论保留；外部核验失败不伪造支持；未知模型调用照正式核账处理。",
+    "limit": "引用定位精度、PDF视觉锚点及付费核验未运行；历史组件截图只属旧版本固定夹具。",
+    "sources": [
+      "CitationService",
+      "CitationExtractor",
+      "ChatService",
+      "frontend/admin-web/src/views/paismart/chat/components/ReferencePreview.vue",
+      "frontend/admin-web/src/views/paismart/composables/referencePresentation.ts"
+    ],
+    "name": "引用编号和核验",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 17,
+    "entry": "当前版本文档索引完成 → CONFLICT_DETECT → /paismart/conflicts候选列表。",
+    "identity": "索引锁/任务租约及当前READY文档；候选双方按发起owner当前可见范围重查，不只依赖向量筛选。",
+    "data": "ps_document_conflict保存双方文档/内容版本、chunk、pairKey及原因；重复pair唯一，ES只用于候选。",
+    "work": "相似向量候选后做键值/掩码文本相似分析、候选/块数上限；可选LLM确认只补理由或排除，不自动删除。",
+    "result": "列表返回具体片段、事实差异及相似度，LLM失败标需要复核；无权限文档候选不返回。",
+    "recovery": "文档/索引版本变化拒绝旧候选；重复通知/索引不会新增同一pair；检测失败可走有租约的正式任务恢复。",
+    "limit": "真实跨范围冲突召回与人工标注准确度未运行。",
+    "sources": [
+      "GovernanceService",
+      "KeyValueConflictAnalyzer",
+      "SearchService",
+      "DocumentIntelligenceService",
+      "frontend/admin-web/src/views/paismart/governance/conflicts/index.vue"
+    ],
+    "name": "冲突检测",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 18,
+    "entry": "冲突比较页 → KEEP_NEW/KEEP_EXISTING/IGNORED + note/expectedVersion；文档页可恢复软删文档。",
+    "identity": "双方可读、处置目标治理权限、候选双方内容版本与冲突行版本全部核对；不是单凭拥有页面按钮删除。",
+    "data": "冲突裁决、整篇文档软删、相关候选INVALIDATED与审计在正式事务处理，保留原文对象/账务。",
+    "work": "沿用原业务整篇退出检索语义；忽略只保存裁决，不删除。检索MySQL二次过滤排除已删文档。",
+    "result": "页面确认提示整篇影响，保存动作与理由；恢复进入正常重新处理，裁决历史不抹除。",
+    "recovery": "两次裁决版本冲突拒绝；恢复需30天/对象前提，不承诺恢复已物理清理资料。",
+    "limit": "真实并发裁决、退出/恢复索引与影响提示操作未运行。",
+    "sources": [
+      "GovernanceService",
+      "DocumentService",
+      "SearchService",
+      "frontend/admin-web/src/views/paismart/governance/conflicts/index.vue"
+    ],
+    "name": "冲突处置与恢复",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 19,
+    "entry": "/paismart/indexes → rebuild续建/全新、rollback、recover → GovernanceService + IndexCoordinator。",
+    "identity": "索引权限、请求键、Provider启用/维度/配置快照、回滚行版本和旧凭证；中心KNOWLEDGE_INDEX租约/fence串行正式切换。",
+    "data": "ps_index_revision、checkpoint/sourceWatermark/validation及ps_index_switch保存阶段；ES别名与MySQL ACTIVE + Provider必须一致。",
+    "work": "重建按正式文档逐步保存，增量追平；正式chunk数及冻结查询/KNN抽样校验后进入切换：PREPARED→ES别名读回→ALIAS_CHANGED→ACTIVE/COMPLETED。",
+    "result": "进度/校验细项可读。本次取消或最终失败将非活动BUILDING/VALIDATED标FAILED，可从原检查点续建；重试置BUILDING，保留旧有效索引。",
+    "recovery": "别名不明留RECOVERY_REQUIRED并阻止普通查询；recover按ES读回选择目标/原版本，禁止盲目覆盖。本次终态回调保留pending switch、ACTIVE/RETIRED及另行续建任务，旧作业不得覆盖新作业。",
+    "limit": "本轮未重建/回滚/切换ES，也未运行新取消恢复场景；别名一致性、更新追平与容量未验证。",
+    "sources": [
+      "GovernanceService",
+      "IndexCoordinator",
+      "JobService",
+      "SearchService",
+      "frontend/admin-web/src/views/paismart/governance/indexes/index.vue"
+    ],
+    "name": "索引重建与回滚",
+    "status": "修复后逻辑复核（未运行）"
+  },
+  {
+    "number": 20,
+    "entry": "/paismart/evaluations：inlineJsonl、本地上传datasetId、登记资源 → EVALUATION_RUN → report。",
+    "identity": "评测运行权限/资格和数据集owner；只收受控JSONL及资源ID，不收主机路径/任意URL。UTF-8、900000字节、500例、TopK1—20、seed安全整数检查。",
+    "data": "冻结样本内容/hash、索引/Provider/seed/config，ps_evaluation/case/dataset与正式job绑定。数据集不是知识文档，不隐式索引。",
+    "work": "逐例授权检索及指标、90秒回答/60秒Judge预算；严格Judge解析并保存失败/诊断；短事务当前租约保存案例/checkpoint/report，已存案例重试复用。",
+    "result": "完整报告未生成也可回读正式已存案例；total/processed/pending分开，无样本指标为空。本次最终作业失败同步评测FAILED，已COMPLETE/COMPLETED_WITH_ERRORS报告不被取消/失败改写。",
+    "recovery": "取消/重试联动jobId/owner/行版本，保留配置、案例、账务；STARTED/UNCERTAIN拒绝自动重发。终态回调属于同一中心事务。",
+    "limit": "真实JSONL上传/登记权限、指标独立复算、Judge外发和新增失败场景未运行。",
+    "sources": [
+      "GovernanceService",
+      "EvaluationAlgorithms",
+      "IntelligenceController",
+      "JobService",
+      "frontend/admin-web/src/views/paismart/governance/evaluations/index.vue",
+      "frontend/admin-web/src/views/paismart/composables/evaluationDataset.ts"
+    ],
+    "name": "离线评测报告",
+    "status": "修复后逻辑复核（未运行）"
+  },
+  {
+    "number": 21,
+    "entry": "/paismart/review：报告逐例复核、支持/不支持/不确定及理由；抽样与一致性结果。",
+    "identity": "评测/复核权限、owner/治理范围，caseId归属及expectedVersion检查，操作人来自平台身份。",
+    "data": "ps_evaluation_review与修订历史持久，原Judge结果/样本冻结不因人工复核改写；报告读取当前复核。",
+    "work": "HumanReviewSampler按确定性种子/阈值抽样；EvaluationAlgorithms计算agreement/kappa/分歧及分数差，可靠性最少5个可计算样本。",
+    "result": "报告显示样本不足提示、Judge与人工对比、修订操作人；可以导出正式报告快照。",
+    "recovery": "并发复核行版本冲突拒绝，不抹掉原修改；不可计算/不足样本不伪造可靠。",
+    "limit": "当前规则下真实多复核员并发、抽样质量及公式与独立样本复算未运行。",
+    "sources": [
+      "GovernanceService",
+      "EvaluationAlgorithms",
+      "HumanReviewSampler",
+      "frontend/admin-web/src/views/paismart/governance/evaluations/review.vue",
+      "frontend/admin-web/src/views/paismart/composables/evaluationPresentation.ts"
+    ],
+    "name": "人工复核",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 22,
+    "entry": "/paismart/providers：LLM/EMBEDDING/RERANK配置、启停/激活/指定Provider测试。",
+    "identity": "Provider独立管理/测试权限；用途绑定托管secretRef，不接受明文Key字段；保存空引用沿用既有值，不读回密钥。",
+    "data": "ps_provider保存配置/版本和活动scope；配置快照参与模型输入账务和索引revision；实际Key属已有托管系统。",
+    "work": "ControlledHttp检查白名单host/HTTPS、无userinfo/query和重定向，完整操作URL规范化；调用预算/输入/输出/超时受限，测试也走正式调用网关。",
+    "result": "前端显示脱敏引用与真实测试结果；Embedding已有活动索引时不能直接激活，必须正式重建后切换。",
+    "recovery": "缺密钥/用途或白名单拒绝；错误脱敏；调用不明保留UNCERTAIN，不能把测试重试当免费重复发送。",
+    "limit": "托管密钥解析、供应商协议、真实SSRF/网络边界和测试费用未运行；仅静态核对受控出口。",
+    "sources": [
+      "ProviderService",
+      "ModelGateway",
+      "ControlledHttp",
+      "ModelCallService",
+      "frontend/admin-web/src/views/paismart/operations/providers/index.vue"
+    ],
+    "name": "供应商与密钥",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 23,
+    "entry": "所有LLM/Embedding经ModelCallService → QuotaService + ModelBudgetService，日额度/余额两策略。",
+    "identity": "平台用户当前有效及业务资格、限流、输入指纹/operationId幂等；不信任前端估算或用量字段。",
+    "data": "MySQL account/reservation/ledger/model_call 持有余额、冻结及调用状态；DAILY按Asia/Shanghai日窗口，BALANCE以真实余额为准，Redis不持有资金真相。",
+    "work": "同用户锁序、预留预算及全局三组模型预算；完成实际usage结算，STOPPED保存已发生用量，释放先偿债；幂等回执防重复结算。",
+    "result": "页面显示实际剩余/冻结/债务；缓存故障不静默不限额；既有COMPLETE/STOPPED返回已存响应。",
+    "recovery": "STARTED/UNCERTAIN保留冻结并拒绝自动重发；管理员按供应商实际Token及理由核对，核账不制造模型回答或退款。",
+    "limit": "真实多实例并发、跨日/故障/供应商账单及付款后的额度一致性未运行。",
+    "sources": [
+      "QuotaService",
+      "ModelBudgetService",
+      "ModelCallService",
+      "ModelGateway",
+      "IntelligenceController"
+    ],
+    "name": "配额与并发结算",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 24,
+    "entry": "/paismart/usage：本人流水/余额、管理7/30日趋势排行预警；成员额度弹窗追加两类Token。",
+    "identity": "本人入口绑定current user；看他人需usage:audit/成员额度管理权限，管理范围与理由检查。",
+    "data": "额度账本、reservation与正式调用聚合；追加credits请求键唯一，不直接改Redis余额。",
+    "work": "DAILY剩余额度按真实当日使用及冻结计算；管理趋势/排行按正式记录聚合，Token两类分开，追加由统一credit服务。",
+    "result": "前端个人概览与管理汇总分别消费实际字段；流水分页/日期过滤及总数可回读。",
+    "recovery": "重复追加恢复同一回执；非法整数/范围拒绝；无权读取他人流水拒绝；债务偿还保留正式流水。",
+    "limit": "真实SQL独立聚合、重复请求和管理范围联机未运行。",
+    "sources": [
+      "UsageController",
+      "QuotaService",
+      "MemberController",
+      "frontend/admin-web/src/views/paismart/usage/index.vue",
+      "frontend/admin-web/src/views/paismart/usage/components/UsageOverview.vue"
+    ],
+    "name": "用量与追加额度",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 25,
+    "entry": "/paismart/limits：五类规则；登录注册平台扩展、聊天入口、模型LLM/Embedding出口。",
+    "identity": "配置权限、规则kind/mode/window/limit/行版本检查；平台已有验证码与登录保护继续执行。",
+    "data": "ps_rate_limit_policy是策略；Redis计数只用paismart命名空间，不替换共享Redis、账号认证或其他业务键。",
+    "work": "SINGLE/DUAL LUA原子计数，在分钟/日窗口组合判定；使用平台防护扩展接入而不建立第二套登录。",
+    "result": "超限服务端拒绝并给retryAfterSeconds，前端展示实际提示；拒绝在模型外发前，不产生新付费调用。",
+    "recovery": "Redis不可用拒绝而不静默放行；配置重读仍按正式版本；跨实例由同一Redis脚本裁决。",
+    "limit": "真实Redis故障、窗口时钟及多实例并发未运行。",
+    "sources": [
+      "RateLimitService",
+      "RateLimitController",
+      "PaismartRateLimitConfiguration",
+      "frontend/admin-web/src/views/paismart/operations/limits/index.vue"
+    ],
+    "name": "限流",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 26,
+    "entry": "/paismart/recharge：套餐/自定义整数分订单 → 二维码/原单轮询 → 主动查单或微信回调。",
+    "identity": "当前资格与订单owner、Idempotency-Key、精确amountFen与最大金额；匿名callback走验签/解密并核对商户、订单和金额。",
+    "data": "ps_recharge_order固化tradeNo、套餐价格/权益快照；支付事件/transaction唯一，两类Token使用同一正式额度账本入账。",
+    "work": "预支付/查单CAS避免并发重复外发；签名/解密/状态由WechatPaymentGateway处理；SUCCESS只入账一次。NOTPAY和USERPAYING保留不同语义。",
+    "result": "前端保留原未决订单，显示实际REVOKED/PAYERROR等状态及过期二维码；关闭支付明确不可支付，不用Mock成功替代。",
+    "recovery": "支付结果不明不自动新建/重发预支付；错误金额/签名拒绝，重复/乱序回调不重复credit；迁入历史成功订单不重放充值。",
+    "limit": "本轮微信、预支付、查单、回调及账单均未调用；验签/金额幂等只做源码核对。",
+    "sources": [
+      "RechargeService",
+      "WechatPaymentGateway",
+      "RechargeController",
+      "QuotaService",
+      "frontend/admin-web/src/views/paismart/recharge/index.vue"
+    ],
+    "name": "充值与订单",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 27,
+    "entry": "/paismart/packages：套餐创建/编辑/排序/启停/删除；充值页只选择有效套餐。",
+    "identity": "recharge:manage权限，If-Match行版本与价格/Token精确整数、名称/说明/权益范围；用户端包列表需资格。",
+    "data": "ps_recharge_package正式版本；订单创建时保存快照，后续套餐修改不回写历史订单。",
+    "work": "既有套餐服务规范字段和排序；自定义额度按已确定折算规则整数计算，并检查溢出。",
+    "result": "运营页面完整显示权益和启用状态；停用/删除不销毁历史充值快照。",
+    "recovery": "并发更新版本冲突拒绝；价格或权益非法拒绝；旧订单查单依赖原快照不依赖当前套餐。",
+    "limit": "真实套餐CRUD及旧订单权益核对未运行。",
+    "sources": [
+      "RechargeService",
+      "RechargeController",
+      "frontend/admin-web/src/views/paismart/operations/packages/index.vue",
+      "frontend/admin-web/src/views/paismart/recharge/index.vue"
+    ],
+    "name": "套餐管理",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 28,
+    "entry": "/paismart/jobs：组件状态、任务、未知调用核账；documents/text；用户活动/会话审计。",
+    "identity": "运维查看/执行、文档文本写入和审计权限分开；任务/计划按owner/触及文档管理范围检查，不仅靠列表筛选。核账限平台root及正式理由。",
+    "data": "ps_job/outbox/checkpoint、ps_audit_event与正式业务对象；SchemaReadiness只读核对原库结构，系统探测不代替业务结果。",
+    "work": "DependencyStatusService按开关探测Redis/ES/存储/消费循环或仅检查路径配置；文本上传进入原对象/文档处理链路。本次统一final failure回调，包括通知耗尽、处理重试耗尽和恢复上限。",
+    "result": "状态区明确tested/scope/reason，Worker路径存在不称解析成功；作业FAILED与关联文档/生成/评测/计划终态可对齐；原真实失败历史保留。",
+    "recovery": "失败回调与中心任务终态同事务，失败则保留待处理通知；死信只含ID/脱敏原因；后台取消/重试用当前任务和业务版本，不做模型退款或破坏收据。",
+    "limit": "本轮没有请求任何状态/核账接口或启动服务；最新系统联机健康与本次新增失败场景未验证。",
+    "sources": [
+      "OperationController",
+      "OperationAccessService",
+      "DependencyStatusService",
+      "JobService",
+      "PaismartKafkaRuntime",
+      "DocumentController",
+      "frontend/admin-web/src/views/paismart/operations/jobs/index.vue"
+    ],
+    "name": "系统状态、文本与审计",
+    "status": "修复后逻辑复核（未运行）"
+  },
+  {
+    "number": 29,
+    "entry": "/paismart/jobs运维计划：bootstrap-import/object-migrations/cleanup-plans → 清单审批 → execute → OPERATION_EXECUTE。",
+    "identity": "清单只允许知识库命名空间/配置只读旧源，管理范围逐项预检；摘要固定，审批人不同于创建人；执行权限和operations/object writes开关共同限制。",
+    "data": "ps_operation_plan/item/checkpoint与正式文档/上传对象绑定；每项payload hash及SUCCEEDED/UNCERTAIN回执。源对象保留，清理仅精确快照与30天软删策略。",
+    "work": "内置导入按logicalKey绑定同一文档，当前hash/页块/索引不全才修复；迁移核对完整hash/大小，正式指针切换在短事务当前租约下提交。旧桶只读，源不删除。",
+    "result": "计划完成不等于导入文档READY；本次补齐FAILED/CANCELED/QUEUED回调，前端新增取消筛选/重试入口，正式契约枚举同步。",
+    "recovery": "保留审批与已成功条目；取消/换手后旧Worker不能改EXECUTING/FAILED；恢复先核对已有目标hash，UNCERTAIN不盲目覆盖。已SUCCEEDED计划不因中心晚失败改写；物理清理后只可从备份恢复。",
+    "limit": "本轮没有创建/批准/执行计划或搬迁、清理对象；实际恢复、存储一致性与新回调并发未运行。",
+    "sources": [
+      "OperationController",
+      "OperationExecutionService",
+      "OperationAccessService",
+      "UploadService",
+      "LegacyMinioObjectSource",
+      "frontend/admin-web/src/views/paismart/operations/jobs/index.vue",
+      "contracts/paismart/knowledge-v1.openapi.yaml"
+    ],
+    "name": "导入、搬迁与清理",
+    "status": "修复后逻辑复核（未运行）"
+  },
+  {
+    "number": 30,
+    "entry": "完整设计第1.3节来源能力映射 → 31业务点 → 本报告源码入口；若依登录/安全功能沿用共享平台。",
+    "identity": "原独立账号/JWT/导航和短信登录/重置/微信绑定占位不作为正式迁移能力；不能将无实现页面写为成功操作。",
+    "data": "不迁旧密码/JWT；正式业务真相集中MySQL，Python仅离线转换、独立Java Worker仅解析结果；不引入第二控制面。",
+    "work": "保留已有BM25/KNN/RRF、分块邻居扩展、ReAct、冲突键值、评测/人工复核算法；持久Parent-Child/格式专用新Chunker仍属计划。",
+    "result": "管理页面覆盖原声明业务能力，来源映射区分原有API/页面/占位与目标；独立测试Controller/演示页未装配正式业务。",
+    "recovery": "未完成环境/OS隔离/容量明确保留；构建或文件存在只证明编译装配，不证明用户可用或真实迁移完成。",
+    "limit": "本轮31项全链路逻辑核对完成，31真实业务均未执行；完整生产能力、用户接受和发布均无结论。",
+    "sources": [
+      "文档/项目/PaiSmart知识库项目/完整迁移设计.md",
+      "PaismartConfiguration",
+      "PaismartIdentity",
+      "ParserWorker",
+      "contracts/paismart/README.md"
+    ],
+    "name": "功能完整性与占位区分",
+    "status": "逻辑成立（静态范围）"
+  },
+  {
+    "number": 31,
+    "entry": "prepare-legacy-migration.py读取批准本地snapshot/mapping → reviewed-import.sql/manifest/readonly-verify；对象复制另由受控计划。",
+    "identity": "明确approved用户映射、operator、源/目标时区、旧组织/个人归属；15来源表及Redis冻结余额、对象hash、评测/复核、索引元信息完整，无自动合并同名账号。",
+    "data": "目标仍原ry-vue，工具不连接/写库；V001—V005、正式业务记录和ps_legacy_archive/receipt关联，旧秘密脱敏，Provider默认不激活、账务不重放充值。",
+    "work": "稳定UUID映射，来源/映射/批次/转换指纹；SQL在首个插入前检查history每一版、所有既有回执归档与身份关系，相同来源不同转换拒绝；同转换换批次恢复收据。",
+    "result": "输出executed=false，保留未完成上传manifest并将MERGING恢复UPLOADING；导入正文元数据可从同原对象补齐并保留旧chunk/引用ID，复制完成再开放消费。",
+    "recovery": "遇错停止并回滚，不补旧裸归档指纹；切换前备份/冻结，回退前独立导出新增并核账，不覆盖后来文档/订单/Token。不存在自动财务补偿或一键真实回退。",
+    "limit": "54表已补建/结构回读为既有跨项目证据，本轮未重复DDL。17项离线守卫及19份解析CLI只按未变部分历史证据引用，实际旧数据导入、对象复制与切换/回退未执行。",
+    "sources": [
+      "ruoyi-backend/ruoyi-paismart/scripts/prepare-legacy-migration.py",
+      "SchemaReadiness",
+      "OperationExecutionService",
+      "DocumentIntelligenceService",
+      "ruoyi-backend/ruoyi-paismart/README.md"
+    ],
+    "name": "数据迁移与恢复",
+    "status": "逻辑成立（静态范围）"
+  }
+]

@@ -1,0 +1,55 @@
+// 仅操作127.0.0.1技术夹具，所有业务API在Vite中替换成本地Mock。
+async page => {
+  const base='http://127.0.0.1:18152',dir='D:/2025Ai/26-05-23/java-workspace/文档/项目/PaiSmart知识库项目/设计附录/',prefix='2026-10-03-菜单筛选评测入口-终版补齐页面-'
+  const results=[]
+  const shot=async name=>{const file=dir+prefix+name+'.png';await page.screenshot({path:file,scale:'css'});results.push({name,file,url:page.url(),calls:await page.locator('#fixture-calls').innerText()})}
+  await page.goto(base+'/paismart/evaluations')
+  await page.getByRole('button',{name:'发起评测',exact:true}).click()
+  const dialog=page.getByRole('dialog',{name:'发起受控评测'})
+  await dialog.getByRole('textbox',{name:/评测名称$/}).fill('技术夹具：内联评测')
+  await dialog.getByRole('textbox',{name:/JSONL 内容$/}).fill('{"question":"本地技术问题","referenceAnswer":"本地独立参考答案"}')
+  await dialog.getByRole('spinbutton',{name:'随机种子',exact:true}).fill('1.5')
+  await dialog.getByRole('button',{name:'提交评测',exact:true}).click()
+  await dialog.getByText(/随机种子必须为安全整数/).waitFor()
+  await shot('非法seed拒绝')
+  await dialog.getByRole('spinbutton',{name:'随机种子',exact:true}).fill('43')
+  await dialog.getByRole('button',{name:'提交评测',exact:true}).click()
+  await page.getByRole('dialog',{name:'处理进度'}).getByRole('button',{name:'关闭',exact:true}).click()
+  if(!await page.locator('#fixture-calls').innerText().then(text=>text.includes('"seed":43')&&text.includes('"inlineJsonl"')))throw new Error('内联seed提交未保留')
+  await shot('内联评测提交')
+  await page.getByRole('button',{name:'发起评测',exact:true}).click()
+  await dialog.getByRole('textbox',{name:/评测名称$/}).fill('技术夹具：文件评测短标签')
+  await dialog.getByRole('radio',{name:'上传本地文件',exact:true}).locator('xpath=ancestor::label').click()
+  await dialog.getByRole('spinbutton',{name:'随机种子',exact:true}).fill('44')
+  await dialog.getByLabel('上传本地 JSONL 评测集',{exact:true}).setInputFiles('D:/2025Ai/26-05-23/java-workspace/frontend/admin-web/tests/unit/paismart/browser-preview/local-evaluation.jsonl')
+  await dialog.getByRole('button',{name:'上传评测集',exact:true}).click()
+  await dialog.getByText(/已保存：技术夹具：文件评测短标签/).waitFor()
+  await shot('文件保存短标签')
+  await dialog.getByRole('button',{name:'提交评测',exact:true}).click()
+  await page.getByRole('dialog',{name:'处理进度'}).getByRole('button',{name:'关闭',exact:true}).click()
+  await shot('文件datasetId提交')
+  await page.getByRole('button',{name:'发起评测',exact:true}).click()
+  await dialog.getByRole('textbox',{name:/评测名称$/}).fill('技术夹具：受控资源评测')
+  await dialog.getByRole('radio',{name:'受控评测集',exact:true}).locator('xpath=ancestor::label').click()
+  await dialog.getByRole('combobox',{name:/受控评测集$/}).locator('xpath=ancestor::div[contains(@class,"el-select__wrapper")]').click()
+  await page.getByRole('option',{name:'技术夹具：登记评测资源 · 登记资源 · 1 例',exact:true}).click()
+  await dialog.getByRole('spinbutton',{name:'随机种子',exact:true}).fill('42')
+  await shot('受控资源seed')
+  await dialog.getByRole('button',{name:'提交评测',exact:true}).click()
+  await page.getByRole('dialog',{name:'处理进度'}).getByRole('button',{name:'关闭',exact:true}).click()
+  const calls=await page.locator('#fixture-calls').innerText()
+  if(!calls.includes('"datasetId":"builtin:fixture-resource"')||!calls.includes('"seed":42'))throw new Error('未使用列表真实resource id与seed')
+  await shot('受控资源提交')
+  await page.getByRole('button',{name:'报告与复核',exact:true}).click()
+  await page.getByRole('heading',{name:'评测报告与人工复核',exact:true}).waitFor()
+  if(!page.url().includes('/paismart/review?evaluationId=fixture-evaluation'))throw new Error('报告跳转未匹配真实菜单路径')
+  await shot('报告菜单跳转')
+  await page.goto(base+'/paismart/review?evaluationId=fixture-partial')
+  await page.getByText(/已完成处理 1 个，待处理 2 个/).waitFor()
+  if(!await page.getByText('测试问题',{exact:true}).count())throw new Error('部分报告缺已存案例')
+  const partialFile=dir+prefix+'取消后的部分报告.png';await page.screenshot({path:partialFile,scale:'css',fullPage:true});results.push({name:'取消后的部分报告',file:partialFile,url:page.url(),calls:await page.locator('#fixture-calls').innerText()})
+  return {kind:'本地Mock浏览器技术复验',realBusinessExecuted:false,results}
+}
+
+
+

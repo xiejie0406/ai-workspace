@@ -1,0 +1,1516 @@
+{
+  "scope": "编译、打包与字节摘要核对；无测试、业务操作或服务启动",
+  "module": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart-logic-20261003-373ca66f2b0a\\backend\\ruoyi-paismart\\target\\ruoyi-paismart-3.9.2.jar",
+    "sha256": "35a3e5d17f753165d537e42324cac91a582c3200378c97f6d243b53940913259"
+  },
+  "admin": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart-logic-20261003-373ca66f2b0a\\backend\\ruoyi-admin\\target\\ruoyi-admin.jar",
+    "sha256": "f469b339fa9e99fee5f376ef0264266690d1b5205f17a6dec75b2309d45ab1a2",
+    "embeddedModuleSHA256": "35a3e5d17f753165d537e42324cac91a582c3200378c97f6d243b53940913259"
+  },
+  "worker": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart-logic-20261003-373ca66f2b0a\\backend\\ruoyi-paismart\\target\\logic-worker\\ruoyi-paismart-3.9.2.jar",
+    "sha256": "35a3e5d17f753165d537e42324cac91a582c3200378c97f6d243b53940913259",
+    "dependencyCount": 240
+  },
+  "moduleEmbeddedWorkerMatch": true,
+  "backendMainSourcesMatchPrivateBuild": true,
+  "sharedArtifacts": {
+    "ruoyi-backend/ruoyi-admin/target/ruoyi-admin.jar": {
+      "before": "80876ed2b09979c0c391e87d557083a108fc4d3e9d206eea617532abefa0a7ff",
+      "after": "80876ed2b09979c0c391e87d557083a108fc4d3e9d206eea617532abefa0a7ff",
+      "unchanged": true
+    },
+    "frontend/admin-web/dist/index.html": {
+      "before": "d44338f4f858fba4155945404907d497223b50ee51bd8a69a8aebe5ba157601e",
+      "after": "d44338f4f858fba4155945404907d497223b50ee51bd8a69a8aebe5ba157601e",
+      "unchanged": true
+    }
+  },
+  "adminBouncyCastleJars": [
+    "BOOT-INF/lib/bcjmail-jdk18on-1.85.jar",
+    "BOOT-INF/lib/bcpkix-jdk18on-1.85.jar",
+    "BOOT-INF/lib/bcprov-jdk18on-1.85.jar",
+    "BOOT-INF/lib/bcutil-jdk18on-1.85.jar"
+  ],
+  "workerBouncyCastleJars": [
+    "bcjmail-jdk18on-1.85.jar",
+    "bcpkix-jdk18on-1.85.jar",
+    "bcprov-jdk18on-1.85.jar",
+    "bcutil-jdk18on-1.85.jar"
+  ],
+  "packagedResources": [
+    "com/ruoyi/paismart/infrastructure/intelligence/ParserWorker.class",
+    "db/",
+    "db/paismart-menu/",
+    "db/paismart-menu/菜单增量预演.sql",
+    "db/paismart/",
+    "db/paismart/V001__control_billing_jobs.sql",
+    "db/paismart/V002__documents_spaces.sql",
+    "db/paismart/V003__intelligence.sql",
+    "db/paismart/V004__operations_migration_receipts.sql",
+    "db/paismart/V005__evaluation_datasets.sql",
+    "eval/",
+    "eval/NOTICE.txt",
+    "eval/sample-eval.jsonl"
+  ],
+  "packagedDisabledConfig": "# 所有外部动作默认关闭；不定义另一数据源，不执行迁移，不分配端口。\npaismart:\n  enabled: false\n  upload:\n    max-file-bytes: 536870912\n  object-store:\n    enabled: false\n    writes-enabled: false\n    probe-enabled: false\n    endpoint: ''\n    bucket: ''\n    access-key-secret-ref: platform.paismart.minio.access-key\n    secret-key-secret-ref: platform.paismart.minio.secret-key\n  jobs:\n    kafka-enabled: false\n    bootstrap-servers: ''\n    security-protocol: SSL\n    allow-plaintext: false\n    sasl-mechanism: SCRAM-SHA-512\n    jaas-secret-ref: platform.paismart.kafka.jaas\n    truststore-location: ''\n    truststore-password-ref: platform.paismart.kafka.truststore\n    memory-high-water: 0.85\n    memory-low-water: 0.70\n  intelligence:\n    external-calls-enabled: false\n    allow-http: false\n    allowed-hosts: ''\n    contextual-enabled: false\n    rerank-enabled: false\n    rerank-threshold: '0.2'\n    citation-verification-enabled: false\n    conflict-llm-confirmation-enabled: false\n    elasticsearch:\n      endpoint: ''\n      secret-ref: platform.paismart.elasticsearch.api-key\n      analyzer: standard\n    parse:\n      process-enabled: false\n      worker-classpath: ''\n      pdf-engine: pdfbox\n      liteparse-command: ''\n      ocr-enabled: false\n      ocr-language: chi_sim+eng\n      ocr-callback-base: ''\n      concurrency: 2\n      max-bytes: 104857600\n      max-pages: 1000\n      max-characters: 4194304\n      timeout-seconds: 300\n    ocr:\n      aliyun-enabled: false\n      secret-ref: ai.paismart.aliyun.ocr\n    chunk:\n      size: 1000\n      overlap: 100\n      min-size: 100\n    parent-context:\n      max-characters: 16000\n    chat:\n      allowed-origins: ''\n      max-output-tokens: 4096\n    eval:\n      human-sample-rate: '0.2'\n  payment:\n    enabled: false\n    merchant-id: ''\n    app-id: ''\n    serial: ''\n    notify-url: ''\n    private-key-alias: platform.paismart.payment.private-key\n    api-v3-alias: platform.paismart.payment.api-v3\n  operations:\n    execute-enabled: false\n    legacy-source:\n      enabled: false\n      endpoint: ''\n      bucket: ''\n      access-key-secret-ref: platform.paismart.minio.access-key\n      secret-key-secret-ref: platform.paismart.minio.secret-key\n",
+  "parserClassSHA256": {
+    "com/ruoyi/paismart/infrastructure/intelligence/IsolatedDocumentParser.class": "cdcee9c7a1576b193fb8ff6d52332cbbe99934a44ee91d44d875fb47a303d0da",
+    "com/ruoyi/paismart/infrastructure/intelligence/ParserWorker$2.class": "c9718d1f6cc952561ab3e5ecb478c02b05472a0fee05713d9183b7912f24d9ca",
+    "com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor$ObjectData.class": "4539648b9aff11d1643d52feb267541c0db42b23abb70f37381a3584293df2ca",
+    "com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor$CellPosition.class": "eeea93866d86e91f617fe2151271c6621462b0c823324ac19f1e707eabd83208",
+    "com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor$Limits.class": "f22e7b0ae9377fc269d62d337c01caca97191eec49297a68d157394edd5ec1fb",
+    "com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor.class": "34349563241513540eff3ade0c6a84d002e04402ba5529bde45554f341934169",
+    "com/ruoyi/paismart/infrastructure/intelligence/ParserWorker$1.class": "6e8d7853d2bfed03f369135397ec4b713f592e44040bfe54b44df74dba69ff63",
+    "com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor$Slice.class": "d99caa3a19f1413d5aeff1ef10ba39967ddff5aca2409971e586256b69060349",
+    "com/ruoyi/paismart/infrastructure/intelligence/ParserWorker.class": "d7fb4782dea4459f4ed4acdcce38bb1a60ac0483c8bf8896123d5b4c7a2c5648",
+    "com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor$Cursor.class": "d6114e9a36596195a21afe7aa99a1cc0a0a7879717435be800d74bf4dc715e12",
+    "com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor$Message.class": "e1748ba74056a0fe3e479e0fa2f6efd89a4ada950c8c23c885837b27e95c1430",
+    "com/ruoyi/paismart/infrastructure/intelligence/IsolatedDocumentParser$Page.class": "a8d44db5e0c3e74110ff5e00ac165ef163ed17a2080bfe46e55a9103d8513ef5",
+    "com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor$Field.class": "ae59c77ea8b6c4e16e1ad57a36a34438f6c79ac96889b5a0f361e5870edc4200"
+  },
+  "historicalSourceImpact": [
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java",
+      "historicalSHA256": "88197707440d21466621d7bd1481f67ff839b81ae764aea7267c5b49d2f96c84",
+      "currentSHA256": "88197707440d21466621d7bd1481f67ff839b81ae764aea7267c5b49d2f96c84",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java",
+      "historicalSHA256": "d776c3ad402c02104f47ff18f7531b1faef6230fd6b86771ad2b939b5cbb04b6",
+      "currentSHA256": "d776c3ad402c02104f47ff18f7531b1faef6230fd6b86771ad2b939b5cbb04b6",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/InviteController.java",
+      "historicalSHA256": "4efa6f7106d7257ff03f69037c4a1778fac5c783ca19dad8ae993ac3be1ec38d",
+      "currentSHA256": "4efa6f7106d7257ff03f69037c4a1778fac5c783ca19dad8ae993ac3be1ec38d",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java",
+      "historicalSHA256": "ee521d3f7bcaa8c663166058eb4e95b332e5ee1cee10398510aaa7ffdf2e3d28",
+      "currentSHA256": "ee521d3f7bcaa8c663166058eb4e95b332e5ee1cee10398510aaa7ffdf2e3d28",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java",
+      "historicalSHA256": "5c01f322aa2ddc7be22360be1a99fb0bcacd61288002a94c8789007ba5b4c06f",
+      "currentSHA256": "399fcd9be774a3857ee65e25caef9f9f9b42582b8075fb9c929066ab1018b484",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/PaismartExceptionHandler.java",
+      "historicalSHA256": "6a36c5131d600ecdd38a53770414b168eaeea1f7e588e143392a0024a265683b",
+      "currentSHA256": "6a36c5131d600ecdd38a53770414b168eaeea1f7e588e143392a0024a265683b",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/PaismartTables.java",
+      "historicalSHA256": "0d8814659faf75262df6ca2a242a2cd84008dab01a548697a19bb3c0d9805b9e",
+      "currentSHA256": "0d8814659faf75262df6ca2a242a2cd84008dab01a548697a19bb3c0d9805b9e",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RateLimitController.java",
+      "historicalSHA256": "df0107be2a05f26eb590d623674d8623148a8f839ddc263ac8fc4af513cb27ea",
+      "currentSHA256": "df0107be2a05f26eb590d623674d8623148a8f839ddc263ac8fc4af513cb27ea",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java",
+      "historicalSHA256": "d06c08d199b020f35bc2f7f8a6a1a9f40b7276d22ae0d39417c46b04bce0d434",
+      "currentSHA256": "d06c08d199b020f35bc2f7f8a6a1a9f40b7276d22ae0d39417c46b04bce0d434",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java",
+      "historicalSHA256": "21fdc365e2f2b1522b01bcdef78cf5db2b2c700b05651427dee3841881e656c7",
+      "currentSHA256": "21fdc365e2f2b1522b01bcdef78cf5db2b2c700b05651427dee3841881e656c7",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java",
+      "historicalSHA256": "4cc9c237559caf2a8fdb6cbbae72d4629054c42a94aba9cc599265ff4f9de73e",
+      "currentSHA256": "4cc9c237559caf2a8fdb6cbbae72d4629054c42a94aba9cc599265ff4f9de73e",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java",
+      "historicalSHA256": "c40d90b924db5fc0cc3cbf2b4c122ea3983a4ccb749d6fe213003de58406b096",
+      "currentSHA256": "c40d90b924db5fc0cc3cbf2b4c122ea3983a4ccb749d6fe213003de58406b096",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/ModelBudgetService.java",
+      "historicalSHA256": "c86ece6cf1e2ef359779834ec7172860deefa30f21b0f3593597fbd918df695e",
+      "currentSHA256": "c86ece6cf1e2ef359779834ec7172860deefa30f21b0f3593597fbd918df695e",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java",
+      "historicalSHA256": "7441abb9a2ddb725921ada0de47e8289c9d9e05c60edfe27a8c72ced956399d3",
+      "currentSHA256": "7441abb9a2ddb725921ada0de47e8289c9d9e05c60edfe27a8c72ced956399d3",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/RateLimitExceededException.java",
+      "historicalSHA256": "8d32989517314f02341b4a1c19d8cdfabc5d90a0d5d6a0db462697ec7df9c7e1",
+      "currentSHA256": "8d32989517314f02341b4a1c19d8cdfabc5d90a0d5d6a0db462697ec7df9c7e1",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/RateLimitService.java",
+      "historicalSHA256": "cc3ba4a391f1d63d9ae958d12f2e4f301b7d1b29e852fab338bb5d37ecc66210",
+      "currentSHA256": "cc3ba4a391f1d63d9ae958d12f2e4f301b7d1b29e852fab338bb5d37ecc66210",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/RechargeService.java",
+      "historicalSHA256": "1b38b6332b3b8739cdf3c241acd5a6d351660cf2bb240d6004216353520ad533",
+      "currentSHA256": "1b38b6332b3b8739cdf3c241acd5a6d351660cf2bb240d6004216353520ad533",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/WechatPaymentGateway.java",
+      "historicalSHA256": "da8d2e1486c8f80c63eda5277c7c54116bfbaf9c604dca6245bc9d84c16778a3",
+      "currentSHA256": "da8d2e1486c8f80c63eda5277c7c54116bfbaf9c604dca6245bc9d84c16778a3",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/DocumentService.java",
+      "historicalSHA256": "11ecda35e293a660bfc8006ee90516e2757db0c06485f10ceb0426f9e25a9d82",
+      "currentSHA256": "57010aca217b19daed91d8d15bb77ea79562aaa3844d58af22cdecb2fc1d1ebd",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/UploadService.java",
+      "historicalSHA256": "d77e5e3f1cad1cc47b5e5c37eac21642432bbd9cd3671409538f9296e0a1fed3",
+      "currentSHA256": "d77e5e3f1cad1cc47b5e5c37eac21642432bbd9cd3671409538f9296e0a1fed3",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java",
+      "historicalSHA256": "0afeffbc628c176c210ba4e3182933f8421a730a858f662f857a30697a748371",
+      "currentSHA256": "a4f135b6a21916b3e07ce0b556c82cce238c168a47f6bef4c20d3477ec9cf89e",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/CitationExtractor.java",
+      "historicalSHA256": "37f280c88f81ff9a0d623a78d793cb5b95b64b67be55a400b3fcb47782f9d8dd",
+      "currentSHA256": "37f280c88f81ff9a0d623a78d793cb5b95b64b67be55a400b3fcb47782f9d8dd",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/CitationService.java",
+      "historicalSHA256": "cabd2ab598610d0a22845fac2e4b6da49fac3c152017fa4aa7eae10c31e541b5",
+      "currentSHA256": "cabd2ab598610d0a22845fac2e4b6da49fac3c152017fa4aa7eae10c31e541b5",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DependencyStatusService.java",
+      "historicalSHA256": "aa75c07d4b37d66dd0160c34e572745ef4af1a3e60a2f110394e7c279c6d1ace",
+      "currentSHA256": "aa75c07d4b37d66dd0160c34e572745ef4af1a3e60a2f110394e7c279c6d1ace",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+      "historicalSHA256": "76ee09ac906238597531fa6dd557d5e4f3f73a51510c49905562e07c93bd7c20",
+      "currentSHA256": "8416e7a47ea659a203182e4e20f20e7ff502b45e36e14edee56895d8ba76fd0e",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/EvaluationAlgorithms.java",
+      "historicalSHA256": "ce870ed7de69fe2af60658cf8518d5ea16cfe0da7403c728cc08486d8b7c21b1",
+      "currentSHA256": "ce870ed7de69fe2af60658cf8518d5ea16cfe0da7403c728cc08486d8b7c21b1",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+      "historicalSHA256": "10668d15cadfa1f6b4aad8700bf486ec70523358e11ba83206392d85ca20f5c5",
+      "currentSHA256": "66ef17f0f3ce5c17f9e74d1d804c6d615bc0580a7142c195165a2a10a22fc024",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/HumanReviewSampler.java",
+      "historicalSHA256": "700cd6561f387a5069d01de958087c0df9097734e8a98f0f64bee7171778bd1e",
+      "currentSHA256": "700cd6561f387a5069d01de958087c0df9097734e8a98f0f64bee7171778bd1e",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/IndexCoordinator.java",
+      "historicalSHA256": "12ff3bf3fe2f2d5b8b881d5ab5bc681ed7fef7e0e46511319a0fc76bc1649030",
+      "currentSHA256": "12ff3bf3fe2f2d5b8b881d5ab5bc681ed7fef7e0e46511319a0fc76bc1649030",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/KeyValueConflictAnalyzer.java",
+      "historicalSHA256": "1f76446744048637859368ca25a57863ab627f2758866e92574222d76257ab0a",
+      "currentSHA256": "1f76446744048637859368ca25a57863ab627f2758866e92574222d76257ab0a",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelCallService.java",
+      "historicalSHA256": "af1b39f7c2a833372c0a014775e5350a4b5028f3c52a0249e582c7b58d9f75a3",
+      "currentSHA256": "af1b39f7c2a833372c0a014775e5350a4b5028f3c52a0249e582c7b58d9f75a3",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelGateway.java",
+      "historicalSHA256": "e0c47695496ec516fddd3d95da4f6054afcf8f4480ca0cf1f81670d89e7d313c",
+      "currentSHA256": "e0c47695496ec516fddd3d95da4f6054afcf8f4480ca0cf1f81670d89e7d313c",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/OcrService.java",
+      "historicalSHA256": "22b1bf79f683dff4cb1d2053d40350f8286dcfc648bb92f973191a7430d07561",
+      "currentSHA256": "22b1bf79f683dff4cb1d2053d40350f8286dcfc648bb92f973191a7430d07561",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java",
+      "historicalSHA256": "9fea3db6344b8527fb60b321e6d56fef5a0d18bbee49be9077926353e3080b02",
+      "currentSHA256": "9fea3db6344b8527fb60b321e6d56fef5a0d18bbee49be9077926353e3080b02",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/RrfFusion.java",
+      "historicalSHA256": "3782249a8c9c341ad317eedc34ccd717acf00924324c439530d0cc9c5370881d",
+      "currentSHA256": "3782249a8c9c341ad317eedc34ccd717acf00924324c439530d0cc9c5370881d",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+      "historicalSHA256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705",
+      "currentSHA256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/TextChunker.java",
+      "historicalSHA256": "7aa0c995233bd37cb07b92437fcdfcddbccfeedfaa8be111432fca869a26b4aa",
+      "currentSHA256": "7aa0c995233bd37cb07b92437fcdfcddbccfeedfaa8be111432fca869a26b4aa",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/WebSocketTicketService.java",
+      "historicalSHA256": "59ea0cfa872ec2490ddb2e51fd5100316ad5b3372777ca059a0df0caee7ebc67",
+      "currentSHA256": "59ea0cfa872ec2490ddb2e51fd5100316ad5b3372777ca059a0df0caee7ebc67",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/InvitationService.java",
+      "historicalSHA256": "265a792b89cf543166dcd0478112eccd0f176d357a63c4edea9d67759c6eb938",
+      "currentSHA256": "265a792b89cf543166dcd0478112eccd0f176d357a63c4edea9d67759c6eb938",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/JobService.java",
+      "historicalSHA256": "5e0eb28469d1886a0a3be304da4ba54fb54b772bf5c334e3e8518a050fd45989",
+      "currentSHA256": "5f1c2f82a53b252131d5b7843714213afa73d67d61e2d695c38458384b54b43e",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/PaismartJobHandler.java",
+      "historicalSHA256": "5acd61061b557952cb3270528f5cf580b4852f8bbfbd32750602066537d4eeb2",
+      "currentSHA256": "e80bf4ad574eb7979211a1e7ec0d03504177d5b328dbdb9509d24e50a06c8539",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/MembershipService.java",
+      "historicalSHA256": "cd8b94a310cc1265608e3042d6d33899294d0e4c719c9a63ced6e05a2df22d7b",
+      "currentSHA256": "cd8b94a310cc1265608e3042d6d33899294d0e4c719c9a63ced6e05a2df22d7b",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/operations/OperationAccessService.java",
+      "historicalSHA256": "413d3e3c4874ae5e9b6fdec1659c6631994187f1208cd76d6ec8279b7c7fc88c",
+      "currentSHA256": "413d3e3c4874ae5e9b6fdec1659c6631994187f1208cd76d6ec8279b7c7fc88c",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/operations/OperationExecutionService.java",
+      "historicalSHA256": "0946076d176e4d21b46935150fbb906edfd7bce7c0f66547914f6e0bcd846b21",
+      "currentSHA256": "a5f44a73572a2212ca595c6b3bff70383e0d1eafc8b911974436b4a1fea9ae83",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/PaismartIdentity.java",
+      "historicalSHA256": "11488866d5fbe7199cceb9e80f548f5fafc6a37c495f0a27545f96e79ab980fc",
+      "currentSHA256": "11488866d5fbe7199cceb9e80f548f5fafc6a37c495f0a27545f96e79ab980fc",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/PaismartRegistrationExtension.java",
+      "historicalSHA256": "ba4b4a177e2dc3dfd56922b61a0e62c06f41a6c70fe121a82f9672745b8dcab1",
+      "currentSHA256": "ba4b4a177e2dc3dfd56922b61a0e62c06f41a6c70fe121a82f9672745b8dcab1",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/spaces/SpaceService.java",
+      "historicalSHA256": "5f6b44fbb192dd7316a5e22a09465932da7b250fb7a6eac0b2909ede62ebc141",
+      "currentSHA256": "5f6b44fbb192dd7316a5e22a09465932da7b250fb7a6eac0b2909ede62ebc141",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/configuration/IntelligenceConfiguration.java",
+      "historicalSHA256": "2af48a68a062a95fbce28e6d8b7ae5587f9045c0ee2ef06e6ed21e3296cfa578",
+      "currentSHA256": "2af48a68a062a95fbce28e6d8b7ae5587f9045c0ee2ef06e6ed21e3296cfa578",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/configuration/PaismartConfiguration.java",
+      "historicalSHA256": "411fcfb74b0617181a3581c28bbf6d57d5c4c2c6843327f6cd81ce1a797e16d4",
+      "currentSHA256": "411fcfb74b0617181a3581c28bbf6d57d5c4c2c6843327f6cd81ce1a797e16d4",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/configuration/PaismartEnabled.java",
+      "historicalSHA256": "d339fd2140b922e0227d457a1aa24fbe749c9ba192b3cf1b331b1d31264f168e",
+      "currentSHA256": "d339fd2140b922e0227d457a1aa24fbe749c9ba192b3cf1b331b1d31264f168e",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/configuration/PaismartRateLimitConfiguration.java",
+      "historicalSHA256": "f7a93544df28d290dae350b1812bf6b94d48249e863b39f253e1a0b945b96dde",
+      "currentSHA256": "f7a93544df28d290dae350b1812bf6b94d48249e863b39f253e1a0b945b96dde",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/ControlledHttp.java",
+      "historicalSHA256": "8e38ec50f89f3f40dbc812a8b3f0a514fa14f8445ec0cefad8ac0dd4d83696a8",
+      "currentSHA256": "8e38ec50f89f3f40dbc812a8b3f0a514fa14f8445ec0cefad8ac0dd4d83696a8",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/IntelligenceSettings.java",
+      "historicalSHA256": "b018addfef296f12dedc1fd96038ae183ed3f037328ab95dcbb4bf4cefa84eb3",
+      "currentSHA256": "b018addfef296f12dedc1fd96038ae183ed3f037328ab95dcbb4bf4cefa84eb3",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/IsolatedDocumentParser.java",
+      "historicalSHA256": "24244afc4540dfd8f8126211e42b27fdd881086e91e749a459b625500659deae",
+      "currentSHA256": "24244afc4540dfd8f8126211e42b27fdd881086e91e749a459b625500659deae",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/IworkBodyExtractor.java",
+      "historicalSHA256": "fff0ff5857138a64211475bd62c216c73edc1634aa97baea3003eb76ee049038",
+      "currentSHA256": "fff0ff5857138a64211475bd62c216c73edc1634aa97baea3003eb76ee049038",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/PaismartChatWebSocket.java",
+      "historicalSHA256": "e3f523a4086c20d775f649d525d6cda011274dcee94dda9e8b92dea6ccbdd45f",
+      "currentSHA256": "e3f523a4086c20d775f649d525d6cda011274dcee94dda9e8b92dea6ccbdd45f",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/ParserWorker.java",
+      "historicalSHA256": "90aace53bae7d09e3279ba151358a1443ae9b7afb7448ee88968311cdcc34d1e",
+      "currentSHA256": "90aace53bae7d09e3279ba151358a1443ae9b7afb7448ee88968311cdcc34d1e",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/Values.java",
+      "historicalSHA256": "0a15637474fb78f4c388db995a8693a715805311ea4528d9a2ebcd7ae5f69708",
+      "currentSHA256": "0a15637474fb78f4c388db995a8693a715805311ea4528d9a2ebcd7ae5f69708",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/Jsons.java",
+      "historicalSHA256": "21f50af5de05532ca3411e1012dbfe698e8ec1829ba3d69742b8dc2f00c85166",
+      "currentSHA256": "21f50af5de05532ca3411e1012dbfe698e8ec1829ba3d69742b8dc2f00c85166",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/KafkaConnectionSettings.java",
+      "historicalSHA256": "043ad11128d3c4e512305d4610a512e4f82ca931d6938d32141baadea452a51f",
+      "currentSHA256": "043ad11128d3c4e512305d4610a512e4f82ca931d6938d32141baadea452a51f",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/Numbers.java",
+      "historicalSHA256": "3ea0babaa93c3c9af926c991fc4033e194032b9bfefcad07ea3f608eeff5c0c1",
+      "currentSHA256": "3ea0babaa93c3c9af926c991fc4033e194032b9bfefcad07ea3f608eeff5c0c1",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/PaismartKafkaRuntime.java",
+      "historicalSHA256": "5c0e8429d9c4308c1226608260a5f9cd6e86fdfb53d7674b6f7a03e76a59560a",
+      "currentSHA256": "aef31c22bbe657cc400fe7fabb90388a669bf25c440af6281df7fd2c450916ca",
+      "unchanged": false
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/SchemaReadiness.java",
+      "historicalSHA256": "90bc0ecc82c5bca89c98b2bbc7165c2d97e926316ee3ab9904de88873a16212f",
+      "currentSHA256": "90bc0ecc82c5bca89c98b2bbc7165c2d97e926316ee3ab9904de88873a16212f",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/storage/DocumentObjectStore.java",
+      "historicalSHA256": "220de2f16da0bab054071b64ed6993d99b4d1dd46442559866000733832b7f59",
+      "currentSHA256": "220de2f16da0bab054071b64ed6993d99b4d1dd46442559866000733832b7f59",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/storage/LegacyMinioObjectSource.java",
+      "historicalSHA256": "736f7a4dd685f5da38e68aee0c0bf2115138c7c5c481fac94bc7855ec109f89a",
+      "currentSHA256": "736f7a4dd685f5da38e68aee0c0bf2115138c7c5c481fac94bc7855ec109f89a",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/storage/LegacyObjectSource.java",
+      "historicalSHA256": "2a26525fdc5a4fe5ffd6e12696dd9e92b2e44975ee940d6d60e5681d046a6416",
+      "currentSHA256": "2a26525fdc5a4fe5ffd6e12696dd9e92b2e44975ee940d6d60e5681d046a6416",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/storage/MinioDocumentObjectStore.java",
+      "historicalSHA256": "47f77fbf12a584c3cf4d2bd6729c922f2c66a2f15d801109b6b421b527404b7e",
+      "currentSHA256": "47f77fbf12a584c3cf4d2bd6729c922f2c66a2f15d801109b6b421b527404b7e",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/application-paismart.yml",
+      "historicalSHA256": "4ceba9aed40f184b1542f2925665c2407d14877415efac21b9b1223780d1ec4f",
+      "currentSHA256": "4ceba9aed40f184b1542f2925665c2407d14877415efac21b9b1223780d1ec4f",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/db/paismart/V001__control_billing_jobs.sql",
+      "historicalSHA256": "2f8a08c0a700e4750d1ea2bef46bd4e84a2ccfe071e8f1fff8cc01d0891f36bc",
+      "currentSHA256": "2f8a08c0a700e4750d1ea2bef46bd4e84a2ccfe071e8f1fff8cc01d0891f36bc",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/db/paismart/V002__documents_spaces.sql",
+      "historicalSHA256": "7e1efffb047b4ecbc5c96dcf7c5d5f5e8c7406702dc17bba17edb5c319cafdd1",
+      "currentSHA256": "7e1efffb047b4ecbc5c96dcf7c5d5f5e8c7406702dc17bba17edb5c319cafdd1",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/db/paismart/V003__intelligence.sql",
+      "historicalSHA256": "26334a7ed8ccbab556fef08d3c05a8ba2183386940a351763afbe6d852b3cc50",
+      "currentSHA256": "26334a7ed8ccbab556fef08d3c05a8ba2183386940a351763afbe6d852b3cc50",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/db/paismart/V004__operations_migration_receipts.sql",
+      "historicalSHA256": "d438fbbe7ad2adb858838df0f0034ec7f8ee5a5488e91c23a426ed7525c0c621",
+      "currentSHA256": "d438fbbe7ad2adb858838df0f0034ec7f8ee5a5488e91c23a426ed7525c0c621",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/db/paismart/V005__evaluation_datasets.sql",
+      "historicalSHA256": "26a00ff97d9c055c0d54285af9199a124b544397f98ee798e808fb15a2768748",
+      "currentSHA256": "26a00ff97d9c055c0d54285af9199a124b544397f98ee798e808fb15a2768748",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/db/paismart-menu/菜单增量预演.sql",
+      "historicalSHA256": "cbc029644b6c58045febf751bd37cb3b5e7de0ffdf6b21b4a328b57307eae3e2",
+      "currentSHA256": "cbc029644b6c58045febf751bd37cb3b5e7de0ffdf6b21b4a328b57307eae3e2",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/eval/NOTICE.txt",
+      "historicalSHA256": "8a26838b852e3bdfb726ed6824626ac3fef6aee4a42bc1d6c04b8bb7b56d9bc6",
+      "currentSHA256": "8a26838b852e3bdfb726ed6824626ac3fef6aee4a42bc1d6c04b8bb7b56d9bc6",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/eval/sample-eval.jsonl",
+      "historicalSHA256": "42ce93fd1e8539742cbe53e94ac5478647194aacef223b3ed92066d33c3803fc",
+      "currentSHA256": "42ce93fd1e8539742cbe53e94ac5478647194aacef223b3ed92066d33c3803fc",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/META-INF/LICENSE-PaiSmart",
+      "historicalSHA256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "currentSHA256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "unchanged": true
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/resources/META-INF/NOTICE-PaiSmart.txt",
+      "historicalSHA256": "02ba6a1b005b080a38b8371d386375f8888490207ee44949fe81c6beaa95d72a",
+      "currentSHA256": "02ba6a1b005b080a38b8371d386375f8888490207ee44949fe81c6beaa95d72a",
+      "unchanged": true
+    }
+  ],
+  "checks": {
+    "testSourcesCopied": false,
+    "mavenTestsSkipped": true,
+    "currentBusinessAcceptanceExecuted": 0,
+    "freshUnitComponentIntegrationParserMigrationTests": 0
+  },
+  "frontend": {
+    "output": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart-logic-20261003-373ca66f2b0a\\frontend-dist",
+    "indexSHA256": "a3acc42578e9cd852e098f028fd0c7a93ea24a582b8324450a80b94af19b0b30"
+  },
+  "dependencies": [
+    {
+      "file": "alibabacloud-gateway-spi-0.0.2.jar",
+      "sha256": "3e0b60a2ceac39134a4ae39cdb6e175e14175d9361cb8eefd07a29746f05bf05"
+    },
+    {
+      "file": "angus-activation-2.0.3.jar",
+      "sha256": "a6bd35c538cf90fff941ad6258c40c08fca0b5c9c3f536c657114f27ce0527a7"
+    },
+    {
+      "file": "annotations-13.0.jar",
+      "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478"
+    },
+    {
+      "file": "apache-mime4j-core-0.8.14.jar",
+      "sha256": "3de93d59ec90002bfa475b916c603a196a77d18b71e99df8ac36da646f4de236"
+    },
+    {
+      "file": "apache-mime4j-dom-0.8.14.jar",
+      "sha256": "2093db3bf99b38a89522b0a47296461e1220cc38d35bdcc75973e776978c1f2a"
+    },
+    {
+      "file": "asm-9.10.1.jar",
+      "sha256": "ed825d10ab1399c8c0cb669e688cf0c8c82629b4c8399b58352b68e92ca10fcb"
+    },
+    {
+      "file": "aspectjweaver-1.9.25.1.jar",
+      "sha256": "4fe86fdc18faea571f29129c70eaad5d121363504a06d7907be88f6c60ba3116"
+    },
+    {
+      "file": "bcjmail-jdk18on-1.85.jar",
+      "sha256": "05e7f20cfeea3b8b896109c37a620784a3e73dc17c12c5b0fa2d570acee5811e"
+    },
+    {
+      "file": "bcpkix-jdk18on-1.85.jar",
+      "sha256": "c9f82b2d4e99c4bbdfccf684e52cc06ea06a0b567bfd0d08f9c5a3f417055996"
+    },
+    {
+      "file": "bcprov-jdk18on-1.85.jar",
+      "sha256": "20af26bf6060bb8005cc2389916812c1e0e998dc48d2ced7131b89461b54cff7"
+    },
+    {
+      "file": "bcutil-jdk18on-1.85.jar",
+      "sha256": "590f55ed5d68529239898a4a5c4f730b6e37f45d1cfa3fbe51f8485abe32c42d"
+    },
+    {
+      "file": "caffeine-3.2.3.jar",
+      "sha256": "ca70c90a5d1ce1511880ce9c93d4ad22108f61111d3daf91eb52762b571bd179"
+    },
+    {
+      "file": "classmate-1.7.3.jar",
+      "sha256": "75fbda45456f123fb6e2028a6189442d8d0730b357adce4c0a6d7e789f70669b"
+    },
+    {
+      "file": "commons-codec-1.19.0.jar",
+      "sha256": "5c3881e4f556855e9c532927ee0c9dfde94cc66760d5805c031a59887070af5f"
+    },
+    {
+      "file": "commons-collections4-4.5.0.jar",
+      "sha256": "00f93263c267be201b8ae521b44a7137271b16688435340bf629db1bac0a5845"
+    },
+    {
+      "file": "commons-compress-1.28.0.jar",
+      "sha256": "e1522945218456f3649a39bc4afd70ce4bd466221519dba7d378f2141a4642ca"
+    },
+    {
+      "file": "commons-csv-1.14.1.jar",
+      "sha256": "32be0e1e76673092f5d12cb790bd2acb6c2ab04c4ea6efc69ea5ee17911c24fe"
+    },
+    {
+      "file": "commons-exec-1.6.0.jar",
+      "sha256": "13dcf3850478ef8de5d24d298a60eed5e8305eb20538fe632c82ea1dff6b5ea0"
+    },
+    {
+      "file": "commons-io-2.22.0.jar",
+      "sha256": "2b9a7b1f726fb86216dbd2c8321eabe0221dbd5b1be81c18e1cb53811b104758"
+    },
+    {
+      "file": "commons-lang3-3.19.0.jar",
+      "sha256": "32733ab4bc90b45b63eb72677d886961003fd4ed113e07b1028f9877cb2ac735"
+    },
+    {
+      "file": "commons-logging-1.3.6.jar",
+      "sha256": "f8ead8943401081dea0aa824b5b1ba40a0e4ed297a572a0f02258150a0b62357"
+    },
+    {
+      "file": "commons-math3-3.6.1.jar",
+      "sha256": "1e56d7b058d28b65abd256b8458e3885b674c1d588fa43cd7d1cbb9c7ef2b308"
+    },
+    {
+      "file": "commons-pool2-2.12.1.jar",
+      "sha256": "5273c8bc8c0dca2211175c0d27efbd7228efae99689aac001a8e1ef8e872e9ef"
+    },
+    {
+      "file": "core-3.5.3.jar",
+      "sha256": "8d8064c1636fdaef7189dd9055c7d59950a8940a12f2293956446ec3c109fd82"
+    },
+    {
+      "file": "credentials-api-1.0.0.jar",
+      "sha256": "b2df5607bcab99ad58edee0425c2ead16c20f9d54e53935a7a635556ad83c8ff"
+    },
+    {
+      "file": "credentials-java-1.0.1.jar",
+      "sha256": "0f7d3909b451fdb7f382058e3f0b74450678848fdc6f30f4914069ab9cc8cd76"
+    },
+    {
+      "file": "curvesapi-1.08.jar",
+      "sha256": "ad95b08b8bbf9d7d17e5e00814898fa23324f32bc5b62f1a37801e6a56ce0079"
+    },
+    {
+      "file": "dd-plist-1.29.jar",
+      "sha256": "ac0fd09594a58dcff566837b2f1d7456a4ce701e2a4b2482d96981527880e96a"
+    },
+    {
+      "file": "dec-0.1.2.jar",
+      "sha256": "615c0c3efef990d77831104475fba6a1f7971388691d4bad1471ad84101f6d52"
+    },
+    {
+      "file": "dom4j-2.0.3.jar",
+      "sha256": "b9ee0981b983ff71605c63cae5c12e0e5facb030bc1c1cd586447e28afc2876e"
+    },
+    {
+      "file": "druid-1.2.28.jar",
+      "sha256": "c4cec3792390a2bbe6020d59be52160fd38d15de0f00dc52702eb91128c695a5"
+    },
+    {
+      "file": "druid-spring-boot-4-starter-1.2.28.jar",
+      "sha256": "022a30eba4ba8270de13aa1c20f8712831ccbbfc8c677ba9a54671eedb1f0a5e"
+    },
+    {
+      "file": "endpoint-util-0.0.7.jar",
+      "sha256": "f61b4c0d05116f4fbce18c844723f6a5eb127e8a0467788791d15c683ad3f4d4"
+    },
+    {
+      "file": "error_prone_annotations-2.36.0.jar",
+      "sha256": "77440e270b0bc9a249903c5a076c36a722c4886ca4f42675f2903a1c53ed61a5"
+    },
+    {
+      "file": "failureaccess-1.0.3.jar",
+      "sha256": "cbfc3906b19b8f55dd7cfd6dfe0aa4532e834250d7f080bd8d211a3e246b59cb"
+    },
+    {
+      "file": "fastjson2-2.0.64.jar",
+      "sha256": "c3de8edf8705981deaf53f344c01544479f6db6925968bf934e3b9ef6f0b1f98"
+    },
+    {
+      "file": "filters-2.0.235-1.jar",
+      "sha256": "a37202f03eae99ab1faf2a89eeaee3665c8489f45b1aeb0d5926d78a54c613bf"
+    },
+    {
+      "file": "fontbox-3.0.8.jar",
+      "sha256": "a1915c24e3edbe0ecec93896dfbf6d41427810b663ade97bd4e8bae86ec3fdab"
+    },
+    {
+      "file": "gson-2.13.2.jar",
+      "sha256": "dd0ce1b55a3ed2080cb70f9c655850cda86c206862310009dcb5e5c95265a5e0"
+    },
+    {
+      "file": "guava-33.4.8-jre.jar",
+      "sha256": "f3d7f57f67fd622f4d468dfdd692b3a5e3909246c28017ac3263405f0fe617ed"
+    },
+    {
+      "file": "hibernate-validator-9.0.1.Final.jar",
+      "sha256": "25f40118fa4c50f8522d090d25d52d5a38953b0ccd1250835f052e7bd3164ce0"
+    },
+    {
+      "file": "HikariCP-7.0.2.jar",
+      "sha256": "f1e612fa27345be3107a85431e8a8aeb205c15364ab2f2d411e40a9d7bb08095"
+    },
+    {
+      "file": "httpclient-4.5.13.jar",
+      "sha256": "6fe9026a566c6a5001608cf3fc32196641f6c1e5e1986d1037ccdbd5f31ef743"
+    },
+    {
+      "file": "httpcore-4.4.16.jar",
+      "sha256": "6c9b3dd142a09dc468e23ad39aad6f75a0f2b85125104469f026e52a474e464f"
+    },
+    {
+      "file": "httpmime-4.5.13.jar",
+      "sha256": "06e754d99245b98dcc2860dcb43d20e737d650da2bf2077a105f68accbd5c5cc"
+    },
+    {
+      "file": "istack-commons-runtime-4.1.2.jar",
+      "sha256": "7fd6792361f4dd00f8c56af4a20cecc0066deea4a8f3dec38348af23fc2296ee"
+    },
+    {
+      "file": "j2objc-annotations-3.0.0.jar",
+      "sha256": "88241573467ddca44ffd4d74aa04c2bbfd11bf7c17e0c342c94c9de7a70a7c64"
+    },
+    {
+      "file": "jackcess-4.0.11.jar",
+      "sha256": "de4e6daafd27163ab4f8f3fdb086f9a5a5e2044d93db24d00eebe9946bf09f7d"
+    },
+    {
+      "file": "jackcess-encrypt-4.0.3.jar",
+      "sha256": "d40a7871ac1dc6343cd2e433c3ee484eb59cdff728b7a1e22dcfc8b3f400a18a"
+    },
+    {
+      "file": "jackson-annotations-2.21.jar",
+      "sha256": "53ca085f4a150f703f49e1aabd935bd03b43e1ea3d55d135438292af22cef56b"
+    },
+    {
+      "file": "jackson-core-2.21.2.jar",
+      "sha256": "12e8655b100267b44d0f14d01b1f5082a5105e616174dc4307be1a761e92407b"
+    },
+    {
+      "file": "jackson-core-3.1.2.jar",
+      "sha256": "bbb00763f5998f03a26f21e47ed500f253c7fc5c158fa3e8a41dbf97aa7416fd"
+    },
+    {
+      "file": "jackson-databind-2.21.2.jar",
+      "sha256": "8c982f01f148d805f0aaac2339011244757e0df7c6ff8951f2fa3f433b8ed849"
+    },
+    {
+      "file": "jackson-databind-3.1.2.jar",
+      "sha256": "0a366b1c2f6321e466c2970847b1251a5dc7201b680f320594230b77bfc8ddb2"
+    },
+    {
+      "file": "jai-imageio-core-1.4.0.jar",
+      "sha256": "8ad3c68e9efffb10ac87ff8bc589adf64b04a729c5194c079efd0643607fd72a"
+    },
+    {
+      "file": "jakarta.activation-api-2.1.4.jar",
+      "sha256": "c9db52100ce6c8aac95cc39075f95720d2e561b11f8051b81c121ad4effd7004"
+    },
+    {
+      "file": "jakarta.annotation-api-3.0.0.jar",
+      "sha256": "b01f55552284cfb149411e64eabca75e942d26d2e1786b32914250e4330afaa2"
+    },
+    {
+      "file": "jakarta.servlet-api-6.1.0.jar",
+      "sha256": "8a31f465f3593bf2351531a5c952014eb839da96a605b5825b93dd54714c48c4"
+    },
+    {
+      "file": "jakarta.validation-api-3.1.1.jar",
+      "sha256": "63ce00156388c365f3ac1be71fcfaf114682fc0c452020b5df6e7ec236e142ab"
+    },
+    {
+      "file": "jakarta.xml.bind-api-4.0.4.jar",
+      "sha256": "c507ca69a8c6dd11bf4afeec9e0d412c4fa3933fffb0a84680ea5727e8472124"
+    },
+    {
+      "file": "java-libpst-0.9.3.jar",
+      "sha256": "039cd61635ded94dba67f909d3b1763e13f9c23d02f9750eb6259af10e1dabdb"
+    },
+    {
+      "file": "javax.activation-api-1.2.0.jar",
+      "sha256": "43fdef0b5b6ceb31b0424b208b930c74ab58fac2ceeb7b3f6fd3aeb8b5ca4393"
+    },
+    {
+      "file": "jaxb-api-2.3.1.jar",
+      "sha256": "88b955a0df57880a26a74708bc34f74dcaf8ebf4e78843a28b50eae945732b06"
+    },
+    {
+      "file": "jaxb-core-4.0.6.jar",
+      "sha256": "ebbd274207b4860d0dc6e2d44d6dbdb5945cede01222d2e50661d45f5d46c0f7"
+    },
+    {
+      "file": "jaxb-runtime-4.0.6.jar",
+      "sha256": "1c0d57f8c25f9605d5a2f7ad0a87581893776ac85b00b101b2651258edaa9118"
+    },
+    {
+      "file": "jbig2-imageio-3.0.5.jar",
+      "sha256": "d426cc8b6ac211dd5ffd120a86a65e55ae65d808c818207c1261bc1880b42653"
+    },
+    {
+      "file": "jboss-logging-3.6.3.Final.jar",
+      "sha256": "7c12ee575508f81e22b1db9334b969d0ec54ef0fd1dcba24eeab1a44235fc366"
+    },
+    {
+      "file": "jcl-over-slf4j-2.0.17.jar",
+      "sha256": "affd06771589ebfe454bb11315a4f466ecaa135b95f3e7939534cf1d2fd7064c"
+    },
+    {
+      "file": "jdom2-2.0.6.1.jar",
+      "sha256": "0b20f45e3a0fd8f0d12cdc5316b06776e902b1365db00118876f9175c60f302c"
+    },
+    {
+      "file": "jempbox-1.8.17.jar",
+      "sha256": "ded9c81038dd1bbcba18f07e1028d70c9ceaf0b48ac56cea8ab6ec2c255fc1b3"
+    },
+    {
+      "file": "jhighlight-1.1.1.jar",
+      "sha256": "eb53b74cb90817d62147ac5b68add72cd4b361c91a27ea845bb0b16ae929a8b6"
+    },
+    {
+      "file": "jjwt-0.9.1.jar",
+      "sha256": "56e254d6a8d2306dc93e9ae2d81bf841481637f98b84847470c06cf71160d143"
+    },
+    {
+      "file": "jmatio-1.5.jar",
+      "sha256": "70db8cf9a1818072f290fd464f14a8369c9c58993e6640128a6e8a6379d67ac7"
+    },
+    {
+      "file": "jna-jpms-5.19.0.jar",
+      "sha256": "e6b2fce5fddac0259ca72b7e5aa63e31ab712408404280a564726a4c31037dc8"
+    },
+    {
+      "file": "jna-platform-jpms-5.19.0.jar",
+      "sha256": "59201e3b0778178995254b932c22739f7faa7990bfcd69b80ca6f2811a961889"
+    },
+    {
+      "file": "jsoup-1.22.2.jar",
+      "sha256": "596785996d3c6df16f544c232d10a9a1d88783b2a4740cf5251cb616f2be704d"
+    },
+    {
+      "file": "jspecify-1.0.0.jar",
+      "sha256": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab"
+    },
+    {
+      "file": "jsqlparser-4.7.jar",
+      "sha256": "9d25de1d79a669352f0d535daee906c2e35e8162e6894d82ea3f0aad8545655e"
+    },
+    {
+      "file": "jsr305-3.0.2.jar",
+      "sha256": "766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7"
+    },
+    {
+      "file": "jul-to-slf4j-2.0.17.jar",
+      "sha256": "a7afcd23b9cfd1475e55c94f943b808c5922035e7e2c2a5c65a487a4106bc538"
+    },
+    {
+      "file": "juniversalchardet-2.5.0.jar",
+      "sha256": "ceb271653ed99e15ffe52e4aedecdef8918434f19a4378a67f7ebe0ea8439058"
+    },
+    {
+      "file": "junrar-7.6.0.jar",
+      "sha256": "2fe2f89104f7fa7f4d525159718b9a52927e208c45ffdaaf55355264e207ed8b"
+    },
+    {
+      "file": "jwarc-0.36.0.jar",
+      "sha256": "b472300077903e33c1efcb05d94e62bef8abe3179c6166c9597e6ec6d7c426da"
+    },
+    {
+      "file": "kafka-clients-4.1.2.jar",
+      "sha256": "afe861c05067f4018a3148d73c1ed1e5fc90808757c15b043527d7e535a5d431"
+    },
+    {
+      "file": "kaptcha-2.3.3.jar",
+      "sha256": "07392d157572697476d7cd8bee12cca702e2858eb3a1a82510eec329205cded3"
+    },
+    {
+      "file": "kotlin-stdlib-2.2.21.jar",
+      "sha256": "6558a3d233da56a20934b32159f9db5f86ed5816ef098f78a2c223dc6abb79dd"
+    },
+    {
+      "file": "lettuce-core-6.8.2.RELEASE.jar",
+      "sha256": "40a55075d5f26fdb204063a33e74b36dc04adc4843ffec2458dcddc150a9fd01"
+    },
+    {
+      "file": "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
+      "sha256": "b372a037d4230aa57fbeffdef30fd6123f9c0c2db85d0aced00c91b974f33f99"
+    },
+    {
+      "file": "log4j-api-2.25.4.jar",
+      "sha256": "c4b642a7f047275215de117e0e3847eb2c7711d84a0aa7433e7b3c096daf341d"
+    },
+    {
+      "file": "log4j-to-slf4j-2.25.4.jar",
+      "sha256": "d7b78fc0aaaa5e8ada388b29d718b0ab187e512965bed0b259bb4ab299f13db2"
+    },
+    {
+      "file": "logback-classic-1.5.32.jar",
+      "sha256": "2d4cf592db78be2de4d6140434c2fec170dcb16a09e8c8b7b207dbf5e31b848a"
+    },
+    {
+      "file": "logback-core-1.5.32.jar",
+      "sha256": "6a904d5778d0e361a9692f9cbe68b1b0620ae0f3eda2ec2ed09102755bf036c4"
+    },
+    {
+      "file": "lz4-java-1.10.1.jar",
+      "sha256": "a58a84c4271e50df4c96ed916ccb7e48a869f8ed9cdcda1ad5d3d4c33b0214a3"
+    },
+    {
+      "file": "metadata-extractor-2.20.0.jar",
+      "sha256": "794832c28c66993692cf83e3eacc280430089a4cd6e600d4e149ccd62a291c91"
+    },
+    {
+      "file": "micrometer-commons-1.16.5.jar",
+      "sha256": "b0cc8c620453ef71e22d6c4ec5c496cc112f964b4e826b9f87182fc97512c8f9"
+    },
+    {
+      "file": "micrometer-observation-1.16.5.jar",
+      "sha256": "4406f33535185ff896375e9a81a4b8694e28bf20c1089b24de0325d87f63dfe7"
+    },
+    {
+      "file": "minio-8.6.0.jar",
+      "sha256": "295b5aec09e39ac4456a94577763477b025c3861d1dde0d23af8223432c80a77"
+    },
+    {
+      "file": "mybatis-3.5.19.jar",
+      "sha256": "93eea616ae355751bd5fbabb57f0732713fbe79f3196f33c51a0aeeb4255862a"
+    },
+    {
+      "file": "mybatis-spring-4.0.0.jar",
+      "sha256": "53d57084e5c6c6fae60b25576f35ab69cd24c2ecd03c420dbfa98819cba7ff08"
+    },
+    {
+      "file": "mybatis-spring-boot-autoconfigure-4.0.1.jar",
+      "sha256": "8614355026750ff2311040199ebdea4315b0168d3c60ab0f7c5e9ae63442f10a"
+    },
+    {
+      "file": "mybatis-spring-boot-starter-4.0.1.jar",
+      "sha256": "b9aac0663bc41015371135c60f44efbd5e4ea1ae5aaca61220272e54a9e750ce"
+    },
+    {
+      "file": "netty-buffer-4.2.12.Final.jar",
+      "sha256": "20dffa0e42c7b90b8c114d00c73bdf8f8ff5b363e3180b449359b2609e339561"
+    },
+    {
+      "file": "netty-codec-base-4.2.12.Final.jar",
+      "sha256": "ea267e1006386fa24c40089e97740904095bbadd9e5014d2e953907816df9e25"
+    },
+    {
+      "file": "netty-codec-dns-4.2.12.Final.jar",
+      "sha256": "7473c1979ff6502ca014632a1f5ba609c756cf056c2b90d6871b761e3479326b"
+    },
+    {
+      "file": "netty-common-4.2.12.Final.jar",
+      "sha256": "9b03e4d08ef4c3e4e97065186fd3e1485301532ef4303f9fc29049dd13475b8d"
+    },
+    {
+      "file": "netty-handler-4.2.12.Final.jar",
+      "sha256": "78fa734626bc67cef39191d1284325d95400e1efcb1b3fe75b59af3fab6992d9"
+    },
+    {
+      "file": "netty-resolver-4.2.12.Final.jar",
+      "sha256": "533be5715f97b5a3409844c095b8dd4ab7e2988fd1920cd82545873dddc812ca"
+    },
+    {
+      "file": "netty-resolver-dns-4.2.12.Final.jar",
+      "sha256": "50c1e2539053c747db2d276d2d69bfaaabded9f644dc40ecc0b175e0f863fad7"
+    },
+    {
+      "file": "netty-transport-4.2.12.Final.jar",
+      "sha256": "5add99236edf95d005d429bc0cb9748678749b5b01fd69557aa7f63b6232fea8"
+    },
+    {
+      "file": "netty-transport-native-unix-common-4.2.12.Final.jar",
+      "sha256": "18ab01d6ba0f44bb2a4393020a30f3a1f53998ea0c6e29d5076b6b652d4c9023"
+    },
+    {
+      "file": "ocr_api20210707-3.1.3.jar",
+      "sha256": "21f7ffeb0c5777f472e6c32242167f5e3454b2c3e3c6ac3af8ae4187ec292305"
+    },
+    {
+      "file": "okhttp-5.1.0.jar",
+      "sha256": "e720a383fdc3eb1df4aac77a085e61b7730837364151de867093fdbcafcb44aa"
+    },
+    {
+      "file": "okhttp-jvm-5.1.0.jar",
+      "sha256": "a6aac7f15d3c2c3cbd2af7ecf56f97407164a604b2db879529950e31cea699b2"
+    },
+    {
+      "file": "okio-3.15.0.jar",
+      "sha256": "0ed4125e048c86af7ece446d654f2ba8bcc5e74d0ae1f4de3c5dc0ad9a975e2d"
+    },
+    {
+      "file": "okio-jvm-3.15.0.jar",
+      "sha256": "483dc383b1049d220892322a0d6a4308425f09bb05b48c43d4eaa9ff82b1cd16"
+    },
+    {
+      "file": "openapiutil-0.2.2.jar",
+      "sha256": "ec22942081a9a2aa43584256bdbeec4333a484a35f53028e56f1295a09c748b9"
+    },
+    {
+      "file": "org.jacoco.agent-0.8.4-runtime.jar",
+      "sha256": "1a7c1dc7280e535b9b6f383915bac5afbb9208c1af2019b4e674ca590c925c22"
+    },
+    {
+      "file": "oshi-common-7.3.0.jar",
+      "sha256": "5a2c34eca2bf8abc88457b8cad6a18b959f5646ad7902c88d4a4d86df77b1d70"
+    },
+    {
+      "file": "oshi-core-7.3.0.jar",
+      "sha256": "75751800ddb13e96929cfee0854184291acd31f2c88b1f60e4d2013ef52715b0"
+    },
+    {
+      "file": "pagehelper-6.1.1.jar",
+      "sha256": "88ff09d298c40d3c6207157cf987bb2e9d3dd755851018de208f8b4944bd1926"
+    },
+    {
+      "file": "pagehelper-spring-boot-autoconfigure-4.1.0.jar",
+      "sha256": "1e1848b243cf3f8fa72d34ba57022219db78df72813f09f33ba2875138545dd6"
+    },
+    {
+      "file": "pagehelper-spring-boot-starter-4.1.0.jar",
+      "sha256": "cd6e8024d18fc9758843943634308db80c485fd88cdaa6f3e80da8821d1963ef"
+    },
+    {
+      "file": "parso-2.0.14.jar",
+      "sha256": "3b7e7a32915e04caed5dba31be1430aa57b4f9fa2b3d0ab0ed29067510d16575"
+    },
+    {
+      "file": "pdfbox-3.0.8.jar",
+      "sha256": "97647cfbde61ebcfc06b4cf8c9b0ffcaaee073396eceb4a7f6836a9b9128903c"
+    },
+    {
+      "file": "pdfbox-io-3.0.8.jar",
+      "sha256": "36a0e04001010b4c764857817412b96339930b19755e728959805cc0352061b2"
+    },
+    {
+      "file": "pdfbox-tools-3.0.8.jar",
+      "sha256": "73091ece9b8a15bc7f946c224aaec2f7b3104b4c24f1978122ddd452ddc0a578"
+    },
+    {
+      "file": "picocli-4.7.7.jar",
+      "sha256": "f86e30fffd10d2b13b8caa8d4b237a7ee61f2ffccf5b1941de718b765d235bf8"
+    },
+    {
+      "file": "poi-5.5.1.jar",
+      "sha256": "6c52e876ca75775a11b56e4b36a7541f682827f56406725fcd87560b792ee3d8"
+    },
+    {
+      "file": "poi-ooxml-5.5.1.jar",
+      "sha256": "bd7be2fdfe3fd2c1684fa813351c2798fd636b44f6236e0674500d4f8ff1c2f9"
+    },
+    {
+      "file": "poi-ooxml-full-5.5.1.jar",
+      "sha256": "dbc7c6e6108ceb9f151c2fc866a2b287d48af3a10b05425da21315eec16ce022"
+    },
+    {
+      "file": "poi-ooxml-lite-5.5.1.jar",
+      "sha256": "e6e37adeb6d6ee8b40ec491ad955d934d8f99827ab050f105b18286e59b1d9e7"
+    },
+    {
+      "file": "poi-scratchpad-5.5.1.jar",
+      "sha256": "24c3f407eff517432d5cfd5628b6b8a091f94c1dbb7481384599b5a0fbeedeb9"
+    },
+    {
+      "file": "prefixmap-2.1.0.jar",
+      "sha256": "562d660e9a0874099f640c1b1366d5613fadde58064d036e0d9078e2b044be92"
+    },
+    {
+      "file": "reactive-streams-1.0.4.jar",
+      "sha256": "f75ca597789b3dac58f61857b9ac2e1034a68fa672db35055a8fb4509e325f28"
+    },
+    {
+      "file": "reactor-core-3.8.5.jar",
+      "sha256": "c4a1cc8bce7f5e743ad6b34dcf2ca0b101f4b92d564fe7e006455324be625281"
+    },
+    {
+      "file": "redis-authx-core-0.1.1-beta2.jar",
+      "sha256": "cc56edb08b3df8562cddac108dca61907d21cc4ad04de05e9f5d1b01058390af"
+    },
+    {
+      "file": "rome-2.1.0.jar",
+      "sha256": "d4e0bb6857a25ee15e2082be6e83e1da897cfbabb025bfe01ae00346d7db7c78"
+    },
+    {
+      "file": "rome-utils-2.1.0.jar",
+      "sha256": "6e1c3b022dff4cf7492acddbba22356f424ade3d869a42a2a4d74a28454334a4"
+    },
+    {
+      "file": "ruoyi-common-3.9.2.jar",
+      "sha256": "3dd49f560c84b80ba3d2d91a91d3a9c15811eea7a36c5bc22a3a56aabaef4738"
+    },
+    {
+      "file": "ruoyi-framework-3.9.2.jar",
+      "sha256": "8b8b55a735e7e141aca2a12e1913adbe60411e11cf2002a1b0392fe45e77baae"
+    },
+    {
+      "file": "ruoyi-system-3.9.2.jar",
+      "sha256": "3f796315dba3098304b2a9d3498c1c01700c9f5549d10f089eb63472df8b8a0d"
+    },
+    {
+      "file": "simple-xml-safe-2.7.1.jar",
+      "sha256": "4506e4bb57d41481936f0ac684468ca4b2cc9e002ca8466ee19e23228d455957"
+    },
+    {
+      "file": "slf4j-api-2.0.17.jar",
+      "sha256": "7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832"
+    },
+    {
+      "file": "snakeyaml-2.5.jar",
+      "sha256": "e6682acf1ace77508ef13649cbf4f8d09d2cf5457bdb61d25ffb6ac0233d78dd"
+    },
+    {
+      "file": "snappy-java-1.1.10.7.jar",
+      "sha256": "4c766cb3f855415ee734b2392949a0b6f12a60879334a74518deaf6270d32e36"
+    },
+    {
+      "file": "SparseBitSet-1.3.jar",
+      "sha256": "f76b85adb0c00721ae267b7cfde4da7f71d3121cc2160c9fc00c0c89f8c53c8a"
+    },
+    {
+      "file": "spring-aop-7.0.7.jar",
+      "sha256": "c0503b7f318368f37f0d0e0557f65e572cebdf61cf9c318a7cbcad7824b0f284"
+    },
+    {
+      "file": "spring-beans-7.0.7.jar",
+      "sha256": "13775be4269a6cc82ebcee619a9fef1545c90ae54c6fba84a0d8c6d79ff6877a"
+    },
+    {
+      "file": "spring-boot-4.0.6.jar",
+      "sha256": "163d0c77cc7e8b6a2d523e5d0ebc3afe838d33dc89162c613a75a63bc197b9e6"
+    },
+    {
+      "file": "spring-boot-autoconfigure-4.0.6.jar",
+      "sha256": "a68a9a56f1976ab9d669e732889de9de73f1262ef8854d0eff70806ccf8dc684"
+    },
+    {
+      "file": "spring-boot-cache-4.0.6.jar",
+      "sha256": "5efc3bcfd272bc2359c7966b0b0233a5338556d8b66e70d09f5f89f76d69910f"
+    },
+    {
+      "file": "spring-boot-data-commons-4.0.6.jar",
+      "sha256": "c75c99034009d67e43fc7f68c2e0bdb785392953917b11bbe3c74821fd80282a"
+    },
+    {
+      "file": "spring-boot-data-redis-4.0.6.jar",
+      "sha256": "441bb29d1dfb8b1b5dc4c127ae7ef7f27ca37849334cd97f0f6cf84e6921836d"
+    },
+    {
+      "file": "spring-boot-http-converter-4.0.6.jar",
+      "sha256": "d01837b5fc73faa697cfac07912378e7f24f925774a61666d9a6d71d20f7394b"
+    },
+    {
+      "file": "spring-boot-jackson-4.0.6.jar",
+      "sha256": "82fb828f4c0f3e468f0553f2e025507ad20761db025037ce03b5f17fe59989c8"
+    },
+    {
+      "file": "spring-boot-jdbc-4.0.6.jar",
+      "sha256": "a18af3d81c96175b2ce43e276fcef9bdf842a1a0264b36bd9b31c9571c031a92"
+    },
+    {
+      "file": "spring-boot-netty-4.0.6.jar",
+      "sha256": "cc32af938a1573b9c05bbe5ec46c5288af506f5abcd582cbd86b43fa374936e4"
+    },
+    {
+      "file": "spring-boot-persistence-4.0.6.jar",
+      "sha256": "0c708ba19501262cf075397a7c08a11ac8f93e745bf9dbe37e209a12f464b834"
+    },
+    {
+      "file": "spring-boot-security-4.0.6.jar",
+      "sha256": "f19e7752a51ac54035af43231b13683ed386feed80703b46704dd7ad31f54dd0"
+    },
+    {
+      "file": "spring-boot-servlet-4.0.6.jar",
+      "sha256": "f2f75ebde296e10e01bb88eb7015deadf36ef889e5526717633866454d1250b4"
+    },
+    {
+      "file": "spring-boot-sql-4.0.6.jar",
+      "sha256": "aa98cba6a0195ce0a6cc48e075f37f4b11587d91f1004b3b37b47a59897de615"
+    },
+    {
+      "file": "spring-boot-starter-4.0.6.jar",
+      "sha256": "4cb0ed1cf253aa93b6e80a39d69e68a48ff4a01d60c3c127533132b46bdb790a"
+    },
+    {
+      "file": "spring-boot-starter-aspectj-4.0.6.jar",
+      "sha256": "9323d4cfb995e4117aba978f7895cf7358e8d5f4bbc4f29e7085149af526b85f"
+    },
+    {
+      "file": "spring-boot-starter-cache-4.0.6.jar",
+      "sha256": "4f00bfff4fde6530fef13b2345b2c321d8bad9d66bdfa9b3e3d2f2d984345253"
+    },
+    {
+      "file": "spring-boot-starter-data-redis-4.0.6.jar",
+      "sha256": "b02b0e56e4f7a8d8d3287ad58d2aa123d393fa1ecb4481e632a951329e7b42be"
+    },
+    {
+      "file": "spring-boot-starter-jackson-4.0.6.jar",
+      "sha256": "78a3fbce32e41b9185a3ea32275f494529ace99578f3ec105b2fa03df2043e83"
+    },
+    {
+      "file": "spring-boot-starter-jdbc-4.0.6.jar",
+      "sha256": "0cd94a651d1be209c701be4ecc59b4715a2e9c53f3b3506900c775dafa9a6bf1"
+    },
+    {
+      "file": "spring-boot-starter-logging-4.0.6.jar",
+      "sha256": "abd1da42af5afc4f6065494fd3b50d1a478c7621cea0b00c33ef0e99c098bb91"
+    },
+    {
+      "file": "spring-boot-starter-security-4.0.6.jar",
+      "sha256": "94df2933c3388647f23d64f8e1fd7d15d3b752d8684e91f7c58272d3a0db70ea"
+    },
+    {
+      "file": "spring-boot-starter-tomcat-4.0.6.jar",
+      "sha256": "b69066407242d0997e6d65b2e3bba306954d183bcf4d23d6ab07f63eb3441465"
+    },
+    {
+      "file": "spring-boot-starter-tomcat-runtime-4.0.6.jar",
+      "sha256": "caab936e904edcee854791178ad5ad3018862c35a376d27f1e5802681a88429f"
+    },
+    {
+      "file": "spring-boot-starter-validation-4.0.6.jar",
+      "sha256": "31cc784d9d7ae207dd24d731890f177df8213e4abe0d627f08bf82d9e36cd952"
+    },
+    {
+      "file": "spring-boot-starter-webmvc-4.0.6.jar",
+      "sha256": "a323bb1d72d680a9e492bdcf13731ae9ff443b96cce68072ac2b13fe1fe8ff82"
+    },
+    {
+      "file": "spring-boot-starter-websocket-4.0.6.jar",
+      "sha256": "3d1c47ad95c263976588f974187fce7dce07f7295b4453c54cfef747209d29df"
+    },
+    {
+      "file": "spring-boot-tomcat-4.0.6.jar",
+      "sha256": "9c0e9b3b2e746c8a6b39146dc26a71a5ae3aa0f26f7b23d0390516addc25d5a3"
+    },
+    {
+      "file": "spring-boot-transaction-4.0.6.jar",
+      "sha256": "7ae5685cb7edc9e0d788baaa6c0cad4ef63c9d6826446f20580f6f0839fcaa90"
+    },
+    {
+      "file": "spring-boot-validation-4.0.6.jar",
+      "sha256": "60940a76bd19c6c5bee2965947724d672252a1d1f40ca777e9cbd09db4c4e395"
+    },
+    {
+      "file": "spring-boot-web-server-4.0.6.jar",
+      "sha256": "d75dcc45dd7b09ae9816d74aae772dc22ac7fee6ca69e8e094f2b693229dc556"
+    },
+    {
+      "file": "spring-boot-webmvc-4.0.6.jar",
+      "sha256": "61a1fe818944202f275c63bcedd0349d43330e1f700ec67445b3c5b5b1cbdff2"
+    },
+    {
+      "file": "spring-boot-websocket-4.0.6.jar",
+      "sha256": "3e1fdfce8cdddd1ba3b782653bf9697562619c07c3a374d3eb5723db76523e5d"
+    },
+    {
+      "file": "spring-context-7.0.7.jar",
+      "sha256": "4a252050fd8595c5922c4d795728f8aae495e41171b3a958b0cee349b5e3586b"
+    },
+    {
+      "file": "spring-context-support-7.0.7.jar",
+      "sha256": "c2a50cecd342ae6bdf7c70ae8150ca0556a3ca8435add636eec3a699c08a4a16"
+    },
+    {
+      "file": "spring-core-7.0.7.jar",
+      "sha256": "9e1c13ed6d69002aae7ebc4b7d2d1d07e309013a2fbb63ab266bea8601229785"
+    },
+    {
+      "file": "spring-data-commons-4.0.5.jar",
+      "sha256": "b75c957b798497435b9168c9677fae3c5cac5831d1badcf280b2bb4c57b12e4f"
+    },
+    {
+      "file": "spring-data-keyvalue-4.0.5.jar",
+      "sha256": "51ad0c195c6a00f52e17b96340d54294fce4c07bd588daa5dadb7c1efce65e15"
+    },
+    {
+      "file": "spring-data-redis-4.0.5.jar",
+      "sha256": "65e6c2f900f5226dd71429fbf4136d5abe7bf39341e93014712e7ab2223924ec"
+    },
+    {
+      "file": "spring-expression-7.0.7.jar",
+      "sha256": "3c23d7eb62bb3fbddc0ad1d7f94be94d1518424f1c9a1b4de6b1b6906e8d0c54"
+    },
+    {
+      "file": "spring-jdbc-7.0.7.jar",
+      "sha256": "7bf8760ebca14457068125ddcef2ca1b17b3147e01d161aac23463626cd123a5"
+    },
+    {
+      "file": "spring-messaging-7.0.7.jar",
+      "sha256": "e8e717b1959dcf2fa90bb80e967605143b97c9606800c13c030b99fc5fcf5e47"
+    },
+    {
+      "file": "spring-oxm-7.0.7.jar",
+      "sha256": "ae5ba2d8c9a5a6a0e9c797202cb72a5558d3feed51cd5d3f5981c527bbbc1174"
+    },
+    {
+      "file": "spring-security-config-7.0.5.jar",
+      "sha256": "3682285f86681a93bddb5c14d8b2dfa111aa6809b195b8c12d1897c1781d2fde"
+    },
+    {
+      "file": "spring-security-core-7.0.5.jar",
+      "sha256": "344bfbed8025031781218cbd7891f6b9fd750d4f52c923f75948d5e7b11fc2ea"
+    },
+    {
+      "file": "spring-security-crypto-7.0.5.jar",
+      "sha256": "fa2dbe7ce6aea8b3b0cc82bcd09b5b4ef030cdac51b85e54d785d85f1a3d42d9"
+    },
+    {
+      "file": "spring-security-web-7.0.5.jar",
+      "sha256": "4616f13afe233600dfad8cfa4ef1472c378a080a6cbf516739c779d9267edbd9"
+    },
+    {
+      "file": "spring-tx-7.0.7.jar",
+      "sha256": "d6517a0164bbe1f7525ad6f1ad621913b3a9ce89460e75580130316af022affd"
+    },
+    {
+      "file": "spring-web-7.0.7.jar",
+      "sha256": "dbc9298d83849fb0255791fb86b80e996cfc482801ce4879481ad733d225c518"
+    },
+    {
+      "file": "spring-webmvc-7.0.7.jar",
+      "sha256": "41c0c6ed2244cdbcd84a9955b4b2717e8466e20e82335b043ea9ce768dc38d9c"
+    },
+    {
+      "file": "spring-websocket-7.0.7.jar",
+      "sha256": "ff8bdcde4ab8717bd06c6be3a17fdc0695bfd6ba92bf44065c3275ef9aaba8a2"
+    },
+    {
+      "file": "tea-1.3.1.jar",
+      "sha256": "15662b4db45a406b0dbfb9d63286b80dfb537ca2146c7e2241760a75be986baf"
+    },
+    {
+      "file": "tea-openapi-0.3.8.jar",
+      "sha256": "1fbbd96e3919d4d793566ac7d92d87d90f6ef0b61e564d97c1a3f7c31f1d4525"
+    },
+    {
+      "file": "tea-util-0.2.23.jar",
+      "sha256": "30b271e2231fb8fb659673648921d6209cd17a6abe6064b4613d25a2addc7026"
+    },
+    {
+      "file": "tea-xml-0.1.6.jar",
+      "sha256": "b313da53bc217bef45b7f704dcc5844f3d3f8e4727b4de9c27268bb13bb6893b"
+    },
+    {
+      "file": "tika-core-3.3.2.jar",
+      "sha256": "84d0f2b6add29b97359113499a1e1e7c10dfbfa1e410c122d163c83f3fc5359b"
+    },
+    {
+      "file": "tika-parser-apple-module-3.3.2.jar",
+      "sha256": "1553b05471e49da80454e148ba3b461f8144ed6ad7f073ca59fa19bcc5a3a151"
+    },
+    {
+      "file": "tika-parser-audiovideo-module-3.3.2.jar",
+      "sha256": "8efd58f3338f8c695c4af174ee7d29a5e7e6fbe47e9e8b80a593176bef79cd53"
+    },
+    {
+      "file": "tika-parser-cad-module-3.3.2.jar",
+      "sha256": "a24bd5f3cfac265a027ee1ac9fd950966ed590d8207c365b7d9562dc4284fe9c"
+    },
+    {
+      "file": "tika-parser-code-module-3.3.2.jar",
+      "sha256": "66f1ef6aab28334ebf8c74084d36182eed251a852e1185c56d8206a9775865bd"
+    },
+    {
+      "file": "tika-parser-crypto-module-3.3.2.jar",
+      "sha256": "ded850a4109b0eb841ea5f4bd0555e623955094c47c0ca41900dd52f68155e4f"
+    },
+    {
+      "file": "tika-parser-digest-commons-3.3.2.jar",
+      "sha256": "b6d81a259b35730e85caf6570f82745c1fffbb8056cbfcf11796e8068629bda3"
+    },
+    {
+      "file": "tika-parser-font-module-3.3.2.jar",
+      "sha256": "ef39b202c48edee746a96be91cc84ae2c323245e4a4f06c67af3fce49c3a8071"
+    },
+    {
+      "file": "tika-parser-html-module-3.3.2.jar",
+      "sha256": "6f80256fe04d5641b3771a16d8ef8b37419a18c8bc91d455eb46b57e143bdd8f"
+    },
+    {
+      "file": "tika-parser-image-module-3.3.2.jar",
+      "sha256": "25be6fb391342b85d53c2aeebf45d10cf32ddbb80c878fb0c4b0fa793649b856"
+    },
+    {
+      "file": "tika-parser-mail-commons-3.3.2.jar",
+      "sha256": "57e3d81784db425742fc6202defabd1bac95b1ec66807d57e0f79950bf4fbb82"
+    },
+    {
+      "file": "tika-parser-mail-module-3.3.2.jar",
+      "sha256": "2c7d0646cf0d029f48d35cf3de33c7e6ea06e8ba990d2f8122b4726965c8c5dc"
+    },
+    {
+      "file": "tika-parser-microsoft-module-3.3.2.jar",
+      "sha256": "cab82c7199e23428615ac59d047e125bbf915c13fe4af6a2c9de2d6c6de8aaf4"
+    },
+    {
+      "file": "tika-parser-miscoffice-module-3.3.2.jar",
+      "sha256": "4c162bb79ad25609b15ed934aa32971fb7020f4e2ccce9065752f944003143ec"
+    },
+    {
+      "file": "tika-parser-news-module-3.3.2.jar",
+      "sha256": "2ddf5d4e6ee7c743d761fb653806af79f9d82d8e0ef0d08c94619213f9cd298f"
+    },
+    {
+      "file": "tika-parser-ocr-module-3.3.2.jar",
+      "sha256": "1f5625578386c0221e5666e8b26ce2fa82bb2a28541c4ab872830dd9b1131b9d"
+    },
+    {
+      "file": "tika-parser-pdf-module-3.3.2.jar",
+      "sha256": "7e6240e3845ec71fd601496db434ba151b5d2ec29492187848a50b5d83605cc1"
+    },
+    {
+      "file": "tika-parser-pkg-module-3.3.2.jar",
+      "sha256": "9abf957ea4f125780e029108a552f5a373995a98e55a4853b8c2c469a670290d"
+    },
+    {
+      "file": "tika-parser-text-module-3.3.2.jar",
+      "sha256": "4bac5a2fea65a12b4225c357631a57accd53abe387431155020d76e82e8e84e0"
+    },
+    {
+      "file": "tika-parser-webarchive-module-3.3.2.jar",
+      "sha256": "2108ae2cdeb03105f996f008cbb9a0b018c928c50ace72dc2f464326246a1caf"
+    },
+    {
+      "file": "tika-parser-xml-module-3.3.2.jar",
+      "sha256": "e2945a0f4f0cfb7e598c8c31aa91ccc07521a7dbdebeabb2f0a70460b7a7efdc"
+    },
+    {
+      "file": "tika-parser-xmp-commons-3.3.2.jar",
+      "sha256": "4ad2a07360c3d991f3e17711c795e958f71ee5c3c2e11769d6605788dffca413"
+    },
+    {
+      "file": "tika-parser-zip-commons-3.3.2.jar",
+      "sha256": "a199f5a3b1b2872c07bff2b65173f664f4735236fef4a8db4f04b44362711d2b"
+    },
+    {
+      "file": "tika-parsers-standard-package-3.3.2.jar",
+      "sha256": "917743a6eea424cafc71ee2107efe16bcf3e1747f55f813baa82e9a3b075df2c"
+    },
+    {
+      "file": "tomcat-embed-core-11.0.21.jar",
+      "sha256": "5dbe19880b5025e0b9de7c3de81cb837ce79636ea1da39c8d00a66d3add25567"
+    },
+    {
+      "file": "tomcat-embed-el-11.0.21.jar",
+      "sha256": "3745cb768f4ed74c2f4af8fc2453992143997019718f71c915d4545fdbef1fb3"
+    },
+    {
+      "file": "tomcat-embed-websocket-11.0.21.jar",
+      "sha256": "fc64e531c473d627ff121e31bcb5871dee9f241e1fd1d1f1522498208f1a278d"
+    },
+    {
+      "file": "txw2-4.0.6.jar",
+      "sha256": "fcc749785412ef3806fde1ce70f93ef5a0065dcc47fe449bc871db0795cb11af"
+    },
+    {
+      "file": "vorbis-java-core-0.8.jar",
+      "sha256": "879bb0c8923fea686609e207fd9050ab246e001868341c725929405e755cf68e"
+    },
+    {
+      "file": "vorbis-java-tika-0.8.jar",
+      "sha256": "a1b62281a99aec10dc69db1d2f8250952dca5841eedf1167b6b6f9585e2d0d26"
+    },
+    {
+      "file": "wechatpay-java-0.2.17.jar",
+      "sha256": "30d0d4cbcc0ad471aab1103b94f591a8d6ee60f224cdfec28daaf33d8571f174"
+    },
+    {
+      "file": "wechatpay-java-core-0.2.17.jar",
+      "sha256": "c83d290a91e1199199562404a1e651ecd43b0904a2ecd04757f006dd08b20a7c"
+    },
+    {
+      "file": "xmlbeans-5.3.0.jar",
+      "sha256": "6cc69da3b4d35b83c5e477cd4daba204e44109833e34af2b9a8a2c8788289917"
+    },
+    {
+      "file": "xmpbox-3.0.8.jar",
+      "sha256": "f044d2e316e57714a0adf272ad8abf4a863b8978fd17dc5b86dcfa8135469b10"
+    },
+    {
+      "file": "xmpcore-6.1.11.jar",
+      "sha256": "8f7033c579b99fa0d9d6ddcb9448875b5e4b577c350002278ce46997d678b737"
+    },
+    {
+      "file": "xz-1.12.jar",
+      "sha256": "3e158a87bd73d8afb4b6e8239c013b7d049c48563f45860ce99cd2e448cf4a6b"
+    },
+    {
+      "file": "yauaa-8.1.1.jar",
+      "sha256": "8b0689405c5d6403406d06dd45162cc0bd536f80ae7bb3fc9241dc4dee79bfa4"
+    },
+    {
+      "file": "zstd-jni-1.5.6-10.jar",
+      "sha256": "b6c3237e24b8252a5a9c3a0e1ae30ef8f323412e74bd358548b7a9e527d676df"
+    }
+  ]
+}

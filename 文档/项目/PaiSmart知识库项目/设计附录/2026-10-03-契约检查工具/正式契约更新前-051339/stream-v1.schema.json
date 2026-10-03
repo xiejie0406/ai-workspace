@@ -1,0 +1,746 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paismart:stream:v1",
+  "title": "PaiSmart 聊天 WS 帧 v1",
+  "description": "/paismart/ws/chat?ticket=...；connected声明protocolVersion=1。连接票据60秒、单次、绑定Origin和共享登录session；每帧和250ms重放复核权限。断线不取消任务，不重发问题，恢复最多每批500事件；sequence仅持久事件存在，快照lastSequence用于对齐。kind是事件字段，不使用候选设计type-envelope。",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/ClientFrame"
+    },
+    {
+      "$ref": "#/$defs/ServerFrame"
+    }
+  ],
+  "$defs": {
+    "Reference": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "业务实体 UUID；平台用户标识使用 int64。"
+        },
+        "documentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "业务实体 UUID；平台用户标识使用 int64。"
+        },
+        "title": {
+          "type": "string"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "contentVersion": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "page": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64",
+          "minimum": 1
+        },
+        "text": {
+          "type": "string"
+        },
+        "anchor": {
+          "type": "string"
+        },
+        "verification": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "verified": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "parentContext": {
+          "type": "string"
+        },
+        "parentKey": {
+          "type": "string"
+        },
+        "evidenceSnippet": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "documentId",
+        "title",
+        "contentVersion",
+        "page",
+        "text",
+        "anchor"
+      ],
+      "description": "text为命中原文，parentContext为授权扩展事实；核验缺少裁决或调用失败保持未核验，不能写成supported=false。每次预览复核当前授权和内容版本。"
+    },
+    "GenerationSnapshot": {
+      "type": "object",
+      "properties": {
+        "generationId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "业务实体 UUID；平台用户标识使用 int64。"
+        },
+        "conversationId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "业务实体 UUID；平台用户标识使用 int64。"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "业务实体 UUID；平台用户标识使用 int64。"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "QUEUED",
+            "RUNNING",
+            "COMPLETE",
+            "STOPPED",
+            "FAILED",
+            "INTERRUPTED"
+          ]
+        },
+        "errorMessage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "lastSequence": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "generationId",
+        "conversationId",
+        "messageId",
+        "state",
+        "errorMessage",
+        "text",
+        "references",
+        "lastSequence"
+      ],
+      "description": "HTTP 查询和 WS 初次/恢复返回同一快照，快照无 kind/sequence；事件协议见 stream-v1.schema.json。"
+    },
+    "ClientSubmit": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "submit",
+            "chat",
+            "message"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "submit",
+            "chat",
+            "message"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "clientRequestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "conversationId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "spaceId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "clientRequestId"
+      ],
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "kind"
+              ]
+            },
+            {
+              "required": [
+                "type"
+              ],
+              "not": {
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "anyOf": [
+            {
+              "required": [
+                "text"
+              ]
+            },
+            {
+              "required": [
+                "message"
+              ]
+            }
+          ]
+        }
+      ],
+      "description": "kind 优先，type 为兼容别名；text 优先，未提供时才用 message。clientRequestId 对用户和原请求内容做幂等校验，平台session由服务端覆写。"
+    },
+    "ClientResume": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "resume"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "resume"
+          ]
+        },
+        "generationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "afterSequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastSequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "generationId"
+      ],
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "kind"
+              ]
+            },
+            {
+              "required": [
+                "type"
+              ],
+              "not": {
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "offset优先afterSequence，其次lastSequence，再sequence，默认0；必须<=当前lastSequence。先返回快照，再重放>offset事件，终态不再订阅。"
+    },
+    "ClientStop": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "stop"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "stop"
+          ]
+        },
+        "generationId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "generationId"
+      ],
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "kind"
+              ]
+            },
+            {
+              "required": [
+                "type"
+              ],
+              "not": {
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "只设置停止旗标；停止完成后输出stopped持久事件。"
+    },
+    "ClientPing": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "ping"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "ping"
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "required": [],
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "kind"
+              ]
+            },
+            {
+              "required": [
+                "type"
+              ],
+              "not": {
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "LegacyPing": {
+      "type": "string",
+      "const": "__chat_ping__",
+      "description": "此兼容帧为原始字符串文本，不经过JSON对象解析。"
+    },
+    "Connected": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "connected"
+        },
+        "protocolVersion": {
+          "const": 1
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "kind",
+        "protocolVersion"
+      ]
+    },
+    "Heartbeat": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "heartbeat"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "kind"
+      ]
+    },
+    "ToolEvent": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "conversationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "RUNNING",
+            "COMPLETE"
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "kind",
+        "sequence",
+        "generationId",
+        "conversationId",
+        "messageId",
+        "tool",
+        "state"
+      ]
+    },
+    "TextEvent": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "delta",
+            "summary"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "conversationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "kind",
+        "sequence",
+        "generationId",
+        "conversationId",
+        "messageId",
+        "text"
+      ]
+    },
+    "ReferencesEvent": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "references"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "conversationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "kind",
+        "sequence",
+        "generationId",
+        "conversationId",
+        "messageId",
+        "references"
+      ]
+    },
+    "DoneEvent": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "done"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "conversationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "COMPLETE"
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "kind",
+        "sequence",
+        "generationId",
+        "conversationId",
+        "messageId",
+        "state"
+      ]
+    },
+    "StoppedEvent": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "stopped"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "conversationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "STOPPED"
+          ]
+        },
+        "errorMessage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "kind",
+        "sequence",
+        "generationId",
+        "conversationId",
+        "messageId",
+        "state"
+      ]
+    },
+    "ErrorEvent": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "error"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "conversationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "FAILED",
+            "INTERRUPTED"
+          ]
+        },
+        "errorMessage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "kind",
+        "sequence",
+        "generationId",
+        "conversationId",
+        "messageId",
+        "state",
+        "errorMessage"
+      ]
+    },
+    "ClientFrame": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ClientSubmit"
+        },
+        {
+          "$ref": "#/$defs/ClientResume"
+        },
+        {
+          "$ref": "#/$defs/ClientStop"
+        },
+        {
+          "$ref": "#/$defs/ClientPing"
+        },
+        {
+          "$ref": "#/$defs/LegacyPing"
+        }
+      ]
+    },
+    "PersistentEvent": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ToolEvent"
+        },
+        {
+          "$ref": "#/$defs/TextEvent"
+        },
+        {
+          "$ref": "#/$defs/ReferencesEvent"
+        },
+        {
+          "$ref": "#/$defs/DoneEvent"
+        },
+        {
+          "$ref": "#/$defs/StoppedEvent"
+        },
+        {
+          "$ref": "#/$defs/ErrorEvent"
+        }
+      ]
+    },
+    "ServerFrame": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Connected"
+        },
+        {
+          "$ref": "#/$defs/Heartbeat"
+        },
+        {
+          "$ref": "#/$defs/GenerationSnapshot"
+        },
+        {
+          "$ref": "#/$defs/PersistentEvent"
+        }
+      ]
+    }
+  },
+  "x-source": [
+    "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/PaismartChatWebSocket.java",
+    "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java",
+    "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/WebSocketTicketService.java"
+  ]
+}

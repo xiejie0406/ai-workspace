@@ -1,0 +1,41 @@
+-------------------------------------------------------------------------------
+Test set: com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 4, Errors: 0, Skipped: 0, Time elapsed: 4.919 s <<< FAILURE! -- in com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest
+com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.anAcceptedCopyWithLostResponseIsVerifiedOnRetryWithoutSendingItAgain -- Time elapsed: 4.062 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 响应丢失须保留可核对的未决收据 ==> expected: <1> but was: <0>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:598)
+	at com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.anAcceptedCopyWithLostResponseIsVerifiedOnRetryWithoutSendingItAgain(OperationMigrationLeaseBoundaryTest.java:96)
+
+com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.leaseHandoffCannotCommitBetweenFinalLeaseGuardAndPointerSwitch -- Time elapsed: 0.113 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 取消或换手不能在最终租约校验后、文档切换前提交；旧源会在此窗口切换已失效作业的指针 ==> expected: <false> but was: <true>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:69)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:41)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:255)
+	at com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.competeAtFinalGuard(OperationMigrationLeaseBoundaryTest.java:70)
+	at com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.leaseHandoffCannotCommitBetweenFinalLeaseGuardAndPointerSwitch(OperationMigrationLeaseBoundaryTest.java:79)
+
+com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.anExistingWrongTargetIsRejectedBeforeAnyWriteOrPointerSwitch -- Time elapsed: 0.139 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Expected com.ruoyi.common.exception.ServiceException to be thrown, but nothing was thrown.
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:159)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:74)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:35)
+	at org.junit.jupiter.api.Assertions.assertThrows(Assertions.java:3223)
+	at com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.anExistingWrongTargetIsRejectedBeforeAnyWriteOrPointerSwitch(OperationMigrationLeaseBoundaryTest.java:105)
+
+com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.cancellationCannotCommitBetweenFinalLeaseGuardAndPointerSwitch -- Time elapsed: 0.140 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 取消或换手不能在最终租约校验后、文档切换前提交；旧源会在此窗口切换已失效作业的指针 ==> expected: <false> but was: <true>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:69)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:41)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:255)
+	at com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.competeAtFinalGuard(OperationMigrationLeaseBoundaryTest.java:70)
+	at com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest.cancellationCannotCommitBetweenFinalLeaseGuardAndPointerSwitch(OperationMigrationLeaseBoundaryTest.java:75)
+

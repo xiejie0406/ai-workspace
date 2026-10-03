@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-03",
+  "kind": "本地组件技术复验",
+  "typecheck": {
+    "exitCode": 0,
+    "command": "npm.cmd run typecheck:paismart"
+  },
+  "unit": {
+    "exitCode": 0,
+    "files": 7,
+    "passed": 33,
+    "failed": 0,
+    "command": "npm.cmd run test:unit:paismart"
+  },
+  "productionBuild": {
+    "exitCode": 0,
+    "duration": "2m18s",
+    "command": "npm.cmd run build:prod -- --outDir ../../文档/项目/PaiSmart知识库项目/设计附录/2026-10-03-迁移补齐-终版构建产物",
+    "isolatedOutDir": true,
+    "sharedDistOverwritten": false
+  },
+  "browser": {
+    "session": "paismart-migration-ui",
+    "url": "http://127.0.0.1:18149",
+    "host": "127.0.0.1",
+    "proxy": false,
+    "viewport": [
+      1280,
+      1100
+    ],
+    "externalNetworkObserved": false,
+    "staticRequests": 48,
+    "errors": 0,
+    "warnings": 1,
+    "warning": "Element Plus el-pagination small 属性弃用提示，当前安装版功能可用，未改变共享框架"
+  },
+  "priorFailure": {
+    "unit": "首轮31通过1失败：测试 el-alert stub 未呈现 title；修正夹具后32基线及33终版通过",
+    "browser": "旧标签页曾出现 favicon404/修改Vite配置时HMR连接中断；稳定新标签页记录另存，未抹除旧记录"
+  },
+  "businessAcceptanceExecuted": false,
+  "businessAcceptanceCountAdded": 0,
+  "realDatabaseModelsPaymentKafkaCalled": false,
+  "userAcceptance": false,
+  "screenshots": [
+    {
+      "point": "每日额度与管理汇总",
+      "file": "2026-10-03-迁移补齐-每日额度与管理汇总.png",
+      "description": "本地 DAILY 响应 available=0，limitTokens=100，usedTokens=25，reservedTokens=5，remainingTokens=70；页面显示剩余70。点击管理汇总读取7天，再切换30天；个人快照仍是70。此截图沿用同一组件此前已回读的基线，最后CSS和引用/索引变更不影响计算。",
+      "readBack": true,
+      "sha256": "03049e149745aedbda3c84572492fd57420b8f69a2b82eb6b4f743012e4eaa9f"
+    },
+    {
+      "point": "续传缺片与布局",
+      "file": "2026-10-03-迁移补齐-续传最终布局.png",
+      "description": "选择本人未完成记录，重新选择5字节原文件；已完成片0，实际仅补片1的2字节、片2的1字节，再 merge 原 fixture-upload；进度100%，展示原文档。状态筛选框宽度已修正，截图最终回读。",
+      "readBack": true,
+      "sha256": "e369d2a3d1243ab7b92aae6e3a102fc3bdbea31e1081cda5b397bce5ac1f30dd"
+    },
+    {
+      "point": "评测汇总与一致性",
+      "file": "2026-10-03-迁移补齐-评测汇总与一致性.png",
+      "description": "响应指标无可计算样本为null，页面显示“无可计算样本”，没有替换成0%；可比较样本0与警告、阈值同时显示。截图沿用当前报告组件已回读的基线。",
+      "readBack": true,
+      "sha256": "7ba5bb4e75ce54f99f2f56ebb8df5d9b54e5ae4cafe9cf0a75b710052668d298"
+    },
+    {
+      "point": "逐例证据与人工评分",
+      "file": "2026-10-03-迁移补齐-逐例证据与人工评分.png",
+      "description": "独立参考答案、实际回答、诊断、评委未判定与可选1至5分人工评分可见；未提交人工业务写入。截图沿用当前报告组件已回读的基线。",
+      "readBack": true,
+      "sha256": "64eac47187788c067df5b298bd2809edd87e0c759dc1d2348419edc843f5ca94"
+    },
+    {
+      "point": "索引待校验",
+      "file": "2026-10-03-迁移补齐-索引待校验.png",
+      "description": "打开真实组件的待校验详情，呈现来源快照和原始 {state:PENDING}；没有已验证分块数量或查询结果。最终新增项截图已回读。",
+      "readBack": true,
+      "sha256": "19bb53b8c37e41685c5adc69cca033cc38107fd0f64a62487ac7b380746e2a23"
+    },
+    {
+      "point": "会话甲引用",
+      "file": "2026-10-03-迁移补齐-会话引用甲.png",
+      "description": "打开会话甲，回答与右栏均为夹具引用甲。最终新增项截图已回读。",
+      "readBack": true,
+      "sha256": "9be77005ec5594132b11c71127a0aaee521be3cbf764e68d4c747a871edd7278"
+    },
+    {
+      "point": "会话乙引用",
+      "file": "2026-10-03-迁移补齐-会话引用乙.png",
+      "description": "切换会话乙，回答与右栏均改为夹具引用乙，不显示甲引用。最终新增项截图已回读。",
+      "readBack": true,
+      "sha256": "95f44480139a5f37b669b5e92276bd3b37199d036b381a1b0c5f97b763fcee0e"
+    }
+  ],
+  "sourceHashes": {
+    "frontend/admin-web/src/views/paismart/chat/index.vue": "259858aa4a97cbeccd2303b2d5b9778676ca825c1953d4706d9d0d610de79a36",
+    "frontend/admin-web/src/views/paismart/governance/indexes/index.vue": "924a0956525a8bc8468d32b954a07678d5d3603d7ffad90a07849f7d6ee6854d",
+    "frontend/admin-web/src/views/paismart/common.css": "4806fa6a2c5c07174d4997ef1f964d8cdfbe939e59ea3a90aba090110a4e707c",
+    "frontend/admin-web/src/api/paismart/adapters.ts": "f2db8909f4415d58c1fa7fc16159ea437ec3770a52da8be9c1d4160457dc4f67"
+  },
+  "logs": [
+    "2026-10-03-迁移补齐-前端类型检查.log",
+    "2026-10-03-迁移补齐-前端组件测试.log",
+    "2026-10-03-迁移补齐-终版前端构建.log",
+    "2026-10-03-迁移补齐-终版浏览器控制台.log",
+    "2026-10-03-迁移补齐-终版浏览器网络.log",
+    "2026-10-03-迁移补齐-前端组件测试-首轮夹具失败.log",
+    "2026-10-03-迁移补齐-前端组件测试-32项基线.log"
+  ],
+  "cleanup": {
+    "browserSession": "paismart-migration-ui 已关闭",
+    "fixturePort18149": "已停止并确认无监听",
+    "reportPort18150": "已停止并确认无监听",
+    "otherBrowsersOrServicesStopped": false
+  },
+  "reportRendering": {
+    "localPort": 18150,
+    "htmlStatus": 200,
+    "imageResponses": {
+      "total": 7,
+      "all200": true
+    },
+    "earlierAccessAttempts": "浏览器file协议不可用；Vite受控文件目录拒绝报告403。改用临时127.0.0.1静态报告服务器呈现；不调整Vite文件访问范围。",
+    "firstConsole": "仅favicon404，已添加data favicon，原日志保留",
+    "finalErrors": 0,
+    "finalWarnings": 0,
+    "finalScreenshot": "2026-10-03-迁移补齐-技术报告最终呈现.png",
+    "readBack": true
+  }
+}

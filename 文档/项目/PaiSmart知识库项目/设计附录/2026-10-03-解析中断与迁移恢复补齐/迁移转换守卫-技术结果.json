@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-03T01:08:19.650656+00:00",
+  "scope": "仅离线迁移工具、Python定向测试与README迁移说明；纯本地JSON与SQLite内存共同SQL子集",
+  "realMySQLExecuted": false,
+  "businessAcceptanceExecuted": false,
+  "ddlChanged": false,
+  "newTruthTable": false,
+  "oldSourceSha256": "c46c7650d3cfdf0a9411e2d243a062819aa21a8b5b9f70709479ed4e422125a6",
+  "oldTestOriginalSha256": "5c42001bc31c5ee74e798dc2cec7668d6b0d5596f426bff7c94eb399b200d906",
+  "before": {
+    "log": "迁移转换守卫-原失败.log",
+    "tests": 17,
+    "failureAssertions": 13,
+    "errors": 1,
+    "exitCode": 1
+  },
+  "after": {
+    "log": "迁移转换守卫-修复后.log",
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exitCode": 0
+  },
+  "changedFiles": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paismart\\scripts\\prepare-legacy-migration.py",
+      "sha256": "b3ce2ef7205bd335a437c641b83845d52659023be2e7e5e577b39faf0441aa38"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paismart\\scripts\\tests\\test_prepare_legacy_migration.py",
+      "sha256": "9eb4e05250ed3b7b56a588d84f5ddc487dbbb21d314d85721881e467caa4854a"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paismart\\README.md",
+      "sha256": "fe420eb2a5054c89f5c01ccae95fe37ebf118a427a94f31e069670fff8cafe8a"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "迁移转换守卫-脱敏夹具manifest.json",
+      "sha256": "31b0102b7f859f7167c1912554c15e32302fdba3a76ccceb614204a8f1e7cd45"
+    },
+    {
+      "file": "迁移转换守卫-脱敏夹具import.sql",
+      "sha256": "a967d020a33e783b3cf714bde95a19ef3d67402cb7de571ea6f38aea48a14f63"
+    },
+    {
+      "file": "迁移转换守卫-脱敏夹具verify.sql",
+      "sha256": "6b7afedace01ae3279ca1ea34ca841646411817d93eca7ce1130d2220597f2c8"
+    }
+  ],
+  "archiveCompatibility": {
+    "table": "ps_legacy_archive",
+    "column": "sanitized_json",
+    "format": "{source,migration}",
+    "sourcePreserved": true,
+    "conversionFormat": "paismart-conversion-v1",
+    "excludes": [
+      "migration_batch_id",
+      "archive自身"
+    ],
+    "legacyBareArchive": "拒绝自动复用，保留原文并人工复核原批准转换",
+    "consumersChecked": [
+      "当前模块全部Python脚本和Java",
+      "contracts/paismart正式契约"
+    ],
+    "oldShapeBusinessConsumersFound": false
+  },
+  "guardCoverage": [
+    "不同批次同转换通过且不覆盖后来成员业务状态",
+    "相同来源改变身份/空间/可见性/secretRef/管理权限/限流/时区拒绝",
+    "目标业务行相同但对象复制来源改变拒绝",
+    "旧裸归档/缺失/损坏/未知版本/回执关联批次不符拒绝",
+    "身份关系缺失或目标不符拒绝",
+    "全部来源转换守卫先于首个业务INSERT"
+  ],
+  "limits": [
+    "没有连接或执行真实MySQL",
+    "MySQL JSON函数、事务/约束、SQL客户端遇错回滚仍需批准环境检查",
+    "后台353历史及交付JSON已另存原文，本次不改总状态或后端产物"
+  ]
+}

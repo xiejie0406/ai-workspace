@@ -1,0 +1,250 @@
+--- 修改前/contracts/paismart/knowledge-v1.openapi.yaml
++++ 当前/contracts/paismart/knowledge-v1.openapi.yaml
+@@ -6313,6 +6313,7 @@
+       description: 配置状态、表结构检查与真实外部探测分别标示，不把 CONFIGURED_NOT_PROBED 解释为联机成功。
+     OperationPlan:
+       type: object
++      description: 维护计划的取消、最终失败和重试由中心作业事务同步；取消保留批准清单及已完成条目，重试仍须原权限与执行开关。
+       properties:
+         id: *id001
+         type:
+@@ -6323,6 +6324,7 @@
+           - bootstrap-import
+         state:
+           type: string
++          enum: [PENDING_APPROVAL, APPROVED, QUEUED, EXECUTING, SUCCEEDED, FAILED, CANCELED]
+         reason:
+           type: string
+         createdBy: *id006
+--- 修改前/frontend/admin-web/src/views/paismart/operations/jobs/index.vue
++++ 当前/frontend/admin-web/src/views/paismart/operations/jobs/index.vue
+@@ -1,4 +1,4 @@
+-<template><div class="app-container ps-page"><h2>运行状态与受控作业</h2><el-alert v-if="error||pageError" :title="error||pageError" type="error" :closable="false"/><div class="ps-toolbar"><el-button :loading="loading" @click="refresh">刷新状态</el-button><el-button v-hasPermi="['paismart:operation:plan']" @click="planOpen=true">创建维护计划</el-button><el-button v-hasPermi="['paismart:conversation:audit']" @click="loadAudit">查看操作审计</el-button><el-button v-hasPermi="['paismart:operation:plan']" @click="callsOpen=true">模型与 OCR 核账</el-button></div><div class="ps-grid" v-if="status"><el-card v-for="component in status.components" :key="component.name" shadow="never"><strong>{{component.name}}</strong><p><el-tag :type="['UP','READY','HEALTHY'].includes(component.state)?'success':'warning'">{{component.state}}</el-tag></p><p class="ps-muted">{{component.reason||'未返回异常原因'}}</p><small v-if="component.latencyMs!==undefined">耗时 {{component.latencyMs}} ms</small></el-card></div><el-alert v-for="(item,i) in status?.configurationErrors||[]" :key="i" :title="item" type="warning" :closable="false" class="ps-section"/><el-card class="ps-section" shadow="never"><template #header>维护计划复核队列</template><el-alert v-if="plansError" :title="plansError" type="error" :closable="false"/><el-form inline><el-form-item label="计划状态"><el-select v-model="planQuery.state" clearable><el-option label="待批准" value="PENDING_APPROVAL"/><el-option label="已批准" value="APPROVED"/><el-option label="已受理执行" value="QUEUED"/><el-option label="正在执行" value="EXECUTING"/><el-option label="已完成" value="SUCCEEDED"/><el-option label="失败" value="FAILED"/></el-select></el-form-item><el-button @click="loadPlans(true)">查询计划</el-button></el-form><el-table :data="plans" v-loading="plansLoading"><el-table-column prop="type" label="维护类型" width="170"/><el-table-column prop="reason" label="业务原因" min-width="240"/><el-table-column prop="state" label="状态" width="170"/><el-table-column prop="createdBy" label="发起人" width="100"/><el-table-column prop="approvedBy" label="批准人" width="100"/><el-table-column prop="createdAt" label="创建时间" min-width="180"/><el-table-column label="操作" width="130"><template #default="{row}"><el-button link type="primary" @click="reviewPlan(row)">查看并复核</el-button></template></el-table-column></el-table><el-pagination v-model:current-page="planQuery.pageNum" :page-size="planQuery.pageSize" :total="planTotal" layout="total,prev,pager,next" @current-change="loadPlans()"/></el-card><el-form inline><el-form-item label="作业状态"><el-select v-model="query.state" clearable><el-option v-for="s in ['QUEUED','RUNNING','RETRY','SUCCEEDED','FAILED','CANCELED']" :key="s" :label="stateLabel(s)" :value="s"/></el-select></el-form-item><el-button @click="load(true)">查询作业</el-button></el-form><el-table :data="rows" v-loading="loading"><el-table-column prop="jobId" label="作业 ID" min-width="210" show-overflow-tooltip/><el-table-column prop="kind" label="类型" width="140"/><el-table-column label="状态" width="130"><template #default="{row}">{{stateLabel(row.state)}}</template></el-table-column><el-table-column prop="progress" label="进度" width="90"/><el-table-column prop="errorMessage" label="原因" min-width="220"/><el-table-column label="操作" width="220"><template #default="{row}"><el-button link @click="view(row)">进度</el-button><el-button v-hasPermi="['paismart:operation:execute']" v-if="row.state==='FAILED'" link @click="act(row,'retry')">重试</el-button><el-button v-hasPermi="['paismart:operation:execute']" v-if="!terminal(row.state)" link type="warning" @click="act(row,'cancel')">取消</el-button></template></el-table-column></el-table><el-pagination v-model:current-page="query.pageNum" :page-size="query.pageSize" :total="total" layout="total,prev,pager,next" @current-change="load()"/><JobDialog v-model="jobOpen" :initial="job" administrative @done="load()"/><el-dialog v-model="planOpen" title="受控维护计划" width="720px"><el-alert title="先生成计划再审阅范围与版本。执行由服务端权限与批准范围裁决，不允许清空共享数据。" type="warning" :closable="false" class="ps-section"/><el-form label-width="100px"><el-form-item label="操作类型"><el-select v-model="kind"><el-option label="对象迁移计划" value="object-migrations"/><el-option label="过期对象清理计划" value="cleanup-plans"/><el-option label="初始数据导入计划" value="bootstrap-import"/></el-select></el-form-item><el-form-item v-if="kind!=='cleanup-plans'" label="实际对象清单" required><el-input v-model="manifestSource" type="textarea" :rows="9" placeholder="填写实际对象 JSON 数组，最多 1000 项"/><p class="ps-muted">{{manifestGuide}}</p></el-form-item><p v-else class="ps-muted">服务端按当前管理范围生成超过 30 天软删保留期的候选清单；批准前须复核具体文档、对象键、摘要与大小。</p><el-form-item label="业务原因" required><el-input v-model="reason" type="textarea" maxlength="1000"/></el-form-item></el-form><el-alert v-if="formError" :title="formError" type="error" :closable="false"/><el-descriptions v-if="plan" :column="1" border><el-descriptions-item label="计划 ID">{{plan.id}}</el-descriptions-item><el-descriptions-item label="版本">{{plan.planVersion}}</el-descriptions-item><el-descriptions-item label="状态">{{stateLabel(plan.state)}}</el-descriptions-item></el-descriptions><h3 v-if="plan">计划清单</h3><pre v-if="plan" class="ps-pre manifest">{{JSON.stringify(plan.manifest,null,2)}}</pre><el-input v-model="planId" aria-label="待读取计划 ID" placeholder="粘贴计划 ID 以读取和复核"/><el-button @click="readPlan">读取已有计划</el-button><el-checkbox v-if="plan" v-model="confirmed">已核对范围、计划版本和恢复条件</el-checkbox><template #footer><el-button @click="planOpen=false">关闭</el-button><el-button :loading="saving" @click="createPlan">生成计划</el-button><el-button v-if="plan?.state==='PENDING_APPROVAL'" v-hasPermi="['paismart:operation:execute']" :disabled="!confirmed" :loading="saving" @click="approve">批准当前版本</el-button><el-button v-if="plan?.state==='APPROVED'" v-hasPermi="['paismart:operation:execute']" type="danger" :disabled="!confirmed||!plan.planVersion" :loading="saving" @click="execute">执行已核对计划</el-button></template></el-dialog><el-drawer v-model="auditOpen" title="知识库审计" size="min(1100px,95vw)"><el-tabs v-model="auditTab" @tab-change="loadAudit"><el-tab-pane label="操作审计" name="activities"/><el-tab-pane label="会话审计" name="conversations"/></el-tabs><el-table v-if="auditTab==='activities'" :data="activities"><el-table-column prop="createdAt" label="时间" min-width="180"/><el-table-column prop="userName" label="操作人" min-width="130"/><el-table-column prop="action" label="操作" min-width="140"/><el-table-column prop="target" label="目标" min-width="200"/><el-table-column prop="state" label="结果" width="100"/><el-table-column prop="reason" label="说明" min-width="220"/></el-table><template v-else><el-form inline><el-form-item label="用户 ID"><el-input v-model="auditQuery.userId"/></el-form-item><el-form-item label="会话标题"><el-input v-model="auditQuery.keyword"/></el-form-item><el-form-item label="日期范围"><el-date-picker v-model="auditDates" type="daterange" value-format="YYYY-MM-DD"/></el-form-item><el-button @click="searchAudit">查询</el-button><el-button @click="resetAudit">重置</el-button></el-form><el-table :data="auditedConversations"><el-table-column prop="userName" label="平台用户" min-width="160"/><el-table-column prop="title" label="会话" min-width="260"/><el-table-column prop="messageCount" label="消息数" width="90"/><el-table-column prop="updatedAt" label="更新时间" min-width="180"/><el-table-column label="查看" width="110"><template #default="{row}"><el-button link type="primary" @click="viewAudited(row)">查看消息</el-button></template></el-table-column></el-table><el-pagination v-model:current-page="auditQuery.pageNum" :page-size="auditQuery.pageSize" :total="auditTotal" layout="total,prev,pager,next" @current-change="loadAudit"/></template></el-drawer><el-drawer v-model="auditMessageOpen" title="会话正文审计" size="min(850px,95vw)"><el-alert v-if="auditError" :title="auditError" type="error" :closable="false"/><ChatMessage v-for="item in auditedMessages" :key="item.id" :message="item" streaming @reference="openReference"/><el-pagination v-model:current-page="auditMessagePage" :page-size="50" :total="auditMessageTotal" layout="total,prev,pager,next" @current-change="loadAuditedMessages"/></el-drawer><ReferencePreview v-model="referenceOpen" :reference="selectedReference"/><CallReconciliation v-model="callsOpen"/></div></template>
++<template><div class="app-container ps-page"><h2>运行状态与受控作业</h2><el-alert v-if="error||pageError" :title="error||pageError" type="error" :closable="false"/><div class="ps-toolbar"><el-button :loading="loading" @click="refresh">刷新状态</el-button><el-button v-hasPermi="['paismart:operation:plan']" @click="planOpen=true">创建维护计划</el-button><el-button v-hasPermi="['paismart:conversation:audit']" @click="loadAudit">查看操作审计</el-button><el-button v-hasPermi="['paismart:operation:plan']" @click="callsOpen=true">模型与 OCR 核账</el-button></div><div class="ps-grid" v-if="status"><el-card v-for="component in status.components" :key="component.name" shadow="never"><strong>{{component.name}}</strong><p><el-tag :type="['UP','READY','HEALTHY'].includes(component.state)?'success':'warning'">{{component.state}}</el-tag></p><p class="ps-muted">{{component.reason||'未返回异常原因'}}</p><small v-if="component.latencyMs!==undefined">耗时 {{component.latencyMs}} ms</small></el-card></div><el-alert v-for="(item,i) in status?.configurationErrors||[]" :key="i" :title="item" type="warning" :closable="false" class="ps-section"/><el-card class="ps-section" shadow="never"><template #header>维护计划复核队列</template><el-alert v-if="plansError" :title="plansError" type="error" :closable="false"/><el-form inline><el-form-item label="计划状态"><el-select v-model="planQuery.state" clearable><el-option label="待批准" value="PENDING_APPROVAL"/><el-option label="已批准" value="APPROVED"/><el-option label="已受理执行" value="QUEUED"/><el-option label="正在执行" value="EXECUTING"/><el-option label="已完成" value="SUCCEEDED"/><el-option label="失败" value="FAILED"/><el-option label="已取消" value="CANCELED"/></el-select></el-form-item><el-button @click="loadPlans(true)">查询计划</el-button></el-form><el-table :data="plans" v-loading="plansLoading"><el-table-column prop="type" label="维护类型" width="170"/><el-table-column prop="reason" label="业务原因" min-width="240"/><el-table-column prop="state" label="状态" width="170"/><el-table-column prop="createdBy" label="发起人" width="100"/><el-table-column prop="approvedBy" label="批准人" width="100"/><el-table-column prop="createdAt" label="创建时间" min-width="180"/><el-table-column label="操作" width="130"><template #default="{row}"><el-button link type="primary" @click="reviewPlan(row)">查看并复核</el-button></template></el-table-column></el-table><el-pagination v-model:current-page="planQuery.pageNum" :page-size="planQuery.pageSize" :total="planTotal" layout="total,prev,pager,next" @current-change="loadPlans()"/></el-card><el-form inline><el-form-item label="作业状态"><el-select v-model="query.state" clearable><el-option v-for="s in ['QUEUED','RUNNING','RETRY','SUCCEEDED','FAILED','CANCELED']" :key="s" :label="stateLabel(s)" :value="s"/></el-select></el-form-item><el-button @click="load(true)">查询作业</el-button></el-form><el-table :data="rows" v-loading="loading"><el-table-column prop="jobId" label="作业 ID" min-width="210" show-overflow-tooltip/><el-table-column prop="kind" label="类型" width="140"/><el-table-column label="状态" width="130"><template #default="{row}">{{stateLabel(row.state)}}</template></el-table-column><el-table-column prop="progress" label="进度" width="90"/><el-table-column prop="errorMessage" label="原因" min-width="220"/><el-table-column label="操作" width="220"><template #default="{row}"><el-button link @click="view(row)">进度</el-button><el-button v-hasPermi="['paismart:operation:execute']" v-if="['FAILED','CANCELED'].includes(row.state)" link @click="act(row,'retry')">重试</el-button><el-button v-hasPermi="['paismart:operation:execute']" v-if="!terminal(row.state)" link type="warning" @click="act(row,'cancel')">取消</el-button></template></el-table-column></el-table><el-pagination v-model:current-page="query.pageNum" :page-size="query.pageSize" :total="total" layout="total,prev,pager,next" @current-change="load()"/><JobDialog v-model="jobOpen" :initial="job" administrative @done="load()"/><el-dialog v-model="planOpen" title="受控维护计划" width="720px"><el-alert title="先生成计划再审阅范围与版本。执行由服务端权限与批准范围裁决，不允许清空共享数据。" type="warning" :closable="false" class="ps-section"/><el-form label-width="100px"><el-form-item label="操作类型"><el-select v-model="kind"><el-option label="对象迁移计划" value="object-migrations"/><el-option label="过期对象清理计划" value="cleanup-plans"/><el-option label="初始数据导入计划" value="bootstrap-import"/></el-select></el-form-item><el-form-item v-if="kind!=='cleanup-plans'" label="实际对象清单" required><el-input v-model="manifestSource" type="textarea" :rows="9" placeholder="填写实际对象 JSON 数组，最多 1000 项"/><p class="ps-muted">{{manifestGuide}}</p></el-form-item><p v-else class="ps-muted">服务端按当前管理范围生成超过 30 天软删保留期的候选清单；批准前须复核具体文档、对象键、摘要与大小。</p><el-form-item label="业务原因" required><el-input v-model="reason" type="textarea" maxlength="1000"/></el-form-item></el-form><el-alert v-if="formError" :title="formError" type="error" :closable="false"/><el-descriptions v-if="plan" :column="1" border><el-descriptions-item label="计划 ID">{{plan.id}}</el-descriptions-item><el-descriptions-item label="版本">{{plan.planVersion}}</el-descriptions-item><el-descriptions-item label="状态">{{stateLabel(plan.state)}}</el-descriptions-item></el-descriptions><h3 v-if="plan">计划清单</h3><pre v-if="plan" class="ps-pre manifest">{{JSON.stringify(plan.manifest,null,2)}}</pre><el-input v-model="planId" aria-label="待读取计划 ID" placeholder="粘贴计划 ID 以读取和复核"/><el-button @click="readPlan">读取已有计划</el-button><el-checkbox v-if="plan" v-model="confirmed">已核对范围、计划版本和恢复条件</el-checkbox><template #footer><el-button @click="planOpen=false">关闭</el-button><el-button :loading="saving" @click="createPlan">生成计划</el-button><el-button v-if="plan?.state==='PENDING_APPROVAL'" v-hasPermi="['paismart:operation:execute']" :disabled="!confirmed" :loading="saving" @click="approve">批准当前版本</el-button><el-button v-if="plan?.state==='APPROVED'" v-hasPermi="['paismart:operation:execute']" type="danger" :disabled="!confirmed||!plan.planVersion" :loading="saving" @click="execute">执行已核对计划</el-button></template></el-dialog><el-drawer v-model="auditOpen" title="知识库审计" size="min(1100px,95vw)"><el-tabs v-model="auditTab" @tab-change="loadAudit"><el-tab-pane label="操作审计" name="activities"/><el-tab-pane label="会话审计" name="conversations"/></el-tabs><el-table v-if="auditTab==='activities'" :data="activities"><el-table-column prop="createdAt" label="时间" min-width="180"/><el-table-column prop="userName" label="操作人" min-width="130"/><el-table-column prop="action" label="操作" min-width="140"/><el-table-column prop="target" label="目标" min-width="200"/><el-table-column prop="state" label="结果" width="100"/><el-table-column prop="reason" label="说明" min-width="220"/></el-table><template v-else><el-form inline><el-form-item label="用户 ID"><el-input v-model="auditQuery.userId"/></el-form-item><el-form-item label="会话标题"><el-input v-model="auditQuery.keyword"/></el-form-item><el-form-item label="日期范围"><el-date-picker v-model="auditDates" type="daterange" value-format="YYYY-MM-DD"/></el-form-item><el-button @click="searchAudit">查询</el-button><el-button @click="resetAudit">重置</el-button></el-form><el-table :data="auditedConversations"><el-table-column prop="userName" label="平台用户" min-width="160"/><el-table-column prop="title" label="会话" min-width="260"/><el-table-column prop="messageCount" label="消息数" width="90"/><el-table-column prop="updatedAt" label="更新时间" min-width="180"/><el-table-column label="查看" width="110"><template #default="{row}"><el-button link type="primary" @click="viewAudited(row)">查看消息</el-button></template></el-table-column></el-table><el-pagination v-model:current-page="auditQuery.pageNum" :page-size="auditQuery.pageSize" :total="auditTotal" layout="total,prev,pager,next" @current-change="loadAudit"/></template></el-drawer><el-drawer v-model="auditMessageOpen" title="会话正文审计" size="min(850px,95vw)"><el-alert v-if="auditError" :title="auditError" type="error" :closable="false"/><ChatMessage v-for="item in auditedMessages" :key="item.id" :message="item" streaming @reference="openReference"/><el-pagination v-model:current-page="auditMessagePage" :page-size="50" :total="auditMessageTotal" layout="total,prev,pager,next" @current-change="loadAuditedMessages"/></el-drawer><ReferencePreview v-model="referenceOpen" :reference="selectedReference"/><CallReconciliation v-model="callsOpen"/></div></template>
+ <script setup lang="ts">
+ import { computed,onMounted,ref,shallowRef } from 'vue'
+ import { listPlans,auditConversations,auditMessages,approvePlan,getPlan,executePlan,jobAction,listActivities,listJobs,operationStatus,planOperation } from '@/api/paismart/operations'
+--- 修改前/ruoyi-backend/ruoyi-paismart/README.md
++++ 当前/ruoyi-backend/ruoyi-paismart/README.md
+@@ -156,6 +156,8 @@
+ 
+ ## 停止与回退准备
+ 
++中心作业的最终失败、取消与重试通过原处理器同步业务对象。通知发送耗尽或任务恢复超限也进入同一失败回调事务，文档仅更新当前内容版本及处理任务，问答仅更新未完成生成，评测保留已完成报告。索引重建取消后保留检查点并标非活动revision失败，不覆盖活动索引、其他续建或未决别名切换；运维计划保留审批及成功条目，按原job绑定同步FAILED/CANCELED/QUEUED，执行入口和异常写入均检查当前租约。回调不自动重发未知模型/OCR请求，不退还已发生用量或删除原对象。上述补齐只经过本轮源码逻辑核对与私有编译打包，取消/故障/恢复场景未运行；当前结果唯一记录于[完整迁移设计第6.4节](../../文档/项目/PaiSmart知识库项目/完整迁移设计.md#64-本轮全链路逻辑核对状态恢复修复与私有交付)。
++
+ 1. 切换前保存本项目数据库、对象 manifest、旧索引/Provider 快照和配置开关，并记录停写点及独立核对结果；旧系统停止本项目写入后再切换读写入口，平台账户和其他项目通道不随之改变。
+ 2. 发生版本、对象 hash、引用、权限或账务差异时停止相应消费及外部写入，保留任务、checkpoint、执行收据和原对象。未完成事务由审核执行客户端回滚，不能把部分导入视为迁移成功。
+ 3. 对象指针切换可依据清单恢复到保留的源对象，恢复前重新核对其 hash、大小与权限。已清理对象只能从事前备份恢复，软删期限和 tombstone 本身不能恢复已被物理删除的内容。
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java
+@@ -60,7 +60,7 @@
+     @GetMapping("/operations/plans") @PreAuthorize("@ss.hasPermi('paismart:operation:plan')")
+     public TableDataInfo plans(@RequestParam(defaultValue="1")int pageNum,@RequestParam(defaultValue="20")int pageSize,@RequestParam(defaultValue="")String state){
+         var scope=actor();int size=Math.max(1,Math.min(100,pageSize));
+-        String selected=state==null?"":state.trim().toUpperCase(Locale.ROOT);if(!selected.isEmpty()&&!Set.of("PENDING_APPROVAL","APPROVED","QUEUED","EXECUTING","SUCCEEDED","FAILED").contains(selected))throw new IllegalArgumentException("运维计划状态无效");
++        String selected=state==null?"":state.trim().toUpperCase(Locale.ROOT);if(!selected.isEmpty()&&!Set.of("PENDING_APPROVAL","APPROVED","QUEUED","EXECUTING","SUCCEEDED","FAILED","CANCELED").contains(selected))throw new IllegalArgumentException("运维计划状态无效");
+         var visible=jdbc.queryForList("SELECT * FROM ps_operation_plan"+(selected.isEmpty()?"":" WHERE state=?")+" ORDER BY created_at DESC,id DESC",selected.isEmpty()?new Object[]{}:new Object[]{selected}).stream().filter(p->access.plan(scope,p)).map(p->{Map<String,Object> r=new LinkedHashMap<>();r.put("id",p.get("id"));r.put("type",p.get("type"));r.put("state",p.get("state"));r.put("reason",p.get("reason"));r.put("createdBy",p.get("created_by"));r.put("approvedBy",p.get("approved_by"));r.put("planVersion",p.get("manifest_hash"));r.put("rowVersion",p.get("row_version"));r.put("createdAt",p.get("created_at"));r.put("jobId",p.get("job_id"));return r;}).toList();
+         long start=Math.min(visible.size(),Math.max(0L,(long)pageNum-1)*size);return PaismartTables.page(visible.subList((int)start,(int)Math.min(visible.size(),start+size)),visible.size());
+     }
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/DocumentService.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/DocumentService.java
+@@ -178,6 +178,10 @@
+     /** 中心Job取消/重试事务调用；只作用于文档当前版本及其唯一处理任务。 */
+     public void onProcessingCancelled(JobService.Job job) {processingTransition(job,"CANCELED","文档处理已取消");}
+     public void onProcessingRetry(JobService.Job job) {processingTransition(job,"QUEUED",null);}
++    public void onProcessingFailed(JobService.Job job) {
++        if(job.documentId()==null || !Set.of("DOCUMENT_PROCESS","DOCUMENT_PARSE","DOCUMENT_REINDEX").contains(job.type())) return;
++        jdbc.update("UPDATE ps_document SET status='FAILED',error_message=?,row_version=row_version+1,updated_at=CURRENT_TIMESTAMP WHERE id=? AND version=? AND process_job_id=? AND deleted_at IS NULL AND status IN ('QUEUED','PARSING','INDEXING')",job.errorMessage(),job.documentId(),processingVersion(job),job.id());
++    }
+     public boolean isCurrentProcessingJob(JobService.Job job) {
+         if(job.documentId()==null) return false;
+         Integer count=jdbc.queryForObject("SELECT COUNT(*) FROM ps_document WHERE id=? AND version=? AND process_job_id=? AND deleted_at IS NULL",Integer.class,job.documentId(),processingVersion(job),job.id());
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java
+@@ -90,6 +90,7 @@
+     public List<Map<String,Object>> events(long user,String id,long after){generation(user,id);if(after<0)throw new IllegalArgumentException("恢复序号无效");return db.queryForList("SELECT event_json FROM ps_chat_event WHERE generation_id=? AND sequence_no>? ORDER BY sequence_no LIMIT 500",id,after).stream().map(r->Jsons.map(Values.text(r.get("event_json")))).toList();}
+     public void stop(long user,String id){generation(user,id);db.update("UPDATE ps_chat_generation SET stop_requested=TRUE,updated_at=? WHERE id=? AND user_id=? AND state IN ('QUEUED','RUNNING')",LocalDateTime.now(),id,user);}
+     public boolean supports(String type){return "CHAT_GENERATE".equals(type);}
++    @Override public void onFailed(JobService.Job job){String id=Values.text(job.payload().get("generationId"));List<String> states=db.queryForList("SELECT state FROM ps_chat_generation WHERE id=? AND user_id=? FOR UPDATE",String.class,id,job.userId());if(!states.isEmpty()&&Set.of("QUEUED","RUNNING").contains(states.get(0)))finish(id,"FAILED",job.errorMessage());}
+     @Override public void onCancelled(JobService.Job job){String id=Values.text(job.payload().get("generationId"));List<String> rows=db.queryForList("SELECT state FROM ps_chat_generation WHERE id=? AND user_id=?",String.class,id,job.userId());if(!rows.isEmpty()&&Set.of("QUEUED","RUNNING").contains(rows.get(0)))finish(id,"STOPPED","任务已取消，已保存内容和引用");}
+     @Override public void onRetry(JobService.Job job){String id=Values.text(job.payload().get("generationId"));Map<String,Object> row=db.queryForMap("SELECT * FROM ps_chat_generation WHERE id=? AND user_id=? FOR UPDATE",id,job.userId());if("COMPLETE".equals(row.get("state")))return;if(db.queryForObject("SELECT COUNT(*) FROM ps_model_call WHERE user_id=? AND operation_id LIKE ? AND status IN ('STARTED','UNCERTAIN')",Long.class,job.userId(),"%"+id+"%")>0)throw new IllegalStateException("模型调用结果待核对，请先完成正式用量核对后重试");if(db.queryForObject("SELECT COUNT(*) FROM ps_chat_generation WHERE user_id=? AND id<>? AND state IN ('QUEUED','RUNNING')",Long.class,job.userId(),id)>0)throw new IllegalStateException("JOB_BUSY:本人已有其他生成");String message=Values.id();db.update("INSERT INTO ps_chat_message(id,conversation_id,role,content,references_json,state,created_at) VALUES(?,?,'assistant','','[]','QUEUED',?)",message,row.get("conversation_id"),LocalDateTime.now());db.update("UPDATE ps_chat_generation SET state='QUEUED',assistant_message_id=?,execution_attempt=execution_attempt+1,stop_requested=FALSE,error_message=NULL,updated_at=? WHERE id=?",message,LocalDateTime.now(),id);}
+     private String callNamespace(String generation){return generation+":attempt:"+db.queryForObject("SELECT execution_attempt FROM ps_chat_generation WHERE id=?",Integer.class,generation);}
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java
+@@ -22,6 +22,7 @@
+     public boolean supports(String type){return Set.of("DOCUMENT_PROCESS","DOCUMENT_PARSE","DOCUMENT_REINDEX","DOCUMENT_DELETE","REINDEX","DELETE").contains(type);}
+     public void onCancelled(JobService.Job job) {docs.onProcessingCancelled(job);}
+     public void onRetry(JobService.Job job) {docs.onProcessingRetry(job);}
++    public void onFailed(JobService.Job job) {docs.onProcessingFailed(job);}
+     public Map<String,Object> processJob(JobService.Job job)throws IOException {
+         jobs.requireLease(job.id(),job.leaseToken());IndexCoordinator.Fence fence=coordinator.acquire(owner(job));
+         try {lease(job);return processLocked(job);} finally {coordinator.release(fence);}
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java
+@@ -89,15 +89,26 @@
+     }
+     public JobService.Job rollback(long user,Map<String,Object> body,String key){String id=Values.required(body,"indexId",36);Map<String,Object> row=db.queryForMap("SELECT * FROM ps_index_revision WHERE id=?",id);if(!"RETIRED".equals(row.get("state"))||Values.number(body.get("expectedVersion"),-1)!=Values.number(row.get("row_version"),0))throw new IllegalStateException("VERSION_CONFLICT:索引不允许回滚");providers.secret(providers.fromSnapshot(Values.text(row.get("provider_snapshot"))));return jobs.enqueue(user,"INDEX_ROLLBACK",Map.of("indexId",id),key);}
+     public boolean supports(String type){return Set.of("INDEX_REBUILD","INDEX_ROLLBACK","INDEX_RECOVER","EVALUATION_RUN","CONFLICT_DETECT").contains(type);}
+-    @Override public void onCancelled(JobService.Job job){evaluationTransition(job,"CANCELED");}
+-    @Override public void onRetry(JobService.Job job){evaluationTransition(job,"QUEUED");}
++    @Override public void onCancelled(JobService.Job job){evaluationTransition(job,"CANCELED");indexTaskTransition(job,false,"索引重建已取消，可从检查点恢复");}
++    @Override public void onRetry(JobService.Job job){evaluationTransition(job,"QUEUED");indexTaskTransition(job,true,null);}
++    @Override public void onFailed(JobService.Job job){evaluationTransition(job,"FAILED");indexTaskTransition(job,false,job.errorMessage());}
++    private void indexTaskTransition(JobService.Job job,boolean retry,String reason){
++        if(!"INDEX_REBUILD".equals(job.type()))return;
++        String id=Values.text(job.payload().get("indexId"));
++        if(db.queryForList("SELECT id FROM ps_index_revision WHERE id=? FOR UPDATE",id).isEmpty())return;
++        // 同一revision可能另行续建；旧任务的终态不能覆盖新任务或已经生效的版本。
++        boolean another=db.queryForList("SELECT payload_json FROM ps_job WHERE type='INDEX_REBUILD' AND id<>? AND state IN ('QUEUED','RETRY','RUNNING')",job.id()).stream().anyMatch(row->id.equals(Values.text(Jsons.map(Values.text(row.get("payload_json"))).get("indexId"))));
++        if(another){if(retry)throw new IllegalStateException("JOB_BUSY:该索引已有其他续建任务");return;}
++        if(retry)db.update("UPDATE ps_index_revision SET state='BUILDING',error_message=NULL,row_version=row_version+1,updated_at=? WHERE id=? AND state='FAILED'",LocalDateTime.now(),id);
++        else db.update("UPDATE ps_index_revision SET state='FAILED',error_message=?,row_version=row_version+1,updated_at=? WHERE id=? AND state IN ('BUILDING','VALIDATED') AND NOT EXISTS (SELECT 1 FROM ps_index_switch WHERE to_revision=? AND state IN ('PREPARED','ALIAS_CHANGED','RECOVERY_REQUIRED'))",reason,LocalDateTime.now(),id,id);
++    }
+     private void evaluationTransition(JobService.Job job,String target){
+         if(!"EVALUATION_RUN".equals(job.type())||!target.equals(job.state()))return;
+         tx.executeWithoutResult(status->{
+             if(db.queryForList("SELECT id FROM ps_job WHERE id=? AND user_id=? AND type='EVALUATION_RUN' AND state=? AND row_version=? FOR UPDATE",job.id(),job.userId(),target,job.rowVersion()).isEmpty())return;
+             String id=Values.text(job.payload().get("evaluationId"));if(db.queryForList("SELECT id FROM ps_evaluation WHERE id=? AND user_id=? AND job_id=? FOR UPDATE",id,job.userId(),job.id()).isEmpty())return;
+             if("QUEUED".equals(target)&&db.queryForObject("SELECT COUNT(*) FROM ps_model_call WHERE user_id=? AND status IN ('STARTED','UNCERTAIN') AND (operation_id LIKE ? OR operation_id LIKE ?)",Long.class,job.userId(),"eval-answer:"+id+":%","eval-judge:"+id+":%")>0)throw new IllegalStateException("模型调用结果待核对，请先完成正式用量核对后重试");
+-            db.update("UPDATE ps_evaluation SET state=?,updated_at=?,row_version=row_version+1 WHERE id=? AND user_id=? AND job_id=? AND state<>?",target,LocalDateTime.now(),id,job.userId(),job.id(),target);
++            db.update("UPDATE ps_evaluation SET state=?,updated_at=?,row_version=row_version+1 WHERE id=? AND user_id=? AND job_id=? AND state IN ('QUEUED','RUNNING','FAILED','CANCELED') AND state<>?",target,LocalDateTime.now(),id,job.userId(),job.id(),target);
+         });
+     }
+     private final ThreadLocal<JobService.Job> execution=new ThreadLocal<>();
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/JobService.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/JobService.java
+@@ -72,7 +72,7 @@
+         });
+     }
+     private Optional<Job> claimLocked(Job j,int seconds) {
+-        if(j.retries()>=4) { jdbc.update("UPDATE ps_job SET state='FAILED',error_message='任务恢复次数超过上限',lease_token=NULL,lease_until=NULL,row_version=row_version+1 WHERE id=?",j.id()); deadLetter(j.id(),"任务恢复次数超过上限");return Optional.empty(); }
++        if(j.retries()>=4) { jdbc.update("UPDATE ps_job SET state='FAILED',error_message='任务恢复次数超过上限',lease_token=NULL,lease_until=NULL,row_version=row_version+1,updated_at=CURRENT_TIMESTAMP WHERE id=?",j.id()); failed(get(j.id()));return Optional.empty(); }
+         String token=UUID.randomUUID().toString();
+         Instant until=Instant.now().plusSeconds(Math.max(30,Math.min(seconds,3600)));
+         jdbc.update("UPDATE ps_job SET state='RUNNING',lease_token=?,lease_until=?,retries=retries+1,row_version=row_version+1,updated_at=CURRENT_TIMESTAMP WHERE id=?",token,Timestamp.from(until),j.id());
+@@ -96,8 +96,23 @@
+             if(jdbc.update("UPDATE ps_job SET state=?,error_message=?,next_retry_at=?,lease_token=NULL,lease_until=NULL,row_version=row_version+1,updated_at=CURRENT_TIMESTAMP WHERE id=? AND state='RUNNING' AND lease_token=? AND lease_until>=CURRENT_TIMESTAMP",next,safe,Timestamp.from(Instant.now().plusSeconds(Math.min(300,10L<<j.retries()))),id,leaseToken)!=1) throw new IllegalStateException("任务租约失效");
+             if("RETRY".equals(next)) {
+                 jdbc.update("UPDATE ps_outbox SET state='PENDING',next_attempt_at=? WHERE job_id=? AND topic='paismart.jobs'",Timestamp.from(Instant.now().plusSeconds(Math.min(300,10L<<j.retries()))),id);
+-            } else deadLetter(id,safe);
++            } else failed(get(id));
+         });
++    }
++    /** 通知重试耗尽也必须同步业务对象；当前读复核，不能覆盖已领取或已完成的任务。 */
++    public void failUndeliverable(String id) {
++        tx.executeWithoutResult(status -> {
++            List<Job> rows=jdbc.query("SELECT * FROM ps_job WHERE id=? FOR UPDATE",(rs,n)->row(rs),id);
++            if(rows.isEmpty() || !Set.of("QUEUED","RETRY").contains(rows.get(0).state())) return;
++            if(jdbc.queryForObject("SELECT COUNT(*) FROM ps_outbox WHERE job_id=? AND topic='paismart.jobs' AND state='PENDING' AND attempts>=12",Integer.class,id)==0) return;
++            jdbc.update("UPDATE ps_job SET state='FAILED',error_message='Kafka通知发送超过重试上限',lease_token=NULL,lease_until=NULL,row_version=row_version+1,updated_at=CURRENT_TIMESTAMP WHERE id=?",id);
++            failed(get(id));
++            jdbc.update("UPDATE ps_outbox SET state='FAILED' WHERE job_id=? AND topic='paismart.jobs' AND state='PENDING' AND attempts>=12",id);
++        });
++    }
++    private void failed(Job job) {
++        if(handlers!=null) handlers.orderedStream().filter(h->h.supports(job.type())).forEach(h->h.onFailed(job));
++        deadLetter(job.id(),job.errorMessage()==null?"处理失败":job.errorMessage());
+     }
+     public void retry(String id,long expectedVersion) {
+         tx.executeWithoutResult(status -> {
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/PaismartJobHandler.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/PaismartJobHandler.java
+@@ -6,4 +6,6 @@
+     Map<String,Object> processJob(JobService.Job job) throws Exception;
+     default void onCancelled(JobService.Job job) { }
+     default void onRetry(JobService.Job job) { }
++    /** 与中心任务失败在同一事务内同步业务终态，不执行外部调用或退还未知用量。 */
++    default void onFailed(JobService.Job job) { }
+ }
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/operations/OperationExecutionService.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/operations/OperationExecutionService.java
+@@ -47,6 +47,12 @@
+         this.objects=objects;this.jobs=jobs;this.enabled=enabled;
+     }
+     public boolean supports(String type) {return "OPERATION_EXECUTE".equals(type);}
++    @Override public void onFailed(JobService.Job job){transition(job,"FAILED");}
++    @Override public void onCancelled(JobService.Job job){transition(job,"CANCELED");}
++    @Override public void onRetry(JobService.Job job){transition(job,"QUEUED");}
++    private void transition(JobService.Job job,String target){
++        jdbc.update("UPDATE ps_operation_plan SET state=?,row_version=row_version+1 WHERE id=? AND job_id=? AND state IN ('QUEUED','EXECUTING','FAILED','CANCELED')",target,text(job.payload().get("planId")),job.id());
++    }
+     public Map<String,Object> processJob(JobService.Job job) throws Exception {
+         if(!enabled) throw new ServiceException("真实运维执行未启用",503);
+         if(!supports(job.type()) || job.leaseToken()==null) throw new ServiceException("运维任务类型或租约无效",409);
+@@ -62,7 +68,7 @@
+         long creator=((Number)plan.get("created_by")).longValue();Scope actor=new Scope(creator,SecurityUtils.isAdmin(creator));
+         Map<String,Object> manifest=Jsons.map(json);String kind=text(plan.get("type"));
+         rejectUncontrolledInputs(manifest);
+-        jdbc.update("UPDATE ps_operation_plan SET state='EXECUTING',row_version=row_version+1 WHERE id=?",id);
++        tx.executeWithoutResult(status->{lease(job);if(jdbc.update("UPDATE ps_operation_plan SET state='EXECUTING',row_version=row_version+1 WHERE id=? AND job_id=? AND state IN ('QUEUED','EXECUTING','FAILED')",id,job.id())!=1)throw new ServiceException("运维计划已变化或已取消",409);});
+         try {
+             List<Map<String,Object>> entries=new ArrayList<>(entries(manifest.get(kind.equals("bootstrap-import")?"files":"documents")));
+             if(kind.equals("cleanup-plans")&&manifest.containsKey("uploads")) entries.addAll(entries(manifest.get("uploads")));
+@@ -104,7 +110,7 @@
+             tx.executeWithoutResult(status->{lease(job);jdbc.update("UPDATE ps_operation_plan SET state='SUCCEEDED',row_version=row_version+1 WHERE id=?",id);
+                 jdbc.update("INSERT INTO ps_audit_event(id,user_id,action,resource_id,reason) VALUES(?,?,'OPERATION_COMPLETE',?,?)",UUID.randomUUID().toString(),job.userId(),id,"已完成批准清单，源对象及账务按保留策略处理");});
+             return summary(id);
+-        } catch(Exception failure) {jdbc.update("UPDATE ps_operation_plan SET state='FAILED',row_version=row_version+1 WHERE id=? AND state='EXECUTING'",id);throw failure;}
++        } catch(Exception failure) {try{tx.executeWithoutResult(status->{lease(job);jdbc.update("UPDATE ps_operation_plan SET state='FAILED',row_version=row_version+1 WHERE id=? AND job_id=? AND state='EXECUTING'",id,job.id());});}catch(RuntimeException stale){failure.addSuppressed(stale);}throw failure;}
+     }
+     private void lease(JobService.Job job) {jobs.requireLease(job.id(),job.leaseToken());}
+     private void saveReceipt(String id,String key,String digest,Map<String,Object> result){
+--- 修改前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/PaismartKafkaRuntime.java
++++ 当前/ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/PaismartKafkaRuntime.java
+@@ -44,8 +44,9 @@
+     }catch(RuntimeException ex){LOG.warn("Paismart outbox未就绪；暂停发送");}}
+     void recoverNotifications(){
+         jdbc.update("UPDATE ps_outbox SET state='PENDING',next_attempt_at=CURRENT_TIMESTAMP WHERE topic='paismart.jobs' AND state='SENT' AND next_attempt_at<=CURRENT_TIMESTAMP AND job_id IN (SELECT id FROM ps_job WHERE state='QUEUED' OR (state='RUNNING' AND lease_until<CURRENT_TIMESTAMP) OR (state='RETRY' AND next_retry_at<=CURRENT_TIMESTAMP))");
+-        jdbc.update("UPDATE ps_job SET state='FAILED',error_message='Kafka通知发送超过重试上限',row_version=row_version+1 WHERE state IN ('QUEUED','RETRY') AND id IN (SELECT job_id FROM ps_outbox WHERE topic='paismart.jobs' AND state='PENDING' AND attempts>=12)");
+-        jdbc.update("UPDATE ps_outbox SET state='FAILED' WHERE state='PENDING' AND attempts>=12");
++        for(String id:jdbc.queryForList("SELECT j.id FROM ps_job j JOIN ps_outbox o ON o.job_id=j.id WHERE j.state IN ('QUEUED','RETRY') AND o.topic='paismart.jobs' AND o.state='PENDING' AND o.attempts>=12 ORDER BY j.created_at LIMIT 100",String.class)) jobs.failUndeliverable(id);
++        // 普通任务通知由上面的事务处理；失败回执尚未同步时不能先隐藏其重试耗尽事实。
++        jdbc.update("UPDATE ps_outbox SET state='FAILED' WHERE state='PENDING' AND attempts>=12 AND (topic<>'paismart.jobs' OR job_id IN (SELECT id FROM ps_job WHERE state IN ('FAILED','CANCELED','SUCCEEDED')))");
+     }
+     void markPublished(String id){jdbc.update("UPDATE ps_outbox SET state='SENT',attempts=0,next_attempt_at=? WHERE id=? AND state='PENDING'",java.sql.Timestamp.from(java.time.Instant.now().plusSeconds(60)),id);}
+     private void consume(){boolean paused=false;try{consumer.subscribe(List.of("paismart.jobs"));while(running){
+--- 修改前/文档/项目/PaiSmart知识库项目/完整迁移设计.md
++++ 当前/文档/项目/PaiSmart知识库项目/完整迁移设计.md
+@@ -1,10 +1,10 @@
+ # PaiSmart 知识库完整迁移设计
+ 
+-> 文档类型：整体迁移重构设计；版本：1.0；方案：用户已认可，继续复核发现的恢复与页面状态反馈差距已补齐并通过本地检查，真实联机与数据迁移未验收  
++> 文档类型：整体迁移重构设计；版本：1.0；方案：用户已认可，本轮全链路源码逻辑核对及必要修复、私有编译打包已完成；真实业务未执行，当前结果见第6.4节  
+ > 负责人：当前任务执行者；创建：2026-10-02；更新时间：2026-10-03  
+ > 需求依据：用户要求将 `参考项目/PaiSmart-main` 全部业务能力迁入共享若依，形成独立业务子模块；2026-10-03 用户明确回复“认可设计及建议方案，开始编码”，批准第1.4节建议并将修改范围扩展到若依后端和管理端源码。  
+ > 规范基线：用户级入口 2026.10-r7、项目入口 2026.10-r11、设计/界面/文档正文 2026.10-r4；[共享若依参考](../../若依框架/若依框架前后端开发规范参考.md)。  
+-> 本文是本项目需求、设计、实施步骤及当前实施状态的唯一正文。图稿及[源码核对附录](设计附录/源码核对与接口清单.md)只提供视觉和出处，不另维护任务状态。参考源码继续只读；允许本地源码与必要构建依赖、定向技术检查。真实数据库/菜单写入、外部付费调用、支付启用、发布及 Git 写操作未授权。
++> 本文是本项目需求、设计、实施步骤及当前实施状态的唯一正文。图稿及[源码核对附录](设计附录/源码核对与接口清单.md)只提供视觉和出处，不另维护任务状态。参考源码继续只读。本轮按用户最新范围仅做必要源码修复、逻辑核对、类型检查和私有编译打包，不运行单元/组件/集成/浏览器业务测试或真实业务；已有原库54表补建事实见末尾接续要求及第6.4节，本轮不重复DDL或初始化。菜单/账号权限、旧数据导入、付费模型/OCR/微信支付、发布和Git操作未新增授权。
+ 
+ ## 1. 需求与业务逻辑
+ 
+@@ -386,7 +386,7 @@
+ | 6. 治理、评测与供应商完整界面 | 源码补齐并通过本地检查；真实ES及模型未验收 | 正式count/KNN验证、冲突作业入口/锁/租约、切换恢复、完整报告与人工一致性、Provider地址兼容、90/60秒总预算及创建幂等均已补 |
+ | 7. 用量、限流、充值及套餐 | 源码补齐并通过本地检查；真实支付未验收 | DAILY/余额、7/30日趋势排行、套餐权益快照、订单状态与查单/回调唯一结算、邀请锁序和原拒绝条件均通过；支付关闭 |
+ | 8. 系统作业、数据迁移和运行交付 | 源码与离线准备完成；真实执行未进行 | 旧桶只读桥接、未完成上传、内置知识逻辑绑定/版本修复及精确临时片清理已补；离线转换17项通过，审核SQL在业务插入前核对history1—5及跨批次转换指纹，实际迁移/回退尚未执行 |
+-| 9. 定向技术检查与完整业务验收 | 本地技术检查完成；业务验收未执行 | 当前36类362项后端检查通过证据由359项未受影响基线与3项生命周期定向复验组成；10文件72项前端检查及类型/独立构建按未变源码沿用，当前契约已核对；真实验收仍按第5节31项逐项执行，不据技术检查判业务通过 |
++| 9. 定向技术检查与完整业务验收 | 本轮逻辑核对、必要修复和私有编译打包完成；业务验收未执行 | 第6.4节记录31项全链路逻辑报告；362项后端、72项前端为历史版本证据，本轮新增测试0项，变化部分不以旧结果证明新版本。真实业务31项均未执行，用户接受和发布未取得 |
+ 
+ ### 6.2 首轮实际实现、检查与限制（后续变更见6.3）
+ 
+@@ -474,7 +474,19 @@
+ 
+ 本次日志补齐后的[验收准备报告](设计附录/2026-10-03-真实业务验收准备/verification-report.html)已用内置浏览器重新打开：31项状态均为未执行，解析清单筛选、原第6项锚点及清空后31卡片恢复正常，无横向溢出或控制台错误/警告。[首页截图](设计附录/2026-10-03-真实业务验收准备/报告呈现-日志预算首页.jpg)和[解析清单截图](设计附录/2026-10-03-真实业务验收准备/报告呈现-日志预算解析清单.jpg)保存后逐张回读；前端技术报告25张图沿用未变版本的前轮呈现证据，本次未重复打开。呈现范围及来源见[验收记录](设计附录/2026-10-03-真实业务验收准备/验收记录.json)。本次专用报告标签页及18151静态预览已关闭，18151/18152无监听，限定解析生命周期夹具无残留Java进程；未操作业务进程。
+ 
+-<!-- 内部元数据：2026-10-03设计及建议获用户明确认可，源码实施获授权。唯一正文为本文件，附录只存来源/检查事实；设计图不是实际业务截图。真实环境、数据、支付、发布和Git写操作仍无授权。 -->
++### 6.4 本轮全链路逻辑核对、状态恢复修复与私有交付
++
++用户最新范围为继续完成必要实现并做中文全链路逻辑核对，不执行真实业务或单元测试。本轮沿用第5节原31项顺序完成“入口和参数→身份权限→API和数据归属→任务/算法/Worker→保存展示→异常、取消、重试和恢复”核对，交付[全链路逻辑验收报告](设计附录/2026-10-03-全链路逻辑验收/全链路逻辑验收报告.html)及其同源[源码链路对应](设计附录/2026-10-03-全链路逻辑验收/源码链路对应.md)。24项记“逻辑成立（静态范围）”，原第6、8、14、19、20、28、29项共7项记“修复后逻辑复核（未运行）”；每项单列运行前提未验证范围，全部真实业务均未执行。这是本轮请求范围完成，不是生产全迁移、真实业务通过、用户接受或发布结论。
++
++确认并在原模块局部修复五组缺口：一是Kafka通知耗尽和任务恢复上限原本仅改中心作业，新增统一失败回调，同事务同步当前文档、问答、评测及运维对象，避免长期停在排队/处理中；二是索引取消/最终失败同步非活动revision为FAILED，续建保留检查点，保护另行续建、活动/退役版本及未决别名切换；三是评测终态回调限制为未完成状态，保留已COMPLETE/COMPLETED_WITH_ERRORS报告；四是运维计划失败/取消/重试联动，执行入口与异常写入检查当前租约，保留审批和成功条目，旧Worker不得覆盖新状态；五是原运维页面、后端筛选和OperationPlan契约补齐CANCELED及既有重试入口。没有增加数据库结构、路由或另一套控制面，没有改变原检索/问答/分块/评测算法或Token/OCR结算规则。
++
++后端23模块admin装配、最终评测终态保护后的装配、PaiSmart Worker依赖打包、前端`typecheck:paismart`及私有输出`build:prod`均成功。后端构建使用当前main源码私有快照，不复制test源码并显式`maven.test.skip=true/skipTests`；编译主机JDK21、项目source/target17，不冒称JDK17运行验证。全部产物固定在`.runtime/paismart-logic-20261003-373ca66f2b0a/`，未覆盖共享装配包或切换运行版本。普通模块、私有admin内嵌模块和Worker主JAR SHA256一致；240个Worker依赖、四个BC1.85组件、五版结构/评测/许可资源及默认关闭配置保存于[私有交付产物核对](设计附录/2026-10-03-全链路逻辑验收/私有交付产物核对.json)。后端main源码与构建快照逐文件一致；共享`ruoyi-admin/target/ruoyi-admin.jar`及`frontend/admin-web/dist/index.html`构建前后摘要均未变化，不据此判断其他项目全部并行修改。构建日志及[源码摘要](设计附录/2026-10-03-全链路逻辑验收/当前源码摘要.csv)与报告在同一目录，既有构建警告未隐藏。
++
++历史362项后端（359+3）、72项前端、17项离线迁移守卫和19份解析CLI结果及原失败日志保留，本轮新执行均为0。中心作业、通知及业务终态代码和运维页面已变，不用历史通过证明本次修复。未改的离线转换/解析源码只保留原证据覆盖范围，重打主JAR不等于重跑样例。修改前当前原文保存在本轮证据目录`修改前原文/`，恢复须逐文件核对本轮差异并保护后来新增修改，不从Git HEAD恢复或整体覆盖并行工作。
++
++已有原MySQL`localhost:3306/ry-vue`补建54表（V001—V005的53张业务/控制表加history）、468列、94索引、76约束的事实来自[建表与接续记录](../../若依框架/证据/2026-10-03-参考项目业务建表/建表与接续记录.md)，本轮未连接业务库、重复DDL、初始化、授予菜单/角色/账号或导入旧数据。未启动服务/Worker、运行业务或故障演练、调用模型/OCR/微信、执行对象运维、使用worktree/子Agent或进行任何Git操作。平台菜单/navType、真实权限、Redis/Kafka/MinIO/ES、供应商/支付、旧数据与对象迁移/切换/回退、OS隔离及容量仍未验证；每项实质限制见报告，均不伪装为通过。
++
++<!-- 内部元数据：2026-10-03设计及建议获用户明确认可，源码实施获授权；本轮用户明确限定逻辑核对及必要实现/编译打包。唯一正文为本文件，附录只存来源/检查事实；设计图不是实际业务截图。真实业务、支付、发布和Git操作未新增授权。 -->
+ 
+ 
+ ## 2026-10-03 用户最新接续与逻辑验收要求

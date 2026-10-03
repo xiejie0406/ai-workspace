@@ -1,0 +1,69 @@
+{
+  "time": "2026-10-03T10:41:28.154515+08:00",
+  "scope": "实际本地Java夹具验证stdout/stderr磁盘增长与解析生命周期；未执行真实业务或OS沙箱验收。",
+  "sourceChanges": [
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/IsolatedDocumentParser.java",
+      "sha256": "24244afc4540dfd8f8126211e42b27fdd881086e91e749a459b625500659deae"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/infrastructure/intelligence/IsolatedParserLifecycleTest.java",
+      "sha256": "f0d71e1360858d94115b9e29bd6ea1537bffc71092cc490e1aa6f98dfd1c9464"
+    }
+  ],
+  "productionChange": "仅移除未消费process.log路径，并改为合并输出后DISCARD；JSON与退出/超时/中断异常不变。",
+  "originalFailure": {
+    "report": "文档/项目/PaiSmart知识库项目/设计附录/2026-10-03-解析日志预算补齐/旧源单项失败报告/TEST-com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest.xml",
+    "sha256": "c217a7d6f0e066c963d1de8c3f13984db4537efce235cd677923b2ddb8e682c0",
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "firstRepairFullRun": {
+    "tests": 362,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "log": "解析日志-修后全模块复验.log",
+    "reports": "首修全模块失败报告"
+  },
+  "diagnosticFailure": {
+    "report": "文档/项目/PaiSmart知识库项目/设计附录/2026-10-03-解析日志预算补齐/首修单项文件诊断失败报告/TEST-com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest.xml",
+    "sha256": "7efd7b0fdbb7f126ca5315307e19a6766bc8fe79f9c5e16ecef6f612d02a9a8d",
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "diagnosticCause": "原64KiB固定目录断言包含JVM性能文件65536字节和输入16字节；原失败未删除。",
+  "after": {
+    "report": "文档/项目/PaiSmart知识库项目/设计附录/2026-10-03-解析日志预算补齐/全目录增长修正后生命周期通过报告/TEST-com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest.xml",
+    "sha256": "135b3e5faa5ed997c4aeae6745ef2762d35fecd39fab9fb5e497d3d3beb72779",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "stdoutAndStderrBytes": 16777216,
+  "temporaryDirectoryBeforeBytes": 65552,
+  "temporaryDirectoryAfterBytes": 65552,
+  "temporaryDirectoryGrowthBytes": 0,
+  "maximumGrowthBytes": 4096,
+  "measurementScope": "同一已核对测试子进程和任务目录；输出前后全目录统计，不排除JVM或任何指定文件。",
+  "currentBackend": {
+    "classes": 36,
+    "tests": 362,
+    "retainedFirstFullRunTests": 359,
+    "targetedTests": 3,
+    "provenance": "当前通过报告/执行来源.json"
+  },
+  "newWorkerCLI": {
+    "report": "文档/项目/PaiSmart知识库项目/设计附录/2026-10-03-解析中断与迁移恢复补齐/实际解析CLI复验/103325-775006/results.json",
+    "sha256": "ae3afec0b50514b1da62bac0eab032f9e341879e204e36076d312b21abdb0979",
+    "tests": 19,
+    "passed": 19
+  },
+  "businessAcceptanceExecuted": false,
+  "realDatabaseExecuted": false
+}

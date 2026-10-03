@@ -1,0 +1,208 @@
+{
+  "preparedAt": "2026-10-03T09:22:44.9649626+08:00",
+  "executed": false,
+  "scope": "只准备同19项CLI样例复验；未启动Java、未改原基线，不能据此沿用本批成功",
+  "originalScript": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-最终解析进程复验.py",
+  "originalScriptSha256": "53fe39d99a9e554b7e3cb810395190f098ece19be95294b01cb062fed4397e00",
+  "baseline": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\results.json",
+  "baselineSha256": "8135e67395430143933a8c40adfff54b588db94a69fe78fbd135f8c6cc4e84b6",
+  "callableScript": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-解析中断与迁移恢复补齐\\实际解析CLI复验.py",
+  "callableScriptSha256": "dd40486a9bd6bea7d7326e1ae0a9c231ffc97bcb74e7674d7abc2ac9f174b177",
+  "invoke": [
+    "python",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-解析中断与迁移恢复补齐\\实际解析CLI复验.py",
+    "<本模块target下已审核的新Worker目录绝对路径>"
+  ],
+  "workerParameter": "唯一位置参数；必须是ruoyi-paismart/target内存在的目录、唯一ruoyi-paismart-*.jar且含lib目录；本次未选择/执行新Worker",
+  "javaFlags": [
+    "-Xmx256m",
+    "-Djava.awt.headless=true",
+    "-Djava.io.tmpdir=<每例本轮temp>"
+  ],
+  "workerClass": "com.ruoyi.paismart.infrastructure.intelligence.ParserWorker",
+  "workerArguments": [
+    "<每例input>",
+    "<每例body.json>",
+    "100",
+    "200000"
+  ],
+  "timeoutSeconds": 50,
+  "parallelWorkers": 2,
+  "environmentAllowlist": [
+    "PATH",
+    "SYSTEMROOT",
+    "TMP",
+    "TEMP"
+  ],
+  "unchangedPassCondition": "退出码0，且按原逻辑由pages[].text以LF拼接的正文包含该例expected；没有改成只检查输出存在、字数或宽松替代文本",
+  "total": 19,
+  "expectedPassed": 19,
+  "outputRoot": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-解析中断与迁移恢复补齐\\实际解析CLI复验\\<HHmmss-microseconds>\\",
+  "outputs": [
+    "每例input",
+    "每例body.json",
+    "每例temp",
+    "每例stderr.log",
+    "每例stdout.log",
+    "results.json（新Worker主JAR/全部依赖hash、逐例命令、正文检查、passed/total）"
+  ],
+  "limits": [
+    "直接CLI核对ParserWorker，不单独证明IsolatedDocumentParser取消/超时生命周期；后者由定向Java测试覆盖",
+    "不等于OS沙箱、不等于真实业务验收",
+    "原19份input hash和16份当前源码样例hash已实际核对；3份approved输入复用原保存bytes"
+  ],
+  "fixtures": [
+    {
+      "file": "testWORD.doc",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testWORD.doc\\input",
+      "sha256": "5ca19b67876f284a0e04ed06df44a004f850629a871fe522d014e1fdff912799",
+      "expected": "Sample Word Document Title",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testWORD.docx",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testWORD.docx\\input",
+      "sha256": "67797f5691cb5346201f1c40000a959f9f08d05d0b4493b4291e8d5f16e81e65",
+      "expected": "Sample Word Document Title",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testEXCEL.xls",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testEXCEL.xls\\input",
+      "sha256": "8f279fb44b131070347d82320c5e7900b0e4d77ead38371b1f26ce95092b211b",
+      "expected": "Sample Excel Worksheet",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testEXCEL.xlsx",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testEXCEL.xlsx\\input",
+      "sha256": "960ba8f1cfa5838b563c369d281babe4ac0219100e00cecc93147fad22c549c3",
+      "expected": "Sample Excel Worksheet",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testPPT.ppt",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testPPT.ppt\\input",
+      "sha256": "499ccd0de7c0778afa4f6ed08793afd2406b62547373a619a5a78658ae65c4b7",
+      "expected": "Sample Powerpoint Slide",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testPPT.pptx",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testPPT.pptx\\input",
+      "sha256": "730a6ade20208eaad375160949db37b2ffb52af4d3704b51976ff45564bff83b",
+      "expected": "Attachment Test",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testOpenOffice2.odt",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testOpenOffice2.odt\\input",
+      "sha256": "daee7b62602780f2599c19b3593a1e455a21e041959416304c112bdb136640bb",
+      "expected": "This is a sample Open Office document",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testFooter.ods",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testFooter.ods\\input",
+      "sha256": "4a145b8d935ca91506a7f8a65c3df4e8ff655261337cedbeb4ae2494ec8fe3c3",
+      "expected": "Here is a footer in the center area",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testMasterFooter.odp",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testMasterFooter.odp\\input",
+      "sha256": "c786aecfc72a2ff55ede5a21c4dfda14af298cebf1e788da685262da7025c833",
+      "expected": "Master footer is here",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testPages.pages",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testPages.pages\\input",
+      "sha256": "a276a2784a9ce6ea4aba7fe2cbfd555fe2edecf4db7dbe1f0998c803a150f446",
+      "expected": "Sample pages document",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testNumbers.numbers",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testNumbers.numbers\\input",
+      "sha256": "6fb57a2fc3cfc532713ac3e58d2b7e9de93342f7d84cf76599901281a26d56cc",
+      "expected": "Checking Account: 300545668",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testKeynote.key",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testKeynote.key\\input",
+      "sha256": "4a270c2427f11d77f82fae696e3fd6eda945bae0422ae87c5fac6cf2bd06015c",
+      "expected": "A sample presentation",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testKeynote2013.key",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testKeynote2013.key\\input",
+      "sha256": "8da93f6b566bc9eb22f4791bbfd5f2179162f39bf80968187b164c33d31824db",
+      "expected": "Some random text",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testPages2013.pages",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testPages2013.pages\\input",
+      "sha256": "1819dd1f4a04fd22018afcaa3743802f891e092c0974a4193498fb4a1173f2ee",
+      "expected": "A second page",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testNumbers2013.numbers",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testNumbers2013.numbers\\input",
+      "sha256": "74a834857c02d06dbc399aff8ba475f7708092e42501cc665d7fa489f385831f",
+      "expected": "Groceries",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "testEPUB.epub",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\testEPUB.epub\\input",
+      "sha256": "a4cc54d0311911edab12911168ce9277d8a20d45f3445f93eac61d0e5fd88d2e",
+      "expected": "The previous headings were subchapters",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": true
+    },
+    {
+      "file": "approved.txt",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\approved.txt\\input",
+      "sha256": "589bf7da5ace1e91e6adfcc35f9f435deb1eca79f5ead61415babb0bed31a8b1",
+      "expected": "Approved text process evidence",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": null
+    },
+    {
+      "file": "approved.rtf",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\approved.rtf\\input",
+      "sha256": "588685d46f037b22588d66ee465a93c6280400b8c630e51b7e75efa91a3d1cc3",
+      "expected": "知识 Unicode process evidence",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": null
+    },
+    {
+      "file": "approved.pdf",
+      "input": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-03-终版解析进程复验\\062900\\approved.pdf\\input",
+      "sha256": "fe28bcabcb9f97789e1dc0d277c918262bb5fed3514afa92bfcda52b1b55cfeb",
+      "expected": "Approved PDF process evidence",
+      "inputHashChecked": true,
+      "currentSourceHashChecked": null
+    }
+  ]
+}

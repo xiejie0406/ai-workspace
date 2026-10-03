@@ -1,0 +1,1413 @@
+[
+  {
+    "controller": "DocumentController",
+    "name": "list",
+    "method": "get",
+    "path": "/paismart/documents",
+    "params": "@RequestParam(required=false) String title,@RequestParam(required=false) String keyword,@RequestParam(required=false) String state,@RequestParam(required=false) String spaceId,\n      @RequestParam(required=false) String visibility,@RequestParam(defaultValue=\"false\") boolean mine,\n      @RequestParam(defaultValue=\"false\") boolean deleted,@RequestParam(defaultValue=\"1\") int pageNum,@RequestParam(defaultValue=\"20\") int pageSize",
+    "ann": "    @GetMapping\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:list')\")\n    ",
+    "perm": [
+      "paismart:document:list"
+    ],
+    "line": 29,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "detail",
+    "method": "get",
+    "path": "/paismart/documents/{id}",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/{id}\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:read')\")\n    ",
+    "perm": [
+      "paismart:document:read"
+    ],
+    "line": 37,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "text",
+    "method": "post",
+    "path": "/paismart/documents/text",
+    "params": "@RequestBody TextRequest input,@RequestHeader(value=\"Idempotency-Key\",required=false) String key",
+    "ann": "    @PostMapping(\"/text\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    @Log(title=\"知识库文本\",businessType=BusinessType.INSERT,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 40,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "content",
+    "method": "get",
+    "path": "/paismart/documents/{id}/content",
+    "params": "@PathVariable String id,@RequestParam(required=false) Integer contentVersion",
+    "ann": "    @GetMapping(\"/{id}/content\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:read')\")\n    ",
+    "perm": [
+      "paismart:document:read"
+    ],
+    "line": 49,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "page",
+    "method": "get",
+    "path": "/paismart/documents/{id}/pages/{number}",
+    "params": "@PathVariable String id,@PathVariable int number,@RequestParam(required=false) Integer contentVersion",
+    "ann": "    @GetMapping(\"/{id}/pages/{number}\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:read')\")\n    ",
+    "perm": [
+      "paismart:document:read"
+    ],
+    "line": 55,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "download",
+    "method": "get",
+    "path": "/paismart/documents/{id}/download",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/{id}/download\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:read')\")\n    ",
+    "perm": [
+      "paismart:document:read"
+    ],
+    "line": 61,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "delete",
+    "method": "delete",
+    "path": "/paismart/documents/{id}",
+    "params": "@PathVariable String id,@RequestParam(required=false) Long rowVersion,@RequestHeader(value=\"If-Match\",required=false) String match",
+    "ann": "    @DeleteMapping(\"/{id}\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:remove')\")\n    @Log(title=\"知识库文档删除\",businessType=BusinessType.DELETE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:remove"
+    ],
+    "line": 75,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "restore",
+    "method": "post",
+    "path": "/paismart/documents/{id}/restore",
+    "params": "@PathVariable String id,@RequestBody ActionRequest input",
+    "ann": "    @PostMapping(\"/{id}/restore\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:remove')\")\n    @Log(title=\"知识库文档恢复\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:remove"
+    ],
+    "line": 79,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "reprocess",
+    "method": "post",
+    "path": "/paismart/documents/{id}/parse",
+    "params": "@PathVariable String id,@RequestBody ActionRequest input,@RequestHeader(value=\"Idempotency-Key\",required=false) String key",
+    "ann": "    @PostMapping({\"/{id}/parse\",\"/{id}/reindex\",\"/{id}/vectorization/retry\",\"/{id}/retry\",\"/{id}/vectorization\"})\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:reindex')\")\n    @Log(title=\"知识库文档重处理\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:reindex"
+    ],
+    "line": 83,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "reprocess",
+    "method": "post",
+    "path": "/paismart/documents/{id}/reindex",
+    "params": "@PathVariable String id,@RequestBody ActionRequest input,@RequestHeader(value=\"Idempotency-Key\",required=false) String key",
+    "ann": "    @PostMapping({\"/{id}/parse\",\"/{id}/reindex\",\"/{id}/vectorization/retry\",\"/{id}/retry\",\"/{id}/vectorization\"})\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:reindex')\")\n    @Log(title=\"知识库文档重处理\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:reindex"
+    ],
+    "line": 83,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "reprocess",
+    "method": "post",
+    "path": "/paismart/documents/{id}/vectorization/retry",
+    "params": "@PathVariable String id,@RequestBody ActionRequest input,@RequestHeader(value=\"Idempotency-Key\",required=false) String key",
+    "ann": "    @PostMapping({\"/{id}/parse\",\"/{id}/reindex\",\"/{id}/vectorization/retry\",\"/{id}/retry\",\"/{id}/vectorization\"})\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:reindex')\")\n    @Log(title=\"知识库文档重处理\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:reindex"
+    ],
+    "line": 83,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "reprocess",
+    "method": "post",
+    "path": "/paismart/documents/{id}/retry",
+    "params": "@PathVariable String id,@RequestBody ActionRequest input,@RequestHeader(value=\"Idempotency-Key\",required=false) String key",
+    "ann": "    @PostMapping({\"/{id}/parse\",\"/{id}/reindex\",\"/{id}/vectorization/retry\",\"/{id}/retry\",\"/{id}/vectorization\"})\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:reindex')\")\n    @Log(title=\"知识库文档重处理\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:reindex"
+    ],
+    "line": 83,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "DocumentController",
+    "name": "reprocess",
+    "method": "post",
+    "path": "/paismart/documents/{id}/vectorization",
+    "params": "@PathVariable String id,@RequestBody ActionRequest input,@RequestHeader(value=\"Idempotency-Key\",required=false) String key",
+    "ann": "    @PostMapping({\"/{id}/parse\",\"/{id}/reindex\",\"/{id}/vectorization/retry\",\"/{id}/retry\",\"/{id}/vectorization\"})\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:reindex')\")\n    @Log(title=\"知识库文档重处理\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:reindex"
+    ],
+    "line": 83,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "search",
+    "method": "get",
+    "path": "/paismart/search/hybrid",
+    "params": "@RequestParam String query,@RequestParam(defaultValue=\"5\")int topK,@RequestParam(required=false)String spaceId",
+    "ann": "    @GetMapping(\"/search/hybrid\") @PreAuthorize(\"@ss.hasPermi('paismart:search:query')\")\n    ",
+    "perm": [
+      "paismart:search:query"
+    ],
+    "line": 32,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "ticket",
+    "method": "post",
+    "path": "/paismart/chat/ws-ticket",
+    "params": "@RequestBody(required=false)Map<String,Object> body,HttpServletRequest request",
+    "ann": "    @PostMapping(\"/chat/ws-ticket\") @PreAuthorize(\"@ss.hasPermi('paismart:chat:send')\")\n    ",
+    "perm": [
+      "paismart:chat:send"
+    ],
+    "line": 34,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "upgradeRequired",
+    "method": "get",
+    "path": "/paismart/ws/chat",
+    "params": "",
+    "ann": "    @Anonymous @GetMapping(value=\"/ws/chat\",headers=\"!Upgrade\") @ResponseStatus(HttpStatus.UPGRADE_REQUIRED)\n    ",
+    "perm": [],
+    "line": 36,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "ocr",
+    "method": "post",
+    "path": "/paismart/internal/ocr/liteparse",
+    "params": "@RequestParam String token,@RequestParam org.springframework.web.multipart.MultipartFile file",
+    "ann": "    @Anonymous @PostMapping(\"/internal/ocr/liteparse\") ",
+    "perm": [],
+    "line": 38,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "ocrHealth",
+    "method": "get",
+    "path": "/paismart/operations/ocr-health",
+    "params": "",
+    "ann": "    @GetMapping(\"/operations/ocr-health\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\") ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 39,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "ocrHealthTest",
+    "method": "post",
+    "path": "/paismart/operations/ocr-health",
+    "params": "@RequestHeader(\"Idempotency-Key\")String key,@RequestParam org.springframework.web.multipart.MultipartFile file",
+    "ann": "    @PostMapping(\"/operations/ocr-health\") @PreAuthorize(\"@ss.hasPermi('paismart:provider:test')\") @Log(title=\"知识OCR真实健康调用\",businessType=BusinessType.OTHER,isSaveRequestData=false,isSaveResponseData=false) ",
+    "perm": [
+      "paismart:provider:test"
+    ],
+    "line": 40,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "ocrCalls",
+    "method": "get",
+    "path": "/paismart/operations/ocr-calls",
+    "params": "",
+    "ann": "    @GetMapping(\"/operations/ocr-calls\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\") ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 41,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "reconcileOcr",
+    "method": "post",
+    "path": "/paismart/operations/ocr-calls/{id}/reconcile",
+    "params": "@PathVariable String id,@RequestBody Map<String,Object> body",
+    "ann": "    @PostMapping(\"/operations/ocr-calls/{id}/reconcile\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:execute')\") @Log(title=\"知识OCR计费页核对\",businessType=BusinessType.UPDATE) ",
+    "perm": [
+      "paismart:operation:execute"
+    ],
+    "line": 42,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "modelCalls",
+    "method": "get",
+    "path": "/paismart/operations/model-calls",
+    "params": "",
+    "ann": "    @GetMapping(\"/operations/model-calls\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\") ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 43,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "reconcile",
+    "method": "post",
+    "path": "/paismart/operations/model-calls/{id}/reconcile",
+    "params": "@PathVariable String id,@RequestBody Map<String,Object> body",
+    "ann": "    @PostMapping(\"/operations/model-calls/{id}/reconcile\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:execute')\") @Log(title=\"知识模型用量核对\",businessType=BusinessType.UPDATE) ",
+    "perm": [
+      "paismart:operation:execute"
+    ],
+    "line": 44,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "audit",
+    "method": "get",
+    "path": "/paismart/audit/conversations",
+    "params": "@RequestParam(required=false)Long userId,@RequestParam(required=false)String keyword,@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize,@RequestParam Map<String,String> filters",
+    "ann": "    @GetMapping(\"/audit/conversations\") @PreAuthorize(\"@ss.hasPermi('paismart:conversation:audit')\") ",
+    "perm": [
+      "paismart:conversation:audit"
+    ],
+    "line": 45,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "auditMessages",
+    "method": "get",
+    "path": "/paismart/audit/conversations/{id}/messages",
+    "params": "@PathVariable String id,@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize",
+    "ann": "    @GetMapping(\"/audit/conversations/{id}/messages\") @PreAuthorize(\"@ss.hasPermi('paismart:conversation:audit')\") @Log(title=\"知识会话正文审计\",businessType=BusinessType.OTHER,isSaveRequestData=false,isSaveResponseData=false) ",
+    "perm": [
+      "paismart:conversation:audit"
+    ],
+    "line": 46,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "generation",
+    "method": "get",
+    "path": "/paismart/chat/generations/{id}",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/chat/generations/{id}\") @PreAuthorize(\"@ss.hasPermi('paismart:chat:send')\") ",
+    "perm": [
+      "paismart:chat:send"
+    ],
+    "line": 47,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "active",
+    "method": "get",
+    "path": "/paismart/chat/active-generation",
+    "params": "",
+    "ann": "    @GetMapping({\"/chat/active-generation\",\"/chat/generations/active\"}) @PreAuthorize(\"@ss.hasPermi('paismart:chat:send')\") ",
+    "perm": [
+      "paismart:chat:send"
+    ],
+    "line": 48,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "active",
+    "method": "get",
+    "path": "/paismart/chat/generations/active",
+    "params": "",
+    "ann": "    @GetMapping({\"/chat/active-generation\",\"/chat/generations/active\"}) @PreAuthorize(\"@ss.hasPermi('paismart:chat:send')\") ",
+    "perm": [
+      "paismart:chat:send"
+    ],
+    "line": 48,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "stop",
+    "method": "post",
+    "path": "/paismart/chat/generations/{id}/stop",
+    "params": "@PathVariable String id",
+    "ann": "    @PostMapping(\"/chat/generations/{id}/stop\") @PreAuthorize(\"@ss.hasPermi('paismart:chat:send')\") ",
+    "perm": [
+      "paismart:chat:send"
+    ],
+    "line": 49,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "reference",
+    "method": "get",
+    "path": "/paismart/references/{id}",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/references/{id}\") @PreAuthorize(\"@ss.hasPermi('paismart:document:read')\") ",
+    "perm": [
+      "paismart:document:read"
+    ],
+    "line": 50,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "conversations",
+    "method": "get",
+    "path": "/paismart/conversations",
+    "params": "@RequestParam(defaultValue=\"false\")boolean archived,@RequestParam(required=false)String keyword,@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize,@RequestParam Map<String,String> filters",
+    "ann": "    @GetMapping(\"/conversations\") @PreAuthorize(\"@ss.hasPermi('paismart:conversation:list')\") ",
+    "perm": [
+      "paismart:conversation:list"
+    ],
+    "line": 51,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "createConversation",
+    "method": "post",
+    "path": "/paismart/conversations",
+    "params": "@RequestBody Map<String,Object> body",
+    "ann": "    @PostMapping(\"/conversations\") @PreAuthorize(\"@ss.hasPermi('paismart:chat:send')\") ",
+    "perm": [
+      "paismart:chat:send"
+    ],
+    "line": 52,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "messages",
+    "method": "get",
+    "path": "/paismart/conversations/{id}/messages",
+    "params": "@PathVariable String id,@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize",
+    "ann": "    @GetMapping(\"/conversations/{id}/messages\") @PreAuthorize(\"@ss.hasPermi('paismart:conversation:list')\") ",
+    "perm": [
+      "paismart:conversation:list"
+    ],
+    "line": 53,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "conversationAction",
+    "method": "put",
+    "path": "/paismart/conversations/{id}/{action}",
+    "params": "@PathVariable String id,@PathVariable String action,@RequestBody Map<String,Object> body",
+    "ann": "    @PutMapping(\"/conversations/{id}/{action}\") @PreAuthorize(\"@ss.hasPermi('paismart:conversation:list')\") @Log(title=\"知识会话\",businessType=BusinessType.UPDATE)\n    ",
+    "perm": [
+      "paismart:conversation:list"
+    ],
+    "line": 54,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "feedback",
+    "method": "post",
+    "path": "/paismart/chat/feedback",
+    "params": "@RequestBody Map<String,Object> body",
+    "ann": "    @PostMapping(\"/chat/feedback\") @PreAuthorize(\"@ss.hasPermi('paismart:chat:send')\") ",
+    "perm": [
+      "paismart:chat:send"
+    ],
+    "line": 56,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "providers",
+    "method": "get",
+    "path": "/paismart/providers",
+    "params": "",
+    "ann": "    @GetMapping(\"/providers\") @PreAuthorize(\"@ss.hasPermi('paismart:provider:list')\") ",
+    "perm": [
+      "paismart:provider:list"
+    ],
+    "line": 57,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "provider",
+    "method": "get",
+    "path": "/paismart/providers/{scope}",
+    "params": "@PathVariable String scope",
+    "ann": "    @GetMapping(\"/providers/{scope}\") @PreAuthorize(\"@ss.hasPermi('paismart:provider:list')\") ",
+    "perm": [
+      "paismart:provider:list"
+    ],
+    "line": 58,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "saveProvider",
+    "method": "put",
+    "path": "/paismart/providers/{scope}",
+    "params": "@PathVariable String scope,@RequestBody Map<String,Object> body",
+    "ann": "    @PutMapping(\"/providers/{scope}\") @PreAuthorize(\"@ss.hasPermi('paismart:provider:edit')\") @Log(title=\"知识模型供应商\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false) ",
+    "perm": [
+      "paismart:provider:edit"
+    ],
+    "line": 59,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "test",
+    "method": "post",
+    "path": "/paismart/providers/{scope}/test",
+    "params": "@PathVariable String scope,@RequestHeader(\"Idempotency-Key\")String key,@RequestBody(required=false)Map<String,Object> body",
+    "ann": "    @PostMapping(\"/providers/{scope}/test\") @PreAuthorize(\"@ss.hasPermi('paismart:provider:test')\") @Log(title=\"知识供应商真实测试\",businessType=BusinessType.OTHER,isSaveRequestData=false,isSaveResponseData=false) ",
+    "perm": [
+      "paismart:provider:test"
+    ],
+    "line": 60,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "conflicts",
+    "method": "get",
+    "path": "/paismart/conflicts",
+    "params": "@RequestParam(required=false)String state,@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize",
+    "ann": "    @GetMapping(\"/conflicts\") @PreAuthorize(\"@ss.hasPermi('paismart:conflict:list')\") ",
+    "perm": [
+      "paismart:conflict:list"
+    ],
+    "line": 61,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "resolve",
+    "method": "post",
+    "path": "/paismart/conflicts/{id}/resolve",
+    "params": "@PathVariable String id,@RequestBody Map<String,Object> body",
+    "ann": "    @PostMapping(\"/conflicts/{id}/resolve\") @PreAuthorize(\"@ss.hasPermi('paismart:conflict:resolve')\") @Log(title=\"知识冲突裁决\",businessType=BusinessType.UPDATE) ",
+    "perm": [
+      "paismart:conflict:resolve"
+    ],
+    "line": 62,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "indexes",
+    "method": "get",
+    "path": "/paismart/indexes",
+    "params": "",
+    "ann": "    @GetMapping(\"/indexes\") @PreAuthorize(\"@ss.hasPermi('paismart:index:list')\") ",
+    "perm": [
+      "paismart:index:list"
+    ],
+    "line": 63,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "rebuild",
+    "method": "post",
+    "path": "/paismart/indexes/rebuild",
+    "params": "@RequestBody Map<String,Object> body,@RequestHeader(\"Idempotency-Key\")String key",
+    "ann": "    @PostMapping(\"/indexes/rebuild\") @PreAuthorize(\"@ss.hasPermi('paismart:index:rebuild')\") @Log(title=\"知识索引重建\",businessType=BusinessType.OTHER) ",
+    "perm": [
+      "paismart:index:rebuild"
+    ],
+    "line": 64,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "rollback",
+    "method": "post",
+    "path": "/paismart/indexes/rollback",
+    "params": "@RequestBody Map<String,Object> body,@RequestHeader(\"Idempotency-Key\")String key",
+    "ann": "    @PostMapping(\"/indexes/rollback\") @PreAuthorize(\"@ss.hasPermi('paismart:index:rollback')\") @Log(title=\"知识索引回滚\",businessType=BusinessType.OTHER) ",
+    "perm": [
+      "paismart:index:rollback"
+    ],
+    "line": 65,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "recover",
+    "method": "post",
+    "path": "/paismart/indexes/recover",
+    "params": "@RequestHeader(\"Idempotency-Key\")String key",
+    "ann": "    @PostMapping(\"/indexes/recover\") @PreAuthorize(\"@ss.hasPermi('paismart:index:rebuild')\") @Log(title=\"知识索引恢复\",businessType=BusinessType.OTHER) ",
+    "perm": [
+      "paismart:index:rebuild"
+    ],
+    "line": 66,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "evaluations",
+    "method": "get",
+    "path": "/paismart/evaluations",
+    "params": "@RequestParam(required=false)String keyword,@RequestParam(required=false)String state,@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize",
+    "ann": "    @GetMapping(\"/evaluations\") @PreAuthorize(\"@ss.hasPermi('paismart:eval:list')\") ",
+    "perm": [
+      "paismart:eval:list"
+    ],
+    "line": 67,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "evaluationDatasets",
+    "method": "get",
+    "path": "/paismart/evaluation-datasets",
+    "params": "@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize",
+    "ann": "    @GetMapping(\"/evaluation-datasets\") @PreAuthorize(\"@ss.hasPermi('paismart:eval:list')\") ",
+    "perm": [
+      "paismart:eval:list"
+    ],
+    "line": 68,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "uploadEvaluationDataset",
+    "method": "post",
+    "path": "/paismart/evaluation-datasets",
+    "params": "@RequestParam org.springframework.web.multipart.MultipartFile file,@RequestParam(required=false)String label,@RequestHeader(\"Idempotency-Key\")String key",
+    "ann": "    @PostMapping(value=\"/evaluation-datasets\",consumes=\"multipart/form-data\") @PreAuthorize(\"@ss.hasPermi('paismart:eval:run')\") @Log(title=\"知识评测样本上传\",businessType=BusinessType.INSERT,isSaveRequestData=false,isSaveResponseData=false) ",
+    "perm": [
+      "paismart:eval:run"
+    ],
+    "line": 69,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "evaluation",
+    "method": "post",
+    "path": "/paismart/evaluations",
+    "params": "@RequestBody Map<String,Object> body,@RequestHeader(\"Idempotency-Key\")String key",
+    "ann": "    @PostMapping(\"/evaluations\") @PreAuthorize(\"@ss.hasPermi('paismart:eval:run')\") @Log(title=\"知识离线评测\",businessType=BusinessType.OTHER,isSaveRequestData=false,isSaveResponseData=false) ",
+    "perm": [
+      "paismart:eval:run"
+    ],
+    "line": 70,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "report",
+    "method": "get",
+    "path": "/paismart/evaluations/{id}/report",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/evaluations/{id}/report\") @PreAuthorize(\"@ss.hasPermi('paismart:eval:list')\") ",
+    "perm": [
+      "paismart:eval:list"
+    ],
+    "line": 71,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "reviews",
+    "method": "get",
+    "path": "/paismart/evaluations/{id}/reviews",
+    "params": "@PathVariable String id,@RequestParam(required=false)String caseId",
+    "ann": "    @GetMapping(\"/evaluations/{id}/reviews\") @PreAuthorize(\"@ss.hasPermi('paismart:eval:review')\") ",
+    "perm": [
+      "paismart:eval:review"
+    ],
+    "line": 72,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "IntelligenceController",
+    "name": "review",
+    "method": "post",
+    "path": "/paismart/evaluations/{id}/reviews",
+    "params": "@PathVariable String id,@RequestBody Map<String,Object> body",
+    "ann": "    @PostMapping(\"/evaluations/{id}/reviews\") @PreAuthorize(\"@ss.hasPermi('paismart:eval:review')\") @Log(title=\"知识评测人工复核\",businessType=BusinessType.UPDATE) ",
+    "perm": [
+      "paismart:eval:review"
+    ],
+    "line": 73,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java"
+  },
+  {
+    "controller": "InviteController",
+    "name": "list",
+    "method": "get",
+    "path": "/paismart/invites",
+    "params": "@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize,@RequestParam(required=false)Boolean enabled",
+    "ann": "    @GetMapping ",
+    "perm": [
+      "paismart:invite:manage"
+    ],
+    "line": 20,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/InviteController.java"
+  },
+  {
+    "controller": "InviteController",
+    "name": "create",
+    "method": "post",
+    "path": "/paismart/invites",
+    "params": "@RequestBody Map<String,Object> b,@RequestHeader(\"Idempotency-Key\")String key",
+    "ann": "    @PostMapping @Log(title=\"知识库邀请码\",businessType=BusinessType.INSERT,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:invite:manage"
+    ],
+    "line": 21,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/InviteController.java"
+  },
+  {
+    "controller": "InviteController",
+    "name": "batch",
+    "method": "post",
+    "path": "/paismart/invites/batch",
+    "params": "@RequestBody Map<String,Object> b,@RequestHeader(\"Idempotency-Key\")String key",
+    "ann": "    @PostMapping(\"/batch\") @Log(title=\"知识库批量邀请码\",businessType=BusinessType.INSERT,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:invite:manage"
+    ],
+    "line": 23,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/InviteController.java"
+  },
+  {
+    "controller": "InviteController",
+    "name": "update",
+    "method": "put",
+    "path": "/paismart/invites/{id}",
+    "params": "@PathVariable String id,@RequestBody Map<String,Object>b,@RequestHeader(\"If-Match\")long version",
+    "ann": "    @PutMapping(\"/{id}\") @Log(title=\"知识库邀请码\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:invite:manage"
+    ],
+    "line": 25,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/InviteController.java"
+  },
+  {
+    "controller": "InviteController",
+    "name": "delete",
+    "method": "delete",
+    "path": "/paismart/invites/{id}",
+    "params": "@PathVariable String id,@RequestHeader(\"If-Match\")long version",
+    "ann": "    @DeleteMapping(\"/{id}\") @Log(title=\"知识库邀请码\",businessType=BusinessType.DELETE)\n    ",
+    "perm": [
+      "paismart:invite:manage"
+    ],
+    "line": 27,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/InviteController.java"
+  },
+  {
+    "controller": "MemberController",
+    "name": "me",
+    "method": "get",
+    "path": "/paismart/members/me",
+    "params": "",
+    "ann": "    @GetMapping(\"/members/me\")\n    ",
+    "perm": [],
+    "line": 37,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java"
+  },
+  {
+    "controller": "MemberController",
+    "name": "claim",
+    "method": "post",
+    "path": "/paismart/members/me/eligibility",
+    "params": "@RequestBody Map<String,Object> body",
+    "ann": "    @PostMapping(\"/members/me/eligibility\")\n    @Log(title=\"知识库邀请资格\",businessType=BusinessType.INSERT,isSaveRequestData=false)\n    ",
+    "perm": [],
+    "line": 44,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java"
+  },
+  {
+    "controller": "MemberController",
+    "name": "members",
+    "method": "get",
+    "path": "/paismart/members",
+    "params": "@RequestParam(defaultValue=\"1\") int pageNum,@RequestParam(defaultValue=\"20\") int pageSize,@RequestParam(defaultValue=\"\") String userName,@RequestParam(required=false) String keyword,@RequestParam(required=false) String spaceId,@RequestParam(required=false) String status",
+    "ann": "    @GetMapping(\"/members\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:member')\")\n    ",
+    "perm": [
+      "paismart:space:member"
+    ],
+    "line": 47,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java"
+  },
+  {
+    "controller": "MemberController",
+    "name": "spaces",
+    "method": "put",
+    "path": "/paismart/members/{id}/spaces",
+    "params": "@PathVariable long id,@RequestBody MemberSpacesRequest input,@RequestHeader(value=\"If-Match\",required=false) String match",
+    "ann": "    @PutMapping(\"/members/{id}/spaces\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:member')\")\n    @Log(title=\"知识库成员空间\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    @org.springframework.transaction.annotation.Transactional(\"paismartTransactionManager\")\n    ",
+    "perm": [
+      "paismart:space:member"
+    ],
+    "line": 82,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java"
+  },
+  {
+    "controller": "MemberController",
+    "name": "credit",
+    "method": "post",
+    "path": "/paismart/members/{id}/credits",
+    "params": "@PathVariable long id,@RequestBody Map<String,Object> b,@RequestHeader(\"Idempotency-Key\") String key",
+    "ann": "    @PostMapping(\"/members/{id}/credits\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:usage:adjust')\")\n    @Log(title=\"知识库追加额度\",businessType=BusinessType.UPDATE)\n    @org.springframework.transaction.annotation.Transactional(\"paismartTransactionManager\")\n    ",
+    "perm": [
+      "paismart:usage:adjust"
+    ],
+    "line": 100,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java"
+  },
+  {
+    "controller": "MemberController",
+    "name": "quota",
+    "method": "put",
+    "path": "/paismart/members/{id}/quota-policy",
+    "params": "@PathVariable long id,@RequestBody Map<String,Object>b,@RequestHeader(\"If-Match\") long version",
+    "ann": "    @PutMapping(\"/members/{id}/quota-policy\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:usage:adjust')\")\n    @Log(title=\"知识库额度策略\",businessType=BusinessType.UPDATE)\n    ",
+    "perm": [
+      "paismart:usage:adjust"
+    ],
+    "line": 113,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java"
+  },
+  {
+    "controller": "MemberController",
+    "name": "quota",
+    "method": "get",
+    "path": "/paismart/members/{id}/quota-policy",
+    "params": "@PathVariable long id",
+    "ann": "    @GetMapping(\"/members/{id}/quota-policy\") @PreAuthorize(\"@ss.hasPermi('paismart:usage:adjust')\")\n    ",
+    "perm": [
+      "paismart:usage:adjust"
+    ],
+    "line": 117,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "status",
+    "method": "get",
+    "path": "/paismart/operations/status",
+    "params": "",
+    "ann": "    @GetMapping(\"/operations/status\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\")\n    ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 25,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "jobs",
+    "method": "get",
+    "path": "/paismart/operations/jobs",
+    "params": "@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize,@RequestParam(defaultValue=\"\")String state",
+    "ann": "    @GetMapping(\"/operations/jobs\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\")\n    ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 32,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "job",
+    "method": "get",
+    "path": "/paismart/operations/jobs/{id}",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/operations/jobs/{id}\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\")\n    ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 34,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "retry",
+    "method": "post",
+    "path": "/paismart/operations/jobs/{id}/retry",
+    "params": "@PathVariable String id",
+    "ann": "    @PostMapping(\"/operations/jobs/{id}/retry\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:execute')\") @Log(title=\"知识库任务重试\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:operation:execute"
+    ],
+    "line": 36,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "cancel",
+    "method": "post",
+    "path": "/paismart/operations/jobs/{id}/cancel",
+    "params": "@PathVariable String id",
+    "ann": "    @PostMapping(\"/operations/jobs/{id}/cancel\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:execute')\") @Log(title=\"知识库任务取消\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:operation:execute"
+    ],
+    "line": 38,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "ownJob",
+    "method": "get",
+    "path": "/paismart/jobs/{id}",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/jobs/{id}\") @PreAuthorize(\"@ss.hasAnyPermi('paismart:document:read,paismart:chat:send,paismart:index:list,paismart:eval:list,paismart:operation:plan')\")\n    ",
+    "perm": [
+      "paismart:document:read",
+      "paismart:chat:send",
+      "paismart:index:list",
+      "paismart:eval:list",
+      "paismart:operation:plan"
+    ],
+    "line": 40,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "activities",
+    "method": "get",
+    "path": "/paismart/audit/activities",
+    "params": "@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize",
+    "ann": "    @GetMapping(\"/audit/activities\") @PreAuthorize(\"@ss.hasPermi('paismart:conversation:audit')\")\n    ",
+    "perm": [
+      "paismart:conversation:audit"
+    ],
+    "line": 42,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "plan",
+    "method": "post",
+    "path": "/paismart/operations/{kind}",
+    "params": "@PathVariable String kind,@RequestBody Map<String,Object>b",
+    "ann": "    @PostMapping(\"/operations/{kind}\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\") @Log(title=\"知识库运维计划\",businessType=BusinessType.INSERT,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 44,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "plan",
+    "method": "get",
+    "path": "/paismart/operations/plans/{id}",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/operations/plans/{id}\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\")\n    ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 58,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "plans",
+    "method": "get",
+    "path": "/paismart/operations/plans",
+    "params": "@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize,@RequestParam(defaultValue=\"\")String state",
+    "ann": "    @GetMapping(\"/operations/plans\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:plan')\")\n    ",
+    "perm": [
+      "paismart:operation:plan"
+    ],
+    "line": 60,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "approve",
+    "method": "post",
+    "path": "/paismart/operations/plans/{id}/approve",
+    "params": "@PathVariable String id,@RequestBody Map<String,Object>b",
+    "ann": "    @PostMapping(\"/operations/plans/{id}/approve\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:execute')\") @Log(title=\"知识库运维计划批准\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:operation:execute"
+    ],
+    "line": 67,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "OperationController",
+    "name": "execute",
+    "method": "post",
+    "path": "/paismart/operations/plans/{id}/execute",
+    "params": "@PathVariable String id,@RequestBody Map<String,Object>b",
+    "ann": "    @PostMapping(\"/operations/plans/{id}/execute\") @PreAuthorize(\"@ss.hasPermi('paismart:operation:execute')\") @Log(title=\"知识库执行运维计划\",businessType=BusinessType.UPDATE,isSaveRequestData=false,isSaveResponseData=false)\n    @org.springframework.transaction.annotation.Transactional(\"paismartTransactionManager\")\n    ",
+    "perm": [
+      "paismart:operation:execute"
+    ],
+    "line": 69,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java"
+  },
+  {
+    "controller": "RateLimitController",
+    "name": "get",
+    "method": "get",
+    "path": "/paismart/rate-limits",
+    "params": "",
+    "ann": "    @GetMapping ",
+    "perm": [
+      "paismart:usage:adjust"
+    ],
+    "line": 17,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RateLimitController.java"
+  },
+  {
+    "controller": "RateLimitController",
+    "name": "put",
+    "method": "put",
+    "path": "/paismart/rate-limits",
+    "params": "@RequestBody Map<String,Object>b,@RequestHeader(\"If-Match\")long version",
+    "ann": "    @PutMapping @Log(title=\"知识库限流策略\",businessType=BusinessType.UPDATE)\n    ",
+    "perm": [
+      "paismart:usage:adjust"
+    ],
+    "line": 18,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RateLimitController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "packages",
+    "method": "get",
+    "path": "/paismart/recharge/packages",
+    "params": "",
+    "ann": "    @GetMapping(\"/packages\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:create')\")\n    ",
+    "perm": [
+      "paismart:recharge:create"
+    ],
+    "line": 21,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "adminPackages",
+    "method": "get",
+    "path": "/paismart/recharge/admin/packages",
+    "params": "",
+    "ann": "    @GetMapping(\"/admin/packages\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:manage')\")\n    ",
+    "perm": [
+      "paismart:recharge:manage"
+    ],
+    "line": 23,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "createPackage",
+    "method": "post",
+    "path": "/paismart/recharge/admin/packages",
+    "params": "@RequestBody Map<String,Object>b",
+    "ann": "    @PostMapping(\"/admin/packages\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:manage')\") @Log(title=\"知识库充值套餐\",businessType=BusinessType.INSERT)\n    ",
+    "perm": [
+      "paismart:recharge:manage"
+    ],
+    "line": 25,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "updatePackage",
+    "method": "put",
+    "path": "/paismart/recharge/admin/packages/{id}",
+    "params": "@PathVariable String id,@RequestBody Map<String,Object>b,@RequestHeader(\"If-Match\")long version",
+    "ann": "    @PutMapping(\"/admin/packages/{id}\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:manage')\") @Log(title=\"知识库充值套餐\",businessType=BusinessType.UPDATE)\n    ",
+    "perm": [
+      "paismart:recharge:manage"
+    ],
+    "line": 27,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "deletePackage",
+    "method": "delete",
+    "path": "/paismart/recharge/admin/packages/{id}",
+    "params": "@PathVariable String id,@RequestHeader(\"If-Match\")long version",
+    "ann": "    @DeleteMapping(\"/admin/packages/{id}\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:manage')\") @Log(title=\"知识库充值套餐\",businessType=BusinessType.DELETE)\n    ",
+    "perm": [
+      "paismart:recharge:manage"
+    ],
+    "line": 29,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "createOrder",
+    "method": "post",
+    "path": "/paismart/recharge/orders",
+    "params": "@RequestBody Map<String,Object>b,@RequestHeader(\"Idempotency-Key\")String key",
+    "ann": "    @PostMapping(\"/orders\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:create')\") @Log(title=\"知识库充值订单\",businessType=BusinessType.INSERT)\n    ",
+    "perm": [
+      "paismart:recharge:create"
+    ],
+    "line": 31,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "order",
+    "method": "get",
+    "path": "/paismart/recharge/orders/{tradeNo}",
+    "params": "@PathVariable String tradeNo",
+    "ann": "    @GetMapping(\"/orders/{tradeNo}\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:create')\")\n    ",
+    "perm": [
+      "paismart:recharge:create"
+    ],
+    "line": 33,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "orders",
+    "method": "get",
+    "path": "/paismart/recharge/orders",
+    "params": "@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize,@RequestParam(defaultValue=\"\")String state,@RequestParam(defaultValue=\"\")String status",
+    "ann": "    @GetMapping(\"/orders\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:create')\")\n    ",
+    "perm": [
+      "paismart:recharge:create"
+    ],
+    "line": 35,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "qr",
+    "method": "get",
+    "path": "/paismart/recharge/orders/{tradeNo}/qrcode",
+    "params": "@PathVariable String tradeNo",
+    "ann": "    @GetMapping(value=\"/orders/{tradeNo}/qrcode\",produces=\"image/png\") @PreAuthorize(\"@ss.hasPermi('paismart:recharge:create')\")\n    ",
+    "perm": [
+      "paismart:recharge:create"
+    ],
+    "line": 37,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "RechargeController",
+    "name": "callback",
+    "method": "post",
+    "path": "/paismart/recharge/callbacks/wechat",
+    "params": "@RequestHeader(\"Wechatpay-Serial\")String serial,@RequestHeader(\"Wechatpay-Nonce\")String nonce,@RequestHeader(\"Wechatpay-Timestamp\")String timestamp,@RequestHeader(\"Wechatpay-Signature\")String signature,@RequestBody String body",
+    "ann": "    @PostMapping(\"/callbacks/wechat\") @Anonymous\n    ",
+    "perm": [],
+    "line": 47,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RechargeController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "list",
+    "method": "get",
+    "path": "/paismart/spaces",
+    "params": "",
+    "ann": "    @GetMapping(\"/spaces\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:list')\")\n    ",
+    "perm": [
+      "paismart:space:list"
+    ],
+    "line": 28,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "personal",
+    "method": "post",
+    "path": "/paismart/spaces/personal",
+    "params": "",
+    "ann": "    @PostMapping(\"/spaces/personal\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:list')\")\n    @Log(title=\"个人知识空间\",businessType=BusinessType.INSERT)\n    ",
+    "perm": [
+      "paismart:space:list"
+    ],
+    "line": 31,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "create",
+    "method": "post",
+    "path": "/paismart/spaces",
+    "params": "@RequestBody SpaceRequest input",
+    "ann": "    @PostMapping(\"/spaces\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:edit')\")\n    @Log(title=\"知识空间\",businessType=BusinessType.INSERT)\n    ",
+    "perm": [
+      "paismart:space:edit"
+    ],
+    "line": 35,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "update",
+    "method": "put",
+    "path": "/paismart/spaces/{id}",
+    "params": "@PathVariable String id,@RequestBody SpaceRequest input",
+    "ann": "    @PutMapping(\"/spaces/{id}\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:edit')\")\n    @Log(title=\"知识空间\",businessType=BusinessType.UPDATE)\n    ",
+    "perm": [
+      "paismart:space:edit"
+    ],
+    "line": 39,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "delete",
+    "method": "delete",
+    "path": "/paismart/spaces/{id}",
+    "params": "@PathVariable String id",
+    "ann": "    @DeleteMapping(\"/spaces/{id}\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:edit')\")\n    @Log(title=\"知识空间\",businessType=BusinessType.DELETE)\n    ",
+    "perm": [
+      "paismart:space:edit"
+    ],
+    "line": 43,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "members",
+    "method": "get",
+    "path": "/paismart/spaces/{id}/members",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping(\"/spaces/{id}/members\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:member')\")\n    ",
+    "perm": [
+      "paismart:space:member"
+    ],
+    "line": 47,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "member",
+    "method": "put",
+    "path": "/paismart/spaces/{id}/members",
+    "params": "@PathVariable String id,@RequestBody MemberRequest input",
+    "ann": "    @PutMapping(\"/spaces/{id}/members\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:member')\")\n    @Log(title=\"知识空间成员\",businessType=BusinessType.UPDATE)\n    ",
+    "perm": [
+      "paismart:space:member"
+    ],
+    "line": 50,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "removeMember",
+    "method": "delete",
+    "path": "/paismart/spaces/{id}/members/{userId}",
+    "params": "@PathVariable String id,@PathVariable long userId",
+    "ann": "    @DeleteMapping(\"/spaces/{id}/members/{userId}\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:member')\")\n    @Log(title=\"知识空间成员\",businessType=BusinessType.DELETE)\n    ",
+    "perm": [
+      "paismart:space:member"
+    ],
+    "line": 54,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "primary",
+    "method": "put",
+    "path": "/paismart/members/me/primary-space",
+    "params": "@RequestBody PrimaryRequest input",
+    "ann": "    @RequestMapping(value=\"/members/me/primary-space\",method={RequestMethod.PUT,RequestMethod.POST})\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:list')\")\n    ",
+    "perm": [
+      "paismart:space:list"
+    ],
+    "line": 58,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "SpaceController",
+    "name": "primary",
+    "method": "post",
+    "path": "/paismart/members/me/primary-space",
+    "params": "@RequestBody PrimaryRequest input",
+    "ann": "    @RequestMapping(value=\"/members/me/primary-space\",method={RequestMethod.PUT,RequestMethod.POST})\n    @PreAuthorize(\"@ss.hasPermi('paismart:space:list')\")\n    ",
+    "perm": [
+      "paismart:space:list"
+    ],
+    "line": 58,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/SpaceController.java"
+  },
+  {
+    "controller": "UploadController",
+    "name": "types",
+    "method": "get",
+    "path": "/paismart/uploads/supported-types",
+    "params": "",
+    "ann": "    @GetMapping(\"/supported-types\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 26,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java"
+  },
+  {
+    "controller": "UploadController",
+    "name": "list",
+    "method": "get",
+    "path": "/paismart/uploads",
+    "params": "@RequestParam(defaultValue=\"UPLOADING\") String state,@RequestParam(required=false) String sha256,@RequestParam(required=false) String spaceId,@RequestParam(required=false) String visibility,@RequestParam(required=false) String keyword,@RequestParam(defaultValue=\"1\") int pageNum,@RequestParam(defaultValue=\"20\") int pageSize",
+    "ann": "    @GetMapping\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 29,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java"
+  },
+  {
+    "controller": "UploadController",
+    "name": "create",
+    "method": "post",
+    "path": "/paismart/uploads",
+    "params": "@RequestBody UploadService.Create input,@RequestHeader(value=\"Idempotency-Key\",required=false) String key",
+    "ann": "    @PostMapping\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 34,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java"
+  },
+  {
+    "controller": "UploadController",
+    "name": "status",
+    "method": "get",
+    "path": "/paismart/uploads/{id}",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping({\"/{id}\",\"/{id}/status\"})\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 40,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java"
+  },
+  {
+    "controller": "UploadController",
+    "name": "status",
+    "method": "get",
+    "path": "/paismart/uploads/{id}/status",
+    "params": "@PathVariable String id",
+    "ann": "    @GetMapping({\"/{id}\",\"/{id}/status\"})\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 40,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java"
+  },
+  {
+    "controller": "UploadController",
+    "name": "chunk",
+    "method": "put",
+    "path": "/paismart/uploads/{id}/chunks/{number}",
+    "params": "@PathVariable String id,@PathVariable int number,@RequestHeader(\"X-Chunk-SHA256\") String digest,HttpServletRequest request",
+    "ann": "    @PutMapping(value=\"/{id}/chunks/{number}\",consumes=MediaType.APPLICATION_OCTET_STREAM_VALUE)\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 43,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java"
+  },
+  {
+    "controller": "UploadController",
+    "name": "multipart",
+    "method": "put",
+    "path": "/paismart/uploads/{id}/chunks/{number}",
+    "params": "@PathVariable String id,@PathVariable int number,@RequestParam String sha256,@RequestPart MultipartFile file",
+    "ann": "    @PutMapping(value=\"/{id}/chunks/{number}\",consumes=MediaType.MULTIPART_FORM_DATA_VALUE)\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 48,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java"
+  },
+  {
+    "controller": "UploadController",
+    "name": "merge",
+    "method": "post",
+    "path": "/paismart/uploads/{id}/merge",
+    "params": "@PathVariable String id",
+    "ann": "    @PostMapping(\"/{id}/merge\")\n    @PreAuthorize(\"@ss.hasPermi('paismart:document:upload')\")\n    @Log(title=\"知识库文件合并\",businessType=BusinessType.INSERT,isSaveRequestData=false,isSaveResponseData=false)\n    ",
+    "perm": [
+      "paismart:document:upload"
+    ],
+    "line": 53,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UploadController.java"
+  },
+  {
+    "controller": "UsageController",
+    "name": "me",
+    "method": "get",
+    "path": "/paismart/usage/me",
+    "params": "",
+    "ann": "    @GetMapping(\"/me\") @PreAuthorize(\"@ss.hasPermi('paismart:usage:list')\")\n    ",
+    "perm": [
+      "paismart:usage:list"
+    ],
+    "line": 20,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java"
+  },
+  {
+    "controller": "UsageController",
+    "name": "overview",
+    "method": "get",
+    "path": "/paismart/usage/overview",
+    "params": "@RequestParam(required=false)Long userId,@RequestParam(defaultValue=\"7\")int days",
+    "ann": "    @GetMapping(\"/overview\") @PreAuthorize(\"@ss.hasPermi('paismart:usage:audit')\")\n    ",
+    "perm": [
+      "paismart:usage:audit"
+    ],
+    "line": 22,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java"
+  },
+  {
+    "controller": "UsageController",
+    "name": "records",
+    "method": "get",
+    "path": "/paismart/usage/records",
+    "params": "@RequestParam(required=false)Long userId,@RequestParam(defaultValue=\"1\")int pageNum,@RequestParam(defaultValue=\"20\")int pageSize,@RequestParam(defaultValue=\"\")String kind,@RequestParam(defaultValue=\"\")String startTime,@RequestParam(defaultValue=\"\")String endTime",
+    "ann": "    @GetMapping(\"/records\") @PreAuthorize(\"@ss.hasPermi('paismart:usage:list')\")\n    ",
+    "perm": [
+      "paismart:usage:list"
+    ],
+    "line": 24,
+    "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java"
+  }
+]

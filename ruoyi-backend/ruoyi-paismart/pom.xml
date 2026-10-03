@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent><groupId>com.ruoyi</groupId><artifactId>ruoyi</artifactId><version>3.9.2</version></parent>
+  <artifactId>ruoyi-paismart</artifactId>
+  <name>RuoYi :: PaiSmart</name>
+  <description>PaiSmart 知识库业务模块；复用若依身份、安全、托管密钥和共享数据源，默认关闭</description>
+  <dependencies>
+    <dependency><groupId>com.ruoyi</groupId><artifactId>ruoyi-framework</artifactId></dependency>
+    <dependency><groupId>com.ruoyi</groupId><artifactId>ruoyi-system</artifactId></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-websocket</artifactId></dependency>
+    <dependency><groupId>org.apache.kafka</groupId><artifactId>kafka-clients</artifactId></dependency>
+    <dependency><groupId>io.minio</groupId><artifactId>minio</artifactId><version>8.6.0</version></dependency>
+    <!-- MinIO 的 OkHttp5 根artifact为multiplatform元数据；显式装配同版JVM实现。 -->
+    <dependency><groupId>com.squareup.okhttp3</groupId><artifactId>okhttp-jvm</artifactId><version>5.1.0</version></dependency>
+    <dependency><groupId>org.apache.tika</groupId><artifactId>tika-core</artifactId><version>3.3.2</version></dependency>
+    <dependency><groupId>org.apache.tika</groupId><artifactId>tika-parsers-standard-package</artifactId><version>3.3.2</version></dependency>
+    <dependency><groupId>org.apache.pdfbox</groupId><artifactId>pdfbox</artifactId><version>3.0.8</version></dependency>
+    <!-- Tika的BC companion已为1.85，基础provider须同版，避免1.81缺类导致CMS解析链接失败。 -->
+    <dependency><groupId>org.bouncycastle</groupId><artifactId>bcprov-jdk18on</artifactId><version>1.85</version></dependency>
+    <dependency><groupId>com.aliyun</groupId><artifactId>ocr_api20210707</artifactId><version>3.1.3</version></dependency>
+    <dependency><groupId>com.github.wechatpay-apiv3</groupId><artifactId>wechatpay-java</artifactId><version>0.2.17</version></dependency>
+    <dependency><groupId>com.google.zxing</groupId><artifactId>core</artifactId><version>3.5.3</version></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>org.springframework.security</groupId><artifactId>spring-security-test</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><scope>test</scope></dependency>
+  </dependencies>
+  <build><plugins><plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.5.2</version></plugin></plugins></build>
+</project>

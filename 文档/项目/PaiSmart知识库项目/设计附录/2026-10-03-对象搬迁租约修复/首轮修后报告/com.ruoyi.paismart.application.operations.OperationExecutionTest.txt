@@ -1,0 +1,28 @@
+-------------------------------------------------------------------------------
+Test set: com.ruoyi.paismart.application.operations.OperationExecutionTest
+-------------------------------------------------------------------------------
+Tests run: 14, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 10.70 s <<< FAILURE! -- in com.ruoyi.paismart.application.operations.OperationExecutionTest
+com.ruoyi.paismart.application.operations.OperationExecutionTest.cancellationDuringCopyStopsMetadataSwitchAndRetainsSource -- Time elapsed: 0.285 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Unexpected exception type thrown, expected: <java.lang.IllegalStateException> but was: <java.lang.IllegalArgumentException>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:68)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:35)
+	at org.junit.jupiter.api.Assertions.assertThrows(Assertions.java:3223)
+	at com.ruoyi.paismart.application.operations.OperationExecutionTest.cancellationDuringCopyStopsMetadataSwitchAndRetainsSource(OperationExecutionTest.java:98)
+Caused by: java.lang.IllegalArgumentException: Self-suppression not permitted
+	at java.base/java.lang.Throwable.addSuppressed(Throwable.java:1096)
+	at com.ruoyi.paismart.application.operations.OperationExecutionService.migrate(OperationExecutionService.java:178)
+	at com.ruoyi.paismart.application.operations.OperationExecutionService.processJob(OperationExecutionService.java:97)
+	at com.ruoyi.paismart.application.operations.OperationExecutionTest.lambda$cancellationDuringCopyStopsMetadataSwitchAndRetainsSource$7(OperationExecutionTest.java:98)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:54)
+	... 3 more
+Caused by: java.lang.IllegalStateException: 任务已取消
+	at com.ruoyi.paismart.application.jobs.JobService.requireLease(JobService.java:86)
+	at com.ruoyi.paismart.application.operations.OperationExecutionService.lease(OperationExecutionService.java:109)
+	at com.ruoyi.paismart.application.operations.OperationExecutionService.lambda$uncertainMigration$5(OperationExecutionService.java:202)
+	at org.springframework.transaction.support.TransactionOperations.lambda$executeWithoutResult$0(TransactionOperations.java:68)
+	at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:137)
+	at org.springframework.transaction.support.TransactionOperations.executeWithoutResult(TransactionOperations.java:67)
+	at com.ruoyi.paismart.application.operations.OperationExecutionService.uncertainMigration(OperationExecutionService.java:201)
+	... 7 more
+

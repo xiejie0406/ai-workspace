@@ -1,0 +1,76 @@
+{
+  "createdAt": "2026-10-03T09:25:08.9482615+08:00",
+  "scope": "普通对象搬迁最终租约与文档指针/执行收据短事务；目标摘要确认与UNCERTAIN恢复",
+  "realDatabaseExecuted": false,
+  "realObjectStoreExecuted": false,
+  "gitWritten": false,
+  "fullModuleTestExecuted": false,
+  "oldSourceTests": {
+    "report": "旧源失败报告",
+    "failures": 4,
+    "tests": 6,
+    "skipped": 0,
+    "errors": 0
+  },
+  "firstRepairTests": {
+    "report": "首轮修后报告",
+    "failures": 2,
+    "tests": 22,
+    "errors": 0
+  },
+  "latestTargetedTests": [
+    {
+      "name": "com.ruoyi.paismart.application.operations.OperationExecutionTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.ruoyi.paismart.application.operations.OperationMigrationLeaseBoundaryTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "command": "mvn -pl ruoyi-paismart -am '-Dtest=OperationMigrationLeaseBoundaryTest,OperationExecutionTest,IsolatedParserLifecycleTest' '-Dsurefire.failIfNoSpecifiedTests=false' test",
+  "exitCode": 0,
+  "checks": [
+    "取消不能在最终作业锁与文档指针提交之间先提交",
+    "租约换手不能穿过同一边界",
+    "取消先提交时保留源指针且无成功收据",
+    "文档后写保留并拒绝旧copy切换",
+    "对象接受但响应丢失保留UNCERTAIN并读回重试不重送",
+    "既有错误目标拒绝覆盖",
+    "既有14项运维/来源搬迁/内置导入场景复验"
+  ],
+  "files": [
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/operations/OperationExecutionService.java",
+      "sha256": "0946076d176e4d21b46935150fbb906edfd7bce7c0f66547914f6e0bcd846b21"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/operations/OperationMigrationLeaseBoundaryTest.java",
+      "sha256": "0e30cd93bee355a36a76d5fcbb9badc40281267b23933534a6c045d57814c00e"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/README.md",
+      "sha256": "95c645a825a7052858fbdc0433ce1a9edb9d5ac95061c907267703466b59fd0b"
+    }
+  ],
+  "independentSourceReview": "doc_semantics只读复核最终migrate/UNCERTAIN，未发现新增实质问题",
+  "limits": [
+    "仅进程内H2/内存对象与限定Parser测试进程，未操作真实库/对象/API",
+    "解析2项只证明中断及超时路径，不代表OS沙箱或所有恶意子进程逃逸均受控",
+    "原353测试和交付JSON已另存历史；全模块及新产物由根任务统一复验",
+    "真实31项业务验收仍未执行"
+  ]
+}

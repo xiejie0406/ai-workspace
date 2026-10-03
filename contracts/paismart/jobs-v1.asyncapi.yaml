@@ -1,0 +1,480 @@
+asyncapi: 2.6.0
+info:
+  title: PaiSmart 中央作业通知 v1
+  version: 1.0.0
+  description: 只描述已实现Kafka通知/死信及MySQL任务载荷。MySQL ps_job/outbox为权威真相，Kafka是调度提示；默认Kafka关闭，不声明已运行真实消息集群。
+defaultContentType: application/json
+channels:
+  paismart.jobs:
+    description: outbox发送jobId提示；key=jobId，消费者只提交当前通知分区offset。数据库claim失败seek，不吞通知。
+    publish:
+      operationId: dispatchJobNotification
+      message:
+        $ref: '#/components/messages/JobNotification'
+    subscribe:
+      operationId: consumeJobNotification
+      message:
+        $ref: '#/components/messages/JobNotification'
+  paismart.jobs.dlq:
+    description: 终止失败任务或确定坏通知的脱敏死信。坏通知按topic/partition/offset生成稳定notificationId，先持久化后提交。
+    publish:
+      operationId: dispatchDeadLetter
+      message:
+        oneOf:
+        - $ref: '#/components/messages/JobDeadLetter'
+        - $ref: '#/components/messages/MalformedNotificationDeadLetter'
+components:
+  messages:
+    JobNotification:
+      name: JobNotification
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/JobNotification'
+    JobDeadLetter:
+      name: JobDeadLetter
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/JobDeadLetter'
+    MalformedNotificationDeadLetter:
+      name: MalformedNotificationDeadLetter
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/MalformedNotificationDeadLetter'
+  schemas:
+    JobNotification:
+      type: object
+      properties:
+        jobId:
+          type: string
+          format: uuid
+      required:
+      - jobId
+      additionalProperties: true
+      description: Kafka key也是jobId。处理器按此ID从MySQL读取类型、当前状态、payload及租约；消息不含文档正文/模型凭据。
+    JobDeadLetter:
+      type: object
+      properties:
+        jobId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+      required:
+      - jobId
+      - reason
+      additionalProperties: true
+    MalformedNotificationDeadLetter:
+      type: object
+      properties:
+        notificationId:
+          type: string
+          format: uuid
+        sourceTopic:
+          type: string
+        partition:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        payloadHash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        reason:
+          type: string
+          enum:
+          - 通知格式无效
+      required:
+      - notificationId
+      - sourceTopic
+      - partition
+      - offset
+      - payloadHash
+      - reason
+      additionalProperties: true
+      description: 坏通知先持久化哈希及位置到outbox，再提交该分区offset；不存原消息内容。落库或commit失败才seek重试。
+    DocumentPayload:
+      type: object
+      properties:
+        documentId:
+          type: string
+          format: uuid
+        contentVersion:
+          type: integer
+          minimum: 1
+      required:
+      - documentId
+      additionalProperties: true
+      description: 新DOCUMENT_PROCESS提交明确contentVersion=1，恢复/重处理为新内容版本；兼容旧任务未带contentVersion，因此schema保留可选。
+    DocumentProcessResult:
+      type: object
+      properties:
+        documentId:
+          type: string
+          format: uuid
+        chunks:
+          type: integer
+          minimum: 0
+        actualTokens:
+          type: integer
+          minimum: 0
+        state:
+          type: string
+          enum:
+          - READY
+        skipped:
+          type: string
+          enum:
+          - DELETED
+          - SUPERSEDED
+      required:
+      - documentId
+      additionalProperties: true
+    DocumentDeleteResult:
+      type: object
+      properties:
+        documentId:
+          type: string
+          format: uuid
+        deleted:
+          type: boolean
+      required:
+      - documentId
+      - deleted
+      additionalProperties: true
+    ChatPayload:
+      type: object
+      properties:
+        generationId:
+          type: string
+          format: uuid
+      required:
+      - generationId
+      additionalProperties: true
+    ChatResult:
+      type: object
+      properties:
+        generationId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+          - COMPLETE
+          - STOPPED
+      required:
+      - generationId
+      - state
+      additionalProperties: true
+    IndexPayload:
+      type: object
+      properties:
+        indexId:
+          type: string
+          format: uuid
+        fresh:
+          type: boolean
+        requestHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          description: 可选的原用户输入摘要；同key恢复原任务，输入不同拒绝。回滚等非创建载荷可省略。
+      required:
+      - indexId
+      additionalProperties: true
+    IndexResult:
+      type: object
+      properties:
+        indexId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+          - ACTIVE
+      required:
+      - indexId
+      - state
+      additionalProperties: true
+    IndexRecoverPayload:
+      type: object
+      properties:
+        operation:
+          type: string
+          enum:
+          - recover-alias
+      required:
+      - operation
+      additionalProperties: true
+    IndexRecoverResult:
+      type: object
+      properties:
+        state:
+          type: string
+          enum:
+          - NO_RECOVERY_REQUIRED
+          - RECOVERED
+        transitions:
+          type: integer
+          minimum: 0
+      required:
+      - state
+      additionalProperties: true
+    EvaluationPayload:
+      type: object
+      properties:
+        evaluationId:
+          type: string
+          format: uuid
+        requestHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          description: 可选的原用户输入摘要；同key恢复原任务，输入不同拒绝。回滚等非创建载荷可省略。
+      required:
+      - evaluationId
+      additionalProperties: true
+    EvaluationResult:
+      type: object
+      properties:
+        evaluationId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+          - COMPLETE
+          - COMPLETED_WITH_ERRORS
+      required:
+      - evaluationId
+      - state
+      additionalProperties: true
+    ConflictResult:
+      type: object
+      properties:
+        detected:
+          type: integer
+          minimum: 0
+      required:
+      - detected
+      additionalProperties: true
+    OperationPayload:
+      type: object
+      properties:
+        planId:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+          - cleanup-plans
+          - object-migrations
+          - bootstrap-import
+        reason:
+          type: string
+        documents:
+          type: array
+          items:
+            type: object
+        files:
+          type: array
+          items:
+            type: object
+        uploads:
+          type: array
+          items:
+            type: object
+      required:
+      - planId
+      - kind
+      - reason
+      additionalProperties: true
+      description: 存于MySQL ps_job.payload_json；执行器重新读取已批准不可变plan清单和manifestHash，不以任务消息提升权限。文件项字段见HTTP OperationManifest。
+    OperationResult:
+      type: object
+      properties:
+        planId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+          - SUCCEEDED
+        completedItems:
+          type: integer
+          minimum: 0
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              itemKey:
+                type: string
+              state:
+                type: string
+              result:
+                type: string
+                description: 单项结果的JSON字符串。
+            required:
+            - itemKey
+            - state
+            - result
+            additionalProperties: true
+      required:
+      - planId
+      - state
+      - completedItems
+      - items
+      additionalProperties: true
+    JobRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 业务实体 UUID；平台用户标识使用 int64。
+        userId:
+          type: integer
+          format: int64
+        documentId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: 业务实体 UUID；平台用户标识使用 int64。
+        type:
+          type: string
+        state:
+          type: string
+          enum:
+          - QUEUED
+          - RUNNING
+          - RETRY
+          - SUCCEEDED
+          - FAILED
+          - CANCELED
+        payload:
+          type: object
+          properties: {}
+          additionalProperties: true
+        result:
+          type: object
+          properties: {}
+          additionalProperties: true
+        leaseToken:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: 业务实体 UUID；平台用户标识使用 int64。
+        leaseUntil:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        retries:
+          type: integer
+          format: int64
+          minimum: 0
+        errorMessage:
+          type:
+          - string
+          - 'null'
+        rowVersion:
+          type: integer
+          format: int64
+          minimum: 0
+      additionalProperties: true
+      required:
+      - id
+      - userId
+      - type
+      - state
+      - payload
+      - result
+      - retries
+      - rowVersion
+      description: MySQL任务记录，非Kafka消息；状态QUEUED/RUNNING/RETRY/SUCCEEDED/FAILED/CANCELED，与聊天generation终态独立。
+x-mysql-job-types:
+- types:
+  - DOCUMENT_PROCESS
+  - DOCUMENT_PARSE
+  - DOCUMENT_REINDEX
+  - REINDEX
+  payload:
+    $ref: '#/components/schemas/DocumentPayload'
+  result:
+    $ref: '#/components/schemas/DocumentProcessResult'
+  handler: DocumentIntelligenceService
+- types:
+  - DOCUMENT_DELETE
+  - DELETE
+  payload:
+    $ref: '#/components/schemas/DocumentPayload'
+  result:
+    $ref: '#/components/schemas/DocumentDeleteResult'
+  handler: DocumentIntelligenceService
+- types:
+  - CHAT_GENERATE
+  payload:
+    $ref: '#/components/schemas/ChatPayload'
+  result:
+    $ref: '#/components/schemas/ChatResult'
+  handler: ChatService
+- types:
+  - INDEX_REBUILD
+  - INDEX_ROLLBACK
+  payload:
+    $ref: '#/components/schemas/IndexPayload'
+  result:
+    $ref: '#/components/schemas/IndexResult'
+  handler: GovernanceService
+- types:
+  - INDEX_RECOVER
+  payload:
+    $ref: '#/components/schemas/IndexRecoverPayload'
+  result:
+    $ref: '#/components/schemas/IndexRecoverResult'
+  handler: GovernanceService
+- types:
+  - EVALUATION_RUN
+  payload:
+    $ref: '#/components/schemas/EvaluationPayload'
+  result:
+    $ref: '#/components/schemas/EvaluationResult'
+  handler: GovernanceService
+- types:
+  - CONFLICT_DETECT
+  payload:
+    $ref: '#/components/schemas/DocumentPayload'
+  result:
+    $ref: '#/components/schemas/ConflictResult'
+  handler: GovernanceService
+- types:
+  - OPERATION_EXECUTE
+  payload:
+    $ref: '#/components/schemas/OperationPayload'
+  result:
+    $ref: '#/components/schemas/OperationResult'
+  handler: OperationExecutionService
+x-runtime:
+  authoritativeTables:
+  - ps_job
+  - ps_outbox
+  - ps_job_checkpoint
+  featureFlag: paismart.jobs.kafka-enabled (default false)
+  notificationBudgetCharacters: 65536
+  jobPayloadBudgetCharacters: 1000000
+  producer:
+    acks: all
+    enable.idempotence: true
+  consumer:
+    enable.auto.commit: false
+    max.poll.records: 1
+  lease:
+    defaultSeconds: 900
+    heartbeatSeconds: 60
+    minimumSeconds: 30
+    maximumSeconds: 3600
+  retryDescription: 作业失败按中央runner规则递增retries并退避；显式重试须通过ACL和状态CAS。已成功发布通知attempts归零，QUEUED任务通知恢复不会累计为失败。终态和核账未确定的真实模型调用不得盲目再次外发。
+x-source:
+- ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/JobService.java
+- ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/PaismartKafkaRuntime.java

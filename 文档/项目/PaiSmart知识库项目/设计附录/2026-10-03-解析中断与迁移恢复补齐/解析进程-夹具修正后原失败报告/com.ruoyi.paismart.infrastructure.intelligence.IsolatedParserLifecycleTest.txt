@@ -1,0 +1,25 @@
+-------------------------------------------------------------------------------
+Test set: com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 1, Errors: 1, Skipped: 0, Time elapsed: 21.23 s <<< FAILURE! -- in com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest
+com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest.interruptionTerminatesOwnedProcessTreeBeforeCleanupAndReleasesPermit -- Time elapsed: 11.71 s <<< ERROR!
+java.nio.file.FileSystemException: C:\Users\admin\AppData\Local\Temp\paismart-parse-3856355675317960821\process.log: 另一个程序正在使用此文件，进程无法访问。
+	at java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:92)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:108)
+	at java.base/sun.nio.fs.WindowsFileSystemProvider.implDelete(WindowsFileSystemProvider.java:273)
+	at java.base/sun.nio.fs.AbstractFileSystemProvider.deleteIfExists(AbstractFileSystemProvider.java:110)
+	at java.base/java.nio.file.Files.deleteIfExists(Files.java:1192)
+	at com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest.cleanupOwned(IsolatedParserLifecycleTest.java:157)
+	at com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest.interruptionTerminatesOwnedProcessTreeBeforeCleanupAndReleasesPermit(IsolatedParserLifecycleTest.java:89)
+
+com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest.timeoutTerminatesOwnedProcessTreeBeforeCleanupAndReleasesPermit -- Time elapsed: 9.438 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <false> but was: <true>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:69)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:41)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:35)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:246)
+	at com.ruoyi.paismart.infrastructure.intelligence.IsolatedParserLifecycleTest.timeoutTerminatesOwnedProcessTreeBeforeCleanupAndReleasesPermit(IsolatedParserLifecycleTest.java:104)
+
