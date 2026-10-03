@@ -76,27 +76,27 @@ service.interceptors.request.use(config => {
 })
 
 // 响应拦截器
-service.interceptors.response.use(res => {
+service.interceptors.response.use(async res => {
+    if (res.config.responseType === 'blob') {
+      // 私有资产的 HTTP 200 会话/权限错误仍须走平台处理，不能当图片或文件保存。
+      if (res.config.preserveBusinessError === true && String(res.headers['content-type'] || '').includes('application/json')) {
+        const body = res.data?.size > 65536
+          ? { code: 502, msg: '文件接口错误响应超出限制' }
+          : await readStreamError(res.data?.stream ? res.data.stream() : res.data)
+        if (body.code && body.code !== 200) res.data = body
+        else return res.data
+      } else return res.data
+    }
     // 未设置状态码则默认成功状态
     const code = res.data.code || 200
     // 获取错误信息
     const msg = errorCode[code] || res.data.msg || errorCode['default']
     // 二进制数据则直接返回
-    if (res.request.responseType ===  'blob' || res.request.responseType ===  'arraybuffer') {
+    if (res.config.responseType === 'arraybuffer') {
       return res.data
     }
     if (code === 401) {
-      if (!isRelogin.show) {
-        isRelogin.show = true
-        ElMessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', { confirmButtonText: '重新登录', cancelButtonText: '取消', type: 'warning' }).then(() => {
-          isRelogin.show = false
-          useUserStore().logOut().then(() => {
-            location.href = '/index'
-          })
-      }).catch(() => {
-        isRelogin.show = false
-      })
-    }
+      offerRelogin()
       return rejectBusinessError(res, msg, '无效的会话，或者会话已过期，请重新登录。')
     } else if (code === 500) {
       ElMessage({ message: msg, type: 'error' })
@@ -111,7 +111,19 @@ service.interceptors.response.use(res => {
       return  Promise.resolve(res.data)
     }
   },
-  error => {
+  async error => {
+    // 声明保留业务错误的文件接口也要回到既有认证和错误处理，不能保存 JSON 错误为图片。
+    if (error.response && error.config?.responseType === 'blob'
+        && error.config.preserveBusinessError === true
+        && String(error.response.headers?.['content-type'] || '').includes('application/json')) {
+      const data = error.response.data
+      error.response.data = data?.size > 65536
+        ? { code: 502, msg: '文件接口错误响应超出限制' }
+        : await readStreamError(data?.stream ? data.stream() : data)
+      if (error.response.status === 401 || error.response.data.code === 401) offerRelogin()
+    }
+    // 调用方主动取消请求不属于连接故障。
+    if (error.config?.preserveBusinessError === true && axios.isCancel(error)) return Promise.reject(error)
     console.log('err' + error)
     let { message } = error
     if (message == "Network Error") {
@@ -125,6 +137,41 @@ service.interceptors.response.use(res => {
     return Promise.reject(error)
   }
 )
+
+function offerRelogin() {
+  if (isRelogin.show) return
+  isRelogin.show = true
+  ElMessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', {
+    confirmButtonText: '重新登录', cancelButtonText: '取消', type: 'warning'
+  }).then(() => {
+    isRelogin.show = false
+    useUserStore().logOut().then(() => { location.href = '/index' })
+  }).catch(() => { isRelogin.show = false })
+}
+
+async function readStreamError(data) {
+  if (!data?.getReader) return data || {}
+  const reader = data.getReader()
+  const decoder = new TextDecoder()
+  let text = ''
+  let bytes = 0
+  try {
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) break
+      bytes += value.byteLength
+      if (bytes > 65536) throw new Error('文件接口错误响应超出限制')
+      text += decoder.decode(value, { stream: true })
+    }
+    text += decoder.decode()
+    return text ? JSON.parse(text) : {}
+  } catch {
+    return { code: 502, msg: '文件接口返回了无法读取的错误信息' }
+  } finally {
+    await reader.cancel().catch(() => {})
+    reader.releaseLock()
+  }
+}
 
 // 通用下载方法
 export function download(url, params, filename, config) {

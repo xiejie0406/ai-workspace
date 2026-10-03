@@ -36,6 +36,9 @@ public class SysRegisterService
     @Autowired
     private RedisCache redisCache;
 
+    @Autowired(required = false)
+    private java.util.List<RegistrationExtension> registrationExtensions = java.util.List.of();
+
     /**
      * 注册
      */
@@ -79,7 +82,13 @@ public class SysRegisterService
             sysUser.setNickName(username);
             sysUser.setPwdUpdateDate(DateUtils.getNowDate());
             sysUser.setPassword(SecurityUtils.encryptPassword(password));
-            boolean regFlag = userService.registerUser(sysUser);
+            java.util.List<RegistrationExtension> matching = registrationExtensions.stream()
+                    .filter(extension -> extension.supports(registerBody)).toList();
+            if (matching.size() > 1) throw new com.ruoyi.common.exception.ServiceException("业务注册扩展存在冲突");
+            if (StringUtils.isNotEmpty(registerBody.getInvitationCode()) && matching.isEmpty())
+                throw new com.ruoyi.common.exception.ServiceException("知识库邀请注册尚未启用");
+            boolean regFlag = matching.isEmpty() ? userService.registerUser(sysUser)
+                    : matching.get(0).register(sysUser, registerBody, () -> userService.registerUser(sysUser));
             if (!regFlag)
             {
                 msg = "注册失败,请联系系统管理人员";

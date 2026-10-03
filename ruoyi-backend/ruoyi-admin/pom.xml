@@ -17,6 +17,13 @@
 
     <dependencies>
 
+        <!-- PaiFlow 正式业务中心；原 React 前端及计算 Worker 保持独立 -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-paiflow</artifactId>
+            <version>${ruoyi.version}</version>
+        </dependency>
+
         <!-- 生产健康与 JVM/HTTP 指标；默认只暴露 Spring Boot 的 health 端点 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -60,10 +67,41 @@
             <artifactId>ruoyi-fashion</artifactId>
         </dependency>
 
+        <!-- AI 图片编辑；React / Python 保留独立算法，正式状态由本模块保存 -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-aipicture</artifactId>
+        </dependency>
+
         <!-- Aden 桌面智能执行平台；身份与安全继续由 RuoYi 提供 -->
         <dependency>
             <groupId>com.ruoyi</groupId>
             <artifactId>ruoyi-aden</artifactId>
+        </dependency>
+
+        <!-- AI 演示文稿；正式业务中心，功能默认关闭 -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-aippt</artifactId>
+            <exclusions>
+                <!-- COS通过标准JCE加载Provider；统一使用PaiSmart的jdk18on，避免3071个同名类双装配。 -->
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- PaiCLI 中心 API；本机工具、CLI/TUI、Runner、评测保持独立进程 -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>paicli-api</artifactId>
+        </dependency>
+
+        <!-- PaiSmart 知识库；使用共享认证及数据源，业务缺省关闭 -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-paismart</artifactId>
         </dependency>
 
         <!-- APS HTTP 适配层与 MySQL 持久化适配层；功能默认关闭 -->
@@ -86,6 +124,13 @@
         <dependency>
             <groupId>com.ruoyi</groupId>
             <artifactId>ruoyi-generator</artifactId>
+        </dependency>
+
+        <!-- 共享装配的COS/BC离线兼容检查，不进入运行依赖。 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

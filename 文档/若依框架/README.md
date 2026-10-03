@@ -1,30 +1,51 @@
 # 若依框架资料入口
 
-本目录只维护若依上游基线、共享工程入口和各业务项目的集成导航，不接管任何项目专属的产品、数据或 Feature 事实。
+日常启动只看[多项目并行开发启动指南](多项目并行开发启动指南.md)。工程结构、模块装配和具体功能分开维护，下面说明各自用途。
 
-## 上游与共享工程
+## 常用资料
 
-| 内容 | 入口 | 边界 |
+| 文档 | 讲什么 | 什么时候看 |
 |---|---|---|
-| 若依后端上游基线 | [工程](../../ruoyi-backend/_reference/ruoyi-original/)、[说明](../../ruoyi-backend/_reference/ruoyi-original/README.md)、[许可原文](../../ruoyi-backend/_reference/ruoyi-original/LICENSE) | 上游对照，不参与活跃 Maven 构建 |
-| 若依 Vue 3 前端上游基线 | [工程](../../frontend/_reference/ruoyi-vue3-frontend/)、[说明](../../frontend/_reference/ruoyi-vue3-frontend/README.md)、[许可原文](../../frontend/_reference/ruoyi-vue3-frontend/LICENSE) | 上游对照，不参与活跃前端构建 |
-| 若依移动端上游基线 | [工程](../../miniapp/_reference/ruoyi-app/)、[说明](../../miniapp/_reference/ruoyi-app/README.md)、[许可原文](../../miniapp/_reference/ruoyi-app/LICENSE) | 上游对照，不参与活跃小程序构建 |
-| 当前平台后端 | [`../../ruoyi-backend/`](../../ruoyi-backend/) | 平台身份、认证、角色、菜单和业务模块装配入口 |
-| 当前管理端 | [`../../frontend/admin-web/`](../../frontend/admin-web/) | 当前管理端业务工程 |
-| 当前门户端 | [`../../frontend/portal-web/`](../../frontend/portal-web/) | 当前用户门户业务工程 |
-| 当前移动端 | [`../../miniapp/interview-mobile/`](../../miniapp/interview-mobile/) | 当前面试小程序工程 |
-| 当前桌面端 | [`../../frontend/desktop/aden-desktop/`](../../frontend/desktop/aden-desktop/) | 当前 Electron 桌面工程 |
+| [若依框架前后端开发规范参考](若依框架前后端开发规范参考.md) | 已核实版本、菜单/权限、三种布局、共享组件/请求、后端分层和数据边界 | 开发或审查若依接入，判断复用与机制冲突；调查和恢复见[核查与修订记录](证据/2026-10-02-若依开发规范核查/核查与修订记录.md) |
+| [多项目并行开发启动指南](多项目并行开发启动指南.md) | 九项目的工作区、端口、共享基础服务、实际启动入口、缺项及定向更新方法 | 每次启动或更新服务 |
+| [工程结构与目录迁移说明](工程按技术类型归档架构.md) | 代码放哪里、各进程与数据库如何分工、旧新目录映射和恢复 | 找代码、调整工程结构或追溯迁移 |
+| [Java 业务模块装配说明](Java业务模块统一装配.md) | 共享后端的模块装配机制及旧四模块历史技术验证；当前启动选择以启动指南为准 | 调整 Java 模块、配置或构建入口 |
 
-## 项目集成导航
+## 项目、功能和历史证据
 
-- [平台密钥、AI 密钥与 AI 角色（三模块线框图及设计草案）](功能/FEAT-RUOYI-001-平台与AI基础设施/README.md)
-- [四项目 Java 业务模块统一装配与启动](Java业务模块统一装配.md)
-- [并行开发与验收隔离方案（待实施）](并行开发与验收隔离方案.md)
-- [按技术类型归档架构](工程按技术类型归档架构.md)与[迁移设计](工程按技术类型归档设计.md)
-- [工程目录迁移与恢复记录](../开发记录/2026-09-25-工程按技术类型目录迁移.md)
-- [面试项目若依集成索引](面试项目集成索引.md)
-- [智能体桌面端的若依控制面设计](../项目/智能体桌面端项目/功能/FEAT-ADEN-001-桌面执行底座/技术设计.md)
-- [智能选品项目的 Java、若依与 Python 边界](../项目/智能选品项目/架构/技术架构设计.md)
-- 生产排产项目尚未形成当前若依集成资料；不得从旧归档或其他项目推断其平台接入方式。
+| 内容 | 入口及用途 |
+|---|---|
+| 面试项目 | [项目控制页](../项目/面试项目/README.md)；具体若依接入资料见下表 |
+| 智能选品项目 | [项目控制页](../项目/智能选品项目/README.md)、[Java 与 Python 边界](../项目/智能选品项目/架构/技术架构设计.md) |
+| 智能体桌面端项目 | [项目控制页](../项目/智能体桌面端项目/README.md)、[中心控制面设计](../项目/智能体桌面端项目/产品/统一设计文档.md#backend) |
+| 生产排产项目 | [项目控制页](../项目/生产排产项目/README.md)；实现与验收状态以该项目记录为准 |
+| 平台密钥、AI 密钥和 AI 角色 | [功能控制页](功能/FEAT-RUOYI-001-平台与AI基础设施/README.md)，其中保留设计方案、文字交互说明和可打开的界面图 |
+| Sub2API 统一通道规划 | [总体方案](功能/FEAT-RUOYI-001-平台与AI基础设施/Sub2API统一文本模型接入设计.md)保留共享原则；本期仅[PaiCLI 扩展实现文档](../项目/PaiCLI智能编码项目/Sub2API扩展实现文档.md)，其他项目及 AI 图片编辑全部不迁移，尚未实施 |
+| 目录迁移历史 | [实际迁移与恢复记录](../开发记录/2026-09-25-工程按技术类型目录迁移.md)，保留当时操作、备份和检查结果 |
+| 四项目启动历史 | [2026-09-30 启动清单及证据](证据/2026-09-30-四项目启动/启动与验收准备清单.md)，保留实际报告、截图和日志；不能代替当前业务验收 |
 
-“若依相关”不等于“若依共享”。例如，面试题库、语音面试、PostgreSQL 业务数据和 `ruoyi-interview` 模块都属于面试项目；其他项目不得从这些文档推断自己的数据库或模块边界。
+### 面试集成入口
+
+原单独的面试集成索引已合并到本表；这里只导航，不复制面试业务规则。
+
+| 集成主题 | 面试项目事实源 |
+|---|---|
+| 身份与双数据源边界 | [若依身份与后端单体收敛设计](../项目/面试项目/架构/面试项目完整设计.md#data) |
+| 门户登录 | [门户登录功能](../项目/面试项目/功能/FEAT-RUOYI-PORTAL-LOGIN-001-门户登录/README.md) |
+| 公共题库 | [公共题库功能](../项目/面试项目/功能/FEAT-QBANK-001-公共题库/README.md) |
+| 若依集成开发记录 | [项目开发记录](../项目/面试项目/开发记录/若依集成/) |
+| 历史上游评审 | [若依 Vue 3 上游评审报告](../项目/面试项目/归档/许可/若依Vue3上游评审报告.md)，仅供追溯，不能作为当前落地结论 |
+| 其他历史集成资料 | [面试项目归档](../项目/面试项目/归档/) |
+
+## 工程与上游参考
+
+| 内容 | 入口 |
+|---|---|
+| 当前 Java 后端 | [ruoyi-backend](../../ruoyi-backend/) |
+| 当前管理端、门户端 | [admin-web](../../frontend/admin-web/)、[portal-web](../../frontend/portal-web/) |
+| 当前小程序、桌面端 | [interview-mobile](../../miniapp/interview-mobile/)、[aden-desktop](../../frontend/desktop/aden-desktop/) |
+| 若依后端上游基线 | [工程](../../ruoyi-backend/_reference/ruoyi-original/)、[说明](../../ruoyi-backend/_reference/ruoyi-original/README.md)、[许可](../../ruoyi-backend/_reference/ruoyi-original/LICENSE) |
+| 若依 Vue 3 上游基线 | [工程](../../frontend/_reference/ruoyi-vue3-frontend/)、[说明](../../frontend/_reference/ruoyi-vue3-frontend/README.md)、[许可](../../frontend/_reference/ruoyi-vue3-frontend/LICENSE) |
+| 若依小程序上游基线 | [工程](../../miniapp/_reference/ruoyi-app/)、[说明](../../miniapp/_reference/ruoyi-app/README.md)、[许可](../../miniapp/_reference/ruoyi-app/LICENSE) |
+
+上游基线仅供对照，不参与活跃构建。各业务项目拥有自己的需求、设计、任务和验收；本目录维护共享工程与导航。

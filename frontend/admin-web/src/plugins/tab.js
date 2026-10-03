@@ -3,7 +3,7 @@ import router from '@/router'
 
 export default {
   // 刷新当前tab页签
-  refreshPage(obj) {
+  async refreshPage(obj) {
     const { path, query, matched } = router.currentRoute.value
     // 防止在重定向过程中重复刷新
     if (path.startsWith('/redirect/')) {
@@ -27,14 +27,14 @@ export default {
     })
   },
   // 关闭当前tab页签，打开新页签
-  closeOpenPage(obj) {
-    useTagsViewStore().delView(router.currentRoute.value)
+  async closeOpenPage(obj) {
+    await useTagsViewStore().delView(router.currentRoute.value)
     if (obj !== undefined) {
       return router.push(obj)
     }
   },
   // 关闭指定tab页签
-  closePage(obj) {
+  async closePage(obj) {
     if (obj === undefined) {
       return useTagsViewStore().delView(router.currentRoute.value).then(({ visitedViews }) => {
         const latestView = visitedViews.slice(-1)[0]
@@ -47,20 +47,23 @@ export default {
     return useTagsViewStore().delView(obj)
   },
   // 关闭所有tab页签
-  closeAllPage() {
+  async closeAllPage() {
     return useTagsViewStore().delAllViews()
   },
   // 关闭左侧tab页签
-  closeLeftPage(obj) {
-    return useTagsViewStore().delLeftTags(obj || router.currentRoute.value)
+  async closeLeftPage(obj) {
+    const target = obj || router.currentRoute.value
+    return useTagsViewStore().delLeftTags(target)
   },
   // 关闭右侧tab页签
-  closeRightPage(obj) {
-    return useTagsViewStore().delRightTags(obj || router.currentRoute.value)
+  async closeRightPage(obj) {
+    const target = obj || router.currentRoute.value
+    return useTagsViewStore().delRightTags(target)
   },
   // 关闭其他tab页签
-  closeOtherPage(obj) {
-    return useTagsViewStore().delOthersViews(obj || router.currentRoute.value)
+  async closeOtherPage(obj) {
+    const target = obj || router.currentRoute.value
+    return useTagsViewStore().delOthersViews(target)
   },
   // 打开tab页签
   openPage(title, url, params) {

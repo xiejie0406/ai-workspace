@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from 'vue-router'
 /* Layout */
 import Layout from '@/layout'
+import { aiPictureDetailRoutes } from './aipicture'
 
 /**
  * Note: 路由配置项
@@ -121,17 +122,13 @@ export const constantRoutes = [
 
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
+  ...aiPictureDetailRoutes,
+  // 旧库存导入深链沿用若依动态权限过滤；实际页面只由后台菜单树注册。
   {
-    path: '/fashion',
-    component: Layout,
+    path: '/fashion/stock-import',
     hidden: true,
-    permissions: ['fashion:quote:list'],
-    children: [{
-      path: 'pool',
-      component: () => import('@/views/fashion/pool/index.vue'),
-      name: 'FashionSelectionPool',
-      meta: { title: '套装选品', activeMenu: '/fashion/quote', noCache: true }
-    }]
+    permissions: ['fashion:stock:list'],
+    redirect: to => ({ path: '/fashion/stock', query: to.query, hash: to.hash })
   },
   {
     path: '/system/user-auth',

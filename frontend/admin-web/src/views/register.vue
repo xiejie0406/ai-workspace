@@ -37,6 +37,9 @@
           <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
+      <el-form-item prop="invitationCode" v-if="paismartRegistration" label="知识库邀请码">
+        <el-input v-model="registerForm.invitationCode" maxlength="64" placeholder="请输入有效的知识库邀请码" autocomplete="off" />
+      </el-form-item>
       <el-form-item prop="code" v-if="captchaEnabled">
         <el-input
           size="large" 
@@ -84,6 +87,8 @@ import { usePasswordRule } from "@/utils/passwordRule"
 const title = import.meta.env.VITE_APP_TITLE
 const footerContent = defaultSettings.footerContent
 const router = useRouter()
+const route = useRoute()
+const paismartRegistration = computed(() => route.query.business === 'paismart')
 const { proxy } = getCurrentInstance()
 const { registerPwdValidator } = usePasswordRule()
 
@@ -92,7 +97,8 @@ const registerForm = ref({
   password: "",
   confirmPassword: "",
   code: "",
-  uuid: ""
+  uuid: "",
+  invitationCode: ""
 })
 
 const equalToPassword = (rule, value, callback) => {
@@ -112,7 +118,11 @@ const registerRules = {
     { required: true, trigger: "blur", message: "请再次输入您的密码" },
     { required: true, validator: equalToPassword, trigger: "blur" }
   ],
-  code: [{ required: true, trigger: "change", message: "请输入验证码" }]
+  code: [{ required: true, trigger: "change", message: "请输入验证码" }],
+  invitationCode: [{ validator: (rule, value, callback) => {
+    if (paismartRegistration.value && !/^[A-Za-z0-9_-]{6,64}$/.test(value)) callback(new Error("请输入6至64位有效邀请码"))
+    else callback()
+  }, trigger: "blur" }]
 }
 
 const codeUrl = ref("")

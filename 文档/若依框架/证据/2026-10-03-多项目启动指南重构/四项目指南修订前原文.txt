@@ -1,0 +1,123 @@
+# 四项目并行开发启动指南
+
+> 文档类型：本机开发环境操作指南  
+> 文档版本：2026.10-r6；更新时间：2026-10-01
+> 文档状态：Draft；四项目独立分支和代码目录待配置  
+> owner：总协调维护公共入口；各项目对话负责自己的启动、开发和验收  
+> 需求依据：2026-10-01 用户要求保存启动方法并合并精简；同日明确纠正“隔离通道，数据库不要隔离”，沿用各项目原有数据库；随后要求面试语音功能开启，不能默认关闭  
+> 适用范围：当前 Windows 电脑、当前用户、已有测试环境  
+> 关联：[工作区协作入口](../../AGENTS.md)、[工程结构说明](工程按技术类型归档架构.md)、[Java 装配说明](Java业务模块统一装配.md)
+
+## 1. 项目一览：分支、端口和启动内容
+
+使用已有四个项目对话，各自启动、开发、验收；总协调处理公共资源和汇总进度。已运行且版本合适的服务继续使用。
+
+**当前四个对话都在 `D:\2025Ai\26-05-23\java-workspace` 的 `main` 分支工作。下表的独立分支尚未创建，日常启动仍用 `main`。**
+
+| 项目 | 启动参数 | Java 后端端口 | 页面或客户端 | 配套服务 | 后续独立分支（待配置） |
+|---|---|---|---|---|---|
+| [面试](../项目/面试项目/README.md) | `interview` | `18091` | [面试门户](http://interview.localhost:15173/)，`frontend/portal-web` | PostgreSQL `5432`；Redis `16391` | `codex/interview-dev` |
+| [智能选品](../项目/智能选品项目/README.md) | `fashion` | `18092` | [选品管理端](http://127.0.0.1:15174/)，`frontend/admin-web` | Python `18100`；Redis `16392` | `codex/fashion-dev` |
+| [智能体桌面端](../项目/智能体桌面端项目/README.md) | `aden` | `18093` | 本机安装版 `Aden Local Test.exe` | Runner；Redis `16393` | `codex/aden-dev` |
+| [生产排产](../项目/生产排产项目/README.md) | `aps` | `18094` | [排产管理端](http://127.0.0.1:15175/)，`frontend/admin-web` | 求解 Worker；Redis `16394` | `codex/aps-dev` |
+
+四个 Java 后端是四个独立进程，各自使用内置 Tomcat，只开启对应业务模块。**隔离的是进程、端口、浏览器通道、Redis、缓存与日志目录；数据库继续使用各项目已就绪的原库、原账号、原密钥与原业务数据。通道隔离不授权新建库、只复制结构、创建另一套账号或初始化空题库。** 这与各业务项目的数据所有权边界分别管理，不能理解为四项目合并到同一个业务数据库。
+
+面试当前已接回原配置：平台 MySQL `localhost:3306/ry-vue`，业务 PostgreSQL `localhost:5432/ai_interview_coach`，原公共题库标识与密钥一起沿用。原库只读回读为 2173 道已发布题、2173 条评分规则；当前门户能读取题目与标准答案。`13306/dev_interview` 和 `interview_dev_20260930` 是误建隔离环境，保留为问题追溯，不能再作面试默认连接；未删除这些库。
+
+2026-10-01 用户再次明确取消隔离数据库并要求定向重启误连服务。选品已核实并接回根 `.env` 的原 MySQL `localhost:3306/ry-vue`，已有 16 张 `fq_*` 表；其 Python 因原服务认证密钥缺失未就绪，本次只恢复 Java，暂时暂停依赖该 Runtime 的 AI Worker，根配置保留。Aden 与排产的旧隔离 Java / Worker 已停止，当时原 MySQL 没有这两个项目的业务表，相关服务不能绕过守卫或猜测连接继续启动。2026-10-02 用户在排产对话授权建表并启动，现已在同一原 MySQL 中建立 29 张排产业务表和专属 Flyway 历史，登记原连接及现有口令用途，排产 Java、Worker、Redis 已恢复，验证码和前端代理均 HTTP 200；Aden 的原缺项保持独立处理。显式迁移范围、备份核对和实际动作见[接回原库执行清单](证据/2026-10-01-接回原数据库/接回原库执行清单.md)。
+
+公共脚本已停止自动建库；其他项目启动仍显式传入已核实的原配置，缺少 schema、密钥或业务连接时说明不足，不能新建 `dev_*`、复制隔离库数据或创建替代账号。历史隔离记录只表示当时的验证事实，不作当前运行连接。
+
+目前代码和构建目录仍共享，选品与排产也共用管理端源码；不要在共享目录轮流切分支。启用四个独立分支时，先保护未提交修改，经 Git 写授权后分别准备代码目录、依赖、配置和构建，由总协调一次性配置；当前还没有完成源码与构建隔离。
+
+## 2. 怎样启动
+
+在 **PowerShell 7** 中启动面试通道：
+
+```powershell
+Set-Location 'D:\2025Ai\26-05-23\java-workspace'
+git branch --show-current
+$taskProject = 'interview'
+pwsh -NoProfile -File .\scripts\dev\start-four-projects.ps1 -SelectedProject $taskProject
+```
+
+当前分支应显示 `main`。面试默认读取根 `.env` 的原数据库配置，脚本只复用或启动本通道 Redis、Java 后端和门户，不启动、创建或迁移数据库。等待就绪提示，再打开上表页面。其他项目用 `-SelectedProject <项目参数> -DatabaseConfigPath <已经核实的原配置文件>`；实际文件由所属项目维护，不能用空文件或误建隔离库代替。`all` 暂停自动启动，先按项目核对原配置并分别恢复。
+
+启动前注意四点：
+
+1. 复用本机已有 Java、Node.js、原数据库、前端依赖和 Python 虚拟环境。日常恢复沿用公共清单中该通道的不可变运行包；没有已登记版本时使用 `ruoyi-backend/ruoyi-admin/target/ruoyi-admin.jar`。排产另需 Worker 包。脚本不会自动构建，`bootstrap.dpapi` 不再作为数据库连接的默认来源。
+2. `-Initialize` 已停用。原 MySQL、PostgreSQL 和配置文件要提前可用；缺连接、原密钥或 schema 时停止相关启动，不创建替代数据库，不自动执行迁移或初始化业务数据。
+3. 各对话轮流调用启动脚本；公共启动清单被占用时，等上一轮结束再重试。旧进程没有原库登记或目标不一致时，所属项目先核对并定向重启；脚本不会悄悄复用误连的进程。桌面窗口和 Runner 仍需另外启动。
+4. 面试日常通道开启外部 Provider 调用和音频写入，读取原库托管密钥；语音资源、音色、音频目录和当前门户 Origin 必须齐备，缺项时停止启动。开启调用并不代表每个供应商均已配置或真实调用通过。选品 Python 沿用原库认证启动器，服务密钥缺失时明确受阻；必要时显式使用 `-SkipFashionRuntime` 只恢复 Java 并暂时关闭该实例的 AI Worker，不改原 `.env`，不能称完整 AI 链路已恢复。恢复完整通道时去掉此参数并核对原开关。桌面 Runner 仍是基础模拟执行器。其他组件按所属功能配置。
+
+### 面试语音日常配置
+
+2026-10-01 用户明确要求语音功能必须开启。独立端口与通道不能成为关闭语音能力的理由；不把仅能浏览题库的实例当成完整面试运行环境。根 `.env` 保存非秘密运行配置，供应商凭据继续只从原 MySQL 的 `ai.interview.volcengine.speech` 用途读取，音频加密沿用 `platform.interview.envelope.active`，不复制明文 Key 或创建新凭据。
+
+| 配置 | 当前本机日常值与用途 |
+| --- | --- |
+| `INTERVIEW_EXTERNAL_PROVIDER_CALLS_ENABLED` | `true`，装配真实语音与模型适配器；具体供应商仍需原库有效用途 |
+| `INTERVIEW_OBJECT_STORAGE_WRITES_ENABLED` | `true`，启用现有私有音频存储 |
+| `INTERVIEW_VOICE_STORAGE_ROOT` | `D:/2025Ai/26-05-23/java-workspace/.runtime/private-audio-voice-uat`，沿用之前实测目录 |
+| `INTERVIEW_VOLCENGINE_ASR_MODEL` / `INTERVIEW_VOLCENGINE_ASR_RESOURCE_ID` | `volc.bigasr.sauc.duration`，沿用本账号之前成功的 ASR 1.0 资源 |
+| `INTERVIEW_VOLCENGINE_TTS_MODEL` / `INTERVIEW_VOLCENGINE_TTS_RESOURCE_ID` | `doubao-tts-2.0` / `seed-tts-2.0` |
+| `INTERVIEW_VOLCENGINE_TTS_VOICE` | `zh_female_vv_uranus_bigtts`，沿用之前实测音色 |
+| `INTERVIEW_VOICE_ALLOWED_ORIGINS` | 保留原本机来源并包含 `http://interview.localhost:15173`；不放开任意来源 |
+
+配置修改后仅重启面试 Java。脚本核对现有进程的语音开启参数与非秘密配置摘要，不能继续复用旧的关闭实例。音频目录必须是已核实的既有绝对目录；配置或目录缺失时停止，不悄悄关闭功能继续启动。ASR 2.0 曾返回 403，当前使用此前实测成功的 1.0 资源，不能只因模型名称较新就替换资源。
+
+启动后的 `/api/v1/voice-capabilities` 应回读数据表、存储、加密、票据、识别和合成六项配置就绪。GET 不录音、不上传或发起收费探测；真实语音仍需用户主动授权、开始录音或朗读，并按现有用途、时长与预算限制执行。配置就绪、真实调用和用户验收分别记录在[面试功能验证记录](../项目/面试项目/功能/FEAT-INTERVIEW-002-商业邀测/验证记录.md)与[验收记录](../项目/面试项目/功能/FEAT-INTERVIEW-002-商业邀测/验收记录.md)。离线测试或故障演练需要关闭时，明确目标实例及恢复条件，不能覆盖此日常配置。
+
+**智能体桌面端还要完成以下两步。**
+
+**打开安装版。** 先核对安装目录 `resources/app/local-test.json`：`channel` 应为 `local-test`，`apiBaseUrl` 应为 `http://127.0.0.1:18093`。临时测试可能改过地址；不一致时，由桌面对话关闭自己的窗口、确认安装目录未被其他对话占用，备份配置后只修正该地址。已有正确窗口时继续使用。
+
+窗口未运行时，从工作区根目录执行，沿用已有测试资料目录：
+
+```powershell
+$adenExe = 'C:\Users\admin\AppData\Local\Programs\Aden Local Test\Aden Local Test.exe'
+$adenConfig = Get-Content -LiteralPath (Join-Path (Split-Path -Parent $adenExe) 'resources\app\local-test.json') -Raw | ConvertFrom-Json
+if ($adenConfig.channel -ne 'local-test' -or $adenConfig.apiBaseUrl -ne 'http://127.0.0.1:18093') { throw '先修正安装版的中心服务配置' }
+$adenStart = Get-Content -LiteralPath '.runtime\four-projects\aden\installed-start-result.json' -Raw | ConvertFrom-Json
+if (-not $adenStart.desktopProfile -or -not (Test-Path -LiteralPath $adenStart.desktopProfile -PathType Container)) { throw '先补齐已有桌面测试资料目录' }
+foreach ($adenKey in @('ELECTRON_RUN_AS_NODE','ELECTRON_RENDERER_URL','ADEN_DESKTOP_SMOKE','ADEN_API_BASE_URL')) {
+    [Environment]::SetEnvironmentVariable($adenKey, $null, 'Process')
+}
+Start-Process -FilePath $adenExe -WorkingDirectory (Split-Path -Parent $adenExe) -ArgumentList @("--user-data-dir=$($adenStart.desktopProfile)") -WindowStyle Hidden
+```
+
+只使用本机安装版。`frontend/desktop/aden-desktop/scripts/start-installed-local-test.ps1` 已改为仅打开这个安装版并沿用现有资料，不建库、不创建账号或启动临时中心。旧 `start-installed.mjs` 仍属历史测试入口，不用于日常启动。
+
+**检查 Runner。** 核对实际进程和最近成功心跳，已有健康原实例时复用。历史 `.runtime/four-projects/aden/restore-runner.py` 绑定旧隔离空间，接回原库后暂停使用；先核实原库已有有效空间、成员、Runner 凭据和权限，再更新本机恢复材料。不能为启动检查自动注册替代 Runner 或创建空间。原库前提不齐时 Runner 明确受阻；Python Agent Runtime 不在上述常规启动范围内。
+
+## 3. 更新、重启和检查
+
+| 改了什么 | 怎样让更新生效 |
+|---|---|
+| Java 后端或排产 Worker | 做对应测试、重新打包；Java 更新时增加 `-BackendJarPath <已验证的新包路径>`，停止并启动自己的项目，核对实际运行包哈希。日常重复启动复用已登记版本；不自动拿其他项目刚构建的共享包替换 |
+| 网页 | 查看自己项目的实际页面；代理或环境配置变化时重启。选品和排产共用源码，公共改动要核对两边 |
+| 选品 Python、Runner | 做对应检查后重启自己的服务；Python 当前不会自动重载 |
+| Aden 桌面 | 关闭自己的安装版窗口，在 `frontend/desktop/aden-desktop` 执行 `npm run sync:local`，完成构建、备份和同步，再打开安装版核对文件哈希与页面 |
+| Aden 扩展、Native Host、安装器 | 按组件自己的构建、分发方法更新；桌面同步不能替代这些组件的更新 |
+
+停止或重启时，只选择自己的项目。在工作区根目录执行：
+
+```powershell
+$taskProject = 'interview'
+pwsh -NoProfile -File .\scripts\dev\stop-four-projects.ps1 -Project $taskProject
+# 需要重启时，再执行下一条
+pwsh -NoProfile -File .\scripts\dev\start-four-projects.ps1 -SelectedProject $taskProject
+```
+
+单项目停止保留原数据库与业务数据。其他项目重启仍需传入其已核实的 `-DatabaseConfigPath`；不得省略后落回误建库。Aden 窗口、恢复 Runner 不在公共停止清单内，要分别关闭自己的窗口、在 Runner 终端按 `Ctrl+C`。整体停止 `-Project all` 由总协调处理；本轮未执行。共享后端打包要排队，更新只影响约定的项目版本。
+
+启动后，各项目对话核对并汇报：
+
+1. **页面与服务：** 网页实际显示且前端代理能访问对应后端；选品另查 [Python 健康状态](http://127.0.0.1:18100/health)，排产确认 Worker 存活。桌面端确认安装版连接 `18093`，Runner 存活且有成功心跳。
+2. **运行版本、数据库与归属：** 核对进程命令、创建时间和实际运行包哈希；连接必须对应已核实的原库，不能仅凭端口就绪判断。公共记录在 `.runtime/four-projects/processes.json`，日志在 `.runtime/four-projects/logs/`；桌面端另查 `.runtime/four-projects/aden/`。
+3. **不足与验收：** 说明哪些组件未就绪。启动检查与业务验收分开，业务验收引用项目已有清单和证据，按[现行验收规范](C:/Users/admin/.codex/specs/core/evidence.md)执行。
+
+选品与排产登录页可能显示共享后台标题，要按地址和代理确认项目。不同端口不隔离 Cookie；并行登录有冲突时核对浏览器状态，必要时轮流操作。
+
+<!-- 合并原并行开发与验收隔离方案。原 AC-01、AC-02、AC-03、AC-04、AC-05、AC-06、AC-07 的稳定编号和 NotRun 历史结果保留于清理备份的历史原文；本次只合并操作入口，不重置验收结果。 -->

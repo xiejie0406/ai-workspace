@@ -19,7 +19,7 @@ $requiredPaths = @(
     'AGENTS.md',
     '文档/README.md',
     '文档/若依框架/README.md',
-    '文档/若依框架/面试项目集成索引.md',
+    '文档/若依框架/多项目并行开发启动指南.md',
     '文档/项目/README.md',
     '文档/项目/面试项目/README.md',
     '文档/项目/智能选品项目/README.md',
@@ -90,7 +90,12 @@ $expectedProjectDirectories = @(
     '面试项目',
     '智能选品项目',
     '智能体桌面端项目',
-    '生产排产项目'
+    '生产排产项目',
+    'AI图片编辑项目',
+    'AI演示文稿项目',
+    'PaiSmart知识库项目',
+    'PaiFlow工作流项目',
+    'PaiCLI智能编码项目'
 )
 $projectsRoot = Join-Path $docsRoot '项目'
 if (Test-Path -LiteralPath $projectsRoot -PathType Container) {

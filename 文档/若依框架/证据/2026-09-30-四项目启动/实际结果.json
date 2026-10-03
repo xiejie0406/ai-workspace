@@ -1,0 +1,145 @@
+{
+  "kind": "服务启动技术验证与验收准备",
+  "date": "2026-09-30",
+  "timezone": "Asia/Shanghai",
+  "executor": "Codex",
+  "userDecision": "待确认",
+  "backendSha256": "a6d07cf3aa1b406c4490e42e8afe4d0b6e19e5f7a7f41d9b1dd9426f0b91231a",
+  "scope": "四个独立 JVM 和对应本机合成测试服务，入口 UI 冒烟；不含完整业务 UAT",
+  "items": [
+    {
+      "id": "EV-BOOT-01",
+      "type": "EV",
+      "goal": "面试服务隔离启动",
+      "result": "Pass",
+      "screenshotStatus": "不适用",
+      "actual": "Java PID1088 /18091、Redis16391、Portal15173的身份、监听、HTTP和专属MySQL权限回读通过；PostgreSQL新建结构副本，数据为空。",
+      "evidence": [
+        "运行回读.json",
+        "数据库隔离回读.txt",
+        "面试数据库回读.txt"
+      ],
+      "limitations": "不证明完整业务验收"
+    },
+    {
+      "id": "EV-BOOT-02",
+      "type": "EV",
+      "goal": "选品 Java/Python 隔离启动",
+      "result": "Pass",
+      "screenshotStatus": "不适用",
+      "actual": "首次Flyway元数据权限失败保留；修复后Java PID15564 /18092、Redis16392、前端15174、Python18100就绪，health明确demo；单项目幂等启动退出0、原PID不变。",
+      "evidence": [
+        "运行回读.json",
+        "数据库隔离回读.txt"
+      ],
+      "limitations": "Python 仅 demo"
+    },
+    {
+      "id": "EV-BOOT-03",
+      "type": "EV",
+      "goal": "Aden/Runner 隔离启动",
+      "result": "Blocked",
+      "screenshotStatus": "不适用",
+      "actual": "Java PID27148 /18093、Redis16393、MySQL dev_aden已就绪；桌面与Runner部分已转交新Aden对话，尚未取得本轮完整执行证据。",
+      "evidence": [
+        "运行回读.json",
+        "数据库隔离回读.txt"
+      ],
+      "limitations": "Runner 仅 simulator"
+    },
+    {
+      "id": "EV-BOOT-04",
+      "type": "EV",
+      "goal": "APS API/Worker 隔离启动",
+      "result": "Pass",
+      "screenshotStatus": "不适用",
+      "actual": "Java PID12108 /18094、Redis16394、前端15175、独立Worker PID28928就绪；业务库30表（含Flyway history）迁移至V006，尚无业务订单/排程数据。",
+      "evidence": [
+        "运行回读.json",
+        "数据库隔离回读.txt"
+      ],
+      "limitations": "空测试库，不证明求解质量"
+    },
+    {
+      "id": "UAT-BOOT-01",
+      "type": "UI",
+      "goal": "面试门户入口",
+      "url": "http://127.0.0.1:15173/",
+      "steps": [
+        "打开专用门户",
+        "核对标题和文字/语音/题库入口",
+        "核对同源代理"
+      ],
+      "expected": "页面正常渲染，代理访问 18091",
+      "result": "Pass",
+      "screenshotStatus": "已截图",
+      "actual": "门户标题与文字/语音/题库入口可见；同源/api/captchaImage响应code200，启动配置明确代理18091；截图665×701已保存回读，Console无warn/error。",
+      "evidence": [
+        "截图/UAT-BOOT-01.jpg"
+      ],
+      "limitations": "入口截图不证明面试流程或语音可用"
+    },
+    {
+      "id": "UAT-BOOT-02",
+      "type": "UI",
+      "goal": "选品管理入口",
+      "url": "http://127.0.0.1:15174/",
+      "steps": [
+        "打开管理登录页",
+        "核对同源代理"
+      ],
+      "expected": "登录页渲染，代理访问 18092",
+      "result": "Pass",
+      "screenshotStatus": "已截图",
+      "actual": "登录页正常；/dev-api/captchaImage响应code200，启动配置指向18092；截图1279×720已保存回读，Console无warn/error；标题仍为共享面试管理后台。",
+      "evidence": [
+        "截图/UAT-BOOT-02.jpg"
+      ],
+      "limitations": "不含登录后商品/方案业务"
+    },
+    {
+      "id": "UAT-BOOT-03",
+      "type": "UI",
+      "goal": "Aden 桌面入口",
+      "url": "Electron 专用 profile / 18093",
+      "steps": [
+        "启动桌面",
+        "核对服务地址",
+        "采集实际原生窗口截图"
+      ],
+      "expected": "桌面渲染并显示对应服务地址",
+      "result": "NotRun",
+      "screenshotStatus": "待截图",
+      "actual": "已在新Aden独立对话保存专属启动清单并继续桌面/Runner准备；本报告未取得桌面截图，不计为通过。",
+      "evidence": [],
+      "limitations": "不含原生 Chrome 插件、真实京东采集"
+    },
+    {
+      "id": "UAT-BOOT-04",
+      "type": "UI",
+      "goal": "排产管理入口",
+      "url": "http://127.0.0.1:15175/",
+      "steps": [
+        "打开管理登录页",
+        "核对同源代理"
+      ],
+      "expected": "登录页渲染，代理访问 18094",
+      "result": "Pass",
+      "screenshotStatus": "已截图",
+      "actual": "登录页正常；/dev-api/captchaImage响应code200，启动配置指向18094；首次截图不完整未采纳，完整页1279×720重采并回读，Console无warn/error；标题仍为共享面试管理后台。",
+      "evidence": [
+        "截图/UAT-BOOT-04-完整页.jpg"
+      ],
+      "limitations": "不含排程/发布/报表业务"
+    }
+  ],
+  "changes": [
+    "首次清单已在操作前保存；原始业务验收记录未改写。",
+    "选品初次启动失败保留；元数据权限修复后复验。",
+    "三个网页入口截图已保存并逐张回读；Aden转交独立对话、仍待执行证据。",
+    "2026-09-30完成Java19模块与两前端构建；未运行Java业务测试。",
+    "跨午夜持续到2026-10-01；本轮仍沿用2026-09-30证据目录，不重开轮次。",
+    "报告8个ID及所有引用文件静态核对通过；全仓文档检查因既有失链和命名问题失败。",
+    "报告视觉检查未执行：启动HTML预览服务被自动审批拒绝，只有blocked by policy，无具体理由；文件打开请求queued。"
+  ]
+}

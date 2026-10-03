@@ -70,6 +70,7 @@ import Cookies from "js-cookie"
 import { encrypt, decrypt } from "@/utils/jsencrypt"
 import useUserStore from '@/store/modules/user'
 import defaultSettings from '@/settings'
+import { resolveAipptLoginReturnTo } from '@/utils/aipptEntry'
 
 const title = import.meta.env.VITE_APP_TITLE
 const footerContent = defaultSettings.footerContent
@@ -128,6 +129,11 @@ function handleLogin() {
           }
           return acc
         }, {})
+        const reactReturnTo = resolveAipptLoginReturnTo(redirect.value, otherQueryParams)
+        if (reactReturnTo) {
+          window.location.replace(reactReturnTo)
+          return
+        }
         router.push({ path: redirect.value || "/", query: otherQueryParams })
       }).catch(() => {
         loading.value = false

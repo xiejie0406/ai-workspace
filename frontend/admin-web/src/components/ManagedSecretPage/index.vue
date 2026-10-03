@@ -13,7 +13,7 @@
       <el-table-column v-if="kind === 'AI'" prop="providerCode" label="供应商" min-width="110" />
       <el-table-column prop="authMode" label="鉴权模式" min-width="110" />
       <el-table-column label="状态" width="100"><template #default="{ row }"><el-tag :type="row.status === 'ACTIVE' ? 'success' : 'info'">{{ row.status === 'ACTIVE' ? '已启用' : '已停用' }}</el-tag></template></el-table-column>
-      <el-table-column label="代码接入" min-width="150"><template #default="{ row }"><el-tag :type="knownAliases.has(row.alias) ? 'success' : 'warning'">{{ knownAliases.has(row.alias) ? '已替换消费者' : '未登记消费者' }}</el-tag></template></el-table-column>
+      <el-table-column label="代码接入" min-width="150"><template #default="{ row }"><el-tag :type="knownConsumer(row) ? 'success' : 'warning'">{{ knownConsumer(row) ? '已替换消费者' : '未登记消费者' }}</el-tag></template></el-table-column>
       <el-table-column prop="activeVersion" label="版本" width="80" />
       <el-table-column prop="updatedAt" label="最近变更" min-width="165" />
       <el-table-column label="操作" min-width="300"><template #default="{ row }">
@@ -67,6 +67,12 @@ const knownAliases = new Set([
   'platform.aden.runner-pepper', 'platform.aden.runner-pepper.previous',
   'ai.interview.deepseek', 'ai.interview.volcengine.speech'
 ])
+function knownConsumer(row) {
+  if (knownAliases.has(row.alias)) return true
+  if (row.projectCode !== 'paicli') return false
+  if (props.kind === 'AI') return /^ai\.paicli\.[1-9][0-9]{0,18}\.[A-Za-z0-9._-]+$/.test(row.alias)
+  return row.alias === 'platform.paicli.control-key' || /^platform\.paicli\.wechat\.[1-9][0-9]{0,18}$/.test(row.alias)
+}
 const reservedPrevious = new Set(['platform.ruoyi.jwt.previous', 'platform.fashion.service.previous', 'platform.fashion.contact.previous', 'platform.interview.envelope.previous', 'platform.aden.runner-pepper.previous'])
 function isReservedPrevious(alias) { return reservedPrevious.has(alias) }
 const title = computed(() => props.kind === 'AI' ? 'AI 密钥' : '平台密钥')

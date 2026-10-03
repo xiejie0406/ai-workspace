@@ -292,8 +292,8 @@ function handleDropdownCommand(command) {
   }
 }
 
-function refreshSelectedTag(view) {
-  proxy.$tab.refreshPage(view)
+async function refreshSelectedTag(view) {
+  await proxy.$tab.refreshPage(view)
   if (route.meta.link) {
     useTagsViewStore().delIframeView(route)
   }
@@ -324,8 +324,8 @@ function closeLeftTags() {
 }
 
 function closeOthersTags() {
-  router.push(selectedTag.value).catch(() => { })
   proxy.$tab.closeOtherPage(selectedTag.value).then(() => {
+    router.push(selectedTag.value).catch(() => { })
     moveToCurrentTag()
   })
 }
