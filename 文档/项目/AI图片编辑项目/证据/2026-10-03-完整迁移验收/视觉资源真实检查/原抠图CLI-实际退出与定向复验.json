@@ -1,0 +1,39 @@
+{
+  "scope": "原 CLI matting-1 的受影响定向复验，原调色与投放沿用旧基线",
+  "checked_at": "2026-10-03T11:32:27.873867+08:00",
+  "command": [
+    "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\.venv\\Scripts\\python.exe",
+    "-m",
+    "aipicture_runtime.eval",
+    "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\vision\\cli-matting"
+  ],
+  "source_case": {
+    "id": "matting-1",
+    "task": "remove_background",
+    "input": "images/product-white.png",
+    "expect": "expect/product-alpha.png",
+    "metrics": [
+      "alpha_iou"
+    ],
+    "thresholds": {
+      "alpha_iou": 0.8
+    }
+  },
+  "inputs": {
+    "input": {
+      "path": "images/product-white.png",
+      "source_sha256": "bb4d28230e31246825bb45abb7b142c3b5ac20c4742a6f0e30f8bab95421de06",
+      "copy_sha256": "bb4d28230e31246825bb45abb7b142c3b5ac20c4742a6f0e30f8bab95421de06"
+    },
+    "expect": {
+      "path": "expect/product-alpha.png",
+      "source_sha256": "cd5ac47dba40d9a22905d99364e4be39f50a30fb8c614ee007458d8e321d30fd",
+      "copy_sha256": "cd5ac47dba40d9a22905d99364e4be39f50a30fb8c614ee007458d8e321d30fd"
+    }
+  },
+  "exit_code": 0,
+  "provider_calls": 0,
+  "formal_writes": 0,
+  "passed": true,
+  "harness_summary_error": "原CLI实际exit0且1/1 passed；辅助脚本误匹配1/1 cases passed导致自身exit1。已保留原摘要/日志，仅按原子进程结果修正摘要，未重复推理。"
+}

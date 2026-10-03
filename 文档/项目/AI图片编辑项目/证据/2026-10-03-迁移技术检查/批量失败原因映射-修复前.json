@@ -1,0 +1,27 @@
+{
+  "scope": "实际Worker计算与ExecutionClient.process；post仅捕获回执，不连接中心/网络，不调用模型或正式API，不计业务通过",
+  "expected_item_message": "去背景模型未配置，未使用四角算法替代真实能力",
+  "actual_receipt_message": "全部批量项失败",
+  "actual_receipt_status": "failed",
+  "actual_result_item": {
+    "source_id": "00000000-0000-0000-0000-000000000001",
+    "status": "failed",
+    "output_ids": [],
+    "error": "去背景模型未配置，未使用四角算法替代真实能力"
+  },
+  "actual_endpoints_captured": [
+    "/heartbeat",
+    "/heartbeat",
+    "/heartbeat",
+    "/receipt"
+  ],
+  "formal_api_calls": 0,
+  "provider_calls": 0,
+  "failure_reason_preserved": false,
+  "java_consumption": "RunService.completeRelations采用receipt.message写batch_item.message，BatchExportEvaluationService.batch映射message为error，ReactBatchPage显示item.error",
+  "source_sha256": {
+    "aipicture_runtime/engine.py": "e8f7759985e1aa176a74ef651913538a177fc1560cf59fe0b749b2f6e7f72590",
+    "aipicture_runtime/execution.py": "a9d95ae05664795793a845beb480e92f753bc4539de2b600a73b920c020496aa",
+    "../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java": "e95d10f3de39d5ae16aa68fbd87ce59d9e82f4cb3ea4f9f610fa2c942463efb6"
+  }
+}

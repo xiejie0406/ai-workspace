@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="2.397" timestamp="2026-10-03T18:19:13.082544+08:00" hostname="DESKTOP-9TNRTIR"><testcase classname="tests.test_selection_priority" name="test_mixed_selection_keeps_original_points_priority[False]" time="0.086"><failure message="AssertionError: 原points分支忽略strokes，远处笔刷不能扩大mask&#10;assert 255 == 0&#10; +  where 255 = getpixel((50, 64))&#10; +    where getpixel = &lt;PIL.Image.Image image mode=L size=64x80 at 0x1FD853CB930&gt;.getpixel">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FD852A2C40&gt;
+append = False
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("append", [False, True])
+    async def test_mixed_selection_keeps_original_points_priority(monkeypatch, append):
+        # 独立固定SAM产物，矩形采用Pillow半开坐标；远处笔刷不能被施加。
+        expected = Image.new("L", (64, 80), 0)
+        expected.paste(255, (9, 11, 16, 20))
+        calls = []
+    
+        def fixed_segmentation(_source, coords):
+            calls.append(coords)
+            return overlay_png(expected)
+    
+        monkeypatch.setattr("aipicture_runtime.engine.segment_points", fixed_segmentation)
+        payload = request("selection", {
+            "points": [{"x": .2, "y": .2}],
+            "strokes": [[{"x": .7, "y": .8}, {"x": .85, "y": .8}]],
+            "selection_markers": [{"index": 1, "x": .35, "y": .25}],
+            "append": append, "revision": 0,
+        })
+        payload.input_revision = 0
+        output = await compute(payload)
+        alpha = Image.open(io.BytesIO(base64.b64decode(output["artifacts"][0]["content_base64"]))).getchannel("A")
+&gt;       assert alpha.getpixel((50, 64)) == 0, "原points分支忽略strokes，远处笔刷不能扩大mask"
+E       AssertionError: 原points分支忽略strokes，远处笔刷不能扩大mask
+E       assert 255 == 0
+E        +  where 255 = getpixel((50, 64))
+E        +    where getpixel = &lt;PIL.Image.Image image mode=L size=64x80 at 0x1FD853CB930&gt;.getpixel
+
+tests\test_selection_priority.py:35: AssertionError</failure></testcase><testcase classname="tests.test_selection_priority" name="test_mixed_selection_keeps_original_points_priority[True]" time="0.021"><failure message="AssertionError: 原points分支忽略strokes，远处笔刷不能扩大mask&#10;assert 255 == 0&#10; +  where 255 = getpixel((50, 64))&#10; +    where getpixel = &lt;PIL.Image.Image image mode=L size=64x80 at 0x1FD85455090&gt;.getpixel">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FD853AD490&gt;
+append = True
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("append", [False, True])
+    async def test_mixed_selection_keeps_original_points_priority(monkeypatch, append):
+        # 独立固定SAM产物，矩形采用Pillow半开坐标；远处笔刷不能被施加。
+        expected = Image.new("L", (64, 80), 0)
+        expected.paste(255, (9, 11, 16, 20))
+        calls = []
+    
+        def fixed_segmentation(_source, coords):
+            calls.append(coords)
+            return overlay_png(expected)
+    
+        monkeypatch.setattr("aipicture_runtime.engine.segment_points", fixed_segmentation)
+        payload = request("selection", {
+            "points": [{"x": .2, "y": .2}],
+            "strokes": [[{"x": .7, "y": .8}, {"x": .85, "y": .8}]],
+            "selection_markers": [{"index": 1, "x": .35, "y": .25}],
+            "append": append, "revision": 0,
+        })
+        payload.input_revision = 0
+        output = await compute(payload)
+        alpha = Image.open(io.BytesIO(base64.b64decode(output["artifacts"][0]["content_base64"]))).getchannel("A")
+&gt;       assert alpha.getpixel((50, 64)) == 0, "原points分支忽略strokes，远处笔刷不能扩大mask"
+E       AssertionError: 原points分支忽略strokes，远处笔刷不能扩大mask
+E       assert 255 == 0
+E        +  where 255 = getpixel((50, 64))
+E        +    where getpixel = &lt;PIL.Image.Image image mode=L size=64x80 at 0x1FD85455090&gt;.getpixel
+
+tests\test_selection_priority.py:35: AssertionError</failure></testcase><testcase classname="tests.test_selection_priority" name="test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke0]" time="0.012" /><testcase classname="tests.test_selection_priority" name="test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke1]" time="0.011" /></testsuite></testsuites>

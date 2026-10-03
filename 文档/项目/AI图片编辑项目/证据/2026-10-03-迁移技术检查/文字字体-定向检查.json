@@ -1,0 +1,68 @@
+{
+  "scope": "字体参数/实例生命周期/类型的离线定向技术检查，不证明浏览器中文字形、服务端换行导出质量或真实业务验收；未生产构建/同步runtime",
+  "checks": [
+    {
+      "name": "React 新增字体默认/受控覆盖/动态更新/空白回退/内联编辑/两实例隔离",
+      "command": "node tests/run.mjs --test-name-pattern=文字字体：|真实非空 Session|两个编辑器",
+      "log": "文字字体-定向检查.log",
+      "exit_code": 0,
+      "new_tests_passed": 1,
+      "affected_baseline_tests_passed": 2,
+      "total_passed": 3
+    },
+    {
+      "name": "若依既有bridge Vite配置/显式覆盖/空白/不产生请求",
+      "command": "node node_modules/vitest/vitest.mjs run --config vitest.aipicture.config.js tests/unit/aipicture/host-bridge.spec.ts -t 文字字体",
+      "exit_code": 0,
+      "passed": 1,
+      "other_baseline_skipped": 4
+    },
+    {
+      "name": "React定向类型",
+      "command": "npm run typecheck",
+      "exit_code": 0
+    },
+    {
+      "name": "若依图片宿主与能力页定向类型",
+      "command": "npm run typecheck:aipicture",
+      "exit_code": 0
+    },
+    {
+      "name": "受影响React文件lint",
+      "command": "node node_modules/oxlint/bin/oxlint src/components/editor/CanvasStage.tsx src/host/HostContract.ts tests/entry.ts",
+      "exit_code": 0,
+      "errors": 0,
+      "existing_canvas_warnings": 12
+    }
+  ],
+  "fonts": {
+    "default_stack": "\"Microsoft YaHei\", \"PingFang SC\", \"WenQuanYi Micro Hei\", \"Noto Sans CJK SC\", sans-serif",
+    "host_option": "textFontFamily",
+    "ruoyi_vite_option": "VITE_AIPICTURE_TEXT_FONT_FAMILY",
+    "worker_option": "AIPICTURE_FONT_PATH",
+    "confirmed_environment": "Windows本机msyh.ttc/Pillow实际family=Microsoft YaHei，其他平台字体实际存在性未检查",
+    "other_platforms_not_claimed_ready": true,
+    "new_fonts_downloaded_or_distributed": false
+  },
+  "coverage": {
+    "count": 75,
+    "source_hashes_unchanged": true
+  },
+  "source_fingerprints": {
+    "frontend/aipicture-workbench/src/host/HostContract.ts": "c4d03dba9227287fce8f280475400860fdda2598ea759168d25ea2941946302f",
+    "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx": "00601fd6f9e91226d4fad316d83f068fb8da5d21af06905a144accd7956b1d35",
+    "frontend/aipicture-workbench/tests/entry.ts": "6e3563d14844271943693ba134fc7fe155e64b916af77e70192c66f95bbf68e1",
+    "frontend/aipicture-workbench/tests/lifecycle.test.mjs": "b1fc562003c5e8862068b8d05c6a5dc1130333393dd5b1df2f5a0711996e69c2",
+    "frontend/aipicture-workbench/migration-coverage.json": "e340b0ee9e3cc1272cf0716cf79c863f65354443fb7119af1e36e92bb5c54d66",
+    "frontend/aipicture-workbench/README.md": "7c49b20886ef2366bb39c93bc078ccc603ba04e1c3a4c69baf8d385308abc4ee",
+    "frontend/admin-web/src/api/aipicture/bridge.js": "571ffb493f8e73ee0fd8cb761744c5e6f68d19bab7a3c0255bcd8975a97bc285",
+    "frontend/admin-web/src/views/aipicture/evaluation/index.vue": "256a0081d977e100e023389d264b976f0ae69aaa0c8c8eb6344c4a27c180cd19",
+    "frontend/admin-web/tests/unit/aipicture/host-bridge.spec.ts": "6b26e4a86ff8c689e3aaba744a06c52d2ac94c0b3d2da4d13ff9e50ab2ab2f54"
+  },
+  "current_production_js": {
+    "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+    "sha256": "0a7f6f5bb20533eac2450252aa95dfe9488a2b607c5e9e8d6d7604f301b90f06",
+    "font_changes_included": false
+  },
+  "pending": "等待Python字体布局/缺字能力和批量逐图原因修复冻结；root协调统一生产构建、分发同步和实际IAB文字/编辑框/服务端输出回读。用户业务接受保持待确认。"
+}

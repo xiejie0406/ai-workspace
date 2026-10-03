@@ -1,0 +1,166 @@
+{
+  "日期": "2026-10-03",
+  "要求来源": "完整迁移设计.md 1.2 导出与评测、第5/9节专项评估；根本轮定稿suite契约",
+  "范围": "现有若依管理员评测页/API与定向检查；原六CLI与React批量冻结保持",
+  "修复前": {
+    "命令": "node node_modules/vitest/vitest.mjs run --config vitest.aipicture.config.js tests/unit/aipicture/evaluation.spec.ts",
+    "日志": "专项评测-修复前.log",
+    "exit_code": 1,
+    "原检查通过": 2,
+    "新增缺口失败": 2
+  },
+  "中间检查": {
+    "日志": "专项评测-定向检查.log",
+    "通过": 15,
+    "类型首次日志": "专项评测-类型检查.log",
+    "类型exit_code": 2,
+    "原因": "新增受控Axios mock重载签名推断为string；仅fixture类型明确修正",
+    "16项阶段记录": "专项评测-16项阶段定向检查.json",
+    "invariant首次类型日志": "专项评测-最终契约类型检查.log",
+    "invariant类型原因": "新增spec对JS联合返回元数据.min的推断；改为保留同等实际断言，不放宽生产类型"
+  },
+  "最终检查": {
+    "cwd": "frontend/admin-web",
+    "命令": "node node_modules/vitest/vitest.mjs run --config vitest.aipicture.config.js tests/unit/aipicture/evaluation.spec.ts tests/unit/aipicture/evaluation-page.spec.ts",
+    "日志": "专项评测-冻结定向检查.log",
+    "exit_code": 0,
+    "通过": 17,
+    "API检查": 13,
+    "实际Vue组件检查": 4,
+    "失败": 0,
+    "类型命令": "node node_modules/vue-tsc/bin/vue-tsc.js --noEmit --project tsconfig.aipicture.json",
+    "类型日志": "专项评测-冻结类型检查.log",
+    "类型exit_code": 0
+  },
+  "检查覆盖": [
+    "保留六操作与五旧指标，专项独立分支",
+    "五suite固定指标与独立预期，人审pending/failed保留、passed说明必需",
+    "禁止客户端自造assessment/provider/document/mask",
+    "OCR像素JSON、非空文本、有限负坐标与越界拒绝",
+    "正式输出只选本任务成功候选，复用共享request及幂等metadata",
+    "实际Vue源ID切换、关窗、销毁隔离迟到响应",
+    "实际Vue提交选中候选及人审记录，无自造接受结论",
+    "实际Vue503来源读取错误可重读，独立输入保留",
+    "实际Vue技术通过/人审失败/整体失败分开显示",
+    "区域保护正阈值拒绝、阈值固定0；OCR Unicode codepoint每条2000/总32000"
+  ],
+  "源码冻结": {
+    "files": [
+      {
+        "path": "frontend/admin-web/src/views/aipicture/evaluation/index.vue",
+        "sha256": "0CEA4D388A6F0398ED49598F4834397F9C91BD055C20DE4F273D32ED4705BE04"
+      },
+      {
+        "path": "frontend/admin-web/src/api/aipicture/evaluation.js",
+        "sha256": "F7E25AF7881FFED102450CDA041F2918AB4C8D42FB79BC8ADC7A47335435B9AD"
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/aipicture/evaluation.spec.ts",
+        "sha256": "216DA6A57A40D5FB042DB53D73EC1248CA79BBB3AF1E2DF304AAB857746B289C"
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/aipicture/evaluation-page.spec.ts",
+        "sha256": "1E0C14C83B71B0664193EE2EB86EAADF67E52234495FD54FEA2FB4CEA501B7A1"
+      },
+      {
+        "path": "frontend/admin-web/README.md",
+        "sha256": "AB36D71B1A6DBF6D399E44076209689E2232FCA019E6B20679015FCE740DF794"
+      }
+    ],
+    "combined_sha256": "937DEB6D9BDCB28EE1F31E2FE7FB8D7D131D774EA1A09635FE58FB3D54E1D01D",
+    "combined_rule": "按path排序，UTF8 newline join path:UPPERCASE SHA256"
+  },
+  "批量7冻结文件核对": [
+    {
+      "path": "frontend/aipicture-workbench/src/pages/BatchPage.tsx",
+      "sha256": "41913E58C920D6623401D5000F91C99FB30F097218F34F4651D01A972CD286AC",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/ImageDropzone.tsx",
+      "sha256": "DB48F68899C10D762DD644095C2BD382333488CF8B77D33005CAE8624D62971E",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/entry.ts",
+      "sha256": "44C6D0EA218BE3193C21ABA03D76AD1772BED9D082C04C80660789A894FD20D9",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/run.mjs",
+      "sha256": "88E30AC8EB0C908E927FDA7A1E648465AF3512C241036B71605F804BCBF6DE13",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "sha256": "06AA9E0FFDA9E94DB21A7BAAD9A7A31A74FB0C36089DCFB17F0A3AB49E26C73E",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "sha256": "9450E5295FBFEE9E8C74A3E7B413418F7BC4F699389F99F29B7BBA1D3AF5C51C",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "sha256": "0D6040D3CB65548A42B0389A3CA48F082F79191D4E86CDE29BD241C47F5BDB14",
+      "unchanged": true
+    }
+  ],
+  "限制": [
+    "受控sharedrequest传输和jsdom组件，没有真实HTTP/DB/Provider调用",
+    "未生产聚合构建与正式 public/运行通道制品同步；仅已授权技术渲染 harness 独立构建写入专用目录，未浏览器或真实账号操作",
+    "不证明真实模型质量、业务验收通过或用户接受"
+  ],
+  "生产构建": "由根聚合执行，当前本代理未构建/同步",
+  "技术渲染": {
+    "URL": "http://localhost:8416/evaluation-ui/",
+    "source": [
+      {
+        "path": ".runtime/aipicture/evaluation-ui/fixture-auth.js",
+        "sha256": "D0CDB60AF4824717ABD67C8C2F04046EDF2952C85763164338FD823A5E05FBED"
+      },
+      {
+        "path": ".runtime/aipicture/evaluation-ui/fixture-request.js",
+        "sha256": "AE65A34AA77F03A359C534199CB7BE21B5605889B955159C1B426ACF668375F3"
+      },
+      {
+        "path": ".runtime/aipicture/evaluation-ui/index.html",
+        "sha256": "DD05A2EFDBF2FBB64F615A22E2F2C97288F5C88FCFD8BC7D35F7C9A9CF89A86E"
+      },
+      {
+        "path": ".runtime/aipicture/evaluation-ui/main.js",
+        "sha256": "1D60969825BCE0ECC1909D5693B39AA4A9AF3C0F4FC7946BB60F86C50D708BF0"
+      },
+      {
+        "path": ".runtime/aipicture/evaluation-ui/vite.config.mjs",
+        "sha256": "16FB55A390F3FEA7A69E7992360698F5BFD4C3DD8D46EF3BAAE6FB26182749BF"
+      }
+    ],
+    "active_artifacts": [
+      {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/index.html",
+        "bytes": 379,
+        "sha256": "FD9A13C83E680F910728DD7547C72B95C58C51A63D59B3E9321B85D5A9481EC1"
+      },
+      {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/assets/index-CmD8ROcB.js",
+        "bytes": 1127862,
+        "sha256": "3ACB66D1F406D43A35150AD5E4AD6C0B75D1A8F719DF09F5159814EEFB6D4BBA"
+      },
+      {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/assets/index-DXpJkrsC.css",
+        "bytes": 380904,
+        "sha256": "6EDDBC7C1AAD2204B4D4A6D0DBA3B76D5DB1C13FB89FBAD88D4DCFF12B65E2E5"
+      }
+    ],
+    "build_command": "node ../../../frontend/admin-web/node_modules/vite/bin/vite.js build --config vite.config.mjs",
+    "cwd": ".runtime/aipicture/evaluation-ui",
+    "log": "专项评测-最终技术渲染构建.log",
+    "exit_code": 0,
+    "组件SHA256": "0CEA4D388A6F0398ED49598F4834397F9C91BD055C20DE4F273D32ED4705BE04",
+    "组件说明": "构建直接import当前生产evaluation/index.vue、真实ElementPlus/CSS及原若依Pagination/样式；request/auth精确alias到本地内存fixture",
+    "数据说明": "全部UUID/candidates/报告为固定技术响应，real_model_verified全部false、人审pending/failed、整体false；原报告无复制/换址",
+    "浏览器": "本代理未操作；根随后IAB查看并截图回读，不计业务验收"
+  }
+}

@@ -1,0 +1,353 @@
+{
+  "checked_at": "2026-10-03T07:46:28.089287+00:00",
+  "review_type": "独立有界只读源码及既有执行证据复核",
+  "requirements": [
+    "源services/agent.py:147-150/160-173",
+    "源models/tool_run.py:17-22",
+    "完整迁移设计1.2自然语言计划、3.5状态重试取消"
+  ],
+  "findings": [],
+  "conclusion": "终态守卫、幂等回放和failed显式retry保留符合本次要求，限定范围未见新增具体P0/P1。",
+  "checks": [
+    {
+      "topic": "锁内终态守卫",
+      "source_evidence": "PlanService.action先turn(...,true)读取FOR UPDATE，再锁session；cancel分支在任何turn/step UPDATE或runs.cancel之前拒四终态并抛409 PLAN_STATE。原源拒succeeded/failed/canceled；external_result_unknown是目标明确补齐。",
+      "result": "通过静态核对"
+    },
+    {
+      "topic": "正常取消与锁顺序",
+      "source_evidence": "新添仅注释与一条terminal guard；planning/waiting_confirmation/executing继续既有取消路径，只将pending/queued/running步骤标取消，成功步骤不会被该UPDATE匹配。既有turn→session锁序保持。",
+      "result": "通过静态核对"
+    },
+    {
+      "topic": "幂等回放",
+      "source_evidence": "CommandIdempotency.execute在action回调前按owner/command/key锁读并核request_hash，已成功同键返回既有result，不会再次到达terminal guard或cancel UPDATE。不同内容同键仍IDEMPOTENCY_CONFLICT。",
+      "result": "通过静态核对与作者既有运行证据"
+    },
+    {
+      "topic": "failed重试入口",
+      "source_evidence": "迟到cancel拒failed且不改状态/正文/步骤；retry分支未改变，仍仅failed计划/存在步骤/权限/version/pinned selection/非unknown可显式重试；只UPDATE status=failed步骤并保留succeeded，原批量只恢复failed items。",
+      "result": "通过静态核对与作者既有运行证据"
+    },
+    {
+      "topic": "最终测试修正",
+      "source_evidence": "首轮后5失败仅嵌套Map/JSONArray容器equals快照比较；最终helper改成Json.write完整前后快照，不删状态/正文/步骤字段断言，仍断言409/PLAN_STATE及不调用取消写。",
+      "result": "修正不降低原预期；最后5对应首轮5失败集合完全一致"
+    }
+  ],
+  "production_diff": "--- 保存的修前PlanService.java\n+++ 最终PlanService.java\n@@ -73,6 +73,8 @@\n                 if(Json.number(s.get(\"row_version\"))!=Json.expected(request)||Json.number(s.get(\"revision\"))!=Json.number(turn.get(\"base_revision\"))) throw AiPictureException.conflict(Json.number(s.get(\"row_version\")));\n                 db.execute(\"UPDATE aip_agent_turn SET status='executing',updated_at=:now WHERE id=:id\",Json.of(\"id\",id,\"now\",System.currentTimeMillis()));runs.continuePlan(id,owner);\n             } else if(action.equals(\"cancel\")) {\n+                // 核对行锁取得后的正式状态，迟到取消不能覆盖已结束的结果或失败重试入口。\n+                if(Set.of(\"succeeded\",\"failed\",\"cancelled\",\"external_result_unknown\").contains(Json.string(turn.get(\"status\")))) throw new AiPictureException(409,\"PLAN_STATE\",\"当前没有可取消的步骤\");\n                 db.execute(\"UPDATE aip_agent_turn SET status='cancelled',updated_at=:now WHERE id=:id\",Json.of(\"id\",id,\"now\",System.currentTimeMillis()));\n                 var active=db.query(\"SELECT run_id FROM aip_plan_step WHERE turn_id=:id AND status IN ('queued','running')\",Json.of(\"id\",id));\n                 for(var step:active) if(step.get(\"run_id\")!=null) runs.cancel(owner,Json.string(step.get(\"run_id\")));\n",
+  "final_test_helper_diff_from_first_after": "--- 首轮修后测试源\n+++ 最终测试源\n@@ -102,7 +102,7 @@\n     }\n     private void assertTerminalCancelRejected(String id,String originalState) {\n-        var original=Json.copy(storedTurn);var originalSteps=storedSteps.stream().map(Json::copy).toList();\n+        String original=Json.write(storedTurn),originalSteps=Json.write(storedSteps);\n         var error=assertThrows(AiPictureException.class,()->plans.action(OWNER,session,id,\"cancel\",metadata()));\n-        assertAll(()->assertEquals(409,error.status()),()->assertEquals(\"PLAN_STATE\",error.errorCode()),()->assertEquals(originalState,storedTurn.get(\"status\")),()->assertEquals(original,storedTurn),()->assertEquals(originalSteps,storedSteps));\n+        assertAll(()->assertEquals(409,error.status()),()->assertEquals(\"PLAN_STATE\",error.errorCode()),()->assertEquals(originalState,storedTurn.get(\"status\")),()->assertEquals(original,Json.write(storedTurn)),()->assertEquals(originalSteps,Json.write(storedSteps)));\n         verify(runs,never()).cancel(anyLong(),anyString());\n         verify(db,never()).execute(startsWith(\"UPDATE aip_agent_turn SET status='cancelled'\"),anyMap());\n",
+  "frozen_release": {
+    "path": ".runtime/aipicture/r12-plan-terminal-cancel-release.json",
+    "size_bytes": 57190,
+    "sha256": "fd6c00f5b53c331e0c38ca20fbed2bb2da28d64ed7233065b45ae31330e178fa"
+  },
+  "current_main_source": {
+    "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/PlanService.java",
+    "size_bytes": 12981,
+    "sha256": "5b8c31457fcc94345f3fd3d3f0ed307138904861b141ce3ac50e8571f178c107"
+  },
+  "current_test_source": {
+    "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/PlanCancellationTest.java",
+    "size_bytes": 15436,
+    "sha256": "304b42d3b86e4a9a0d0aed4e0381340451d9b949a00ba199a12dab75c51117ac"
+  },
+  "frozen_module": {
+    "path": ".runtime/aipicture/ruoyi-aipicture-r12-terminal-cancel-20261003.jar",
+    "size_bytes": 196776,
+    "sha256": "ae0b08d63e0ccc66a6d99a4b469ecdd87661b61f64b7447eb080c9100061487c"
+  },
+  "verified_artifact_metadata": {
+    "current_java_sources": 32,
+    "current_and_embedded_classes": 43,
+    "unique_and_embedded_contracts": 5,
+    "author_module_package_exit_code": 0,
+    "reviewer_compilations": 0
+  },
+  "actual_author_execution_evidence": {
+    "before7": {
+      "path": ".runtime/aipicture/before-r12-plan-terminal-cancel-20261003/PlanCancellationTest-before.xml",
+      "sha256": "c22ed6dfac20d6aef2d52f85a1f456b5e4c3e2917a719ef4dc72b719cf3a9be3",
+      "tests": 7,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[1]",
+          "passed": false,
+          "failure_message": "Expected com.ruoyi.aipicture.domain.AiPictureException to be thrown, but nothing was thrown."
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[2]",
+          "passed": false,
+          "failure_message": "Expected com.ruoyi.aipicture.domain.AiPictureException to be thrown, but nothing was thrown."
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[3]",
+          "passed": false,
+          "failure_message": "Expected com.ruoyi.aipicture.domain.AiPictureException to be thrown, but nothing was thrown."
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[4]",
+          "passed": false,
+          "failure_message": "Expected com.ruoyi.aipicture.domain.AiPictureException to be thrown, but nothing was thrown."
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#rejectedCancellationOfAFailedPlanKeepsExplicitRetryAvailable",
+          "passed": false,
+          "failure_message": "Expected com.ruoyi.aipicture.domain.AiPictureException to be thrown, but nothing was thrown."
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#sameCancellationKeyReplaysTheAcceptedResultWithoutCancellingAgain",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#completionBeforeCancellationAcquiresTurnLockKeepsItsTerminalResult",
+          "passed": false,
+          "failure_message": "Unexpected exception type thrown, expected: <com.ruoyi.aipicture.domain.AiPictureException> but was: <org.opentest4j.AssertionFailedError>"
+        }
+      ]
+    },
+    "corrected_race1": {
+      "path": ".runtime/aipicture/before-r12-plan-terminal-cancel-20261003/PlanCancellationTest-before-race-corrected.xml",
+      "sha256": "087a9050e2b86d8a1b1ac8b90d14ecb5188573008617ab1dd683a2956c342f88",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#completionBeforeCancellationAcquiresTurnLockKeepsItsTerminalResult",
+          "passed": false,
+          "failure_message": "Expected com.ruoyi.aipicture.domain.AiPictureException to be thrown, but nothing was thrown."
+        }
+      ]
+    },
+    "first_after_cancellation15": {
+      "path": ".runtime/aipicture/before-r12-plan-terminal-cancel-20261003/PlanCancellationTest-first-after.xml",
+      "sha256": "25d0f1c8dba700a3b063ca170e87f73e66fdde11696b34660eec7f011c4fc77e",
+      "tests": 15,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#ordinaryMultiStepRequiresHashConfirmationAndConfirmationReplayIsIdempotent",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#ordinaryPlannerFailureStillPersistsFailureAndReturnsTheError",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#lateMultiStepCannotReplaceCancelledPlanningWithConfirmation",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#cancellationCannotReadAnotherOwnersTurn",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[1]",
+          "passed": false,
+          "failure_message": "Multiple Failures (1 failure)\n org.opentest4j.AssertionFailedError: expected: <{id=e7507d25-fefa-4243-abe7-c1589a2d3143, user_id=11, session_id=bb3261ff-cd28-4a85-9012-c80ae0d0fd8e, goal=保留正式结果, reply=正式计划正文, status=succeeded, base_revision=2, base_version=4, steps=[{\"id\":\"step-0\",\"tool\":\"move_layer\",\"params\":{\"dx\":1},\"depends_on\":[],\"status\":\"succeeded\"}], message=}> but was: <{id=e7507d25-fefa-4243-abe7-c1589a2d3143, user_id=11, session_id=bb3261ff-cd28-4a85-9012-c80ae0d0fd8e, goal=保留正式结果, reply=正式计划正文, status=succeeded, base_revision=2, base_version=4, steps=[{id=step-0, tool=move_layer, params={\"dx\":1}, depends_on=[], status=succeeded}], message=}>"
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[2]",
+          "passed": false,
+          "failure_message": "Multiple Failures (1 failure)\n org.opentest4j.AssertionFailedError: expected: <{id=db8f1b67-bb60-46c8-863e-8c85f9df355d, user_id=11, session_id=01e4cc62-33f2-45bd-b344-a201f222d375, goal=保留正式结果, reply=正式计划正文, status=failed, base_revision=2, base_version=4, steps=[{\"id\":\"step-0\",\"tool\":\"move_layer\",\"params\":{\"dx\":1},\"depends_on\":[],\"status\":\"failed\"}], message=原失败原因}> but was: <{id=db8f1b67-bb60-46c8-863e-8c85f9df355d, user_id=11, session_id=01e4cc62-33f2-45bd-b344-a201f222d375, goal=保留正式结果, reply=正式计划正文, status=failed, base_revision=2, base_version=4, steps=[{id=step-0, tool=move_layer, params={\"dx\":1}, depends_on=[], status=failed}], message=原失败原因}>"
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[3]",
+          "passed": false,
+          "failure_message": "Multiple Failures (1 failure)\n org.opentest4j.AssertionFailedError: expected: <{id=47783f76-8315-4e2e-8e2e-628eb6e03ab3, user_id=11, session_id=d385892e-40dc-4f1b-86a0-7296c4886328, goal=保留正式结果, reply=正式计划正文, status=cancelled, base_revision=2, base_version=4, steps=[{\"id\":\"step-0\",\"tool\":\"move_layer\",\"params\":{\"dx\":1},\"depends_on\":[],\"status\":\"cancelled\"}], message=}> but was: <{id=47783f76-8315-4e2e-8e2e-628eb6e03ab3, user_id=11, session_id=d385892e-40dc-4f1b-86a0-7296c4886328, goal=保留正式结果, reply=正式计划正文, status=cancelled, base_revision=2, base_version=4, steps=[{id=step-0, tool=move_layer, params={\"dx\":1}, depends_on=[], status=cancelled}], message=}>"
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[4]",
+          "passed": false,
+          "failure_message": "Multiple Failures (1 failure)\n org.opentest4j.AssertionFailedError: expected: <{id=d991ebfb-7138-47ce-a562-5b3f3279a334, user_id=11, session_id=2ea72c5e-972a-4b03-ae21-2e80cd471794, goal=保留正式结果, reply=正式计划正文, status=external_result_unknown, base_revision=2, base_version=4, steps=[{\"id\":\"step-0\",\"tool\":\"move_layer\",\"params\":{\"dx\":1},\"depends_on\":[],\"status\":\"external_result_unknown\"}], message=}> but was: <{id=d991ebfb-7138-47ce-a562-5b3f3279a334, user_id=11, session_id=2ea72c5e-972a-4b03-ae21-2e80cd471794, goal=保留正式结果, reply=正式计划正文, status=external_result_unknown, base_revision=2, base_version=4, steps=[{id=step-0, tool=move_layer, params={\"dx\":1}, depends_on=[], status=external_result_unknown}], message=}>"
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#rejectedCancellationOfAFailedPlanKeepsExplicitRetryAvailable",
+          "passed": false,
+          "failure_message": "Multiple Failures (1 failure)\n org.opentest4j.AssertionFailedError: expected: <{id=63c3211b-d6fc-4ba8-af3f-4324834d7a7a, user_id=11, session_id=898ed330-3dc4-40bf-b4d8-500579648fff, goal=保留正式结果, reply=正式计划正文, status=failed, base_revision=2, base_version=4, steps=[{\"id\":\"step-0\",\"tool\":\"move_layer\",\"params\":{\"dx\":1},\"depends_on\":[],\"status\":\"failed\"}], message=原失败原因}> but was: <{id=63c3211b-d6fc-4ba8-af3f-4324834d7a7a, user_id=11, session_id=898ed330-3dc4-40bf-b4d8-500579648fff, goal=保留正式结果, reply=正式计划正文, status=failed, base_revision=2, base_version=4, steps=[{id=step-0, tool=move_layer, params={\"dx\":1}, depends_on=[], status=failed}], message=原失败原因}>"
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#ordinarySingleStepStillExecutesAndDuplicateSendDoesNotReplan",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#sameCancellationKeyReplaysTheAcceptedResultWithoutCancellingAgain",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#revokedToolPermissionStillRejectsPlanBeforeCreatingSteps",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#completionBeforeCancellationAcquiresTurnLockKeepsItsTerminalResult",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#lateSingleStepCannotResumeCancelledPlanning",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#latePlannerFailureCannotOverwriteCancelledPlanning",
+          "passed": true,
+          "failure_message": null
+        }
+      ]
+    },
+    "first_after_selection5": {
+      "path": ".runtime/aipicture/before-r12-plan-terminal-cancel-20261003/PlanSelectionContinuationTest-first-after.xml",
+      "sha256": "661aef4e835cf6edd9b662fadff9b46b6911c9f8add4dbf4815adad623cf88d7",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#secondLayerOperationKeepsPinnedMaskAcrossOrdinaryRevisionChanges",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#planBatchResumeOnlyRetriesExistingFailedItemsAndKeepsSuccessfulItems",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#planRetryCannotBypassRevokedGenerationPermission",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#planBatchResumeRejectsUnknownPaidItemsBeforeAnyRetry",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#cropChangingCanvasRejectsTheOldPinnedMaskBeforeSubmittingAnotherTool",
+          "passed": true,
+          "failure_message": null
+        }
+      ]
+    },
+    "latest_affected5": {
+      "path": ".runtime/aipicture/r12-plan-terminal-cancel-after-snapshot-corrected-PlanCancellationTest.xml",
+      "sha256": "f6fb952f5f74e6364c12d1b8a7380698060da772e0a9efb4c0d5858dac9b9a68",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[1]",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[2]",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[3]",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[4]",
+          "passed": true,
+          "failure_message": null
+        },
+        {
+          "id": "com.ruoyi.aipicture.PlanCancellationTest#rejectedCancellationOfAFailedPlanKeepsExplicitRetryAvailable",
+          "passed": true,
+          "failure_message": null
+        }
+      ]
+    },
+    "effective_unique_count": 20,
+    "effective_unique_passed": 20,
+    "new_unique_scenarios": 7,
+    "existing_related_scenarios_reexecuted_by_author": 13,
+    "composition": "最后受影响5通过＋前阶段未受影响15通过；不是25个新场景。原before7含5产品失败＋1夹具失败＋1通过；修正race单例仍产品失败，故before适用7中6真实产品失败。",
+    "applicable_case_ids": [
+      "com.ruoyi.aipicture.PlanCancellationTest#cancellationCannotReadAnotherOwnersTurn",
+      "com.ruoyi.aipicture.PlanCancellationTest#completionBeforeCancellationAcquiresTurnLockKeepsItsTerminalResult",
+      "com.ruoyi.aipicture.PlanCancellationTest#lateMultiStepCannotReplaceCancelledPlanningWithConfirmation",
+      "com.ruoyi.aipicture.PlanCancellationTest#latePlannerFailureCannotOverwriteCancelledPlanning",
+      "com.ruoyi.aipicture.PlanCancellationTest#lateSingleStepCannotResumeCancelledPlanning",
+      "com.ruoyi.aipicture.PlanCancellationTest#ordinaryMultiStepRequiresHashConfirmationAndConfirmationReplayIsIdempotent",
+      "com.ruoyi.aipicture.PlanCancellationTest#ordinaryPlannerFailureStillPersistsFailureAndReturnsTheError",
+      "com.ruoyi.aipicture.PlanCancellationTest#ordinarySingleStepStillExecutesAndDuplicateSendDoesNotReplan",
+      "com.ruoyi.aipicture.PlanCancellationTest#rejectedCancellationOfAFailedPlanKeepsExplicitRetryAvailable",
+      "com.ruoyi.aipicture.PlanCancellationTest#revokedToolPermissionStillRejectsPlanBeforeCreatingSteps",
+      "com.ruoyi.aipicture.PlanCancellationTest#sameCancellationKeyReplaysTheAcceptedResultWithoutCancellingAgain",
+      "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[1]",
+      "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[2]",
+      "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[3]",
+      "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[4]",
+      "com.ruoyi.aipicture.PlanSelectionContinuationTest#cropChangingCanvasRejectsTheOldPinnedMaskBeforeSubmittingAnotherTool",
+      "com.ruoyi.aipicture.PlanSelectionContinuationTest#planBatchResumeOnlyRetriesExistingFailedItemsAndKeepsSuccessfulItems",
+      "com.ruoyi.aipicture.PlanSelectionContinuationTest#planBatchResumeRejectsUnknownPaidItemsBeforeAnyRetry",
+      "com.ruoyi.aipicture.PlanSelectionContinuationTest#planRetryCannotBypassRevokedGenerationPermission",
+      "com.ruoyi.aipicture.PlanSelectionContinuationTest#secondLayerOperationKeepsPinnedMaskAcrossOrdinaryRevisionChanges"
+    ]
+  },
+  "reviewer_actions": {
+    "tests": 0,
+    "builds": 0,
+    "database_reads_or_writes": 0,
+    "model_inferences": 0,
+    "external_calls": 0,
+    "services": 0,
+    "production_source_changes": 0,
+    "sole_document_changes": 0
+  },
+  "runtime_synchronized_at_author_freeze": false,
+  "limitations": [
+    "受控测试真实调用服务方法但mock repository/transaction manager，不证明MySQL并发锁实测；本次仅核FOR UPDATE及代码顺序。",
+    "本审查没有重新Maven、MySQL或Provider执行，不增加技术测试数量，也不推进业务22项判定。",
+    "模块打包与当前source/class/契约一致不代表已经同步运行或用户接受，根负责候选总包及恢复。"
+  ],
+  "original_deterministic_audit_preserved": {
+    "path": ".runtime/aipicture/deterministic-render-export-readonly-20261003.json",
+    "sha256": "f0cff664bff8a8a36caae14f477ec4784dab56bafa071bf87722023cf68dfd58"
+  },
+  "reviewed_source_files": [
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/CommandIdempotency.java",
+      "size_bytes": 1904,
+      "sha256": "07816db83b973b95b963d221856c1c64b7fb2b0adc7806e17d03e50246d2df07"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+      "size_bytes": 42469,
+      "sha256": "c91d260bd6504a7dee095456c775b5f5b30fe85cf62404e63e08b1ab3e1df8fd"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/services/agent.py",
+      "size_bytes": 9275,
+      "sha256": "0a8aee4fb754fd16fc5e8ab6b524360e3a4d2cb987f48acc8d57ac66133f1ff3"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/models/tool_run.py",
+      "size_bytes": 1855,
+      "sha256": "17ee1d499e50ccdcbebee6f345a704689c4d9e59274bc5b030190cb892b1632e"
+    }
+  ]
+}

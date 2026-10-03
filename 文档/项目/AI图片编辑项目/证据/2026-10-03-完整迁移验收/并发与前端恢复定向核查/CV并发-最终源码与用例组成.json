@@ -1,0 +1,81 @@
+{
+  "scope": "SAM同图冷编码去重+OCR首次初始化双检锁；仅两source及定向tests，模型/阈值/预算不变",
+  "frozen_at": "2026-10-03T04:45:53.676104+00:00",
+  "changed_source_sha256": {
+    "edits/segment.py": "848a422e609b62a020f273ba5ba58abed2e8a70d0a92ba25936d58f917a65f9d",
+    "edits/ocr.py": "ee428a3e37d3f41007e1e115af02454e7e83cbfe019d48abbd6fe6d897482b26"
+  },
+  "test_sha256": {
+    "tests/test_cv_concurrency.py": "85624a1768f39afcccc35bd5c552d4a626bd90a35a66b631965b7589a0129e32",
+    "tests/test_ocr_input_contract.py": "abab5b027cee8c6bea1f661cf70540fc3e764bacfbcd4980893ae6e1e30452b3"
+  },
+  "before": {
+    "cases": 7,
+    "failed": 3,
+    "passed": 4,
+    "skipped": 0,
+    "exit_code": 1
+  },
+  "after": {
+    "cases": 13,
+    "passed": 13,
+    "skipped": 0,
+    "exit_code": 0,
+    "new_concurrency_cases": 7,
+    "prior_color_input_cases": 5,
+    "prior_missing_ocr_models_case": 1
+  },
+  "testcases_after": [
+    "test_same_image_cold_cache_has_one_encoder_owner[success]",
+    "test_same_image_cold_cache_has_one_encoder_owner[failure-cleanup]",
+    "test_different_images_keep_parallel_encoding",
+    "test_embedding_lru_still_keeps_four_and_recomputes_evicted_image",
+    "test_ocr_first_use_constructs_one_engine",
+    "test_ocr_initialization_failure_can_retry",
+    "test_loaded_ocr_calls_are_not_serialized_by_initialization_guard",
+    "test_pixels_match_library_bytes_contract_after_existing_alpha_removal[RGB-pixels0]",
+    "test_pixels_match_library_bytes_contract_after_existing_alpha_removal[L-pixels1]",
+    "test_pixels_match_library_bytes_contract_after_existing_alpha_removal[RGBA-pixels2]",
+    "test_text_box_metadata_stays_on_original_canvas_grid",
+    "test_explicit_model_paths_are_kept_when_initializing",
+    "test_real_models_missing_are_explicit_failures_not_test_fallback[detect_text]"
+  ],
+  "checked_behaviors": [
+    "同key两调用成功只编码一次且拿到同一结果",
+    "同key失败只执行一次，两个等待者获相同异常，在途清除后可重试",
+    "不同key受控Barrier仍同时编码",
+    "LRU仍4，淘汰后重新编码",
+    "OCR第一次两线程仅一个constructor",
+    "OCR构造失败锁释放且下次可构造",
+    "OCR已加载推理仍可两调用并行",
+    "此前颜色/灰度/alpha/metadata/显式路径5契约不回退",
+    "缺OCR模型仍明确失败"
+  ],
+  "evidence_fingerprints": {
+    "cv-concurrency-before.log": "254ba8279a8cc59979b05ce17760a2f37ba02e2d56654e7fc3c13611407106eb",
+    "cv-concurrency-before.xml": "f5cdb30f31ca3a05127f4c6fd9cf084f6764b3b4b2eb8aee83355e55e12277ea",
+    "cv-concurrency-before.json": "c227c629def92c2bee44fcd80b4ccde0c4749b53ac63907a2a76603ffabc28c3",
+    "cv-concurrency-after.log": "6c7a32f6aaac3af12f3d7c8601403e97ab5724181cc1366db58428452e5e2281",
+    "cv-concurrency-after.xml": "e56f5b22303d18168a1170d19c2e8d49a4ec6bdc028c18ea1aed76a941a7fcac",
+    "cv-concurrency-segment.py.before": "4942296daf99f429eb313b952267a83372d0984f45b42e13d5bef6051ca5a454",
+    "cv-concurrency-ocr.py.before": "ec4b9ef752ee1010c1e75fb1f1ec1886482e7b60d23b0cd39ee439e4ac1fc43b"
+  },
+  "model_cache_identity": {
+    "current_fixed_model_cross_version_trigger_found": false,
+    "new_reload_facility": false,
+    "new_byte_budget": false,
+    "explanation": "get_settings缓存且无公开model reset/reload，SAM仅首次加载。标准模型更换通过停启新进程，session和cache全部重置。模型hash/字节预算拟定项单列待落实，不把私有helper更换session的假想情形当当前真实错误。"
+  },
+  "executed_real_model": false,
+  "network_calls": 0,
+  "provider_calls": 0,
+  "database_writes": 0,
+  "services_operated": false,
+  "engine_changed": false,
+  "contract_changed": false,
+  "package_built": false,
+  "runtime_synced": false,
+  "business_acceptance": false,
+  "quality_accepted": false,
+  "counting": "13=7新并发+5此前入口+1既有缺模型；不与前次6或旧54相加冒称全量。此前真实OCR/SAM产物不重复推理。"
+}

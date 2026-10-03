@@ -1,0 +1,45 @@
+{
+  "observed_at": "2026-10-03T10:51:53.868856+00:00",
+  "scope": "运行日志留档实质缺口；不覆盖、补造或声称完整旧日志",
+  "missing_pre_restart_stdout": [
+    "java.log",
+    "python-serve.log",
+    "python-worker.log"
+  ],
+  "cause": "root备份使用.out.log，实际启动脚本输出为.log；重启覆盖前未复制三份stdout",
+  "preserved_before": {
+    "backup_record": ".runtime\\aipicture\\before-selection-progress-runtime-20261003\\backup-record.json",
+    "jar": "原5d总包",
+    "manifest": "实际完整旧清单",
+    "stderr": [
+      "java.err.log",
+      "python-serve.err.log",
+      "python-worker.err.log"
+    ],
+    "runtime_identity": "selection-progress-runtime-before/pre-stop.json",
+    "capabilities": "selection-progress-live-before.json",
+    "readiness": "selection-progress-restart-readiness-before.json"
+  },
+  "earlier_logs": "既有before-unicode-image-rejection-20261003及更早快照保留，只属于较早基线，不能补足本次重启前的完整stdout",
+  "current_stdout_snapshots": [
+    {
+      "path": ".runtime\\aipicture\\java.log",
+      "current_snapshot_bytes": 6062,
+      "current_snapshot_sha256": "01c7fb8a21b3d42da7814af4b7503a0aed13d5afca2dabbc616d166bc75a607e",
+      "pre_restart_full_stdout_preserved": false
+    },
+    {
+      "path": ".runtime\\aipicture\\python-serve.log",
+      "current_snapshot_bytes": 162,
+      "current_snapshot_sha256": "6491490e0acf112bcbb14014679b00c0f1cab4e619b4173c8765301bb8fa1a6c",
+      "pre_restart_full_stdout_preserved": false
+    },
+    {
+      "path": ".runtime\\aipicture\\python-worker.log",
+      "current_snapshot_bytes": 0,
+      "current_snapshot_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "pre_restart_full_stdout_preserved": false
+    }
+  ],
+  "impact": "不能交付本次重启前完整三份stdout；原失败单测/XML、浏览器图、制品和同步身份/接口资源结果独立保留，不增加业务通过或恢复演练证明"
+}

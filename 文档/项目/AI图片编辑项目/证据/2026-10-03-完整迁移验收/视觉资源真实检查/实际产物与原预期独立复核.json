@@ -1,0 +1,264 @@
+{
+  "scope": "对既有实际私有HTTP与原CLI证据的独立回读；不再次调用HTTP或模型",
+  "reviewed_at": "2026-10-03T03:36:53.297691+00:00",
+  "review_operations": {
+    "new_inference": 0,
+    "http_calls": 0,
+    "provider_calls": 0,
+    "database_writes": 0,
+    "formal_asset_writes": 0,
+    "process_operations": 0,
+    "source_edits": 0
+  },
+  "original_source": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\ai-picture-editor-main\\backend\\app\\eval\\dataset\\images\\product-white.png",
+    "sha256": "bb4d28230e31246825bb45abb7b142c3b5ac20c4742a6f0e30f8bab95421de06",
+    "target_copy_match": true
+  },
+  "independent_expect": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\ai-picture-editor-main\\backend\\app\\eval\\dataset\\expect\\product-alpha.png",
+    "sha256": "cd5ac47dba40d9a22905d99364e4be39f50a30fb8c614ee007458d8e321d30fd",
+    "target_copy_match": true,
+    "dimensions": [
+      1080,
+      1080
+    ],
+    "point_pixels": [
+      [
+        324,
+        432
+      ],
+      [
+        702,
+        486
+      ]
+    ],
+    "point_alpha": [
+      254,
+      254
+    ],
+    "background_corner_alpha": 0
+  },
+  "declared_http_alpha_condition": "alpha >= 128",
+  "legacy_eval_alpha_condition": "alpha > 128",
+  "cases": [
+    {
+      "tool": "remove_background",
+      "output_path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\vision\\http-check\\matting-http.png",
+      "sha256": "0cb9079192b9f0c6dcb540cc0b59b7b2bfdf6035de866a4504d35bd08a4345ae",
+      "size_bytes": 454442,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        87,
+        169,
+        976,
+        912
+      ],
+      "alpha_nonzero_count": 262382,
+      "alpha128_count": 78,
+      "foreground_pixels_ge128": 240697,
+      "intersection_ge128": 237051,
+      "union_ge128": 240814,
+      "alpha_iou_ge128": 0.9843738320861743,
+      "alpha_iou_gt128": 0.9845893113789866,
+      "selected_point_alpha": [
+        254,
+        254
+      ],
+      "background_corner_alpha": 0,
+      "response_metadata_match": true,
+      "provider": {
+        "image": "dashscope",
+        "matting": "rembg",
+        "ocr": "rapidocr",
+        "offline_test": false,
+        "enhancement_implementation": "image_edit",
+        "true_super_resolution": false
+      },
+      "predeclared_threshold": 0.8,
+      "passed_independent_readback": true
+    },
+    {
+      "tool": "selection",
+      "output_path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\vision\\http-check\\sam-foreground-http.png",
+      "sha256": "1fef10592468a044e7c9c4d43ca78c737999fe5f784170246aacbefd13fd1a38",
+      "size_bytes": 10755,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        103,
+        182,
+        964,
+        899
+      ],
+      "alpha_nonzero_count": 228731,
+      "alpha128_count": 0,
+      "foreground_pixels_ge128": 228731,
+      "intersection_ge128": 228677,
+      "union_ge128": 237222,
+      "alpha_iou_ge128": 0.9639788889731981,
+      "alpha_iou_gt128": 0.9640234391467476,
+      "selected_point_alpha": [
+        255,
+        255
+      ],
+      "background_corner_alpha": 0,
+      "response_metadata_match": true,
+      "provider": {
+        "image": "dashscope",
+        "matting": "rembg",
+        "ocr": "rapidocr",
+        "offline_test": false,
+        "enhancement_implementation": "image_edit",
+        "true_super_resolution": false,
+        "sam": {
+          "provider": "onnxruntime",
+          "model": "sam",
+          "loaded": true,
+          "inference": "points"
+        }
+      },
+      "predeclared_threshold": 0.8,
+      "passed_independent_readback": true
+    }
+  ],
+  "capabilities": {
+    "matting": {
+      "ready": true,
+      "loaded_before": false,
+      "loaded_after": true,
+      "offline_test": false,
+      "validation": "files_and_dependencies_only"
+    },
+    "sam": {
+      "ready": true,
+      "loaded_before": false,
+      "loaded_after": true,
+      "offline_test": false,
+      "validation": "files_and_dependencies_only"
+    },
+    "ocr": {
+      "ready": true,
+      "loaded_before": false,
+      "loaded_after": false,
+      "offline_test": false,
+      "validation": "files_and_dependencies_only"
+    }
+  },
+  "cpu_evidence": {
+    "previous_real_selfcheck_providers": {
+      "matting": [
+        "CPUExecutionProvider"
+      ],
+      "sam_encoder": [
+        "CPUExecutionProvider"
+      ],
+      "sam_decoder": [
+        "CPUExecutionProvider"
+      ],
+      "ocr_det": [
+        "CPUExecutionProvider"
+      ],
+      "ocr_rec": [
+        "CPUExecutionProvider"
+      ],
+      "ocr_cls": [
+        "CPUExecutionProvider"
+      ]
+    },
+    "sam_http_source_requests_explicit_cpu": true,
+    "http_response_contains_execution_provider_list": false,
+    "limitation": "HTTP回执SAM来源含onnxruntime/sam/loaded/points，但不含get_providers列表；六session的实际CPU列表来自此前独立SelfCheck，SAM当前源码显式指定CPU。未从仅ready推定实际CPU推理。"
+  },
+  "ocr_retained_failure": {
+    "selfcheck_smoke_passed": false,
+    "ocr_expected_matches": false,
+    "actual_text": "Al Picture 2026",
+    "expected_text": "AI Picture 2026",
+    "current_serve_loaded": false
+  },
+  "legacy_cli": {
+    "child_exit_code": 0,
+    "stdout": "id         task               alpha_iou  result\nmatting-1  remove_background  0.9846     ok    \n1/1 passed\n",
+    "stdout_sha256": "3fc2e449fccb150a7e8e0e69ff6274327c181c01dba25d45c6b26447bb18b9bc",
+    "cases_json_sha256": "8b4d6d039d2423656609ba2204f83bb5a876ad6b5dd45b8d7825068d2ee3ca21",
+    "copied_input_and_expect_equal_original": true,
+    "old_helper_passed": false,
+    "corrected_summary_passed": true,
+    "helper_only_fix_no_new_inference": true,
+    "metric_explanation": "同一matting PNG原CLI使用alpha >128得0.9845893114；HTTP预设alpha >=128得0.9843738321。二者都高于0.8，不是模型输出变化。"
+  },
+  "frozen_source": {
+    "manifest_path": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-迁移技术检查\\专项SAM来源-最终源码制品指纹.json",
+    "source_count": 38,
+    "all_source_sha256_match": true,
+    "engine_sha256": "dc64b4754c3961cf0655ffbf5fbf4c712ca86c62181596b09e82ab9e0367af1c"
+  },
+  "frozen_artifacts": {
+    "ruoyi_aipicture_runtime-0.1.0-py3-none-any.whl": {
+      "sha256": "63164d479c350da4f24a5f47725c8ed430d0e6f745b2e75ba60d140b45ba34cb",
+      "size_bytes": 2838973,
+      "matches_freeze": true
+    },
+    "ruoyi_aipicture_runtime-0.1.0.tar.gz": {
+      "sha256": "0fceca4e66a98a00074e65dcdad8f5e2065e0899ee21e99f264f7658f67014e8",
+      "size_bytes": 3005260,
+      "matches_freeze": true
+    }
+  },
+  "model_fingerprints": [
+    {
+      "file": "u2net.onnx",
+      "sha256": "8d10d2f3bb75ae3b6d527c77944fc5e7dcd94b29809d47a739a7a728a912b491",
+      "size_bytes": 175997641,
+      "manifest_match": true
+    },
+    {
+      "file": "sam_vit_b_01ec64.encoder.quant.onnx",
+      "sha256": "181301ce3500a86c38450b56e2b71dab8008a13b1812a0d6cc812f22651e143a",
+      "size_bytes": 108836115,
+      "manifest_match": true
+    },
+    {
+      "file": "sam_vit_b_01ec64.decoder.quant.onnx",
+      "sha256": "b11465135b7c93a1fd65141a4e2a96f1ddf2e3dab09b5eeab640bdf5f10aadbe",
+      "size_bytes": 8755366,
+      "manifest_match": true
+    },
+    {
+      "file": "ch_PP-OCRv4_det_infer.onnx",
+      "sha256": "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9",
+      "size_bytes": 4745517,
+      "manifest_match": true
+    },
+    {
+      "file": "ch_PP-OCRv4_rec_infer.onnx",
+      "sha256": "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b",
+      "size_bytes": 10857958,
+      "manifest_match": true
+    },
+    {
+      "file": "ch_ppocr_mobile_v2.0_cls_infer.onnx",
+      "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+      "size_bytes": 585532,
+      "manifest_match": true
+    }
+  ],
+  "limits": [
+    "本次只读核查证明确有真实本地抠图及前景点选产物，单一原商品样本达事前IoU>=0.8。",
+    "两PNG已打开回读；SAM遮罩RGB为统一叠加色，需以alpha判定选区，不能从预览满色误判全选。",
+    "不代表多商品泛化、拆层、区域修图、中文OCR、付费Provider或业务菜单/正式数据库完整验收通过。",
+    "旧SelfCheck英文I→l真实失败继续保留；当前HTTP未调用OCR，不将该项转成环境受阻。",
+    "CPU6实际列表来自先前SelfCheck，不冒称HTTP回执包含相同列表；本次没有新增推理或重测。",
+    "业务用户接受未发生；严格超分仍true_super_resolution=false，付费image/planner能力仍未ready。"
+  ],
+  "independent_readback_passed": true,
+  "new_business_acceptance_passed": false
+}

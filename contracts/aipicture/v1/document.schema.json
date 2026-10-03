@@ -1,0 +1,167 @@
+{
+  "$defs": {
+    "Layer": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/LayerKind"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "width": {
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "title": "Height",
+          "type": "integer"
+        },
+        "asset_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asset Id"
+        },
+        "transform": {
+          "$ref": "#/$defs/Transform"
+        },
+        "opacity": {
+          "default": 1,
+          "title": "Opacity",
+          "type": "number"
+        },
+        "visible": {
+          "default": true,
+          "title": "Visible",
+          "type": "boolean"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "source_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Hash"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "font_size": {
+          "default": 24,
+          "title": "Font Size",
+          "type": "number"
+        },
+        "fill": {
+          "default": "#141414",
+          "title": "Fill",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "name",
+        "width",
+        "height"
+      ],
+      "title": "Layer",
+      "type": "object"
+    },
+    "LayerKind": {
+      "enum": [
+        "image",
+        "text",
+        "shape"
+      ],
+      "title": "LayerKind",
+      "type": "string"
+    },
+    "Transform": {
+      "description": "相对画布左上角的位置与形变，缩放为倍率而非像素。",
+      "properties": {
+        "x": {
+          "default": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "default": 0,
+          "title": "Y",
+          "type": "number"
+        },
+        "scale_x": {
+          "default": 1,
+          "title": "Scale X",
+          "type": "number"
+        },
+        "scale_y": {
+          "default": 1,
+          "title": "Scale Y",
+          "type": "number"
+        },
+        "rotation": {
+          "default": 0,
+          "title": "Rotation",
+          "type": "number"
+        }
+      },
+      "title": "Transform",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "width": {
+      "title": "Width",
+      "type": "integer"
+    },
+    "height": {
+      "title": "Height",
+      "type": "integer"
+    },
+    "layers": {
+      "items": {
+        "$ref": "#/$defs/Layer"
+      },
+      "title": "Layers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "width",
+    "height"
+  ],
+  "title": "LayerDocument",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-schemaVersion": "1"
+}

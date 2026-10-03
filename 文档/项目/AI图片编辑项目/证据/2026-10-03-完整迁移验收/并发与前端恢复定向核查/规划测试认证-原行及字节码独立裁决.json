@@ -1,0 +1,93 @@
+{
+  "reviewed_at_utc": "2026-10-03T05:18:04.686480+00:00",
+  "scope": "原审查测试认证误报的只读纠正；不修改或重编译测试、生产、契约，也不重跑13项",
+  "decision": "原独立审查关于源码没有authenticate的判断与现文件及原备份原文不符，是读源误判；没有证明源码/执行class不一致。原13项通过可按原版本沿用。",
+  "current_source": {
+    "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/PlanCancellationTest.java",
+    "sha256": "4b395f74ef414fc86ecd0cff078e0f67410b5fcf65f6eb79e5857311f163db8b",
+    "release_sha256": "4b395f74ef414fc86ecd0cff078e0f67410b5fcf65f6eb79e5857311f163db8b",
+    "matches_release": true,
+    "mtime_utc": "2026-10-03T04:41:12.519593+00:00",
+    "line_103": "    @Test void ordinaryMultiStepRequiresHashConfirmationAndConfirmationReplayIsIdempotent() {",
+    "line_104": "        authenticate(Set.of(\"*:*:*\"));when(worker.call(eq(\"plan\"),anyMap())).thenReturn(response(2));var result=plans.send(OWNER,session,request());assertEquals(\"waiting_confirmation\",result.get(\"status\"));verifyNoInteractions(runs);",
+    "authentication_present": true
+  },
+  "current_class": {
+    "path": "ruoyi-backend/ruoyi-aipicture/target/test-classes/com/ruoyi/aipicture/PlanCancellationTest.class",
+    "sha256": "d258764a4739f92d6b3171d3885aa29b94a061496e89f5d62faae20f21cb07ac",
+    "release_sha256": "d258764a4739f92d6b3171d3885aa29b94a061496e89f5d62faae20f21cb07ac",
+    "matches_release": true,
+    "mtime_utc": "2026-10-03T04:42:37.994931+00:00",
+    "normal_multi_method_start": "    Code:\n       0: aload_0\n       1: ldc_w         #582                // String *:*:*\n       4: invokestatic  #584                // InterfaceMethod java/util/Set.of:(Ljava/lang/Object;)Ljava/util/Set;\n       7: invokevirtual #589                // Method authenticate:(Ljava/util/Set;)V\n      10: aload_0\n      11: getfield      #49                 // Field worker:Lcom/ruoyi/aipicture/worker/AiPictureWorkerClient;\n      14: ldc_w         #474                // String plan\n      17: invokestatic  #164                // Method org/mockito/Mockito.eq:(Ljava/lang/Object;)Ljava/lang/Object;",
+    "authentication_present_in_bytecode": true,
+    "javap_file": ".runtime/aipicture/plan-cancel-test-consistency-javap.txt",
+    "javap_sha256": "2f53ae1e86d7c17ef5295477aa59e4c230ab99936672c9153560d3dde3d0bcd0",
+    "javap_exit": 0
+  },
+  "initial_test_backup": {
+    "path": ".runtime/aipicture/before-plan-cancel-race/PlanCancellationTest.java",
+    "sha256": "92e9be50d060e15df87239dc4b4c34cbe79cb47a3e66705db517b390e5bfd37b",
+    "normal_multi_first_line": "        authenticate(Set.of(\"*:*:*\"));when(worker.call(eq(\"plan\"),anyMap())).thenReturn(response(2));var result=plans.send(OWNER,session,request());assertEquals(\"waiting_confirmation\",result.get(\"status\"));verifyNoInteractions(runs);",
+    "authentication_present": true
+  },
+  "preserved_evidence": {
+    "original_release_sha256": "921ae4484cf51487b648278c4ad5207f775ac29fe4d4a08f928e425de7b42260",
+    "original_release_frozen_at_utc": "2026-10-03T04:44:52.001809+00:00",
+    "original_misread_review": ".runtime/aipicture/plan-cancel-independent-review.json",
+    "original_misread_review_sha256": "45799624c621511155a20a98eb21df004e7703766639c21709661c762872dcd8",
+    "original_before_log_sha256": "966fc25a7ad68c014ea61f628f9355d4f53653a9d6cb9987782c7574a8dbc288",
+    "original_after_log_sha256": "f4b127170404dd9c447442dcdb62a77675caec91f3c21a699ef1c6bb9a64ebf5",
+    "original_xml_groups": [
+      {
+        "xml": ".runtime/aipicture/plan-cancel-race-after-PlanCancellationTest.xml",
+        "sha256": "fd1e5e3a58efa2d1c0a6e6531c713e07455843f5e97e6497ece611bcf3a311d8",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "xml": ".runtime/aipicture/plan-cancel-race-after-PlanSelectionContinuationTest.xml",
+        "sha256": "8c397ed198b31adafba1a3e64b782225abdf9232ad2cd942b5e82125b19ae7bf",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "original_misread_review_byte_backup": ".runtime/aipicture/plan-cancel-independent-review.before-correction.json",
+    "original_misread_review_backup_sha256": "45799624c621511155a20a98eb21df004e7703766639c21709661c762872dcd8",
+    "backup_matches_review_at_read_time": true
+  },
+  "save_compile_order_evidence": "当前测试source修改时刻04:41:12UTC，class编译04:42:37UTC，release冻结04:44:52UTC；原备份和当前source都已有同一authenticate调用，当前两摘要均匹配原release。不能据原误报编造编译后删句的保存时序。",
+  "product_unchanged": {
+    "PlanService_sha256": "5682a1b12c16d9fa051bf1c1953b57c7e3a114ce7e1875dd2f27efa0111cdb07",
+    "matches_original_release": true
+  },
+  "retained_existing_tests": {
+    "groups": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "new_unit_tests_executed_in_this_correction": 0,
+    "not_added_again": true
+  },
+  "actions": {
+    "source_edits": 0,
+    "test_edits": 0,
+    "maven_runs": 0,
+    "recompilations": 0,
+    "database_http_provider_calls": 0,
+    "service_operations": 0,
+    "git_operations": 0,
+    "read_only_javap": true
+  },
+  "issues": [],
+  "reviewer_correction": {
+    "current_review": ".runtime/aipicture/plan-cancel-independent-review.json",
+    "sha256": "388e2fc924468082cf6d741a79f9cc751cf1cc3bf4d152d5b9f175729f75b571",
+    "reviewer_acknowledged_read_error": true,
+    "counts_as_actual_defect": false,
+    "meaning": "原作者重新逐行读取第104行后撤回源码/class不一致判断，原误判原字节已备份，唯一审查JSON追加裁决。"
+  }
+}

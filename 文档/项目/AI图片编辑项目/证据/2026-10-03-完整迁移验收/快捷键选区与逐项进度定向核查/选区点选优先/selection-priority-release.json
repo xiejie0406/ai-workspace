@@ -1,0 +1,202 @@
+{
+  "created_at": "2026-10-03T10:22:55.524382+00:00",
+  "scope": "恢复原点选优先，仅engine.py及新增定向tests；全部输入仍校验，合法points非空时不施加同请求strokes",
+  "source_evidence": {
+    "source_router": "参考项目/ai-picture-editor-main/backend/app/routers/sessions.py:135-153",
+    "target": "python/aipicture-runtime/aipicture_runtime/engine.py:446-456",
+    "java_peer_fact": "RunService.commitSelection:260-264仅读result.markers/strokes，缺strokes写[]，不复制run.params；无Java改动"
+  },
+  "independent_expected": {
+    "canvas_size": [
+      64,
+      80
+    ],
+    "fixed_sam_alpha_rect_half_open": [
+      9,
+      11,
+      16,
+      20
+    ],
+    "far_stroke_pixel": [
+      50,
+      64
+    ],
+    "expected_alpha": 0,
+    "before_actual_alpha": 255,
+    "append": [
+      false,
+      true
+    ],
+    "invalid_strokes_rejected_before_sam": true
+  },
+  "files": [
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+      "bytes": 36934,
+      "sha256": "6a7e356893c28b3ab1ab8b40012f70834ebacf42a31e01a84d0c699d0f33f739",
+      "frozen_copy": ".runtime/aipicture/selection-priority-final/aipicture_runtime/engine.py"
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_selection_priority.py",
+      "bytes": 2257,
+      "sha256": "d9444f397279f190aedb8947913e824554173552a143e2bc50851fabcd51c39e",
+      "frozen_copy": ".runtime/aipicture/selection-priority-final/tests/test_selection_priority.py"
+    }
+  ],
+  "python": {
+    "source_sha256": {
+      "aipicture_runtime/__init__.py": "ea82a1f986e17f8269b29bac7931607a2428ec3674f13bcea0e4774141e4ee5e",
+      "aipicture_runtime/__main__.py": "c1cf84570428eeb746b02d1f74208e23ae321ac392f4cbbfb8a0dc43ce536f97",
+      "aipicture_runtime/agent/graph.py": "dba91aea8638f2e3a187491123b1a4f94821626883619a409fd57cee0da740a4",
+      "aipicture_runtime/agent/llm.py": "60357178d98348d8d630b16f5f62b0e19f85f1e3836ad897131621c15af916c7",
+      "aipicture_runtime/agent/plan.py": "b6dfffff33dcecfd72b10285176d3e07f5dc9e96916cab276b53796719d98f1a",
+      "aipicture_runtime/artifacts.py": "3796e19f70253aeaf749d88af1632fb3fc52426ddb7388289170e53f81aae157",
+      "aipicture_runtime/capabilities.py": "4a6e1d47a49af832201f630ed537f3620f29902c1d9b02071ea55b159f96e685",
+      "aipicture_runtime/config.py": "8b142a052bf0d7b9a618c944407cc15ca10046885235150380896a069d8edc0a",
+      "aipicture_runtime/dto.py": "01b1390c6c697f02f8a28076bdede259516919db7dad60cb482214cf9787d07b",
+      "aipicture_runtime/edits/__init__.py": "342c5edc2c9ce8d830969507f0678f6cadf709cb96c4f5cb2f54dd2cf42005ee",
+      "aipicture_runtime/edits/document.py": "b916db35657adc9270cde1a9b85919657b9e934a48b97b9591ccb5354d4240d6",
+      "aipicture_runtime/edits/mask.py": "72c6f6762521246e83018933e2c53e5ea15ffe46bd9c9261a59dff57cc2b444a",
+      "aipicture_runtime/edits/ocr.py": "ee428a3e37d3f41007e1e115af02454e7e83cbfe019d48abbd6fe6d897482b26",
+      "aipicture_runtime/edits/pixels.py": "ba1662e7236d5b971fabc34bdcbf1d14c8cbeba1ae60b9cb57b9461a0c6f6781",
+      "aipicture_runtime/edits/render.py": "805188c296e7df0006e31d67572b995896cc7a7963327f25aef12b29f61f4326",
+      "aipicture_runtime/edits/segment.py": "13db45720cdadc9f84e04b32ea5af072fe4e00ce0aa87f915c1412fc3a9c09cf",
+      "aipicture_runtime/edits/split.py": "f0d0a84e9152de86e05c76c2f92ab9fb12412c39b6309e2d2fd5632058204db1",
+      "aipicture_runtime/engine.py": "6a7e356893c28b3ab1ab8b40012f70834ebacf42a31e01a84d0c699d0f33f739",
+      "aipicture_runtime/eval/__init__.py": "72c5270f86936f53182f248d81f77baffbe73549338ce9f9d3b183a9246b2877",
+      "aipicture_runtime/eval/__main__.py": "9545f367f1216c2b7eca374be733260c79cd78a1335c29368c1876f8c2b2497e",
+      "aipicture_runtime/eval/assessment.py": "937e5c6c1e68f87d7eccef6f7981d74c1b96c80c31ab5ff8b240cf4a87f2ef5f",
+      "aipicture_runtime/eval/cases.py": "cbbd61ef980753125ea3077adfa5dfb77922abd4438618d7e4c038b7183d2e91",
+      "aipicture_runtime/eval/metrics.py": "eaa0c061140e01d7eca7c527b8df022c4140dea67159137b905bb1aff0495343",
+      "aipicture_runtime/eval/runner.py": "feee08ac77d619ad0d499e4f6d0b28b61487921ea0e2e4c45b28b3e35c5f91c5",
+      "aipicture_runtime/eval/tasks.py": "51f8d4eb376d0396032fea003590c9c3dfa82447b373fefe345679f4d14af4b6",
+      "aipicture_runtime/execution.py": "44f95fbd674d070925119661071ef802f3f9bb8ed3875506262554161f1efa5e",
+      "aipicture_runtime/geometry.py": "000f8b20f18cbf39e2bb61628b51f62fdd25966e378db2d651501b22927f8049",
+      "aipicture_runtime/layers.py": "f085d8b5abeda17dd2f2c0648ebf8774f33f0cdd3ec09c2abf36f2e51165c04a",
+      "aipicture_runtime/main.py": "3377f744977e3bbfff5d95e52e0ff99916e1a78073f2336ed4fac2dd45999f6a",
+      "aipicture_runtime/params.py": "ec464e7a0ae6cea1ec75c1e7f967a63109f37120056d81da1a0972d4686e216d",
+      "aipicture_runtime/providers/__init__.py": "8b48144059d5a4b1aa3c0217ca277d09f8680e3f85ddd5d3969f49fff514bba2",
+      "aipicture_runtime/providers/base.py": "cad78863cc89ea1975d7fd8e58a147e166c4b693ec346329600dc6dda12ab688",
+      "aipicture_runtime/providers/dashscope.py": "8ef299ef47ba1adf64c37a2c310f8531060873a19cd61cd03e1aa89a777b2db2",
+      "aipicture_runtime/providers/mock.py": "e0f2813c3618289f5c1ff37994ef31d3ddc25adf31bc2e76abdf90d41a2ce29d",
+      "aipicture_runtime/ratios.py": "1f9acc7b46d739a7ad1923bd6cb9175409fbdff01c18206a6bbfce49d750938b",
+      "aipicture_runtime/registry.py": "77a85edb32f4f026fd7c4b745e7506880d538bc30289610cbc7c99e89420aa88",
+      "aipicture_runtime/reporting.py": "8f8036379ef4a6557fdf6a03d8fd7288237a4aa900e686a1f9befced1d5cbe87",
+      "aipicture_runtime/security.py": "5becf0ad630b13ca6f642bbf07a4e4124a6dd68a929c720bce4ada0957aed0d3"
+    },
+    "source_count": 38,
+    "changed_sources": [
+      "aipicture_runtime/engine.py"
+    ],
+    "source_delta_baseline": {
+      "path": ".runtime/aipicture/r14-delivery-replay-release.json",
+      "bytes": 104733,
+      "sha256": "c5eb3da9cef9900ba13ee054d919ec5f64ee6cbb08c64d4ca46683394e4ccca0"
+    },
+    "uv_lock_sha256": "a734eee25ad754eeebc990fe3b038e64496eb2d0b92bc6d94a435a47af7b4d50",
+    "readme_sha256": "e0ec831cd76f3f7611d86a8dfdb5ee56ecb622bcc587bd354e7961a17c42eddd",
+    "targeted_tests": 16,
+    "new_checks": 4,
+    "related_original_checks": 12,
+    "targeted_test_composition": {
+      "tests.test_selection_priority": 4,
+      "tests.test_selection_sequence": 2,
+      "tests.test_selection_radius": 7,
+      "tests.test_worker": 1,
+      "tests.test_source_edits": 2
+    },
+    "new_wheel_sdist_built": false,
+    "runtime_synchronized": false
+  },
+  "before": {
+    "path": ".runtime/aipicture/selection-priority-before.xml",
+    "bytes": 4611,
+    "sha256": "0685b1ab641b4e752b615dd5be3d16d374b057989b9f7b36f9760712ec4a3ac8",
+    "total": 4,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[False]",
+      "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[True]",
+      "tests.test_selection_priority::test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke0]",
+      "tests.test_selection_priority::test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke1]"
+    ],
+    "composition": {
+      "tests.test_selection_priority": 4
+    }
+  },
+  "after": {
+    "path": ".runtime/aipicture/selection-priority-after.xml",
+    "bytes": 2371,
+    "sha256": "622398c24cf6ba260b4385d36dd4e5e9afd241a28e4a3bbf6c98440d8c590532",
+    "total": 16,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[False]",
+      "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[True]",
+      "tests.test_selection_priority::test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke0]",
+      "tests.test_selection_priority::test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke1]",
+      "tests.test_selection_sequence::test_joint_points_then_two_strokes_and_replay",
+      "tests.test_selection_sequence::test_point_replace_ignores_old_markers_and_mask",
+      "tests.test_selection_radius::test_original_default_and_explicit_brush_pixels[None-bounds0-255-255]",
+      "tests.test_selection_radius::test_original_default_and_explicit_brush_pixels[0.03-bounds1-255-255]",
+      "tests.test_selection_radius::test_original_default_and_explicit_brush_pixels[0.025-bounds2-0-0]",
+      "tests.test_selection_radius::test_selection_adapter_default_matches_original_public_dto",
+      "tests.test_selection_radius::test_existing_brush_radius_resource_range_is_unchanged[0.0049]",
+      "tests.test_selection_radius::test_existing_brush_radius_resource_range_is_unchanged[0.1201]",
+      "tests.test_selection_radius::test_signed_private_brush_request_omitting_radius_preserves_original_pixels",
+      "tests.test_worker::test_expired_or_resized_selection_rejected",
+      "tests.test_source_edits::test_brush_loop_selects_the_enclosed_area",
+      "tests.test_source_edits::test_two_point_stroke_only_covers_the_band"
+    ],
+    "composition": {
+      "tests.test_selection_priority": 4,
+      "tests.test_selection_sequence": 2,
+      "tests.test_selection_radius": 7,
+      "tests.test_worker": 1,
+      "tests.test_source_edits": 2
+    }
+  },
+  "logs": [
+    {
+      "path": ".runtime/aipicture/selection-priority-before.log",
+      "bytes": 4014,
+      "sha256": "0427edf38f107bb9054c7d4287fffaeade8bfccbb7438959076d31bd8dd25226"
+    },
+    {
+      "path": ".runtime/aipicture/selection-priority-after.log",
+      "bytes": 101,
+      "sha256": "c00d6d08ee117ecea925b72937cf4de4f3d56009d37f52066a761e5d2273eb0c"
+    }
+  ],
+  "original_before_log_encoding": "utf-8",
+  "baseline_carry": "本轮未重跑35/44或批量/交付59整套；原六批量和PNG/JPG/尺寸分支仅静态对照，既有证据沿用不计本轮新执行",
+  "unchanged_behavior": [
+    "revision=0有效及旧revision/画幅拒绝",
+    "纯笔刷累加与闭环/两点线段",
+    "默认radius=.03和显式.025及原范围",
+    "点选append合并既有marker",
+    "清除由Java持有正式状态"
+  ],
+  "actions": {
+    "tests": 16,
+    "real_model_inference": 0,
+    "paid_provider": 0,
+    "external_http": 0,
+    "in_process_asgi_test": 1,
+    "formal_db": 0,
+    "service_operations": 0,
+    "builds": 0,
+    "downloads": 0,
+    "installs": 0,
+    "git": 0
+  },
+  "limitations": [
+    "固定SAM替身仅证明协议/alpha边界，不计真实SAM质量或业务验收",
+    "只有当前源/定向证据冻结，根尚需打包同步运行",
+    "没有修改React/Java/公共契约/uv.lock/唯一MD或HTML"
+  ]
+}

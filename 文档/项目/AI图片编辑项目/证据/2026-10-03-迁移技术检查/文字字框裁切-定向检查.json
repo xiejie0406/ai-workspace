@@ -1,0 +1,63 @@
+{
+  "scope": "局部Canvas TextLayer字形按原字框裁切及受影响交互的离线技术验证；源项目已有差异，不称本轮回归；未生产构建/同步或操作浏览器",
+  "before": {
+    "technical_test": "文字字框裁切-修复前.log",
+    "exit_code": 1,
+    "actual_failure": "公共Konva绘制路径未在文字填充前执行本地192×24裁切",
+    "root_iab_screenshot": "../2026-10-03-完整迁移验收/文字框溢出-修复前技术截图.jpg",
+    "screenshot_size_bytes": 49352,
+    "screenshot_stage": "旧EB3字体阶段，root已保存并回读；本代理未操作浏览器"
+  },
+  "implementation": {
+    "module": "src/components/editor/CanvasStage.tsx",
+    "public_api": "Konva Group.clipX/clipY/clipWidth/clipHeight",
+    "local_box": [
+      0,
+      0,
+      192,
+      24
+    ],
+    "ownership": "Group承载原中心offset、位置、翻转scale、旋转、透明度、LayerNode注册与原拖动双击；子Text原字号/字体/居中排版在0局部坐标",
+    "private_scene_override": false,
+    "layer_or_api_fields_changed": false
+  },
+  "checks": {
+    "command": "node tests/run.mjs --test-name-pattern=文字字框裁切：|文字字体：|真实非空 Session|两个编辑器",
+    "log": "文字字框裁切-定向检查.log",
+    "exit_code": 0,
+    "passed": 4,
+    "new_clip_test": 1,
+    "affected_font_test": 1,
+    "affected_existing_baseline": 2,
+    "actual_assertions": [
+      "实际公共drawScene调用rect→clip→fillText",
+      "四角坐标独立数学核对负缩放/30度旋转及中心偏移",
+      "原选择器Transformer注册可操作Group",
+      "dragend仍写move_layer及原row_version",
+      "Transformer transformend写scale_layer位置/倍率并保留翻转",
+      "子Text事件上冒，双击打开原内联编辑"
+    ]
+  },
+  "react_typecheck": {
+    "command": "npm run typecheck",
+    "exit_code": 0
+  },
+  "lint": {
+    "command": "node node_modules/oxlint/bin/oxlint src/components/editor/CanvasStage.tsx tests/entry.ts",
+    "exit_code": 0,
+    "errors": 0,
+    "existing_canvas_warnings": 12
+  },
+  "unchanged_font_host_baseline": "文字字体-定向检查.json记录若依bridge配置1/1和两工程类型结果；bridge/HostContract/能力页本次无新修改，未重复运行",
+  "coverage": {
+    "count": 75,
+    "all_original_source_hashes_unchanged": true
+  },
+  "source_sha256": {
+    "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx": "05f5ae0ace25f357fe49001bf6846f194feaece1779a527ffc0d1e52b7588b49",
+    "frontend/aipicture-workbench/tests/lifecycle.test.mjs": "8e66f148190717b5ba5431d3c61bad94911f7b102b6f9092c3155ae6855ff1c0",
+    "frontend/aipicture-workbench/migration-coverage.json": "220302631057d6d655b9b7350f8b25877c3e6223f010d486464dd6d8d9e5a54d"
+  },
+  "current_production_js_sha256": "eb3ab694ab84c7416b0fda1966e1abe70fd6982ac8f30a2e8d864ba03c20fc47",
+  "pending": "源码冻结后由root统一prod构建、四份制品同步，并实际IAB回读极限/常规文字框、双击及Pillow对照；本记录不计真实业务验收或用户接受。"
+}

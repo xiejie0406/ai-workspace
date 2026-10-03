@@ -1,0 +1,138 @@
+{
+  "generatedAtUtc": "2026-10-03T08:59:50.123849+00:00",
+  "scope": "r14 Worker成功计算后中心登记有界重交方案的Java现接口只读相容性",
+  "files": [
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+      "sha256": "c91d260bd6504a7dee095456c775b5f5b30fe85cf62404e63e08b1ab3e1df8fd"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/BatchExportEvaluationService.java",
+      "sha256": "30d9bbe80da2de4006dee90b9790746d9bd2c709b24f6b415597a782a4c41526"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/AssetService.java",
+      "sha256": "076faccfdb0c9f4b48645af10bf55c902f81bdb01b2087c97d7712808613a506"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/storage/AiPictureStorage.java",
+      "sha256": "f6bffe1b62801d8364e5e272313b9719ed92302c0f35c1cd78d4b18caf6cd9fc"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/persistence/AiPictureTransactions.java",
+      "sha256": "4d72586c6248ea68bc33d5c4da4b499507fe50e8bd5a4803f6015f76e93306cd"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/controller/AiPictureExecutionController.java",
+      "sha256": "3e9e623c26428cec96465bc0a54b4abf775c7c0248763eb041c64804b2bdba93"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/controller/AiPictureErrors.java",
+      "sha256": "fc577f6ba182b6303b9a8f882ea573d3dd585f997831c6383ab5ca04e4cafafc"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/AiPictureMySqlIntegrationTest.java",
+      "sha256": "f2c6f99f79a98b6c37596b617ef9dd79c6ec4788573a534034e26109c1cc7298"
+    }
+  ],
+  "java_interface_compatible_for_same_execution_finalization": true,
+  "java_changes_required_by_this_review": false,
+  "new_protocol_or_table_required": false,
+  "blocking_findings": [],
+  "checks": [
+    {
+      "boundary": "产物HTTP提交成功但响应丢失",
+      "locations": [
+        "RunService.java:174–178,191–208",
+        "AssetService.java:19–21,45–49"
+      ],
+      "facts": "上传持run FOR UPDATE，要求同attempt/token且running有效lease；同owner/run/attempt/id已存在时比较新bytes SHA与存储sha256，一致返回assets.dto旧row，无第二行/编号变化。私有dto直接读staged允许重交，不经过公共ready守卫。",
+      "worker_requirement": "保持id、content_base64解码bytes、kind/source/format及同run/attempt/token；每次post仍生成新HMAC nonce。有效租约前有界重交同artifact，不重新compute。",
+      "compatible": true
+    },
+    {
+      "boundary": "文件写入完成而SQL事务回滚",
+      "locations": [
+        "AiPictureStorage.java:51–56,58–64",
+        "RunService.java:194–208"
+      ],
+      "facts": "固定staging/run/attempt/id路径；已存在完整文件且hash一致时不覆盖，重新产生同object metadata并登记SQL。不同bytes拒ARTIFACT_COLLISION。",
+      "limits": "局部IO写入留下不完整文件会hash冲突，不能本轮无依据覆盖；重交失败仍按未完成登记停止/隔离，不能据此将paid run标普通failed。",
+      "compatible": true
+    },
+    {
+      "boundary": "回执已commit但HTTP回复丢失",
+      "locations": [
+        "RunService.java:216–220,238–257",
+        "AiPictureTransactions.java:11–24"
+      ],
+      "facts": "lease(input,true)仍核attempt/token，terminal succeeded/failed/cancelled/unknown立即get正式row，不再修改assets/session/history/items/计划。receipt后release只清session.active_run_id，不清本run的token/attempt；terminal replay不校租约时刻，允许成功commit后迟到重交。既有纯DB1213最多3次且afterCommit后不重放。",
+      "worker_requirement": "重交同receipt body，不回退artifact阶段/重算；终态结果按中心返回为准，即使重交body不同中心也保持首次正式终态。",
+      "compatible": true
+    },
+    {
+      "boundary": "回执先commit、并发心跳后看到终态",
+      "locations": [
+        "RunService.java:181–188,218–220,274"
+      ],
+      "facts": "相同attempt/token heartbeat在status非running直接返回{status:<terminal>,cancelled:<是否cancelled>}，没有租约延长；succeeded返回cancelled=false，不表示leaseexpired或compute失败。",
+      "worker_requirement": "最终化阶段若心跳返回succeeded等终态必须保护已提交中心状态；不要触发failed回执、compute或再次上传。即使心跳通信失败而本地保守停止，中心已提交终态仍可保持，不能声称一定未登记。",
+      "compatible": true
+    },
+    {
+      "boundary": "租约过期、取消或旧attempt",
+      "locations": [
+        "RunService.java:174–184,195,218–220"
+      ],
+      "facts": "upload对过期/非running返回LEASE_EXPIRED；heartbeat running过期明确拒绝，不能恢复租约。取消终态同token receipt直接返回cancelled而不采用；新attempt或recover清token后均STALE_ATTEMPT，旧结果不得覆盖。",
+      "worker_requirement": "409或确认失租停止后续上传/收费；不能将旧receipt重新投递成新attempt。",
+      "compatible": true
+    },
+    {
+      "boundary": "重交耗尽让中心恢复paid pipeline",
+      "locations": [
+        "RunService.java:25,148–171"
+      ],
+      "facts": "recoverExpired在claim开始调用（不是独立定时器）；只处理running且到期。EXTERNAL9工具、batch_process operations含EXTERNAL任一步时，缺可靠可查询task进入external_result_unknown、清token；不自动重复外部POST。纯CPU最多前两attempt queued，之后failed。",
+      "worker_requirement": "compute成功后的登记重交耗尽不得发送普通failed空result；放弃本地finalization并在后续正常claim/其他worker claim时让中心执行上述过期恢复。无后续claim时仍running到期状态，不能声称立即恢复。",
+      "compatible": true
+    },
+    {
+      "boundary": "generate已知task query-only恢复",
+      "locations": [
+        "RunService.java:157–170,222–227"
+      ],
+      "facts": "generate_image有正式provider_task_id且attempt≤2可同run queued，claim保留provider_task_id；显式PROVIDER_TASK_PENDING回执亦同run排队且不释放session。不是新generate run。",
+      "limits": "中心只能传已知taskid；query-only真实计算分支仍由Worker负责。未知同步请求不得猜taskid，不能用新generate POST恢复。",
+      "compatible": true
+    },
+    {
+      "boundary": "unknown批量项禁止显式再付费",
+      "locations": [
+        "RunService.java:275–278,288–297,301–318",
+        "BatchExportEvaluationService.java:56–66"
+      ],
+      "facts": "unknown子run传播item.status=external_result_unknown；retryItem仅允许failed，unknown返回409；resumePlanBatches显式扫描unknown拒绝计划重试。母汇总可能failed或partial_success，但item状态仍unknown，母标签不能作为可重試授权。成功兄弟项输出保持可导出。",
+      "compatible": true
+    }
+  ],
+  "existing_test_evidence_read_only": {
+    "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/AiPictureMySqlIntegrationTest.java",
+    "lines": "76–80,118–124",
+    "scope": "现有用例包含同artifact重复上传/同receipt不重复history/旧attempt拒绝，仅读源、未重跑；本轮通信响应丢失/交错心跳的实际证明须由Python新定向测试，不能借历史Java用例冒称已执行。"
+  },
+  "python_implementation_status": "根已授权方案；本审查不评价尚未冻结的新Worker源码，不将当前旧execution实现称已修。",
+  "root_and_python_coordination": "已发送同lease重交/terminal heartbeat/claim-triggered recovery/unknown item guard实际路径，Python需在compute完成后的暂错单独处理，不落COMPUTE_FAILED。",
+  "operations": {
+    "tests_executed": 0,
+    "builds": 0,
+    "http": 0,
+    "database": 0,
+    "models": 0,
+    "service": 0,
+    "git": 0,
+    "source_edits": 0
+  },
+  "business_acceptance": false,
+  "technical_scope_note": "仅当前Java接口源码符合前提；不代表HTTP重交完整流程或用户业务已通过。"
+}

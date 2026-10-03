@@ -1,0 +1,217 @@
+[
+  {
+    "name": "generate_image",
+    "label": "生成图片",
+    "description": "根据文字描述从零生成图片候选。没有可编辑的图片，或用户明确要求换一张全新画面时使用；修改现有图片不要用它。",
+    "paramsModel": "GenerateIn",
+    "queued": true,
+    "sessionRequired": false,
+    "agentHidden": [
+      "seed",
+      "reference_asset_ids"
+    ]
+  },
+  {
+    "name": "replace_background",
+    "label": "换背景",
+    "description": "按文字描述替换背景。未拆层时写回画布；已拆层时拍平生成整图只进图片墙。一次可出 1 到 4 张候选；多于一张时不自动上画布，用户点选图片墙采用。",
+    "paramsModel": "ReplaceBackgroundIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": [
+      "negative_prompt"
+    ]
+  },
+  {
+    "name": "expand_canvas",
+    "label": "扩图",
+    "description": "把当前画布扩展到指定比例，并自然补全新增区域。主体保持完整，不要裁切。",
+    "paramsModel": "ExpandCanvasIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "upscale_image",
+    "label": "超分",
+    "description": "提高当前画布分辨率。scale 为 2 或 4，默认 2 倍。不要用它换内容或改构图。",
+    "paramsModel": "UpscaleImageIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "remove_background",
+    "label": "去背景",
+    "description": "识别指定图层的主体并去掉背景。默认最上层图像。不要用它来换背景或生成新画面。",
+    "paramsModel": "RemoveBackgroundIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "adjust_image",
+    "label": "调色",
+    "description": "调整指定图层的亮度、对比度、高光、阴影、色温、色调、饱和度、自然饱和度、锐化、清晰度和晕影。默认最上层图像。参数取值 -1 到 1，晕影为 0 到 1。未提到的参数保持 0。改成某个具体颜色或换材质要用 replace_region，不要用它。",
+    "paramsModel": "AdjustIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "erase_region",
+    "label": "局部消除",
+    "description": "消除物体，并用周围内容自然填补。有选区时只消除选区内；用 layer_id 点名图层时消除该层内容；两者都有取交集。",
+    "paramsModel": "RegionIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": [
+      "mask_asset_id",
+      "revision"
+    ]
+  },
+  {
+    "name": "replace_region",
+    "label": "局部替换",
+    "description": "按文字描述替换画面内容，改颜色、换材质、换成另一个物体都用它。有选区时只改选区内；用 layer_id 点名图层时改该层整层；两者都有取交集。只需给出替换描述，不必确认选区是否点准。",
+    "paramsModel": "ReplaceRegionIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": [
+      "mask_asset_id",
+      "revision"
+    ]
+  },
+  {
+    "name": "split_layers",
+    "label": "拆层",
+    "description": "把画面拆成背景和主体。默认不拆文字；include_text 为 true 时才识别文字层。已拆过则跳过。",
+    "paramsModel": "SplitLayersIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "promote_object_to_layer",
+    "label": "提升为图层",
+    "description": "把当前选区提升为独立图层，原位置用周围背景填补。该物体已是独立图层时跳过。画布摘要标明已有选区时即可调用。",
+    "paramsModel": "PromoteIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": [
+      "mask_asset_id",
+      "revision"
+    ]
+  },
+  {
+    "name": "generate_marketing",
+    "label": "营销图",
+    "description": "按当前画布生成电商营销图，只进图片墙，不改当前画布。kind：product 商品主图（白底）、scene 场景氛围图、model 模特上身、poster 促销海报。caption 可填海报标题或补充要求。",
+    "paramsModel": "GenerateMarketingIn",
+    "queued": true,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "prepare_delivery_sizes",
+    "label": "投放尺寸",
+    "description": "把当前画布完整放入投放比例，不裁切、不改画面，只进图片墙。默认一次出 1:1、4:5、9:16。用户说改尺寸、出投放物料时用这个，不要用 crop_canvas。",
+    "paramsModel": "PrepareDeliverySizesIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "batch_process",
+    "label": "批量处理",
+    "description": "对多张图执行同一套像素处理：去背景、换背景、调色、超分、扩图、投放尺寸。不要用于单张精修，也不要做营销图、局部编辑或拆层。",
+    "paramsModel": "BatchIn",
+    "queued": true,
+    "sessionRequired": false,
+    "agentHidden": []
+  },
+  {
+    "name": "crop_canvas",
+    "label": "裁剪",
+    "description": "按比例或归一化矩形裁切画布。只改图层文档，不调用生成模型。",
+    "paramsModel": "CropIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "flip_layer",
+    "label": "翻转",
+    "description": "水平或垂直翻转指定图层，默认最上层图像。",
+    "paramsModel": "FlipIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "set_layer_opacity",
+    "label": "透明度",
+    "description": "设置图层透明度，取值 0 到 1。",
+    "paramsModel": "OpacityIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "set_layer_visible",
+    "label": "显隐",
+    "description": "显示或隐藏指定图层，不删除内容。",
+    "paramsModel": "VisibleIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "set_layer_text",
+    "label": "改文字",
+    "description": "修改文字图层的文案，可选字号与颜色。未指定图层时改最上层可见文字。",
+    "paramsModel": "TextIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "reorder_layer",
+    "label": "图层顺序",
+    "description": "调整图层前后顺序：top / bottom / up / down。",
+    "paramsModel": "ReorderIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "scale_layer",
+    "label": "缩放",
+    "description": "缩放指定图层，默认最上层图像。factor 为相对倍率，scale_x / scale_y 为绝对值。",
+    "paramsModel": "ScaleIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": [
+      "x",
+      "y"
+    ]
+  },
+  {
+    "name": "rotate_layer",
+    "label": "旋转",
+    "description": "旋转图层。angle 为相对角度，rotation 为绝对角度，顺时针为正。",
+    "paramsModel": "RotateIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  },
+  {
+    "name": "move_layer",
+    "label": "移动",
+    "description": "移动指定图层。x/y 为绝对坐标，dx/dy 为相对像素位移。默认最上层图像。",
+    "paramsModel": "MoveIn",
+    "queued": false,
+    "sessionRequired": true,
+    "agentHidden": []
+  }
+]

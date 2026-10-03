@@ -1,0 +1,63 @@
+{
+  "reviewed_at_utc": "2026-10-03T04:30:37.897030+00:00",
+  "scope": "仅生成器局部diff、两项既有测试源/日志、当前HTML notes及源MD嵌入摘要的独立只读静态复核",
+  "files": {
+    "scripts/aipicture/生成迁移验收报告.py": {
+      "sha256": "ded7a560adec3e91c2cc7ec844324ffb0d0ab6d5205105f4a591d5b2ad7661d7"
+    },
+    ".runtime/aipicture/before-cv-evaluation-heartbeat/before-report-render-fix/生成迁移验收报告.py": {
+      "sha256": "3ce5191601d20b4811c96e759e2bb3df87d12a40081f33f01c04038053e748c3"
+    },
+    "scripts/aipicture/检查验收报告生成.py": {
+      "sha256": "d6851f51e3159a15f22076e729b517d52301d5143751ee1893af9f667b087ff5"
+    },
+    "文档/项目/AI图片编辑项目/证据/2026-10-03-完整迁移验收/业务验收记录.md": {
+      "sha256": "37ad15c40fdad9f972526342f72de860641fdc2c762d4d3c3cb5ea1f08aa54a9"
+    },
+    "文档/项目/AI图片编辑项目/证据/2026-10-03-完整迁移验收/verification-report.html": {
+      "sha256": "7a751ae9c235c93717354f3cc7e73c39a9e619506111d034e79d9bb2701c104c"
+    },
+    ".runtime/aipicture/cv-followup-report-text-before.log": {
+      "sha256": "971220e43eb8e373a78fdbb2e236ce71bf0d6006c00d19f0c67377ab6fb498d2"
+    },
+    ".runtime/aipicture/cv-followup-report-text-after.log": {
+      "sha256": "6db5414056f12ab722eda33f0dbe6e60d33e9778d8f882a7dfcf8ecfb9e4c93b"
+    }
+  },
+  "diff_only_local_link_target_rename": true,
+  "unified_diff": "--- .runtime\\aipicture\\before-cv-evaluation-heartbeat\\before-report-render-fix\\生成迁移验收报告.py\n+++ scripts\\aipicture\\生成迁移验收报告.py\n@@ -136,8 +136,8 @@\n             else:\n                 link = LINK.fullmatch(token)\n                 assert link is not None\n-                image_mark, label, value = link.groups()\n-                href, path = self.target(value)\n+                image_mark, label, link_value = link.groups()\n+                href, path = self.target(link_value)\n                 label_html = self.inline(label)\n                 if href is None:\n                     output.append(label_html + '<span class=\"evidence-note\">（不支持的链接）</span>')\n",
+  "root_cause": "inline传入的整段value被link.groups覆盖为链接目标，后续原文切片沿用错误值；link_value局部名使position切片继续读取原段。",
+  "test_review": {
+    "test_execution_in_this_review": false,
+    "preexisting_logs": {
+      "before": {
+        "ran_two": true,
+        "two_failures": true
+      },
+      "after": {
+        "ran_two": true,
+        "passed": true
+      }
+    },
+    "expected_text_is_independent_literal": true,
+    "evidence": "测试以HTMLParser提取可见正文，再与事前固定完整文字逐字比较；第一例覆盖两本地链接前/中/后、code及strong，第二例覆盖外链与本地链接后的尾文、script文本与href ampersand转义；不从实现生成expected。修前两日志展示实际缺中间/尾文。",
+    "local_fixtures_exist": true
+  },
+  "notes_static_checks": {
+    "pydantic_preparation_failure_is_distinct": true,
+    "lost_lease_no_upload_no_receipt": true,
+    "current_serve_model_loaded_ownership": true,
+    "gray_ocr_failure_retained": true,
+    "finite_color_sample_does_not_replace_full_quality": true,
+    "browser_not_verified": true
+  },
+  "source_sha256": "37ad15c40fdad9f972526342f72de860641fdc2c762d4d3c3cb5ea1f08aa54a9",
+  "html_embedded_source_sha256": "37ad15c40fdad9f972526342f72de860641fdc2c762d4d3c3cb5ea1f08aa54a9",
+  "expected_source_sha256": "37ad15c40fdad9f972526342f72de860641fdc2c762d4d3c3cb5ea1f08aa54a9",
+  "issues": [],
+  "limits": [
+    "未执行测试或重新生成报告。",
+    "未进行浏览器渲染、筛选操作、服务器请求、推理或服务操作。",
+    "静态正文与摘要一致性不代替完整业务验收或用户接受。"
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "created_at": "2026-10-03T05:22:33.874888+00:00",
+  "scope": "真实若依退出id保留的薄宿主映射、调色迟到正式回读保护后续用户参数；必要局部修复，不新增接口/权限/正式状态",
+  "source_frozen": true,
+  "sources": [
+    {
+      "path": "frontend/aipicture-workbench/src/components/GenerateForm.tsx",
+      "bytes": 6614,
+      "sha256": "4a4e7e4bc01966c3ab440cff1cb64318bfd909205b34244241dc93a6a2dc3f37"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/pages/CreatePage.tsx",
+      "bytes": 3480,
+      "sha256": "9a0ee1e9bd6adaf22092c103f18a5eccc001e0924b0ba5d69555a9fa073dee28"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/lib/promptDraft.ts",
+      "bytes": 599,
+      "sha256": "cf2e07602da10a4f379dd262fdc3a4dcd4f6b7127b53fe2d3bcb01409d4b38d4"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "bytes": 4084,
+      "sha256": "b45044fd047b737d25c8fd30c97b05275ad7bce1a4f49db7e133d61c13a9a7d4"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/exports.ts",
+      "bytes": 3645,
+      "sha256": "87252715497a50de3d75c0b0cf167767718eda4f1f34bbf39470c9f1d139ebe3"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "bytes": 5377,
+      "sha256": "efbe7d25cfdc82aa16ab4f694d769d605e094ffec0a698e4c45a15d9973706c1"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "bytes": 7907,
+      "sha256": "5a821e2a241e404a97d65341b6f2ec53d572da0fc5e03e5c112efe3e751edde8"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/GenerateEdits.tsx",
+      "bytes": 5183,
+      "sha256": "4184bbd14c7f290969f2c45e636039a88e915692d04b705113286010f1606d32"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "bytes": 22439,
+      "sha256": "aecc59579c89831916a836a4f6324ccca7ef4aa361d2699efdb9e99d0dc5a493"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/entry.ts",
+      "bytes": 1471,
+      "sha256": "ee7c4b2718fdcf2184ff9f11ec21c70de5f4bc40ee08f82c93ff50f929dcc446"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "bytes": 128477,
+      "sha256": "a64fd53832798957a269a16bbf874c9bbfcd4fa81a5bc803802ce7e58fe2b0b2"
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "bytes": 10369,
+      "sha256": "866fb5cb2c9a72ac4ecfc914468db2424c01d00967650207276aa1148750bbe2"
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "bytes": 28489,
+      "sha256": "91595acd86af13f265acc396d4561b3b42a62ad6c108898ac5f4d63d60c82f34"
+    },
+    {
+      "path": "frontend/admin-web/src/api/aipicture/bridge.js",
+      "bytes": 2750,
+      "sha256": "398314550bb9269902898b1da3579cd2a8e206208dacdc2b1d82f964e0fb5f47"
+    },
+    {
+      "path": "frontend/admin-web/src/components/AiPictureHost/index.vue",
+      "bytes": 2730,
+      "sha256": "54aa5be5ed720a74f5ee4b36424431d79abf3ab4d2c3e332a002a0e65494b094"
+    },
+    {
+      "path": "frontend/admin-web/tests/unit/aipicture/host-bridge.spec.ts",
+      "bytes": 4291,
+      "sha256": "334b342afe6ebc63a386aa512cbe2a1712a445f8b8bfcb838fb1f764ed0f927f"
+    },
+    {
+      "path": "frontend/admin-web/tests/unit/aipicture/host-lifecycle.spec.ts",
+      "bytes": 5487,
+      "sha256": "4eb0867983311e62cd2e3e16a3c6dcbfdf335529772a8c55effa740001e0b759"
+    }
+  ],
+  "preserved_previous_stage": {
+    "directory": ".runtime/aipicture/remaining-react-phase-08d485",
+    "source_count": 13,
+    "bundle": {
+      "path": ".runtime/aipicture/remaining-react-phase-08d485/aipicture-workbench.js",
+      "bytes": 977735,
+      "sha256": "08d485f635d9c575eca8ed512a64baed9ba042334ba920380d58713a406c9cac"
+    },
+    "targeted_tests": 17,
+    "passed": 17,
+    "not_added_to_current_counts": true
+  },
+  "changes": [
+    {
+      "consumer": "RuoYi user.logOut",
+      "actual_shape": "token空、roles空、permissions空，id保留",
+      "behavior": "bridge只用原user.token&&user.id判断登录，身份映射0/失活；原React identityChanged清原草稿；host同步watch token，正常同user刷新不变身份，Tags失活仍保留草稿",
+      "no_credentials_passed_to_react": true,
+      "no_platform_auth_or_role_changes": true
+    },
+    {
+      "consumer": "AdjustForm -> useSessionTools.invokeAsync",
+      "before": "useRun正式终态先解锁，独立等待GET仍在途；用户新值0.65被旧GET迟到成功清成0",
+      "behavior": "本地输入/提交/重置修改序号保护新值；旧正式成功只可清尚未修改的提交参数",
+      "no_layer_or_tool_schema_change": true
+    }
+  ],
+  "checks": {
+    "before_host": {
+      "tests": 3,
+      "failed": 3,
+      "native_exit": 1,
+      "log": ".runtime/aipicture/logout-before.log"
+    },
+    "before_adjust": {
+      "tests": 1,
+      "failed": 1,
+      "native_exit": 1,
+      "log": ".runtime/aipicture/late-adjust-before.log"
+    },
+    "final_host": {
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "native_exit": 0,
+      "files": [
+        "host-bridge.spec.ts",
+        "host-lifecycle.spec.ts"
+      ],
+      "log": ".runtime/aipicture/logout-after-final.log",
+      "scope": "实际Vue组件+真实bridge，受控本地若依store字段形状与library.mount/update回调，不执行真实账号退出"
+    },
+    "final_react": {
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "native_exit": 0,
+      "log": ".runtime/aipicture/late-adjust-after.log",
+      "scope": "本次仅10项新增/受影响React技术检查实际执行；8项未受影响阶段检查沿用；宿主11独立计数。",
+      "technical_union_total": 18,
+      "newly_executed": 10,
+      "inherited_unaffected": 8,
+      "current_cases": [
+        "剩余完整性：未提交创作草稿在同用户标签失活与重新挂载后恢复",
+        "剩余完整性：草稿两用户隔离、成功提交清除且身份退出不留下旧草稿",
+        "剩余完整性：background在post503后保留原用户参数，不以提交成功清空",
+        "剩余完整性：replace在conflict后保留原用户参数，不以提交成功清空",
+        "剩余完整性：adjust在failed后保留原用户参数，不以提交成功清空",
+        "剩余完整性：三原参数表单只有正式成功后才清空，调色显式重置仍可用",
+        "剩余完整性：工具取消和外部未知结果保留参数，不清空或自动再次付费",
+        "剩余完整性：迟到生成回复不能清掉新用户或重新激活后的新草稿",
+        "剩余完整性：正式partial_success也清除已应用参数，不把排队状态当完成",
+        "剩余完整性：迟到正式调色回读不清除任务结束后用户新改参数"
+      ],
+      "inherited_cases": [
+        "剩余完整性：选区首次任务GET503后只回读同一run，正式mask与本地历史各采用一次",
+        "剩余完整性：任务成功后选区GET暂错继续读正式mask，不重复选择POST",
+        "剩余完整性：会话和批量导出阶段GET503/网络断连后恢复原文件，不新建导出",
+        "剩余完整性：选区和导出正式failed/canceled/unknown保留真实错误且不重POST",
+        "剩余完整性：401/403/404与明确空任务立即拒绝，不自动读循环或再次POST",
+        "剩余完整性：失活或同一runtime重置即停止旧任务等待，不向新身份回读旧run",
+        "剩余完整性：选择预热和正式导出正常成功仍只请求一次，保留原格式与文件名",
+        "剩余完整性：持续暂错仍受15分钟界限约束，超限说明原读错且不再POST"
+      ],
+      "inherited_log": ".runtime/aipicture/remaining-react-phase-08d485/remaining-react-after.log",
+      "inherited_reason": "最后两修复仅薄宿主登录身份映射与调色本地草稿保护；同run GET恢复、正式选区回读/历史及导出路径、任务终态/鉴权/15分钟界限/AbortSignal处理源码未变，8项沿用08d485阶段实际通过结果；18为去重技术行为覆盖，不称本轮执行18或业务通过。",
+      "passed_union": 18
+    },
+    "admin_typecheck": {
+      "native_exit": 0,
+      "log": ".runtime/aipicture/logout-typecheck-admin-final.log",
+      "preserved_first_failure": ".runtime/aipicture/logout-typecheck-admin.log",
+      "first_failure_cause": "新增vi.fn fixture无参数导致读取第二参数类型错误；只修fixture签名，不放松production类型规则"
+    },
+    "react_typecheck": {
+      "native_exit": 0,
+      "log": ".runtime/aipicture/logout-typecheck-react.log"
+    },
+    "react_lint": {
+      "native_exit": 0,
+      "errors": 0,
+      "warnings": 33,
+      "log": ".runtime/aipicture/logout-lint-react.log"
+    },
+    "library_build": {
+      "native_exit": 0,
+      "log": ".runtime/aipicture/logout-build-react.log",
+      "bundle": {
+        "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+        "bytes": 977888,
+        "sha256": "0fff3221ace4d9fe75557c90fca377104dc74a6b0359ca25ee11a892edcd096f"
+      }
+    },
+    "combined_count_rule": "React18=本次10+阶段未受影响8（17阶段中的9受影响项已本次重验）；宿主11单列，不按17+10累计27。"
+  },
+  "logs": [
+    {
+      "path": ".runtime/aipicture/logout-before.log",
+      "bytes": 3944,
+      "sha256": "ba8c6f18eafb486915c8d5b68d32b7fdb544bd5f153b4e32d971ab7ae3b3e22e"
+    },
+    {
+      "path": ".runtime/aipicture/late-adjust-before.log",
+      "bytes": 1300,
+      "sha256": "a5aa85d07149fe40f007eb6ba7a189b501e9b07c71d1128fa79750e86dab39c8"
+    },
+    {
+      "path": ".runtime/aipicture/logout-after.log",
+      "bytes": 448,
+      "sha256": "0c1a02bcac1e5e26e1685db7e4b32700b94832bb727d2373ae2b85705df6993d"
+    },
+    {
+      "path": ".runtime/aipicture/logout-after-final.log",
+      "bytes": 446,
+      "sha256": "7ece039f935fffaca8641276e63658dea0fd0f707ef5d1171b4cfed8b77235d2"
+    },
+    {
+      "path": ".runtime/aipicture/late-adjust-after.log",
+      "bytes": 1648,
+      "sha256": "dd85abca30d90538bf65302e615ebf5299d1719c81e07a87f6e33effe5001d37"
+    },
+    {
+      "path": ".runtime/aipicture/logout-typecheck-admin.log",
+      "bytes": 341,
+      "sha256": "ed844431e6457774c6f9c9d771959118d0160ebac5d21ff7d10a0ff93641a886"
+    },
+    {
+      "path": ".runtime/aipicture/logout-typecheck-admin-final.log",
+      "bytes": 116,
+      "sha256": "6ef5ec6bb7ff5fc3f41ec7b489e97d79f89136bc7cb0b08676f8592d8b6ab25a"
+    },
+    {
+      "path": ".runtime/aipicture/logout-typecheck-react.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "path": ".runtime/aipicture/logout-lint-react.log",
+      "bytes": 11518,
+      "sha256": "e91ac9bec64d5f34e465f0ee44ea48052280db3b8581840708b9715cb2c33695"
+    },
+    {
+      "path": ".runtime/aipicture/logout-build-react.log",
+      "bytes": 381,
+      "sha256": "d43b28a97f1830fd15e7e1f0ae848492428678e92ac5bae74beabce16658a17e"
+    }
+  ],
+  "source_reference_hashes_unchanged": true,
+  "public_admin_runtime_synchronized_by_this_task": false,
+  "actual_browser_or_business_or_model_calls": false,
+  "business_result_unchanged": {
+    "passed": 0,
+    "blocked": 18,
+    "not_executed": 4,
+    "user_acceptance_pending": 22
+  },
+  "note": "根线程统一同步并完成技术浏览器复验；上述受控检查不当作真实账号/模型或22项业务通过。"
+}

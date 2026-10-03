@@ -1,0 +1,152 @@
+{
+  "checked_at": "2026-10-03T08:22:32.316602+08:00",
+  "scope": "独立只读核查既有运行HTTP产物及冻结档案；未重新调用HTTP、执行测试/构建/模型、操作数据库或服务",
+  "technical_only": true,
+  "business_or_model_quality_accepted": false,
+  "original_http_record": {
+    "path": "文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-完整迁移验收\\原尺寸与笔刷HTTP定向检查.json",
+    "sha256": "e95ab5053db280b89c30c121e16740e0874bd7338e8460b2cc51ff452eb5b77c",
+    "checked_at": "2026-10-03T08:11:25.521322+08:00"
+  },
+  "independent_adjust_expectation": {
+    "source_script": ".runtime\\aipicture\\check-input-recovery-http.py",
+    "source_script_sha256": "516ea3abb4d776f8aadd5a4ec93873bfd31ffcf22b29034f7cedc933295ecda6",
+    "fixed_input_formula_line": 66,
+    "fixed_input_formula": "(x * 2, y * 4, (x + y) % 256, 255)",
+    "source_size": [
+      128,
+      64
+    ],
+    "logical_frame": [
+      64,
+      32
+    ],
+    "input_png_sha256": "eb0dab3c18db7b8ef8285bae91d374202de7930489469d90d53eea772d65f319",
+    "input_rgba_pixels_sha256": "dcf7e92e41cfb8e11560b7fa82810f59d44ac6c1f9f2bfcf2bf45da4f45ceff1",
+    "actual_output_png_sha256": "eb0dab3c18db7b8ef8285bae91d374202de7930489469d90d53eea772d65f319",
+    "actual_output_rgba_pixels_sha256": "dcf7e92e41cfb8e11560b7fa82810f59d44ac6c1f9f2bfcf2bf45da4f45ceff1",
+    "pixel_count": 8192,
+    "all_rgba_pixels_equal": true,
+    "input_output_png_bytes_equal": true,
+    "source_basis": "已只读核对原HTTP脚本第65–73行；独立依据为固定输入公式，不从返回图倒推预期"
+  },
+  "independent_brush_expectation": {
+    "source_radius": 0.03,
+    "canvas": [
+      100,
+      100
+    ],
+    "normalized_point": [
+      0.5,
+      0.5
+    ],
+    "brush_width": 3,
+    "point_radius": 1.5,
+    "expected_selected_xy": [
+      [
+        48,
+        49
+      ],
+      [
+        48,
+        50
+      ],
+      [
+        49,
+        48
+      ],
+      [
+        49,
+        49
+      ],
+      [
+        49,
+        50
+      ],
+      [
+        49,
+        51
+      ],
+      [
+        50,
+        48
+      ],
+      [
+        50,
+        49
+      ],
+      [
+        50,
+        50
+      ],
+      [
+        50,
+        51
+      ],
+      [
+        51,
+        49
+      ],
+      [
+        51,
+        50
+      ]
+    ],
+    "expected_bbox": [
+      48,
+      48,
+      52,
+      52
+    ],
+    "actual_bbox": [
+      48,
+      48,
+      52,
+      52
+    ],
+    "actual_selected_pixels": 12,
+    "expected_actual_xy_equal": true,
+    "actual_alpha_values": [
+      0,
+      255
+    ],
+    "actual_output_png_sha256": "1186b33d6be19b716d9dfa1923571371b3603ca3d5de756ab9788cd1dc0fed4a"
+  },
+  "frozen_source_check": {
+    "source_count": 37,
+    "current_source_hash_match_count": 37,
+    "wheel_sdist_byte_match_count": 37,
+    "artifacts": {
+      "ruoyi_aipicture_runtime-0.1.0-py3-none-any.whl": {
+        "actual_sha256": "fd4f56eef17dd55f680511e320ee5b4282be3082a8617291c4e0cd4e7c7deb41",
+        "recorded_sha256": "fd4f56eef17dd55f680511e320ee5b4282be3082a8617291c4e0cd4e7c7deb41",
+        "matched": true
+      },
+      "ruoyi_aipicture_runtime-0.1.0.tar.gz": {
+        "actual_sha256": "e5fb27148aa6ba1b61625565aa1290f0be83230ca184a18a3c435d7c09161533",
+        "recorded_sha256": "e5fb27148aa6ba1b61625565aa1290f0be83230ca184a18a3c435d7c09161533",
+        "matched": true
+      }
+    },
+    "final_fingerprint_file_sha256": "01eb36ab6f5f896b5227f0ce8dc0ba6aab4be642bf54b9d8f857e8c8627e3bbf",
+    "matches_release_python_source_evidence_sha256": true,
+    "worker_contract_sha256": "44455640ce919037d78a02a8cfc0a87e7d7d38e11b8939af4fb47060c4e33d9f"
+  },
+  "release_record": {
+    "path": ".runtime\\aipicture\\input-recovery-release.json",
+    "sha256": "9779421ef413135bcf7a6e515ca7f217e25cc802b2768bb24c4dbbd1a8358cb2",
+    "runtime_started_at": "2026-10-03T00:06:05.6012167Z",
+    "checked_at": "2026-10-03T08:13:22.301628+08:00",
+    "runtime_synchronized": true,
+    "actual_http_check": "5/5 + 原尺寸与笔刷2/2"
+  },
+  "contradictions_found": [],
+  "proof_limits": [
+    "仅证明这两次已保存的真实HMAC纯计算运行产物、默认笔刷网格和零参数调色原像素保持",
+    "只读档案匹配不是重新执行服务或完整Java正式采用/历史/下载链验证",
+    "不证明SAM/rembg/OCR/真实Provider质量，也不计完整业务或用户接受"
+  ],
+  "writes_this_review": [
+    "仅本独立核查JSON证据文件"
+  ]
+}

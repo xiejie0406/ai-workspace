@@ -1,0 +1,238 @@
+{
+  "checked_at": "2026-10-03T02:14:56.370147+00:00",
+  "scope": "运行版真实HMAC纯评估技术检查；构造冻结来源，未读取正式任务，不计完整业务通过",
+  "http_endpoint": "http://127.0.0.1:7405/internal/v1/compute",
+  "http_request_count": 1,
+  "expected_request_count": 1,
+  "expected_case_count": 3,
+  "formal_database_writes": 0,
+  "formal_asset_writes": 0,
+  "provider_calls": 0,
+  "cv_model_calls": 0,
+  "business_acceptance_passed": false,
+  "user_acceptance": false,
+  "fixtures": [
+    {
+      "id": "00000000-0000-0000-0000-000000000065",
+      "width": 64,
+      "height": 64,
+      "format": "PNG",
+      "sha256": "77080a728454969a9efd1008c06836728629b97397f5a7da8754903dfe1e9eb4"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000066",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "sha256": "105e18fa482191de05d0c8aea977549bc82239cf855198620c1a97eb82e35a0d"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000067",
+      "width": 128,
+      "height": 128,
+      "format": "PNG",
+      "sha256": "0ce3846fa587b68f776a3c45cd0cee803747356cd1c1f9f62333b9d232d87d1d"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000068",
+      "width": 1024,
+      "height": 1024,
+      "format": "PNG",
+      "sha256": "d1f63622b88b2f158e9f37d7e3ec5218cd328810450e6e055d3f72013e8a2935"
+    }
+  ],
+  "independent_expectations": {
+    "generation": {
+      "ratio": "1:1",
+      "actual_size": [
+        1080,
+        1080
+      ],
+      "size": 1,
+      "technical_passed": true,
+      "real_model_verified": false,
+      "overall": false
+    },
+    "enhancement": {
+      "source_size": [
+        64,
+        64
+      ],
+      "actual_size": [
+        128,
+        128
+      ],
+      "scale": 2,
+      "size": 1,
+      "require_true_super_resolution": true,
+      "true_super_resolution": false,
+      "technical_passed": false,
+      "overall": false
+    },
+    "invalid_size": {
+      "actual_size": [
+        1024,
+        1024
+      ],
+      "required_size": [
+        1080,
+        1080
+      ],
+      "independent_size": 0,
+      "threshold_size": 0,
+      "explicit_case_error": true,
+      "overall": false
+    }
+  },
+  "passed": 3,
+  "exit_code": 0,
+  "request_sha256": "6223833d6bcb230272ea10dbf37f861d0519b3b2031f356ceb343cc63f248df6",
+  "http_status": 200,
+  "result": {
+    "cases": [
+      {
+        "id": "离线生成正确交付尺寸",
+        "task": "assess_result",
+        "suite": "generation",
+        "source_run_id": "00000000-0000-0000-0000-0000000000c9",
+        "outputs": [],
+        "metrics": {
+          "size": 1.0
+        },
+        "error": null,
+        "technical_passed": true,
+        "human_review": {
+          "status": "passed",
+          "notes": "构造样本仅验证技术判定；不是实际模型产物、人工质量通过或用户接受。"
+        },
+        "real_model_verified": false,
+        "overall": false,
+        "passed": false,
+        "reasons": [
+          "原产物缺少正式非测试模型配置证据"
+        ],
+        "provenance": {
+          "source_tool": "generate_image",
+          "source_provider": {
+            "offline_test": true,
+            "image": "mock",
+            "true_super_resolution": false,
+            "enhancement_implementation": "image_edit"
+          },
+          "asset_sha256": {
+            "00000000-0000-0000-0000-000000000065": "77080a728454969a9efd1008c06836728629b97397f5a7da8754903dfe1e9eb4",
+            "00000000-0000-0000-0000-000000000066": "105e18fa482191de05d0c8aea977549bc82239cf855198620c1a97eb82e35a0d"
+          }
+        },
+        "user_acceptance": false,
+        "thresholds": {
+          "size": 1.0
+        },
+        "details": {
+          "expected_size": [
+            1080,
+            1080
+          ],
+          "actual_size": [
+            1080,
+            1080
+          ]
+        }
+      },
+      {
+        "id": "普通增强不得通过严格超分",
+        "task": "assess_result",
+        "suite": "enhancement",
+        "source_run_id": "00000000-0000-0000-0000-0000000000ca",
+        "outputs": [],
+        "metrics": {
+          "size": 1.0
+        },
+        "error": null,
+        "technical_passed": false,
+        "human_review": {
+          "status": "passed",
+          "notes": "构造样本仅验证技术判定；不是实际模型产物、人工质量通过或用户接受。"
+        },
+        "real_model_verified": false,
+        "overall": false,
+        "passed": false,
+        "reasons": [
+          "源供应商未声明真实超分，不能以image_edit/插值输出通过严格超分",
+          "专项技术指标或能力条件未满足",
+          "原产物缺少正式非测试模型配置证据"
+        ],
+        "provenance": {
+          "source_tool": "upscale_image",
+          "source_provider": {
+            "offline_test": true,
+            "image": "mock",
+            "true_super_resolution": false,
+            "enhancement_implementation": "image_edit"
+          },
+          "asset_sha256": {
+            "00000000-0000-0000-0000-000000000065": "77080a728454969a9efd1008c06836728629b97397f5a7da8754903dfe1e9eb4",
+            "00000000-0000-0000-0000-000000000067": "0ce3846fa587b68f776a3c45cd0cee803747356cd1c1f9f62333b9d232d87d1d"
+          }
+        },
+        "user_acceptance": false,
+        "thresholds": {
+          "size": 1.0
+        },
+        "details": {
+          "strict_super_resolution": true,
+          "true_super_resolution": false,
+          "expected_size": [
+            128,
+            128
+          ],
+          "actual_size": [
+            128,
+            128
+          ]
+        }
+      },
+      {
+        "id": "错误尺寸不得以零阈值通过",
+        "task": "assess_result",
+        "suite": "generation",
+        "source_run_id": "00000000-0000-0000-0000-0000000000cb",
+        "outputs": [],
+        "metrics": {},
+        "error": "size固定阈值为1，不能放宽完全一致条件",
+        "technical_passed": false,
+        "human_review": {
+          "status": "passed",
+          "notes": "构造样本仅验证技术判定；不是实际模型产物、人工质量通过或用户接受。"
+        },
+        "real_model_verified": false,
+        "overall": false,
+        "passed": false,
+        "reasons": [
+          "size固定阈值为1，不能放宽完全一致条件"
+        ],
+        "provenance": {
+          "source_tool": "generate_image",
+          "source_provider": {
+            "offline_test": true,
+            "image": "mock",
+            "true_super_resolution": false,
+            "enhancement_implementation": "image_edit"
+          },
+          "asset_sha256": {
+            "00000000-0000-0000-0000-000000000065": "77080a728454969a9efd1008c06836728629b97397f5a7da8754903dfe1e9eb4",
+            "00000000-0000-0000-0000-000000000068": "d1f63622b88b2f158e9f37d7e3ec5218cd328810450e6e055d3f72013e8a2935"
+          }
+        },
+        "user_acceptance": false
+      }
+    ],
+    "metrics": {
+      "passed": 0,
+      "total": 3,
+      "technical_passed": 1,
+      "real_model_verified": 0
+    },
+    "dataset_hash": "9e18302d366627ef4539db83b05bd916be035535f1cc3a25ce5e0d838a473b94"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "reviewed_at": "2026-10-03T09:31:51.937758+00:00",
+  "scope": "WorkerOnly两启停脚本最终808d阶段独立只读，未运行parse或有效启停/HTTP/CV",
+  "release": {
+    "path": ".runtime/aipicture/r14-worker-only-script-release.json",
+    "sha256": "808d904533f039b77509b2d8ba211e6cb244e1d504d14577457449693cfd020b"
+  },
+  "scripts": [
+    {
+      "file": "scripts/aipicture/启动图片本地通道.ps1",
+      "sha256": "791f4215230effe722fe7b9e19edd0d1bf3edb82a23ce0c0e98bffd26cc569dd",
+      "frozen_match": true,
+      "protected_original_match": true
+    },
+    {
+      "file": "scripts/aipicture/停止图片本地通道.ps1",
+      "sha256": "f83a2bcbcb04c496a74b2646b4bbcb43f95026a8c72ecd1dd4c7660271c20f63",
+      "frozen_match": true,
+      "protected_original_match": true
+    }
+  ],
+  "findings": [
+    {
+      "priority": "P2",
+      "file": "scripts/aipicture/启动图片本地通道.ps1",
+      "lines": [
+        138,
+        139,
+        152,
+        153,
+        154,
+        155,
+        156
+      ],
+      "trigger": "唯一Worker Start-Process抛错且pictureStarted为空，finally仍过滤旧python-worker/写workerStartedAt和配置",
+      "actual_code_consequence": "manifest丢失原stoppedworker项；后续WorkerOnly:40唯一java/serve/worker检查拒绝原配置恢复。不是有效启停本轮已发生的事实，只是可触发源异常路径。",
+      "expected": "没有成功派发Worker时保留原manifest和worker登记，派发成功才替换/写新字段",
+      "minimal_change": "WorkerOnly finally仅在pictureStarted有唯一python-worker时写原manifest；保留其他mode行为",
+      "status": "已报告root/作者，等待裁决；审查者未编辑或执行模拟"
+    }
+  ],
+  "confirmed_boundaries": [
+    {
+      "location": "启动:5-8/停止:5-6",
+      "fact": "WorkerOnly互斥检查在配置/进程操作前，默认PythonOnly/JavaOnly其余原条件保持。"
+    },
+    {
+      "location": "启动:26-67/停止:10-35",
+      "fact": "原manifest/secret/唯一3项，Java私有jar路径/hash/精确jar命令/8415，serve venv父/base子及7405归属核对；WorkerOnly原RuntimeConfigPath路径须匹配；不复制jar/不派发serve或frontend。"
+    },
+    {
+      "location": "启动:29,152-156/停止:10,102-104",
+      "fact": "WorkerOnly用DateKind String保留ISO原文字，深度10保留原字段；正常派发只替换worker项，stop只追加workerStoppedAt。这里只读，不宣称JSON完整往返已经执行。"
+    },
+    {
+      "location": "停止:39-79,81-95",
+      "fact": "只登记worker父/base解释器同worker子；未登记同名/孤儿worker拒绝，不按端口扫杀。子→父、freshCIM creation/完整cmd/path再核、Handle+StartTime<=1ms沿既有安全停止。"
+    },
+    {
+      "location": "启动:63-65",
+      "fact": "旧PID活含复用及任意同名worker残留拒绝；不擅自停止未知进程或新建secret。"
+    }
+  ],
+  "author_checks_read": {
+    "path": ".runtime/aipicture/r14-worker-only-script-checks.json",
+    "sha256": "a6220aede75b697228e0e7c565eabd1746665f94c07705b21900578f993f229e",
+    "executed_by_author": 8,
+    "passed": 8,
+    "composition": "Parser2+启动早期互斥4+停止早期互斥2",
+    "effective_start_stop": false,
+    "reexecuted_by_reviewer": 0
+  },
+  "limits": [
+    "未查看配置/secret值，未调用CIM、HTTP或运行脚本；当前端口/受保护6进程与原worker3退出仍由root实际证据核定。",
+    "PowerShell -DateKind String依赖7.5+，作者8项环境7.6.5符合；不安装/改变运行环境。",
+    "仅本次新增范围，旧默认/PythonOnly/JavaOnly失败finally不在本次扩大修复。"
+  ],
+  "operations": {
+    "tests": 0,
+    "builds": 0,
+    "models": 0,
+    "HTTP": 0,
+    "DB": 0,
+    "processes": 0,
+    "product_writes": 0,
+    "sole_MD_HTML_writes": 0,
+    "git": 0
+  },
+  "business_accepted": false
+}

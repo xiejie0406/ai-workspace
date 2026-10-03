@@ -1,0 +1,117 @@
+{
+  "reviewed_at": "2026-10-03T09:41:06.364253+00:00",
+  "scope": "r14 WorkerOnly final-v2只读独立复核，聚焦首次P2修复；复用first全面边界读核，无新测试/进程/网络",
+  "release": {
+    "path": ".runtime/aipicture/r14-worker-only-script-final-release.json",
+    "sha256": "2047d4dac632f15375e00c26b7290f44b13aa6f45f05f3ead7c59d45c79a3313",
+    "size_bytes": 29870
+  },
+  "scripts": [
+    {
+      "path": "scripts/aipicture/启动图片本地通道.ps1",
+      "sha256": "9eb4eee331f7a36ea876a69887c9521d7ab32e626c640e7e4fc32134ee3323ff",
+      "size_bytes": 18144,
+      "frozen_match": true,
+      "first_stage": {
+        "path": ".runtime/aipicture/r14-worker-only-script-final/scripts/启动图片本地通道.ps1",
+        "sha256": "791f4215230effe722fe7b9e19edd0d1bf3edb82a23ce0c0e98bffd26cc569dd",
+        "size_bytes": 17865
+      },
+      "changed_from_first": true
+    },
+    {
+      "path": "scripts/aipicture/停止图片本地通道.ps1",
+      "sha256": "f83a2bcbcb04c496a74b2646b4bbcb43f95026a8c72ecd1dd4c7660271c20f63",
+      "size_bytes": 10575,
+      "frozen_match": true,
+      "first_stage": {
+        "path": ".runtime/aipicture/r14-worker-only-script-final/scripts/停止图片本地通道.ps1",
+        "sha256": "f83a2bcbcb04c496a74b2646b4bbcb43f95026a8c72ecd1dd4c7660271c20f63",
+        "size_bytes": 10575
+      },
+      "changed_from_first": false
+    }
+  ],
+  "diff_from_first": [
+    "--- D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r14-worker-only-script-final\\scripts\\启动图片本地通道.ps1",
+    "+++ D:\\2025Ai\\26-05-23\\java-workspace\\scripts\\aipicture\\启动图片本地通道.ps1",
+    "@@ -150,10 +150,14 @@",
+    "     foreach($name in $pictureOldEnv.Keys) { [Environment]::SetEnvironmentVariable($name,$pictureOldEnv[$name],'Process') }",
+    "     # 只保存进程与产物身份，不保存数据库或供应商密钥；进程启动不代表业务健康。",
+    "     if($WorkerOnly) {",
+    "-        $previous.processes=@($previous.processes | Where-Object { $_.name -ne 'python-worker' })+$pictureStarted.ToArray()",
+    "-        $previous | Add-Member -NotePropertyName workerStartedAt -NotePropertyValue (Get-Date).ToUniversalTime().ToString('o') -Force",
+    "-        $previous | Add-Member -NotePropertyName workerRuntimeConfigPath -NotePropertyValue ([IO.Path]::GetFullPath($RuntimeConfigPath)) -Force",
+    "-        $previous | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $pictureManifest -Encoding utf8",
+    "+        # 派发前失败时保留原清单完整字节，便于凭原 worker 身份继续恢复。",
+    "+        $pictureStartedWorkers=@($pictureStarted.ToArray() | Where-Object { $_.name -eq 'python-worker' })",
+    "+        if($pictureStartedWorkers.Count -eq 1) {",
+    "+            $previous.processes=@($previous.processes | Where-Object { $_.name -ne 'python-worker' })+$pictureStartedWorkers",
+    "+            $previous | Add-Member -NotePropertyName workerStartedAt -NotePropertyValue (Get-Date).ToUniversalTime().ToString('o') -Force",
+    "+            $previous | Add-Member -NotePropertyName workerRuntimeConfigPath -NotePropertyValue ([IO.Path]::GetFullPath($RuntimeConfigPath)) -Force",
+    "+            $previous | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $pictureManifest -Encoding utf8",
+    "+        }",
+    "     } elseif($JavaOnly) {",
+    "         $previous.processes=@($previous.processes | Where-Object { $_.name -ne 'java' })+$pictureStarted.ToArray()",
+    "         $previous | Add-Member -NotePropertyName javaStartedAt -NotePropertyValue (Get-Date).ToUniversalTime().ToString('o') -Force"
+  ],
+  "findings": [],
+  "closed_prior_finding": {
+    "priority": "P2",
+    "first_independent_review": {
+      "path": ".runtime/aipicture/r14-worker-only-script-independent-review.json",
+      "sha256": "9a401a27aab40af4ccdb1032d9b50f01cc09231e6a72a49da2ef24c5c221e36a",
+      "size_bytes": 4011
+    },
+    "source_of_finding": [
+      "本作者first只读源码独立发现",
+      "root另独立发现并授权Java修复，非仅承接作者自审"
+    ],
+    "location": "启动图片本地通道.ps1:152–161",
+    "change": "只在pictureStartedWorkers.Count==1时替换worker并写新时间/配置与manifest，无派发路径没有Set-Content。唯一派发记录来自WorkerOnly仅worker循环，其他mode分支未改。",
+    "static_expected": "Start-Process派发前抛错时finally恢复临时环境，但保持原manifest完整字节/原stoppedworker，允许后续按同配置恢复。成功派发仅替换worker且保留其他fields。",
+    "author_real_ast_check": {
+      "before": {
+        "path": ".runtime/aipicture/r14-worker-only-finally-before.json",
+        "sha256": "feb74163c217c80a2708511657931b92ef5bd35b9c2529ef4f357f9e41dc3932",
+        "size_bytes": 687
+      },
+      "before_failed": 1,
+      "after": {
+        "path": ".runtime/aipicture/r14-worker-only-finally-after.json",
+        "sha256": "048ee1683ec6f4959b9e11ceb2a187740d6d8d619113676f31a0368fd9f28dcd",
+        "size_bytes": 1063
+      },
+      "after_passed": 2,
+      "no_spawn_byte_hash_equal": true,
+      "kind": "只提取实际源WorkerOnly finally AST+自身人工JSON与内存派发记录，不执行实际Start-Process/环境/端口/DB/CV。"
+    }
+  },
+  "guard_scope_unchanged": "first808d两script互斥/原secret+manifest/Java+serve父子与端口/唯一worker或未登记残留拒绝/child→parent freshCIM identity/DateKind String，final-v2只finally上述变化；stop源完全相同。",
+  "checks_read": {
+    "distinct": 10,
+    "safe_parse_and_early_mutual_rejection": 8,
+    "controlled_ast_finally": 2,
+    "first_safe8_kept_as_history": true,
+    "reexecuted_by_reviewer": 0,
+    "actual_valid_start_stop_proved_by_author_checks": false
+  },
+  "limitations": [
+    "未调用CIM或读取secret/env值，未执行有效启停；实际非worker6身份保留、原worker3退出、新worker父子身份由root操作证据另列。",
+    "PowerShell7.6.5作者记录符合DateKind String>=7.5；本审查不安装/改环境。",
+    "脚本Start-Process返回和安全unit检查不能证明Worker健康或业务通过。"
+  ],
+  "operations": {
+    "new_tests": 0,
+    "parse_executions": 0,
+    "builds": 0,
+    "browser": 0,
+    "http": 0,
+    "models": 0,
+    "db": 0,
+    "processes": 0,
+    "source_writes": 0,
+    "sole_MD_HTML_writes": 0,
+    "git": 0
+  }
+}

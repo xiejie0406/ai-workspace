@@ -1,0 +1,346 @@
+{
+  "recorded_at": "2026-10-03T03:42:05.265967+00:00",
+  "scope": "获批CV安装、实际推理、资源与进程恢复事实汇集；非完整业务通过",
+  "authorization": "同意按此范围安装并验证",
+  "apply_exit_code": 0,
+  "selfcheck_exit_code": 1,
+  "selfcheck_cpu_sessions": {
+    "matting": [
+      "CPUExecutionProvider"
+    ],
+    "sam_encoder": [
+      "CPUExecutionProvider"
+    ],
+    "sam_decoder": [
+      "CPUExecutionProvider"
+    ],
+    "ocr_det": [
+      "CPUExecutionProvider"
+    ],
+    "ocr_rec": [
+      "CPUExecutionProvider"
+    ],
+    "ocr_cls": [
+      "CPUExecutionProvider"
+    ]
+  },
+  "selfcheck_ocr_expected": "AI Picture 2026",
+  "selfcheck_ocr_actual": [
+    {
+      "text": "Al Picture 2026",
+      "x": 29,
+      "y": 71,
+      "width": 447,
+      "height": 59
+    }
+  ],
+  "selfcheck_ocr_passed": false,
+  "http_cases": [
+    {
+      "tool": "remove_background",
+      "seconds": 9.84468989999732,
+      "passed": true,
+      "output": "matting-http.png",
+      "sha256": "0cb9079192b9f0c6dcb540cc0b59b7b2bfdf6035de866a4504d35bd08a4345ae",
+      "size": [
+        1080,
+        1080
+      ],
+      "alpha_iou": 0.9843738320861743,
+      "points_selected": [
+        true,
+        true
+      ],
+      "background_corner_selected": false,
+      "foreground_pixels": 240697,
+      "provider": {
+        "image": "dashscope",
+        "matting": "rembg",
+        "ocr": "rapidocr",
+        "offline_test": false,
+        "enhancement_implementation": "image_edit",
+        "true_super_resolution": false
+      }
+    },
+    {
+      "tool": "selection",
+      "seconds": 9.880016900002374,
+      "passed": true,
+      "output": "sam-foreground-http.png",
+      "sha256": "1fef10592468a044e7c9c4d43ca78c737999fe5f784170246aacbefd13fd1a38",
+      "size": [
+        1080,
+        1080
+      ],
+      "alpha_iou": 0.9639788889731981,
+      "points_selected": [
+        true,
+        true
+      ],
+      "background_corner_selected": false,
+      "foreground_pixels": 228731,
+      "provider": {
+        "image": "dashscope",
+        "matting": "rembg",
+        "ocr": "rapidocr",
+        "offline_test": false,
+        "enhancement_implementation": "image_edit",
+        "true_super_resolution": false,
+        "sam": {
+          "provider": "onnxruntime",
+          "model": "sam",
+          "loaded": true,
+          "inference": "points"
+        }
+      }
+    }
+  ],
+  "http_passed": true,
+  "serve_loaded_before": {
+    "matting": false,
+    "sam": false,
+    "ocr": false
+  },
+  "serve_loaded_after": {
+    "matting": true,
+    "sam": true,
+    "ocr": false
+  },
+  "original_matting_cli_exit_code": 0,
+  "original_matting_cli_passed": true,
+  "quality_accepted": false,
+  "formal_asset_writes": 0,
+  "database_writes": 0,
+  "provider_calls": 0,
+  "python_package_source_files_unchanged": 38,
+  "source_sha256": {
+    "aipicture_runtime/__init__.py": "ea82a1f986e17f8269b29bac7931607a2428ec3674f13bcea0e4774141e4ee5e",
+    "aipicture_runtime/__main__.py": "c1cf84570428eeb746b02d1f74208e23ae321ac392f4cbbfb8a0dc43ce536f97",
+    "aipicture_runtime/agent/graph.py": "dba91aea8638f2e3a187491123b1a4f94821626883619a409fd57cee0da740a4",
+    "aipicture_runtime/agent/llm.py": "60357178d98348d8d630b16f5f62b0e19f85f1e3836ad897131621c15af916c7",
+    "aipicture_runtime/agent/plan.py": "b6dfffff33dcecfd72b10285176d3e07f5dc9e96916cab276b53796719d98f1a",
+    "aipicture_runtime/artifacts.py": "03d2bce32181733417fb869148cf8944f25f8953aca7be992578673248154b86",
+    "aipicture_runtime/capabilities.py": "4a6e1d47a49af832201f630ed537f3620f29902c1d9b02071ea55b159f96e685",
+    "aipicture_runtime/config.py": "8b142a052bf0d7b9a618c944407cc15ca10046885235150380896a069d8edc0a",
+    "aipicture_runtime/dto.py": "01b1390c6c697f02f8a28076bdede259516919db7dad60cb482214cf9787d07b",
+    "aipicture_runtime/edits/__init__.py": "342c5edc2c9ce8d830969507f0678f6cadf709cb96c4f5cb2f54dd2cf42005ee",
+    "aipicture_runtime/edits/document.py": "b916db35657adc9270cde1a9b85919657b9e934a48b97b9591ccb5354d4240d6",
+    "aipicture_runtime/edits/mask.py": "72c6f6762521246e83018933e2c53e5ea15ffe46bd9c9261a59dff57cc2b444a",
+    "aipicture_runtime/edits/ocr.py": "d5b57b6045df242bff3ac643ee543838b9fb488f6835e03125530b5ad892b8be",
+    "aipicture_runtime/edits/pixels.py": "ba1662e7236d5b971fabc34bdcbf1d14c8cbeba1ae60b9cb57b9461a0c6f6781",
+    "aipicture_runtime/edits/render.py": "805188c296e7df0006e31d67572b995896cc7a7963327f25aef12b29f61f4326",
+    "aipicture_runtime/edits/segment.py": "4942296daf99f429eb313b952267a83372d0984f45b42e13d5bef6051ca5a454",
+    "aipicture_runtime/edits/split.py": "f0d0a84e9152de86e05c76c2f92ab9fb12412c39b6309e2d2fd5632058204db1",
+    "aipicture_runtime/engine.py": "dc64b4754c3961cf0655ffbf5fbf4c712ca86c62181596b09e82ab9e0367af1c",
+    "aipicture_runtime/eval/__init__.py": "72c5270f86936f53182f248d81f77baffbe73549338ce9f9d3b183a9246b2877",
+    "aipicture_runtime/eval/__main__.py": "9545f367f1216c2b7eca374be733260c79cd78a1335c29368c1876f8c2b2497e",
+    "aipicture_runtime/eval/assessment.py": "937e5c6c1e68f87d7eccef6f7981d74c1b96c80c31ab5ff8b240cf4a87f2ef5f",
+    "aipicture_runtime/eval/cases.py": "cbbd61ef980753125ea3077adfa5dfb77922abd4438618d7e4c038b7183d2e91",
+    "aipicture_runtime/eval/metrics.py": "eaa0c061140e01d7eca7c527b8df022c4140dea67159137b905bb1aff0495343",
+    "aipicture_runtime/eval/runner.py": "feee08ac77d619ad0d499e4f6d0b28b61487921ea0e2e4c45b28b3e35c5f91c5",
+    "aipicture_runtime/eval/tasks.py": "51f8d4eb376d0396032fea003590c9c3dfa82447b373fefe345679f4d14af4b6",
+    "aipicture_runtime/execution.py": "55f0beb1d9178d3f42299b2300e78674594621c6e2759ee1b9e6ae12f57f8d44",
+    "aipicture_runtime/geometry.py": "000f8b20f18cbf39e2bb61628b51f62fdd25966e378db2d651501b22927f8049",
+    "aipicture_runtime/layers.py": "f085d8b5abeda17dd2f2c0648ebf8774f33f0cdd3ec09c2abf36f2e51165c04a",
+    "aipicture_runtime/main.py": "73f73bc9d7116ada544f55e92a02b2a6b1308ae65a1290588a1b6102292acc58",
+    "aipicture_runtime/params.py": "ec464e7a0ae6cea1ec75c1e7f967a63109f37120056d81da1a0972d4686e216d",
+    "aipicture_runtime/providers/__init__.py": "8b48144059d5a4b1aa3c0217ca277d09f8680e3f85ddd5d3969f49fff514bba2",
+    "aipicture_runtime/providers/base.py": "cad78863cc89ea1975d7fd8e58a147e166c4b693ec346329600dc6dda12ab688",
+    "aipicture_runtime/providers/dashscope.py": "8ef299ef47ba1adf64c37a2c310f8531060873a19cd61cd03e1aa89a777b2db2",
+    "aipicture_runtime/providers/mock.py": "e0f2813c3618289f5c1ff37994ef31d3ddc25adf31bc2e76abdf90d41a2ce29d",
+    "aipicture_runtime/ratios.py": "1f9acc7b46d739a7ad1923bd6cb9175409fbdff01c18206a6bbfce49d750938b",
+    "aipicture_runtime/registry.py": "77a85edb32f4f026fd7c4b745e7506880d538bc30289610cbc7c99e89420aa88",
+    "aipicture_runtime/reporting.py": "8f8036379ef4a6557fdf6a03d8fd7288237a4aa900e686a1f9befced1d5cbe87",
+    "aipicture_runtime/security.py": "5becf0ad630b13ca6f642bbf07a4e4124a6dd68a929c720bce4ada0957aed0d3"
+  },
+  "uv_lock_sha256": "a734eee25ad754eeebc990fe3b038e64496eb2d0b92bc6d94a435a47af7b4d50",
+  "all_six_model_sha256_match_manifest": true,
+  "opencv_distributions": {
+    "opencv-python": "5.0.0.93"
+  },
+  "images_saved_and_read_back": [
+    "首轮抠图.png",
+    "首轮SAM-背景中心点.png",
+    "首轮OCR-独立英文输入.png",
+    "实际HTTP抠图.png",
+    "实际HTTP-SAM两商品选区.png"
+  ],
+  "memory_observation_before_cli_free_physical_KiB": 384472,
+  "memory_note": "实际低可用内存时原CLI完成；未测峰值/并发上限，未停止其他进程或把该结果当资源边界验收",
+  "preserved_preparation_errors": [
+    "进程比较-首次日期格式误报.json",
+    "原抠图CLI-辅助摘要首次误匹配.json"
+  ],
+  "evidence_files": [
+    {
+      "file": "Python停止.log",
+      "bytes": 134,
+      "sha256": "a0ec838a33812ed9def5d1f13dd75749e414146427179b46e36b5482833ddbf6"
+    },
+    {
+      "file": "锁定依赖与模型安装.log",
+      "bytes": 6571,
+      "sha256": "cd56c51317f819e771adb805f4068562d52586e5b23459208565c7853b740c81"
+    },
+    {
+      "file": "首轮CPU自检-未通过.log",
+      "bytes": 1387,
+      "sha256": "8fd18e8485c59c09b2a485ec1fbb4cd2441fae5f045a5ef2e2d13c095c1acd7c"
+    },
+    {
+      "file": "Python恢复.log",
+      "bytes": 142,
+      "sha256": "44cddd5ddbe20774b7908abb8559897b9e342ca2719b4199a5fec0fd51968ca7"
+    },
+    {
+      "file": "实际HTTP推理.log",
+      "bytes": 1260,
+      "sha256": "a3ec78664818cb8b9bef7bf0091df1f82db84792290408576f9d28377fcf765b"
+    },
+    {
+      "file": "原抠图CLI-辅助摘要首次误匹配.log",
+      "bytes": 1209,
+      "sha256": "a3affb1911710f73510be677d220e412b3954b09d917175cdd6a1107f140b441"
+    },
+    {
+      "file": "进程与原Java版本独立复核.json",
+      "bytes": 6170,
+      "sha256": "ce6f9d5561d499d7f8bb6cc54d1571f6b558b730d9fd05983fabf54644f5b4f6"
+    },
+    {
+      "file": "进程比较-首次日期格式误报.json",
+      "bytes": 5195,
+      "sha256": "1610cea88284cc950a45f3a2bd3d963ecbf952f863e768481960d85f289792e8"
+    },
+    {
+      "file": "实际产物与原预期独立复核.json",
+      "bytes": 9160,
+      "sha256": "c9de83e0d46cf26d52590fe635a12596eb3f1385da2a645d5be9910f7d5f864e"
+    },
+    {
+      "file": "启停脚本最终语法与指纹.json",
+      "bytes": 361,
+      "sha256": "5308054eefba8c75d03e556f5d030ae2f386268c63606f432a738bffbb88e719"
+    },
+    {
+      "file": "安装前受保护进程.json",
+      "bytes": 1169,
+      "sha256": "d85c5e13156656de2de6e87f24854a1578461f4715c00d154e7c2583b0ee8b32"
+    },
+    {
+      "file": "恢复后本项目进程.json",
+      "bytes": 1012,
+      "sha256": "61cc53862216fb83c1aa41ac5c29cb9a8c3b719ac4fccd7520fa204f1e1146a4"
+    },
+    {
+      "file": "模型来源与安装清单.json",
+      "bytes": 4247,
+      "sha256": "ac89aca28dfefe17cd1d423e32cfe3d06244464d0241e4f7680a92e14500ded7"
+    },
+    {
+      "file": "安装前包版本.json",
+      "bytes": 2577,
+      "sha256": "d038c7b89ce5af0cb6d6a7323579a0eadd8ec76820677146d8de974838265fd7"
+    },
+    {
+      "file": "本项目非秘密视觉配置.env",
+      "bytes": 995,
+      "sha256": "a5c0ea8a910eae35d44591b9968f91de06d4738ae5afa84b57a7b906b66683e6"
+    },
+    {
+      "file": "首轮CPU自检-未通过.json",
+      "bytes": 1240,
+      "sha256": "c13c2b11076ecd9e223e127edd6a4a37ab70f0e95cd807513dfa7a76cd2733a9"
+    },
+    {
+      "file": "首轮抠图.png",
+      "bytes": 454442,
+      "sha256": "0cb9079192b9f0c6dcb540cc0b59b7b2bfdf6035de866a4504d35bd08a4345ae"
+    },
+    {
+      "file": "首轮SAM-背景中心点.png",
+      "bytes": 10976,
+      "sha256": "fe6fdd05f70e7efc76718df180434e40ad9b3057b45db10be633932c9a8d5510"
+    },
+    {
+      "file": "首轮OCR-独立英文输入.png",
+      "bytes": 9667,
+      "sha256": "31fe62c5e5946d3f6d335143ee707829ad16808655c02eae5302ed61aef013d2"
+    },
+    {
+      "file": "实际服务-推理前能力.json",
+      "bytes": 42270,
+      "sha256": "d10470cb34202c7e3d569324b1e26e4ce83ea826709e83d9a1e482e1e4359b26"
+    },
+    {
+      "file": "实际服务-推理后能力.json",
+      "bytes": 42268,
+      "sha256": "f87fc37f6a9f7027fee089befc5f9ed21f6f1b243551692e9dbcfb466c184a0f"
+    },
+    {
+      "file": "实际HTTP推理与独立遮罩指标.json",
+      "bytes": 2433,
+      "sha256": "5df6f5214af990a4128c7dd35ebadac74a1d171061787a375f3b8fc5e9cd0b5d"
+    },
+    {
+      "file": "实际HTTP抠图.png",
+      "bytes": 454442,
+      "sha256": "0cb9079192b9f0c6dcb540cc0b59b7b2bfdf6035de866a4504d35bd08a4345ae"
+    },
+    {
+      "file": "实际HTTP-SAM两商品选区.png",
+      "bytes": 10755,
+      "sha256": "1fef10592468a044e7c9c4d43ca78c737999fe5f784170246aacbefd13fd1a38"
+    },
+    {
+      "file": "实际抠图回执元数据.json",
+      "bytes": 1595,
+      "sha256": "9b79a475aacc056909d5fcc521c3cd18177f160e6b2047ff58385911a6ca0982"
+    },
+    {
+      "file": "实际SAM回执元数据.json",
+      "bytes": 1187,
+      "sha256": "0335d728d4af3fab704f7a315e970cbf1f21de6533aae342bf367c6dc7ec10f8"
+    },
+    {
+      "file": "原抠图CLI-实际退出与定向复验.json",
+      "bytes": 1477,
+      "sha256": "3700a620dd3e411cc5383e6706328e7905d4e5947b1fd0e95b235d2f51cfcefc"
+    },
+    {
+      "file": "原抠图CLI-辅助摘要首次误匹配.json",
+      "bytes": 1269,
+      "sha256": "93be90c233e39b14dcc03e85c6be165d329b1b132fc6fe41a43c56bb6800736c"
+    },
+    {
+      "file": "原抠图CLI-实际标准输出.log",
+      "bytes": 110,
+      "sha256": "3fc2e449fccb150a7e8e0e69ff6274327c181c01dba25d45c6b26447bb18b9bc"
+    },
+    {
+      "file": "原抠图CLI-实际标准错误.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "统一登录-新标签实际入口.jpg",
+      "bytes": 71607,
+      "sha256": "61d3f3524dd583f999cb2cc8e5e57161e321daed31ccdb04a0a03dbc76ae3a7e"
+    },
+    {
+      "file": "统一登录-新标签实际状态.txt",
+      "bytes": 731,
+      "sha256": "d787f3ad8b844b6cd5b9dae20a463746e2dcd64f8e1c91d8284dded5d8afb8cc"
+    },
+    {
+      "file": "原商品白底输入.png",
+      "bytes": 421732,
+      "sha256": "bb4d28230e31246825bb45abb7b142c3b5ac20c4742a6f0e30f8bab95421de06"
+    },
+    {
+      "file": "原独立商品Alpha预期.png",
+      "bytes": 433014,
+      "sha256": "cd5ac47dba40d9a22905d99364e4be39f50a30fb8c614ee007458d8e321d30fd"
+    }
+  ]
+}

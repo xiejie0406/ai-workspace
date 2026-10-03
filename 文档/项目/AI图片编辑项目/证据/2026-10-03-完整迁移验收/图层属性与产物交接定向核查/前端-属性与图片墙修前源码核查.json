@@ -1,0 +1,114 @@
+{
+  "scope": "只读源→当前React用户链；无测试/浏览器/真实API/业务状态变更",
+  "business_result_unchanged": {
+    "passed": 0,
+    "not_executed": 4,
+    "blocked": 18
+  },
+  "findings": [
+    {
+      "priority": "P1",
+      "title": "图层属性失败后的被拒绝预览覆盖正式文档",
+      "source": "参考项目/ai-picture-editor-main/frontend/src/components/editor/LayerPanel.tsx 同样不足",
+      "target": [
+        "src/components/editor/LayerPanel.tsx:159-193",
+        "src/components/editor/LayerPanel.tsx:338-346",
+        "src/components/editor/LayerPanel.tsx:425-451",
+        "src/components/editor/LayerPanel.tsx:608-611",
+        "src/components/editor/CanvasStage.tsx:616-632",
+        "src/components/editor/CanvasStage.tsx:780-781"
+      ],
+      "trigger": "旋转/透明度/font/fill本地预览→POST503/409或正式run.failed→GET正式doc不变",
+      "expected": "失败恢复服务端正式画布，原输入保留供明确重试；不自动POST、不覆外部新版本",
+      "observed_source_fact": "void invoke不把完成状态交回表单；仅正式doc完全等于preview时清除；Slider立即丢draft",
+      "authorized_scope": "LayerPanel与必要已有命令边界/定向检查"
+    },
+    {
+      "priority": "P1",
+      "title": "正式文档换图后旧图层ID继续进入工具",
+      "source": "参考项目/ai-picture-editor-main/frontend/src/pages/EditorPage.tsx:189-193 同样不足",
+      "target": [
+        "src/pages/EditorPage.tsx:206-210",
+        "src/components/editor/LayerPanel.tsx:50-54,62,89",
+        "src/components/editor/EditorToolbar.tsx selectedLayerId消费者",
+        "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/tool/DocumentCommandService.java:86-87",
+        "python/aipicture-runtime/aipicture_runtime/layers.py:64-72"
+      ],
+      "trigger": "同会话A拆层选subject→墙切B只有base，Panel视觉fallback显示base而store仍subject→flip/adjust传subject",
+      "expected": "在正式文档提交后校准无效选择，PATCH失败保留A；有效id与其他实例不清除",
+      "authorized_scope": "EditorPage仅正式doc/layout校准"
+    }
+  ],
+  "rejected_hypotheses": [
+    {
+      "title": "墙PATCH业务错误完全无反馈",
+      "reason": "共享request.js:107-109已用ElNotification报错，不能据hook未onError认定静默"
+    }
+  ],
+  "unchanged_observations": [
+    "原显隐/排序仍使用正式命令与工具权限；Text/Canvas保持原字号8-120、原颜色字段和文案",
+    "本轮不重复r13拖动/拖角/内联文字/裁剪技术验收"
+  ],
+  "before_files": [
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "bytes": 22439,
+      "sha256": "aecc59579c89831916a836a4f6324ccca7ef4aa361d2699efdb9e99d0dc5a493"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "bytes": 10562,
+      "sha256": "395e1e4576a4472e2706392efcfaabe4a724695326666bf7e0a14f25d7f7b715"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "bytes": 10418,
+      "sha256": "4ee8406cb664cab2109bf3d6a73bb7242fb5d9f6d5d4d38f6ed041c86fd8f27e"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/client.ts",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/src/api/client.ts",
+      "bytes": 2963,
+      "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/src/api/sessions.ts",
+      "bytes": 5436,
+      "sha256": "2cafe8b019026de0c40d0569fe30ac83b4868ae51eaabd34d3fc335015b7fa4e"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "bytes": 4474,
+      "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "bytes": 159443,
+      "sha256": "91e30c0af842b268f77879a2315a0f3098733d8d6e76a6ffe35af6c434bed11f"
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/README.md",
+      "bytes": 12671,
+      "sha256": "0f5787bb7211a975efec1f86dbe2da1edcee3f7f6206a1d0e8dc50a74727a7b9"
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/migration-coverage.json",
+      "bytes": 29272,
+      "sha256": "8ef1d12604b91d4c67ec185f055722468fd1e990626aa179f6b4a64281eab693"
+    },
+    {
+      "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-before/frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "bytes": 982778,
+      "sha256": "0f351d33604ba17096dea92b2e082d74f799fbef51f91dd488dd0ad936982e26"
+    }
+  ]
+}

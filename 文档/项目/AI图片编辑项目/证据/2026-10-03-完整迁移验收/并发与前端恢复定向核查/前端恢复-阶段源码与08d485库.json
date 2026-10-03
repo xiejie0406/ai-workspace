@@ -1,0 +1,193 @@
+{
+  "scope": "原设计草稿/工具输入保留/同任务GET恢复必要局部补齐；技术检查，不改变22项业务判断",
+  "created_at": "2026-10-03T05:01:00.415495+00:00",
+  "source_frozen": true,
+  "sources": [
+    {
+      "path": "frontend/aipicture-workbench/src/components/GenerateForm.tsx",
+      "bytes": 6614,
+      "sha256": "4a4e7e4bc01966c3ab440cff1cb64318bfd909205b34244241dc93a6a2dc3f37"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/pages/CreatePage.tsx",
+      "bytes": 3480,
+      "sha256": "9a0ee1e9bd6adaf22092c103f18a5eccc001e0924b0ba5d69555a9fa073dee28"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/lib/promptDraft.ts",
+      "bytes": 599,
+      "sha256": "cf2e07602da10a4f379dd262fdc3a4dcd4f6b7127b53fe2d3bcb01409d4b38d4"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "bytes": 4084,
+      "sha256": "b45044fd047b737d25c8fd30c97b05275ad7bce1a4f49db7e133d61c13a9a7d4"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/exports.ts",
+      "bytes": 3645,
+      "sha256": "87252715497a50de3d75c0b0cf167767718eda4f1f34bbf39470c9f1d139ebe3"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "bytes": 5377,
+      "sha256": "efbe7d25cfdc82aa16ab4f694d769d605e094ffec0a698e4c45a15d9973706c1"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "bytes": 7907,
+      "sha256": "5a821e2a241e404a97d65341b6f2ec53d572da0fc5e03e5c112efe3e751edde8"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/GenerateEdits.tsx",
+      "bytes": 5183,
+      "sha256": "4184bbd14c7f290969f2c45e636039a88e915692d04b705113286010f1606d32"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "bytes": 22025,
+      "sha256": "838cfe51f792b8517ccf7cf02ddf266770f1f9821ac522457cb9f754288b4a2b"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/entry.ts",
+      "bytes": 1471,
+      "sha256": "ee7c4b2718fdcf2184ff9f11ec21c70de5f4bc40ee08f82c93ff50f929dcc446"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "bytes": 126137,
+      "sha256": "eef375a4bddc397a29226a462d566a3350118b6f6a5b964f6983896649b3ebe5"
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "bytes": 9739,
+      "sha256": "3b1129942b0eab31bdc5be1bf2f60459f8216d88736e88dc0399c04519822c44"
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "bytes": 28384,
+      "sha256": "fa6338d7429ecff7c8cc58e5faed99286c8937399de2b4d2b77978a06a1044b8"
+    }
+  ],
+  "original_source_not_modified_by_this_task": true,
+  "changes": [
+    {
+      "behavior": "同用户创作草稿持续保存与退出清理",
+      "checks": [
+        "未提交失活/重新挂载恢复",
+        "保留换行格式",
+        "成功清除",
+        "两用户/退出清理",
+        "迟到旧回复不能清新草稿"
+      ]
+    },
+    {
+      "behavior": "换背景/区域替换/11调色保留用户参数",
+      "checks": [
+        "POST503与版本409不清",
+        "排队/执行不清",
+        "正式succeeded/partial_success清",
+        "failed/canceled/external_result_unknown保留",
+        "显式重置仍有效"
+      ]
+    },
+    {
+      "behavior": "异步选择/预热/导出只重读同run",
+      "checks": [
+        "首次/阶段503与网络错误恢复",
+        "选区正式结果GET暂错恢复mask和本地历史",
+        "不重复POST或付费",
+        "正式failed/canceled/unknown立即拒绝",
+        "401/403/404/null立即拒绝",
+        "15分钟等待界限",
+        "失活/reset固定原AbortSignal不读新身份"
+      ]
+    }
+  ],
+  "checks": {
+    "before": {
+      "tests": 14,
+      "passed": 2,
+      "failed": 12,
+      "native_exit": 1,
+      "log": {
+        "path": ".runtime/aipicture/remaining-react-before.log",
+        "bytes": 12335,
+        "sha256": "90e4ae36cd2d7d8ea668207378031ba88041f624611c2e832f2985c45f5236c3"
+      }
+    },
+    "first_after": {
+      "tests": 17,
+      "passed": 16,
+      "failed": 1,
+      "native_exit": 1,
+      "cause": "测试在正式成功但原UI尚未解锁时过早点击disabled重置；改为等待既有输入可编辑再验证重置，预期未放宽",
+      "log": {
+        "path": ".runtime/aipicture/remaining-react-after-first.log",
+        "bytes": 3082,
+        "sha256": "7a73aa6a6b30623c6323e6c4b5b1e22ab0702eac46c94dbc6e90fa2404061eec"
+      }
+    },
+    "final_targeted": {
+      "tests": 17,
+      "passed": 17,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "native_exit": 0,
+      "command": "npm test -- --test-name-pattern='剩余完整性：'",
+      "log": {
+        "path": ".runtime/aipicture/remaining-react-after.log",
+        "bytes": 2357,
+        "sha256": "f32ead8a1cde999a28c15c1038f1e6015d87cd7e2d21ca8d581a55f961f0fbe3"
+      }
+    },
+    "typecheck": {
+      "native_exit": 0,
+      "log": {
+        "path": ".runtime/aipicture/remaining-react-typecheck.log",
+        "bytes": 42,
+        "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+      }
+    },
+    "lint": {
+      "native_exit": 0,
+      "errors": 0,
+      "warnings": 33,
+      "existing_hook_ref_prompts_not_fixed": true,
+      "log": {
+        "path": ".runtime/aipicture/remaining-react-lint.log",
+        "bytes": 11518,
+        "sha256": "71b42beacabb08bb343ea0cb610a24a8531da3c2ef61450ba874a85b0015594a"
+      }
+    },
+    "library_build": {
+      "native_exit": 0,
+      "log": {
+        "path": ".runtime/aipicture/remaining-react-build.log",
+        "bytes": 381,
+        "sha256": "67bbf3c59e297ec4bda8c4a19da30d1e6525b8f47d6617316f1b3090ea3bd795"
+      },
+      "bundle": {
+        "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+        "bytes": 977735,
+        "sha256": "08d485f635d9c575eca8ed512a64baed9ba042334ba920380d58713a406c9cac"
+      }
+    }
+  },
+  "preserved_before_bundle": {
+    "path": ".runtime/aipicture/remaining-react-before-build/dist/aipicture-workbench.js",
+    "bytes": 975940,
+    "sha256": "70118e1444348524d8bf9b19b7b535b4041e588a32c68f62bf65aaa19205fae2"
+  },
+  "public_admin_runtime_synchronized_by_this_task": false,
+  "actual_browser_or_business_or_model_calls": false,
+  "business_result_unchanged": {
+    "passed": 0,
+    "blocked": 18,
+    "not_executed": 4,
+    "user_acceptance_pending": 22
+  },
+  "readme_unique_implementation_link_exists": true,
+  "note": "正式产物同步与最终技术页面操作由主执行者统一；本定向检查使用实际React/Query与API，但响应为本地受控host输入，不记业务通过。"
+}

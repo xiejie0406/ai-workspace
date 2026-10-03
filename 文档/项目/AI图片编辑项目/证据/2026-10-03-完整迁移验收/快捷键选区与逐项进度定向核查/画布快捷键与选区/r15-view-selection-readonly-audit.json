@@ -1,0 +1,116 @@
+{
+  "created_at_utc": "2026-10-03T10:14:34.097595+00:00",
+  "scope": "Keyboard focus routing, source view math and selection failure/history lifecycle only",
+  "read_only_before_product_changes": true,
+  "findings": [
+    {
+      "id": "canvas_focus",
+      "priority": "P1",
+      "source": "original EditorPage window keydown listener",
+      "target": "EditorPage.tsx:126; CanvasStage.tsx:178; embed.tsx:32",
+      "trigger": "Enter from host menu while focus is outside ShadowRoot, click canvas, press 0/1/CtrlZ.",
+      "independent_expected": "Canvas pointer click establishes focus in current instance; keys route only to current root. Inputs and other instances retain isolation.",
+      "reason": "No focusable canvas or pointer focus bridge; old test dispatches keys directly at root and bypasses real activeElement.",
+      "origin": "Migration focus routing difference"
+    },
+    {
+      "id": "failed_selection_preview",
+      "priority": "P1",
+      "source": "original useSelection onError and CanvasStage settle chain also present",
+      "target": "useSelection.ts:70; CanvasStage.tsx:104-110,202-212; useSelectStroke.ts:37",
+      "trigger": "First brush or point accepted locally but POST503/409 or formal task failure; initial formal selection stays null; exit brush.",
+      "independent_expected": "Failed/canceled/unknown attempt leaves no optimistic selected-area overlay; original formal mask remains visible; late old attempt cannot clear new draft.",
+      "reason": "No formal failure completion reaches local preview; null selection dependency does not change and brush exit does not settle.",
+      "origin": "Original failure recovery gap within approved full migration design"
+    },
+    {
+      "id": "replay_cursor_before_success",
+      "priority": "P1",
+      "source": "original useSelection undo/redo before replay; same history helper",
+      "target": "useSelection.ts:83-99,119-125; selectionHistory.ts:35-47",
+      "trigger": "Two successful selection entries; undo DELETE fails, or DELETE succeeds and replay POST fails.",
+      "independent_expected": "History cursor commits only after formal replay success; failure reads current formal mask without side effect resubmit and does not pretend rollback.",
+      "reason": "undo/redo mutate local cursor before remote clear/replay, and onError only toasts.",
+      "origin": "Original asynchronous history failure gap within approved design"
+    }
+  ],
+  "unchanged_behavior": [
+    "canvasView math (clamp .05..8, fit .92, wheel cap/gain, pivot, pan) preserved; only instance store adapted",
+    "Selection input/history source algorithms copied; existing revision0 restore and GET recovery tests already retained"
+  ],
+  "existing_evidence": [
+    "tests/lifecycle.test.mjs:178,188,229,260,1724-1807",
+    "r14-layer-properties-release.json related shortcut baseline",
+    "remaining-react-final.json adapter retry/abort baseline"
+  ],
+  "operations": {
+    "browser": 0,
+    "tests": 0,
+    "http": 0,
+    "provider": 0,
+    "database": 0,
+    "git": 0
+  },
+  "snapshots": [
+    {
+      "source": "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\src\\components\\editor\\CanvasStage.tsx",
+      "bytes": 38673,
+      "sha256": "46a1e505a6b70d9e44ac49174aa8439fb43aa4111b280b0d0daa43a92a435d0d"
+    },
+    {
+      "source": "frontend/aipicture-workbench/src/hooks/useSelection.ts",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\src\\hooks\\useSelection.ts",
+      "bytes": 4712,
+      "sha256": "a3600a52dce7f45ec75d30b6a4c046ee096b0819a8869a90b698723083c5502d"
+    },
+    {
+      "source": "frontend/aipicture-workbench/src/lib/selectionHistory.ts",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\src\\lib\\selectionHistory.ts",
+      "bytes": 1547,
+      "sha256": "a53fa0840bb4027bec5adf2846660d4d0f78c838aa922fb5a0ac85db9a2e23a9"
+    },
+    {
+      "source": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\src\\pages\\EditorPage.tsx",
+      "bytes": 11241,
+      "sha256": "78439298692e5e87b558dcd16c5117183087be8e7d2704e22365d9ea1a0a6987"
+    },
+    {
+      "source": "frontend/aipicture-workbench/src/embed.tsx",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\src\\embed.tsx",
+      "bytes": 4546,
+      "sha256": "4aae4e80720a32c42683c791ec8709fe1602a492a15ffc184e1f48d37a4aeadf"
+    },
+    {
+      "source": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\tests\\lifecycle.test.mjs",
+      "bytes": 187364,
+      "sha256": "54b532642f51c30e9f35948112b2c38bc8e48f68c2872d50d7bbedb11c2eba38"
+    },
+    {
+      "source": "frontend/aipicture-workbench/tests/entry.ts",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\tests\\entry.ts",
+      "bytes": 1471,
+      "sha256": "ee7c4b2718fdcf2184ff9f11ec21c70de5f4bc40ee08f82c93ff50f929dcc446"
+    },
+    {
+      "source": "frontend/aipicture-workbench/README.md",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\README.md",
+      "bytes": 14779,
+      "sha256": "eb2aeb55c299073488837c62f755f285c5bffa6eda2d705cad7054da6f5ee55f"
+    },
+    {
+      "source": "frontend/aipicture-workbench/migration-coverage.json",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\migration-coverage.json",
+      "bytes": 29859,
+      "sha256": "92ab8c72b6fad1e57d9dfb45eb65f8af436920670b69499300cac4fe04870e01"
+    },
+    {
+      "source": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "snapshot": ".runtime\\aipicture\\r15-view-selection-before\\frontend\\aipicture-workbench\\dist\\aipicture-workbench.js",
+      "bytes": 984506,
+      "sha256": "aff4180ee55d608678a99d3f9fd543a8718887d5a038eb35d2538552fcfb9473"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "checked_at": "2026-10-03T04:13:31.905794+00:00",
+  "scope": "独立只读核OCR最小通道修复、输入契约检查和既有真实结果；本代理未执行测试、模型推理、构建、HTTP或业务操作，仅写此审查JSON",
+  "findings": [],
+  "source_diff": "--- before\n+++ current\n@@ -41,7 +41,8 @@\n                            rec_model_path=str(settings.ocr_rec_model_path),\n                            cls_model_path=str(settings.ocr_cls_model_path))\n \n-    image = np.array(Image.open(io.BytesIO(data)).convert(\"RGB\"))\n+    # RapidOCR 的 ndarray 入口使用 BGR；保留原 RGB 解码/丢弃 alpha，再统一通道约定。\n+    image = np.array(Image.open(io.BytesIO(data)).convert(\"RGB\"))[:, :, ::-1].copy()\n     result, _ = _engine(image)\n     if not result:\n         return []",
+  "input_contract_review": {
+    "installed_library_evidence": "python/aipicture-runtime/.venv/Lib/site-packages/rapidocr_onnxruntime/utils/load_image.py:70-73；bytes/PIL三通道RGB转换BGR，三通道ndarray直接保留",
+    "RGB": "红蓝通道显式交换，匹配库BGR入口",
+    "L": "Pillow convertRGB重复灰度三通道，交换不改变像素；原灰度失败不能由此修复解释",
+    "RGBA": "保留原convertRGB丢弃alpha语义，再RGB转BGR；不改成库原RGBA分支的背景处理",
+    "memory": "[::-1]通道负stride经.copy()输出uint8 C contiguous数组",
+    "tests": "三模式真实LoadImage独立PNGbytes参照，不镜像实现；替身模型仅核输入/metadata/显式路径，实际报告6 passed无skip；5新＋1既有缺模型，不与54专项累加"
+  },
+  "metadata_compatibility": {
+    "box": "原quad→AABB int/min/max转换与TextBox x/y/w/h及过滤规则逐行未变，仍用原画布像素网格",
+    "font": "_text_layer继续max(10,box.height*.72)，未增加字体/字号识别协议",
+    "color": "Layer.fill默认#141414继续保留；红/蓝合成输入只验证识别输入颜色，不能宣称重建了原字色",
+    "rotation": "原quad角度不保留、默认AABB文字层rotation0是既有范围，本次未新增旋转还原"
+  },
+  "frozen_file_checks": [
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/ocr.py",
+      "matches": true
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_ocr_input_contract.py",
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/color-expect-before.json",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/color-fixed-input.png",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/color-once.log",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/color-result.json",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/diagnostic-expect-before.json",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/diagnostic-once.log",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/diagnostic-result.json",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/input-contract-after.log",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/input-contract-before.json",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/input-contract-before.log",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/ocr.py.before-color-fix",
+      "exists": true,
+      "matches": true
+    },
+    {
+      "path": ".runtime/aipicture/cv-ocr-followup/source-contract-font-review.json",
+      "exists": true,
+      "matches": true
+    }
+  ],
+  "all_frozen_file_checks_match": true,
+  "real_color_evidence": {
+    "saved_expect_precedes_completed_record": true,
+    "no_pre_manifest_call_declared": true,
+    "input_sha_matches": true,
+    "png_header_size": [
+      1024,
+      384
+    ],
+    "size_matches_manifest": true,
+    "declared_ocr_invocations": 1,
+    "CPU_sessions": {
+      "det": [
+        "CPUExecutionProvider"
+      ],
+      "rec": [
+        "CPUExecutionProvider"
+      ],
+      "cls": [
+        "CPUExecutionProvider"
+      ]
+    },
+    "row_independent_comparisons": [
+      {
+        "id": "red-english",
+        "text_exact_independently_compared": true,
+        "canvas_and_predeclared_row_bounds": true,
+        "reported_values_match": true,
+        "actual_box": [
+          {
+            "text": "Product 2026",
+            "x": 36,
+            "y": 59,
+            "width": 377,
+            "height": 50
+          }
+        ]
+      },
+      {
+        "id": "blue-chinese",
+        "text_exact_independently_compared": true,
+        "canvas_and_predeclared_row_bounds": true,
+        "reported_values_match": true,
+        "actual_box": [
+          {
+            "text": "中文价格2026",
+            "x": 30,
+            "y": 235,
+            "width": 413,
+            "height": 73
+          }
+        ]
+      }
+    ],
+    "technical_evidence_only": true
+  },
+  "old_gray_failure": {
+    "files_hash_match": true,
+    "actual_and_expected": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\cv-ocr-followup\\diagnostic-result.json",
+      "sha256": "2957f432339d93040b330ade1a2dd92e3bfb406d3dc96d63e59db73ed2a3c34e",
+      "actual": "Al Picture 2026",
+      "expected": "AI Picture 2026",
+      "passed": false,
+      "retained": true
+    },
+    "log_still_reports_mismatch": true,
+    "new_color_does_not_override_old_failure": true
+  },
+  "limits": [
+    "真实彩色一次两行是有限技术复验，无本代理重推理，不外推复杂商品/全部文字质量",
+    "正式拆层、收费背景修补、图层编辑和页面字体导出业务未执行",
+    "不改变任何业务验收结果/通过数或用户接受",
+    "等待主执行者发最终文档状态后再核本轮报告静态一致性"
+  ]
+}

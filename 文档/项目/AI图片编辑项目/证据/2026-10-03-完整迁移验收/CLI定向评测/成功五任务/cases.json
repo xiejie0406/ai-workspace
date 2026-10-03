@@ -1,0 +1,125 @@
+[
+  {
+    "id": "brightness-known-pixels",
+    "task": "adjust_image",
+    "input": "images/solid.png",
+    "expect": "expect/bright.png",
+    "params": {
+      "brightness": 0.2
+    },
+    "metrics": [
+      "mae",
+      "psnr",
+      "size"
+    ],
+    "thresholds": {
+      "mae": 0,
+      "psnr": 99,
+      "size": 1
+    }
+  },
+  {
+    "id": "centered-white-padding",
+    "task": "letterbox",
+    "input": "images/solid.png",
+    "expect": "expect/letterbox.png",
+    "params": {
+      "width": 96,
+      "height": 64
+    },
+    "metrics": [
+      "mae",
+      "psnr",
+      "contain",
+      "size"
+    ],
+    "thresholds": {
+      "mae": 0,
+      "psnr": 99,
+      "contain": 1,
+      "size": 1
+    }
+  },
+  {
+    "id": "five-ratios",
+    "task": "prepare_delivery_sizes",
+    "input": "images/solid.png",
+    "params": {
+      "ratios": [
+        "1:1",
+        "4:5",
+        "3:4",
+        "9:16",
+        "16:9"
+      ]
+    },
+    "metrics": [
+      "size",
+      "contain"
+    ],
+    "thresholds": {
+      "size": 1,
+      "contain": 1
+    }
+  },
+  {
+    "id": "png-preserves-known-alpha",
+    "task": "encode",
+    "input": "images/alpha.png",
+    "expect": "expect/alpha.png",
+    "params": {
+      "format": "png"
+    },
+    "metrics": [
+      "alpha_iou",
+      "mae",
+      "psnr",
+      "size"
+    ],
+    "thresholds": {
+      "alpha_iou": 1,
+      "mae": 0,
+      "psnr": 99,
+      "size": 1
+    }
+  },
+  {
+    "id": "jpg-bounded-encoding",
+    "task": "encode",
+    "input": "images/solid.png",
+    "expect": "expect/solid.png",
+    "params": {
+      "format": "jpg"
+    },
+    "metrics": [
+      "mae",
+      "psnr",
+      "size"
+    ],
+    "thresholds": {
+      "mae": 2,
+      "psnr": 40,
+      "size": 1
+    }
+  },
+  {
+    "id": "resize-known-solid",
+    "task": "resize",
+    "input": "images/solid.png",
+    "expect": "expect/resize.png",
+    "params": {
+      "width": 128,
+      "height": 96
+    },
+    "metrics": [
+      "mae",
+      "psnr",
+      "size"
+    ],
+    "thresholds": {
+      "mae": 0,
+      "psnr": 99,
+      "size": 1
+    }
+  }
+]

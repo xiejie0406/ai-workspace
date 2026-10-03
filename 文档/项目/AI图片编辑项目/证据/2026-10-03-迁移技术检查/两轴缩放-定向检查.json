@@ -1,0 +1,69 @@
+{
+  "scope": "按已批准完整迁移设计第5/13/19补齐原项目既有合法非等比差距；离线定向技术验证，不记为本轮回归或业务验收，未生产构建/运行同步/浏览器操作",
+  "before": {
+    "log": "两轴缩放-修复前.log",
+    "exit_code": 1,
+    "observed_failures": [
+      "实际Image节点四角未独立使用持久scale_y",
+      "TextEditor未按CSS双轴与正式中心定位"
+    ],
+    "test_failures": 2,
+    "root_iab_screenshot": "../2026-10-03-完整迁移验收/两轴缩放-修复前技术截图.jpg",
+    "screenshot_bytes": 53981,
+    "root_iab_stage": "C216裁切阶段，root已保存并回读，图片应160×80实际160×160，文字未半高",
+    "initial_test_environment_log": "非等比缩放-修复前.log保留首次Image只读绑定测试环境错误，不当作几何修复证据"
+  },
+  "implementation": {
+    "module": "src/components/editor/CanvasStage.tsx",
+    "persisted_layer_scale": "无scalar preview/pinned时各自轴幅值，始终保留flip signs",
+    "scalar_user_intent": "slider preview及拖角pinned继续等比",
+    "text_editor": "view局部框与字号，CSS rotate+scale(abs_x,abs_y)围绕正式图层中心；编辑仍正向可读",
+    "minimum_editor": "缩放后48×28屏幕框，字号较小轴至少12px；极小文档会扩大编辑框/字号，不宣称该最小编辑框逐像素匹配画布",
+    "layer_api_fields_or_new_controls": false
+  },
+  "checks": {
+    "command": "node tests/run.mjs --test-name-pattern=独立两轴|文字字框裁切：|文字字体：|真实非空 Session|两个编辑器",
+    "log": "两轴缩放-定向检查.log",
+    "exit_code": 0,
+    "passed": 6,
+    "new_axes_tests": 2,
+    "affected_clip_and_font_tests": 2,
+    "affected_document_and_instance_baseline_tests": 2,
+    "new_actual_assertions": [
+      "实际Image与2Text Group四角和包围矩形独立数学复核",
+      "横负轴/纵负轴、旋转及不同高宽持久显示",
+      "原slider scalar预览等比且不影响其他层",
+      "拖角正式回执等待pinned仍等比并保留符号",
+      "常规128×64 sx2/sy.5编辑屏幕框256×32且正式中心一致",
+      "局部32px字号经CSS y×.5成为16px，保留原正向编辑",
+      "极小框保留最小可编辑尺寸及字号，不产生工具请求"
+    ],
+    "controlled_decoder_scope": "Image解码受控替身仅使真实Konva Image节点参与几何检查，不证明实际图片解码、blob鉴权或像素质量"
+  },
+  "react_typecheck": {
+    "command": "npm run typecheck",
+    "exit_code": 0
+  },
+  "lint": {
+    "command": "node node_modules/oxlint/bin/oxlint src/components/editor/CanvasStage.tsx tests/entry.ts",
+    "exit_code": 0,
+    "errors": 0,
+    "existing_canvas_warnings": 12
+  },
+  "preserved_prior_stage_records": [
+    "文字字体-定向检查.json",
+    "文字字框裁切-定向检查.json"
+  ],
+  "unaffected_checks": "bridge/Java/Python原基线未重复运行；保留各自原版本证据",
+  "coverage": {
+    "count": 75,
+    "all_source_hashes_unchanged": true
+  },
+  "source_sha256": {
+    "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx": "28c16776ef999087334e25770444b9df47f1b4e3b82cb465d5f468b508af4f37",
+    "frontend/aipicture-workbench/tests/lifecycle.test.mjs": "823a0e4b734f16aba1e5906e1560e3f309490f0aa83a15cc72a4d536362b190c",
+    "frontend/aipicture-workbench/migration-coverage.json": "c5505c7b57cc118b2ea96ed490de1a3d71d2f96343ff97940dd9d63255101e58"
+  },
+  "current_production_js_sha256": "c216c4a7f547b74b3d18b974bce3935e614fcbee24890a870757b3adfcffdfd1",
+  "pending": "root统一最终prod构建、四份一致及受影响IAB非等比/文字编辑框/字体/裁切与真实Pillow对照；旧阶段证据保留，用户接受仍待确认"
+}

@@ -1,0 +1,27 @@
+--- protected-before/RunService.java
++++ frozen-current/RunService.java
+@@ -150,6 +150,7 @@
+             var run=db.one("SELECT r.* FROM aip_dispatch d JOIN aip_run r ON r.id=d.run_id WHERE d.status='pending' AND d.available_at<=:now AND r.status='queued' AND (:requested IS NULL OR r.id=:requested) ORDER BY d.available_at,r.id LIMIT 1 FOR UPDATE SKIP LOCKED",Json.of("now",now,"requested",requestedRunId==null?null:Json.uuid(requestedRunId)));
+             if(run==null) return null;String id=Json.string(run.get("id")),lease=Json.id();long attempt=Json.number(run.get("attempt"))+1,expires=now+properties.getLeaseSeconds()*1000L;
+             db.execute("UPDATE aip_run SET status='running',attempt=:attempt,lease_token=:lease,lease_expires_at=:expires,heartbeat_at=:now,started_at=COALESCE(started_at,:now) WHERE id=:id",Json.of("attempt",attempt,"lease",lease,"expires",expires,"now",now,"id",id));
++            transitionBatchItem(run,"queued","running");
+             db.execute("UPDATE aip_dispatch SET status='claimed',worker_id=:worker,attempt=:attempt WHERE run_id=:id",Json.of("id",id,"worker",workerId,"attempt",attempt));
+             var snapshot=Json.copy(Json.map(run.get("input_snapshot")));var refs=Json.list(snapshot.get("assets"));
+             String base=properties.getPublicInternalBaseUrl().replaceAll("/$","");
+@@ -168,8 +169,14 @@
+             String next=external&&!queryExisting?"external_result_unknown":Json.number(run.get("attempt"))<=2?"queued":"failed";
+             db.execute("UPDATE aip_run SET status=:status,error_code='LEASE_EXPIRED',message=:message,lease_token=NULL,lease_expires_at=NULL WHERE id=:id",Json.of("status",next,"message",external?"Worker租约过期，外部结果待核对；不会自动重复调用付费模型":"Worker租约过期","id",id));
+             db.execute("UPDATE aip_dispatch SET status=:status,available_at=:now WHERE run_id=:id",Json.of("status",next.equals("queued")?"pending":"failed","now",now+5000,"id",id));
+-            if(!next.equals("queued")) {release(run);completeRelations(run,next,Map.of(),"LEASE_EXPIRED","Worker租约过期");}event(id,owner);
+-        }
++            if(next.equals("queued")) transitionBatchItem(run,"running","queued");
++            else {release(run);completeRelations(run,next,Map.of(),"LEASE_EXPIRED","Worker租约过期");}event(id,owner);
++        }
++    }
++    /** 逐项详情与租约同事务推进；旧任务、其他用户及终态不能被领取或恢复倒写。 */
++    private void transitionBatchItem(Map<String,Object> run,String prior,String state) {
++        if(run.get("batch_item_id")==null) return;
++        db.execute("UPDATE aip_batch_item SET status=:status WHERE id=:item AND user_id=:owner AND run_id=:run AND status=:prior",Json.of("status",state,"item",run.get("batch_item_id"),"owner",run.get("user_id"),"run",run.get("id"),"prior",prior));
+     }
+     private Map<String,Object> lease(Map<String,Object> p,boolean allowTerminal) {
+         String id=Json.uuid(p.get("run_id"));var run=db.one("SELECT * FROM aip_run WHERE id=:id FOR UPDATE",Json.of("id",id));

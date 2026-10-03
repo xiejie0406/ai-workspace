@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="7" time="6.508" timestamp="2026-10-03T12:42:15.193557+08:00" hostname="DESKTOP-9TNRTIR"><testcase classname="tests.test_cv_concurrency" name="test_same_image_cold_cache_has_one_encoder_owner[success]" time="0.094"><failure message="AssertionError: 同图冷缓存重复编码&#10;assert 2 == 1&#10; +  where 2 = len([1, 1])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000215276C8B00&gt;
+empty_embedding_cache = None, fails = False
+
+    @pytest.mark.parametrize("fails", [False, True], ids=["success", "failure-cleanup"])
+    def test_same_image_cold_cache_has_one_encoder_owner(monkeypatch, empty_embedding_cache, fails):
+        entered, second_encoder, release, second_started = (threading.Event() for _ in range(4))
+        calls, count_lock = [], threading.Lock()
+        embedding = {"controlled_embedding": object()}
+    
+        def controlled_encode(_session, _source):
+            with count_lock:
+                calls.append(1)
+                (entered if len(calls) == 1 else second_encoder).set()
+            assert release.wait(3), "受控编码器释放信号未到达"
+            if fails:
+                raise RuntimeError("controlled-encoder-failure")
+            return embedding
+    
+        monkeypatch.setattr(segment, "_encode", controlled_encode)
+    
+        def invoke(second=False):
+            if second:
+                second_started.set()
+            return segment._embedding_of(object(), b"same-frozen-image", Image.new("RGB", (4, 4)))
+    
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            try:
+                first = pool.submit(invoke)
+                assert entered.wait(2)
+                second = pool.submit(invoke, True)
+                assert second_started.wait(2)
+                # 原实现第二个线程会进入受控编码器；修后应等待同一在途结果。
+                second_encoder.wait(0.2)
+            finally:
+                release.set()
+            if fails:
+                for future in [first, second]:
+                    with pytest.raises(RuntimeError, match="controlled-encoder-failure"):
+                        future.result(timeout=2)
+            else:
+                assert first.result(timeout=2) is embedding
+                assert second.result(timeout=2) is embedding
+&gt;       assert len(calls) == 1, "同图冷缓存重复编码"
+E       AssertionError: 同图冷缓存重复编码
+E       assert 2 == 1
+E        +  where 2 = len([1, 1])
+
+tests\test_cv_concurrency.py:82: AssertionError</failure></testcase><testcase classname="tests.test_cv_concurrency" name="test_same_image_cold_cache_has_one_encoder_owner[failure-cleanup]" time="0.207"><failure message="AssertionError: 同图冷缓存重复编码&#10;assert 2 == 1&#10; +  where 2 = len([1, 1])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000215276C8770&gt;
+empty_embedding_cache = None, fails = True
+
+    @pytest.mark.parametrize("fails", [False, True], ids=["success", "failure-cleanup"])
+    def test_same_image_cold_cache_has_one_encoder_owner(monkeypatch, empty_embedding_cache, fails):
+        entered, second_encoder, release, second_started = (threading.Event() for _ in range(4))
+        calls, count_lock = [], threading.Lock()
+        embedding = {"controlled_embedding": object()}
+    
+        def controlled_encode(_session, _source):
+            with count_lock:
+                calls.append(1)
+                (entered if len(calls) == 1 else second_encoder).set()
+            assert release.wait(3), "受控编码器释放信号未到达"
+            if fails:
+                raise RuntimeError("controlled-encoder-failure")
+            return embedding
+    
+        monkeypatch.setattr(segment, "_encode", controlled_encode)
+    
+        def invoke(second=False):
+            if second:
+                second_started.set()
+            return segment._embedding_of(object(), b"same-frozen-image", Image.new("RGB", (4, 4)))
+    
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            try:
+                first = pool.submit(invoke)
+                assert entered.wait(2)
+                second = pool.submit(invoke, True)
+                assert second_started.wait(2)
+                # 原实现第二个线程会进入受控编码器；修后应等待同一在途结果。
+                second_encoder.wait(0.2)
+            finally:
+                release.set()
+            if fails:
+                for future in [first, second]:
+                    with pytest.raises(RuntimeError, match="controlled-encoder-failure"):
+                        future.result(timeout=2)
+            else:
+                assert first.result(timeout=2) is embedding
+                assert second.result(timeout=2) is embedding
+&gt;       assert len(calls) == 1, "同图冷缓存重复编码"
+E       AssertionError: 同图冷缓存重复编码
+E       assert 2 == 1
+E        +  where 2 = len([1, 1])
+
+tests\test_cv_concurrency.py:82: AssertionError</failure></testcase><testcase classname="tests.test_cv_concurrency" name="test_different_images_keep_parallel_encoding" time="0.081" /><testcase classname="tests.test_cv_concurrency" name="test_embedding_lru_still_keeps_four_and_recomputes_evicted_image" time="0.004" /><testcase classname="tests.test_cv_concurrency" name="test_ocr_first_use_constructs_one_engine" time="4.336"><failure message="AssertionError: OCR 首次使用重复构造模型&#10;assert 2 == 1&#10; +  where 2 = len([{'det_model_path': 'C:\\Users\\admin\\AppData\\Local\\Temp\\pytest-of-admin\\pytest-126\\test_ocr_first_use_construct...th': 'C:\\Users\\admin\\AppData\\Local\\Temp\\pytest-of-admin\\pytest-126\\test_ocr_first_use_constructs_0\\cls.onnx'}])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000215276CC9E0&gt;
+configured_ocr = &lt;module 'rapidocr_onnxruntime' from 'D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\.venv\\Lib\\site-packages\\rapidocr_onnxruntime\\__init__.py'&gt;
+
+    def test_ocr_first_use_constructs_one_engine(monkeypatch, configured_ocr):
+        entered, second_initializer, release, second_started = (threading.Event() for _ in range(4))
+        calls, count_lock = [], threading.Lock()
+    
+        class ControlledEngine:
+            def __init__(self, **kwargs):
+                with count_lock:
+                    calls.append(kwargs)
+                    (entered if len(calls) == 1 else second_initializer).set()
+                assert release.wait(3)
+    
+            def __call__(self, _image):
+                return None, None
+    
+        monkeypatch.setattr(configured_ocr, "RapidOCR", ControlledEngine)
+    
+        def invoke(second=False):
+            if second:
+                second_started.set()
+            return ocr.detect_text(png())
+    
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            try:
+                first = pool.submit(invoke)
+                assert entered.wait(2)
+                second = pool.submit(invoke, True)
+                assert second_started.wait(2)
+                second_initializer.wait(0.2)
+            finally:
+                release.set()
+            assert first.result(timeout=2) == []
+            assert second.result(timeout=2) == []
+&gt;       assert len(calls) == 1, "OCR 首次使用重复构造模型"
+E       AssertionError: OCR 首次使用重复构造模型
+E       assert 2 == 1
+E        +  where 2 = len([{'det_model_path': 'C:\\Users\\admin\\AppData\\Local\\Temp\\pytest-of-admin\\pytest-126\\test_ocr_first_use_construct...th': 'C:\\Users\\admin\\AppData\\Local\\Temp\\pytest-of-admin\\pytest-126\\test_ocr_first_use_constructs_0\\cls.onnx'}])
+
+tests\test_cv_concurrency.py:162: AssertionError</failure></testcase><testcase classname="tests.test_cv_concurrency" name="test_ocr_initialization_failure_can_retry" time="0.088" /><testcase classname="tests.test_cv_concurrency" name="test_loaded_ocr_calls_are_not_serialized_by_initialization_guard" time="0.026" /></testsuite></testsuites>

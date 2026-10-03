@@ -1,0 +1,502 @@
+{
+  "created_at": "2026-10-03T07:24:31.357752+00:00",
+  "audit_type": "有界源到目标静态语义核对",
+  "role": "代码审查员",
+  "scope": "确定性多层合成、非整数变换和裁切、locked/visible、PNG/JPG、批量有序分支、当前画布/默认物料/成功项ZIP消费链",
+  "restrictions": {
+    "product_files_modified": 0,
+    "tests_executed": 0,
+    "model_inferences": 0,
+    "http_requests": 0,
+    "provider_requests": 0,
+    "formal_database_reads_or_writes": 0,
+    "service_actions": 0,
+    "builds": 0,
+    "installs": 0,
+    "git_actions": 0
+  },
+  "method": "逐分支阅读与AST比较；AST等价仅支持所列纯函数的源语义保持，不代替图像或业务验收。未执行函数或导入Runtime。",
+  "findings": [],
+  "conclusion": "限定核查范围内未见新的有源码依据P0/P1迁移遗漏或数据/格式错误；不能据此宣称完整业务迁移已通过。",
+  "ast_comparisons": [
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/render.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/render.py",
+      "function": "flatten",
+      "source_line": 24,
+      "target_line": 32,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/render.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/render.py",
+      "function": "_place",
+      "source_line": 76,
+      "target_line": 165,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/render.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/render.py",
+      "function": "_paste",
+      "source_line": 103,
+      "target_line": 192,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "adjust",
+      "source_line": 25,
+      "target_line": 34,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "_tone",
+      "source_line": 68,
+      "target_line": 77,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "_white_balance",
+      "source_line": 78,
+      "target_line": 87,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "_vibrance",
+      "source_line": 86,
+      "target_line": 95,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "_vignette_mask",
+      "source_line": 104,
+      "target_line": 113,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "_clip",
+      "source_line": 141,
+      "target_line": 150,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "resize_to",
+      "source_line": 145,
+      "target_line": 154,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "encode",
+      "source_line": 153,
+      "target_line": 162,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "letterbox",
+      "source_line": 165,
+      "target_line": 174,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "function": "_png",
+      "source_line": 186,
+      "target_line": 195,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "flip",
+      "source_line": 11,
+      "target_line": 11,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "set_opacity",
+      "source_line": 22,
+      "target_line": 22,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "set_visible",
+      "source_line": 28,
+      "target_line": 28,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "set_text",
+      "source_line": 34,
+      "target_line": 34,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "_resolve_text",
+      "source_line": 54,
+      "target_line": 54,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "scale",
+      "source_line": 66,
+      "target_line": 66,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "rotate",
+      "source_line": 97,
+      "target_line": 97,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "move",
+      "source_line": 110,
+      "target_line": 110,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "reorder",
+      "source_line": 127,
+      "target_line": 127,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "crop",
+      "source_line": 145,
+      "target_line": 145,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "_with_sign",
+      "source_line": 175,
+      "target_line": 175,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "_fit_ratio",
+      "source_line": 180,
+      "target_line": 180,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "function": "_as_pixels",
+      "source_line": 190,
+      "target_line": 190,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/layers.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/layers.py",
+      "function": "resolve_layer",
+      "source_line": 58,
+      "target_line": 59,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/layers.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/layers.py",
+      "function": "document_of",
+      "source_line": 79,
+      "target_line": 80,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/ratios.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/ratios.py",
+      "function": "size_of",
+      "source_line": 24,
+      "target_line": 24,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/ratios.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/ratios.py",
+      "function": "parts_of",
+      "source_line": 28,
+      "target_line": 28,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/ratios.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/ratios.py",
+      "function": "cover_size",
+      "source_line": 33,
+      "target_line": 33,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/ratios.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/ratios.py",
+      "function": "matches_ratio",
+      "source_line": 41,
+      "target_line": 41,
+      "ast_equal_including_docstring": true
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/ratios.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/ratios.py",
+      "function": "ratio_of",
+      "source_line": 46,
+      "target_line": 46,
+      "ast_equal_including_docstring": true
+    }
+  ],
+  "static_ast_equal_count": 33,
+  "static_ast_comparison_count": 33,
+  "source_fingerprints": [
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/edits/render.py",
+      "size_bytes": 4899,
+      "sha256": "c041f4e317b8d2dfb1427452d6fdbcfd914c5ec6a50e42503d2896093deaecd1"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "size_bytes": 6439,
+      "sha256": "426404a4a3d38e238424c985500dc9df8cc2211f22812d01cc88c88011d01362"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "size_bytes": 6764,
+      "sha256": "a907104466ccc09c3c5ee85b8ac10accb1d4c2609df61fe2b4f8272bbb029869"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/layers.py",
+      "size_bytes": 2528,
+      "sha256": "27ad281830398a18a1e0f3e2262cc7836656675b69edf614190c7b777c2d2990"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/ratios.py",
+      "size_bytes": 1451,
+      "sha256": "8e39088cf5506047664c68cdace97b07ad8967c3877238cda23695ff978ded5f"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/render.py",
+      "size_bytes": 9084,
+      "sha256": "805188c296e7df0006e31d67572b995896cc7a7963327f25aef12b29f61f4326"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "size_bytes": 7266,
+      "sha256": "ba1662e7236d5b971fabc34bdcbf1d14c8cbeba1ae60b9cb57b9461a0c6f6781"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "size_bytes": 7003,
+      "sha256": "b916db35657adc9270cde1a9b85919657b9e934a48b97b9591ccb5354d4240d6"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/layers.py",
+      "size_bytes": 2630,
+      "sha256": "f085d8b5abeda17dd2f2c0648ebf8774f33f0cdd3ec09c2abf36f2e51165c04a"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/ratios.py",
+      "size_bytes": 1504,
+      "sha256": "1f9acc7b46d739a7ad1923bd6cb9175409fbdff01c18206a6bbfce49d750938b"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/services/exports.py",
+      "size_bytes": 3804,
+      "sha256": "190ea084724a88a74c41ea288bd3ee2c6ff2c21c1da9b93cbba8bbc08e82da09"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/services/batch.py",
+      "size_bytes": 8676,
+      "sha256": "f6bbaf2ad9546513e50e0fd23151fe63a14a8b80151e461452c1b07d94979b2f"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/schemas/batch.py",
+      "size_bytes": 1205,
+      "sha256": "113e01ca88357b5d690ed23bfc3e1ac99140f376bf9aab7936cf1353d5df84fd"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/tools/enhance.py",
+      "size_bytes": 5653,
+      "sha256": "5a85287c0cf2c5afa2adde4903a9113e7f63d1d31d4f2fa3d6bc55df97e3d231"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/tools/target.py",
+      "size_bytes": 4278,
+      "sha256": "5d6d20eb3f5fc496085a1f378874eec5ed6ada23cfd9cf2ee25eb105089529fa"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/tools/context.py",
+      "size_bytes": 1488,
+      "sha256": "8a6aac10fb5867699dd6aeba5dcd9f1a4b9d1c7bdd0a6e7447043782ea90a41e"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+      "size_bytes": 36817,
+      "sha256": "7df0afdaedc60e7512869930d7bde1ee5de1c660c17c120a81613651192d7baf"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/dto.py",
+      "size_bytes": 6899,
+      "sha256": "01b1390c6c697f02f8a28076bdede259516919db7dad60cb482214cf9787d07b"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/params.py",
+      "size_bytes": 7364,
+      "sha256": "ec464e7a0ae6cea1ec75c1e7f967a63109f37120056d81da1a0972d4686e216d"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+      "size_bytes": 42469,
+      "sha256": "c91d260bd6504a7dee095456c775b5f5b30fe85cf62404e63e08b1ab3e1df8fd"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java",
+      "size_bytes": 13836,
+      "sha256": "5775e142ee4f9fb3b46d075a80f23ef67a58ce8873e15086bc014b201ebf55dc"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/BatchExportEvaluationService.java",
+      "size_bytes": 11551,
+      "sha256": "30d9bbe80da2de4006dee90b9790746d9bd2c709b24f6b415597a782a4c41526"
+    },
+    {
+      "path": "文档/项目/AI图片编辑项目/完整迁移设计.md",
+      "size_bytes": 83157,
+      "sha256": "0f2b41b170eea2f15011c717854b2be57d2e3fbb00cbec964dd25742780a71b4"
+    },
+    {
+      "path": "contracts/aipicture/v1/worker.openapi.yaml",
+      "size_bytes": 15353,
+      "sha256": "1524d63b8319add1c1dfa5e46107aba1a5491a8e26e50caa6a61e8df63c58f7c"
+    },
+    {
+      "path": "contracts/aipicture/v1/tools.schema.json",
+      "size_bytes": 39162,
+      "sha256": "553745b0f7053684454a41ac5c23cf3c75cddbc4301b4cf10e18f631c89941ed"
+    },
+    {
+      "path": "contracts/aipicture/v1/document.schema.json",
+      "size_bytes": 3574,
+      "sha256": "e674af80a4871427343c256ba7a4334be48df5a36b2dd37ac9859f76cbf00642"
+    }
+  ],
+  "frozen_python_record": {
+    "path": ".runtime/aipicture/unicode-image-artifacts.json",
+    "sha256": "318ed1f6c4e7b363546352b23e03ca88e43cb945a4f30cd414d36318f4ce70a8",
+    "audited_python_source_match": {
+      "aipicture_runtime/edits/render.py": true,
+      "aipicture_runtime/edits/pixels.py": true,
+      "aipicture_runtime/edits/document.py": true,
+      "aipicture_runtime/layers.py": true,
+      "aipicture_runtime/ratios.py": true,
+      "aipicture_runtime/engine.py": true,
+      "aipicture_runtime/dto.py": true,
+      "aipicture_runtime/params.py": true
+    }
+  },
+  "semantic_checks": [
+    {
+      "topic": "合成与透明通道",
+      "evidence": [
+        "source edits/render.py flatten/_place/_paste",
+        "target edits/render.py flatten/_place/_paste",
+        "source/target edits/pixels.py adjust/encode"
+      ],
+      "result": "按列表后绘制的层在前；跳过visible=false，合成依照opacity后再alpha_composite；图像原尺寸适配logical frame后绕logical中心缩放/翻转/旋转并裁至canvas。调色保留原alpha；PNG编码为RGBA，JPG以白底去alpha并quality92。"
+    },
+    {
+      "topic": "非整数与锁定",
+      "evidence": [
+        "source/target edits/render.py _place",
+        "source/target edits/document.py _as_pixels",
+        "source/target layers.py resolve_layer/document_of",
+        "source tools/target.py write_layer_image",
+        "target engine.py layer_bytes/replace_layer/execute"
+      ],
+      "result": "宽高与位置取round、Pillow负角旋转expand和裁切边界沿用源；不是本轮新设几何规则。locked只限制前端拖动，Worker不会拒绝底图像素工具；结果只换指定层asset，保留逻辑框与transform，单图采用语义与原源相同。"
+    },
+    {
+      "topic": "文字与图层文档",
+      "evidence": [
+        "target edits/render.py _composite_text/_place",
+        "target engine.py replace_layer/execute",
+        "Java RunService.java 246-251",
+        "Java SessionService.java 72-91"
+      ],
+      "result": "文字用既有已批准本地方框渲染后走同一_place；像素工具不改其他层。Java优先保存result.document，只有无document的明确adopt才建整图文档；有变化的正式文档保存清选区，墙结果保留现有选区。未重复字体/浏览器布局验收。"
+    },
+    {
+      "topic": "批量六操作和格式分支",
+      "evidence": [
+        "source services/batch.py apply_op/process_asset/execute",
+        "source schemas/batch.py",
+        "target engine.py batch_op/batch",
+        "target params.py BatchIn/BatchOpIn",
+        "Java BatchExportEvaluationService.java 29-39/78-80"
+      ],
+      "result": "来源asset顺序、六类合法步骤串行、每步逐帧next_frames、比例按首次出现顺序去重、最后每帧按格式顺序编码；目标格式重复项去重而不改变合法PNG/JPG分支顺序。普通失败仅回滚该项并清output_ids，特殊取消/失租/付费未知仍抛出。Java逐项成功输出按position导出。"
+    },
+    {
+      "topic": "letterbox已有源语义",
+      "evidence": [
+        "source/target edits/pixels.py letterbox",
+        "source/target ratios.py"
+      ],
+      "result": "五比例固定尺寸与默认三比例保留；完整容纳、LANCZOS与居中白色留边算法未变。PNG编码保留所得alpha不等于为投放尺寸新增透明留白；没有把源letterbox白底语义误报为迁移缺失或新承诺。"
+    },
+    {
+      "topic": "导出默认与实际格式",
+      "evidence": [
+        "source services/exports.py _pick/_pixels/pack",
+        "target engine.py control(export)",
+        "Java BatchExportEvaluationService.java 69-80",
+        "Java RunService.java 77-99"
+      ],
+      "result": "默认ZIP优先marketing/export墙素材，无物料才渲染当前文档；显式current仍渲染完整当前文档，其他选中素材按原字节保存且扩展名取实际format；PNG仅当前文档。默认白底、显式transparent按已批准扩展；200selected/64额外必要依赖的冻结预算保持既有规则，manifest文件/尺寸/ratio/id来自实际字节。批量ZIP仅成功项，空结果拒绝。UTC时刻与安全文件名维持之前修复，不重跑旧检查。"
+    }
+  ],
+  "limitations": [
+    "本轮没有重新渲染小样本、运行pytest、执行正式任务或下载产物；纯函数AST同源不等于当前运行或人工质量通过。",
+    "不同浏览器/Pillow滤波与边缘亚像素差异不因AST同源得到质量接受。",
+    "既有付费Provider、正式登录/owner业务流程、复杂alpha/修补/拆层的模型质量及实际原数据迁移条件仍按唯一验收记录分别判定；本轮不重列为新代码遗漏。",
+    "字节缓存/峰值/总预算未在此审计擅自确定。"
+  ]
+}

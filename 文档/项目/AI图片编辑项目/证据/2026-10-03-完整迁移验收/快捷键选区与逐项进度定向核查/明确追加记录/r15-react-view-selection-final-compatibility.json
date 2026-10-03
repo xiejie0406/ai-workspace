@@ -1,0 +1,179 @@
+{
+  "created_at": "2026-10-03T11:08:51.151039+00:00",
+  "scope": "只适配既有静态checker所需metadata键，绝不修改产品/作者冻结、追加执行或改变业务结果",
+  "sources": [
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx",
+      "bytes": 39959,
+      "sha256": "0edf38877fbb2a45500a9f1d9d3d7987c461c336e8602290f094d6aa6bce911c"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/hooks/useSelection.ts",
+      "bytes": 7222,
+      "sha256": "ca113069f5757360040b22b2a4fd0a1eac99e4493baea83f7c333a0c63b98f88"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/lib/selectionHistory.ts",
+      "bytes": 1764,
+      "sha256": "22cbb4a6f8146560f7af8531221e1307ad901bd5ab95e8a0d9c2080fc7b14979"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "bytes": 5653,
+      "sha256": "ff1610134259672f44190006d22b5008e04a10fb6a793f0143da0a6d789e0ae8"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "bytes": 11348,
+      "sha256": "ec52100f840fb863930576fdeae7e47741d06ab0dee631559d05f8cdd5a5a8b4"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "bytes": 209980,
+      "sha256": "32566d9083fed5a0dba8f9d12bea501e4b7e45099e6ea47cb0afa84e29f0258c"
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "bytes": 16458,
+      "sha256": "adb8415b1f662b20279f60f81bcf4f88bac5c517d208bdc8be00eb4fbe74edb0"
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "bytes": 30604,
+      "sha256": "8e5c73522c03ce8b1063c63590499a31e29b9349c19a9feaa9d032362c895ef2"
+    }
+  ],
+  "checks": {
+    "library_build": {
+      "bundle": {
+        "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+        "bytes": 986949,
+        "sha256": "01104508f0792232d1701a5edf299848d58f3f7b7bd71f60c189b6f640c74e5f"
+      },
+      "native_exit": 0,
+      "log": {
+        "path": ".runtime/aipicture/r15-caption-build-final.log",
+        "bytes": 381,
+        "sha256": "dd580607a8c904e0d38b241bc66664b8decf7380170e7d91b81af8b3d3fe6f77",
+        "native_exit": 0,
+        "command": "npm run build",
+        "reexecuted_in_current_caption_stage": true
+      }
+    },
+    "typecheck": {
+      "path": ".runtime/aipicture/r15-caption-typecheck-final.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332",
+      "native_exit": 0,
+      "command": "npm run typecheck",
+      "reexecuted_in_current_caption_stage": true
+    },
+    "tests": {
+      "path": ".runtime/aipicture/r15-view-selection-after-release.log",
+      "bytes": 3220,
+      "sha256": "cb20d9e07d775cfb8f8aa7399af07b02e5a357b15e28a222b8d9a36548eda55a",
+      "native_exit": 0,
+      "tests": 23,
+      "pass": 23,
+      "fail": 0,
+      "names": [
+        "真实非空 Session 文档的图片与文字层不当成 Asset，revision=0选区仍读取",
+        "两个挂载各自拥有缩放、选区与图层选择，不共享 Zustand",
+        "选区撤销重做与新操作截断重做分支保留原算法",
+        "两个编辑器的 Ctrl+Z 只操作所属 mount，影子输入和其他页面按键不会触发编辑",
+        "selection 异步回执后再读取正式遮罩，计划确认发送 plan_hash 与当前版本",
+        "剩余完整性：选区首次任务GET503后只回读同一run，正式mask与本地历史各采用一次",
+        "剩余完整性：任务成功后选区GET暂错继续读正式mask，不重复选择POST",
+        "剩余完整性：选区和导出正式failed/canceled/unknown保留真实错误且不重POST",
+        "剩余完整性：401/403/404与明确空任务立即拒绝，不自动读循环或再次POST",
+        "剩余完整性：失活或同一runtime重置即停止旧任务等待，不向新身份回读旧run",
+        "画布选区恢复：真实画布指针取得焦点，快捷键走当前焦点并保持影子输入隔离",
+        "画布选区恢复：首笔POST503与旧修订409清临时笔刷，Esc不留下伪选区",
+        "画布选区恢复：点选POST失败清临时标点，正式failed取消未知不当成功",
+        "画布选区恢复：撤销DELETE503不提前移动历史游标，用户重试仍回第一笔",
+        "画布选区恢复：DELETE成功后回放POST409读正式空mask，不虚构回滚或重POST",
+        "画布选区恢复：成功撤销重做提交历史且清除可再撤销，未重复选择任务",
+        "画布选区恢复：回放失败后的正式GET503只续读mask，重做失败不动游标",
+        "画布选区恢复：两实际焦点实例不串快捷键，内联文字指针不被画布抢焦点",
+        "画布选区恢复：旧身份迟到POST拒绝不清新实例未完成笔刷，失活不追加GET",
+        "画布选区恢复：明确退出未完笔刷立即清预览，迟到原失败不重新显示",
+        "画布选区恢复：POST仅被接受保留等待预览，正式成功且mask就绪才采用",
+        "画布选区恢复：旧修订拒绝回读最新文档，下一次明确选择使用正式新版本",
+        "画布选区恢复：正式拒绝立即清临时笔刷并显示错误，mask回读在途不延迟反馈"
+      ],
+      "composition": {
+        "new": 13,
+        "affected_existing_reexecuted": 10,
+        "new_names": [
+          "画布选区恢复：真实画布指针取得焦点，快捷键走当前焦点并保持影子输入隔离",
+          "画布选区恢复：首笔POST503与旧修订409清临时笔刷，Esc不留下伪选区",
+          "画布选区恢复：点选POST失败清临时标点，正式failed取消未知不当成功",
+          "画布选区恢复：撤销DELETE503不提前移动历史游标，用户重试仍回第一笔",
+          "画布选区恢复：DELETE成功后回放POST409读正式空mask，不虚构回滚或重POST",
+          "画布选区恢复：成功撤销重做提交历史且清除可再撤销，未重复选择任务",
+          "画布选区恢复：回放失败后的正式GET503只续读mask，重做失败不动游标",
+          "画布选区恢复：两实际焦点实例不串快捷键，内联文字指针不被画布抢焦点",
+          "画布选区恢复：旧身份迟到POST拒绝不清新实例未完成笔刷，失活不追加GET",
+          "画布选区恢复：明确退出未完笔刷立即清预览，迟到原失败不重新显示",
+          "画布选区恢复：POST仅被接受保留等待预览，正式成功且mask就绪才采用",
+          "画布选区恢复：旧修订拒绝回读最新文档，下一次明确选择使用正式新版本",
+          "画布选区恢复：正式拒绝立即清临时笔刷并显示错误，mask回读在途不延迟反馈"
+        ],
+        "related_names": [
+          "真实非空 Session 文档的图片与文字层不当成 Asset，revision=0选区仍读取",
+          "两个挂载各自拥有缩放、选区与图层选择，不共享 Zustand",
+          "选区撤销重做与新操作截断重做分支保留原算法",
+          "两个编辑器的 Ctrl+Z 只操作所属 mount，影子输入和其他页面按键不会触发编辑",
+          "selection 异步回执后再读取正式遮罩，计划确认发送 plan_hash 与当前版本",
+          "剩余完整性：选区首次任务GET503后只回读同一run，正式mask与本地历史各采用一次",
+          "剩余完整性：任务成功后选区GET暂错继续读正式mask，不重复选择POST",
+          "剩余完整性：选区和导出正式failed/canceled/unknown保留真实错误且不重POST",
+          "剩余完整性：401/403/404与明确空任务立即拒绝，不自动读循环或再次POST",
+          "剩余完整性：失活或同一runtime重置即停止旧任务等待，不向新身份回读旧run"
+        ]
+      },
+      "note": "23=13新增+10相关旧检查实际执行于749功能阶段；当前只改一处文字常量，全部控制/失败/隔离机制不变，23沿用而非本次重跑。无针对字符串的镜像新测试。",
+      "carried_forward_from": {
+        "path": ".runtime/aipicture/r15-view-selection-release.json",
+        "bytes": 41505,
+        "sha256": "c97e2b9fbf359a9c0986f2fbbae3dee5488b983f06caff79dcdd346fa813446f"
+      },
+      "executed_in_current_caption_stage": 0
+    },
+    "lint": {
+      "path": ".runtime/aipicture/r15-view-selection-lint-release.log",
+      "bytes": 10476,
+      "sha256": "53e5606f8ae1ac30da61fff7ee84e78c2bc2b67f450d2698436969b88492f130",
+      "native_exit": 0,
+      "names": [],
+      "errors": 0,
+      "warnings": 28,
+      "baseline_warnings": 32,
+      "baseline": {
+        "path": ".runtime/aipicture/r14-slider-gesture-lint-release.log",
+        "bytes": 11281,
+        "sha256": "6460872e99c1434f30a1c903498614c27d5f0b5a9cb1f7058d196d149b9d457e"
+      },
+      "added": [],
+      "removed": [
+        "src/hooks/useSelection.ts: warning react-hooks(exhaustive-deps): React Hook useEffect has a missing dependency: 'toast' help: Either include it or remove the dependency array.",
+        "src/hooks/useSelection.ts: warning react-hooks(exhaustive-deps): React Hook useEffect has missing dependencies: 'sessionsApi', 'toast', and 'permitted' help: Either include it or remove the dependency array.",
+        "src/components/editor/CanvasStage.tsx: warning react-hooks(exhaustive-deps): React Hook useCallback has missing dependencies: 'stroke', and 'point' help: Either include it or remove the dependency array.",
+        "src/components/editor/CanvasStage.tsx: warning react-hooks(exhaustive-deps): React Hook useEffect has a missing dependency: 'point' help: Either include it or remove the dependency array."
+      ],
+      "carried_forward_from": {
+        "path": ".runtime/aipicture/r15-view-selection-release.json",
+        "bytes": 41505,
+        "sha256": "c97e2b9fbf359a9c0986f2fbbae3dee5488b983f06caff79dcdd346fa813446f"
+      },
+      "reexecuted_in_current_caption_stage": false,
+      "note": "749功能阶段0错误/28旧提示；当前纯字符串修改，无新增依赖或闭包，本阶段未重复lint。"
+    }
+  },
+  "author_release": {
+    "path": ".runtime\\aipicture\\r15-view-selection-final-release.json",
+    "sha256": "7c1ea82e2f1fb28bf9a545d4a1a34e90376c41a0baf233b24c838304c8f42c53"
+  },
+  "scope_note": "23定向技术检查实际在本轮749功能阶段执行；最终011只文字变，沿用23基线，本次文字阶段重执行0单测/0lint，仅type/build0、受影响GUI另列",
+  "business_acceptance": false
+}

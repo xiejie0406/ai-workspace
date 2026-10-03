@@ -1,0 +1,423 @@
+{
+  "recordVersion": "2026-10-03-asset-session-selection-final",
+  "recordedAt": "2026-10-03T07:55:27.8422179+08:00",
+  "scope": [
+    "默认消除 prompt 依唯一工具契约允许空，必填 prompt 去空白后仍拒绝",
+    "素材公开读取及新正式引用只允许 owner 的 ready，失败诊断保留，私有重交不变",
+    "旧暂存墙关系隐藏但不清理或迁移既有记录",
+    "单 BASE 且画幅小于原图时点当前或切回恢复原画幅，复杂快照保留",
+    "单点笔刷恢复，空路径及坐标和资源边界仍拒绝"
+  ],
+  "finalVerification": {
+    "uniqueTests": 26,
+    "unit": 17,
+    "mysql": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "aggregation": "逐 testcase 使用本次最终代码的最新通过结果，主体24项中23项通过，再补充1项修正 fixture 的MySQL与原选择器漏执行的2项单元；不是一次26项全量运行，不相加重复阶段。",
+    "runs": [
+      {
+        "log": "Java素材会话选区-首次收口-测试准备错误.log",
+        "tests": 24,
+        "passed": 23,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      {
+        "log": "Java素材会话选区-补充复验.log",
+        "tests": 3,
+        "passed": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "cases": [
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realCroppedBaseRestoresItsNativeFrameAndKeepsComplexAssetSnapshots",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realDefaultEraseQueuesWithAnOwnedFrozenInputWithoutCallingProvider",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realBatchExportRetainsInputRatioAndFormatOrderAfterOutOfOrderCompletion",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realEvaluationReceiptPreservesProviderMetadata",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realLegacyStagedWallRelationIsHiddenWithoutDeletingFailedDiagnostics",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realFailedCancelledAndOldAttemptArtifactsStayIsolatedUntilSuccessfulReceipt",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realPublicBatchAndAgentCancellationCascadeAndLateReceiptsCannotReviveMother",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realOwnerCasHistorySnapshotsRestartLeaseAndIdempotentReceipt",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AssetOwnershipTest",
+        "name": "onlyReadyOwnerBoundAssetsCanBecomePublicImagesOrFormalInputs",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AssetOwnershipTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AssetOwnershipTest",
+        "name": "repositoryRejectsNonOwnedQueryAndUnknownTableName",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AssetOwnershipTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AssetOwnershipTest",
+        "name": "privateDownloadAlwaysReadsOwnerBoundRecordBeforeObject",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AssetOwnershipTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AssetOwnershipTest",
+        "name": "libraryHidesWorkingLayersWhileSessionWallKeepsAllAssets",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AssetOwnershipTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AssetOwnershipTest",
+        "name": "dtoPreservesSourceKindsFormatAndAuthenticatedRouteWithoutObjectKey",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-AssetOwnershipTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.PromptSubmissionTest",
+        "name": "OptionalPromptFieldsKeepTheSourceEmptyStringSemantics",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-PromptSubmissionTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.PromptSubmissionTest",
+        "name": "RequiredPromptFieldsRejectBlankBeforeAnyFormalWrite",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-PromptSubmissionTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.PromptSubmissionTest",
+        "name": "defaultErasePromptQueuesAndFreezesTheFormalLayerAndSelection",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-PromptSubmissionTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.SelectionBoundaryTest",
+        "name": "aSingleBrushDotIsLegalButEmptyAndInvalidPathsRemainRejected",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-SelectionBoundaryTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.SelectionBoundaryTest",
+        "name": "normalizedPointsAndBrushAreAcceptedButStaleHiddenAndOutOfRangeInputsFail",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-SelectionBoundaryTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.SessionHistoryTest",
+        "name": "inFlightPixelLeaseRejectsParallelDocumentWrite",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-SessionHistoryTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.SessionHistoryTest",
+        "name": "oldVersionCannotModifySession",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-SessionHistoryTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.SessionHistoryTest",
+        "name": "historyWindowKeeps20AndSnapshotsAreStoredOutsideHistory",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-SessionHistoryTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.SessionHistoryTest",
+        "name": "noOpNeverTruncatesRedoOrAddsHistory",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-SessionHistoryTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.WorkerCommitTest",
+        "name": "failedRunKeepsItsDiagnosticsWithoutPromotingStagedCandidates",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-首次收口-WorkerCommitTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.AiPictureMySqlIntegrationTest",
+        "name": "realWallOnlyReceiptRecordsResultWithoutChangingCanvasAndPreservesTrueNoop",
+        "type": "mysql",
+        "result": "passed",
+        "evidence": "Java素材会话选区-补充-AiPictureMySqlIntegrationTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.WorkerCommitTest",
+        "name": "oldAttemptCannotApplyOrUploadResults",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-补充-WorkerCommitTest.xml"
+      },
+      {
+        "class": "com.ruoyi.aipicture.WorkerCommitTest",
+        "name": "duplicateTerminalReceiptReturnsOriginalResultWithoutAnyNewWrite",
+        "type": "unit",
+        "result": "passed",
+        "evidence": "Java素材会话选区-补充-WorkerCommitTest.xml"
+      }
+    ]
+  },
+  "additionalCurrentTurnVerification": {
+    "evidence": "Java默认消除-唯一契约复验.xml",
+    "unit": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "note": "默认消除局部修复后的5项工具唯一契约检查，本轮早期执行；单列保留，不并入上述26项收口计数。"
+  },
+  "inventory": {
+    "unit": 66,
+    "mysql": 12,
+    "newUnit": 6,
+    "newMysql": 4,
+    "executedAllInventoryThisTurn": false,
+    "classes": [
+      {
+        "class": "AiPictureMySqlIntegrationTest",
+        "type": "mysql",
+        "tests": 12
+      },
+      {
+        "class": "AssetOwnershipTest",
+        "type": "unit",
+        "tests": 5
+      },
+      {
+        "class": "BatchRecoveryTest",
+        "type": "unit",
+        "tests": 7
+      },
+      {
+        "class": "DatabaseRetryTest",
+        "type": "unit",
+        "tests": 5
+      },
+      {
+        "class": "DocumentCommandTest",
+        "type": "unit",
+        "tests": 5
+      },
+      {
+        "class": "PlanSelectionContinuationTest",
+        "type": "unit",
+        "tests": 5
+      },
+      {
+        "class": "PlanValidationTest",
+        "type": "unit",
+        "tests": 3
+      },
+      {
+        "class": "PromptSubmissionTest",
+        "type": "unit",
+        "tests": 3
+      },
+      {
+        "class": "SelectionBoundaryTest",
+        "type": "unit",
+        "tests": 2
+      },
+      {
+        "class": "SessionHistoryTest",
+        "type": "unit",
+        "tests": 4
+      },
+      {
+        "class": "StorageContractTest",
+        "type": "unit",
+        "tests": 3
+      },
+      {
+        "class": "ToolContractTest",
+        "type": "unit",
+        "tests": 5
+      },
+      {
+        "class": "WorkerCommitTest",
+        "type": "unit",
+        "tests": 13
+      },
+      {
+        "class": "WorkerSecurityTest",
+        "type": "unit",
+        "tests": 3
+      },
+      {
+        "class": "AiPictureErrorPriorityTest",
+        "type": "unit",
+        "tests": 3
+      }
+    ],
+    "note": "方法库存与本轮执行分开。此前60单元/8MySQL历史库存和已通过证据仅在未受影响范围沿用，不冒充本轮新执行。"
+  },
+  "observedBefore": [
+    {
+      "log": "Java默认消除-修复前.log",
+      "unit": 1,
+      "mysql": 1,
+      "failures": 0,
+      "errors": 2,
+      "fact": "缺省 erase_region 被 RunService blanket prompt 规则提前拒绝"
+    },
+    {
+      "log": "Java素材裁剪笔刷-修复前.log",
+      "unit": 3,
+      "mysql": 2,
+      "failures": 5,
+      "errors": 0,
+      "fact": "stage公开与正式消费、failed候选、裁剪当前/切回恢复、单点笔刷原行为均实测不符"
+    },
+    {
+      "log": "Java旧暂存图片墙-修复前.log",
+      "unit": 0,
+      "mysql": 1,
+      "failures": 1,
+      "errors": 0,
+      "fact": "fixture已知暂存产物的旧会话关联通过wall/detail/library公开"
+    }
+  ],
+  "intermediateErrors": [
+    {
+      "log": "Java默认消除-首次复验-测试桩错误.log",
+      "errors": 2,
+      "reason": "Mockito db.one 缺显式 null，空Map被误认作幂等旧行；仅修测试准备"
+    },
+    {
+      "log": "Java素材裁剪笔刷-首次复验-测试输入错误.log",
+      "errors": 1,
+      "reason": "expand_canvas 测试漏原契约必填ratio；补1:1，没有降低产品契约"
+    },
+    {
+      "log": "Java素材会话选区-首次收口-测试准备错误.log",
+      "errors": 1,
+      "reason": "旧history noop fixture先将staged上墙，新ready guard正确拒绝；仅fixture精确ID设正式ready。另两个Worker方法选择器名称不符未执行，补充复验已按实际名称执行。"
+    }
+  ],
+  "environment": {
+    "database": "现有 ry-vue MySQL",
+    "dataScope": "只创建本测试随机UUID技术素材、会话、任务、批量和评测；保留运行Worker，派发先在同事务延后，仅claimForRun领取自身ID；finally精确清理自有行和TempDir文件",
+    "providerCalls": 0,
+    "accountChanges": 0,
+    "ddlChanges": 0,
+    "roleChanges": 0,
+    "serviceChanges": 0,
+    "gitWrites": 0,
+    "realLoginBusinessAcceptance": "本轮未执行，真实登录和真实模型相关证据仍由主线程按条件核对",
+    "runtimeSync": "主线程后续聚合打包、同步并复验；本记录证明源码定向技术检查，未声称运行版本已更新"
+  },
+  "sourceHashes": [
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/AssetService.java",
+      "sha256": "963f00634eb9a2975e1dd16ba5400527f3af2e80bc44f5ebbd5f0e31090c8ec8"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+      "sha256": "12812a229a55a39d4db5a5ad96eacb2fced0e332b204ccab1fb62b8648de8bec"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java",
+      "sha256": "c1de2e15f213fabde0fe06ab8176dab879d00704d6a75afef5788eb9b50933ff"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/tool/SelectionInputValidator.java",
+      "sha256": "1f47ff4ebe6f991b103c1bd750e4fad17fb119bb0ddb3a7494156182c7bf4ad4"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/PromptSubmissionTest.java",
+      "sha256": "e0183835bb4b5c60cc99b0adc2348012b3333f4e27ba3219a319a1fe404498e3"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/AssetOwnershipTest.java",
+      "sha256": "ba36dfbebb22a24d79ace8a569d698bf324f2f5ed5e97d450effab2048d1fba6"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/WorkerCommitTest.java",
+      "sha256": "30efb1dc35cca9653d7a78e81c1e35af54940a626e0d485ded175f058db8233c"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/SelectionBoundaryTest.java",
+      "sha256": "7c1527dd7533458a91aa6424d06dc0420a1f9d685b423f92ba8543e9ec437013"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/AiPictureMySqlIntegrationTest.java",
+      "sha256": "3d939cd3e6e983b1d7b7ee37203bbe6311bda52742e58b6d61e168bcfb537312"
+    }
+  ],
+  "contractHashes": [
+    {
+      "path": "contracts/aipicture/v1/tools.schema.json",
+      "sha256": "553745b0f7053684454a41ac5c23cf3c75cddbc4301b4cf10e18f631c89941ed"
+    },
+    {
+      "path": "contracts/aipicture/v1/document.schema.json",
+      "sha256": "e674af80a4871427343c256ba7a4334be48df5a36b2dd37ac9859f76cbf00642"
+    },
+    {
+      "path": "contracts/aipicture/v1/worker.openapi.yaml",
+      "sha256": "44455640ce919037d78a02a8cfc0a87e7d7d38e11b8939af4fb47060c4e33d9f"
+    }
+  ],
+  "mavenTarget": "本代理检查已经结束，可由主线程独占聚合打包"
+}

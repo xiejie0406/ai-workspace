@@ -1,0 +1,528 @@
+openapi: 3.1.0
+info:
+  title: 若依 AI 图片私有计算协议
+  version: '1'
+  description: Java→Worker incoming service=aipicture-java；Worker→Java service=aipicture-worker。HMAC=METHOD\nPATH\nTIMESTAMP(seconds)\nNONCE\nSHA256(raw
+    body)。PATH不含query。TTL120s、nonce单次使用。Worker没有业务数据库/账号/正式会话任务。计算版本schema_version=1，tool_registry_version=2026.10-r2。
+servers:
+- url: http://127.0.0.1:7405
+paths:
+  /internal/v1/compute:
+    post:
+      summary: 冻结输入的像素、合成、分层、批量和内部控制计算
+      parameters: &id001
+      - name: X-Aipicture-Service
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: X-Aipicture-Timestamp
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: X-Aipicture-Nonce
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: X-Aipicture-Signature
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrozenComputation'
+      responses:
+        '200':
+          description: 真实计算结果/候选计划及schema/toolRegistry版本
+        '401':
+          description: 服务凭据无效、过期或nonce重复
+        '413':
+          description: 资源边界超限
+        '422':
+          description: 输入、模型参数或冻结数据不合法
+        '503':
+          description: 运行时/模型未启用或真实能力不可用
+  /internal/v1/prepare-selection:
+    post:
+      summary: 从 params 准备SAM缓存/构建选区
+      parameters: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrozenComputation'
+      responses:
+        '200':
+          description: 真实计算结果/候选计划及schema/toolRegistry版本
+        '401':
+          description: 服务凭据无效、过期或nonce重复
+        '413':
+          description: 资源边界超限
+        '422':
+          description: 输入、模型参数或冻结数据不合法
+        '503':
+          description: 运行时/模型未启用或真实能力不可用
+  /internal/v1/plan:
+    post:
+      summary: 仅生成候选计划，Java再次校验和确认
+      parameters: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+      responses:
+        '200':
+          description: 真实计算结果/候选计划及schema/toolRegistry版本
+        '401':
+          description: 服务凭据无效、过期或nonce重复
+        '413':
+          description: 资源边界超限
+        '422':
+          description: 输入、模型参数或冻结数据不合法
+        '503':
+          description: 运行时/模型未启用或真实能力不可用
+  /internal/v1/capabilities:
+    get:
+      summary: 读取实际配置、依赖、本地模型与22工具清单
+      parameters: *id001
+      responses:
+        '200':
+          description: 实际能力状态，不含密钥
+        '401':
+          description: 无效凭据
+    post:
+      summary: 读取实际配置、依赖、本地模型与22工具清单
+      parameters: *id001
+      responses:
+        '200':
+          description: 实际能力状态，不含密钥
+        '401':
+          description: 无效凭据
+components:
+  schemas:
+    FrozenComputation:
+      $defs:
+        AssetRef:
+          additionalProperties: false
+          properties:
+            id:
+              format: uuid
+              title: Id
+              type: string
+            sha256:
+              pattern: ^[a-f0-9]{64}$
+              title: Sha256
+              type: string
+            width:
+              exclusiveMinimum: 0
+              title: Width
+              type: integer
+            height:
+              exclusiveMinimum: 0
+              title: Height
+              type: integer
+            format:
+              default: PNG
+              title: Format
+              type: string
+            kind:
+              anyOf:
+              - type: string
+              - type: 'null'
+              default: null
+              title: Kind
+            read_url:
+              anyOf:
+              - type: string
+              - type: 'null'
+              default: null
+              title: Read Url
+            content_base64:
+              anyOf:
+              - type: string
+              - type: 'null'
+              default: null
+              title: Content Base64
+          required:
+          - id
+          - sha256
+          - width
+          - height
+          title: AssetRef
+          type: object
+        Layer:
+          properties:
+            id:
+              title: Id
+              type: string
+            kind:
+              $ref: '#/components/schemas/FrozenComputation/$defs/LayerKind'
+            name:
+              title: Name
+              type: string
+            width:
+              title: Width
+              type: integer
+            height:
+              title: Height
+              type: integer
+            asset_id:
+              anyOf:
+              - format: uuid
+                type: string
+              - type: 'null'
+              default: null
+              title: Asset Id
+            transform:
+              $ref: '#/components/schemas/FrozenComputation/$defs/Transform'
+            opacity:
+              default: 1
+              title: Opacity
+              type: number
+            visible:
+              default: true
+              title: Visible
+              type: boolean
+            locked:
+              default: false
+              title: Locked
+              type: boolean
+            source_hash:
+              anyOf:
+              - type: string
+              - type: 'null'
+              default: null
+              title: Source Hash
+            text:
+              anyOf:
+              - type: string
+              - type: 'null'
+              default: null
+              title: Text
+            font_size:
+              default: 24
+              title: Font Size
+              type: number
+            fill:
+              default: '#141414'
+              title: Fill
+              type: string
+          required:
+          - id
+          - kind
+          - name
+          - width
+          - height
+          title: Layer
+          type: object
+        LayerDocument:
+          properties:
+            width:
+              title: Width
+              type: integer
+            height:
+              title: Height
+              type: integer
+            layers:
+              items:
+                $ref: '#/components/schemas/FrozenComputation/$defs/Layer'
+              title: Layers
+              type: array
+          required:
+          - width
+          - height
+          title: LayerDocument
+          type: object
+        LayerKind:
+          enum:
+          - image
+          - text
+          - shape
+          title: LayerKind
+          type: string
+        Transform:
+          description: 相对画布左上角的位置与形变，缩放为倍率而非像素。
+          properties:
+            x:
+              default: 0
+              title: X
+              type: number
+            y:
+              default: 0
+              title: Y
+              type: number
+            scale_x:
+              default: 1
+              title: Scale X
+              type: number
+            scale_y:
+              default: 1
+              title: Scale Y
+              type: number
+            rotation:
+              default: 0
+              title: Rotation
+              type: number
+          title: Transform
+          type: object
+      additionalProperties: false
+      properties:
+        schema_version:
+          const: '1'
+          default: '1'
+          title: Schema Version
+          type: string
+        tool_registry_version:
+          const: 2026.10-r2
+          default: 2026.10-r2
+          title: Tool Registry Version
+          type: string
+        run_id:
+          maxLength: 80
+          minLength: 1
+          title: Run Id
+          type: string
+        attempt:
+          maximum: 100
+          minimum: 1
+          title: Attempt
+          type: integer
+        tool:
+          title: Tool
+          type: string
+        params:
+          additionalProperties: true
+          title: Params
+          type: object
+        document:
+          anyOf:
+          - $ref: '#/components/schemas/FrozenComputation/$defs/LayerDocument'
+          - type: 'null'
+          default: null
+        input_version:
+          default: 0
+          minimum: 0
+          title: Input Version
+          type: integer
+        input_revision:
+          anyOf:
+          - minimum: 0
+            type: integer
+          - type: 'null'
+          default: null
+          title: Input Revision
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Session Id
+        lease_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Lease Token
+        provider_task_id:
+          anyOf:
+          - maxLength: 128
+            type: string
+          - type: 'null'
+          default: null
+          title: Provider Task Id
+        assets:
+          items:
+            $ref: '#/components/schemas/FrozenComputation/$defs/AssetRef'
+          maxItems: 264
+          title: Assets
+          type: array
+        selection_asset_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          default: null
+          title: Selection Asset Id
+        background_mode:
+          default: white
+          enum:
+          - white
+          - transparent
+          title: Background Mode
+          type: string
+      required:
+      - run_id
+      - attempt
+      - tool
+      title: ComputeRequest
+      type: object
+      allOf:
+      - if:
+          properties:
+            tool:
+              const: export
+          required:
+          - tool
+        then:
+          properties:
+            params:
+              properties:
+                asset_ids:
+                  type: array
+                  maxItems: 200
+                  uniqueItems: true
+                  items:
+                    type: string
+                    format: uuid
+        else:
+          if:
+            properties:
+              tool:
+                const: evaluation
+            required:
+            - tool
+          then:
+            properties:
+              params:
+                properties:
+                  manifest:
+                    type: array
+                    minItems: 1
+                    maxItems: 100
+          else:
+            properties:
+              assets:
+                maxItems: 64
+      x-export-reference-rule: ZIP所选最多200个互异素材；仅PNG、空ZIP或所选含当前素材时增加必要画布图像引用（最多64个额外依赖）；冻结引用必须恰好等于所选与必要依赖并集，禁止无关引用。PNG仅引用画布依赖。
+      x-evaluation-reference-rule: 评测清单1–100项；最多264个互异引用，必须恰为CLI输入/预期和专项中心冻结assessment.asset_ids、输出、两画布图像、实际mask及人工参考依赖并集。维持128MB总字节与每图5000万像素。
+    PlanRequest:
+      additionalProperties: false
+      properties:
+        schema_version:
+          const: '1'
+          default: '1'
+          title: Schema Version
+          type: string
+        tool_registry_version:
+          const: 2026.10-r2
+          default: 2026.10-r2
+          title: Tool Registry Version
+          type: string
+        run_id:
+          maxLength: 80
+          minLength: 1
+          title: Run Id
+          type: string
+        attempt:
+          default: 1
+          maximum: 100
+          minimum: 1
+          title: Attempt
+          type: integer
+        goal:
+          maxLength: 1500
+          minLength: 1
+          title: Goal
+          type: string
+        context:
+          default: ''
+          maxLength: 20000
+          title: Context
+          type: string
+      required:
+      - run_id
+      - goal
+      title: PlanRequest
+      type: object
+x-resource-limits:
+  assetBytes: 20971520
+  pixels: 50000000
+  assets: 64
+  exportAssets: 264
+  evaluationAssets: 264
+  evaluationCases: 100
+  exportSelected: 200
+  exportDocumentDependencies: 64
+  documentLayers: 200
+  outputs: 200
+  outputBytes: 134217728
+  requestBytes: 73400320
+  concurrency: 2
+x-internal-control-tools:
+- inspect_image
+- prepare_selection
+- selection
+- export
+- evaluation
+x-assess-result:
+  task: assess_result
+  suite:
+  - sam
+  - region_protection
+  - ocr
+  - enhancement
+  - generation
+  userFields:
+  - id
+  - source_run_id
+  - output_asset_id
+  - expect_asset_id
+  - expected_ocr
+  - thresholds
+  - require_true_super_resolution
+  - human_review
+  centerOnlyAssessment:
+  - source_tool
+  - source_params
+  - source_document
+  - result_document
+  - source_result
+  - source_provider
+  - mask_asset_id
+  - output_asset_ids
+  - asset_ids
+  humanReview: status=pending/passed/failed；passed须有非空notes；独立意见不是用户接受。
+  result: technical_passed、human_review、real_model_verified、overall/passed、metrics、thresholds、details、provenance与error分别报告。offline_test必须显式false且实际Provider符合专项，人工passed后才可整体通过。所有评分只读已成功正式任务，不重新调用模型。
+  defaultThresholds:
+    alpha_iou: 0.8
+    outside_mae: 0
+    outside_max: 0
+    cer: 0
+    bbox_iou: 0.8
+    count_match: 1
+    size: 1
+  fixedInvariants: size/count_match阈值与实际指标必须为1；区域outside_mae/outside_max阈值必须为0且outside_changed_pixels=0。人工expect_asset_id不得为原任务产物。
+  ocr: 人工框1–128条、每条非空文字最多2000字、合计32000字；bbox=[x,y,width,height]各数绝对值≤100000，宽高>0。按IoU匹配，同IoU优先相同文字再稳定文字/框排序；报告matched_ocr/missing_ocr/extra_ocr。
+  strictSuperResolutionDefault: true
+x-java-execution:
+  prefix: /aipicture/internal/v1/execution
+  methods:
+  - POST claim
+  - POST heartbeat
+  - POST artifacts
+  - POST receipt
+  - GET assets/{id}
+  artifact: 每次一个JSON base64；中心生成object_key/hash/正式记录；ZIP不解压。
+  lease: run_id/attempt/lease_token绑定每次内部访问；claim外壳lease_expires_at不传纯computeDTO。
+  versions: input_version=CAS row_version；input_revision=选区/画布revision，禁止混用。
+  durableDelivery: 领取循环须配置私有绝对delivery_spool_directory；本地副本绑定中心/Worker/run/attempt/token，计算完成和最终回执原子落盘。重启只在原租约经中心确认后重交同一bytes/ID/receipt，不复算、不领取旧任务或恢复过期租约；取消/过期/身份拒绝隔离。最多4份，单份2*outputBytes+requestBytes；满/损坏停止领取，确认回执后删除副本。
+  objectRecovery: 对象先完整临时写入再重命名，文件锁持有到SQL事务结束；回滚只清本次新建且无DB引用的对象。领取触发24h无引用临时清理，每分钟一轮至多500目录项继续游标；仅本项目assets/staging规范路径，任何asset/export引用保留，不能读取DB或文件锁失败时不删。
+x-enhancement-runtime:
+  default: onnx
+  compatibility: AIPICTURE_ENHANCEMENT_PROVIDER=image_edit 显式保留原生成式增强，true_super_resolution=false。
+  configuration: AIPICTURE_SUPER_RESOLUTION_MODELS 与 AIPICTURE_SUPER_RESOLUTION_SHA256 为按2/3/4倍率索引的本地路径及完整SHA256对象；不自动下载或启用模型。
+  modelContract: 自包含ONNX，单输入单输出float32 NCHW RGB，batch=1，RGB归一化[0,1]；固定空间尺寸必须匹配，不自动缩放。
+  refusal: 缺依赖/倍率权重/指纹、模型bytes不匹配、张量契约错误、精确倍率尺寸不符、非有限输出或既有资源预算超限均拒绝，不生成替代图片。
+  capability: enhancement.scales按倍率报告ready/loaded/model；文件和依赖齐备不代表推理或质量通过，能力true_super_resolution保持false。
+  receipt: 实际本地推理成功后provider.enhancement_implementation=onnx_super_resolution，true_super_resolution=true；enhancement含provider=onnxruntime、scale、model_sha256、loaded=true、inference=rgb_nchw、quality_verified=false。
+  evaluation: 默认严格；要求原任务来源、精确尺寸、对应倍率及实际权重指纹，独立指标与人工质量均通过才可整体通过；仅读取原结果，不再次推理。
+  recovery: 当前中心按工具名对upscale_image租约失效作保守结果待核对处理，不自动重复计算；本地模型路径不扩大付费权限。

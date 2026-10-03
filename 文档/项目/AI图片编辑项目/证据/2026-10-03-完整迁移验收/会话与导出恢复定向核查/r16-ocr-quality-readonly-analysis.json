@@ -1,0 +1,311 @@
+{
+  "scope": "r16原灰度OCR失败有界只读/非模型输入分析",
+  "created_at": "2026-10-03T12:01:48.632532+00:00",
+  "operations": {
+    "model_inference": 0,
+    "model_constructors": 0,
+    "tests": 0,
+    "network": 0,
+    "http": 0,
+    "provider": 0,
+    "formal_database_writes": 0,
+    "process_operations": 0,
+    "source_edits": 0
+  },
+  "input": {
+    "path": ".runtime\\aipicture\\vision\\selfcheck\\da91f9b40f9c4928be4cc7aad4a2bcb1\\ocr-input.png",
+    "bytes": 9667,
+    "sha256": "31fe62c5e5946d3f6d335143ee707829ad16808655c02eae5302ed61aef013d2",
+    "size": [
+      1024,
+      256
+    ],
+    "pixels": 262144,
+    "mode": "RGB",
+    "alpha_present": false,
+    "RGB_channels_identical": true,
+    "original_generator_pixels_exact": true,
+    "font": {
+      "path": "C:\\Windows\\Fonts\\arial.ttf",
+      "bytes": 1045720,
+      "sha256": "b3658eadae55e682b5f69eb64c439c1ecc8f196c0bb8d4756d145d13bc86476a"
+    },
+    "font_size": 64,
+    "origin": [
+      32,
+      64
+    ],
+    "expected_text": "AI Picture 2026"
+  },
+  "models": [
+    {
+      "path": ".runtime\\aipicture\\vision\\models\\u2net.onnx",
+      "bytes": 175997641,
+      "sha256": "8d10d2f3bb75ae3b6d527c77944fc5e7dcd94b29809d47a739a7a728a912b491",
+      "matches_manifest": true
+    },
+    {
+      "path": ".runtime\\aipicture\\vision\\models\\sam_vit_b_01ec64.encoder.quant.onnx",
+      "bytes": 108836115,
+      "sha256": "181301ce3500a86c38450b56e2b71dab8008a13b1812a0d6cc812f22651e143a",
+      "matches_manifest": true
+    },
+    {
+      "path": ".runtime\\aipicture\\vision\\models\\sam_vit_b_01ec64.decoder.quant.onnx",
+      "bytes": 8755366,
+      "sha256": "b11465135b7c93a1fd65141a4e2a96f1ddf2e3dab09b5eeab640bdf5f10aadbe",
+      "matches_manifest": true
+    },
+    {
+      "path": ".runtime\\aipicture\\vision\\models\\ch_PP-OCRv4_det_infer.onnx",
+      "bytes": 4745517,
+      "sha256": "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9",
+      "matches_manifest": true
+    },
+    {
+      "path": ".runtime\\aipicture\\vision\\models\\ch_PP-OCRv4_rec_infer.onnx",
+      "bytes": 10857958,
+      "sha256": "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b",
+      "matches_manifest": true
+    },
+    {
+      "path": ".runtime\\aipicture\\vision\\models\\ch_ppocr_mobile_v2.0_cls_infer.onnx",
+      "bytes": 585532,
+      "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+      "matches_manifest": true
+    }
+  ],
+  "locked_dependencies": {
+    "rapidocr-onnxruntime": {
+      "installed": "1.4.4",
+      "locked": "1.4.4",
+      "same": true
+    },
+    "onnxruntime": {
+      "installed": "1.30.0",
+      "locked": "1.30.0",
+      "same": true
+    },
+    "opencv-python": {
+      "installed": "5.0.0.93",
+      "locked": "5.0.0.93",
+      "same": true
+    },
+    "pillow": {
+      "installed": "12.3.0",
+      "locked": "12.3.0",
+      "same": true
+    },
+    "numpy": {
+      "installed": "2.5.3",
+      "locked": "2.5.3",
+      "same": true
+    }
+  },
+  "runtime_env": {
+    "exists": true,
+    "sha256": "a5c0ea8a910eae35d44591b9968f91de06d4738ae5afa84b57a7b906b66683e6",
+    "variable_names": [
+      "U2NET_HOME",
+      "REMBG_HOME",
+      "AIPICTURE_OFFLINE_TEST",
+      "AIPICTURE_MATTING_PROVIDER",
+      "AIPICTURE_MATTING_MODEL_PATH",
+      "AIPICTURE_SAM_ENCODER_PATH",
+      "AIPICTURE_SAM_DECODER_PATH",
+      "AIPICTURE_OCR_PROVIDER",
+      "AIPICTURE_OCR_DET_MODEL_PATH",
+      "AIPICTURE_OCR_REC_MODEL_PATH",
+      "AIPICTURE_OCR_CLS_MODEL_PATH"
+    ],
+    "only_expected_nonsecret_fields": true,
+    "values_not_output": true
+  },
+  "same_model_input": {
+    "stored_raw_quad": [
+      [
+        29.0,
+        71.0
+      ],
+      [
+        476.0,
+        71.0
+      ],
+      [
+        476.0,
+        130.0
+      ],
+      [
+        29.0,
+        130.0
+      ]
+    ],
+    "crop_shape": [
+      59,
+      447,
+      3
+    ],
+    "rec_img_shape": [
+      3,
+      48,
+      320
+    ],
+    "normalized_shape": [
+      3,
+      48,
+      363
+    ],
+    "old_RGB_current_BGR_exact": true,
+    "perspective_crop_exact": true,
+    "normalized_input_exact": true,
+    "normalized_input_sha256": "183588363118ce6141728f749eb59ce114abdb47e02fdf539ebefee143dea33a",
+    "calls_used": "RapidOCR.__new__().get_crop_img_list; TextRecognizer.__new__().resize_norm_img; no __init__, no session or ONNX invocation"
+  },
+  "glyph_alternative_analysis": {
+    "purpose": "判定固定字体AI与Al并非同一像素；不能拿替代文本作为OCR预期或通过样本",
+    "same_size_same_original_quad": true,
+    "normalized_inputs_identical": false,
+    "normalized_mean_abs_difference": 0.3884594440460205,
+    "quality_decision": "原AI预期保持不变；没有运行替代Al推理"
+  },
+  "historic_real_model_evidence": {
+    "file": {
+      "path": ".runtime\\aipicture\\cv-ocr-followup\\diagnostic-result.json",
+      "bytes": 13359,
+      "sha256": "2957f432339d93040b330ade1a2dd92e3bfb406d3dc96d63e59db73ed2a3c34e"
+    },
+    "raw_text": "Al Picture 2026",
+    "recognizer_second_character": {
+      "timestep": 5,
+      "character": "l",
+      "confidence": 0.9744160175323486,
+      "top3": [
+        {
+          "character": "l",
+          "score": 0.9744160175323486
+        },
+        {
+          "character": "I",
+          "score": 0.02433931455016136
+        },
+        {
+          "character": "L",
+          "score": 0.0005758297629654408
+        }
+      ],
+      "I_l_1_scores": {
+        "I": 0.02433931455016136,
+        "l": 0.9744160175323486,
+        "1": 0.00023549527395516634
+      }
+    },
+    "aabb_conversion_exact": true,
+    "source_model_hashes_same": true,
+    "new_real_call": false,
+    "model_output_not_corrected": true
+  },
+  "split_function_source_equivalence": {
+    "mask_hash": true,
+    "already_split": true,
+    "already_promoted": true,
+    "cut_object": true,
+    "expand_mask": true,
+    "fill_background": true,
+    "punch": true,
+    "text_mask": true,
+    "remove_text": true,
+    "alpha_mask": true,
+    "split_document": true,
+    "promote_document": true,
+    "as_background_and_object": true,
+    "_text_layer": true,
+    "_grow_radius": true,
+    "_cv_inpaint": true,
+    "_blur_inpaint": true,
+    "_mean_where": true,
+    "_png": true
+  },
+  "consumer_chain": {
+    "source": "source tools/layers.py flattened canvas -> detect_text -> remove_text -> split_document",
+    "target": "engine.py split flattened canvas -> detect_text -> remove_text -> split_document -> Java result.document saveDocument -> React Text Group -> render.flatten",
+    "same_canvas_grid": true,
+    "source_native_asset_transform_already_flattened": true,
+    "text_unchanged_by_AABB_or_layer": true,
+    "text_layer_defaults": "x/y/w/h from TextBox, rotation0, fontsize=max(10,h*.72), fill#141414",
+    "inherited_approximations": [
+      "旋转quad仅AABB，角度未还原",
+      "字号*.72/默认黑色和配置字体并非识别原字体/颜色",
+      "矩形文字洞略扩，非字形alpha遮罩"
+    ],
+    "new_migration_omission_confirmed": false,
+    "formal_split_and_paid_fill_not_executed": true
+  },
+  "conclusion": {
+    "original_expected_preserved": true,
+    "quality_passed": false,
+    "root_cause_location": "识别模型原始CTC已选l，不在颜色/alpha/后处理/Java/React文字传递",
+    "most_supported_candidate": "固定Arial64细直笔画经原rec48px预处理后的PP-OCRv4字形识别歧义",
+    "exact_internal_cause_proven": false,
+    "fixable_preprocessing_bug_confirmed": false,
+    "why_no_new_inference": "输入/裁切/归一化字节同一，已有原始模型分类证据；重复相同推理不会提供新变量对照，保持原质量失败",
+    "no_hardcoded_I_l_substitution_or_threshold_change": true,
+    "business_acceptance": false
+  },
+  "fingerprints": [
+    {
+      "path": "python\\aipicture-runtime\\aipicture_runtime\\edits\\ocr.py",
+      "bytes": 2427,
+      "sha256": "ee428a3e37d3f41007e1e115af02454e7e83cbfe019d48abbd6fe6d897482b26"
+    },
+    {
+      "path": "python\\aipicture-runtime\\aipicture_runtime\\edits\\split.py",
+      "bytes": 8943,
+      "sha256": "f0d0a84e9152de86e05c76c2f92ab9fb12412c39b6309e2d2fd5632058204db1"
+    },
+    {
+      "path": "python\\aipicture-runtime\\aipicture_runtime\\edits\\render.py",
+      "bytes": 9084,
+      "sha256": "805188c296e7df0006e31d67572b995896cc7a7963327f25aef12b29f61f4326"
+    },
+    {
+      "path": "python\\aipicture-runtime\\aipicture_runtime\\engine.py",
+      "bytes": 36934,
+      "sha256": "6a7e356893c28b3ab1ab8b40012f70834ebacf42a31e01a84d0c699d0f33f739"
+    },
+    {
+      "path": "python\\aipicture-runtime\\uv.lock",
+      "bytes": 396391,
+      "sha256": "a734eee25ad754eeebc990fe3b038e64496eb2d0b92bc6d94a435a47af7b4d50"
+    },
+    {
+      "path": "参考项目\\ai-picture-editor-main\\backend\\app\\edits\\ocr.py",
+      "bytes": 1509,
+      "sha256": "63709e5f1c0a8b251071cb1d290b52231e4b566742d0bd13e2235ed00347ed8f"
+    },
+    {
+      "path": "参考项目\\ai-picture-editor-main\\backend\\app\\edits\\split.py",
+      "bytes": 8622,
+      "sha256": "779b6b86ab4ae1cbe07686636ea3334827467d26bb6e228565750997c9ff2f06"
+    },
+    {
+      "path": "参考项目\\ai-picture-editor-main\\backend\\app\\tools\\layers.py",
+      "bytes": 7904,
+      "sha256": "a6534ad11dcd374d87ce1fb2fab6c2e69297056196cb2015f5b4ae186c9ef980"
+    },
+    {
+      "path": "python\\aipicture-runtime\\.venv\\Lib\\site-packages\\rapidocr_onnxruntime\\main.py",
+      "bytes": 12799,
+      "sha256": "156c49e683fddd26f04280f391f882b857a74d2f020497870f7dd8d850ed5a2c"
+    },
+    {
+      "path": "python\\aipicture-runtime\\.venv\\Lib\\site-packages\\rapidocr_onnxruntime\\config.yaml",
+      "bytes": 1221,
+      "sha256": "bf94a1da4cba828e67b1d61e27cee14d9e7da27c9f272e04048a17e41ae97332"
+    },
+    {
+      "path": "python\\aipicture-runtime\\.venv\\Lib\\site-packages\\rapidocr_onnxruntime\\ch_ppocr_rec\\text_recognize.py",
+      "bytes": 4700,
+      "sha256": "48d8656d11403d09b2ed32b65a686906b9502ca1a4e16a3934d91b35129d032a"
+    }
+  ]
+}

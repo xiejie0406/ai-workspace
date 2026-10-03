@@ -1,0 +1,74 @@
+{
+  "scope": "仅OCR RGB/BGR入口修复冻结；engine/契约/包/服务由主执行者统一处理",
+  "recorded_at": "2026-10-03T04:02:39.508147+00:00",
+  "changed_source": "aipicture_runtime/edits/ocr.py",
+  "source_before_sha256": "d5b57b6045df242bff3ac643ee543838b9fb488f6835e03125530b5ad892b8be",
+  "source_after_sha256": "ec4b9ef752ee1010c1e75fb1f1ec1886482e7b60d23b0cd39ee439e4ac1fc43b",
+  "test_path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_ocr_input_contract.py",
+  "test_sha256": "abab5b027cee8c6bea1f661cf70540fc3e764bacfbcd4980893ae6e1e30452b3",
+  "before": {
+    "selected": 5,
+    "failed": 2,
+    "passed": 3,
+    "skipped": 0,
+    "exit_code": 1
+  },
+  "after": {
+    "selected": 6,
+    "passed": 6,
+    "skipped": 0,
+    "exit_code": 0,
+    "new_tests": 5,
+    "existing_ocr_missing_weight_test": 1
+  },
+  "affected_behavior": "RGB像素转库要求的BGR连续数组；保持Pillow convertRGB的灰度/alpha去除、显式模型路径及原TextBox字段规则",
+  "real_color_ocr": {
+    "invocations": 1,
+    "rows": 2,
+    "strict_text_and_bounded_coordinates_passed": true,
+    "exit_code": 0,
+    "execution_providers": {
+      "det": [
+        "CPUExecutionProvider"
+      ],
+      "rec": [
+        "CPUExecutionProvider"
+      ],
+      "cls": [
+        "CPUExecutionProvider"
+      ]
+    }
+  },
+  "old_gray_failure": {
+    "retained": true,
+    "log": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\cv-ocr-followup\\diagnostic-once.log",
+    "actual": "Al Picture 2026",
+    "expected": "AI Picture 2026",
+    "exit_code": 1
+  },
+  "fingerprints": {
+    "color-expect-before.json": "cc9069d9426bed5298eda8ede80b383a37dc52388bfe8fd2acd870a2a797e711",
+    "color-fixed-input.png": "c087cbbcb0de5a058506ffd43e866ddf0d969a0d376e7debb6d8f44bb9b2fffd",
+    "color-once.log": "cbfd12d45033753cd2fa8b44f65ac44eaedf21849de51aabbad674238206e2e1",
+    "color-result.json": "e5656ed00eed39daa7f57e9a40ec2c71c5320e73d119f804b1ff2f91fb096411",
+    "diagnostic-expect-before.json": "37b32bf432cd4da7a9f06095de4a7e2290c47c3da0d7cc12003c0e9560c62933",
+    "diagnostic-once.log": "b1ce718cd60a951d6f4d136a6183dc23ae7c209e4d3411e36b087b03434c0b3c",
+    "diagnostic-result.json": "2957f432339d93040b330ade1a2dd92e3bfb406d3dc96d63e59db73ed2a3c34e",
+    "input-contract-after.log": "6da04b49aae761c5923dc5e7b1853cee7464154ff2155b42d62061b433555a08",
+    "input-contract-before.json": "c5f8441c0988b414e074982268b2f3209f51ea3b7d91f40788de217f11e02bb1",
+    "input-contract-before.log": "5aa5f6a61a30c28899228daa57f7fccc2d2bee736b82ad4ad2caac0387cb9589",
+    "ocr.py.before-color-fix": "d5b57b6045df242bff3ac643ee543838b9fb488f6835e03125530b5ad892b8be",
+    "source-contract-font-review.json": "8359751b370709c4271ac4721a91f16303ef0e009c9f16d82c87a1b12734d3a8"
+  },
+  "contract_changed": false,
+  "engine_changed_by_this_agent": false,
+  "wheel_built_by_this_agent": false,
+  "runtime_synced_by_this_agent": false,
+  "services_operated": false,
+  "database_writes": 0,
+  "provider_calls": 0,
+  "network_calls": 0,
+  "business_acceptance": false,
+  "quality_accepted": false,
+  "counting": "6技术单元=5新+1既有OCR缺模型，不与旧54专项基线相加冒称全量；真实彩色1次2行另列，旧灰度失败不覆盖。"
+}

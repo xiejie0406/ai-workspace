@@ -1,0 +1,63 @@
+{
+  "finished_at": "2026-10-03T06:02:23+08:00",
+  "scope": "批量成功项ZIP冻结选择按输入来源及每来源的比例/格式顺序",
+  "current_execution": {
+    "errors": 0,
+    "test": "realBatchExportRetainsInputRatioAndFormatOrderAfterOutOfOrderCompletion",
+    "unit": 0,
+    "mysql": 1,
+    "skipped": 0,
+    "failures": 0
+  },
+  "fixture": {
+    "failed_sources": 1,
+    "formats": [
+      "png",
+      "jpg"
+    ],
+    "dispatch_isolation": "only own UUID in same transaction",
+    "completion_order": [
+      2,
+      0,
+      1
+    ],
+    "ready_outputs": 8,
+    "ratios": [
+      "1:1",
+      "4:5"
+    ],
+    "source_input_order": "descending UUID, independent of completion and storage index",
+    "successful_sources": 2,
+    "cleanup": "finally own UUID rows and TempDir",
+    "input_sources": 3
+  },
+  "before": {
+    "note": "未实际观察旧SQL乱序，不冒称修前运行失败",
+    "runtime_reordered_observed": false,
+    "static_defect": "exportBatch SQL lacked ORDER BY position, conflicting with source batch.pack item order and target batch detail order"
+  },
+  "after": {
+    "frozen_params_order_verified": true,
+    "failed_outputs_excluded": true,
+    "worker_claim_order_verified": true,
+    "sql": "ORDER BY position"
+  },
+  "inventory": {
+    "prior_round_33_not_reexecuted": true,
+    "mysql": 8,
+    "unit": 60,
+    "is_single_full_run": false
+  },
+  "source_hashes": {
+    "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/AiPictureMySqlIntegrationTest.java": "9440974144af675df056adce0c0af3e771791192e28307109743d5b41c11c5de",
+    "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/BatchExportEvaluationService.java": "8034d1d3e8cfecef75ccde9cf770470c779e3dbd4ef72732fe6f0ef50c74ed26"
+  },
+  "limitations": {
+    "ddl_changed": false,
+    "provider_called": false,
+    "browser_business_verified": false,
+    "worker_compute_executed": false,
+    "public_api_changed": false,
+    "release_jar_rebuilt": false
+  }
+}

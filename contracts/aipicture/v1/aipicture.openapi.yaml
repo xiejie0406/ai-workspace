@@ -1,0 +1,5170 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "若依 AI 图片编辑公开业务接口",
+    "version": "1",
+    "description": "路径、方法与权限从实际 Controller 导出。响应保持若依 envelope；详细文档与22工具参数分别引用同目录唯一契约。内部 HMAC 执行通道见 worker.openapi.yaml。"
+  },
+  "paths": {
+    "/aipicture/assets": {
+      "post": {
+        "operationId": "post_assets",
+        "summary": "图片素材上传",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:asset:upload"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPG/PNG/WebP；≤20MB、≤5000万像素、最短边≥32；服务端按真实内容判断。"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "get_assets",
+        "summary": "/assets",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:asset:list"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDataInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/assets/library": {
+      "get": {
+        "operationId": "get_assets_library",
+        "summary": "/assets/library",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:asset:list"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "沿原接口分别限制会话组数量和未分组素材数量；不截断已选会话内的图片墙。",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/assets/{id}": {
+      "get": {
+        "operationId": "get_assets_id",
+        "summary": "/assets/{id}",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:asset:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/assets/{id}/download": {
+      "get": {
+        "operationId": "get_assets_id_download",
+        "summary": "/assets/{id}/download",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:asset:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/generations": {
+      "post": {
+        "operationId": "post_generations",
+        "summary": "图片创作",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:image:generate"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/runs/{id}": {
+      "get": {
+        "operationId": "get_runs_id",
+        "summary": "/runs/{id}",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:batch:list",
+          "aipicture:evaluation:list",
+          "aipicture:image:generate",
+          "aipicture:session:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/runs/{id}/cancel": {
+      "post": {
+        "operationId": "post_runs_id_cancel",
+        "summary": "取消图片任务",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:plan:cancel",
+          "aipicture:tool:execute"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/runs/{id}/events": {
+      "get": {
+        "operationId": "get_runs_id_events",
+        "summary": "/runs/{id}/events",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions": {
+      "get": {
+        "operationId": "get_sessions",
+        "summary": "/sessions",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:list"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDataInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_sessions",
+        "summary": "创建图片会话",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:create"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}": {
+      "get": {
+        "operationId": "get_sessions_id",
+        "summary": "/sessions/{id}",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_sessions_id",
+        "summary": "修改图片会话",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:edit"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/tools": {
+      "get": {
+        "operationId": "get_tools",
+        "summary": "/tools",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:tool:execute"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/tools": {
+      "post": {
+        "operationId": "post_sessions_id_tools",
+        "summary": "图片工具执行",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:tool:execute"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/undo": {
+      "post": {
+        "operationId": "post_sessions_id_undo",
+        "summary": "撤销图片编辑",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:edit"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/redo": {
+      "post": {
+        "operationId": "post_sessions_id_redo",
+        "summary": "重做图片编辑",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:edit"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/history": {
+      "get": {
+        "operationId": "get_sessions_id_history",
+        "summary": "/sessions/{id}/history",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/selection/prepare": {
+      "post": {
+        "operationId": "post_sessions_id_selection_prepare",
+        "summary": "/sessions/{id}/selection/prepare",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:tool:execute"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/selection": {
+      "post": {
+        "operationId": "post_sessions_id_selection",
+        "summary": "/sessions/{id}/selection",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:tool:execute"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "get_sessions_id_selection",
+        "summary": "/sessions/{id}/selection",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_sessions_id_selection",
+        "summary": "/sessions/{id}/selection",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:tool:execute"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/messages": {
+      "get": {
+        "operationId": "get_sessions_id_messages",
+        "summary": "/sessions/{id}/messages",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:session:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_sessions_id_messages",
+        "summary": "图片自然语言计划",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:tool:execute"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/messages/{turn}/confirm": {
+      "post": {
+        "operationId": "post_sessions_id_messages_turn_confirm",
+        "summary": "确认图片计划",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:plan:confirm"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "turn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/messages/{turn}/retry": {
+      "post": {
+        "operationId": "post_sessions_id_messages_turn_retry",
+        "summary": "重试图片计划",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:plan:retry"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "turn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/messages/{turn}/cancel": {
+      "post": {
+        "operationId": "post_sessions_id_messages_turn_cancel",
+        "summary": "取消图片计划",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:plan:cancel"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "turn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/batches": {
+      "post": {
+        "operationId": "post_batches",
+        "summary": "批量图片处理",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:batch:execute"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "get_batches",
+        "summary": "/batches",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:batch:list"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDataInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/batches/{id}": {
+      "get": {
+        "operationId": "get_batches_id",
+        "summary": "/batches/{id}",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:batch:list"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/batches/{id}/cancel": {
+      "post": {
+        "operationId": "post_batches_id_cancel",
+        "summary": "取消批量处理",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:batch:cancel"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/batches/{id}/items/{item}/retry": {
+      "post": {
+        "operationId": "post_batches_id_items_item_retry",
+        "summary": "重试批量失败项",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:batch:retry"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "item",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/batches/{id}/export": {
+      "post": {
+        "operationId": "post_batches_id_export",
+        "summary": "/batches/{id}/export",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:export:download"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/sessions/{id}/exports": {
+      "post": {
+        "operationId": "post_sessions_id_exports",
+        "summary": "图片物料导出",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:export:download"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/exports/{id}/download": {
+      "get": {
+        "operationId": "get_exports_id_download",
+        "summary": "/exports/{id}/download",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:export:download"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/evaluations": {
+      "post": {
+        "operationId": "post_evaluations",
+        "summary": "图片评测",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:evaluation:execute"
+        ],
+        "description": "沿用若依登录、权限与当前用户素材归属。正式产物专项只读取已成功的本人任务并由中心冻结来源；未知或收费失败结果不得自动重发。详见 EvaluationRequest。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluationRequest"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "get_evaluations",
+        "summary": "/evaluations",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:evaluation:list"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDataInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/evaluations/{id}": {
+      "get": {
+        "operationId": "get_evaluations_id",
+        "summary": "/evaluations/{id}",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:evaluation:list"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/evaluations/{id}/report": {
+      "get": {
+        "operationId": "get_evaluations_id_report",
+        "summary": "/evaluations/{id}/report",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:evaluation:list"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/capabilities": {
+      "get": {
+        "operationId": "get_capabilities",
+        "summary": "/capabilities",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:capability:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aipicture/health": {
+      "get": {
+        "operationId": "get_health",
+        "summary": "/health",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "x-ruoyi-permissions-any": [
+          "aipicture:capability:query"
+        ],
+        "description": "沿用若依登录与权限；读取、修改和下载均再次核对当前用户的数据归属。工具参数按 tools.schema.json 校验，文档按 document.schema.json 校验。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "实际业务结果；队列任务返回正式 run，由 runs 查询终态。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AjaxResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "若依认证失效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或不属于当前用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本、忙碌、幂等键或选区冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "资源超过限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "真实运行能力未就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "RuoYiBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "若依既有认证；React 经宿主共享 request 发起，不持有令牌。"
+      }
+    },
+    "schemas": {
+      "AjaxResult": {
+        "type": "object",
+        "required": [
+          "code",
+          "msg"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {}
+        }
+      },
+      "TableDataInfo": {
+        "type": "object",
+        "required": [
+          "code",
+          "msg",
+          "rows",
+          "total"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "BusinessError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "currentVersion": {
+            "type": "integer"
+          }
+        }
+      },
+      "MutationRequest": {
+        "type": "object",
+        "description": "写入按接口校验；会话采用 expectedVersion CAS；幂等动作附 idempotencyKey，相同键不同内容拒绝。selection 自身 points/strokes/revision 是业务字段。",
+        "properties": {
+          "schemaVersion": {
+            "const": "1"
+          },
+          "toolRegistryVersion": {
+            "const": "2026.10-r2"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "tool": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      },
+      "EvaluationHumanReview": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "记录本次提交人的质量意见；待人工核对是默认状态，不能代签用户接受。标为通过必须有非空核对说明。",
+        "properties": {
+          "status": {
+            "enum": [
+              "pending",
+              "passed",
+              "failed"
+            ],
+            "default": "pending"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "status"
+              ],
+              "properties": {
+                "status": {
+                  "const": "passed"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "notes"
+              ],
+              "properties": {
+                "notes": {
+                  "pattern": "\\S"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "EvaluationOcrExpectation": {
+        "type": "object",
+        "required": [
+          "text",
+          "bbox"
+        ],
+        "description": "独立人工文字及画布像素框，按位置匹配；每条最多2000字符，整份专项最多32000字符。",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "pattern": "\\S"
+          },
+          "bbox": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "prefixItems": [
+              {
+                "type": "number",
+                "minimum": -100000,
+                "maximum": 100000
+              },
+              {
+                "type": "number",
+                "minimum": -100000,
+                "maximum": 100000
+              },
+              {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000
+              },
+              {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000
+              }
+            ]
+          }
+        }
+      },
+      "LocalEvaluationSample": {
+        "type": "object",
+        "required": [
+          "id",
+          "task",
+          "input_asset_id"
+        ],
+        "description": "沿用原六类本地评测。像素指标需要独立预期素材；不接受服务器文件路径。",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "\\S"
+          },
+          "task": {
+            "enum": [
+              "remove_background",
+              "adjust_image",
+              "letterbox",
+              "prepare_delivery_sizes",
+              "encode",
+              "resize"
+            ]
+          },
+          "input_asset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expect_asset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "alpha_iou",
+                "mae",
+                "psnr",
+                "contain",
+                "size"
+              ]
+            }
+          },
+          "thresholds": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "params": {
+            "type": "object"
+          }
+        },
+        "propertyNames": {
+          "not": {
+            "enum": [
+              "input",
+              "expect",
+              "path",
+              "assessment",
+              "provider",
+              "document",
+              "input_snapshot",
+              "mask_asset_id"
+            ]
+          }
+        }
+      },
+      "AssessmentEvaluationSample": {
+        "type": "object",
+        "required": [
+          "id",
+          "task",
+          "suite",
+          "source_run_id"
+        ],
+        "description": "仅评估当前用户已成功的对应正式任务输出。原文档、选区、输入、实际供应商及产物归属由中心读取和冻结，不重跑来源工具。独立预期不能是来源任务本身的输出。任务未知、失败、取消、未完成或缺必要快照时拒绝。",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "\\S"
+          },
+          "task": {
+            "const": "assess_result"
+          },
+          "suite": {
+            "enum": [
+              "sam",
+              "region_protection",
+              "ocr",
+              "enhancement",
+              "generation"
+            ]
+          },
+          "source_run_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "output_asset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expect_asset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_ocr": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 128,
+            "items": {
+              "$ref": "#/components/schemas/EvaluationOcrExpectation"
+            }
+          },
+          "require_true_super_resolution": {
+            "type": "boolean",
+            "default": true
+          },
+          "human_review": {
+            "$ref": "#/components/schemas/EvaluationHumanReview"
+          },
+          "thresholds": {
+            "type": "object"
+          }
+        },
+        "propertyNames": {
+          "not": {
+            "enum": [
+              "input",
+              "expect",
+              "path",
+              "assessment",
+              "provider",
+              "document",
+              "input_snapshot",
+              "mask_asset_id",
+              "input_asset_id"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "not": {
+                "required": [
+                  "expect_asset_id"
+                ]
+              }
+            },
+            "then": {
+              "properties": {
+                "thresholds": {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "mae"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "psnr"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "suite": {
+                  "const": "sam"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "expect_asset_id"
+              ],
+              "properties": {
+                "thresholds": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "alpha_iou": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                }
+              },
+              "description": "真实点选SAM任务及其正式遮罩，使用独立人工预期遮罩；笔刷结果不能代替点选。"
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "suite": {
+                  "const": "region_protection"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "thresholds": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "outside_mae": {
+                      "const": 0
+                    },
+                    "outside_max": {
+                      "const": 0
+                    },
+                    "mae": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 255
+                    },
+                    "psnr": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 255
+                    }
+                  }
+                }
+              },
+              "description": "冻结原与结果完整画布及原选区。遮罩外像素必须一致，固定阈值0；不能下调保护要求。mae/psnr仅有独立预期素材时可用。"
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "suite": {
+                  "const": "ocr"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "expected_ocr"
+              ],
+              "not": {
+                "required": [
+                  "expect_asset_id"
+                ]
+              },
+              "properties": {
+                "thresholds": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "cer": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 10
+                    },
+                    "bbox_iou": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "count_match": {
+                      "const": 1
+                    }
+                  }
+                }
+              },
+              "description": "来源必须是启用文字提取的拆层正式任务。独立文字与框按位置匹配，文字数量严格一致，不能使用图片替代文字标注。"
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "suite": {
+                  "enum": [
+                    "enhancement",
+                    "generation"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "output_asset_id"
+              ],
+              "properties": {
+                "thresholds": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "size": {
+                      "const": 1
+                    },
+                    "mae": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 255
+                    },
+                    "psnr": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 255
+                    }
+                  }
+                }
+              },
+              "description": "尺寸须严格对应正式比例。增强默认要求真实超分，原普通增强不会冒充超分通过；mae/psnr仅有独立预期素材时可用。"
+            }
+          }
+        ]
+      },
+      "EvaluationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MutationRequest"
+          },
+          {
+            "type": "object",
+            "required": [
+              "schemaVersion",
+              "toolRegistryVersion",
+              "manifest"
+            ],
+            "properties": {
+              "manifest": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 100,
+                "items": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/LocalEvaluationSample"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AssessmentEvaluationSample"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "description": "最多100条名称不重复的本人样本。原六类本地评测与五类正式产物专项共用既有入口、认证和权限；不能经评测重发收费来源任务。技术通过、人工意见、真实模型证据、综合结论和用户接受分别记录。"
+      }
+    }
+  }
+}

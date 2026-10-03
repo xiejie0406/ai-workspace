@@ -1,0 +1,168 @@
+{
+  "scope": "缓存加载改动后当前7405单样本真实本地SAM点选",
+  "started_at": "2026-10-03T06:46:18.123599+00:00",
+  "passed": true,
+  "real_sam_selection_posts": 1,
+  "other_model_inference_calls": 0,
+  "paid_provider_calls": 0,
+  "formal_tasks_registered": 0,
+  "formal_assets_registered": 0,
+  "database_writes": 0,
+  "service_operations": 0,
+  "models_changed": false,
+  "source_sha256": "bb4d28230e31246825bb45abb7b142c3b5ac20c4742a6f0e30f8bab95421de06",
+  "independent_expect_sha256": "cd5ac47dba40d9a22905d99364e4be39f50a30fb8c614ee007458d8e321d30fd",
+  "segment_source_sha256": "13db45720cdadc9f84e04b32ea5af072fe4e00ce0aa87f915c1412fc3a9c09cf",
+  "model_paths": {
+    "AIPICTURE_SAM_ENCODER_PATH": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\vision\\models\\sam_vit_b_01ec64.encoder.quant.onnx",
+      "sha256": "181301ce3500a86c38450b56e2b71dab8008a13b1812a0d6cc812f22651e143a",
+      "size_bytes": 108836115
+    },
+    "AIPICTURE_SAM_DECODER_PATH": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\vision\\models\\sam_vit_b_01ec64.decoder.quant.onnx",
+      "sha256": "b11465135b7c93a1fd65141a4e2a96f1ddf2e3dab09b5eeab640bdf5f10aadbe",
+      "size_bytes": 8755366
+    }
+  },
+  "business_acceptance": false,
+  "quality_accepted": false,
+  "limits": [
+    "只证明当前通道一个固定样本的真实输出，不证明完整质量集、峰值、真实LRU次数或缓存字节上限。",
+    "历史输出仅作比较；通过条件来自独立groundtruth和操作前预期。",
+    "CPU模式来源为已冻结segment中两个InferenceSession的显式CPUExecutionProvider设置，不冒称HTTP公开了get_providers结果。"
+  ],
+  "sam_before": {
+    "ready": true,
+    "provider": "sam",
+    "offline_test": false,
+    "loaded": false,
+    "validation": "files_and_dependencies_only",
+    "models": {
+      "encoder": {
+        "present": true,
+        "name": "sam_vit_b_01ec64.encoder.quant.onnx",
+        "size_bytes": 108836115,
+        "sha256": "181301ce3500a86c38450b56e2b71dab8008a13b1812a0d6cc812f22651e143a"
+      },
+      "decoder": {
+        "present": true,
+        "name": "sam_vit_b_01ec64.decoder.quant.onnx",
+        "size_bytes": 8755366,
+        "sha256": "b11465135b7c93a1fd65141a4e2a96f1ddf2e3dab09b5eeab640bdf5f10aadbe"
+      }
+    }
+  },
+  "output": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\unicode-sam-live\\sam-mask.png",
+    "sha256": "1fef10592468a044e7c9c4d43ca78c737999fe5f784170246aacbefd13fd1a38",
+    "size_bytes": 10755,
+    "dimensions": [
+      1080,
+      1080
+    ],
+    "mode": "RGBA",
+    "alpha_bbox": [
+      103,
+      182,
+      964,
+      899
+    ],
+    "alpha_iou": 0.9639788889731981,
+    "intersection": 228677,
+    "union": 237222,
+    "foreground_pixels": 228731,
+    "points_selected": [
+      true,
+      true
+    ],
+    "point_alpha": [
+      255,
+      255
+    ],
+    "background_corner_selected": false,
+    "provider": {
+      "image": "dashscope",
+      "matting": "rembg",
+      "ocr": "rapidocr",
+      "offline_test": false,
+      "enhancement_implementation": "image_edit",
+      "true_super_resolution": false,
+      "sam": {
+        "provider": "onnxruntime",
+        "model": "sam",
+        "loaded": true,
+        "inference": "points"
+      }
+    }
+  },
+  "historical_comparison": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\vision\\http-check\\sam-foreground-http.png",
+    "sha256": "1fef10592468a044e7c9c4d43ca78c737999fe5f784170246aacbefd13fd1a38",
+    "alpha_iou": 0.9639788889731981,
+    "same_output_bytes": true,
+    "same_groundtruth_iou": true,
+    "used_as_groundtruth": false
+  },
+  "sam_after": {
+    "ready": true,
+    "provider": "sam",
+    "offline_test": false,
+    "loaded": true,
+    "validation": "files_and_dependencies_only",
+    "models": {
+      "encoder": {
+        "present": true,
+        "name": "sam_vit_b_01ec64.encoder.quant.onnx",
+        "size_bytes": 108836115,
+        "sha256": "181301ce3500a86c38450b56e2b71dab8008a13b1812a0d6cc812f22651e143a"
+      },
+      "decoder": {
+        "present": true,
+        "name": "sam_vit_b_01ec64.decoder.quant.onnx",
+        "size_bytes": 8755366,
+        "sha256": "b11465135b7c93a1fd65141a4e2a96f1ddf2e3dab09b5eeab640bdf5f10aadbe"
+      }
+    }
+  },
+  "finished_at": "2026-10-03T06:47:52.694507+00:00",
+  "http_calls": [
+    {
+      "method": "GET",
+      "path": "/internal/v1/capabilities",
+      "started_at": "2026-10-03T06:46:18.123776+00:00",
+      "timeout_seconds": 30,
+      "request_bytes": 0,
+      "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": 200,
+      "response_sha256": "f1e03b6fabc0cf098757b5a94f5ae409a4a4fb9d508721f8702fcd9beae413c1",
+      "response_bytes": 21883,
+      "seconds": 0.17474079999374226
+    },
+    {
+      "method": "POST",
+      "path": "/internal/v1/compute",
+      "started_at": "2026-10-03T06:46:18.329907+00:00",
+      "timeout_seconds": 180,
+      "request_bytes": 563019,
+      "request_sha256": "0b1e8b281e6a7a6951e2c6672699681c13a04879f809abdebb3fac4b41b409e2",
+      "status": 200,
+      "response_sha256": "942c480eb46f8a8374c3ecebf2592d5ddeae91f860cec6aa72d37527a7712555",
+      "response_bytes": 15168,
+      "seconds": 91.46573330000683
+    },
+    {
+      "method": "GET",
+      "path": "/internal/v1/capabilities",
+      "started_at": "2026-10-03T06:47:52.533594+00:00",
+      "timeout_seconds": 30,
+      "request_bytes": 0,
+      "request_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": 200,
+      "response_sha256": "9b2483aa8b9de8bc05c9789259d01b54d00ac542987948336f310dcd8968d6de",
+      "response_bytes": 21882,
+      "seconds": 0.15787150000687689
+    }
+  ],
+  "loaded_attribution": "调用前后签名capabilities来自当前7405服务进程；探针不加载SAM模型。"
+}

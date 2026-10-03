@@ -1,0 +1,134 @@
+{
+  "scope": "第21项原CLI确定性子场景，完整项仍受阻；未执行真实抠图或任何模型/Provider",
+  "python_version": "3.13.13",
+  "offline_test": false,
+  "paid_provider_enabled": false,
+  "uses_mock": false,
+  "cases_covered": 6,
+  "deterministic_task_names": [
+    "adjust_image",
+    "letterbox",
+    "prepare_delivery_sizes",
+    "encode",
+    "resize"
+  ],
+  "metrics_covered": [
+    "mae",
+    "psnr",
+    "contain",
+    "size",
+    "alpha_iou"
+  ],
+  "alpha_scope": "仅已知人工透明图的PNG编码保留；不能证明去背景模型效果",
+  "results": [
+    {
+      "dataset": "成功五任务",
+      "command": [
+        "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "aipicture_runtime.eval",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-完整迁移验收\\CLI定向评测\\成功五任务"
+      ],
+      "actual_exit_code": 0,
+      "expected_exit_code": 0,
+      "expected_evidence_found": true,
+      "seconds": 1.6655133000022033,
+      "stdout_sha256": "8b9dbde55a3cd9bdfa49ad507832a4c5ea4f6f7b2f0dae117a23cb0638b6c217",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dataset": "故意阈值失败",
+      "command": [
+        "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "aipicture_runtime.eval",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-完整迁移验收\\CLI定向评测\\故意阈值失败"
+      ],
+      "actual_exit_code": 1,
+      "expected_exit_code": 1,
+      "expected_evidence_found": true,
+      "seconds": 1.535977899999125,
+      "stdout_sha256": "9572a5dcf3116e1e47e8d0b39b5c232309e531843d64c9be8441b41e0fd8cb4c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dataset": "缺少清单",
+      "command": [
+        "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "aipicture_runtime.eval",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-完整迁移验收\\CLI定向评测\\缺少清单"
+      ],
+      "actual_exit_code": 2,
+      "expected_exit_code": 2,
+      "expected_evidence_found": true,
+      "seconds": 0.7715787999914028,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "2a58394869aa4f26bf6b937d3aa1a2ccf6725a1de8f6578645d529cd839970dd"
+    },
+    {
+      "dataset": "未知任务",
+      "command": [
+        "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "aipicture_runtime.eval",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-完整迁移验收\\CLI定向评测\\未知任务"
+      ],
+      "actual_exit_code": 2,
+      "expected_exit_code": 2,
+      "expected_evidence_found": true,
+      "seconds": 1.099285600008443,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "07d5f0335997d1d83b9d8039cf28a4f0f0f63ce561f14143bfa83922a97d1e62"
+    },
+    {
+      "dataset": "越界路径",
+      "command": [
+        "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "aipicture_runtime.eval",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-完整迁移验收\\CLI定向评测\\越界路径"
+      ],
+      "actual_exit_code": 1,
+      "expected_exit_code": 1,
+      "expected_evidence_found": true,
+      "seconds": 0.8976016999949934,
+      "stdout_sha256": "a92afaacf28861c5085e634870b136f940285b51b73cda95b03fce2c32fa53ff",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dataset": "缺少对比图",
+      "command": [
+        "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-m",
+        "aipicture_runtime.eval",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-完整迁移验收\\CLI定向评测\\缺少对比图"
+      ],
+      "actual_exit_code": 1,
+      "expected_exit_code": 1,
+      "expected_evidence_found": true,
+      "seconds": 1.6074374000017997,
+      "stdout_sha256": "0837c5a072c551317f8fb15bc8c94176ef34da887fb1252ec9084c22217d43a5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "technical_subscenarios_match": true,
+  "original_source_cases_unchanged": true,
+  "runtime_source_sha256": {
+    "aipicture_runtime\\eval\\__main__.py": "9545f367f1216c2b7eca374be733260c79cd78a1335c29368c1876f8c2b2497e",
+    "aipicture_runtime\\eval\\cases.py": "cbbd61ef980753125ea3077adfa5dfb77922abd4438618d7e4c038b7183d2e91",
+    "aipicture_runtime\\eval\\runner.py": "feee08ac77d619ad0d499e4f6d0b28b61487921ea0e2e4c45b28b3e35c5f91c5",
+    "aipicture_runtime\\eval\\tasks.py": "51f8d4eb376d0396032fea003590c9c3dfa82447b373fefe345679f4d14af4b6",
+    "aipicture_runtime\\eval\\metrics.py": "eaa0c061140e01d7eca7c527b8df022c4140dea67159137b905bb1aff0495343",
+    "aipicture_runtime\\edits\\pixels.py": "ba1662e7236d5b971fabc34bdcbf1d14c8cbeba1ae60b9cb57b9461a0c6f6781",
+    "uv.lock": "a734eee25ad754eeebc990fe3b038e64496eb2d0b92bc6d94a435a47af7b4d50"
+  },
+  "business_item_passed": false,
+  "quality_accepted": false
+}

@@ -1,0 +1,75 @@
+{
+  "version": "2026-10-03-r13",
+  "browser": "Codex In-app Browser",
+  "tab_id": "7",
+  "url": "http://127.0.0.1:8416/?scenario=canvas-command-recovery",
+  "bundle_sha256": "0f351d33604ba17096dea92b2e082d74f799fbef51f91dd488dd0ad936982e26",
+  "controlled_ui_cases": [
+    {
+      "name": "移动失败恢复",
+      "status": "受控命令POST：2；最后命令：move_layer；固定expectedVersion：0；正式图层x=60.17970511507366,y=154.26026631269,scale=1；正式文字=原文字；正式业务写入与供应商调用：0",
+      "failure_screenshot": "drag-after-failure.jpg",
+      "retry_screenshot": "drag-after-retry.jpg",
+      "observed": "首次503后正式x16/y176/scale1，未保存预览撤回；明确重试固定expectedVersion0，POST数2，采用原移动参数",
+      "passed": true
+    },
+    {
+      "name": "缩放失败恢复",
+      "failure_status": "受控命令POST：1；最后命令：scale_layer；固定expectedVersion：0；正式图层x=16,y=176,scale=1；正式文字=原文字；正式业务写入与供应商调用：0",
+      "retry_status": "受控命令POST：2；最后命令：scale_layer；固定expectedVersion：0；正式图层x=29.85634947007412,y=189.8563494700742,scale=1.2886739472932107；正式文字=原文字；正式业务写入与供应商调用：0",
+      "failure_screenshot": "scale-after-failure-confirmed.jpg",
+      "retry_screenshot": "scale-after-retry.jpg",
+      "observed": "首次scale_layer POST503后scale1/正式位置，明确重试同expectedVersion0，第二POST成功后采用原变换",
+      "passed": true
+    },
+    {
+      "name": "文字失败输入保留",
+      "failure_status": "受控命令POST：1；最后命令：set_layer_text；固定expectedVersion：0；正式图层x=16,y=176,scale=1；正式文字=原文字；正式业务写入与供应商调用：0",
+      "retry_status": "受控命令POST：2；最后命令：set_layer_text；固定expectedVersion：0；正式图层x=16,y=176,scale=1；正式文字=本次输入保留；正式业务写入与供应商调用：0",
+      "screenshots": [
+        "text-after-failure-focus-neutral.jpg",
+        "text-after-retry.jpg"
+      ],
+      "observed": "第一次Enter拒绝后正式文字仍为原文字，输入本次输入保留未关闭；焦点中立技术开关未新增POST；第二次Enter显式重试POST2后正式文字更新且编辑器关闭",
+      "passed": true
+    },
+    {
+      "name": "裁剪失败参数保留",
+      "failure_status": "受控命令POST：1；最后命令：crop_canvas；固定expectedVersion：0；正式图层x=16,y=176,scale=1；正式文字=原文字；正式业务写入与供应商调用：0",
+      "retry_status": "受控命令POST：2；最后命令：crop_canvas；固定expectedVersion：0；正式图层x=16,y=176,scale=1；正式文字=原文字；正式业务写入与供应商调用：0",
+      "screenshots": [
+        "crop-after-failure.jpg",
+        "crop-after-retry.jpg"
+      ],
+      "observed": "4:5确定POST1拒绝后原320×320、4:5选择和裁剪框/确定取消均保留；用户再点确定POST2后正式尺寸256×320且退出裁剪",
+      "passed": true
+    }
+  ],
+  "case_count": 4,
+  "passed": 4,
+  "scope": "真实React/Konva组件与浏览器操作，受控宿主503/200响应；0正式业务写入，0供应商调用；不计入22项业务通过",
+  "before_observation": {
+    "scenario": "old BCC frozen bundle drag failure",
+    "screenshot": "drag-before-failure.jpg",
+    "observed": "POST1拒绝后非正式移动预览滞留"
+  },
+  "preserved_fixture_attempts": [
+    {
+      "screenshot": "scale-after-failure.jpg",
+      "actual_tool": "move_layer",
+      "observed": "第一次缩放坐标未命中handle；此图片不计缩放检查，随后确认cursor并定向重验"
+    },
+    {
+      "screenshots": [
+        "text-after-failure.jpg",
+        "text-first-control-blur-second-refusal.jpg"
+      ],
+      "actual_posts": 2,
+      "formal_text": "原文字",
+      "draft_text": "本次输入保留",
+      "observed": "技术checkbox夺焦触发原有onBlur第二次拒绝；仅改私有fixture onmousedown preventDefault后同一文字流程定向复验"
+    }
+  ],
+  "console": [],
+  "captured_at": "2026-10-03T08:33:56.171Z"
+}

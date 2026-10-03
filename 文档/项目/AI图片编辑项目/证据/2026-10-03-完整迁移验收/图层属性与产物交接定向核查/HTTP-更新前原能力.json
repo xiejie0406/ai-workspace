@@ -1,0 +1,3108 @@
+{
+  "checked_at": "2026-10-03T09:15:00.627114+00:00",
+  "scope": "Worker局部同步前后只读HTTP；原Python能力、认证及不存在资产，不创建任务或推理。",
+  "phase": "before",
+  "checks": [
+    {
+      "name": "原Python签名能力",
+      "status": 200,
+      "passed": true,
+      "response": {
+        "schema_version": "1",
+        "tool_registry_version": "2026.10-r2",
+        "enabled": true,
+        "tools": [
+          {
+            "name": "generate_image",
+            "label": "生成图片",
+            "description": "根据文字描述从零生成图片候选。没有可编辑的图片，或用户明确要求换一张全新画面时使用；修改现有图片不要用它。",
+            "queued": true,
+            "sessionRequired": false,
+            "agentHidden": [
+              "seed",
+              "reference_asset_ids"
+            ],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "$defs": {
+                "Ratio": {
+                  "enum": [
+                    "1:1",
+                    "4:5",
+                    "3:4",
+                    "9:16",
+                    "16:9"
+                  ],
+                  "title": "Ratio",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "prompt": {
+                  "maxLength": 1500,
+                  "minLength": 1,
+                  "title": "Prompt",
+                  "type": "string"
+                },
+                "ratio": {
+                  "$ref": "#/$defs/Ratio",
+                  "default": "1:1"
+                },
+                "count": {
+                  "default": 4,
+                  "maximum": 6,
+                  "minimum": 1,
+                  "title": "Count",
+                  "type": "integer"
+                },
+                "negative_prompt": {
+                  "anyOf": [
+                    {
+                      "maxLength": 1500,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Negative Prompt"
+                },
+                "seed": {
+                  "anyOf": [
+                    {
+                      "maximum": 2147483647,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Seed"
+                },
+                "reference_asset_ids": {
+                  "default": [],
+                  "items": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "maxItems": 3,
+                  "title": "Reference Asset Ids",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "prompt"
+              ],
+              "title": "GenerateIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "replace_background",
+            "label": "换背景",
+            "description": "按文字描述替换背景。未拆层时写回画布；已拆层时拍平生成整图只进图片墙。一次可出 1 到 4 张候选；多于一张时不自动上画布，用户点选图片墙采用。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [
+              "negative_prompt"
+            ],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "prompt": {
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "title": "Prompt",
+                  "type": "string"
+                },
+                "count": {
+                  "default": 1,
+                  "maximum": 4,
+                  "minimum": 1,
+                  "title": "Count",
+                  "type": "integer"
+                },
+                "negative_prompt": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Negative Prompt"
+                }
+              },
+              "required": [
+                "prompt"
+              ],
+              "title": "ReplaceBackgroundIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "expand_canvas",
+            "label": "扩图",
+            "description": "把当前画布扩展到指定比例，并自然补全新增区域。主体保持完整，不要裁切。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "$defs": {
+                "Ratio": {
+                  "enum": [
+                    "1:1",
+                    "4:5",
+                    "3:4",
+                    "9:16",
+                    "16:9"
+                  ],
+                  "title": "Ratio",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "ratio": {
+                  "$ref": "#/$defs/Ratio"
+                },
+                "prompt": {
+                  "default": "自然延伸画面边缘，保持主体完整",
+                  "maxLength": 500,
+                  "title": "Prompt",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "ratio"
+              ],
+              "title": "ExpandCanvasIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "upscale_image",
+            "label": "超分",
+            "description": "提高当前画布分辨率。scale 为 2 或 4，默认 2 倍。不要用它换内容或改构图。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "scale": {
+                  "default": 2,
+                  "maximum": 4,
+                  "minimum": 2,
+                  "title": "Scale",
+                  "type": "integer"
+                }
+              },
+              "title": "UpscaleImageIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "remove_background",
+            "label": "去背景",
+            "description": "识别指定图层的主体并去掉背景。默认最上层图像。不要用它来换背景或生成新画面。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                }
+              },
+              "title": "RemoveBackgroundIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "adjust_image",
+            "label": "调色",
+            "description": "调整指定图层的亮度、对比度、高光、阴影、色温、色调、饱和度、自然饱和度、锐化、清晰度和晕影。默认最上层图像。参数取值 -1 到 1，晕影为 0 到 1。未提到的参数保持 0。改成某个具体颜色或换材质要用 replace_region，不要用它。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "brightness": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Brightness",
+                  "type": "number"
+                },
+                "contrast": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Contrast",
+                  "type": "number"
+                },
+                "highlights": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Highlights",
+                  "type": "number"
+                },
+                "shadows": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Shadows",
+                  "type": "number"
+                },
+                "temperature": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Temperature",
+                  "type": "number"
+                },
+                "tint": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Tint",
+                  "type": "number"
+                },
+                "saturation": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Saturation",
+                  "type": "number"
+                },
+                "vibrance": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Vibrance",
+                  "type": "number"
+                },
+                "sharpness": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Sharpness",
+                  "type": "number"
+                },
+                "clarity": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": -1,
+                  "title": "Clarity",
+                  "type": "number"
+                },
+                "vignette": {
+                  "default": 0,
+                  "maximum": 1,
+                  "minimum": 0,
+                  "title": "Vignette",
+                  "type": "number"
+                }
+              },
+              "title": "AdjustIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "erase_region",
+            "label": "局部消除",
+            "description": "消除物体，并用周围内容自然填补。有选区时只消除选区内；用 layer_id 点名图层时消除该层内容；两者都有取交集。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [
+              "mask_asset_id",
+              "revision"
+            ],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "mask_asset_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Mask Asset Id"
+                },
+                "revision": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Revision"
+                },
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "prompt": {
+                  "default": "",
+                  "maxLength": 500,
+                  "title": "Prompt",
+                  "type": "string"
+                }
+              },
+              "title": "RegionIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "replace_region",
+            "label": "局部替换",
+            "description": "按文字描述替换画面内容，改颜色、换材质、换成另一个物体都用它。有选区时只改选区内；用 layer_id 点名图层时改该层整层；两者都有取交集。只需给出替换描述，不必确认选区是否点准。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [
+              "mask_asset_id",
+              "revision"
+            ],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "mask_asset_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Mask Asset Id"
+                },
+                "revision": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Revision"
+                },
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "prompt": {
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "title": "Prompt",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "prompt"
+              ],
+              "title": "ReplaceRegionIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "split_layers",
+            "label": "拆层",
+            "description": "把画面拆成背景和主体。默认不拆文字；include_text 为 true 时才识别文字层。已拆过则跳过。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "include_text": {
+                  "default": false,
+                  "title": "Include Text",
+                  "type": "boolean"
+                }
+              },
+              "title": "SplitLayersIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "promote_object_to_layer",
+            "label": "提升为图层",
+            "description": "把当前选区提升为独立图层，原位置用周围背景填补。该物体已是独立图层时跳过。画布摘要标明已有选区时即可调用。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [
+              "mask_asset_id",
+              "revision"
+            ],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "mask_asset_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Mask Asset Id"
+                },
+                "revision": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Revision"
+                },
+                "name": {
+                  "anyOf": [
+                    {
+                      "maxLength": 40,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Name"
+                }
+              },
+              "title": "PromoteIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "generate_marketing",
+            "label": "营销图",
+            "description": "按当前画布生成电商营销图，只进图片墙，不改当前画布。kind：product 商品主图（白底）、scene 场景氛围图、model 模特上身、poster 促销海报。caption 可填海报标题或补充要求。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "$defs": {
+                "MarketingKind": {
+                  "enum": [
+                    "product",
+                    "scene",
+                    "model",
+                    "poster"
+                  ],
+                  "title": "MarketingKind",
+                  "type": "string"
+                },
+                "Ratio": {
+                  "enum": [
+                    "1:1",
+                    "4:5",
+                    "3:4",
+                    "9:16",
+                    "16:9"
+                  ],
+                  "title": "Ratio",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "$ref": "#/$defs/MarketingKind",
+                  "description": "product 商品主图、scene 场景氛围图、model 模特上身、poster 促销海报"
+                },
+                "caption": {
+                  "anyOf": [
+                    {
+                      "maxLength": 200,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "海报文案或补充要求",
+                  "title": "Caption"
+                },
+                "count": {
+                  "default": 1,
+                  "maximum": 4,
+                  "minimum": 1,
+                  "title": "Count",
+                  "type": "integer"
+                },
+                "ratio": {
+                  "$ref": "#/$defs/Ratio",
+                  "default": "1:1",
+                  "description": "输出比例，默认 1:1"
+                }
+              },
+              "required": [
+                "kind"
+              ],
+              "title": "GenerateMarketingIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "prepare_delivery_sizes",
+            "label": "投放尺寸",
+            "description": "把当前画布完整放入投放比例，不裁切、不改画面，只进图片墙。默认一次出 1:1、4:5、9:16。用户说改尺寸、出投放物料时用这个，不要用 crop_canvas。",
+            "queued": true,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "sourceQueued": false,
+            "executionOwner": "python",
+            "paramsSchema": {
+              "$defs": {
+                "Ratio": {
+                  "enum": [
+                    "1:1",
+                    "4:5",
+                    "3:4",
+                    "9:16",
+                    "16:9"
+                  ],
+                  "title": "Ratio",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "ratios": {
+                  "description": "要输出的投放比例。默认 1:1、4:5、9:16。主体不被裁切。",
+                  "items": {
+                    "$ref": "#/$defs/Ratio"
+                  },
+                  "maxItems": 5,
+                  "minItems": 1,
+                  "title": "Ratios",
+                  "type": "array",
+                  "default": [
+                    "1:1",
+                    "4:5",
+                    "9:16"
+                  ]
+                },
+                "prompt": {
+                  "default": "自然延伸画面边缘，保持主体完整，不要裁切商品",
+                  "maxLength": 500,
+                  "title": "Prompt",
+                  "type": "string"
+                }
+              },
+              "title": "PrepareDeliverySizesIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "batch_process",
+            "label": "批量处理",
+            "description": "对多张图执行同一套像素处理：去背景、换背景、调色、超分、扩图、投放尺寸。不要用于单张精修，也不要做营销图、局部编辑或拆层。",
+            "queued": true,
+            "sessionRequired": false,
+            "agentHidden": [],
+            "executionOwner": "python",
+            "paramsSchema": {
+              "$defs": {
+                "BatchOpIn": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "tool": {
+                      "enum": [
+                        "remove_background",
+                        "replace_background",
+                        "adjust_image",
+                        "upscale_image",
+                        "expand_canvas",
+                        "prepare_delivery_sizes"
+                      ],
+                      "title": "Tool",
+                      "type": "string"
+                    },
+                    "params": {
+                      "additionalProperties": true,
+                      "title": "Params",
+                      "type": "object",
+                      "default": {}
+                    }
+                  },
+                  "required": [
+                    "tool"
+                  ],
+                  "title": "BatchOpIn",
+                  "type": "object"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "asset_ids": {
+                  "items": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "maxItems": 20,
+                  "minItems": 1,
+                  "title": "Asset Ids",
+                  "type": "array"
+                },
+                "operations": {
+                  "items": {
+                    "$ref": "#/$defs/BatchOpIn"
+                  },
+                  "maxItems": 6,
+                  "minItems": 1,
+                  "title": "Operations",
+                  "type": "array"
+                },
+                "formats": {
+                  "items": {
+                    "enum": [
+                      "png",
+                      "jpg"
+                    ],
+                    "type": "string"
+                  },
+                  "maxItems": 2,
+                  "minItems": 1,
+                  "title": "Formats",
+                  "type": "array",
+                  "default": [
+                    "png"
+                  ]
+                }
+              },
+              "required": [
+                "asset_ids",
+                "operations"
+              ],
+              "title": "BatchIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "crop_canvas",
+            "label": "裁剪",
+            "description": "按比例或归一化矩形裁切画布。只改图层文档，不调用生成模型。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "$defs": {
+                "CropRect": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "x": {
+                      "maximum": 1,
+                      "minimum": 0,
+                      "title": "X",
+                      "type": "number"
+                    },
+                    "y": {
+                      "maximum": 1,
+                      "minimum": 0,
+                      "title": "Y",
+                      "type": "number"
+                    },
+                    "width": {
+                      "exclusiveMinimum": 0,
+                      "maximum": 1,
+                      "title": "Width",
+                      "type": "number"
+                    },
+                    "height": {
+                      "exclusiveMinimum": 0,
+                      "maximum": 1,
+                      "title": "Height",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "width",
+                    "height"
+                  ],
+                  "title": "CropRect",
+                  "type": "object"
+                },
+                "Ratio": {
+                  "enum": [
+                    "1:1",
+                    "4:5",
+                    "3:4",
+                    "9:16",
+                    "16:9"
+                  ],
+                  "title": "Ratio",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "ratio": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/Ratio"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                },
+                "rect": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/CropRect"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                }
+              },
+              "title": "CropIn",
+              "type": "object",
+              "oneOf": [
+                {
+                  "required": [
+                    "ratio"
+                  ],
+                  "properties": {
+                    "ratio": {
+                      "type": "string"
+                    }
+                  },
+                  "not": {
+                    "properties": {
+                      "rect": {
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "rect"
+                    ]
+                  }
+                },
+                {
+                  "required": [
+                    "rect"
+                  ],
+                  "properties": {
+                    "rect": {
+                      "type": "object"
+                    }
+                  },
+                  "not": {
+                    "properties": {
+                      "ratio": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "ratio"
+                    ]
+                  }
+                }
+              ],
+              "x-constraints": [
+                "rect.x + rect.width <= 1.0001",
+                "rect.y + rect.height <= 1.0001",
+                "min(crop.width,crop.height) >= 32"
+              ]
+            }
+          },
+          {
+            "name": "flip_layer",
+            "label": "翻转",
+            "description": "水平或垂直翻转指定图层，默认最上层图像。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "direction": {
+                  "enum": [
+                    "horizontal",
+                    "vertical"
+                  ],
+                  "title": "Direction",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "direction"
+              ],
+              "title": "FlipIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "set_layer_opacity",
+            "label": "透明度",
+            "description": "设置图层透明度，取值 0 到 1。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "opacity": {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "title": "Opacity",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "opacity"
+              ],
+              "title": "OpacityIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "set_layer_visible",
+            "label": "显隐",
+            "description": "显示或隐藏指定图层，不删除内容。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "visible": {
+                  "title": "Visible",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "visible"
+              ],
+              "title": "VisibleIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "set_layer_text",
+            "label": "改文字",
+            "description": "修改文字图层的文案，可选字号与颜色。未指定图层时改最上层可见文字。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "text": {
+                  "maxLength": 500,
+                  "title": "Text",
+                  "type": "string"
+                },
+                "font_size": {
+                  "anyOf": [
+                    {
+                      "maximum": 400,
+                      "minimum": 8,
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Font Size"
+                },
+                "fill": {
+                  "anyOf": [
+                    {
+                      "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Fill"
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "title": "TextIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "reorder_layer",
+            "label": "图层顺序",
+            "description": "调整图层前后顺序：top / bottom / up / down。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "place": {
+                  "enum": [
+                    "top",
+                    "bottom",
+                    "up",
+                    "down"
+                  ],
+                  "title": "Place",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "place"
+              ],
+              "title": "ReorderIn",
+              "type": "object"
+            }
+          },
+          {
+            "name": "scale_layer",
+            "label": "缩放",
+            "description": "缩放指定图层，默认最上层图像。factor 为相对倍率，scale_x / scale_y 为绝对值。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [
+              "x",
+              "y"
+            ],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "factor": {
+                  "anyOf": [
+                    {
+                      "exclusiveMinimum": 0,
+                      "maximum": 8,
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Factor"
+                },
+                "scale_x": {
+                  "anyOf": [
+                    {
+                      "exclusiveMinimum": 0,
+                      "maximum": 8,
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Scale X"
+                },
+                "scale_y": {
+                  "anyOf": [
+                    {
+                      "exclusiveMinimum": 0,
+                      "maximum": 8,
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Scale Y"
+                },
+                "x": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "X"
+                },
+                "y": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Y"
+                }
+              },
+              "title": "ScaleIn",
+              "type": "object",
+              "anyOf": [
+                {
+                  "required": [
+                    "factor"
+                  ],
+                  "properties": {
+                    "factor": {
+                      "type": "number"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "scale_x"
+                  ],
+                  "properties": {
+                    "scale_x": {
+                      "type": "number"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "scale_y"
+                  ],
+                  "properties": {
+                    "scale_y": {
+                      "type": "number"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "rotate_layer",
+            "label": "旋转",
+            "description": "旋转图层。angle 为相对角度，rotation 为绝对角度，顺时针为正。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "angle": {
+                  "anyOf": [
+                    {
+                      "maximum": 360,
+                      "minimum": -360,
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Angle"
+                },
+                "rotation": {
+                  "anyOf": [
+                    {
+                      "maximum": 360,
+                      "minimum": -360,
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Rotation"
+                }
+              },
+              "title": "RotateIn",
+              "type": "object",
+              "anyOf": [
+                {
+                  "required": [
+                    "angle"
+                  ],
+                  "properties": {
+                    "angle": {
+                      "type": "number"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "rotation"
+                  ],
+                  "properties": {
+                    "rotation": {
+                      "type": "number"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "move_layer",
+            "label": "移动",
+            "description": "移动指定图层。x/y 为绝对坐标，dx/dy 为相对像素位移。默认最上层图像。",
+            "queued": false,
+            "sessionRequired": true,
+            "agentHidden": [],
+            "executionOwner": "java",
+            "paramsSchema": {
+              "additionalProperties": false,
+              "properties": {
+                "layer_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+                  "title": "Layer Id"
+                },
+                "x": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "X"
+                },
+                "y": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Y"
+                },
+                "dx": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Dx"
+                },
+                "dy": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Dy"
+                }
+              },
+              "title": "MoveIn",
+              "type": "object",
+              "anyOf": [
+                {
+                  "required": [
+                    "x"
+                  ],
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "y"
+                  ],
+                  "properties": {
+                    "y": {
+                      "type": "number"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "dx"
+                  ],
+                  "properties": {
+                    "dx": {
+                      "type": "number"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "dy"
+                  ],
+                  "properties": {
+                    "dy": {
+                      "type": "number"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "capabilities": {
+          "deterministic_pixels": {
+            "ready": true,
+            "provider": "pillow",
+            "offline_test": false
+          },
+          "text_rendering": {
+            "ready": true,
+            "provider": "pillow",
+            "loaded": true,
+            "family": "Microsoft YaHei",
+            "validation": "font_load_and_basic_glyph_probe",
+            "probe": "中文价格ABC123",
+            "font": {
+              "present": true,
+              "name": "msyh.ttc",
+              "size_bytes": 19704352,
+              "sha256": "d79c55e68b1131eea0cc1c47be4f572d964f28c682e143db2ad09c1e4cb07a3f"
+            },
+            "error": null,
+            "offline_test": false
+          },
+          "image_generation": {
+            "ready": false,
+            "provider": "dashscope",
+            "offline_test": false
+          },
+          "image_edit": {
+            "ready": false,
+            "provider": "dashscope",
+            "offline_test": false
+          },
+          "enhancement": {
+            "ready": false,
+            "provider": "image_edit",
+            "offline_test": false,
+            "true_super_resolution": false
+          },
+          "matting": {
+            "ready": true,
+            "provider": "rembg",
+            "offline_test": false,
+            "loaded": false,
+            "validation": "files_and_dependencies_only",
+            "models": {
+              "u2net": {
+                "present": true,
+                "name": "u2net.onnx",
+                "size_bytes": 175997641,
+                "sha256": "8d10d2f3bb75ae3b6d527c77944fc5e7dcd94b29809d47a739a7a728a912b491"
+              }
+            }
+          },
+          "sam": {
+            "ready": true,
+            "provider": "sam",
+            "offline_test": false,
+            "loaded": true,
+            "validation": "files_and_dependencies_only",
+            "models": {
+              "encoder": {
+                "present": true,
+                "name": "sam_vit_b_01ec64.encoder.quant.onnx",
+                "size_bytes": 108836115,
+                "sha256": "181301ce3500a86c38450b56e2b71dab8008a13b1812a0d6cc812f22651e143a"
+              },
+              "decoder": {
+                "present": true,
+                "name": "sam_vit_b_01ec64.decoder.quant.onnx",
+                "size_bytes": 8755366,
+                "sha256": "b11465135b7c93a1fd65141a4e2a96f1ddf2e3dab09b5eeab640bdf5f10aadbe"
+              }
+            }
+          },
+          "ocr": {
+            "ready": true,
+            "provider": "rapidocr",
+            "offline_test": false,
+            "loaded": false,
+            "validation": "files_and_dependencies_only",
+            "models": {
+              "det": {
+                "present": true,
+                "name": "ch_PP-OCRv4_det_infer.onnx",
+                "size_bytes": 4745517,
+                "sha256": "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9"
+              },
+              "rec": {
+                "present": true,
+                "name": "ch_PP-OCRv4_rec_infer.onnx",
+                "size_bytes": 10857958,
+                "sha256": "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b"
+              },
+              "cls": {
+                "present": true,
+                "name": "ch_ppocr_mobile_v2.0_cls_infer.onnx",
+                "size_bytes": 585532,
+                "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c"
+              }
+            }
+          },
+          "planner": {
+            "ready": false,
+            "provider": "qwen-plus",
+            "offline_test": false
+          }
+        }
+      },
+      "elapsed_seconds": 0.125
+    }
+  ],
+  "checks_total": 1,
+  "checks_passed": 1,
+  "passed": true,
+  "capabilities": {
+    "schema_version": "1",
+    "tool_registry_version": "2026.10-r2",
+    "enabled": true,
+    "tools": [
+      {
+        "name": "generate_image",
+        "label": "生成图片",
+        "description": "根据文字描述从零生成图片候选。没有可编辑的图片，或用户明确要求换一张全新画面时使用；修改现有图片不要用它。",
+        "queued": true,
+        "sessionRequired": false,
+        "agentHidden": [
+          "seed",
+          "reference_asset_ids"
+        ],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "$defs": {
+            "Ratio": {
+              "enum": [
+                "1:1",
+                "4:5",
+                "3:4",
+                "9:16",
+                "16:9"
+              ],
+              "title": "Ratio",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "prompt": {
+              "maxLength": 1500,
+              "minLength": 1,
+              "title": "Prompt",
+              "type": "string"
+            },
+            "ratio": {
+              "$ref": "#/$defs/Ratio",
+              "default": "1:1"
+            },
+            "count": {
+              "default": 4,
+              "maximum": 6,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "negative_prompt": {
+              "anyOf": [
+                {
+                  "maxLength": 1500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Negative Prompt"
+            },
+            "seed": {
+              "anyOf": [
+                {
+                  "maximum": 2147483647,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Seed"
+            },
+            "reference_asset_ids": {
+              "default": [],
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "title": "Reference Asset Ids",
+              "type": "array"
+            }
+          },
+          "required": [
+            "prompt"
+          ],
+          "title": "GenerateIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "replace_background",
+        "label": "换背景",
+        "description": "按文字描述替换背景。未拆层时写回画布；已拆层时拍平生成整图只进图片墙。一次可出 1 到 4 张候选；多于一张时不自动上画布，用户点选图片墙采用。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [
+          "negative_prompt"
+        ],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "prompt": {
+              "maxLength": 500,
+              "minLength": 1,
+              "title": "Prompt",
+              "type": "string"
+            },
+            "count": {
+              "default": 1,
+              "maximum": 4,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "negative_prompt": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Negative Prompt"
+            }
+          },
+          "required": [
+            "prompt"
+          ],
+          "title": "ReplaceBackgroundIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "expand_canvas",
+        "label": "扩图",
+        "description": "把当前画布扩展到指定比例，并自然补全新增区域。主体保持完整，不要裁切。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "$defs": {
+            "Ratio": {
+              "enum": [
+                "1:1",
+                "4:5",
+                "3:4",
+                "9:16",
+                "16:9"
+              ],
+              "title": "Ratio",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "ratio": {
+              "$ref": "#/$defs/Ratio"
+            },
+            "prompt": {
+              "default": "自然延伸画面边缘，保持主体完整",
+              "maxLength": 500,
+              "title": "Prompt",
+              "type": "string"
+            }
+          },
+          "required": [
+            "ratio"
+          ],
+          "title": "ExpandCanvasIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "upscale_image",
+        "label": "超分",
+        "description": "提高当前画布分辨率。scale 为 2 或 4，默认 2 倍。不要用它换内容或改构图。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "scale": {
+              "default": 2,
+              "maximum": 4,
+              "minimum": 2,
+              "title": "Scale",
+              "type": "integer"
+            }
+          },
+          "title": "UpscaleImageIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "remove_background",
+        "label": "去背景",
+        "description": "识别指定图层的主体并去掉背景。默认最上层图像。不要用它来换背景或生成新画面。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            }
+          },
+          "title": "RemoveBackgroundIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "adjust_image",
+        "label": "调色",
+        "description": "调整指定图层的亮度、对比度、高光、阴影、色温、色调、饱和度、自然饱和度、锐化、清晰度和晕影。默认最上层图像。参数取值 -1 到 1，晕影为 0 到 1。未提到的参数保持 0。改成某个具体颜色或换材质要用 replace_region，不要用它。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "brightness": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Brightness",
+              "type": "number"
+            },
+            "contrast": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Contrast",
+              "type": "number"
+            },
+            "highlights": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Highlights",
+              "type": "number"
+            },
+            "shadows": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Shadows",
+              "type": "number"
+            },
+            "temperature": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Temperature",
+              "type": "number"
+            },
+            "tint": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Tint",
+              "type": "number"
+            },
+            "saturation": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Saturation",
+              "type": "number"
+            },
+            "vibrance": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Vibrance",
+              "type": "number"
+            },
+            "sharpness": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Sharpness",
+              "type": "number"
+            },
+            "clarity": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Clarity",
+              "type": "number"
+            },
+            "vignette": {
+              "default": 0,
+              "maximum": 1,
+              "minimum": 0,
+              "title": "Vignette",
+              "type": "number"
+            }
+          },
+          "title": "AdjustIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "erase_region",
+        "label": "局部消除",
+        "description": "消除物体，并用周围内容自然填补。有选区时只消除选区内；用 layer_id 点名图层时消除该层内容；两者都有取交集。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [
+          "mask_asset_id",
+          "revision"
+        ],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "mask_asset_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Mask Asset Id"
+            },
+            "revision": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Revision"
+            },
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "prompt": {
+              "default": "",
+              "maxLength": 500,
+              "title": "Prompt",
+              "type": "string"
+            }
+          },
+          "title": "RegionIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "replace_region",
+        "label": "局部替换",
+        "description": "按文字描述替换画面内容，改颜色、换材质、换成另一个物体都用它。有选区时只改选区内；用 layer_id 点名图层时改该层整层；两者都有取交集。只需给出替换描述，不必确认选区是否点准。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [
+          "mask_asset_id",
+          "revision"
+        ],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "mask_asset_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Mask Asset Id"
+            },
+            "revision": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Revision"
+            },
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "prompt": {
+              "maxLength": 500,
+              "minLength": 1,
+              "title": "Prompt",
+              "type": "string"
+            }
+          },
+          "required": [
+            "prompt"
+          ],
+          "title": "ReplaceRegionIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "split_layers",
+        "label": "拆层",
+        "description": "把画面拆成背景和主体。默认不拆文字；include_text 为 true 时才识别文字层。已拆过则跳过。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "include_text": {
+              "default": false,
+              "title": "Include Text",
+              "type": "boolean"
+            }
+          },
+          "title": "SplitLayersIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "promote_object_to_layer",
+        "label": "提升为图层",
+        "description": "把当前选区提升为独立图层，原位置用周围背景填补。该物体已是独立图层时跳过。画布摘要标明已有选区时即可调用。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [
+          "mask_asset_id",
+          "revision"
+        ],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "mask_asset_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Mask Asset Id"
+            },
+            "revision": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Revision"
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "maxLength": 40,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Name"
+            }
+          },
+          "title": "PromoteIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "generate_marketing",
+        "label": "营销图",
+        "description": "按当前画布生成电商营销图，只进图片墙，不改当前画布。kind：product 商品主图（白底）、scene 场景氛围图、model 模特上身、poster 促销海报。caption 可填海报标题或补充要求。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "$defs": {
+            "MarketingKind": {
+              "enum": [
+                "product",
+                "scene",
+                "model",
+                "poster"
+              ],
+              "title": "MarketingKind",
+              "type": "string"
+            },
+            "Ratio": {
+              "enum": [
+                "1:1",
+                "4:5",
+                "3:4",
+                "9:16",
+                "16:9"
+              ],
+              "title": "Ratio",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/MarketingKind",
+              "description": "product 商品主图、scene 场景氛围图、model 模特上身、poster 促销海报"
+            },
+            "caption": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "海报文案或补充要求",
+              "title": "Caption"
+            },
+            "count": {
+              "default": 1,
+              "maximum": 4,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "ratio": {
+              "$ref": "#/$defs/Ratio",
+              "default": "1:1",
+              "description": "输出比例，默认 1:1"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "title": "GenerateMarketingIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "prepare_delivery_sizes",
+        "label": "投放尺寸",
+        "description": "把当前画布完整放入投放比例，不裁切、不改画面，只进图片墙。默认一次出 1:1、4:5、9:16。用户说改尺寸、出投放物料时用这个，不要用 crop_canvas。",
+        "queued": true,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "sourceQueued": false,
+        "executionOwner": "python",
+        "paramsSchema": {
+          "$defs": {
+            "Ratio": {
+              "enum": [
+                "1:1",
+                "4:5",
+                "3:4",
+                "9:16",
+                "16:9"
+              ],
+              "title": "Ratio",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "ratios": {
+              "description": "要输出的投放比例。默认 1:1、4:5、9:16。主体不被裁切。",
+              "items": {
+                "$ref": "#/$defs/Ratio"
+              },
+              "maxItems": 5,
+              "minItems": 1,
+              "title": "Ratios",
+              "type": "array",
+              "default": [
+                "1:1",
+                "4:5",
+                "9:16"
+              ]
+            },
+            "prompt": {
+              "default": "自然延伸画面边缘，保持主体完整，不要裁切商品",
+              "maxLength": 500,
+              "title": "Prompt",
+              "type": "string"
+            }
+          },
+          "title": "PrepareDeliverySizesIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "batch_process",
+        "label": "批量处理",
+        "description": "对多张图执行同一套像素处理：去背景、换背景、调色、超分、扩图、投放尺寸。不要用于单张精修，也不要做营销图、局部编辑或拆层。",
+        "queued": true,
+        "sessionRequired": false,
+        "agentHidden": [],
+        "executionOwner": "python",
+        "paramsSchema": {
+          "$defs": {
+            "BatchOpIn": {
+              "additionalProperties": false,
+              "properties": {
+                "tool": {
+                  "enum": [
+                    "remove_background",
+                    "replace_background",
+                    "adjust_image",
+                    "upscale_image",
+                    "expand_canvas",
+                    "prepare_delivery_sizes"
+                  ],
+                  "title": "Tool",
+                  "type": "string"
+                },
+                "params": {
+                  "additionalProperties": true,
+                  "title": "Params",
+                  "type": "object",
+                  "default": {}
+                }
+              },
+              "required": [
+                "tool"
+              ],
+              "title": "BatchOpIn",
+              "type": "object"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "asset_ids": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "maxItems": 20,
+              "minItems": 1,
+              "title": "Asset Ids",
+              "type": "array"
+            },
+            "operations": {
+              "items": {
+                "$ref": "#/$defs/BatchOpIn"
+              },
+              "maxItems": 6,
+              "minItems": 1,
+              "title": "Operations",
+              "type": "array"
+            },
+            "formats": {
+              "items": {
+                "enum": [
+                  "png",
+                  "jpg"
+                ],
+                "type": "string"
+              },
+              "maxItems": 2,
+              "minItems": 1,
+              "title": "Formats",
+              "type": "array",
+              "default": [
+                "png"
+              ]
+            }
+          },
+          "required": [
+            "asset_ids",
+            "operations"
+          ],
+          "title": "BatchIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "crop_canvas",
+        "label": "裁剪",
+        "description": "按比例或归一化矩形裁切画布。只改图层文档，不调用生成模型。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "$defs": {
+            "CropRect": {
+              "additionalProperties": false,
+              "properties": {
+                "x": {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "title": "X",
+                  "type": "number"
+                },
+                "y": {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "title": "Y",
+                  "type": "number"
+                },
+                "width": {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1,
+                  "title": "Width",
+                  "type": "number"
+                },
+                "height": {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1,
+                  "title": "Height",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "y",
+                "width",
+                "height"
+              ],
+              "title": "CropRect",
+              "type": "object"
+            },
+            "Ratio": {
+              "enum": [
+                "1:1",
+                "4:5",
+                "3:4",
+                "9:16",
+                "16:9"
+              ],
+              "title": "Ratio",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "ratio": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Ratio"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "rect": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CropRect"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "title": "CropIn",
+          "type": "object",
+          "oneOf": [
+            {
+              "required": [
+                "ratio"
+              ],
+              "properties": {
+                "ratio": {
+                  "type": "string"
+                }
+              },
+              "not": {
+                "properties": {
+                  "rect": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "rect"
+                ]
+              }
+            },
+            {
+              "required": [
+                "rect"
+              ],
+              "properties": {
+                "rect": {
+                  "type": "object"
+                }
+              },
+              "not": {
+                "properties": {
+                  "ratio": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "ratio"
+                ]
+              }
+            }
+          ],
+          "x-constraints": [
+            "rect.x + rect.width <= 1.0001",
+            "rect.y + rect.height <= 1.0001",
+            "min(crop.width,crop.height) >= 32"
+          ]
+        }
+      },
+      {
+        "name": "flip_layer",
+        "label": "翻转",
+        "description": "水平或垂直翻转指定图层，默认最上层图像。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "direction": {
+              "enum": [
+                "horizontal",
+                "vertical"
+              ],
+              "title": "Direction",
+              "type": "string"
+            }
+          },
+          "required": [
+            "direction"
+          ],
+          "title": "FlipIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "set_layer_opacity",
+        "label": "透明度",
+        "description": "设置图层透明度，取值 0 到 1。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "opacity": {
+              "maximum": 1,
+              "minimum": 0,
+              "title": "Opacity",
+              "type": "number"
+            }
+          },
+          "required": [
+            "opacity"
+          ],
+          "title": "OpacityIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "set_layer_visible",
+        "label": "显隐",
+        "description": "显示或隐藏指定图层，不删除内容。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "visible": {
+              "title": "Visible",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "visible"
+          ],
+          "title": "VisibleIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "set_layer_text",
+        "label": "改文字",
+        "description": "修改文字图层的文案，可选字号与颜色。未指定图层时改最上层可见文字。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "text": {
+              "maxLength": 500,
+              "title": "Text",
+              "type": "string"
+            },
+            "font_size": {
+              "anyOf": [
+                {
+                  "maximum": 400,
+                  "minimum": 8,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Font Size"
+            },
+            "fill": {
+              "anyOf": [
+                {
+                  "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Fill"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "title": "TextIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "reorder_layer",
+        "label": "图层顺序",
+        "description": "调整图层前后顺序：top / bottom / up / down。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "place": {
+              "enum": [
+                "top",
+                "bottom",
+                "up",
+                "down"
+              ],
+              "title": "Place",
+              "type": "string"
+            }
+          },
+          "required": [
+            "place"
+          ],
+          "title": "ReorderIn",
+          "type": "object"
+        }
+      },
+      {
+        "name": "scale_layer",
+        "label": "缩放",
+        "description": "缩放指定图层，默认最上层图像。factor 为相对倍率，scale_x / scale_y 为绝对值。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [
+          "x",
+          "y"
+        ],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "factor": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "maximum": 8,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Factor"
+            },
+            "scale_x": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "maximum": 8,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Scale X"
+            },
+            "scale_y": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "maximum": 8,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Scale Y"
+            },
+            "x": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "X"
+            },
+            "y": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Y"
+            }
+          },
+          "title": "ScaleIn",
+          "type": "object",
+          "anyOf": [
+            {
+              "required": [
+                "factor"
+              ],
+              "properties": {
+                "factor": {
+                  "type": "number"
+                }
+              }
+            },
+            {
+              "required": [
+                "scale_x"
+              ],
+              "properties": {
+                "scale_x": {
+                  "type": "number"
+                }
+              }
+            },
+            {
+              "required": [
+                "scale_y"
+              ],
+              "properties": {
+                "scale_y": {
+                  "type": "number"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "rotate_layer",
+        "label": "旋转",
+        "description": "旋转图层。angle 为相对角度，rotation 为绝对角度，顺时针为正。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "angle": {
+              "anyOf": [
+                {
+                  "maximum": 360,
+                  "minimum": -360,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Angle"
+            },
+            "rotation": {
+              "anyOf": [
+                {
+                  "maximum": 360,
+                  "minimum": -360,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Rotation"
+            }
+          },
+          "title": "RotateIn",
+          "type": "object",
+          "anyOf": [
+            {
+              "required": [
+                "angle"
+              ],
+              "properties": {
+                "angle": {
+                  "type": "number"
+                }
+              }
+            },
+            {
+              "required": [
+                "rotation"
+              ],
+              "properties": {
+                "rotation": {
+                  "type": "number"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "move_layer",
+        "label": "移动",
+        "description": "移动指定图层。x/y 为绝对坐标，dx/dy 为相对像素位移。默认最上层图像。",
+        "queued": false,
+        "sessionRequired": true,
+        "agentHidden": [],
+        "executionOwner": "java",
+        "paramsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "layer_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "要修改的图层 id 或名字，如 background、subject、物体2。不填则作用在选区下最上层可见图像。",
+              "title": "Layer Id"
+            },
+            "x": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "X"
+            },
+            "y": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Y"
+            },
+            "dx": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Dx"
+            },
+            "dy": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Dy"
+            }
+          },
+          "title": "MoveIn",
+          "type": "object",
+          "anyOf": [
+            {
+              "required": [
+                "x"
+              ],
+              "properties": {
+                "x": {
+                  "type": "number"
+                }
+              }
+            },
+            {
+              "required": [
+                "y"
+              ],
+              "properties": {
+                "y": {
+                  "type": "number"
+                }
+              }
+            },
+            {
+              "required": [
+                "dx"
+              ],
+              "properties": {
+                "dx": {
+                  "type": "number"
+                }
+              }
+            },
+            {
+              "required": [
+                "dy"
+              ],
+              "properties": {
+                "dy": {
+                  "type": "number"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "capabilities": {
+      "deterministic_pixels": {
+        "ready": true,
+        "provider": "pillow",
+        "offline_test": false
+      },
+      "text_rendering": {
+        "ready": true,
+        "provider": "pillow",
+        "loaded": true,
+        "family": "Microsoft YaHei",
+        "validation": "font_load_and_basic_glyph_probe",
+        "probe": "中文价格ABC123",
+        "font": {
+          "present": true,
+          "name": "msyh.ttc",
+          "size_bytes": 19704352,
+          "sha256": "d79c55e68b1131eea0cc1c47be4f572d964f28c682e143db2ad09c1e4cb07a3f"
+        },
+        "error": null,
+        "offline_test": false
+      },
+      "image_generation": {
+        "ready": false,
+        "provider": "dashscope",
+        "offline_test": false
+      },
+      "image_edit": {
+        "ready": false,
+        "provider": "dashscope",
+        "offline_test": false
+      },
+      "enhancement": {
+        "ready": false,
+        "provider": "image_edit",
+        "offline_test": false,
+        "true_super_resolution": false
+      },
+      "matting": {
+        "ready": true,
+        "provider": "rembg",
+        "offline_test": false,
+        "loaded": false,
+        "validation": "files_and_dependencies_only",
+        "models": {
+          "u2net": {
+            "present": true,
+            "name": "u2net.onnx",
+            "size_bytes": 175997641,
+            "sha256": "8d10d2f3bb75ae3b6d527c77944fc5e7dcd94b29809d47a739a7a728a912b491"
+          }
+        }
+      },
+      "sam": {
+        "ready": true,
+        "provider": "sam",
+        "offline_test": false,
+        "loaded": true,
+        "validation": "files_and_dependencies_only",
+        "models": {
+          "encoder": {
+            "present": true,
+            "name": "sam_vit_b_01ec64.encoder.quant.onnx",
+            "size_bytes": 108836115,
+            "sha256": "181301ce3500a86c38450b56e2b71dab8008a13b1812a0d6cc812f22651e143a"
+          },
+          "decoder": {
+            "present": true,
+            "name": "sam_vit_b_01ec64.decoder.quant.onnx",
+            "size_bytes": 8755366,
+            "sha256": "b11465135b7c93a1fd65141a4e2a96f1ddf2e3dab09b5eeab640bdf5f10aadbe"
+          }
+        }
+      },
+      "ocr": {
+        "ready": true,
+        "provider": "rapidocr",
+        "offline_test": false,
+        "loaded": false,
+        "validation": "files_and_dependencies_only",
+        "models": {
+          "det": {
+            "present": true,
+            "name": "ch_PP-OCRv4_det_infer.onnx",
+            "size_bytes": 4745517,
+            "sha256": "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9"
+          },
+          "rec": {
+            "present": true,
+            "name": "ch_PP-OCRv4_rec_infer.onnx",
+            "size_bytes": 10857958,
+            "sha256": "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b"
+          },
+          "cls": {
+            "present": true,
+            "name": "ch_ppocr_mobile_v2.0_cls_infer.onnx",
+            "size_bytes": 585532,
+            "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c"
+          }
+        }
+      },
+      "planner": {
+        "ready": false,
+        "provider": "qwen-plus",
+        "offline_test": false
+      }
+    }
+  },
+  "http_requests": 1,
+  "formal_tasks_created": 0,
+  "formal_assets_written": 0,
+  "database_writes": 0,
+  "model_or_provider_calls": 0,
+  "business_acceptance": false
+}

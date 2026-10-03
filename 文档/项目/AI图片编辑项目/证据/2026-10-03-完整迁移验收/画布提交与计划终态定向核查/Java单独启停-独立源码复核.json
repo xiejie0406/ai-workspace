@@ -1,0 +1,92 @@
+{
+  "checked_at": "2026-10-03T07:47:40.193510+00:00",
+  "review_type": "独立有界脚本只读复核",
+  "scope": "本项目仅Java停止/恢复分支；不运行两脚本，不查或改其他通道。",
+  "findings": [],
+  "conclusion": "在原processes.json、原service.secret、原数据库/运行env及显式已冻结候选包条件下，本次JavaOnly分支未见具体阻断或跨项目停止/启动错误；需根实际执行核对运行健康。",
+  "files": [
+    {
+      "current": {
+        "path": "scripts/aipicture/启动图片本地通道.ps1",
+        "size_bytes": 12306,
+        "sha256": "6ca2fb880f593e9c789737f4e7c60e88057db62732fd34683263e8defed5ceaa"
+      },
+      "protected_original": {
+        "path": ".runtime/aipicture/before-editor-terminal-20261003/scripts/启动图片本地通道.ps1",
+        "size_bytes": 9161,
+        "sha256": "a72645f2d070997c65bfe589bfe2c119b7813f79c49f9bdc527d0218c402d19a"
+      },
+      "readonly_difference": "--- 保存的原文/启动图片本地通道.ps1\n+++ 当前/启动图片本地通道.ps1\n@@ -1,7 +1,9 @@\n [CmdletBinding()]\n-param([string]$DatabaseConfigPath, [string]$RuntimeConfigPath, [string]$JavaArtifactPath, [switch]$Frontend, [switch]$PythonOnly)\n+param([string]$DatabaseConfigPath, [string]$RuntimeConfigPath, [string]$JavaArtifactPath, [switch]$Frontend, [switch]$PythonOnly, [switch]$JavaOnly)\n Set-StrictMode -Version Latest\n $ErrorActionPreference='Stop'\n if($PythonOnly -and ($Frontend -or $JavaArtifactPath)) { throw '仅恢复Python不能同时启动前端或替换Java制品。' }\n+if($PythonOnly -and $JavaOnly) { throw 'PythonOnly与JavaOnly不能同时使用。' }\n+if($JavaOnly -and $Frontend) { throw '仅恢复Java不能同时启动前端。' }\n $pictureRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))\n $pictureRunRoot=Join-Path $pictureRoot '.runtime/aipicture'\n@@ -16,18 +18,40 @@\n foreach($required in @('RUOYI_DB_USERNAME','RUOYI_DB_PASSWORD')) { if (-not $pictureSettings[$required]) { throw \"缺少原配置 $required。\" } }\n if ($pictureSettings['AIPICTURE_OFFLINE_TEST'] -eq 'true' -or $pictureSettings['AIPICTURE_IMAGE_PROVIDER'] -eq 'mock') { throw '正式中心通道不能连接离线测试替身。' }\n-$picturePorts=if($PythonOnly){@(7405)}else{@(8415,7405)}\n+$picturePorts=if($PythonOnly){@(7405)}elseif($JavaOnly){@(8415)}else{@(8415,7405)}\n if ($Frontend) { $picturePorts+=14385 }\n foreach($port in $picturePorts) { if (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue) { throw \"图片通道端口 $port 已占用；保留现有进程，请先核对本项目运行清单。\" } }\n $pictureManifest=Join-Path $pictureRunRoot 'processes.json'\n $previous=$null\n-if($PythonOnly -and -not (Test-Path -LiteralPath $pictureManifest -PathType Leaf)) { throw '仅恢复Python需要原图片通道清单，不能创建替代中心。' }\n+if(($PythonOnly -or $JavaOnly) -and -not (Test-Path -LiteralPath $pictureManifest -PathType Leaf)) { throw '局部恢复需要原图片通道清单，不能创建替代通道。' }\n if (Test-Path -LiteralPath $pictureManifest) {\n     $previous=Get-Content -LiteralPath $pictureManifest -Raw | ConvertFrom-Json\n     foreach($process in $previous.processes) {\n         if($PythonOnly -and $process.name -notin @('python-serve','python-worker')) { continue }\n+        if($JavaOnly -and $process.name -ne 'java') { continue }\n         if(Get-Process -Id $process.pid -ErrorAction SilentlyContinue) { throw '已有图片通道进程，先核对其版本，不自动重复启动或停止。' }\n     }\n }\n $pictureJar=Join-Path $pictureRunRoot 'ruoyi-admin.jar'\n+if($JavaOnly) {\n+    # 沿用原Python父子与7405归属，只更新Java，不把已预热模型重启为未加载。\n+    $picturePythonEntries=@($previous.processes | Where-Object { $_.name -in @('python-serve','python-worker') })\n+    if($picturePythonEntries.Count -ne 2 -or @($picturePythonEntries.name | Sort-Object -Unique).Count -ne 2) { throw '原清单必须有唯一serve和worker，仅恢复Java停止。' }\n+    $pictureServePids=@()\n+    foreach($entry in $picturePythonEntries) {\n+        $process=Get-CimInstance Win32_Process -Filter \"ProcessId=$($entry.pid)\"\n+        $kind=$entry.name.Substring('python-'.Length)\n+        if(-not $process -or [IO.Path]::GetFullPath($process.ExecutablePath) -ne [IO.Path]::GetFullPath($entry.artifact) -or $process.CommandLine -notmatch \"-m\\s+aipicture_runtime\\s+$kind(?:\\s|$)\") { throw '原Python父进程身份变化，仅恢复Java停止。' }\n+        $venvConfig=Join-Path ([IO.Path]::GetDirectoryName([IO.Path]::GetDirectoryName($entry.artifact))) 'pyvenv.cfg'\n+        $baseHome=Get-Content -LiteralPath $venvConfig | Where-Object { $_ -match '^home\\s*=\\s*(.+)$' } | ForEach-Object { $Matches[1].Trim() } | Select-Object -First 1\n+        if(-not $baseHome) { throw '无法核对原Python基础解释器，仅恢复Java停止。' }\n+        $basePython=[IO.Path]::GetFullPath((Join-Path $baseHome 'python.exe'))\n+        $children=@(Get-CimInstance Win32_Process -Filter \"ParentProcessId=$($entry.pid)\" | Where-Object { $_.CommandLine -match \"-m\\s+aipicture_runtime\\s+$kind(?:\\s|$)\" })\n+        foreach($child in $children) { if([IO.Path]::GetFullPath($child.ExecutablePath) -ne $basePython) { throw '原Python子进程身份变化，仅恢复Java停止。' } }\n+        if($kind -eq 'serve') { $pictureServePids=@($entry.pid)+@($children | ForEach-Object ProcessId) }\n+    }\n+    $picturePythonListeners=@(Get-NetTCPConnection -LocalPort 7405 -State Listen -ErrorAction SilentlyContinue)\n+    if($picturePythonListeners.Count -ne 1 -or $picturePythonListeners[0].OwningProcess -notin $pictureServePids) { throw '7405不属于原Python serve，仅恢复Java停止。' }\n+    if(-not (Test-Path -LiteralPath (Join-Path $pictureRunRoot 'service.secret') -PathType Leaf)) { throw '仅恢复Java需要原服务凭据，不能新建或轮换。' }\n+}\n if($PythonOnly) {\n     $pictureActivePython=@(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match '(^|\\s)-m\\s+aipicture_runtime\\s+(serve|worker)(\\s|$)' })\n@@ -75,10 +99,10 @@\n         $pictureStarted.Add([pscustomobject]@{name='java';pid=$java.Id;artifact=$pictureJar;sha256=(Get-FileHash -LiteralPath $pictureJar -Algorithm SHA256).Hash;port=8415})\n     }\n-    foreach($kind in @('serve','worker')) {\n+    if(-not $JavaOnly) { foreach($kind in @('serve','worker')) {\n         $arguments=@('-m','aipicture_runtime',$kind)\n         if($kind -eq 'serve') { $arguments+=@('--host','127.0.0.1','--port','7405') }\n         $python=Start-Process -FilePath $picturePython -ArgumentList $arguments -WorkingDirectory (Join-Path $pictureRoot 'python/aipicture-runtime') -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $pictureRunRoot \"python-$kind.log\") -RedirectStandardError (Join-Path $pictureRunRoot \"python-$kind.err.log\")\n         $pictureStarted.Add([pscustomobject]@{name=\"python-$kind\";pid=$python.Id;artifact=$picturePython;port=$(if($kind -eq 'serve'){7405}else{0})})\n-    }\n+    } }\n     if($Frontend) {\n         $env:ADMIN_DEV_BACKEND_URL='http://127.0.0.1:8415'\n@@ -92,5 +116,10 @@\n     foreach($name in $pictureOldEnv.Keys) { [Environment]::SetEnvironmentVariable($name,$pictureOldEnv[$name],'Process') }\n     # 只保存进程与产物身份，不保存数据库或供应商密钥；进程启动不代表业务健康。\n-    if($PythonOnly) {\n+    if($JavaOnly) {\n+        $previous.processes=@($previous.processes | Where-Object { $_.name -ne 'java' })+$pictureStarted.ToArray()\n+        $previous | Add-Member -NotePropertyName javaStartedAt -NotePropertyValue (Get-Date).ToUniversalTime().ToString('o') -Force\n+        if($RuntimeConfigPath) { $previous | Add-Member -NotePropertyName javaRuntimeConfigPath -NotePropertyValue ([IO.Path]::GetFullPath($RuntimeConfigPath)) -Force }\n+        $previous | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pictureManifest -Encoding utf8\n+    } elseif($PythonOnly) {\n         $previous.processes=@($previous.processes | Where-Object { $_.name -notin @('python-serve','python-worker') })+$pictureStarted.ToArray()\n         $previous | Add-Member -NotePropertyName pythonStartedAt -NotePropertyValue (Get-Date).ToUniversalTime().ToString('o') -Force\n"
+    },
+    {
+      "current": {
+        "path": "scripts/aipicture/停止图片本地通道.ps1",
+        "size_bytes": 6279,
+        "sha256": "b2fd86ad1b499696a406bf6e8572fd3d476314cf5afe49e13ab224e43b7d49bf"
+      },
+      "protected_original": {
+        "path": ".runtime/aipicture/before-editor-terminal-20261003/scripts/停止图片本地通道.ps1",
+        "size_bytes": 5482,
+        "sha256": "d3578cd26aac69f5ce7fbd67bc32ab031a7de730236c02c1197bff0353ada159"
+      },
+      "readonly_difference": "--- 保存的原文/停止图片本地通道.ps1\n+++ 当前/停止图片本地通道.ps1\n@@ -1,6 +1,7 @@\n [CmdletBinding()]\n-param([switch]$PythonOnly)\n+param([switch]$PythonOnly, [switch]$JavaOnly)\n Set-StrictMode -Version Latest\n $ErrorActionPreference='Stop'\n+if($PythonOnly -and $JavaOnly) { throw 'PythonOnly与JavaOnly不能同时使用。' }\n $pictureRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))\n $pictureManifest=Join-Path $pictureRoot '.runtime/aipicture/processes.json'\n@@ -11,8 +12,14 @@\n foreach($entry in $pictureState.processes) {\n     if($PythonOnly -and $entry.name -notin @('python-serve','python-worker')) { continue }\n+    if($JavaOnly -and $entry.name -ne 'java') { continue }\n     $process=Get-CimInstance Win32_Process -Filter \"ProcessId=$($entry.pid)\"\n     if(-not $process) { continue }\n     if($entry.name -eq 'java') {\n         if(-not $process.CommandLine.Contains($entry.artifact)) { throw 'Java PID身份已变化，不停止。' }\n+        if($JavaOnly) {\n+            if($process.Name -ne 'java.exe' -or $process.CommandLine -notmatch ('-jar\\s+\"?'+[regex]::Escape($entry.artifact)+'\"?(?:\\s|$)') -or (Get-FileHash -LiteralPath $entry.artifact -Algorithm SHA256).Hash -ne $entry.sha256) { throw '原Java路径、命令或制品身份变化，不停止。' }\n+            $javaListeners=@(Get-NetTCPConnection -LocalPort $entry.port -State Listen -ErrorAction SilentlyContinue)\n+            if($javaListeners.Count -ne 1 -or $javaListeners[0].OwningProcess -ne $entry.pid) { throw '原Java监听归属变化，不停止。' }\n+        }\n     } elseif($entry.name -like 'python-*') {\n         if([IO.Path]::GetFullPath($process.ExecutablePath) -ne [IO.Path]::GetFullPath($entry.artifact) -or -not $process.CommandLine.Contains('aipicture_runtime')) { throw 'Python PID身份已变化，不停止。' }\n@@ -60,5 +67,5 @@\n     Start-Sleep -Milliseconds 250\n }\n-$pictureStopField=if($PythonOnly){'pythonStoppedAt'}else{'stoppedAt'}\n+$pictureStopField=if($PythonOnly){'pythonStoppedAt'}elseif($JavaOnly){'javaStoppedAt'}else{'stoppedAt'}\n $pictureState | Add-Member -NotePropertyName $pictureStopField -NotePropertyValue (Get-Date).ToUniversalTime().ToString('o') -Force\n $pictureState | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pictureManifest -Encoding utf8\n"
+    }
+  ],
+  "semantic_checks": [
+    {
+      "topic": "模式互斥",
+      "fact": "两脚本均在动作前拒PythonOnly与JavaOnly并用；启动也拒JavaOnly与Frontend及PythonOnly与Frontend/JavaArtifactPath混用。",
+      "result": "静态未见问题"
+    },
+    {
+      "topic": "仅Java停止边界",
+      "fact": "筛entry.name=java，JavaOnly核java.exe、原artifact完整-jar命令匹配、原artifact SHA与8415监听PID；原Python/frontend不会进入targets。",
+      "result": "静态未见问题"
+    },
+    {
+      "topic": "停止前身份时序",
+      "fact": "所有目标先核后stop；每个stop前freshCIM再比creationDate/完整command/executable，再取Handle核StartTime与原CIM≤1ms并Stop-Process -InputObject；消失确认退出、身份变化保留。不会按端口/名称扫杀。",
+      "result": "静态未见问题；未重复PID/精度运行核查"
+    },
+    {
+      "topic": "保留原Python模型进程",
+      "fact": "启动JavaOnly先要求原manifest唯一serve/worker，分别核原venv父PID、实际模块kind、pyvenv.cfg给出的基础python路径及对应子PID，7405必须属原serve父/子；JavaOnly不走Python派发段。",
+      "result": "静态未见问题；实际PID归属由根运行证据证明"
+    },
+    {
+      "topic": "凭据、数据库及配置",
+      "fact": "JavaOnly前置要求原service.secret存在，不以新secret建立替代通道；沿既有DatabaseConfigPath/RuntimeConfigPath读取配置，约束原本机ry-vue，DB用户名/密码必需并拒offline/mock；原secret值仅进进程env，未写manifest。",
+      "result": "当前指定条件下静态未见问题；未读取或保存任何secret/DB密码"
+    },
+    {
+      "topic": "制品及启动",
+      "fact": "局部恢复先要求原manifest；仅8415应空闲，原JavaPID应退出；候选总包必须含图片模块才复制原runtime jar，再Hidden派发java -jar。其它工程启动flags沿原脚本显式false。",
+      "result": "静态未见问题；未把复制/Start-Process等同接口或业务通过"
+    },
+    {
+      "topic": "manifest原登记",
+      "fact": "JavaOnly finally保留原object.startedAt、databaseMode/database及所有非java进程，只有旧java entry替换为本轮实际派发java；增javaStartedAt/可选javaRuntimeConfigPath，不改Python startedAt/config登记。stop仅增javaStoppedAt。",
+      "result": "静态未见问题"
+    }
+  ],
+  "parent_reported_parser_check": {
+    "parse_errors": 0,
+    "independently_reexecuted": false
+  },
+  "reviewer_actions": {
+    "script_executions": 0,
+    "process_queries_or_actions": 0,
+    "tests": 0,
+    "builds": 0,
+    "http": 0,
+    "database": 0,
+    "model_inference": 0,
+    "source_modifications": 0,
+    "document_modifications": 0
+  },
+  "limitations": [
+    "静态阅读不证明当前监听/进程健康、已加载模型继续存活或Java配置实际生效；根必须执行后核对。",
+    "本结论采用指定原manifest/原secret/原env和显式候选包；没有把任意被篡改清单、外部文件变更或其他项目进程当当前环境事实。",
+    "原脚本保留既有env与manifest机制，不新增配置、费用、数据或正式业务验收权限。"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1",
+  "task": "受保护14385进程创建日期误报只读诊断",
+  "checkedAtUtc": "2026-10-03T06:42:02.1986252Z",
+  "powershellVersion": "7.6.5",
+  "sourceRecord": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\unicode-image-runtime-before.json",
+    "sha256": "82aad246665fc3d66af9c9953aa91169e1a50ae0fd03a104361739b465a41a55"
+  },
+  "sourceScript": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\record-unicode-image-runtime.ps1",
+    "sha256": "2643d6a0eca79292ddbbff1d87b7756cd0c00b53a9a562c216fecc17bf795c99"
+  },
+  "baselineRawJsonIdentity": {
+    "name": "protected-14385",
+    "pid": 11508,
+    "parentPid": 39520,
+    "executablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "commandLine": "node   \"D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\admin-web\\node_modules\\.bin\\\\..\\vite\\bin\\vite.js\" --host 127.0.0.1 --port 14385 --strictPort",
+    "creationDateUtc": "2026-10-02T17:58:30.3150340Z"
+  },
+  "defaultConvertFromJson": {
+    "fieldType": "System.DateTime",
+    "dateKind": "Utc",
+    "defaultStringConversion": "10/02/2026 17:58:30",
+    "roundtrip": "2026-10-02T17:58:30.3150340Z",
+    "utcRoundtrip": "2026-10-02T17:58:30.3150340Z"
+  },
+  "currentCimIdentity": {
+    "pid": 11508,
+    "parentPid": 39520,
+    "executablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "commandLine": "node   \"D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\admin-web\\node_modules\\.bin\\\\..\\vite\\bin\\vite.js\" --host 127.0.0.1 --port 14385 --strictPort",
+    "creationDateCimType": "System.DateTime",
+    "creationDateCimRoundtrip": "2026-10-03T01:58:30.3150340+08:00",
+    "creationDateUtc": "2026-10-02T17:58:30.3150340Z"
+  },
+  "currentListeners": [
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 14385,
+      "OwningProcess": 11508
+    }
+  ],
+  "comparison": {
+    "originalOperator": "$current.creationDateUtc -ne $parsedIdentity.creationDateUtc",
+    "originalOperatorReportsChange": true,
+    "leftType": "System.String",
+    "rightType": "System.DateTime",
+    "baselineUtcTicks": 639265607103150340,
+    "currentUtcTicks": 639265607103150340,
+    "strictPrecision": "100ns, zero tolerance",
+    "matches": {
+      "pid": true,
+      "parentPid": true,
+      "executablePath": true,
+      "commandLine": true,
+      "rawCreationDateUtc": true,
+      "strictCreationUtcTicks": true,
+      "listenerOwnedByExpectedProcess": true
+    }
+  },
+  "conclusion": {
+    "pidReuseEvidenceFound": false,
+    "allRecordedIdentityFieldsAnd14385OwnershipUnchanged": true,
+    "cause": "PowerShell7.6.5 ConvertFrom-Json自动将基线ISO UTC字符串转换为DateTime；原左string右DateTime的-ne按字符串转换比较，文化格式字符串与ISO字符串不同，从而误报。原UTC时间与当前CIM时间的精确字符串及UtcTicks相同。",
+    "recommendedMinimalCorrection": "保留PID/ExecutablePath/CommandLine精确校验；creationDateUtc须将原带时区基线和当前值显式规范到UTC并以UtcTicks严格比较，100ns、无容差。可使用ConvertFrom-Json -DateKind String保留原日期字符串，再显式DateTimeOffset解析；不得用仅日期/秒或宽松包含匹配代替身份校验。"
+  },
+  "scope": {
+    "scriptOrSourceModified": false,
+    "processStoppedOrStarted": false,
+    "httpRequests": 0,
+    "databaseOperations": 0,
+    "modelOrProviderCalls": 0,
+    "testsExecuted": 0,
+    "privateDiagnosisCreatedOnly": true,
+    "businessAcceptance": "未执行，本诊断仅证明进程身份与日期解析事实"
+  }
+}

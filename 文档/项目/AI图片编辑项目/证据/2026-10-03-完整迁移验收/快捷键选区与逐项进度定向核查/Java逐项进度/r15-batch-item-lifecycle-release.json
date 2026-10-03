@@ -1,0 +1,240 @@
+{
+  "schemaVersion": "1",
+  "frozenAtUtc": "2026-10-03T10:24:50.9451512Z",
+  "scope": "批量单项领取与允许恢复时的公开状态同步；只修改RunService及新增定向测试",
+  "productionChangedOnly": [
+    "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java"
+  ],
+  "testAddedOnly": [
+    "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/BatchItemLifecycleTest.java"
+  ],
+  "productionBehavior": "claim同事务queued→running；纯CPU到期允许恢复时running→queued。共用更新强制item/owner/current run/prior状态绑定，不覆写成功/取消/未知结果/新重试run。收费过期隔离、终态关系、幂等重试保持原政策。",
+  "source": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\RunService.java",
+    "bytes": 43099,
+    "sha256": "edecaca5d2849cada3a97348a237fcc5536acf7e5c6c7e2e6d4c27fa56975bb1"
+  },
+  "testSource": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\test\\java\\com\\ruoyi\\aipicture\\BatchItemLifecycleTest.java",
+    "bytes": 10813,
+    "sha256": "0ecd04cefdd5e0c5a69e5020fd29ad3a01356d2a3759005edfbc48b5b4cb6837"
+  },
+  "unchangedRegressionSource": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\test\\java\\com\\ruoyi\\aipicture\\BatchRecoveryTest.java",
+    "bytes": 5541,
+    "sha256": "aabc6644f1b3a19927b32eee619f5f6fc2087c974bd10197fecdcfe2e8882415"
+  },
+  "productionClasses": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\RunService.class",
+      "bytes": 54119,
+      "sha256": "9150c74b5c84b7a1105d5183b6952c1710d8f0e62bf273522ba639b374c806ff"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\RunService$1.class",
+      "bytes": 989,
+      "sha256": "e3420302b4b5b1afd962ca0e391817971337ad0c2f5ae1f6294e938016747e9f"
+    }
+  ],
+  "testClass": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\test-classes\\com\\ruoyi\\aipicture\\BatchItemLifecycleTest.class",
+    "bytes": 16795,
+    "sha256": "e72d237efcc0a89c77632b7ed8dd240b753c3a1e5c35a1d4ba1ddcd47d990b73"
+  },
+  "before": {
+    "exitCode": 1,
+    "tests": 8,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0,
+    "failedCases": [
+      "claimedItemIsRunningInPublicDetailWhileUnstartedItemWaits",
+      "expiredDeterministicItemReturnsToQueueBeforeNextClaim"
+    ],
+    "xml": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-before\\TEST-com.ruoyi.aipicture.BatchItemLifecycleTest.xml",
+      "bytes": 40892,
+      "sha256": "b3bc47df64836b8d6f881d5621f29e4c7fb77ff4ee4c519a542e4cc260fa67a7"
+    },
+    "log": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-before.log",
+      "bytes": 8697,
+      "sha256": "165934cd82584523a354bfe4a6c70d9fd317dd1253e83e51c3b273ea90d1de21"
+    },
+    "sourceProtection": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-before\\sources.json",
+      "bytes": 837,
+      "sha256": "e5d33fb87f76ee9e7a3402187552bff499b0e64ec8547e2ca19566273b87dcb1"
+    }
+  },
+  "after": {
+    "exitCode": 0,
+    "tests": 15,
+    "newTests": 8,
+    "existingAffectedTestsActuallyReexecuted": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "notSummedWithBeforeOrHistoricalInventory": true,
+    "suites": [
+      {
+        "name": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testcases": [
+          {
+            "classname": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+            "name": "expiredPaidItemStaysUnknownAndSuccessfulSiblingKeepsOutputs"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+            "name": "claimedItemIsRunningInPublicDetailWhileUnstartedItemWaits"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+            "name": "obsoleteRunCannotChangeItemReboundToNewRetry"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+            "name": "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[1]"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+            "name": "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[2]"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+            "name": "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[3]"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+            "name": "expiredDeterministicItemReturnsToQueueBeforeNextClaim"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchItemLifecycleTest",
+            "name": "otherOwnerCannotChangeItemDuringClaimOrRecovery"
+          }
+        ],
+        "file": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\surefire-reports\\TEST-com.ruoyi.aipicture.BatchItemLifecycleTest.xml",
+          "bytes": 39167,
+          "sha256": "63f1fe7c38a338a10b28202d9b2af6d37f578894eacdaf395953e8f1798e07ea"
+        }
+      },
+      {
+        "name": "com.ruoyi.aipicture.BatchRecoveryTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testcases": [
+          {
+            "classname": "com.ruoyi.aipicture.BatchRecoveryTest",
+            "name": "uncertainPaidOutcomeCannotCreateAnotherBatchCharge"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchRecoveryTest",
+            "name": "expiredDeterministicEditCanBeRequeuedWithinAttemptBudget"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchRecoveryTest",
+            "name": "expiredPaidEditEntersUnknownResultInsteadOfRequeue"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchRecoveryTest",
+            "name": "successfulItemCannotBeRetried"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchRecoveryTest",
+            "name": "partialSuccessDoesNotReportAllSuccessfulAndKeepsSuccessfulOutputIds"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchRecoveryTest",
+            "name": "twentyOneInputAndNonWhitelistedOperationAreRejectedBeforeWrite"
+          },
+          {
+            "classname": "com.ruoyi.aipicture.BatchRecoveryTest",
+            "name": "samePublicRetryKeyReturnsPriorOutcomeEvenIfItemHasFailedAgain"
+          }
+        ],
+        "file": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\surefire-reports\\TEST-com.ruoyi.aipicture.BatchRecoveryTest.xml",
+          "bytes": 38144,
+          "sha256": "7f6b7639f3b6e27f5508670b04f05f04cafc5515ecebe79dd25d5b4114f8316b"
+        }
+      }
+    ],
+    "log": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-after.log",
+      "bytes": 6004,
+      "sha256": "b7fdb2e7772676748ce5f2cb1e33ea148b612a38b5ef2e6af9c3cd6aa06dd354"
+    },
+    "command": "mvn -o -pl ruoyi-aipicture -am -Dtest=BatchItemLifecycleTest,BatchRecoveryTest -Dsurefire.failIfNoSpecifiedTests=false test",
+    "workingDirectory": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend"
+  },
+  "staticAudit": {
+    "requirements": "完整迁移设计1.2/3/5.18",
+    "confirmedFinding": "原services/batch.py123–130在处理单项前running，Java原claim/heartbeat仅run，GETbatch直接aip_batch_item状态，Reactqueued→pending持续等待；新增局部同步闭合。",
+    "unchangedBoundaries": [
+      "唯一工具schema资产1–20/步骤1–6/六类工具/PNGJPG后服务再校验每步与owner ready",
+      "owner+idempotency key正式run唯一索引；相同请求回放，不同request hash拒绝",
+      "逐项独立run与partial_success汇总，仅succeeded输出进入成功清单",
+      "公开取消母任务级联queued/running子项；既有cancelled母状态guard保持",
+      "retryItem仅failed，可幂等返回首次retry结果，不重跑succeeded或external_result_unknown",
+      "计划批量重试先拒unknown，仅重试failed原项，成功项沿用"
+    ],
+    "noOtherConcreteNewFindingInBoundedTrace": true
+  },
+  "limits": {
+    "repositoryDouble": true,
+    "actualMySqlOrSQLExecutionTests": 0,
+    "publicHTTPChecks": 0,
+    "workerProviderOrModelCalls": 0,
+    "realBusinessExecution": 0,
+    "serviceOrProcessOperations": 0,
+    "contractDDLDependencyChanges": 0,
+    "modulePackageOrAdminAssemblyPerformed": false,
+    "runtimeSynchronized": false,
+    "note": "测试实际调用服务与公开详情序列化，但仓储为受控替身，不能声称真实MySQL/HTTP/页面业务通过；运行包仍待root统一打包同步。"
+  },
+  "frozenCopies": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-final\\RunService.java",
+      "bytes": 43099,
+      "sha256": "edecaca5d2849cada3a97348a237fcc5536acf7e5c6c7e2e6d4c27fa56975bb1"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-final\\BatchItemLifecycleTest.java",
+      "bytes": 10813,
+      "sha256": "0ecd04cefdd5e0c5a69e5020fd29ad3a01356d2a3759005edfbc48b5b4cb6837"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-final\\RunService.class",
+      "bytes": 54119,
+      "sha256": "9150c74b5c84b7a1105d5183b6952c1710d8f0e62bf273522ba639b374c806ff"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-final\\RunService$1.class",
+      "bytes": 989,
+      "sha256": "e3420302b4b5b1afd962ca0e391817971337ad0c2f5ae1f6294e938016747e9f"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-final\\BatchItemLifecycleTest.class",
+      "bytes": 16795,
+      "sha256": "e72d237efcc0a89c77632b7ed8dd240b753c3a1e5c35a1d4ba1ddcd47d990b73"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-final\\TEST-com.ruoyi.aipicture.BatchItemLifecycleTest.xml",
+      "bytes": 39167,
+      "sha256": "63f1fe7c38a338a10b28202d9b2af6d37f578894eacdaf395953e8f1798e07ea"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r15-batch-item-lifecycle-final\\TEST-com.ruoyi.aipicture.BatchRecoveryTest.xml",
+      "bytes": 38144,
+      "sha256": "7f6b7639f3b6e27f5508670b04f05f04cafc5515ecebe79dd25d5b4114f8316b"
+    }
+  ],
+  "targetStatus": "定向Maven已退出；无后台Maven会话，释放图片模块target给root。"
+}

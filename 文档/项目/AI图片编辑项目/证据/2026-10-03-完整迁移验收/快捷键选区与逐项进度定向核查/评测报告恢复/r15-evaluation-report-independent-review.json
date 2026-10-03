@@ -1,0 +1,141 @@
+{
+  "created_at": "2026-10-03T10:28:34.463233+00:00",
+  "scope": "root评测报告读取顺序与失败恢复；只读当前Vue/测试/原保护快照及既有日志，不运行测试/浏览器/服务",
+  "conclusion": "有界源码和证据复核未发现新的具体P0/P1；原失败保留，当前变更仅报告GET与弹窗状态，不改创建/来源/评分规则",
+  "findings": [],
+  "fingerprints": {
+    "view": {
+      "path": "frontend/admin-web/src/views/aipicture/evaluation/index.vue",
+      "bytes": 24107,
+      "sha256": "69500d5a22441d404678bbe4080c562939ca90301f125d39259931f2d9fbcc82"
+    },
+    "new_tests": {
+      "path": "frontend/admin-web/tests/unit/aipicture/evaluation-report-recovery.spec.ts",
+      "bytes": 5583,
+      "sha256": "ab9c4b78fe2a16baf420775ad4c0290d8fdcfde250d36a1df161ad87c8b13ba0"
+    },
+    "existing_tests": {
+      "path": "frontend/admin-web/tests/unit/aipicture/evaluation-page.spec.ts",
+      "bytes": 7681,
+      "sha256": "1e0c14c83b71b0664193ee2eb86eaadf67e52234495fd54fea2fb4cea501b7a1"
+    },
+    "before_view": {
+      "path": ".runtime/aipicture/before-report-selection-20261003/evaluation-index.vue",
+      "bytes": 23010,
+      "sha256": "0cea4d388a6f0398ed49598f4834397f9c91bd055c20de4f273d32ed4705be04"
+    },
+    "first_probe": {
+      "path": ".runtime/aipicture/before-report-selection-20261003/evaluation-report-recovery-first.spec.ts",
+      "bytes": 5747,
+      "sha256": "0b46312d3e5d7c50b4a8ae4c36f2a501ee3b725c9e57465d3117c84fa0021dd1"
+    },
+    "before_existing_tests": {
+      "path": ".runtime/aipicture/before-report-selection-20261003/evaluation-page.spec.ts",
+      "bytes": 7681,
+      "sha256": "1e0c14c83b71b0664193ee2eb86eaadf67e52234495fd54fea2fb4cea501b7a1"
+    },
+    "first_before_log": {
+      "path": ".runtime/aipicture/report-selection-before.log",
+      "bytes": 5026,
+      "sha256": "abd8a84cde5bce9831c0f1cf3261d2986a8d10647eba11fde0beaf6285babee0"
+    },
+    "observable_before_log": {
+      "path": ".runtime/aipicture/report-selection-before-user-observable.log",
+      "bytes": 3256,
+      "sha256": "a60d7103d4ba4c6b68fbb988226b32c0a5bdc3b06816ec35a3bb6c83761b0256"
+    },
+    "after_log": {
+      "path": ".runtime/aipicture/report-selection-after.log",
+      "bytes": 461,
+      "sha256": "1c2b72bba4ed2012959d8849e1b90770e550a749d54e3c0a52221e4ca2c897bb"
+    },
+    "typecheck_log": {
+      "path": ".runtime/aipicture/report-selection-typecheck.log",
+      "bytes": 116,
+      "sha256": "6ef5ec6bb7ff5fc3f41ec7b489e97d79f89136bc7cb0b08676f8592d8b6ab25a"
+    }
+  },
+  "source_review": [
+    {
+      "area": "旧读取成功/失败/finally隔离",
+      "line": 217,
+      "proof": "每次显式读取递增reportRead；isCurrent同时要求!disposed、serial一致、reportOpen。赋report/error/停loading均检查同守卫；旧读取不覆盖新报告或其错误/加载状态。"
+    },
+    {
+      "area": "关闭/销毁",
+      "line": 182,
+      "proof": "关闭watch采用flush sync，clearReport递增serial并清report/id/loading/error；销毁先disposed=true再clearSource/clearReport，showReport入口也拒绝disposed。"
+    },
+    {
+      "area": "当前失败与人工明确重读",
+      "line": 73,
+      "proof": "当前失败报告置空、显示reportError、停止加载；保留原reportId，重读按钮只再次readReport(id) GET；没有自动重试或createEvaluation POST。"
+    },
+    {
+      "area": "返回身份与下载",
+      "line": 229,
+      "proof": "无报告或返回id不匹配进入当前错误；下载按钮只有当前report非空才可用，报告成功严格对应选择ID。"
+    },
+    {
+      "area": "原评测与来源规则保持",
+      "proof": "当前Vue与before差异仅报告template、报告局部refs/serial、clearReport及原unmount附加清报告、showReport；原任务/参数/来源校验/addSample/submit/reportRows各判定逻辑无改。原evaluation-page.spec.ts与保护原文逐字节相同。"
+    }
+  ],
+  "test_evidence": {
+    "actor": "root已有实际运行；本审查新增执行0",
+    "after_unique_count": 9,
+    "new_count": 5,
+    "related_old_current_recheck": 4,
+    "new_cases": [
+      "先打开的报告迟到不能覆盖后来打开的报告",
+      "关闭报告后不接纳迟到的成功结果",
+      "旧报告的迟到失败不能覆盖当前成功报告或弹出旧错误",
+      "读取失败停止加载并在原报告明确重读后恢复，不发送评测POST",
+      "销毁页面后不接纳迟到报告或弹出错误"
+    ],
+    "related_old_cases": [
+      "换来源、关闭和销毁后不接纳迟到正式结果",
+      "仅提交用户选中的正式候选与人工记录，不制造来源或接受结论",
+      "来源读取错误可重读并保留独立输入，未读取成功不能加入清单",
+      "报告明确区分技术通过、人工未通过与专项整体，OCR 格式可见"
+    ],
+    "first_before": {
+      "count": 5,
+      "failed": 5,
+      "qualification": "前三项首失败直接证明迟到成功/关闭/迟到旧错误；另两项首失败先遇旧实现未定义reportLoading的undefined断言，不能单靠该断言视为可见业务失败。"
+    },
+    "corrected_observable_before": {
+      "executed": 2,
+      "failed": 2,
+      "skipped": 3,
+      "qualification": "原源码未修时，只改两项验证方式为用户可见常驻加载文案/销毁后旧错误toast，仍各自真实失败，日志保留；关闭项删除的loading二次断言不影响首轮report不为空的真实失败。"
+    },
+    "after": {
+      "files_passed": 2,
+      "tests_passed": 9,
+      "new_execution_in_review": 0,
+      "qualification": "当前5新用例与4原用例对应日志命令和9通过总数；未把修前5+后来2或两次阶段相加。日志无独立native exit字段，本审查只记录日志通过事实，不补造exit码。"
+    },
+    "typecheck": "现有日志列vue-tsc命令且无错误输出；未由本审查重跑"
+  },
+  "browser_evidence_boundary": "root声明已用实际技术宿主得到报告B可见且id204；宿主控制按钮遮挡/关闭弹窗阶段保留，调整仅私有z5000。此审查没有打开浏览器或独立回读截图，C后续检查尚由root执行，均不计入本次技术9项。",
+  "actions": {
+    "source_edits": 0,
+    "test_runs": 0,
+    "builds": 0,
+    "browser_operations": 0,
+    "http": 0,
+    "db": 0,
+    "models": 0,
+    "providers": 0,
+    "service_operations": 0,
+    "installs": 0,
+    "downloads": 0,
+    "git": 0
+  },
+  "limitations": [
+    "只读代码和既有日志不能代替真实正式报告/账号与业务验收",
+    "旧GET并未物理取消，正确性依靠序号拒绝接纳迟到结果",
+    "未扩审能力读取/任务列表/其他页面或新性能预算"
+  ]
+}

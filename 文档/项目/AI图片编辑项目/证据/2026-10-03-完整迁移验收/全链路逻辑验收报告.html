@@ -1,0 +1,226 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AI图片编辑 · 全链路逻辑验收报告</title><style>
+*{box-sizing:border-box}body{margin:0;color:#172333;background:#f2f5f9;font:16px/1.85 "Microsoft YaHei",sans-serif}header{padding:38px max(24px,calc((100vw - 1440px)/2));background:#17354b;color:white}header h1{margin:0;font-size:30px}header p{max-width:980px}.layout{max-width:1440px;margin:28px auto;display:grid;grid-template-columns:270px 1fr;gap:24px;padding:0 20px}nav{align-self:start;position:sticky;top:16px;background:white;border:1px solid #d6dfe8;border-radius:10px;padding:18px;max-height:92vh;overflow:auto}nav a{display:block;font-size:13px;padding:5px 0}main{background:white;padding:32px;border:1px solid #d6dfe8;border-radius:10px;min-width:0}a{color:#136897;text-decoration:none}a:hover{text-decoration:underline}h1{font-size:24px}h2{font-size:21px;border-top:2px solid #d9e5ec;padding-top:28px;margin-top:38px;scroll-margin-top:20px}p{margin:12px 0}.chain{padding:10px 14px;border-left:3px solid #9db8c9;background:#f7f9fc}.chain strong{color:#234e67}code{font-size:13px;background:#eaf0f6;padding:2px 5px;overflow-wrap:anywhere}table{border-collapse:collapse;width:100%;font-size:13px}td{padding:10px;border:1px solid #d6dfe8;vertical-align:top}footer{font-size:12px;color:#526579;overflow-wrap:anywhere}.notice{background:#fff5de;padding:16px 20px;border-left:4px solid #e3b95a}@media(max-width:980px){.layout{display:block}nav{position:static;margin-bottom:20px;max-height:320px}main{padding:18px}}@media print{nav{display:none}.layout{display:block;margin:0;padding:0}header{padding:20px}main{border:0}h2{break-before:auto}.chain{break-inside:avoid}}
+</style></head><body><header><h1>AI 图片编辑：全链路逻辑验收报告</h1><p>2026-10-03 · r18 · 22项业务逐段还原 / 22工具对应 / 私有源码制品</p><p>本轮只核源码、编译与制品。没有真实业务验收、模型调用或测试执行；历史质量失败和真实恢复未验证继续保留。</p></header><div class="layout"><nav><strong>业务点导航</strong><a href="#point-1">1. 统一登录、菜单与权限</a><a href="#point-2">2. 创作指南、素材上传与历史库</a><a href="#point-3">3. 生图、参考图与候选采用</a><a href="#point-4">4. 会话改名、图片墙与持久恢复</a><a href="#point-5">5. 完整画布与九项文档工具</a><a href="#point-6">6. 撤销重做、对比与快捷键</a><a href="#point-7">7. 去背景与完整 11 项调色</a><a href="#point-8">8. 换背景与分层保护</a><a href="#point-9">9. 扩图、严格超分与真实尺寸</a><a href="#point-10">10. SAM 点选、笔刷与缓存</a><a href="#point-11">11. 区域消除、替换与遮罩外保护</a><a href="#point-12">12. 语义拆层、对象提取及长编辑保存</a><a href="#point-13">13. OCR 文字、样式与导出一致性</a><a href="#point-14">14. 自然语言计划、确认与22工具</a><a href="#point-15">15. 失败步骤重试、取消与版本冲突</a><a href="#point-16">16. 异步进度、快照与Worker恢复</a><a href="#point-17">17. 四种营销图与五种投放尺寸</a><a href="#point-18">18. 六类批量流水线、部分成功与重试</a><a href="#point-19">19. 原图、画布、物料与批量导出</a><a href="#point-20">20. 原数据迁移、身份映射与恢复</a><a href="#point-21">21. 确定性评测与真实AI质量评估</a><a href="#point-22">22. 运行能力、资源边界与停止恢复</a><hr><a href="业务验收记录.md">唯一业务记录</a><a href="全链路逻辑验收制品记录.json">制品与历史来源</a><a href="../../完整迁移设计.md">已批准设计</a></nav><main><div class="notice">逻辑结论与真实业务结果分别记录。完整业务历史仍为0通过、4未执行、18受阻；22项用户决定待确认。当前服务没有本轮同步。</div><h1>5. 2026-10-03 全链路逻辑验收与源码交付（r18）</h1>
+<p>本节承接当前完整迁移设计和22项清单，按用户最新要求只核源码逻辑与必要类型/编译/打包，不编写或运行测试，不启动/停止服务，不登录、上传、推理、提交真实业务样本或调用付费模型。以下“逻辑成立”“实现后已静态核对”只表示可定位的处理逻辑，不是业务通过或用户接受。历史完整结果继续0通过、4未执行、18受阻，22项用户决定待确认；本轮没有新的真实业务通过数。</p>
+<p>本次交付补齐本地ONNX严格超分软件接入及能力拒绝，保留原生成式增强的显式兼容配置；修正规划摘要码点截取。收束r16改名、导出读取与终态合并。最终源码自审继续补齐耐久交付副本、中心确认下的同租约跨进程重交、对象原子落盘/回滚及24h无引用文件清理，不重跑历史测试或页面。r17原文和制品已保护在本项目私有before-recovery目录；本节更新为唯一r18最终事实。真实超分权重/质量、原OCR失败、原数据导入及真实资源/恢复演练仍未通过或未验证。</p>
+<h2 id="point-1">1. 统一登录、菜单与权限 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：若依授权菜单进入五个业务主页面，详情页复用 Layout/TagsView；Vue 薄宿主挂载原 React 业务库，不搬原独立登录或导航。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：host 从现有 user store 取身份与权限；不向 React 传 token/Provider 密钥。身份、权限、路由或失活改变时清 Query 缓存、请求、blob URL 和实例状态。</p>
+<p class="chain"><strong>API与数据归属</strong>：公开 /aipicture 接口逐项 @PreAuthorize，并用 getUserId 作为 owner；Repository.owned 固定表白名单、UUID 和 user_id。所需权限是相应页面与读写组合，不自动授予菜单或角色。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：Java 是任务/权限/审计中心；内部 Worker HMAC 包含方法、路径、时间戳、nonce、正文 hash，并绑定 run/attempt/lease，Python 不持有业务数据库账号。</p>
+<p class="chain"><strong>保存与展示</strong>：正式数据返回时移除 user_id/object_key/lease_token；图片通过授权下载转成本实例 blob URL，公共 /profile 不承载本项目私有素材。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：无权限拒绝、异主素材按不存在处理；失活或换身份的迟到回包不采用。真实账号、双用户与菜单授权本轮未执行。</p>
+<p>源码与契约：<a href="../../../../../frontend/admin-web/src/components/AiPictureHost/index.vue">index.vue（第 27 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/embed.tsx">embed.tsx（第 42 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/controller/AiPictureController.java">AiPictureController.java（第 29 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/persistence/AiPictureRepository.java">AiPictureRepository.java（第 24 行）</a>。</p>
+<h2 id="point-2">2. 创作指南、素材上传与历史库 — 实现后已静态核对</h2>
+<p class="chain"><strong>用户入口</strong>：创作页可打开指南、上传图片、选择按会话分组的历史素材；未分组素材独立展示。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：GenerateForm 保留按用户作用域的提示词草稿；ImageDropzone 限制入口文件，Java 仍按实际字节解码，不信扩展名。</p>
+<p class="chain"><strong>API与数据归属</strong>：POST /assets 需上传权限，GET /assets/library 需列表权限；正式素材有 owner、尺寸、格式、alpha、hash，只有 ready 图片进入可用素材列表。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：JPG/PNG 由 ImageIO 解码；无法直接解码的格式走签名 Worker inspect_image/Pillow。上传短边至少 32px、20MB 和 5000 万像素限制；小对象图层产物使用独立 1px 下限。</p>
+<p class="chain"><strong>保存与展示</strong>：存储原图片字节，资产创建后从 current_asset_id 建会话；分组按会话墙关系，孤立素材不重复归到其他用户。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：损坏或伪格式拒绝；列表失败可重读，上传失败展示原因。上传登记处于所属SQL事务；完整临时落盘后重命名，文件锁持有到事务结束。回滚只清本次新建且无引用的文件；超过24h无引用残留有界清理，任何正式或staged记录引用均保留。真实磁盘/数据库故障和并发未演练。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/pages/CreatePage.tsx">CreatePage.tsx（第 14 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/storage/AiPictureStorage.java">AiPictureStorage.java（第 88 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/storage/AiPictureStorage.java">AiPictureStorage.java（第 129 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/AssetService.java">AssetService.java（第 17 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/artifacts.py">artifacts.py（第 23 行）</a>。</p>
+<h2 id="point-3">3. 生图、参考图与候选采用 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：用户填写提示词、比例、候选数量、反向提示词、seed 和参考图；提交后进入指定 run 的候选页。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：提示词非空且 1–1500 码点，五比例，1–6 张默认 4，seed 0–2147483647，最多三参考图；Java 从同份工具 schema 再校验。</p>
+<p class="chain"><strong>API与数据归属</strong>：POST /generations 需生成权限，幂等 key 和请求 hash 绑定 owner；冻结的参考素材只可来自本人，正式 run/dispatch 保存到 MySQL。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：Worker generate_image 调原 DashScope 异步模型；参考图内联 base64，结果域名需批准，Java 中心心跳保存 provider_task_id。</p>
+<p class="chain"><strong>保存与展示</strong>：下载结果以稳定 run/attempt 产物 ID 上传，中心转 ready；候选进图片墙，明确点选才创建会话，未选结果不覆盖当前编辑。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：未启用或缺密钥/结果域拒绝；已有供应商任务恢复只查原任务，未知付费结果不自动重新提交。真实生成质量和费用路径未调用。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/components/GenerateForm.tsx">GenerateForm.tsx（第 33 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/pages/CandidatesPage.tsx">CandidatesPage.tsx（第 14 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java">RunService.java（第 40 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/providers/dashscope.py">dashscope.py（第 59 行）</a>。</p>
+<h2 id="point-4">4. 会话改名、图片墙与持久恢复 — 实现后已静态核对</h2>
+<p class="chain"><strong>用户入口</strong>：编辑器显示正式标题与图片墙，改名成功后退出输入，切图从服务端恢复相应图层文档。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：标题按 Java 规则折叠 ASCII 空白并限制 80 码点；TitleField 保留失败草稿，提交期间防重复；会话 PATCH 固定 expectedVersion。</p>
+<p class="chain"><strong>API与数据归属</strong>：POST/PATCH/GET /sessions 分别校验创建/编辑/查询权限；SessionService.lock 用 owner/CAS，commands 表处理命令幂等，不用旧读回版本重写旧意图。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：改名在 Java 事务完成；每个会话资产的 latest_document 独立于历史窗口。切图要求属于本会话图片墙；单底图裁剪后点回恢复源画幅沿用原行为。</p>
+<p class="chain"><strong>保存与展示</strong>：当前 document/current_asset_id/revision/row_version 及资产快照在原库保存。墙上多层文档可在超过 20 步后仍由资产快照读取，不依赖已经淘汰的历史行。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：503 保留输入和正式旧名，只有明确操作才再次 PATCH；换身份/会话迟到隔离。r16 有历史局部技术证据，本轮只核源码；真实长编辑组合仍未验证。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/components/editor/EditorToolbar.tsx">EditorToolbar.tsx（第 380 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java">SessionService.java（第 47 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java">SessionService.java（第 83 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/hooks/useSessions.ts">useSessions.ts（第 68 行）</a>。</p>
+<h2 id="point-5">5. 完整画布与九项文档工具 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：复用 Konva 画布、拖动、缩放、旋转、裁剪、图层属性及双击文字编辑；交互预览不直接成为正式图像。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：拖动结束提交一次 move/scale/rotate；捕获提交时版本、资产及参数；锁定底图限制交互拖动，仍允许原图像工具，不宣称 shape/完整矢量与锁定系统。</p>
+<p class="chain"><strong>API与数据归属</strong>：会话 tools 入口查工具权限、版本、owner/幂等；文档 schema 限制有限数值、图层引用与画幅，客户端不能传 owner/object_key 等服务字段。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：九个文档命令由 Java DocumentCommandService.apply 执行：裁剪、翻转、透明度、显隐、文字、顺序、缩放、旋转、移动；Python 只保留算法对照和渲染。</p>
+<p class="chain"><strong>保存与展示</strong>：SessionService.saveDocument 原子保存新文档、历史、独立资产快照；React 回读正式结果和图层，不另存本地正式状态。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：失败回读正式文档，恢复变换预览并保留待重试文字/裁剪参数；版本已改变拒绝旧参数重试。原修复的浏览器证据属于历史，本轮未操作画布。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx">CanvasStage.tsx（第 33 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/hooks/useSessions.ts">useSessions.ts（第 194 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/tool/DocumentCommandService.java">DocumentCommandService.java（第 8 行）</a>；<a href="../../../../../contracts/aipicture/v1/document.schema.json">document.schema.json（第 16 行）</a>。</p>
+<h2 id="point-6">6. 撤销重做、对比与快捷键 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：画布焦点下使用 Ctrl/Cmd+Z、Shift+Z、原像素/适应窗口/缩放键，输入控件隔离；对比读取上一版本。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：快捷键只接收本实例 mountRoot 事件；选区本地历史优先于文档历史，忙碌/重复键不再提交，局部模式 Escape 逐层退出。</p>
+<p class="chain"><strong>API与数据归属</strong>：undo/redo 使用会话编辑权限、owner、expectedVersion、命令幂等；历史读取通过会话查询权限并由历史 floor 判断可撤销。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：Java 保留 20 条线性历史；撤销后新编辑删除重做分支；文档和 current 相等时不新增记录，墙上空附加也不截断重做。</p>
+<p class="chain"><strong>保存与展示</strong>：正式 previous_document 供前后对比；historyMove 同步当前文档和目标资产 latest_document，变更 revision 并清旧选区。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：越界返回 HISTORY_BOUNDARY；历史回放只在正式请求成功后推进游标。失败/部分清除回读校准并保留显式重试目标，不把失败算成撤销成功。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/pages/EditorPage.tsx">EditorPage.tsx（第 81 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java">SessionService.java（第 94 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java">SessionService.java（第 72 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/hooks/useSelection.ts">useSelection.ts（第 29 行）</a>。</p>
+<h2 id="point-7">7. 去背景与完整 11 项调色 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：工具栏去背景，图层面板 11 项调色；拖动期间使用低分辨率预览，明确提交才处理正式像素。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：前十项 [-1,1]、暗角 [0,1]；目标图层按 ID/名称解析，Java 契约和 Python 参数模型同源校验。</p>
+<p class="chain"><strong>API与数据归属</strong>：tools 入口冻结本人会话文档和图层资产，由中心记录 run；Worker 不直接写 MySQL 或持有正式存储凭据。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：remove_background 使用本地 rembg 权重；adjust 高光/阴影、色温/色调、自然饱和度等沿原 Pillow 算法，取出再恢复 alpha。</p>
+<p class="chain"><strong>保存与展示</strong>：replace_layer 返回新资产和图层引用，中心核对冻结版本后采用并记历史；属性面板失败恢复正式预览且保留用户值。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：正式缺模型明确失败，不自动四角降级；corner 只允许显式 offline_test。11 项真实像素质量与复杂透明边缘本轮未运行。</p>
+<p>源码与契约：<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/pixels.py">pixels.py（第 34 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/pixels.py">pixels.py（第 13 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 339 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx">LayerPanel.tsx（第 34 行）</a>。</p>
+<h2 id="point-8">8. 换背景与分层保护 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：换背景表单输入描述和 1–4 张结果，并明确告诉用户结果采用或只进墙。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：描述经 schema 校验；Worker 判断已拆层/多图像层，定位背景层，结果张数和输入作用范围从冻结文档决定。</p>
+<p class="chain"><strong>API与数据归属</strong>：Java 工具入口仅接受本人会话及正式素材；不由前端提交拼接底图或永久下载 URL。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：原 image_edit Provider 接收底图或合成画布；单图单层替换目标，多候选/多层使用 wall 返回，不重写复杂图层文档。</p>
+<p class="chain"><strong>保存与展示</strong>：中心原子加墙；采用路径才更新当前文档与历史。多层用户明确点选整图后才切换文档，原资产快照仍保留。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：表单提交失败保留描述；Provider 结果未知不自动再收费。生成的主体一致性/边缘质量需要后续独立样本，本轮无图像调用。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/components/editor/GenerateEdits.tsx">GenerateEdits.tsx（第 17 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 350 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java">RunService.java（第 224 行）</a>。</p>
+<h2 id="point-9">9. 扩图、严格超分与真实尺寸 — 实现后已静态核对</h2>
+<p class="chain"><strong>用户入口</strong>：原扩图/增强入口和 Agent、批量都使用同一工具；原增强 UI 默认 2 倍，契约支持整数 2/3/4。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：扩图比例/提示词沿原契约；超分默认 onnx，按倍率读取本地路径与批准 SHA256，显式 image_edit 兼容原生成式增强。</p>
+<p class="chain"><strong>API与数据归属</strong>：仍由 Java 登记 owner/run、冻结画布、租约和结果；新增软件不持有业务库、不下载权重、不扩大付费权限。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：本地接入校验实际模型 bytes、float32 NCHW RGB 单输入单输出、精确倍率尺寸与有限值；CPU 推理 RGB，只有 alpha 映射尺寸。缺模型/依赖/hash/预算或契约错误均拒绝，无 RGB 插值兜底。</p>
+<p class="chain"><strong>保存与展示</strong>：单层结果可采用，多层只加墙；正式产物记录模型 hash、倍率、loaded/inference，quality_verified=false；能力文件就绪不会提前设置 true_super_resolution=true。严格评测读取实际来源证据。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：原 Qwen 编辑尺寸限制和非真超分事实保留；新接入未配置或运行真实权重，模型选型/许可/质量与峰值未验证。中心租约失效按工具保守置结果待核对，当前没有本地超分自动恢复保证。</p>
+<p>源码与契约：<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/super_resolution.py">super_resolution.py（第 61 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 113 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/eval/assessment.py">assessment.py（第 267 行）</a>；<a href="../../../../../contracts/aipicture/v1/worker.openapi.yaml">worker.openapi.yaml（第 519 行）</a>。</p>
+<h2 id="point-10">10. SAM 点选、笔刷与缓存 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：点选正向物体、笔刷闭合/线段累积、清除和选区本地历史沿原交互；预览标记不是正式遮罩。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：归一化坐标 [0,1]、半径 0.005–0.12、点/笔刷数量受限；混合输入先完整校验，再沿原 if points/elif strokes 的点选优先，不扩展选区。</p>
+<p class="chain"><strong>API与数据归属</strong>：selection/prepare 走工具权限和本人会话；选区绑定 revision，正式 mask 存储在 aip_asset/aip_selection，不只靠 Redis 短时状态。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：SAM 本地 encoder/decoder；缓存按实际 RGB 像素尺寸、预处理版本及加载模型身份，同键 Future 共用冷编码，LRU 4；笔刷栅格化无需模型。</p>
+<p class="chain"><strong>保存与展示</strong>：Worker 返回 mask/markers；中心校验 mask 类型及完整画幅，记录 24h 有效选区；只有点选真实推理完成才登记 SAM 来源。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：过期/空选区/缺模型拒绝；失败清预览并 GET 校准，历史游标仅成功后移动。缓存字节上限和峰值尚未验证；原真实样本 IoU/耗时只属于历史版本。</p>
+<p>源码与契约：<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/tool/SelectionInputValidator.java">SelectionInputValidator.java（第 9 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 425 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/segment.py">segment.py（第 23 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/hooks/useSelection.ts">useSelection.ts（第 29 行）</a>。</p>
+<h2 id="point-11">11. 区域消除、替换与遮罩外保护 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：工具栏或自然语言计划选择目标图层和区域；没有选区时说明会作用整个目标图层。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：layer_id 和 mask 是独立维度，显式图层取其真实 alpha 交集；未点名时按最上层可见、非零透明图像命中；旧 revision 或无交集拒绝。</p>
+<p class="chain"><strong>API与数据归属</strong>：Java 只注入正式选区和冻结图层素材；模型及客户端不能指定服务端 mask/owner/revision 真相。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：geometry 从 Konva 中心仿射逆向映射，处理负缩放/旋转和布局尺寸到素材网格；Provider 编辑后 apply_masked 本地合成保护遮罩外原像素。</p>
+<p class="chain"><strong>保存与展示</strong>：合成后的新图层资产由中心采用，保存文档/历史并清选区；不会直接采用模型整图去覆盖未选区域。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：EmptyCut、旧画幅与未知外部结果保留明确失败；区域保护专项固定 outside_mae/outside_max=0 且 changed_pixels=0，不降阈值。本轮未推理或运行像素样本。</p>
+<p>源码与契约：<a href="../../../../../python/aipicture-runtime/aipicture_runtime/geometry.py">geometry.py（第 50 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/geometry.py">geometry.py（第 63 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/mask.py">mask.py（第 63 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 364 行）</a>。</p>
+<h2 id="point-12">12. 语义拆层、对象提取及长编辑保存 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：拆层得到背景/主体；勾选才识字；已选物体可提升为独立层并继续变换。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：对象提取必须有正式选区，按 mask hash 防重复；已拆层重复拆分保持原文档，不假造新图层。</p>
+<p class="chain"><strong>API与数据归属</strong>：Java 冻结正式文档和所有输入资产；仅属于 run 的新资产或被冻结资产可出现在结果图层，owner/版本仍由中心裁决。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：先 matting 或 cut_object，再本地补洞和 Provider 重修；已拆层对象提升更新所有相交图像层，避免原物体重复叠放；文字层另保留。</p>
+<p class="chain"><strong>保存与展示</strong>：背景、主体、文字和 source_hash 随文档原子采用，每个资产 latest_document 负责长编辑后切回；撤销历史只负责可撤回窗口。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：缺 matting/重修模型拒绝，不用空背景占位。多层超过20步、切图/撤销/刷新组合的真实持久验证尚未执行，不因 SQL 存在声称通过。</p>
+<p>源码与契约：<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 190 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 212 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/split.py">split.py（第 115 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java">SessionService.java（第 72 行）</a>。</p>
+<h2 id="point-13">13. OCR 文字、样式与导出一致性 — 确定缺陷仍保留</h2>
+<p class="chain"><strong>用户入口</strong>：拆层识字生成可编辑 text 层，双击或面板改文案/字号/颜色；渲染和导出读取同一文档。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：文字内容按原规则保存全文、短名按码点；r16 修正第12字符代理项，本轮把规划摘要前8字符也改为码点截取。</p>
+<p class="chain"><strong>API与数据归属</strong>：正式 set_layer_text 是 Java 文档命令；OCR 只在 include_text=true 的 Worker 拆层分支调用，不由模型直接修改正式会话。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：RapidOCR 输入按 RGB 解码再 BGR 通道；识别框去除图像内文字，建立文字层。Pillow 对齐 Konva 换行/居中/高度裁切，字体缺失或不含字形拒绝。</p>
+<p class="chain"><strong>保存与展示</strong>：文字文档、独立资产快照与导出合成统一，评测核文字/框位置和数量，使用人工独立文字标注，禁止把同一输出当预期。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：原灰度 AI→Al 质量失败没有修成通过；r16 分析证实原样本三通道一致，通道调整不能解释这次灰度误识别。未硬编码改字、未降门槛，完整中英文质量和跨引擎呈现仍未验证。</p>
+<p>源码与契约：<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/ocr.py">ocr.py（第 35 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/render.py">render.py（第 32 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/tool/DocumentCommandService.java">DocumentCommandService.java（第 18 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/PlanService.java">PlanService.java（第 99 行）</a>。</p>
+<h2 id="point-14">14. 自然语言计划、确认与22工具 — 实现后已静态核对</h2>
+<p class="chain"><strong>用户入口</strong>：会话输入自然语言，单步合法计划直接执行，多步显示中文步骤/图层/选区/输出去向及模型费用提示，用户明确确认。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：Python LangGraph 只规划；隐藏服务字段、最多8步、重复ID/未知依赖/环拒绝。后一步默认依赖前一步；Java 再查同一工具契约与现有权限。</p>
+<p class="chain"><strong>API与数据归属</strong>：messages 保存 aip_agent_turn/plan_step；确认绑定 plan_hash、owner、expectedVersion 和 base_revision，不由确认按钮增加权限。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：Java continuePlan 顺序调九个文档命令及13个计算工具；冻结选区贯穿计划，画幅改变后拒绝复用旧选区；规划调用在事务外并阻止取消后的迟到响应恢复计划。</p>
+<p class="chain"><strong>保存与展示</strong>：步骤、执行 run、回复和失败位置由中心保存；前端读正式 turns，不建立 Python 第二任务状态。规划文字摘要本轮修正码点截取并已编译。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：未配置 planner 明确失败；规划未产生步骤时不能用失败步骤重试伪造新计划。本轮不调用 LLM，22工具映射逐项列于下表，不把注册数量当业务证明。</p>
+<p>源码与契约：<a href="../../../../../python/aipicture-runtime/aipicture_runtime/agent/graph.py">graph.py（第 52 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/agent/plan.py">plan.py（第 22 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/tool/PlanValidator.java">PlanValidator.java（第 9 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/PlanService.java">PlanService.java（第 66 行）</a>。</p>
+<h2 id="point-15">15. 失败步骤重试、取消与版本冲突 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：计划卡片提供确认、取消和失败步骤重试，显示具体错误；成功步骤继续保留。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：重试仅 failed，取消拒绝已终结计划；command key/hash 幂等回放。重试重新核现有工具权限、文档版本和固定选区是否有效。</p>
+<p class="chain"><strong>API与数据归属</strong>：Java turn→session 行锁顺序与事务保持，runs.cancel 原子固定终态，取消不会真正撤销已经发出的供应商调用。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：普通失败步骤恢复 pending，已成功步骤不重做；批量步骤由中心重开对应失败项。外部结果未知和画幅已失效选区拒绝自动或盲目重试。</p>
+<p class="chain"><strong>保存与展示</strong>：正式计划/步骤/run 关联保留失败位置；完成关系后按事务提交调后续步骤，旧尝试与迟到结果不能恢复已取消任务。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：CAS 冲突显示当前版本，UI 保留参数供用户检查；本轮未制造真实 MySQL 竞争或故障。历史内存 fixture 和技术检查只按原版本沿用，不冒称真实恢复。</p>
+<p>源码与契约：<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/PlanService.java">PlanService.java（第 69 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java">RunService.java（第 127 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java">RunService.java（第 182 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/hooks/useSessions.ts">useSessions.ts（第 194 行）</a>。</p>
+<h2 id="point-16">16. 异步进度、快照与Worker恢复 — 实现后已静态核对</h2>
+<p class="chain"><strong>用户入口</strong>：生成/工具/批量页通过正式任务快照显示进度；生产宿主不创建 EventSource，可选宿主才提供订阅。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：r16 按 event_seq 合并流与 GET：高序号优先，同序 GET 优先，旧无序宿主以新的正式读校准；run/身份/失活隔离，明确较高序重试可重新 running。</p>
+<p class="chain"><strong>API与数据归属</strong>：中心 aip_dispatch/MySQL 行锁领取，run/attempt/lease_token 绑定心跳、输入和回执；有限租约与持久 run_event 仍属 Java，不以 Redis 临时消息为真相。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：Worker心跳独立于CPU计算。领取循环先保留身份，完成计算后原子保存同一份结果/ID/bytes，最后保存完整receipt；重启先读副本，不重新compute/Provider。每次仍向中心确认原租约，重交采用原1/2s退避，循环最长30s退避。已知异步provider_task_id仅查询原任务。</p>
+<p class="chain"><strong>保存与展示</strong>：正式终态和candidate/result由GET恢复。耐久副本只作传输缓存，按中心地址/Worker/run/attempt绑定、SHA检测损坏、OS锁禁止双进程。原token匹配且未过期才重交；已提交回执丢响应时原receipt回放，中心确认后删除副本。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：中心拒绝、取消、过期或未耐久算完的副本隔离，不重算或恢复过期租约。最多4份、单份2*输出预算+请求预算，满/损坏停止领取，隔离占名额需核对释放；真实目录ACL、断电、重启及资源故障未验证。写入完成前崩溃仍不能保证保住内存结果；新本地超分过期沿用中心保守待核对。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/hooks/useRun.ts">useRun.ts（第 19 行）</a>；<a href="../../../../../frontend/admin-web/src/api/aipicture/bridge.js">bridge.js（第 52 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/delivery.py">delivery.py（第 21 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/execution.py">execution.py（第 83 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/execution.py">execution.py（第 247 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java">RunService.java（第 164 行）</a>；<a href="../../../../../contracts/aipicture/v1/worker.openapi.yaml">worker.openapi.yaml（第 517 行）</a>。</p>
+<h2 id="point-17">17. 四种营销图与五种投放尺寸 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：营销页以会话画布生成商品白底、场景、模特、促销海报，投放尺寸入口选择目标比例。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：四种 kind、文案最多200字、1–4张及五比例均用契约；用户选择已有素材新建会话失败保留选择并显示原因。</p>
+<p class="chain"><strong>API与数据归属</strong>：任务、归属、素材引用与结果都归 Java；营销不会新增正式账号或把生成内容写到其他项目。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：generate_marketing 调原编辑模型、按目标尺寸 resize；prepare_delivery_sizes 用居中 letterbox 完整容纳主体、无裁切，兼容 prompt 不用于AI扩图。</p>
+<p class="chain"><strong>保存与展示</strong>：营销与投放结果只进墙，记录 kind/ratio/真实尺寸，当前画布不自动覆盖；默认导出优先读取这些正式物料。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：模型海报文字不保证准确排版，仍需人工复核；调用失败不清用户输入，不自动重复POST。本轮未生成真实营销图。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/pages/MarketingPage.tsx">MarketingPage.tsx（第 25 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 378 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 385 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/edits/pixels.py">pixels.py（第 174 行）</a>。</p>
+<h2 id="point-18">18. 六类批量流水线、部分成功与重试 — 逻辑成立</h2>
+<p class="chain"><strong>用户入口</strong>：批量页选择1–20张、1–6串行步骤和PNG/JPG；显示逐项状态，取消未完成任务、仅重试失败项。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：只允许去背景/换背景/调色/增强/扩图/投放六类，输入不同且本人所有；本地上传队列按Promise逐个保留回调并预留20张上限。</p>
+<p class="chain"><strong>API与数据归属</strong>：中心母任务只汇总、不被 Worker 领取；每图独立子run和item，pipeline/hash/format/幂等key 在MySQL保存。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：子run claim 同事务把item由queued推进running；Worker 串行流水线/分支编码，单图确定失败清该图部分产物并继续其他图，外部未知结果单独处理。</p>
+<p class="chain"><strong>保存与展示</strong>：refreshBatch 按实际项汇总 succeeded/partial_success/failed 和完成数；成功输出保留。JPG白底去透明，PNG保留alpha；导出只收成功项。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：母任务取消固定终态，迟到子结果不恢复；只有明确幂等失败项重试可重开母任务。失败图重试会重走该图流水线，可能再次涉及其收费步骤；本轮未提交真实批量。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/pages/BatchPage.tsx">BatchPage.tsx（第 58 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/BatchExportEvaluationService.java">BatchExportEvaluationService.java（第 19 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java">RunService.java（第 178 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 262 行）</a>。</p>
+<h2 id="point-19">19. 原图、画布、物料与批量导出 — 实现后已静态核对</h2>
+<p class="chain"><strong>用户入口</strong>：素材卡下载原文件；会话导出页选择画布PNG/物料ZIP与可选透明背景，批量下载成功项ZIP。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：会话GET失败显示原原因和重新读取，pending保留选择；导出只在用户点击后POST，GET重读不会新建导出或重发收费任务。</p>
+<p class="chain"><strong>API与数据归属</strong>：资产原图查owner/ready；exports登记、下载检查导出权限和owner。显式素材必须属于本会话，未指定优先marketing/export，空时当前画布。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：Worker flatten 默认白底或明确transparent；ZIP逐素材/当前合成写manifest，原文件透明PNG保留，JPG白底转换。冻结导出可引用200所选+64额外文档素材，超限拒绝。</p>
+<p class="chain"><strong>保存与展示</strong>：center commitExport 保存object_key/hash/revision/manifest并返回export_id；浏览器等待终态后授权取blob，未取到真实文件不报告下载完成。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：等待最多15分钟，401/403/404不盲重试，失活中止本地等待；首次读取失败可明确恢复。格式/ZIP/多层真实导出本轮未运行，r16历史像素与技术截图另列。</p>
+<p>源码与契约：<a href="../../../../../frontend/aipicture-workbench/src/pages/ExportPage.tsx">ExportPage.tsx（第 24 行）</a>；<a href="../../../../../frontend/aipicture-workbench/src/api/exports.ts">exports.ts（第 65 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/BatchExportEvaluationService.java">BatchExportEvaluationService.java（第 69 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 503 行）</a>。</p>
+<h2 id="point-20">20. 原数据迁移、身份映射与恢复 — 前提缺失未验证</h2>
+<p class="chain"><strong>用户入口</strong>：离线导入工具读取人工导出的manifest和本地对象，不使用原独立账号栈，也不自动连接源PG。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：须显式提供source_user_id→既有ruoyi_user_id；白名单实体、时间/UUID/hash校验，拒绝密码/JWT/API key等私密字段。</p>
+<p class="chain"><strong>API与数据归属</strong>：目标只写原ry-vue本项目业务表，sys_user只读核owner存在；UUID/关系映射和aip_import_map唯一保存，不创建用户、库、跨库事务。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：ImportVerifier 校原对象路径/尺寸/hash/关系和资产文档，工具先预检，再校原字节防TOCTOU，复制对象后在事务中导入与映射。</p>
+<p class="chain"><strong>保存与展示</strong>：同源相同hash回放，不同owner/hash/后续修改拒绝覆盖；侧车recovery journal 保存阶段与前后事实，恢复前先核数据库。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：软件入口已有，但真实源数据包、对象存储导出和owner决定未提供，也无新增真实导入授权。旧数据迁移及恢复演练未执行，不把本轮17表沿用等同原数据迁完。</p>
+<p>源码与契约：<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/migration/ImportManifest.java">ImportManifest.java（第 22 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/migration/ImportVerifier.java">ImportVerifier.java（第 25 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/migration/AiPictureImportTool.java">AiPictureImportTool.java（第 37 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/migration/AiPictureImportTool.java">AiPictureImportTool.java（第 66 行）</a>。</p>
+<h2 id="point-21">21. 确定性评测与真实AI质量评估 — 实现后已静态核对</h2>
+<p class="chain"><strong>用户入口</strong>：管理员能力/评测页选择输入、独立预期、指标阈值及人工意见；报告可重新读取和下载；原确定性CLI仍保留。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：六确定性任务/五指标；专项SAM、区域保护、OCR、增强、生成只能选择本人的已成功正式任务和独立标注，不使用同任务输出自比较。</p>
+<p class="chain"><strong>API与数据归属</strong>：Java EvaluationAssessment 校权限/owner/来源适用工具，冻结source_document/source_result/provider与输出ID；Python只评已完成产物，不重复调用模型。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：确定性指标/Pillow计算与专项assess_result分开；size/count必须1，区域outside必须0；严格超分现在核实际ONNX来源、倍率/hash/精确尺寸。</p>
+<p class="chain"><strong>保存与展示</strong>：aip_evaluation保存清单、dataset_hash、metrics/provider；技术、真实模型证据、人工质量及整体结果分别展示，人工意见不等于用户接受。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：A报告迟到不覆盖B、关闭/卸载回复隔离，读取失败可GET同报告重读。原OCR未通过继续失败；本轮未执行CLI/评测样本或模型，完整质量集仍未验证。</p>
+<p>源码与契约：<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/EvaluationAssessment.java">EvaluationAssessment.java（第 18 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/eval/assessment.py">assessment.py（第 159 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/eval/runner.py">runner.py（第 12 行）</a>；<a href="../../../../../frontend/admin-web/src/views/aipicture/evaluation/index.vue">index.vue（第 182 行）</a>。</p>
+<h2 id="point-22">22. 运行能力、资源边界与停止恢复 — 前提缺失未验证</h2>
+<p class="chain"><strong>用户入口</strong>：能力页通过现有平台权限读取Java→签名Worker状态，显示实际启用、模型/权重/字体和工具信息。</p>
+<p class="chain"><strong>参数、身份与权限</strong>：enabled与offline_test显式区分，mock/corner/none限制离线；新超分逐倍率报告资源和指纹，不因依赖或文件存在宣称已推理。</p>
+<p class="chain"><strong>API与数据归属</strong>：17张图片表沿用，SchemaGuard只读校必需列，不自动建库/DDL/初始化；默认通道共享原数据库、Redis和已配置基础服务。</p>
+<p class="chain"><strong>任务、算法或Worker</strong>：HTTP请求/资产/像素/输出数量与字节、图层中间位图受既有预算校验；异步派发和租约在中心。新超分估算工作区并拒绝超限，ORT内部峰值仍未知。</p>
+<p class="chain"><strong>保存与展示</strong>：本轮交付源码与私有Java模块/总包、Python wheel/sdist、React库、管理端私有dist，并记录源码字节对应；未覆盖共享target/dist、未重启或同步当前服务。</p>
+<p class="chain"><strong>错误、取消、重试与恢复</strong>：跨进程同租约重交、回滚文件清理和24h无引用对象清理软件已补齐，实际主机私有交付目录尚未设置；缺目录、满额、损坏会停止领取。对象清理每分钟至多500项并继续游标，锁忙或引用读取失败不删。峰值/竞争/断电/回退演练仍未执行。已编译不代表服务已更新或上线就绪，原stdout缺口不补造。</p>
+<p>源码与契约：<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/config/AiPictureSchemaGuard.java">AiPictureSchemaGuard.java（第 14 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/config.py">config.py（第 10 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/capabilities.py">capabilities.py（第 47 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/engine.py">engine.py（第 59 行）</a>；<a href="../../../../../python/aipicture-runtime/aipicture_runtime/delivery.py">delivery.py（第 126 行）</a>；<a href="../../../../../ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/storage/AiPictureStorage.java">AiPictureStorage.java（第 129 行）</a>。</p>
+<h2 id="section-179">22工具逐项执行对应</h2>
+<p>所有工具先走Java权限、owner、版本与参数校验；下表补充执行落点，不能用已注册代替结果证明。九文档命令在Java正式执行，Worker中的对应文档算法仅用于协议对照/渲染；其余13工具计算从冻结输入产生结果后交中心保存。</p>
+<table>
+<tr><td>工具</td><td>中文名称</td><td>具体链路与结果</td></tr>
+<tr><td><code>generate_image</code></td><td>生成图片</td><td>创作页/自然语言 → Java生成权限与run → 原Provider → 候选墙</td></tr>
+<tr><td><code>replace_background</code></td><td>换背景</td><td>工具表单/批量/计划 → 原Provider → 单图采用/多图多层墙</td></tr>
+<tr><td><code>expand_canvas</code></td><td>扩图</td><td>工具栏/批量/计划 → cover_size/原Provider → 单层采用/多层墙</td></tr>
+<tr><td><code>upscale_image</code></td><td>超分</td><td>工具栏/批量/计划 → 本地ONNX或显式原增强 → 精确倍率/来源 → 采用或墙</td></tr>
+<tr><td><code>remove_background</code></td><td>去背景</td><td>工具栏/批量/计划 → 冻结图层 → rembg → 替换图层</td></tr>
+<tr><td><code>adjust_image</code></td><td>调色</td><td>属性面板/批量/计划 → 11参数 → Pillow调色/alpha → 替换图层</td></tr>
+<tr><td><code>erase_region</code></td><td>局部消除</td><td>工具栏/计划 → 图层与mask交集 → Provider+本地保护 → 替换图层</td></tr>
+<tr><td><code>replace_region</code></td><td>局部替换</td><td>区域表单/计划 → 描述与mask交集 → Provider+本地保护 → 替换图层</td></tr>
+<tr><td><code>split_layers</code></td><td>拆层</td><td>拆层/计划 → rembg、补洞、可选OCR → 原子新文档</td></tr>
+<tr><td><code>promote_object_to_layer</code></td><td>提升为图层</td><td>选区成层/计划 → mask hash、补洞、逐层挖空 → 对象文档</td></tr>
+<tr><td><code>generate_marketing</code></td><td>营销图</td><td>营销页/计划 → 四类描述+原Provider → marketing墙</td></tr>
+<tr><td><code>prepare_delivery_sizes</code></td><td>投放尺寸</td><td>营销/批量/计划 → 原letterbox → export墙</td></tr>
+<tr><td><code>batch_process</code></td><td>批量处理</td><td>批量页/计划 → Java母子任务 → 六类串行像素流水线 → 汇总/成功输出</td></tr>
+<tr><td><code>crop_canvas</code></td><td>裁剪</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+<tr><td><code>flip_layer</code></td><td>翻转</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+<tr><td><code>set_layer_opacity</code></td><td>透明度</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+<tr><td><code>set_layer_visible</code></td><td>显隐</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+<tr><td><code>set_layer_text</code></td><td>改文字</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+<tr><td><code>reorder_layer</code></td><td>图层顺序</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+<tr><td><code>scale_layer</code></td><td>缩放</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+<tr><td><code>rotate_layer</code></td><td>旋转</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+<tr><td><code>move_layer</code></td><td>移动</td><td>画布/图层/计划 → Java DocumentCommandService对应命令 → saveDocument/历史/资产快照</td></tr>
+</table>
+<h2 id="section-206">本轮编译与制品事实</h2>
+<p><a href="全链路逻辑验收制品记录.json">私有制品与源码记录</a>核32份Java生产源码、40份Python生产源码与wheel/sdist逐字节对应、五份内嵌契约、React私有库与管理端私有库一致。Java只在本项目私有副本打包，跳过测试编译与执行；r18总包由r16冻结包替换图片模块，其余条目解压内容保持，ZIP元数据不声称逐字节相同。React类型/库构建、只含生产源码的Vue类型检查、管理端私有生产构建、Python离线wheel/sdist均退出0。恢复软件补齐后只重做受影响的Java与Python打包，两者最终退出0。本轮没有测试执行。</p>
+<p>最初Vue私有配置无法解析vite/client、PowerShell拆分Maven参数导致生命周期报错，原日志保留；修正工具路径与参数引用后只重做相关编译。恢复软件编译发现旧javax.annotation.PreDestroy不适用于当前依赖，改用已有Spring DisposableBean，原失败保留。首次uv.lock备份命令因工作目录错误未成功，使用r16已冻结sdist内的原锁文件并核历史SHA一致后保护；本轮锁仅把已锁定numpy声明为直接依赖，没有安装或升级环境。私有目录为<code>.runtime/aipicture/logic-completion-20261003/</code>，r17原文/制品保护在before-recovery；AssetService原文取自覆盖前的r17私有构建副本，原记录提供对应SHA。原运行包、配置、共享制品和其他项目进程没有本轮操作。</p>
+<h2 id="section-209">恢复软件的结果与适用边界</h2>
+<p>耐久副本只保存计算产物与传输凭据，由Java继续决定任务和租约；没有新正式状态或任务队列。新增AIPICTURE_DELIVERY_SPOOL_DIRECTORY必须为本机账号保护的专用绝对路径，拒绝符号链接/目录联接，同目录OS锁只允许一个领取进程。副本包含图片和凭据，SHA只检测意外损坏，不是加密/认证。软件已接入，实际运行配置、目录ACL和服务没有本轮更改或核验。</p>
+<p>耐久完成前退出的记录隔离；完整校验的原子替换临时副本可恢复，不完整文件保留并停止领取。中心确认前的网络暂错只重交已有bytes/ID/receipt；原attempt过期、取消或较新任务已经生效时保留隔离，不能复活旧租约。中心确认原终态后删除传输副本；隔离副本占4份额度，未获人工核对释放时停止新领取。单份字节上限沿用现有预算，临时副本至多同数量；实际磁盘和序列化内存峰值没有实测。</p>
+<p>Java通过完整临时写入、文件force和重命名避免半文件成为正式对象；所有上传登记在本项目SQL事务内，文件锁保持至事务结束。锁忙返回可重交的存储失败，不持任务行锁无限等待。明确回滚且文件是本次新建、查询无asset/export引用才清理；引用查询失败、事务结论不确定或已有文件均保留。崩溃残留按24h规则在领取时有界巡视，每分钟最多500目录项并继续游标，限定本项目规范路径；有任何已登记产物/导出引用不删除，包括staged与历史失败产物。本轮没有执行清理或故障注入，软件核对不能代替这些业务验证。</p>
+<h2 id="section-213">r16历史事实收束</h2>
+<p><a href="会话与导出恢复定向核查/r16-session-export-scope-final.json">原r16范围记录</a>及<a href="会话与导出恢复定向核查/session-export-final-artifacts.json">原制品记录</a>属于上一阶段，不计为本轮新执行：Java11、Python1、React34共46个互异技术检查，其中React17当前新增和17同阶段未受影响沿用；不是46项真实业务。原React699f6817…、Java总包f3202791…及旧Python包属于该历史版本。本轮新增Java/Python/契约使当前私有交付版本变化，不能照搬历史进程同步结论。</p>
+<p><a href="会话与导出恢复定向核查/session-export-browser-final.json">历史实际页面记录</a>保留3流程、80/81码点边界及13图，其中3原失败图、10修后或边界图；本轮只保存历史文件字节，未重做页面或新采图，不冒称本轮逐图回读。<a href="会话与导出恢复定向核查/r16-ocr-quality-readonly-analysis.json">原OCR原因分析</a>保持灰度AI→Al质量失败，无新推理、无改字或门槛调整。</p>
+<h2 id="section-216">尚未完成的事实与业务影响</h2>
+<p class="chain">本地严格超分软件已接通，但没有本轮选定/安装/运行的2、3、4倍权重；真实质量、许可与峰值未验证，缺配置明确拒绝，不应向用户宣称可用超分效果。</p>
+<p class="chain">原灰度OCR错字仍未通过；完整中文/英文商品质量集、文字跨浏览器/字体导出一致性尚未验证。</p>
+<p class="chain">同租约跨进程重交、对象回滚与24h无引用清理软件已补齐。真实目录权限/磁盘/断电/数据库中断/多节点锁与资源竞争/回退演练未执行，不称真实恢复通过。租约失效后付费类及新本地超分保守待核对；未耐久完成前的内存结果不能保证恢复，隔离副本需核对释放，已登记staged/历史产物保留。</p>
+<p class="chain">长编辑多层超过20步、切图/撤销/刷新组合有可定位独立快照逻辑，但没有本轮真实MySQL或页面验证。</p>
+<p class="chain">原数据包/对象导出/owner决定、实际账号角色和供应商配置/费用条件继续缺失；本轮不为这些未验证项索取新账号或费用，不执行导入、授予权限、发布或Git操作。</p>
+<p class="chain">私有制品已构建，运行服务未同步。报告只核HTML源码、链接与完整内容，未做浏览器渲染或筛选验收；历史stdout缺口继续保留。</p>
+<p>报告入口：<a href="全链路逻辑验收报告.html">全链路逻辑验收报告</a>。本节是逻辑结论唯一正文，HTML由此生成，完整业务清单及旧失败不改写。</p><footer>正文来源：业务验收记录.md 第5节；源文件SHA256：00ed403297ac98b41c94b4ae687ea0eed013eacf0f8ff84fdc86e433262da8a6。本报告未执行浏览器业务验收。</footer></main></div></body></html>

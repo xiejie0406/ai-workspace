@@ -1,0 +1,545 @@
+{
+  "reviewed_at_utc": "2026-10-03T05:44:29.3386713Z",
+  "scope": "只读两唯一MD r11新增取消/CV并发/前端恢复段落和指定最终记录、57份证据汇总；未扩展源码/业务审计",
+  "conclusion": "未发现新增段落与指定记录的实际错漏或矛盾",
+  "inputs": [
+    {
+      "path": "文档/项目/AI图片编辑项目/开发记录/2026-10-03-完整迁移实施.md",
+      "sha256": "fd6d7f22ab8a0c789215dc7b280b2be747171caf0567d7146bb75c6363cd0228"
+    },
+    {
+      "path": "文档/项目/AI图片编辑项目/证据/2026-10-03-完整迁移验收/业务验收记录.md",
+      "sha256": "84dfd2d012f0a86fcffc6e812df29fdcea655b0ef94cbcfd86f23da00594adb4"
+    },
+    {
+      "path": ".runtime/aipicture/remaining-completion-artifacts.json",
+      "sha256": "0ca534e9c5d5644c20f8fb44612dfe3c986f645521129401cae6a9bcbe033a6e"
+    },
+    {
+      "path": ".runtime/aipicture/remaining-completion-runtime-after.json",
+      "sha256": "4636d59dffdc3f0a1d444fcdb1499d599bc4680ff2702d4bc5218b09c0d8fe92"
+    },
+    {
+      "path": ".runtime/aipicture/remaining-completion-frontend-final.json",
+      "sha256": "7ec3b9bcf7227a4dcf735d8f0a2a282e0ee71fbbafc9737978db98969b606018"
+    },
+    {
+      "path": ".runtime/aipicture/remaining-react-logout-final.json",
+      "sha256": "0936b76d9dea8459b10cbb6f84a51dd03b349e533654b875d651af4a67ad38a3"
+    },
+    {
+      "path": ".runtime/aipicture/remaining-completion-http.json",
+      "sha256": "20021ad8fc0b8c2b5e55bdde5ba7d2704161f92a1b3eb81749213c257b5732e3"
+    },
+    {
+      "path": "文档\\项目\\AI图片编辑项目\\证据\\2026-10-03-完整迁移验收\\并发与前端恢复定向核查\\本轮修复与运行证据汇总.json",
+      "sha256": "4dc03705acb1bd81b452786a2ed763188df2ac84c280ee6d134852ad02a45d4f"
+    }
+  ],
+  "comparisons": [
+    {
+      "topic": "CV并发与尚未落实资源边界",
+      "md_locations": [
+        "实施.md:291,305",
+        "业务验收记录.md:453,473"
+      ],
+      "actual": "segment key=sha256(raw)，LRU4、同key Future去重和OCR初始化锁；无模型hash/字节cap完成声明",
+      "result": "吻合；拟定modelhash/bytecap/预算仍未完成，并发技术check不作峰值或模型质量证明"
+    },
+    {
+      "topic": "修复检查组成",
+      "md_locations": [
+        "实施.md:290-295",
+        "业务验收记录.md:451-457"
+      ],
+      "actual": "Java13=新增8+既有5；Python13=并发7+原入口5+缺模型1；React18=最新10+沿用8，Host11单列",
+      "result": "吻合；原阶段17不与最新10相加，原失败保存"
+    },
+    {
+      "topic": "最终Java/Python制品",
+      "md_locations": [
+        "实施.md:297",
+        "业务验收记录.md:459"
+      ],
+      "actual": "Java32源/43class/5契约；Python38源与wheel/sdist match38，仅segment/OCR较r10变、锁hash原值",
+      "result": "与artifacts记录吻合；本审查未重新打包或解包复验"
+    },
+    {
+      "topic": "恢复进程及CV loaded",
+      "md_locations": [
+        "实施.md:299",
+        "业务验收记录.md:461"
+      ],
+      "actual": "Java46852/8415，serve37640→29928/7405，worker35172→47572；保护11508/14385及15492/8416保持；三CV readytrue/loadedfalse，字体true",
+      "result": "与runtime-after及既有HTTP能力快照吻合，旧模型loadedtrue未冒作当前进程"
+    },
+    {
+      "topic": "前端库和实际静态响应",
+      "md_locations": [
+        "实施.md:301",
+        "业务验收记录.md:459,469"
+      ],
+      "actual": "四库977888B/SHA0fff3221...；最终记录两个静态HTTP200同摘要；新库成功清参技术POST1/GET28",
+      "result": "与frontend-final和57汇总吻合，不作正式任务/付费质量结论"
+    },
+    {
+      "topic": "认证HTTP及误判撤回",
+      "md_locations": [
+        "实施.md:303",
+        "业务验收记录.md:463"
+      ],
+      "actual": "四项只读HTTP401/200/body401/未知资产404；探针准备错误单列；Java认证审查误判已撤回且没有重跑13项",
+      "result": "与HTTP/57汇总及既有裁决一致"
+    },
+    {
+      "topic": "完整业务状态及证据数量",
+      "md_locations": [
+        "实施.md:305",
+        "业务验收记录.md:467,473"
+      ],
+      "actual": "0通过/4未执行/18受阻，22用户决定待；57文件中12图；OCR原AI→Al仍未通过，未写完整迁移通过",
+      "result": "与react-final及57汇总吻合"
+    }
+  ],
+  "artifact_facts": {
+    "java_total_sha256": "aad5c14cd7b4f78177606b57a499d5211092592b2fba453d266690ec0aaff9f8",
+    "java_module_sha256": "f0eccb9cdefce5105eb07d49c2fb9b993fe79cf3430c05cc0e738318a1a1e2d7",
+    "java_build_finished_at": "2026-10-03T12:49:34+08:00",
+    "python_wheel_sha256": "8c65ed4e235fd2578bcc211e091697a1de0f2968564224befe1763e500bb4706",
+    "python_sdist_sha256": "ee4a830f02729653190d8fc245e118d1856bddad5406c4771738fd5d148d7767",
+    "python_source_count": 38,
+    "python_source_wheel_sdist_match_count": 38,
+    "python_changed_sources": [
+      "aipicture_runtime/edits/ocr.py",
+      "aipicture_runtime/edits/segment.py"
+    ],
+    "python_uv_lock_sha256": "a734eee25ad754eeebc990fe3b038e64496eb2d0b92bc6d94a435a47af7b4d50"
+  },
+  "runtime_facts": {
+    "manifest_started_at": "2026-10-03T04:52:29.9307707Z",
+    "original_database_retained": true,
+    "secret_bytes_unchanged": true,
+    "explicit_runtime_config_path_present": true,
+    "runtime_manifest_config_path_present": false,
+    "protected_unchanged": true,
+    "cv_capability_snapshot": [
+      {
+        "name": "text_rendering",
+        "ready": true,
+        "loaded": true,
+        "validation": "font_load_and_basic_glyph_probe"
+      },
+      {
+        "name": "matting",
+        "ready": true,
+        "loaded": false,
+        "validation": "files_and_dependencies_only"
+      },
+      {
+        "name": "sam",
+        "ready": true,
+        "loaded": false,
+        "validation": "files_and_dependencies_only"
+      },
+      {
+        "name": "ocr",
+        "ready": true,
+        "loaded": false,
+        "validation": "files_and_dependencies_only"
+      }
+    ]
+  },
+  "frontend_facts": {
+    "coverage": {
+      "total": 18,
+      "newly_executed": 10,
+      "inherited_unaffected": 8
+    },
+    "host_checks": 11,
+    "final_react_executed": 10,
+    "final_host_executed": 11,
+    "library": {
+      "path": ".runtime/aipicture/remaining-frontend-final-0fff3221/aipicture-workbench.js",
+      "bytes": 977888,
+      "sha256": "0fff3221ace4d9fe75557c90fca377104dc74a6b0359ca25ee11a892edcd096f"
+    },
+    "stage_counts_not_added": true
+  },
+  "business_result": {
+    "passed": 0,
+    "not_executed": 4,
+    "blocked": 18,
+    "pending_user_decisions": 22
+  },
+  "evidence_summary": {
+    "files": 57,
+    "declared_screenshots": 12,
+    "image_entries": 12,
+    "mismatches": [],
+    "file_checks": [
+      {
+        "file": "规划取消-修前实际失败.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "规划取消-修前三项.xml",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "规划取消-修后13项.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "规划取消-修后8项.xml",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "规划选区与批量恢复-受影响5项.xml",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "规划取消-源码与执行冻结.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "规划测试认证-原审查误判.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "规划测试认证-审查撤回与原文依据.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "规划测试认证-原行及字节码独立裁决.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "CV并发-修前3失败4通过.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "CV并发-修前7项.xml",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "CV并发-修后13项.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "CV并发-修后13项.xml",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "CV并发-最终源码与用例组成.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "CV并发-独立代码复核.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "前端恢复-修前12失败2通过.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "前端恢复-首次修后16通过1失败.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "前端恢复-阶段17项.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "前端恢复-阶段源码与08d485库.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "前端恢复-独立发现退出与迟到参数问题.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "真实退出形状-修前三失败.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "若依宿主-修后11项.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "迟到调色清新值-修前失败.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "草稿及参数-最终10项.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "若依宿主-首次测试类型错误.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "若依宿主-最终类型检查.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "React-最终类型检查.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "React-最终lint保留提示.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "React-最终库构建.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "React与若依宿主-最终源码及18项去重组成.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "真实退出与迟到调色-独立最终复核.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "管理端-最终生产构建.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "前端-17源码四份库及实际服务核对.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "Java-最终聚合构建.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "Python-首次误用非隔离构建失败.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "Python-最终离线构建.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "Java与Python-最终源及制品.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "更新前-实际进程与凭据摘要.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "更新后-实际进程与原凭据核对.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "本项目Java与Python停止.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "本项目Java与Python恢复.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "HTTP探针-首次能力字段准备错误.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "HTTP探针-遗漏服务查询参数错误.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "恢复后-四项HTTP边界实际退出0.log",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "恢复后-实际认证与模型资源能力.json",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "草稿切换-旧库空草稿技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "草稿切换-首次复验空画面保留.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "草稿切换-输入稳定后恢复技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "换背景-提交503保留参数技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "换背景-受理等待保留参数技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "换背景-正式失败保留参数技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "导出-已受理等待技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "导出-原任务暂错重读技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "导出-一次POST恢复原下载技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "点选-原任务暂错重读技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "点选-一次POST恢复选区历史技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      },
+      {
+        "file": "换背景-最终库正式成功后清已应用参数技术截图.jpg",
+        "present": true,
+        "size_matches": true,
+        "hash_matches": true
+      }
+    ]
+  },
+  "findings": [],
+  "limits": [
+    "只读核对文字与已保存记录/字节摘要，不新运行HTTP或检查进程",
+    "57份大小/hash复核不等于重新截图回读；引用根已保存回读事实",
+    "本审查不改MD或业务结果，不声明完整迁移验收通过"
+  ],
+  "tests_executed": 0,
+  "inference_executed": 0,
+  "builds_executed": 0,
+  "browser_operations": 0,
+  "database_calls": 0,
+  "services_operated": false,
+  "markdown_modified": false,
+  "latest_md_wording": {
+    "checked_at_utc": "2026-10-03T05:45:00.7036883Z",
+    "implementation_line": 305,
+    "implementation_text": "业务记录更新r11，完整仍0通过/4未执行/18受阻，22项用户决定待确认。原210源/75映射、制品、MD链接与HTML正文作最终静态核对，文件存在不替代业务通过。主设计3.7的模型hash/缓存字节上限与并发预算仍为拟定边界；当前SAM仅原字节hash＋LRU4且无公共热重载，资源要求尚未全部实现/验证。原OCR错字、严格超分、质量集/恢复演练、实际登录/角色、Provider费用和源数据/owner导入前提尚未齐备。[57份文件（含12截图）汇总](../证据/2026-10-03-完整迁移验收/并发与前端恢复定向核查/本轮修复与运行证据汇总.json)保存失败与有限成功，HTML实际渲染/筛选未验证。",
+    "business_line": 473,
+    "business_text": "**剩余条件与r11判断**：主设计3.7模型hash/缓存字节上限及并发预算仍是拟定边界；当前无公共模型热重载，本次SAM仅原字节hash＋LRU4/同键去重，没有按模型hash/字节预算完成资源要求。原灰度AI→Al仍未通过，严格超分、完整质量集/恢复演练、源数据/owner、实际账号/角色及DashScope配置/费用仍待前提。已异步集中请求登录条件及本地配置路径/费用上限，没有填写或读取密码/提交验证码；本次保留标签6接管超时，没有新登录后身份/页面证据，不能认URL为登录成功。原210源/75映射、制品/链接/HTML正文静态核对仅证范围，完整仍0通过/4未执行/18受阻、22项待用户决定。[57份文件（含12图）汇总](并发与前端恢复定向核查/本轮修复与运行证据汇总.json)保留阶段与原失败。HTML按r11生成/静态核对，实际渲染/筛选未验证，未绕过原本地页面限制。",
+    "result": "已按根最后措辞核对：57份文件包含12张图，不是57结果再另加12；汇总files57/image12一致"
+  }
+}

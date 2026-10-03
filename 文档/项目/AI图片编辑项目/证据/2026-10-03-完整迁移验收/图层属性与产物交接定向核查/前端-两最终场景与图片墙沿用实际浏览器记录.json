@@ -1,0 +1,66 @@
+{
+  "scope": "真实IAB输入＋原React/Konva＋受控正式响应；不连接真实业务/Provider，不计完整22项",
+  "finalBundle": "aff4180ee55d608678a99d3f9fd543a8718887d5a038eb35d2538552fcfb9473",
+  "finalCases": [
+    {
+      "name": "旋转失败回正式画布、保留参数且单手势仅POST1",
+      "phase": "final-aff4180e",
+      "failureStatus": "受控命令POST：1；最后命令：rotate_layer；固定expectedVersion：0；正式图层x=16,y=176,scale=1；正式rotation=0,opacity=1；请求图层=00000000-0000-4000-8000-000000000003；墙PATCH=0；正式文字=原文字；正式业务写入与供应商调用：0",
+      "notice": "技术模拟：正式命令拒绝，未修改正式画布重试",
+      "draft": "45",
+      "failureScreenshot": "rotate-final-one-post-failure.jpg",
+      "passed": true,
+      "successStatus": "受控命令POST：2；最后命令：rotate_layer；固定expectedVersion：0；正式图层x=16,y=176,scale=1；正式rotation=45,opacity=1；请求图层=00000000-0000-4000-8000-000000000003；墙PATCH=0；正式文字=原文字；正式业务写入与供应商调用：0",
+      "successScreenshot": "rotate-final-explicit-retry.jpg"
+    },
+    {
+      "name": "透明度失败恢复正式1并保留40%参数",
+      "phase": "final-aff4180e",
+      "failureStatus": "受控命令POST：3；最后命令：set_layer_opacity；固定expectedVersion：1；正式图层x=16,y=176,scale=1；正式rotation=45,opacity=1；请求图层=00000000-0000-4000-8000-000000000003；墙PATCH=0；正式文字=原文字；正式业务写入与供应商调用：0",
+      "failureScreenshot": "opacity-final-one-post-failure.jpg",
+      "passed": true,
+      "successStatus": "受控命令POST：4；最后命令：set_layer_opacity；固定expectedVersion：1；正式图层x=16,y=176,scale=1；正式rotation=45,opacity=0.4；请求图层=00000000-0000-4000-8000-000000000003；墙PATCH=0；正式文字=原文字；正式业务写入与供应商调用：0",
+      "successScreenshot": "opacity-final-explicit-retry.jpg"
+    }
+  ],
+  "retainedBaseline": {
+    "name": "图片墙正式切换后的目标校准",
+    "bundle": "a2cc8341635bc6d1d0f984ea96923eedd2ce983f87190710bfa23f21fca741cb",
+    "patches": 1,
+    "toolPosts": 1,
+    "expectedVersion": 1,
+    "requestLayerId": null,
+    "formalScale": -1,
+    "businessWrites": 0,
+    "providerCalls": 0,
+    "passed": true
+  },
+  "composition": {
+    "newFinalScenarios": 2,
+    "sameTurnUnchangedWallBaseline": 1,
+    "uniquePassedScenarios": 3
+  },
+  "retentionReason": "仅SliderField手势守卫变化，EditorPage及Toolbar/原API未变化；墙PATCH和flip未走属性slider，a2墙实际结果沿用",
+  "preservedFailures": [
+    {
+      "bundle": "0f351d33",
+      "failure": "rotation正式0但画布残留约45预览",
+      "screenshot": "rotate-before-failure.jpg"
+    },
+    {
+      "bundle": "0f351d33",
+      "failure": "墙B正式文档仅.018，但请求layer_id仍.003导致400",
+      "screenshot": "wall-before-old-layer.jpg"
+    },
+    {
+      "bundle": "a2cc8341",
+      "failure": "单gesture快速503后pointerup/lostcapture发POST2，产品失败",
+      "screenshot": "rotate-after-failure.jpg"
+    }
+  ],
+  "console": [],
+  "businessOperations": 0,
+  "providerOrModelCalls": 0,
+  "formalDatabaseWrites": 0,
+  "businessAcceptance": false
+}

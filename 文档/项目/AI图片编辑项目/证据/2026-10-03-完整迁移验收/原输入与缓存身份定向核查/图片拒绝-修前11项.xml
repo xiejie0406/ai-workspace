@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="11" time="13.687" timestamp="2026-10-03T14:03:43.186967+08:00" hostname="DESKTOP-9TNRTIR"><testcase classname="tests.test_image_rejection" name="test_actual_invalid_images_return_safe_structured_422[unidentified]" time="1.656"><failure message="AssertionError: {&quot;code&quot;:&quot;COMPUTE_UNAVAILABLE&quot;,&quot;message&quot;:&quot;计算不可用（UnidentifiedImageError）&quot;,&quot;run_id&quot;:&quot;9448c993-45d4-4a30-ad44-0a60d5238b7c&quot;,&quot;attempt&quot;:1}&#10;assert 503 == 422&#10; +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code">kind = 'unidentified'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017BD06762C0&gt;
+no_side_effects = {'provider': 0, 'external_http': 0, 'artifact': 0}
+
+    @pytest.mark.parametrize("kind", ["unidentified", "truncated_png", "bomb"])
+    def test_actual_invalid_images_return_safe_structured_422(kind, monkeypatch, no_side_effects):
+        if kind == "unidentified":
+            raw = b"not-an-image:original-input-must-not-be-returned"
+            with pytest.raises(UnidentifiedImageError):
+                Image.open(io.BytesIO(raw))
+        elif kind == "truncated_png":
+            raw = truncated_png()
+            with Image.open(io.BytesIO(raw)) as image:
+                assert image.size == (64, 80)  # header合法，错误必须发生在真实decode。
+                with pytest.raises(OSError):
+                    image.load()
+        else:
+            raw = small_image()
+            monkeypatch.setattr(Image, "MAX_IMAGE_PIXELS", 1000)
+            with pytest.raises(Image.DecompressionBombError):
+                Image.open(io.BytesIO(raw))
+        payload = inspection(raw)
+        with TestClient(create_app()) as client:
+            response = signed_post(client, payload)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"code":"COMPUTE_UNAVAILABLE","message":"计算不可用（UnidentifiedImageError）","run_id":"9448c993-45d4-4a30-ad44-0a60d5238b7c","attempt":1}
+E       assert 503 == 422
+E        +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code
+
+tests\test_image_rejection.py:99: AssertionError</failure></testcase><testcase classname="tests.test_image_rejection" name="test_actual_invalid_images_return_safe_structured_422[truncated_png]" time="0.113"><failure message="AssertionError: {&quot;code&quot;:&quot;COMPUTE_UNAVAILABLE&quot;,&quot;message&quot;:&quot;计算不可用（OSError）&quot;,&quot;run_id&quot;:&quot;8b0b66ff-1930-48f5-8dba-cb5b3815553e&quot;,&quot;attempt&quot;:1}&#10;assert 503 == 422&#10; +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code">kind = 'truncated_png'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017BD0676520&gt;
+no_side_effects = {'provider': 0, 'external_http': 0, 'artifact': 0}
+
+    @pytest.mark.parametrize("kind", ["unidentified", "truncated_png", "bomb"])
+    def test_actual_invalid_images_return_safe_structured_422(kind, monkeypatch, no_side_effects):
+        if kind == "unidentified":
+            raw = b"not-an-image:original-input-must-not-be-returned"
+            with pytest.raises(UnidentifiedImageError):
+                Image.open(io.BytesIO(raw))
+        elif kind == "truncated_png":
+            raw = truncated_png()
+            with Image.open(io.BytesIO(raw)) as image:
+                assert image.size == (64, 80)  # header合法，错误必须发生在真实decode。
+                with pytest.raises(OSError):
+                    image.load()
+        else:
+            raw = small_image()
+            monkeypatch.setattr(Image, "MAX_IMAGE_PIXELS", 1000)
+            with pytest.raises(Image.DecompressionBombError):
+                Image.open(io.BytesIO(raw))
+        payload = inspection(raw)
+        with TestClient(create_app()) as client:
+            response = signed_post(client, payload)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"code":"COMPUTE_UNAVAILABLE","message":"计算不可用（OSError）","run_id":"8b0b66ff-1930-48f5-8dba-cb5b3815553e","attempt":1}
+E       assert 503 == 422
+E        +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code
+
+tests\test_image_rejection.py:99: AssertionError</failure></testcase><testcase classname="tests.test_image_rejection" name="test_actual_invalid_images_return_safe_structured_422[bomb]" time="0.152"><failure message="AssertionError: {&quot;code&quot;:&quot;COMPUTE_UNAVAILABLE&quot;,&quot;message&quot;:&quot;计算不可用（DecompressionBombError）&quot;,&quot;run_id&quot;:&quot;1a622c1b-274c-4af7-b761-3e0f42b8a28f&quot;,&quot;attempt&quot;:1}&#10;assert 503 == 422&#10; +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code">kind = 'bomb'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017BD0865250&gt;
+no_side_effects = {'provider': 0, 'external_http': 0, 'artifact': 0}
+
+    @pytest.mark.parametrize("kind", ["unidentified", "truncated_png", "bomb"])
+    def test_actual_invalid_images_return_safe_structured_422(kind, monkeypatch, no_side_effects):
+        if kind == "unidentified":
+            raw = b"not-an-image:original-input-must-not-be-returned"
+            with pytest.raises(UnidentifiedImageError):
+                Image.open(io.BytesIO(raw))
+        elif kind == "truncated_png":
+            raw = truncated_png()
+            with Image.open(io.BytesIO(raw)) as image:
+                assert image.size == (64, 80)  # header合法，错误必须发生在真实decode。
+                with pytest.raises(OSError):
+                    image.load()
+        else:
+            raw = small_image()
+            monkeypatch.setattr(Image, "MAX_IMAGE_PIXELS", 1000)
+            with pytest.raises(Image.DecompressionBombError):
+                Image.open(io.BytesIO(raw))
+        payload = inspection(raw)
+        with TestClient(create_app()) as client:
+            response = signed_post(client, payload)
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"code":"COMPUTE_UNAVAILABLE","message":"计算不可用（DecompressionBombError）","run_id":"1a622c1b-274c-4af7-b761-3e0f42b8a28f","attempt":1}
+E       assert 503 == 422
+E        +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code
+
+tests\test_image_rejection.py:99: AssertionError</failure></testcase><testcase classname="tests.test_image_rejection" name="test_valid_png_webp_keeps_real_metadata_and_zero_artifacts[PNG]" time="0.096" /><testcase classname="tests.test_image_rejection" name="test_valid_png_webp_keeps_real_metadata_and_zero_artifacts[WEBP]" time="0.052" /><testcase classname="tests.test_image_rejection" name="test_prepare_selection_uses_same_safe_rejection_for_corrupted_inline_asset" time="0.078"><failure message="AssertionError: {&quot;detail&quot;:&quot;计算不可用（UnidentifiedImageError）&quot;}&#10;assert 503 == 422&#10; +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code">no_side_effects = {'provider': 0, 'external_http': 0, 'artifact': 0}
+
+    def test_prepare_selection_uses_same_safe_rejection_for_corrupted_inline_asset(no_side_effects):
+        raw = b"not-a-real-mask-or-image"
+        identifier = str(uuid.uuid4())
+        payload = inspection(raw)
+        payload.update(tool="prepare_selection", params={}, document={"width": 64, "height": 80, "layers": [
+            {"id": "base", "name": "底图", "kind": "image", "width": 64, "height": 80, "asset_id": identifier}]},
+            assets=[{"id": identifier, "sha256": hashlib.sha256(raw).hexdigest(), "width": 64, "height": 80,
+                     "content_base64": base64.b64encode(raw).decode()}])
+        with TestClient(create_app()) as client:
+            response = signed_post(client, payload, "/internal/v1/prepare-selection")
+&gt;       assert response.status_code == 422, response.text
+E       AssertionError: {"detail":"计算不可用（UnidentifiedImageError）"}
+E       assert 503 == 422
+E        +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code
+
+tests\test_image_rejection.py:133: AssertionError</failure></testcase><testcase classname="tests.test_image_rejection" name="test_real_compute_fault_still_503_without_image_rejection_code" time="0.054" /><testcase classname="tests.test_image_rejection" name="test_pydantic_validation_is_not_globally_forwarded_as_image_message" time="0.102" /><testcase classname="tests.test_image_rejection" name="test_image_rejection_still_requires_service_signature" time="0.046" /><testcase classname="tests.test_image_rejection" name="test_fifty_million_pixel_header_is_rejected_before_decode" time="0.017" /><testcase classname="tests.test_image_rejection" name="test_twenty_mb_limit_rejects_before_pillow_parser" time="0.035" /></testsuite></testsuites>

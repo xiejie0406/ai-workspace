@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.890" timestamp="2026-10-03T17:12:35.953606+08:00" hostname="DESKTOP-9TNRTIR"><testcase classname="tests.test_delivery_replay" name="test_successful_http_without_explicit_lease_state_cannot_authorize_delivery[empty-data]" time="0.147"><failure message="AssertionError: HTTP成功不能代替明确执行租约确认&#10;assert (not [{'endpoint': 'artifacts', 'body': {'run_id': 'def492ba-f86d-4659-b6f0-13607f6451de', 'attempt': 1, 'lease_token': 'co...5CYII=&quot;,&quot;kind&quot;:&quot;export&quot;,&quot;source&quot;:&quot;tool&quot;,&quot;format&quot;:&quot;png&quot;,&quot;manifest&quot;:null}', 'nonce': '270ec396a9c9446da138ac21ad979eb0'}])&#10; +  where [{'endpoint': 'artifacts', 'body': {'run_id': 'def492ba-f86d-4659-b6f0-13607f6451de', 'attempt': 1, 'lease_token': 'co...5CYII=&quot;,&quot;kind&quot;:&quot;export&quot;,&quot;source&quot;:&quot;tool&quot;,&quot;format&quot;:&quot;png&quot;,&quot;manifest&quot;:null}', 'nonce': '270ec396a9c9446da138ac21ad979eb0'}] = of('artifacts')&#10; +    where of = &lt;test_delivery_replay.Center object at 0x000001F56B127770&gt;.of">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001F56B04F950&gt;
+shape = 'empty-data'
+
+    @pytest.mark.parametrize("shape", ["empty-data", "missing-data", "null-status"])
+    async def test_successful_http_without_explicit_lease_state_cannot_authorize_delivery(monkeypatch, shape):
+        center = Center("artifacts", "503", heartbeat_stop=shape)
+        await actual_batch(monkeypatch, center)
+&gt;       assert not center.of("artifacts") and not center.of("receipt"), "HTTP成功不能代替明确执行租约确认"
+E       AssertionError: HTTP成功不能代替明确执行租约确认
+E       assert (not [{'endpoint': 'artifacts', 'body': {'run_id': 'def492ba-f86d-4659-b6f0-13607f6451de', 'attempt': 1, 'lease_token': 'co...5CYII=","kind":"export","source":"tool","format":"png","manifest":null}', 'nonce': '270ec396a9c9446da138ac21ad979eb0'}])
+E        +  where [{'endpoint': 'artifacts', 'body': {'run_id': 'def492ba-f86d-4659-b6f0-13607f6451de', 'attempt': 1, 'lease_token': 'co...5CYII=","kind":"export","source":"tool","format":"png","manifest":null}', 'nonce': '270ec396a9c9446da138ac21ad979eb0'}] = of('artifacts')
+E        +    where of = &lt;test_delivery_replay.Center object at 0x000001F56B127770&gt;.of
+
+python\aipicture-runtime\tests\test_delivery_replay.py:239: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_successful_http_without_explicit_lease_state_cannot_authorize_delivery[missing-data]" time="0.043"><failure message="AssertionError: HTTP成功不能代替明确执行租约确认&#10;assert (not [{'endpoint': 'artifacts', 'body': {'run_id': '6007b811-02f3-4418-ab09-10d5ea639600', 'attempt': 1, 'lease_token': 'co...5CYII=&quot;,&quot;kind&quot;:&quot;export&quot;,&quot;source&quot;:&quot;tool&quot;,&quot;format&quot;:&quot;png&quot;,&quot;manifest&quot;:null}', 'nonce': '7e44e9840dd44bb3806dfa63c43212ef'}])&#10; +  where [{'endpoint': 'artifacts', 'body': {'run_id': '6007b811-02f3-4418-ab09-10d5ea639600', 'attempt': 1, 'lease_token': 'co...5CYII=&quot;,&quot;kind&quot;:&quot;export&quot;,&quot;source&quot;:&quot;tool&quot;,&quot;format&quot;:&quot;png&quot;,&quot;manifest&quot;:null}', 'nonce': '7e44e9840dd44bb3806dfa63c43212ef'}] = of('artifacts')&#10; +    where of = &lt;test_delivery_replay.Center object at 0x000001F56B19AC10&gt;.of">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001F56B22E450&gt;
+shape = 'missing-data'
+
+    @pytest.mark.parametrize("shape", ["empty-data", "missing-data", "null-status"])
+    async def test_successful_http_without_explicit_lease_state_cannot_authorize_delivery(monkeypatch, shape):
+        center = Center("artifacts", "503", heartbeat_stop=shape)
+        await actual_batch(monkeypatch, center)
+&gt;       assert not center.of("artifacts") and not center.of("receipt"), "HTTP成功不能代替明确执行租约确认"
+E       AssertionError: HTTP成功不能代替明确执行租约确认
+E       assert (not [{'endpoint': 'artifacts', 'body': {'run_id': '6007b811-02f3-4418-ab09-10d5ea639600', 'attempt': 1, 'lease_token': 'co...5CYII=","kind":"export","source":"tool","format":"png","manifest":null}', 'nonce': '7e44e9840dd44bb3806dfa63c43212ef'}])
+E        +  where [{'endpoint': 'artifacts', 'body': {'run_id': '6007b811-02f3-4418-ab09-10d5ea639600', 'attempt': 1, 'lease_token': 'co...5CYII=","kind":"export","source":"tool","format":"png","manifest":null}', 'nonce': '7e44e9840dd44bb3806dfa63c43212ef'}] = of('artifacts')
+E        +    where of = &lt;test_delivery_replay.Center object at 0x000001F56B19AC10&gt;.of
+
+python\aipicture-runtime\tests\test_delivery_replay.py:239: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_successful_http_without_explicit_lease_state_cannot_authorize_delivery[null-status]" time="0.040"><failure message="AssertionError: HTTP成功不能代替明确执行租约确认&#10;assert (not [{'endpoint': 'artifacts', 'body': {'run_id': '3380f0eb-01c8-4573-9ba0-237c5bc87fb5', 'attempt': 1, 'lease_token': 'co...5CYII=&quot;,&quot;kind&quot;:&quot;export&quot;,&quot;source&quot;:&quot;tool&quot;,&quot;format&quot;:&quot;png&quot;,&quot;manifest&quot;:null}', 'nonce': '1389083fbf2141cf9da3456f363d0ee0'}])&#10; +  where [{'endpoint': 'artifacts', 'body': {'run_id': '3380f0eb-01c8-4573-9ba0-237c5bc87fb5', 'attempt': 1, 'lease_token': 'co...5CYII=&quot;,&quot;kind&quot;:&quot;export&quot;,&quot;source&quot;:&quot;tool&quot;,&quot;format&quot;:&quot;png&quot;,&quot;manifest&quot;:null}', 'nonce': '1389083fbf2141cf9da3456f363d0ee0'}] = of('artifacts')&#10; +    where of = &lt;test_delivery_replay.Center object at 0x000001F56B199BD0&gt;.of">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001F56B242690&gt;
+shape = 'null-status'
+
+    @pytest.mark.parametrize("shape", ["empty-data", "missing-data", "null-status"])
+    async def test_successful_http_without_explicit_lease_state_cannot_authorize_delivery(monkeypatch, shape):
+        center = Center("artifacts", "503", heartbeat_stop=shape)
+        await actual_batch(monkeypatch, center)
+&gt;       assert not center.of("artifacts") and not center.of("receipt"), "HTTP成功不能代替明确执行租约确认"
+E       AssertionError: HTTP成功不能代替明确执行租约确认
+E       assert (not [{'endpoint': 'artifacts', 'body': {'run_id': '3380f0eb-01c8-4573-9ba0-237c5bc87fb5', 'attempt': 1, 'lease_token': 'co...5CYII=","kind":"export","source":"tool","format":"png","manifest":null}', 'nonce': '1389083fbf2141cf9da3456f363d0ee0'}])
+E        +  where [{'endpoint': 'artifacts', 'body': {'run_id': '3380f0eb-01c8-4573-9ba0-237c5bc87fb5', 'attempt': 1, 'lease_token': 'co...5CYII=","kind":"export","source":"tool","format":"png","manifest":null}', 'nonce': '1389083fbf2141cf9da3456f363d0ee0'}] = of('artifacts')
+E        +    where of = &lt;test_delivery_replay.Center object at 0x000001F56B199BD0&gt;.of
+
+python\aipicture-runtime\tests\test_delivery_replay.py:239: AssertionError</failure></testcase></testsuite></testsuites>

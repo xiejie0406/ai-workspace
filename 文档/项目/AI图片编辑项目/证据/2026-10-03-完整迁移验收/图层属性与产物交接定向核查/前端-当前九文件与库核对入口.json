@@ -1,0 +1,709 @@
+{
+  "generated_at": "2026-10-03T09:35:00.101537+00:00",
+  "scope": "已批准主设计1.2失败恢复与5.4/5.12墙切换补齐；仅2个目标React产品文件＋lifecycle/README/75项既有覆盖理由，不改参考源、Java、Python、adminHost或唯一MD/HTML",
+  "before": {
+    "audit": {
+      "path": ".runtime/aipicture/r14-layer-wall-readonly-audit.json",
+      "bytes": 5848,
+      "sha256": "8cc01ece9d2a3b70e61a5602d07ea3e179c9dd1a80b19ede63a7d9106c844c72"
+    },
+    "snapshot": ".runtime/aipicture/r14-layer-properties-before",
+    "protected_files": 10,
+    "log": {
+      "path": ".runtime/aipicture/r14-layer-properties-before.log",
+      "bytes": 5981,
+      "sha256": "d4f74f14eefcbb7691f9fba3f0a7e9b1401e09722da5bcca1801585c871b32c3"
+    },
+    "tests": 5,
+    "passed": 0,
+    "failed": 5,
+    "native_exit": 1,
+    "observations": [
+      "旋转503：正式30而实际Konva节点75",
+      "透明度409：正式1而实际节点0.4",
+      "字号即时预览48后原draft!=value guard导致松手不提交/无正式错误反馈",
+      "颜色POST200正式failed原void消费不反馈且保留旧preview",
+      "A主体→墙B底图：实际flip仍传subject"
+    ],
+    "source_gap_note": "原源码亦有同类不足，本次为已批准设计一致性补齐，不写成迁移引入回归"
+  },
+  "changes": [
+    "旋转/透明度/等比缩放/面板文字字号颜色接既有invokeAsync与固定expectedVersion反馈重试，失败与正式failed/canceled/unknown恢复正式画布并保留参数，不自动POST",
+    "Slider按正式基线判断提交，pointerup/lostcapture一次命令，松手等待正式完成；排队期间局部等待锁保留输入",
+    "文字字体颜色命令携带原完整text/font_size/fill，失败回读新版本仍保留待确认用户参数",
+    "只撤本组件仍匹配的preview字段；同层另一表单的新文字、其他层和换owner/失活的新实例不被迟到回复清除；关闭面板不被迟到错误重新打开",
+    "正式session文档layout提交后仅校准已不存在selectedLayerId和旧层preview；PATCH失败及仍有效id保持，墙切换、undo/redo和正式回读及双实例均有受控检查",
+    "同一滑杆明确输入/指针按下/双击意图序号只能提交一次；快速拒绝后draft只保留显示，不恢复旧可提交槽，延迟lostcapture不重POST；新明确指针手势仍可提交原值、正常失捕/双击复位不破坏、原键盘预览规则保持"
+  ],
+  "source_frozen": [
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "bytes": 25062,
+      "sha256": "042be73bccf2619275c1afb0fb9b51e80d9b9cd1830fda9afa58f61592dfa634"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "bytes": 11241,
+      "sha256": "78439298692e5e87b558dcd16c5117183087be8e7d2704e22365d9ea1a0a6987"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "bytes": 187364,
+      "sha256": "54b532642f51c30e9f35948112b2c38bc8e48f68c2872d50d7bbedb11c2eba38"
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "bytes": 14779,
+      "sha256": "eb2aeb55c299073488837c62f755f285c5bffa6eda2d705cad7054da6f5ee55f"
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "bytes": 29859,
+      "sha256": "92ab8c72b6fad1e57d9dfb45eb65f8af436920670b69499300cac4fe04870e01"
+    }
+  ],
+  "command_boundary_frozen": [
+    {
+      "path": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "bytes": 10418,
+      "sha256": "4ee8406cb664cab2109bf3d6a73bb7242fb5d9f6d5d4d38f6ed041c86fd8f27e",
+      "unchanged_since_before": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/client.ts",
+      "bytes": 2963,
+      "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054",
+      "unchanged_since_before": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "bytes": 5436,
+      "sha256": "2cafe8b019026de0c40d0569fe30ac83b4868ae51eaabd34d3fc335015b7fa4e",
+      "unchanged_since_before": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "bytes": 4474,
+      "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05",
+      "unchanged_since_before": true
+    }
+  ],
+  "source_original_mapping": {
+    "files": 75,
+    "all_source_sha256_match": true,
+    "reference_modified": false,
+    "note": "75源指纹保留仅证明参考未改，不作为全部业务通过依据"
+  },
+  "artifact": {
+    "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+    "bytes": 984506,
+    "sha256": "aff4180ee55d608678a99d3f9fd543a8718887d5a038eb35d2538552fcfb9473"
+  },
+  "tests": {
+    "command": "npm test -- --test-name-pattern='^(滑杆手势单次：|图层属性恢复：(旋转|透明度|字号)|图层属性边界：(排队|正常缩放|关面板|订阅先failed)|图片墙正式选择：|独立两轴：|剩余完整性：(adjust|三原参数|工具取消|迟到正式调色))'",
+    "native_exit": 0,
+    "executed": 18,
+    "passed": 18,
+    "failed": 0,
+    "composition": {
+      "new_gesture_checks": 5,
+      "affected_existing_reexecuted": 13,
+      "new_names": [
+        "滑杆手势单次：pointerup拒绝结算后迟到lostcapture不能重POST",
+        "滑杆手势单次：正常捕获成功和提前lostcapture均只提交一次",
+        "滑杆手势单次：失败参数保留，新明确pointergesture无需再次改值即可重试",
+        "滑杆手势单次：失败后明确双击复位按正式基线提交一次，旧lostcapture不参与",
+        "滑杆手势单次：原键盘改值预览不新增自动POST，后续明确指针提交使用新值"
+      ],
+      "related_names": [
+        "独立两轴：实际图片与两文字层按持久幅值变换，等比预览及拖角待回写保持等比",
+        "剩余完整性：adjust在failed后保留原用户参数，不以提交成功清空",
+        "剩余完整性：三原参数表单只有正式成功后才清空，调色显式重置仍可用",
+        "剩余完整性：工具取消和外部未知结果保留参数，不清空或自动再次付费",
+        "剩余完整性：迟到正式调色回读不清除任务结束后用户新改参数",
+        "图层属性恢复：旋转拒绝后实际节点回正式值并保留参数供明确重试",
+        "图层属性恢复：透明度拒绝后实际节点回正式值并保留参数供明确重试",
+        "图层属性恢复：字号拒绝后实际节点回正式值并保留参数供明确重试",
+        "图片墙正式选择：A主体切B底图后翻转和调色参数不能保留旧subject",
+        "图层属性边界：排队不解锁或丢参数，failed取消未知回正式，partial成功才采用",
+        "图层属性边界：正常缩放和文字样式成功保持翻转与完整文案，双击复位只提交一次",
+        "图层属性边界：关面板及换owner/同owner失活后旧回复与重试不影响新实例或其他层",
+        "图层属性边界：订阅先failed解锁另一表单，迟到GET只撤旧旋转字段而保留同层新文字预览"
+      ]
+    },
+    "log": ".runtime/aipicture/r14-slider-gesture-after-release.log",
+    "note": "最新一次18实际执行；第一25其余12沿用。30互异覆盖，不累计25+18=43，Host11另列不加入。"
+  },
+  "stages": [
+    {
+      "log": ".runtime/aipicture/r14-layer-properties-before.log",
+      "executed": 5,
+      "passed": 0,
+      "failed": 5,
+      "native_exit": 1,
+      "kind": "真实修前预期失败"
+    },
+    {
+      "log": ".runtime/aipicture/r14-layer-properties-after-initial.log",
+      "executed": 5,
+      "passed": 5,
+      "failed": 0,
+      "native_exit": 0
+    },
+    {
+      "log": ".runtime/aipicture/r14-layer-properties-after-boundaries.log",
+      "executed": 12,
+      "passed": 9,
+      "failed": 3,
+      "native_exit": 1,
+      "kind": "2条测试误选Sidebar textarea，1条未等待异步session回读；原日志保留，修正测试不为这些3条改变生产实现"
+    },
+    {
+      "log": ".runtime/aipicture/r14-layer-properties-after-boundaries-corrected.log",
+      "executed": 12,
+      "passed": 12,
+      "failed": 0,
+      "native_exit": 0
+    },
+    {
+      "log": ".runtime/aipicture/r14-layer-properties-after-fields.log",
+      "executed": 13,
+      "passed": 13,
+      "failed": 0,
+      "native_exit": 0,
+      "kind": "新增同层另一表单迟到字段隔离边界"
+    },
+    {
+      "log": ".runtime/aipicture/r14-layer-properties-after-release.log",
+      "executed": 25,
+      "passed": 25,
+      "failed": 0,
+      "native_exit": 0,
+      "kind": "唯一次最终组成，不累加此前阶段"
+    },
+    {
+      "log": ".runtime/aipicture/r14-slider-gesture-before.log",
+      "executed": 1,
+      "passed": 0,
+      "failed": 1,
+      "native_exit": 1,
+      "kind": "root实际IAB后独立React旧源码复现，pointerup503完整结算→lostcapture，POST2!=1"
+    },
+    {
+      "log": ".runtime/aipicture/r14-slider-gesture-after-initial.log",
+      "executed": 5,
+      "passed": 5,
+      "failed": 0,
+      "native_exit": 0
+    },
+    {
+      "log": ".runtime/aipicture/r14-slider-gesture-after-release.log",
+      "executed": 18,
+      "passed": 18,
+      "failed": 0,
+      "native_exit": 0,
+      "kind": "最后受影响实际执行，30=18最新+12沿用；不累加各次阶段"
+    }
+  ],
+  "checks": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "native_exit": 0,
+      "log": ".runtime/aipicture/r14-slider-gesture-typecheck-release.log",
+      "scope": "最新Slider变化后全workbench tsc -b消费者"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "native_exit": 0,
+      "errors": 0,
+      "previous_warnings": 33,
+      "initial_warnings": 33,
+      "initial_added": [
+        "src/components/editor/LayerPanel.tsx: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with external systems. Calling setState synchronously inside an effect starts another render and is usually unnecessary. Derive the value during render, initialize state directly, or update it from the event that caused the change. Use an effect only when synchronizing with an external system."
+      ],
+      "initial_removed": [
+        "src/components/editor/LayerPanel.tsx: warning react-hooks(exhaustive-deps): React Hook useEffect has missing dependencies: 'layer.text', 'layer.fill', and 'layer.font_size' help: Either include it or remove the dependency array."
+      ],
+      "final_warnings": 32,
+      "new_warnings_remaining": 0,
+      "normalized_multiset_equal_to_previous": false,
+      "removed_warnings": [
+        "src/components/editor/LayerPanel.tsx: warning react-hooks(exhaustive-deps): React Hook useEffect has missing dependencies: 'layer.text', 'layer.fill', and 'layer.font_size' help: Either include it or remove the dependency array."
+      ],
+      "log": ".runtime/aipicture/r14-slider-gesture-lint-release.log",
+      "note": "原32提示沿用，删除原LayerControls匹配effect消除其1条缺依赖提示；新Slider同步effect改为派生显示，未忽略新闭包风险",
+      "normalized_multiset_equal_to_first_stage": true
+    },
+    "library_build": {
+      "command": "npm run build",
+      "native_exit": 0,
+      "log": ".runtime/aipicture/r14-slider-gesture-build-release.log",
+      "node_process_reference_absent": true,
+      "vite_warning": "inlineDynamicImports deprecated（原配置未改）",
+      "bundle": {
+        "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+        "bytes": 984506,
+        "sha256": "aff4180ee55d608678a99d3f9fd543a8718887d5a038eb35d2538552fcfb9473"
+      }
+    }
+  },
+  "unmodified_host_baseline": {
+    "checks": 11,
+    "execution": "沿用未改宿主阶段，未本轮重新执行",
+    "counted_in_25": false
+  },
+  "logs_frozen": [
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-after-boundaries-corrected.log",
+      "bytes": 1900,
+      "sha256": "c66d13f3a402bd19a01bfa6f3391963572f629edab205e0bbae7b526f1615f80"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-after-boundaries.log",
+      "bytes": 5138,
+      "sha256": "6ccb5418b547d9ef1aa4a5af362a69508f3118be387bd3f41551a64e72223252"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-after-fields.log",
+      "bytes": 2038,
+      "sha256": "8ea3943ca48bd59ef4eb994eeae5b70cee17214873658561bd1358971b8383bd"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-after-initial.log",
+      "bytes": 1011,
+      "sha256": "21f4d7d9313f26524edd6812664ab57a8778420fbf638d2f887ea83b980ed868"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-after-release.log",
+      "bytes": 3585,
+      "sha256": "9c42680e41f163b447ebc70c1b9a0a188b5982d8ce2ec979d251938c82ad2bec"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-before.log",
+      "bytes": 5981,
+      "sha256": "d4f74f14eefcbb7691f9fba3f0a7e9b1401e09722da5bcca1801585c871b32c3"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-build-release.log",
+      "bytes": 381,
+      "sha256": "ef2206e745c113f82ef832e8bbfdafdeaf50c6ebed9535fc329180fdea935320"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-lint-final.log",
+      "bytes": 11281,
+      "sha256": "f168a9cc6eeb3baf55406a3b3ca3bc4fb7e5c1b489dbd5d2485c9561d30cf6c1"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-lint-initial.log",
+      "bytes": 11774,
+      "sha256": "c5d1568c8f8b94afe7ae9fcf46e1ef7f70d25797ba816cd7d0da98696cee53c1"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-lint-release.log",
+      "bytes": 11281,
+      "sha256": "7d6b7cc54b733a31fe1b9dbddc0e3773167eb2c791886568d480022c63c7e35a"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-typecheck-final.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-typecheck-initial.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "path": ".runtime/aipicture/r14-layer-properties-typecheck-release.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "path": ".runtime/aipicture/r14-slider-gesture-after-initial.log",
+      "bytes": 981,
+      "sha256": "64203be9d283e83b923de06a897e3b29ebe583b5def50cd7ec225fe617bdcae7"
+    },
+    {
+      "path": ".runtime/aipicture/r14-slider-gesture-after-release.log",
+      "bytes": 2732,
+      "sha256": "686da448ed85c3c07ffd0c41d219eec452725ea3038a7e046d7a6d6760263a89"
+    },
+    {
+      "path": ".runtime/aipicture/r14-slider-gesture-before.log",
+      "bytes": 1518,
+      "sha256": "449091a19a05a5522a07d9d6f7aa25bb4564691a02a5df6af1fdfdb880db5d5f"
+    },
+    {
+      "path": ".runtime/aipicture/r14-slider-gesture-build-release.log",
+      "bytes": 381,
+      "sha256": "97fc0b48409c7fe6856b2cac0793c60836d8e3b9ae4a5b8c225059dd0967d8c2"
+    },
+    {
+      "path": ".runtime/aipicture/r14-slider-gesture-lint-release.log",
+      "bytes": 11281,
+      "sha256": "6460872e99c1434f30a1c903498614c27d5f0b5a9cb1f7058d196d149b9d457e"
+    },
+    {
+      "path": ".runtime/aipicture/r14-slider-gesture-typecheck-release.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    }
+  ],
+  "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e",
+  "snapshot_files": [
+    {
+      "original": "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "bytes": 25062,
+      "sha256": "042be73bccf2619275c1afb0fb9b51e80d9b9cd1830fda9afa58f61592dfa634"
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "bytes": 11241,
+      "sha256": "78439298692e5e87b558dcd16c5117183087be8e7d2704e22365d9ea1a0a6987"
+    },
+    {
+      "original": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "bytes": 187364,
+      "sha256": "54b532642f51c30e9f35948112b2c38bc8e48f68c2872d50d7bbedb11c2eba38"
+    },
+    {
+      "original": "frontend/aipicture-workbench/README.md",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/README.md",
+      "bytes": 14779,
+      "sha256": "eb2aeb55c299073488837c62f755f285c5bffa6eda2d705cad7054da6f5ee55f"
+    },
+    {
+      "original": "frontend/aipicture-workbench/migration-coverage.json",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/migration-coverage.json",
+      "bytes": 29859,
+      "sha256": "92ab8c72b6fad1e57d9dfb45eb65f8af436920670b69499300cac4fe04870e01"
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "bytes": 10418,
+      "sha256": "4ee8406cb664cab2109bf3d6a73bb7242fb5d9f6d5d4d38f6ed041c86fd8f27e"
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/api/client.ts",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/src/api/client.ts",
+      "bytes": 2963,
+      "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054"
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/src/api/sessions.ts",
+      "bytes": 5436,
+      "sha256": "2cafe8b019026de0c40d0569fe30ac83b4868ae51eaabd34d3fc335015b7fa4e"
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "bytes": 4474,
+      "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05"
+    },
+    {
+      "original": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "bytes": 984506,
+      "sha256": "aff4180ee55d608678a99d3f9fd543a8718887d5a038eb35d2538552fcfb9473"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-after-boundaries-corrected.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-after-boundaries-corrected.log",
+      "bytes": 1900,
+      "sha256": "c66d13f3a402bd19a01bfa6f3391963572f629edab205e0bbae7b526f1615f80"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-after-boundaries.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-after-boundaries.log",
+      "bytes": 5138,
+      "sha256": "6ccb5418b547d9ef1aa4a5af362a69508f3118be387bd3f41551a64e72223252"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-after-fields.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-after-fields.log",
+      "bytes": 2038,
+      "sha256": "8ea3943ca48bd59ef4eb994eeae5b70cee17214873658561bd1358971b8383bd"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-after-initial.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-after-initial.log",
+      "bytes": 1011,
+      "sha256": "21f4d7d9313f26524edd6812664ab57a8778420fbf638d2f887ea83b980ed868"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-after-release.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-after-release.log",
+      "bytes": 3585,
+      "sha256": "9c42680e41f163b447ebc70c1b9a0a188b5982d8ce2ec979d251938c82ad2bec"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-before.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-before.log",
+      "bytes": 5981,
+      "sha256": "d4f74f14eefcbb7691f9fba3f0a7e9b1401e09722da5bcca1801585c871b32c3"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-build-release.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-build-release.log",
+      "bytes": 381,
+      "sha256": "ef2206e745c113f82ef832e8bbfdafdeaf50c6ebed9535fc329180fdea935320"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-lint-final.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-lint-final.log",
+      "bytes": 11281,
+      "sha256": "f168a9cc6eeb3baf55406a3b3ca3bc4fb7e5c1b489dbd5d2485c9561d30cf6c1"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-lint-initial.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-lint-initial.log",
+      "bytes": 11774,
+      "sha256": "c5d1568c8f8b94afe7ae9fcf46e1ef7f70d25797ba816cd7d0da98696cee53c1"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-lint-release.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-lint-release.log",
+      "bytes": 11281,
+      "sha256": "7d6b7cc54b733a31fe1b9dbddc0e3773167eb2c791886568d480022c63c7e35a"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-typecheck-final.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-typecheck-final.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-typecheck-initial.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-typecheck-initial.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-typecheck-release.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-typecheck-release.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "original": ".runtime/aipicture/r14-slider-gesture-after-initial.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-slider-gesture-after-initial.log",
+      "bytes": 981,
+      "sha256": "64203be9d283e83b923de06a897e3b29ebe583b5def50cd7ec225fe617bdcae7"
+    },
+    {
+      "original": ".runtime/aipicture/r14-slider-gesture-after-release.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-slider-gesture-after-release.log",
+      "bytes": 2732,
+      "sha256": "686da448ed85c3c07ffd0c41d219eec452725ea3038a7e046d7a6d6760263a89"
+    },
+    {
+      "original": ".runtime/aipicture/r14-slider-gesture-before.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-slider-gesture-before.log",
+      "bytes": 1518,
+      "sha256": "449091a19a05a5522a07d9d6f7aa25bb4564691a02a5df6af1fdfdb880db5d5f"
+    },
+    {
+      "original": ".runtime/aipicture/r14-slider-gesture-build-release.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-slider-gesture-build-release.log",
+      "bytes": 381,
+      "sha256": "97fc0b48409c7fe6856b2cac0793c60836d8e3b9ae4a5b8c225059dd0967d8c2"
+    },
+    {
+      "original": ".runtime/aipicture/r14-slider-gesture-lint-release.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-slider-gesture-lint-release.log",
+      "bytes": 11281,
+      "sha256": "6460872e99c1434f30a1c903498614c27d5f0b5a9cb1f7058d196d149b9d457e"
+    },
+    {
+      "original": ".runtime/aipicture/r14-slider-gesture-typecheck-release.log",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-slider-gesture-typecheck-release.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-wall-readonly-audit.json",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-wall-readonly-audit.json",
+      "bytes": 5848,
+      "sha256": "8cc01ece9d2a3b70e61a5602d07ea3e179c9dd1a80b19ede63a7d9106c844c72"
+    },
+    {
+      "original": ".runtime/aipicture/r14-layer-properties-release-a2cc8341-stage.json",
+      "snapshot": ".runtime/aipicture/r14-layer-properties-final-aff4180e/.runtime/aipicture/r14-layer-properties-release-a2cc8341-stage.json",
+      "bytes": 23707,
+      "sha256": "ffd31115d88ad366c635014b193ffb3e50cd70c3fcdc218f6d6663bcd8259e06"
+    }
+  ],
+  "technical_host_steps": [
+    "同一实例打开图层面板，旋转45/透明度0.4，受控POST503或409保持正式doc不变；拒绝后节点回formal、输入保留，点击现有通知重试才第二POST；服务拒绝旧version时不覆新doc",
+    "文字层字号48与颜色修改：受控正式failed恢复formal节点，输入及完整原文案保留；允许下一次成功后点击现有重试才采用formal结果",
+    "同会话A拆层选subject(.003)→墙PATCH B正式仅base(.018)，B实际UI/后续flip和调色layer_id不可旧.003；失败PATCH仍A原subject；无真实收费调用",
+    "同一旋转滑杆鼠标点击：503等Promise/正式回读完整结算后延迟lostcapture，POST恒1，输入保留/画布formal；新明确手势或通知重试才POST2"
+  ],
+  "runtime_sync": {
+    "performed_by_this_agent": false,
+    "owner": "root负责最终aff库4公开副本/私有admin构建/实际IAB；a2同步/POST2真实失败与a2墙正确目标保留阶段及未受影响基线"
+  },
+  "business_result_unchanged": {
+    "passed": 0,
+    "not_executed": 4,
+    "blocked": 18,
+    "user_acceptance": "全部待确认",
+    "note": "完整22判断不因25技术检查改变；没有真实账号/业务写入/Provider操作"
+  },
+  "first_stage": {
+    "release": {
+      "path": ".runtime/aipicture/r14-layer-properties-release-a2cc8341-stage.json",
+      "bytes": 23707,
+      "sha256": "ffd31115d88ad366c635014b193ffb3e50cd70c3fcdc218f6d6663bcd8259e06"
+    },
+    "artifact": {
+      "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "bytes": 984408,
+      "sha256": "a2cc8341635bc6d1d0f984ea96923eedd2ce983f87190710bfa23f21fca741cb"
+    },
+    "snapshot": ".runtime/aipicture/r14-layer-properties-final-a2cc8341",
+    "technical_tests": {
+      "command": "npm test -- --test-name-pattern='^(图层属性恢复：|图层属性边界：|图片墙正式选择：|图片墙选择边界：|两个编辑器|权限独立：|文字字体：|文字字框裁切：|独立两轴|剩余完整性：(三原参数|工具取消|迟到正式调色|background|replace|adjust))'",
+      "native_exit": 0,
+      "executed": 25,
+      "passed": 25,
+      "failed": 0,
+      "composition": {
+        "new_property_wall_checks": 13,
+        "related_existing_reexecuted": 12,
+        "new_names": [
+          "图层属性恢复：旋转拒绝后实际节点回正式值并保留参数供明确重试",
+          "图层属性恢复：透明度拒绝后实际节点回正式值并保留参数供明确重试",
+          "图层属性恢复：字号拒绝后实际节点回正式值并保留参数供明确重试",
+          "图层属性恢复：颜色拒绝后实际节点回正式值并保留参数供明确重试",
+          "图片墙正式选择：A主体切B底图后翻转和调色参数不能保留旧subject",
+          "图层属性边界：排队不解锁或丢参数，failed取消未知回正式，partial成功才采用",
+          "图层属性边界：409正式外部更新恢复新节点，旧反馈不能覆写新版本且文字草稿保留",
+          "图层属性边界：正常缩放和文字样式成功保持翻转与完整文案，双击复位只提交一次",
+          "图层属性边界：关面板及换owner/同owner失活后旧回复与重试不影响新实例或其他层",
+          "图片墙选择边界：PATCH503不改A的subject选择，后续翻转仍指向A",
+          "图片墙选择边界：撤销重做正式doc移除旧层需校准，仍存在的有效id继续保留",
+          "图片墙选择边界：工具引发正式GET移除旧层与两个挂载的选择互相隔离",
+          "图层属性边界：订阅先failed解锁另一表单，迟到GET只撤旧旋转字段而保留同层新文字预览"
+        ],
+        "related_names": [
+          "两个编辑器的 Ctrl+Z 只操作所属 mount，影子输入和其他页面按键不会触发编辑",
+          "权限独立：会话编辑与工具执行的三种组合分别限制撤销、切图和工具",
+          "文字字体：画布与内联编辑共用中文默认字体，宿主覆盖及更新仅影响当前实例",
+          "文字字框裁切：实际绘制先裁切局部框，翻转旋转及拖动选择都作用同一Group",
+          "独立两轴：实际图片与两文字层按持久幅值变换，等比预览及拖角待回写保持等比",
+          "独立两轴文字编辑：局部字号与CSS双轴围绕正式中心，最小编辑尺寸仍可读",
+          "剩余完整性：background在post503后保留原用户参数，不以提交成功清空",
+          "剩余完整性：replace在conflict后保留原用户参数，不以提交成功清空",
+          "剩余完整性：adjust在failed后保留原用户参数，不以提交成功清空",
+          "剩余完整性：三原参数表单只有正式成功后才清空，调色显式重置仍可用",
+          "剩余完整性：工具取消和外部未知结果保留参数，不清空或自动再次付费",
+          "剩余完整性：迟到正式调色回读不清除任务结束后用户新改参数"
+        ]
+      },
+      "log": ".runtime/aipicture/r14-layer-properties-after-release.log",
+      "note": "最终一次25互异检查；5/12/13过程不累计；r13四Canvas正式命令未重复，未改Host11沿用且单列不加入25。均本地受控transport技术检查，不是本人登录/真实API/模型/业务验收"
+    },
+    "browser_failure_reported_by_root": {
+      "path": ".runtime/aipicture/layer-properties-browser/rotate-after-failure.jpg",
+      "observed": "a2实际同一旋转手势POST2，没点重试；正式0/草稿45/画布回0。保留真实产品失败，不归为fixture干扰",
+      "pixels_read_by_this_agent": false
+    },
+    "closed": false,
+    "note": "第一25及root同步/实际adminbuild保存为阶段；实际IAB另发现重复POST，不能用当时25作为闭合证明"
+  },
+  "source_changed_after_first_stage": [
+    "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+    "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+    "frontend/aipicture-workbench/README.md",
+    "frontend/aipicture-workbench/migration-coverage.json"
+  ],
+  "editor_page_unchanged_since_first_stage": true,
+  "coverage_composition": {
+    "total_unique": 30,
+    "latest_executed": 18,
+    "first_stage_unaffected_carried": 12,
+    "carried_names": [
+      "图层属性恢复：颜色拒绝后实际节点回正式值并保留参数供明确重试",
+      "图层属性边界：409正式外部更新恢复新节点，旧反馈不能覆写新版本且文字草稿保留",
+      "图片墙选择边界：PATCH503不改A的subject选择，后续翻转仍指向A",
+      "图片墙选择边界：撤销重做正式doc移除旧层需校准，仍存在的有效id继续保留",
+      "图片墙选择边界：工具引发正式GET移除旧层与两个挂载的选择互相隔离",
+      "两个编辑器的 Ctrl+Z 只操作所属 mount，影子输入和其他页面按键不会触发编辑",
+      "权限独立：会话编辑与工具执行的三种组合分别限制撤销、切图和工具",
+      "文字字体：画布与内联编辑共用中文默认字体，宿主覆盖及更新仅影响当前实例",
+      "文字字框裁切：实际绘制先裁切局部框，翻转旋转及拖动选择都作用同一Group",
+      "独立两轴文字编辑：局部字号与CSS双轴围绕正式中心，最小编辑尺寸仍可读",
+      "剩余完整性：background在post503后保留原用户参数，不以提交成功清空",
+      "剩余完整性：replace在conflict后保留原用户参数，不以提交成功清空"
+    ],
+    "carried_reason": "a2以后只改变SliderField手势槽/序号；12条不操作该提交路径，EditorPage/命令完成链/TextForm/其他组件不变，保持a2源码和证据；原Stage25保护。",
+    "carried_runtime_wall_browser": {
+      "reported_by": "root",
+      "path": ".runtime/aipicture/layer-properties-browser/wall-after-correct-target-a2cc8341.jpg",
+      "observed": "PATCH1→flipPOST1 expectedVersion1，无旧.003，Bbase正式scale-1",
+      "reason": "EditorPage78439298692e5e87b558dcd16c5117183087be8e7d2704e22365d9ea1a0a6987不变；墙正式选择/flip无Slider调用，a2 IAB基线沿用，未再次GUI执行"
+    }
+  },
+  "sources": [
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "bytes": 25062,
+      "sha256": "042be73bccf2619275c1afb0fb9b51e80d9b9cd1830fda9afa58f61592dfa634"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "bytes": 11241,
+      "sha256": "78439298692e5e87b558dcd16c5117183087be8e7d2704e22365d9ea1a0a6987"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "bytes": 187364,
+      "sha256": "54b532642f51c30e9f35948112b2c38bc8e48f68c2872d50d7bbedb11c2eba38"
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "bytes": 14779,
+      "sha256": "eb2aeb55c299073488837c62f755f285c5bffa6eda2d705cad7054da6f5ee55f"
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "bytes": 29859,
+      "sha256": "92ab8c72b6fad1e57d9dfb45eb65f8af436920670b69499300cac4fe04870e01"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "bytes": 10418,
+      "sha256": "4ee8406cb664cab2109bf3d6a73bb7242fb5d9f6d5d4d38f6ed041c86fd8f27e",
+      "unchanged_since_before": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/client.ts",
+      "bytes": 2963,
+      "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054",
+      "unchanged_since_before": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "bytes": 5436,
+      "sha256": "2cafe8b019026de0c40d0569fe30ac83b4868ae51eaabd34d3fc335015b7fa4e",
+      "unchanged_since_before": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "bytes": 4474,
+      "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05",
+      "unchanged_since_before": true
+    }
+  ],
+  "compatible_origin": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r14-layer-properties-release.json",
+    "sha256": "acb5ce083f5ca7430d8f804e61c590daf4b22d5efe3d368374e26281b1b26dd5",
+    "note": "保留阶段与本次实际去重30含沿用12；仅添加checker所需current sources/current bundle，无测试执行"
+  }
+}

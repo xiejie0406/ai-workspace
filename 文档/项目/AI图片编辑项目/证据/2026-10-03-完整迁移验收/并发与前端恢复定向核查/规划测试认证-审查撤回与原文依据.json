@@ -1,0 +1,291 @@
+{
+  "reviewed_at_utc": "2026-10-03T04:55:50.8486866Z",
+  "reviewer": "python_runtime，独立于Java修复执行者",
+  "scope": "只读PlanService/修前备份、PlanCancellationTest、冻结JSON、既有日志/XML及只读javap；只保存本审查JSON",
+  "conclusion": "修正裁决：PlanService本次生产取消守卫未发现新增具体P0/P1；普通多步测试第104行原文含authenticate且与原class一致，原源码/class不一致P2为审查者只读误判，已撤回，不计真实缺陷",
+  "current_source_sha256": {
+    "PlanService": "5682a1b12c16d9fa051bf1c1953b57c7e3a114ce7e1875dd2f27efa0111cdb07",
+    "PlanCancellationTest": "4b395f74ef414fc86ecd0cff078e0f67410b5fcf65f6eb79e5857311f163db8b"
+  },
+  "release_json_sha256": "921ae4484cf51487b648278c4ad5207f775ac29fe4d4a08f928e425de7b42260",
+  "actual_changes": [
+    "PlanService:49-50 成功落库短事务先 SELECT 本人turn FOR UPDATE；只有planning继续，其余返回当前正式DTO",
+    "PlanService:58-63 AiPictureException落库短事务同样先锁turn及检查planning；取消后返回cancelled，普通planning失败仍记录failed并抛原异常",
+    "未改变原规划HTTP在事务外执行、PlanValidator、ToolPermissionGuard、session CAS、固定mask、单步执行及多步确认分支"
+  ],
+  "verified_behavior": [
+    {
+      "behavior": "迟到成功单步/多步不复活取消",
+      "basis": "PlanService:47-55 守卫在reply/steps写入及continuePlan之前；取消先持turn锁",
+      "result": "源码路径一致"
+    },
+    {
+      "behavior": "迟到产品异常不覆盖取消",
+      "basis": "PlanService:57-63 被取消时返回DTO且不写failed；worker网络/协议异常包装AiPictureException",
+      "result": "源码路径一致"
+    },
+    {
+      "behavior": "锁顺序",
+      "basis": "send成功 turn FOR UPDATE→sessions.lock；action turn FOR UPDATE→session FOR UPDATE；异常守卫只需turn，db.owned(session,false)是非锁owner读取",
+      "result": "本次改动与cancel同turn→session；未声称全工程无死锁"
+    },
+    {
+      "behavior": "正常错误",
+      "basis": "planning下保存error_code/message失败后抛原AiPictureException；权限/计划校验仍在落库前",
+      "result": "正常错误语义保留"
+    },
+    {
+      "behavior": "幂等",
+      "basis": "send user+command_key同hash返回已存turn且不规划；confirm/cancel通过CommandIdempotency同key/hash回放；不同内容同key冲突",
+      "result": "原幂等路径保留"
+    },
+    {
+      "behavior": "本人隔离",
+      "basis": "turn查询同时限定id/session/user；入口先校验本人session",
+      "result": "没有跨owner放宽"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "P2，技术证据版本一致性，非新增生产缺陷",
+      "file": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/PlanCancellationTest.java",
+      "lines": "103-106",
+      "observation": "ordinaryMultiStepRequiresHashConfirmationAndConfirmationReplayIsIdempotent源码方法及setup均未设置认证；ToolPermissionGuard调用SecurityUtils.getLoginUser需要当前认证",
+      "bytecode_observation": "只读javap target/test-classes对应方法offset0..7明确authenticate(Set.of(\"*:*:*\"))，与当前源码不同；class和源码各自SHA均匹配release",
+      "impact": "after XML 8+5通过可作为当时class执行事实；不能把其认证前提直接视为当前测试源码已验证",
+      "minimum_correction": "由Java作者核对实际编译/源码保存时序，恢复已验证的authenticate语义并定向重新冻结；本审查未修改或重跑",
+      "notified": [
+        "root",
+        "java_backend"
+      ],
+      "status": "withdrawn_review_error",
+      "counts_as_actual_defect": false,
+      "adjudication": "第104行确有authenticate(Set.of(\"*:*:*\"))。当前源SHA4b395...与原release同一，javap的认证调用与源码吻合。原观察与建议撤回，未修改源码以修复不存在的问题。"
+    }
+  ],
+  "release_fingerprints": [
+    {
+      "file": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/PlanService.java",
+      "actual_sha256": "5682a1b12c16d9fa051bf1c1953b57c7e3a114ce7e1875dd2f27efa0111cdb07",
+      "release_sha256": "5682a1b12c16d9fa051bf1c1953b57c7e3a114ce7e1875dd2f27efa0111cdb07",
+      "matches_release": true
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/PlanCancellationTest.java",
+      "actual_sha256": "4b395f74ef414fc86ecd0cff078e0f67410b5fcf65f6eb79e5857311f163db8b",
+      "release_sha256": "4b395f74ef414fc86ecd0cff078e0f67410b5fcf65f6eb79e5857311f163db8b",
+      "matches_release": true
+    },
+    {
+      "file": ".runtime/aipicture/before-plan-cancel-race/PlanService.java",
+      "actual_sha256": "2041ffe6db7da37a22ce997b64e03e997dac1012d52a8d2db5408e7c11128037",
+      "release_sha256": "2041ffe6db7da37a22ce997b64e03e997dac1012d52a8d2db5408e7c11128037",
+      "matches_release": true
+    },
+    {
+      "file": ".runtime/aipicture/before-plan-cancel-race/PlanCancellationTest.java",
+      "actual_sha256": "92e9be50d060e15df87239dc4b4c34cbe79cb47a3e66705db517b390e5bfd37b",
+      "release_sha256": "92e9be50d060e15df87239dc4b4c34cbe79cb47a3e66705db517b390e5bfd37b",
+      "matches_release": true
+    },
+    {
+      "file": ".runtime/aipicture/plan-cancel-race-before.log",
+      "actual_sha256": "966fc25a7ad68c014ea61f628f9355d4f53653a9d6cb9987782c7574a8dbc288",
+      "release_sha256": "966fc25a7ad68c014ea61f628f9355d4f53653a9d6cb9987782c7574a8dbc288",
+      "matches_release": true
+    },
+    {
+      "file": ".runtime/aipicture/plan-cancel-race-before.xml",
+      "actual_sha256": "718a0d0fb21ae3ae745be9bbcbab6707cc1c07e783df31fe534a40a836d30d16",
+      "release_sha256": "718a0d0fb21ae3ae745be9bbcbab6707cc1c07e783df31fe534a40a836d30d16",
+      "matches_release": true
+    },
+    {
+      "file": ".runtime/aipicture/plan-cancel-race-after.log",
+      "actual_sha256": "f4b127170404dd9c447442dcdb62a77675caec91f3c21a699ef1c6bb9a64ebf5",
+      "release_sha256": "f4b127170404dd9c447442dcdb62a77675caec91f3c21a699ef1c6bb9a64ebf5",
+      "matches_release": true
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-aipicture/target/classes/com/ruoyi/aipicture/service/PlanService.class",
+      "actual_sha256": "35c9268c99234a5185e65e60391de32ae2a53d4d77fa0940de844b4224ac5491",
+      "release_sha256": "35c9268c99234a5185e65e60391de32ae2a53d4d77fa0940de844b4224ac5491",
+      "matches_release": true
+    },
+    {
+      "file": "ruoyi-backend/ruoyi-aipicture/target/test-classes/com/ruoyi/aipicture/PlanCancellationTest.class",
+      "actual_sha256": "d258764a4739f92d6b3171d3885aa29b94a061496e89f5d62faae20f21cb07ac",
+      "release_sha256": "d258764a4739f92d6b3171d3885aa29b94a061496e89f5d62faae20f21cb07ac",
+      "matches_release": true
+    },
+    {
+      "file": ".runtime/aipicture/plan-cancel-race-after-PlanCancellationTest.xml",
+      "actual_sha256": "fd1e5e3a58efa2d1c0a6e6531c713e07455843f5e97e6497ece611bcf3a311d8",
+      "release_sha256": "fd1e5e3a58efa2d1c0a6e6531c713e07455843f5e97e6497ece611bcf3a311d8",
+      "matches_release": true
+    },
+    {
+      "file": ".runtime/aipicture/plan-cancel-race-after-PlanSelectionContinuationTest.xml",
+      "actual_sha256": "8c397ed198b31adafba1a3e64b782225abdf9232ad2cd942b5e82125b19ae7bf",
+      "release_sha256": "8c397ed198b31adafba1a3e64b782225abdf9232ad2cd942b5e82125b19ae7bf",
+      "matches_release": true
+    }
+  ],
+  "existing_execution_xml": [
+    {
+      "file": ".runtime/aipicture/plan-cancel-race-before.xml",
+      "suite": "com.ruoyi.aipicture.PlanCancellationTest",
+      "tests": 3,
+      "failures": 2,
+      "errors": 1,
+      "skipped": 0,
+      "testcases": [
+        {
+          "name": "lateMultiStepCannotReplaceCancelledPlanningWithConfirmation",
+          "failure": "Multiple Failures (4 failures)\n org.opentest4j.AssertionFailedError: expected: <cancelled> but was: <waiting_confirmation>\n org.opentest4j.AssertionFailedError: expected: <cancelled> but was: <waiting_confirmation>\n org.opentest4j.AssertionFailedError: expected: <> but was: <迟到的规划正文>\n org.opentest4j.AssertionFailedError: expected: <true> but was: <false>",
+          "error": null
+        },
+        {
+          "name": "lateSingleStepCannotResumeCancelledPlanning",
+          "failure": "Multiple Failures (4 failures)\n org.opentest4j.AssertionFailedError: expected: <cancelled> but was: <executing>\n org.opentest4j.AssertionFailedError: expected: <cancelled> but was: <executing>\n org.opentest4j.AssertionFailedError: expected: <> but was: <迟到的规划正文>\n org.opentest4j.AssertionFailedError: expected: <true> but was: <false>",
+          "error": null
+        },
+        {
+          "name": "latePlannerFailureCannotOverwriteCancelledPlanning",
+          "failure": null,
+          "error": "com.ruoyi.aipicture.domain.AiPictureException: 受控规划失败"
+        }
+      ]
+    },
+    {
+      "file": ".runtime/aipicture/plan-cancel-race-after-PlanCancellationTest.xml",
+      "suite": "com.ruoyi.aipicture.PlanCancellationTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "testcases": [
+        {
+          "name": "ordinaryMultiStepRequiresHashConfirmationAndConfirmationReplayIsIdempotent",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "ordinaryPlannerFailureStillPersistsFailureAndReturnsTheError",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "lateMultiStepCannotReplaceCancelledPlanningWithConfirmation",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "cancellationCannotReadAnotherOwnersTurn",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "ordinarySingleStepStillExecutesAndDuplicateSendDoesNotReplan",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "revokedToolPermissionStillRejectsPlanBeforeCreatingSteps",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "lateSingleStepCannotResumeCancelledPlanning",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "latePlannerFailureCannotOverwriteCancelledPlanning",
+          "failure": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": ".runtime/aipicture/plan-cancel-race-after-PlanSelectionContinuationTest.xml",
+      "suite": "com.ruoyi.aipicture.PlanSelectionContinuationTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "testcases": [
+        {
+          "name": "secondLayerOperationKeepsPinnedMaskAcrossOrdinaryRevisionChanges",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "planBatchResumeOnlyRetriesExistingFailedItemsAndKeepsSuccessfulItems",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "planRetryCannotBypassRevokedGenerationPermission",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "planBatchResumeRejectsUnknownPaidItemsBeforeAnyRetry",
+          "failure": null,
+          "error": null
+        },
+        {
+          "name": "cropChangingCanvasRejectsTheOldPinnedMaskBeforeSubmittingAnotherTool",
+          "failure": null,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "counting": "before3被包含于after新8；after13=新8+既有5，不累计成16。本审查只读取既有执行结果，不增加检查执行数",
+  "limitations": [
+    "PlanCancellationTest是Mockito存储和事务替身的真实线程交错；并未证明真实MySQL行锁/回滚或运行版业务验收",
+    "turn→session仅指本次send/cancel路径；既有RunService回执及其他锁序不冒称全局已无死锁",
+    "没有重新测试、Maven、数据库、模型、HTTP、网络、服务、构建或运行同步"
+  ],
+  "tests_executed": 0,
+  "builds_executed": 0,
+  "database_calls": 0,
+  "model_or_provider_calls": 0,
+  "services_operated": false,
+  "source_modified": false,
+  "business_acceptance": false,
+  "correction": {
+    "corrected_at_utc": "2026-10-03T05:18:25.3454700Z",
+    "original_review_preserved": {
+      "path": ".runtime/aipicture/plan-cancel-independent-review.before-correction.json",
+      "sha256": "45799624c621511155a20a98eb21df004e7703766639c21709661c762872dcd8",
+      "bytes_unchanged": true
+    },
+    "reason": "审查者首次只读报告未对第104行精确原文再次核对，误称缺少认证；随后把该误读与javap相比较，错误升级为源码/class差异。相同固定源SHA的重新读取和作者/根复核均证明原文有认证，未有源码更改或编译时序差异证据。",
+    "verdict": "原P2完全撤回，归审查误判；不列真实产品或证据缺陷",
+    "verified_source": {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/PlanCancellationTest.java",
+      "sha256": "4b395f74ef414fc86ecd0cff078e0f67410b5fcf65f6eb79e5857311f163db8b",
+      "line": 104,
+      "text": "        authenticate(Set.of(\"*:*:*\"));when(worker.call(eq(\"plan\"),anyMap())).thenReturn(response(2));var result=plans.send(OWNER,session,request());assertEquals(\"waiting_confirmation\",result.get(\"status\"));verifyNoInteractions(runs);",
+      "authentication_present": true
+    },
+    "verified_class": {
+      "path": "ruoyi-backend/ruoyi-aipicture/target/test-classes/com/ruoyi/aipicture/PlanCancellationTest.class",
+      "sha256": "d258764a4739f92d6b3171d3885aa29b94a061496e89f5d62faae20f21cb07ac",
+      "read_only_javap_evidence": "普通多步方法offset0..7 authenticate(Set.of(\"*:*:*\"))，与第104行一致"
+    },
+    "release_consistency": {
+      "source_matches_original_release": true,
+      "class_matches_original_release": true
+    },
+    "active_findings": 0,
+    "no_source_edit": true,
+    "no_tests_rerun": true,
+    "no_build_or_service_operation": true,
+    "parent_notified": true,
+    "author_notified": true
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "created_at": "2026-10-03T10:36:12.332329+00:00",
+  "scope": "r15 RunService批量领取/允许到期恢复状态CAS与作者冻结/模块/JUnit证据，独立只读；不扩大到其他改动",
+  "conclusion": "未发现新的具体P0/P1。新增queued/running状态同步限定同item、owner、当前run及原状态；付费未知隔离与原终态/重试政策未改变。",
+  "findings": [],
+  "source": {
+    "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+    "bytes": 43099,
+    "sha256": "edecaca5d2849cada3a97348a237fcc5536acf7e5c6c7e2e6d4c27fa56975bb1"
+  },
+  "test_source": {
+    "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/BatchItemLifecycleTest.java",
+    "bytes": 10813,
+    "sha256": "0ecd04cefdd5e0c5a69e5020fd29ad3a01356d2a3759005edfbc48b5b4cb6837"
+  },
+  "input_fingerprint_record": {
+    "path": ".runtime/aipicture/r15-batch-item-readonly-input-fingerprints.json",
+    "bytes": 4503,
+    "sha256": "a1b8d24887cb9bb7eecca64f0a3f89dbe98ece6eacf7de051874754ba62e82de"
+  },
+  "author_releases": {
+    "lifecycle": {
+      "path": ".runtime/aipicture/r15-batch-item-lifecycle-release.json",
+      "bytes": 11385,
+      "sha256": "dff6019bb3551847af8560b7c33c7211a352261c081cfc92d7516aa84eac0640"
+    },
+    "package": {
+      "path": ".runtime/aipicture/r15-batch-item-package-release.json",
+      "bytes": 64373,
+      "sha256": "fcfd4788e111680a7616e3068c2b68881f3be3041c01f2ee84bd874f93517675"
+    }
+  },
+  "code_review": [
+    {
+      "area": "claim同事务状态推进",
+      "line": 153,
+      "evidence": "claimForRun在AiPictureTransactions.execute(TransactionTemplate)实际callback中锁定queued正式run；写run租约后同事务写item queued→running，再写dispatch claimed。没有在Worker或第二状态源登记。"
+    },
+    {
+      "area": "item/owner/currentrun/prior四项绑定",
+      "line": 177,
+      "evidence": "batch_item_id为空不写；SQL WHERE id=:item AND user_id=:owner AND run_id=:run AND status=:prior，参数来自所领取/恢复的正式run。只SET status，不改outputs/error/attempt或新run关联。CAS不匹配0行不会倒写其他item/owner/新retry/终态。"
+    },
+    {
+      "area": "允许恢复与收费隔离",
+      "line": 172,
+      "evidence": "调用仅位于原recoverExpired得到next=queued的分支，批量含原EXTERNAL操作仍next=external_result_unknown，原attempt上限和5000ms退避不变；generate已知task查询恢复也保持原分支。"
+    },
+    {
+      "area": "终态与成功输出",
+      "line": 282,
+      "evidence": "原completeRelations/refreshBatch/receipt/公共retry源码无修改。新增状态同步不覆写terminal或output_ids；未知收费项保持原终态入口，成功兄弟项输出及partial_success由原汇总保留。原终态关系更新并非新CAS helper，不声称所有既有终态SQL都增加了四条件。"
+    },
+    {
+      "area": "幂等/失败重试保持",
+      "source": "BatchExportEvaluationService.retryItem:56-67 + BatchRecoveryTest",
+      "evidence": "仍只有failed能新建子run；succeeded/external_result_unknown拒绝；相同public retry key返回原结果。原BatchRecoveryTest与修前保护副本逐字节一致。"
+    }
+  ],
+  "test_double_review": {
+    "actual_service_calls": "新测试new真实RunService/BatchExportEvaluationService，调用claimForRun和business.batch；未mock或反射跳过claim/recoverExpired/transitionBatchItem。事务manager/仓储/资产是受控替身。",
+    "repository_state": "query按原expired running/lease时间/指定run；dispatch选择按pending、queued、available_at；execute按实际SQL前缀分派，新增CAS同时断言SQL含owner/run/prior并匹配item当前owner/run/status再改status。item ID由map+params模拟，源码还明确WHERE id=:item。",
+    "negative_branches": "旧run关联、其他owner和succeeded/cancelled/external_result_unknown都真实进入服务调用但CAS不更新；收费pipeline走实际EXTERNAL匹配，再公开详情保留成功兄弟输出。",
+    "what_is_not_proved": "替身未执行NamedParameterJdbcTemplate/MySQL、真实row lock/事务提交/并发争用；不能将15单元检查声明为真实数据库/HTTP或业务通过。"
+  },
+  "actual_existing_evidence": {
+    "before": {
+      "file": {
+        "path": ".runtime/aipicture/r15-batch-item-lifecycle-before/TEST-com.ruoyi.aipicture.BatchItemLifecycleTest.xml",
+        "bytes": 40892,
+        "sha256": "b3bc47df64836b8d6f881d5621f29e4c7fb77ff4ee4c519a542e4cc260fa67a7"
+      },
+      "count": 8,
+      "failed": [
+        "claimedItemIsRunningInPublicDetailWhileUnstartedItemWaits",
+        "expiredDeterministicItemReturnsToQueueBeforeNextClaim"
+      ],
+      "errors": 0,
+      "skipped": 0,
+      "names": [
+        "expiredPaidItemStaysUnknownAndSuccessfulSiblingKeepsOutputs",
+        "claimedItemIsRunningInPublicDetailWhileUnstartedItemWaits",
+        "obsoleteRunCannotChangeItemReboundToNewRetry",
+        "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[1]",
+        "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[2]",
+        "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[3]",
+        "expiredDeterministicItemReturnsToQueueBeforeNextClaim",
+        "otherOwnerCannotChangeItemDuringClaimOrRecovery"
+      ]
+    },
+    "after": [
+      {
+        "file": {
+          "path": "ruoyi-backend/ruoyi-aipicture/target/surefire-reports/TEST-com.ruoyi.aipicture.BatchItemLifecycleTest.xml",
+          "bytes": 39167,
+          "sha256": "63f1fe7c38a338a10b28202d9b2af6d37f578894eacdaf395953e8f1798e07ea"
+        },
+        "count": 8,
+        "failed": [],
+        "errors": 0,
+        "skipped": 0,
+        "names": [
+          "expiredPaidItemStaysUnknownAndSuccessfulSiblingKeepsOutputs",
+          "claimedItemIsRunningInPublicDetailWhileUnstartedItemWaits",
+          "obsoleteRunCannotChangeItemReboundToNewRetry",
+          "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[1]",
+          "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[2]",
+          "terminalItemCannotBeReopenedDuringClaimOrRecovery(String)[3]",
+          "expiredDeterministicItemReturnsToQueueBeforeNextClaim",
+          "otherOwnerCannotChangeItemDuringClaimOrRecovery"
+        ]
+      },
+      {
+        "file": {
+          "path": "ruoyi-backend/ruoyi-aipicture/target/surefire-reports/TEST-com.ruoyi.aipicture.BatchRecoveryTest.xml",
+          "bytes": 38144,
+          "sha256": "7f6b7639f3b6e27f5508670b04f05f04cafc5515ecebe79dd25d5b4114f8316b"
+        },
+        "count": 7,
+        "failed": [],
+        "errors": 0,
+        "skipped": 0,
+        "names": [
+          "uncertainPaidOutcomeCannotCreateAnotherBatchCharge",
+          "expiredDeterministicEditCanBeRequeuedWithinAttemptBudget",
+          "expiredPaidEditEntersUnknownResultInsteadOfRequeue",
+          "successfulItemCannotBeRetried",
+          "partialSuccessDoesNotReportAllSuccessfulAndKeepsSuccessfulOutputIds",
+          "twentyOneInputAndNonWhitelistedOperationAreRejectedBeforeWrite",
+          "samePublicRetryKeyReturnsPriorOutcomeEvenIfItemHasFailedAgain"
+        ]
+      }
+    ],
+    "distinct_after": 15,
+    "new_checks": 8,
+    "affected_old_reexecuted": 7,
+    "stage_not_summed": true,
+    "review_new_execution": 0,
+    "native_exit_codes_from_author_release": {
+      "before": 1,
+      "after": 0,
+      "package": 0
+    }
+  },
+  "package_review": {
+    "module": {
+      "path": ".runtime/aipicture/ruoyi-aipicture-r15-batch-item-lifecycle-20261003.jar",
+      "bytes": 196948,
+      "sha256": "391eb9bd944a05fb0c78572ed18d406558192c316c44b4faa6e0f6b1e30ab2b7"
+    },
+    "counts": {
+      "source": 32,
+      "classes": 43,
+      "contracts": 5,
+      "jar_entries": 53,
+      "changed_class_entries": [
+        "com/ruoyi/aipicture/service/RunService$1.class",
+        "com/ruoyi/aipicture/service/RunService.class"
+      ],
+      "unchanged_entries": 51
+    },
+    "proof": "只读核当前/冻结32source、43classes、5唯一契约及声明文件hash；old ae0与new391实际ZIP entry字节比较无新增/删除，仅RunService和RunService$1两个class改变，余51项相同；嵌入class/contract与当前文件和冻结复制均一致。",
+    "anonymous_class_limit": "已核两个变化class实际字节及SHA；未执行反汇编，因此不额外声明RunService$1变化仅debug行号。",
+    "package_tests": 0,
+    "runtime_synchronized_by_review": false
+  },
+  "fingerprint_verification": {
+    "input_files_checked": 183,
+    "changed_sources": 1,
+    "changed_source_path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java"
+  },
+  "actions": {
+    "source_edits": 0,
+    "tests": 0,
+    "builds": 0,
+    "http": 0,
+    "db": 0,
+    "process_operations": 0,
+    "models": 0,
+    "paid_provider": 0,
+    "downloads": 0,
+    "installs": 0,
+    "git": 0
+  },
+  "limits": [
+    "root正组装总包，作者模块记录明确尚未同步；本审查没有读取或证明运行服务版本",
+    "未新增模型/预算/阈值或扩大审计范围",
+    "日志/XML的15通过属作者本轮执行，不计作独立复验"
+  ]
+}

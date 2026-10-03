@@ -1,0 +1,584 @@
+{
+  "created_at_utc": "2026-10-03T11:09:09.442543+00:00",
+  "review_type": "仅文案阶段的作者分离只读补充审查",
+  "scope": "EditorPage canvasHint单字符串与8源码/两库/冻结和检查来源，不重复上一机制审查、不访问运行通道。",
+  "previous_independent_review": {
+    "path": ".runtime/aipicture/r15-react-view-selection-independent-review.json",
+    "bytes": 52798,
+    "sha256": "2a9476422a6e2624d7b309998f04f83d1f4db50f67f0f1cc28e4a77294ea8113"
+  },
+  "previous_release": {
+    "path": ".runtime/aipicture/r15-view-selection-release.json",
+    "bytes": 41505,
+    "sha256": "c97e2b9fbf359a9c0986f2fbbae3dee5488b983f06caff79dcdd346fa813446f"
+  },
+  "final_release": {
+    "path": ".runtime/aipicture/r15-view-selection-final-release.json",
+    "bytes": 40368,
+    "sha256": "7c1ea82e2f1fb28bf9a545d4a1a34e90376c41a0baf233b24c838304c8f42c53"
+  },
+  "findings": [],
+  "conclusion": "未发现新增具体问题。当前源码和最终JS均只有同一处等待文案替换，原失败/回读/游标/实例隔离控制流程未变。",
+  "source_comparison": {
+    "changed_paths": [
+      "frontend/aipicture-workbench/src/pages/EditorPage.tsx"
+    ],
+    "unchanged_source_count": 7,
+    "total_frozen_sources": 8,
+    "editor_before": {
+      "path": ".runtime/aipicture/r15-view-selection-final-74907cbd/frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "bytes": 11349,
+      "sha256": "4152391b4a9a782e483a742ed74f0a2c02e996e6fa8ad4d51dfe06aa0035e7ae"
+    },
+    "editor_current": {
+      "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "bytes": 11348,
+      "sha256": "ec52100f840fb863930576fdeae7e47741d06ab0dee631559d05f8cdd5a5a8b4"
+    },
+    "single_caption_change_after_line_ending_normalization": true,
+    "old_caption": "正在识别选区…",
+    "new_caption": "正在处理选区…",
+    "location": "EditorPage.tsx:255-261 canvasHint/selectMode point/picking",
+    "raw_line_endings": {
+      "before_crlf": 232,
+      "before_lf": 293,
+      "after_crlf": 231,
+      "after_lf": 293
+    },
+    "byte_note": "apply_patch改变该行CRLF为LF，原内容按换行归一后除字符串外完全相同。"
+  },
+  "library_comparison": {
+    "before": {
+      "path": ".runtime/aipicture/r15-view-selection-final-74907cbd/frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "bytes": 986949,
+      "sha256": "74907cbd5e771cc7b6ac15766a35f74808f66aee648dec838dc92dfaf8b3d216"
+    },
+    "after": {
+      "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "bytes": 986949,
+      "sha256": "01104508f0792232d1701a5edf299848d58f3f7b7bd71f60c189b6f640c74e5f"
+    },
+    "equal_size": true,
+    "old_caption_occurrences": 1,
+    "new_caption_occurrences": 1,
+    "all_bytes_equal_after_exact_single_utf8_caption_replacement": true,
+    "note": "真实逐字节比较两JS，未执行库。"
+  },
+  "waiting_semantics": {
+    "static_evidence": [
+      "useSelection.ts:52-68 原failureSequence/错误提示先发生，恢复GET仍在onError Promise内",
+      "useSelection.ts:144 pending包括select/clear/replay",
+      "EditorPage.tsx canvasHint selectMode=point且picking时显示当前新文字"
+    ],
+    "reason": "该busy既可为点选提交/等待模型任务，也可为正式mask恢复GET等待。“处理”准确覆盖现有控制状态；文案没有新增状态或掩盖已显示的原失败。"
+  },
+  "freeze_verification": {
+    "all_match": true,
+    "metadata_records_checked": 55,
+    "snapshot": ".runtime/aipicture/r15-view-selection-final-01104508",
+    "snapshot_copies": 21,
+    "checks": [
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx",
+          "bytes": 39959,
+          "sha256": "0edf38877fbb2a45500a9f1d9d3d7987c461c336e8602290f094d6aa6bce911c"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/hooks/useSelection.ts",
+          "bytes": 7222,
+          "sha256": "ca113069f5757360040b22b2a4fd0a1eac99e4493baea83f7c333a0c63b98f88"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/lib/selectionHistory.ts",
+          "bytes": 1764,
+          "sha256": "22cbb4a6f8146560f7af8531221e1307ad901bd5ab95e8a0d9c2080fc7b14979"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+          "bytes": 5653,
+          "sha256": "ff1610134259672f44190006d22b5008e04a10fb6a793f0143da0a6d789e0ae8"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+          "bytes": 11348,
+          "sha256": "ec52100f840fb863930576fdeae7e47741d06ab0dee631559d05f8cdd5a5a8b4"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+          "bytes": 209980,
+          "sha256": "32566d9083fed5a0dba8f9d12bea501e4b7e45099e6ea47cb0afa84e29f0258c"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/README.md",
+          "bytes": 16458,
+          "sha256": "adb8415b1f662b20279f60f81bcf4f88bac5c517d208bdc8be00eb4fbe74edb0"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/migration-coverage.json",
+          "bytes": 30604,
+          "sha256": "8e5c73522c03ce8b1063c63590499a31e29b9349c19a9feaa9d032362c895ef2"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+          "bytes": 986949,
+          "sha256": "01104508f0792232d1701a5edf299848d58f3f7b7bd71f60c189b6f640c74e5f"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx",
+          "bytes": 39959,
+          "sha256": "0edf38877fbb2a45500a9f1d9d3d7987c461c336e8602290f094d6aa6bce911c"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx",
+          "bytes": 39959,
+          "sha256": "0edf38877fbb2a45500a9f1d9d3d7987c461c336e8602290f094d6aa6bce911c"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/hooks/useSelection.ts",
+          "bytes": 7222,
+          "sha256": "ca113069f5757360040b22b2a4fd0a1eac99e4493baea83f7c333a0c63b98f88"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/hooks/useSelection.ts",
+          "bytes": 7222,
+          "sha256": "ca113069f5757360040b22b2a4fd0a1eac99e4493baea83f7c333a0c63b98f88"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/lib/selectionHistory.ts",
+          "bytes": 1764,
+          "sha256": "22cbb4a6f8146560f7af8531221e1307ad901bd5ab95e8a0d9c2080fc7b14979"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/lib/selectionHistory.ts",
+          "bytes": 1764,
+          "sha256": "22cbb4a6f8146560f7af8531221e1307ad901bd5ab95e8a0d9c2080fc7b14979"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+          "bytes": 5653,
+          "sha256": "ff1610134259672f44190006d22b5008e04a10fb6a793f0143da0a6d789e0ae8"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/api/sessions.ts",
+          "bytes": 5653,
+          "sha256": "ff1610134259672f44190006d22b5008e04a10fb6a793f0143da0a6d789e0ae8"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+          "bytes": 11348,
+          "sha256": "ec52100f840fb863930576fdeae7e47741d06ab0dee631559d05f8cdd5a5a8b4"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+          "bytes": 11348,
+          "sha256": "ec52100f840fb863930576fdeae7e47741d06ab0dee631559d05f8cdd5a5a8b4"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+          "bytes": 209980,
+          "sha256": "32566d9083fed5a0dba8f9d12bea501e4b7e45099e6ea47cb0afa84e29f0258c"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+          "bytes": 209980,
+          "sha256": "32566d9083fed5a0dba8f9d12bea501e4b7e45099e6ea47cb0afa84e29f0258c"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/README.md",
+          "bytes": 16458,
+          "sha256": "adb8415b1f662b20279f60f81bcf4f88bac5c517d208bdc8be00eb4fbe74edb0"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/README.md",
+          "bytes": 16458,
+          "sha256": "adb8415b1f662b20279f60f81bcf4f88bac5c517d208bdc8be00eb4fbe74edb0"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/migration-coverage.json",
+          "bytes": 30604,
+          "sha256": "8e5c73522c03ce8b1063c63590499a31e29b9349c19a9feaa9d032362c895ef2"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/migration-coverage.json",
+          "bytes": 30604,
+          "sha256": "8e5c73522c03ce8b1063c63590499a31e29b9349c19a9feaa9d032362c895ef2"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/embed.tsx",
+          "bytes": 4546,
+          "sha256": "4aae4e80720a32c42683c791ec8709fe1602a492a15ffc184e1f48d37a4aeadf"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/embed.tsx",
+          "bytes": 4546,
+          "sha256": "4aae4e80720a32c42683c791ec8709fe1602a492a15ffc184e1f48d37a4aeadf"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/tests/entry.ts",
+          "bytes": 1471,
+          "sha256": "ee7c4b2718fdcf2184ff9f11ec21c70de5f4bc40ee08f82c93ff50f929dcc446"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/tests/entry.ts",
+          "bytes": 1471,
+          "sha256": "ee7c4b2718fdcf2184ff9f11ec21c70de5f4bc40ee08f82c93ff50f929dcc446"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/api/client.ts",
+          "bytes": 2963,
+          "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/api/client.ts",
+          "bytes": 2963,
+          "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/api/exports.ts",
+          "bytes": 3645,
+          "sha256": "87252715497a50de3d75c0b0cf167767718eda4f1f34bbf39470c9f1d139ebe3"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/api/exports.ts",
+          "bytes": 3645,
+          "sha256": "87252715497a50de3d75c0b0cf167767718eda4f1f34bbf39470c9f1d139ebe3"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+          "bytes": 4474,
+          "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/host/HostRuntime.ts",
+          "bytes": 4474,
+          "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/hooks/useSelectStroke.ts",
+          "bytes": 1164,
+          "sha256": "83fc784d446e02c05851b172c5c137181d7fe3c8b648990e5d41fd37b9ab0ed5"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/hooks/useSelectStroke.ts",
+          "bytes": 1164,
+          "sha256": "83fc784d446e02c05851b172c5c137181d7fe3c8b648990e5d41fd37b9ab0ed5"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/hooks/usePointPreview.ts",
+          "bytes": 1146,
+          "sha256": "ae8060ef114832d01c679ef051a90f49c41422f54c1e0c2c666e0ab42aa43ce8"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/hooks/usePointPreview.ts",
+          "bytes": 1146,
+          "sha256": "ae8060ef114832d01c679ef051a90f49c41422f54c1e0c2c666e0ab42aa43ce8"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/stores/canvasView.ts",
+          "bytes": 5778,
+          "sha256": "9bd370aab7c729eb02bc17b66ac2d983e3af38cc3ab78766efa895017922ac2a"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/stores/canvasView.ts",
+          "bytes": 5778,
+          "sha256": "9bd370aab7c729eb02bc17b66ac2d983e3af38cc3ab78766efa895017922ac2a"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/src/components/editor/SelectionOverlay.tsx",
+          "bytes": 3145,
+          "sha256": "fa343abd41dfb1039292e25e21abc5ab4adcb9dd475a9ccb13961d429dade996"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/src/components/editor/SelectionOverlay.tsx",
+          "bytes": 3145,
+          "sha256": "fa343abd41dfb1039292e25e21abc5ab4adcb9dd475a9ccb13961d429dade996"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+          "bytes": 986949,
+          "sha256": "01104508f0792232d1701a5edf299848d58f3f7b7bd71f60c189b6f640c74e5f"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/frontend/aipicture-workbench/dist/aipicture-workbench.js",
+          "bytes": 986949,
+          "sha256": "01104508f0792232d1701a5edf299848d58f3f7b7bd71f60c189b6f640c74e5f"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-release.json",
+          "bytes": 41505,
+          "sha256": "c97e2b9fbf359a9c0986f2fbbae3dee5488b983f06caff79dcdd346fa813446f"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/.runtime/aipicture/r15-view-selection-release.json",
+          "bytes": 41505,
+          "sha256": "c97e2b9fbf359a9c0986f2fbbae3dee5488b983f06caff79dcdd346fa813446f"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-caption-typecheck-final.log",
+          "bytes": 42,
+          "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/.runtime/aipicture/r15-caption-typecheck-final.log",
+          "bytes": 42,
+          "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-caption-build-final.log",
+          "bytes": 381,
+          "sha256": "dd580607a8c904e0d38b241bc66664b8decf7380170e7d91b81af8b3d3fe6f77"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-final-01104508/.runtime/aipicture/r15-caption-build-final.log",
+          "bytes": 381,
+          "sha256": "dd580607a8c904e0d38b241bc66664b8decf7380170e7d91b81af8b3d3fe6f77"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-after-release.log",
+          "bytes": 3220,
+          "sha256": "cb20d9e07d775cfb8f8aa7399af07b02e5a357b15e28a222b8d9a36548eda55a"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-view-selection-lint-release.log",
+          "bytes": 10476,
+          "sha256": "53e5606f8ae1ac30da61fff7ee84e78c2bc2b67f450d2698436969b88492f130"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-caption-typecheck-final.log",
+          "bytes": 42,
+          "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+        }
+      },
+      {
+        "matches": true,
+        "actual": {
+          "path": ".runtime/aipicture/r15-caption-build-final.log",
+          "bytes": 381,
+          "sha256": "dd580607a8c904e0d38b241bc66664b8decf7380170e7d91b81af8b3d3fe6f77"
+        }
+      }
+    ]
+  },
+  "verification_provenance": {
+    "mechanism_tests": {
+      "count": 23,
+      "composition": "13新增+10相关原检查实际执行于749阶段",
+      "log": {
+        "path": ".runtime/aipicture/r15-view-selection-after-release.log",
+        "bytes": 3220,
+        "sha256": "cb20d9e07d775cfb8f8aa7399af07b02e5a357b15e28a222b8d9a36548eda55a"
+      },
+      "same_log_as_previous": true,
+      "executed_in_current_caption_stage": 0
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 28,
+      "log": {
+        "path": ".runtime/aipicture/r15-view-selection-lint-release.log",
+        "bytes": 10476,
+        "sha256": "53e5606f8ae1ac30da61fff7ee84e78c2bc2b67f450d2698436969b88492f130"
+      },
+      "same_log_as_previous": true,
+      "executed_in_current_caption_stage": 0
+    },
+    "current_typecheck": {
+      "log": {
+        "path": ".runtime/aipicture/r15-caption-typecheck-final.log",
+        "bytes": 42,
+        "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+      },
+      "author_recorded_native_exit": 0,
+      "log_observation": "> frontend@0.0.0 typecheck\n> tsc -b"
+    },
+    "current_build": {
+      "log": {
+        "path": ".runtime/aipicture/r15-caption-build-final.log",
+        "bytes": 381,
+        "sha256": "dd580607a8c904e0d38b241bc66664b8decf7380170e7d91b81af8b3d3fe6f77"
+      },
+      "author_recorded_native_exit": 0,
+      "build_success_line_present": true
+    },
+    "note": "类型/构建本阶段真实执行事实来自根/作者退出0与冻结日志；本独立审查仅读取。23与28仅沿用，不重复计入本阶段新增执行。"
+  },
+  "limits": [
+    "没有执行测试/lint/typecheck/build、浏览器、HTTP、数据库、模型、Provider、进程、安装或Git。",
+    "未把旧749库的IAB截图当新011最终运行证据；根随后同步与受影响pending GET场景实际检查另行记录。",
+    "原2a947独立审查及所有旧源码/库/日志保持不变，本JSON只增加当前文案裁决。"
+  ],
+  "operations": {
+    "product_edits": 0,
+    "tests": 0,
+    "typecheck_lint_build": 0,
+    "browser": 0,
+    "http": 0,
+    "database": 0,
+    "models": 0,
+    "provider": 0,
+    "processes": 0,
+    "git": 0,
+    "private_addendum_created": 1
+  }
+}

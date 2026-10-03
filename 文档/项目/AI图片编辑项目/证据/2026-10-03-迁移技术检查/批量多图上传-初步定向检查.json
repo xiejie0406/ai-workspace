@@ -1,0 +1,78 @@
+{
+  "记录时间": "2026-10-03T00:50:44.126426+00:00",
+  "范围": "原批量多文件连续mutate页面回调只末项入选的不足，按完整迁移设计2026.10-r2第1.2及第5节18补齐；非原源码已有保证，参考源不改。仅React业务库局部队列与共用Dropzone必要校验。",
+  "原失败": {
+    "实际命令": "node tests/run.mjs --test-name-pattern='批量多图上传：'",
+    "exit_code": 1,
+    "tests": 2,
+    "passed": 0,
+    "failed": 2,
+    "实际结果": [
+      "三个上传均成功，实际入选1/预期3",
+      "末项上传失败，前两成功实际入选0/预期2"
+    ],
+    "日志": "批量多图上传-修复前.log",
+    "旧BatchPage_sha256": "7C0ABB55E757405A20A9FD3BCF0E124F50A102B6D89DE4683775FC0C91869148"
+  },
+  "检查准备错误": {
+    "日志": "批量多图上传-测试脚本首次检查.log",
+    "原因": "追加定向测试时重复test.after声明导致Unexpected end of input；未执行8个场景，属于测试脚本准备错误，已去掉重复声明。",
+    "exit_code": 1,
+    "不计业务失败或新增业务检查通过": true
+  },
+  "最终定向结果": {
+    "实际一次命令": "node tests/run.mjs --test-name-pattern='批量多图上传：'",
+    "exit_code": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "日志": "批量多图上传-定向检查.log",
+    "场景": [
+      "多个成功按输入顺序全部入选并通过原adapter提交",
+      "末项失败保留前成功并按文件显示错误",
+      "整轮pending禁止提前开始及插入历史素材，已选不丢",
+      "十九张后仅预留一个位置，已满二十不再上传",
+      "中间失败不阻断后项且后成功不抹错误",
+      "同轮非法文件保留反馈，pending再次输入不上传",
+      "失活停止未开始队列，迟到结果不串另实例",
+      "共用Dropzone创作单文件仍创建会话与导航"
+    ],
+    "口径": "真实React/Query/adapter+HappyDOM受控宿主，非真实上传、MySQL、Provider或业务验收；仅8新增定向，既有字体/几何/规划/任务回读基线保留不累计。"
+  },
+  "类型检查": {
+    "命令": "npm run typecheck",
+    "exit_code": 0,
+    "日志": "批量多图上传-类型检查.log"
+  },
+  "定向lint": {
+    "命令": "oxlint src/pages/BatchPage.tsx src/components/ImageDropzone.tsx tests/entry.ts",
+    "exit_code": 0,
+    "stdout": "空输出",
+    "日志": "批量多图上传-定向lint.log"
+  },
+  "源码冻结": {
+    "文件": {
+      "src/pages/BatchPage.tsx": "BEFE27F467C01A0ECC3AE5109C73C50317D2503B2DD9EC3C98440315208B820A",
+      "src/components/ImageDropzone.tsx": "DB48F68899C10D762DD644095C2BD382333488CF8B77D33005CAE8624D62971E",
+      "tests/lifecycle.test.mjs": "BB78B249BEC0CB43AF7FE11F78C23671FE1EC8F928A0640A8BCDF23C3DCBADA3",
+      "README.md": "06A05B7340FFEEC83323D570AE62C6E555C0BA734ED0CA9FF5357BF58D888A1F",
+      "migration-coverage.json": "93D108E5C9FC00D83E4ED01EBD7772CE63FB2AF2E623493660640A9FBF604AEA"
+    },
+    "组合SHA256": "2FE351173081C31FC6CE20AAE0316A605579E8105C6A443B81A29127424786AC",
+    "原75源码指纹逐文件核对": {
+      "count": 75,
+      "mismatch": []
+    },
+    "旧其他源码冻结沿用": "任务错误保持-最终定向检查.json；本次仅对应BatchPage、测试及覆盖说明变化，未改变其他恢复/字体/几何语义。"
+  },
+  "日志SHA256": {
+    "批量多图上传-修复前.log": "F5EA0F9A1B1691262520604E47C932C5317C9860B85460939B5ADC1AF390447F",
+    "批量多图上传-测试脚本首次检查.log": "D20F67FAAF94887AAF9A7F440F742FC0AE1762730BFFEA3D7AC49D8200565C3F",
+    "批量多图上传-定向检查.log": "026AC3D371B50D24B9FBB907BD74C4257D871EFCDF22AF953A0C64C81DB1E36C",
+    "批量多图上传-类型检查.log": "4A7E37A9EA95FBE9A4639391A628BCB452F57F34791FC85D773232694A915332",
+    "批量多图上传-定向lint.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  "生产制品与运行": "本轮未执行生产build/public/runtime同步/浏览器/HTTP/服务/正式业务/Provider/Git，当前72DED旧阶段生产制品仍保留；根统一构建和受影响浏览器复验。"
+}

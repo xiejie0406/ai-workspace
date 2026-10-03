@@ -1,0 +1,70 @@
+{
+  "reviewed_at": "2026-10-03T06:26:42.9559759Z",
+  "review_kind": "独立只读源码与既有证据核对，不执行模型/测试",
+  "finding_count": 0,
+  "conclusion": "未发现该限定范围中阻止构建的具体正确性问题；可交根线程进行统一离线构建及同步，不能代替运行或业务验收",
+  "source_record": {
+    "path": ".runtime/aipicture/sam-cache-identity-after.json",
+    "sha256": "aa2a20db9ead0e0ab4e39ddea41c266e51b7a33c0ccdcff2191c18d936847770"
+  },
+  "files": [
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/segment.py",
+      "expected_sha256": "13db45720cdadc9f84e04b32ea5af072fe4e00ce0aa87f915c1412fc3a9c09cf",
+      "actual_sha256": "13db45720cdadc9f84e04b32ea5af072fe4e00ce0aa87f915c1412fc3a9c09cf",
+      "matches": true
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_segment_cache_identity.py",
+      "expected_sha256": "8fe672fda183c341542de53d8f77bf239f2cf558e5a5e5a23c1ec55251d41d7f",
+      "actual_sha256": "8fe672fda183c341542de53d8f77bf239f2cf558e5a5e5a23c1ec55251d41d7f",
+      "matches": true
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_cv_concurrency.py",
+      "expected_sha256": "e86d75ba49218a933addb0f3850c6fcd8fafe614cfc21d7c94218b321389c49f",
+      "actual_sha256": "e86d75ba49218a933addb0f3850c6fcd8fafe614cfc21d7c94218b321389c49f",
+      "matches": true
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_provider_boundaries.py",
+      "expected_sha256": "28f22f25df1b3a7e76c555dc0843fde1c3723c99c9d0eb78fffc1b32018d1f24",
+      "actual_sha256": "28f22f25df1b3a7e76c555dc0843fde1c3723c99c9d0eb78fffc1b32018d1f24",
+      "matches": true
+    },
+    {
+      "path": "python/aipicture-runtime/README.md",
+      "expected_sha256": "26654ca48bb592c8b844703b0d5772dae26aec61f4ce8911fa1eb2a425b53442",
+      "actual_sha256": "26654ca48bb592c8b844703b0d5772dae26aec61f4ce8911fa1eb2a425b53442",
+      "matches": true
+    }
+  ],
+  "verified": {
+    "loaded_namespace": "segment.py64–85：只有encoder/decoder成功构造且前后流式文件观察一致才发布_sam；object namespace留在键中，避免id复用；后续键使用固定tuple，不按当前磁盘重标旧实例",
+    "observation_wording": "前后角色/size/SHA是加载期两次文件观察，不绝对证明中途无替换再恢复，不等价于ORT实际loaded bytes SHA；源码/README/after.json均明确此限制",
+    "pixel_identity": "segment.py101–122：按实际RGB转换后的像素及宽高、预处理版本、namespace、观察tuple组成键；PNG压缩/元数据及alpha差异在RGB输入相同时可复用，宽高不同/像素变化/实例不同不可复用",
+    "bounded_hash": "文件stream.read(1MiB)；像素按floor(1MiB/(width*3))行条带，超宽按floor(1MiB/3)列的行内块，update保持整幅行序；大图无整幅RGB bytes副本，每个块<=1MiB",
+    "future_and_lru": "segment.py123–149：锁内只查cache/inflight并发布/清理；像素hash、encode、Future等待与唤醒在锁外；BaseException清除对应inflight后set_exception，成功set_result；LRU仍4",
+    "original_expectations": "对照sam-cache-identity-before原文本：同图一次encode/失败双方唤醒与恢复、不同图Barrier并行、LRU长度4/5次encode/淘汰后第6次encode均保持；原假raw不同但同像素夹具改为真实不同像素、同固定session；provider旧SHA键淘汰断言改为旧embedding对象不在cache值中，未降低淘汰预期"
+  },
+  "recorded_test_evidence": {
+    "xml": ".runtime/aipicture/sam-cache-identity-after.xml",
+    "observed_tests": 21,
+    "observed_failures": 0,
+    "observed_errors": 0,
+    "observed_skipped": 0,
+    "composition": "既有记录21=新增16+受影响原并发/LRU4+原Provider缓存1；本复核不重复执行或累计"
+  },
+  "limits": [
+    "只确认限定源码/夹具/既有XML与hash，不执行真实ONNX模型或复测",
+    "加载期间文件观察不是ORT精确加载字节身份",
+    "没有批准或证明缓存字节预算/峰值内存/真实SAM质量/模型热重载",
+    "源码尚需根统一包/运行同步，不把技术结果计入22业务通过"
+  ],
+  "tests_executed_this_review": 0,
+  "model_calls": 0,
+  "provider_or_network_or_database_calls": 0,
+  "build_or_service_operations": 0,
+  "source_modified": false,
+  "business_acceptance": false
+}

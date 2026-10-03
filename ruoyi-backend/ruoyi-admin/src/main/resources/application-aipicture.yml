@@ -1,0 +1,21 @@
+# 仅图片运行通道启用；读取现有若依 dynamicDataSource，不创建第二数据库。
+spring:
+  config:
+    activate:
+      on-profile: aipicture
+  servlet:
+    multipart:
+      # 本项目上传上限 20MB；其他项目未启此 profile，沿用原值。
+      max-file-size: 20MB
+      max-request-size: 24MB
+
+aipicture:
+  enabled: ${AIPICTURE_ENABLED:false}
+  storage-root: ${AIPICTURE_STORAGE_ROOT:}
+  worker-url: ${AIPICTURE_WORKER_URL:}
+  public-internal-base-url: ${AIPICTURE_CENTER_URL:}
+  service-id: aipicture-java
+  worker-service-id: aipicture-worker
+  service-secret: ${AIPICTURE_SERVICE_SECRET:}
+  lease-seconds: 90
+  worker-timeout-seconds: 600

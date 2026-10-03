@@ -1,0 +1,79 @@
+{
+  "frozen_at_utc": "2026-10-03T04:44:52.001809+00:00",
+  "scope": "仅PlanService取消终态守卫与新增PlanCancellationTest；未修改其他生产代码、契约、DDL或资料",
+  "files": {
+    "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/PlanService.java": "5682a1b12c16d9fa051bf1c1953b57c7e3a114ce7e1875dd2f27efa0111cdb07",
+    "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/PlanCancellationTest.java": "4b395f74ef414fc86ecd0cff078e0f67410b5fcf65f6eb79e5857311f163db8b",
+    ".runtime/aipicture/before-plan-cancel-race/PlanService.java": "2041ffe6db7da37a22ce997b64e03e997dac1012d52a8d2db5408e7c11128037",
+    ".runtime/aipicture/before-plan-cancel-race/PlanCancellationTest.java": "92e9be50d060e15df87239dc4b4c34cbe79cb47a3e66705db517b390e5bfd37b",
+    ".runtime/aipicture/plan-cancel-race-before.log": "966fc25a7ad68c014ea61f628f9355d4f53653a9d6cb9987782c7574a8dbc288",
+    ".runtime/aipicture/plan-cancel-race-before.xml": "718a0d0fb21ae3ae745be9bbcbab6707cc1c07e783df31fe534a40a836d30d16",
+    ".runtime/aipicture/plan-cancel-race-after.log": "f4b127170404dd9c447442dcdb62a77675caec91f3c21a699ef1c6bb9a64ebf5",
+    "ruoyi-backend/ruoyi-aipicture/target/classes/com/ruoyi/aipicture/service/PlanService.class": "35c9268c99234a5185e65e60391de32ae2a53d4d77fa0940de844b4224ac5491",
+    "ruoyi-backend/ruoyi-aipicture/target/test-classes/com/ruoyi/aipicture/PlanCancellationTest.class": "d258764a4739f92d6b3171d3885aa29b94a061496e89f5d62faae20f21cb07ac"
+  },
+  "before": {
+    "tests": 3,
+    "failures": 2,
+    "errors": 1,
+    "skipped": 0,
+    "meaning": "迟到成功单步/多步覆盖cancelled两断言失败；迟到规划产品异常仍透出造成1执行错误，非fixture初始化错误"
+  },
+  "after": {
+    "suites": [
+      {
+        "class": "PlanCancellationTest",
+        "xml": ".runtime/aipicture/plan-cancel-race-after-PlanCancellationTest.xml",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testcases": [
+          "ordinaryMultiStepRequiresHashConfirmationAndConfirmationReplayIsIdempotent",
+          "ordinaryPlannerFailureStillPersistsFailureAndReturnsTheError",
+          "lateMultiStepCannotReplaceCancelledPlanningWithConfirmation",
+          "cancellationCannotReadAnotherOwnersTurn",
+          "ordinarySingleStepStillExecutesAndDuplicateSendDoesNotReplan",
+          "revokedToolPermissionStillRejectsPlanBeforeCreatingSteps",
+          "lateSingleStepCannotResumeCancelledPlanning",
+          "latePlannerFailureCannotOverwriteCancelledPlanning"
+        ],
+        "sha256": "fd1e5e3a58efa2d1c0a6e6531c713e07455843f5e97e6497ece611bcf3a311d8"
+      },
+      {
+        "class": "PlanSelectionContinuationTest",
+        "xml": ".runtime/aipicture/plan-cancel-race-after-PlanSelectionContinuationTest.xml",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "testcases": [
+          "secondLayerOperationKeepsPinnedMaskAcrossOrdinaryRevisionChanges",
+          "planBatchResumeOnlyRetriesExistingFailedItemsAndKeepsSuccessfulItems",
+          "planRetryCannotBypassRevokedGenerationPermission",
+          "planBatchResumeRejectsUnknownPaidItemsBeforeAnyRetry",
+          "cropChangingCanvasRejectsTheOldPinnedMaskBeforeSubmittingAnotherTool"
+        ],
+        "sha256": "8c397ed198b31adafba1a3e64b782225abdf9232ad2cd942b5e82125b19ae7bf"
+      }
+    ],
+    "total_tests": 13,
+    "new_tests": 8,
+    "affected_existing_tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "deduplication": "修前3场景包含于修后新增8中，不与13相加；既有其他基线未重跑"
+  },
+  "implementation": "成功和异常分支在短事务内先锁本人turn；仅planning可改reply/steps/终态。与cancel共用turn→session锁序，取消后返回正式cancelled记录且不调用continuePlan。",
+  "checks": "取消三时序；正常单步/多步；confirm hash及同key回放；普通规划失败；工具权限撤销；owner不可见；既有固定mask/CAS画幅/批量恢复5项",
+  "mysql_executed": false,
+  "provider_or_http_executed": false,
+  "runtime_synchronized": false,
+  "maven_target_released": true,
+  "limits": [
+    "服务级Mockito存储替身和真实线程交错，不声称真实MySQL锁并发通过。",
+    "当前运行Java未更新，聚合构建/同步/重启由根线程负责。",
+    "13技术检查不修改22项业务结果或用户接受。"
+  ]
+}

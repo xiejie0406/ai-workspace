@@ -1,0 +1,168 @@
+{
+  "generatedAtUtc": "2026-10-03T08:55:00.548461+00:00",
+  "scope": "r14 当前源到目标会话/归属/资产快照/20历史/分支noop/默认导出有限只读",
+  "files": [
+    {
+      "path": "文档/项目/AI图片编辑项目/完整迁移设计.md",
+      "sha256": "0f2b41b170eea2f15011c717854b2be57d2e3fbb00cbec964dd25742780a71b4"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/services/sessions.py",
+      "sha256": "10fefdaccbca72dab028cc132167adbfe68bea06dda88fd47c280ba6ab18f43b"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/services/exports.py",
+      "sha256": "190ea084724a88a74c41ea288bd3ee2c6ff2c21c1da9b93cbba8bbc08e82da09"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/schemas/export.py",
+      "sha256": "57251e1199bdb07410df2267b15e749d21070e2de239d1c0fc8c51b098ae8645"
+    },
+    {
+      "path": "参考项目/ai-picture-editor-main/backend/app/routers/sessions.py",
+      "sha256": "2743994bc7328f04712f429b175f89e46a6c253f29d5bf042b50331f4397fc55"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java",
+      "sha256": "5775e142ee4f9fb3b46d075a80f23ef67a58ce8873e15086bc014b201ebf55dc"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/AssetService.java",
+      "sha256": "076faccfdb0c9f4b48645af10bf55c902f81bdb01b2087c97d7712808613a506"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/BatchExportEvaluationService.java",
+      "sha256": "30d9bbe80da2de4006dee90b9790746d9bd2c709b24f6b415597a782a4c41526"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+      "sha256": "c91d260bd6504a7dee095456c775b5f5b30fe85cf62404e63e08b1ab3e1df8fd"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/persistence/AiPictureRepository.java",
+      "sha256": "51e499324d6d988483e845d38fffca860650f52d2cdb4cef5d9bb2e802aea05b"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/domain/Json.java",
+      "sha256": "2d62e33bd1faaa4000d028a8a16ce98f51854796fb5c356f9c95610d810fd422"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/SessionHistoryTest.java",
+      "sha256": "3944dd7198e55a904f9f661c90b6871655936bcea1367c8778210013ddaf9acd"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/AiPictureMySqlIntegrationTest.java",
+      "sha256": "f2c6f99f79a98b6c37596b617ef9dd79c6ec4788573a534034e26109c1cc7298"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "sha256": "2cafe8b019026de0c40d0569fe30ac83b4868ae51eaabd34d3fc335015b7fa4e"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "sha256": "aecc59579c89831916a836a4f6324ccca7ef4aa361d2699efdb9e99d0dc5a493"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+      "sha256": "7df0afdaedc60e7512869930d7bde1ee5de1c660c17c120a81613651192d7baf"
+    }
+  ],
+  "findings": [],
+  "concrete_new_defects": 0,
+  "checks": [
+    {
+      "business": "素材归属与正式可用状态",
+      "requirement": "设计1.2素材与会话/数据表owner约束",
+      "source": "services/sessions.py:214–222,routers/sessions.py:_asset",
+      "target": "AiPictureRepository.java:24–27;AssetService.java:23–27,41–44;SessionService.java:16–24,35–39,52–57,93",
+      "facts": "会话加载与行锁均user_id过滤；create/current与初始候选、文档asset_id经assets.record本人+ready；wall联表两owner一致且ready；跨会话切图没有当前墙快照则拒绝。",
+      "conclusion": "本有限调用链未见越owner/staged正式消费的新缺口。"
+    },
+    {
+      "business": "资产独立文档切回与超历史窗口保留",
+      "requirement": "设计1.2:32与数据表267；批准比源补齐每资产当前文档，不依赖20条history",
+      "source": "services/sessions.py:297–347（源从最近history找result/params.before）",
+      "target": "SessionService.java:24,54–61,66–69,88,102,115",
+      "facts": "创建及入墙保存latest_document；实际文档写入更新current资产快照；切图读目标快照；undo/redo更新恢复current资产快照。清history只删aip_history，不删session_asset；单BASE裁剪恢复原图规则与多层/nonBASE保留已核源条件一致。",
+      "conclusion": "未发现批准的长编辑切图持久保证遗漏；此为源码路径核实，不是本轮真实20+操作/刷新/登录业务通过。"
+    },
+    {
+      "business": "20条展示窗口与可撤销下界",
+      "requirement": "设计1.2:34、5.6",
+      "source": "services/sessions.py:82–101,247–267,350–371;HISTORY_LIMIT20",
+      "target": "SessionService.java:23–27,40–43,83–90,94–105",
+      "facts": "新建create_session seq=floor=1不可undo且previous_document null；新事件seq=current+1，floor=max(oldfloor,seq−20)，清理seq≤seq−20；history按seqDESC；undo seq≤floor拒409，redo查seq+1存在。快照保存可使用最早保留事件before恢复到floor，不凭窗口损失额外一次撤销。",
+      "conclusion": "窗口/下界公式与批准语义相符，未见新off-by-one。"
+    },
+    {
+      "business": "撤销后分支与noop",
+      "requirement": "设计1.2:34及5.6 noop不新增/不截redo",
+      "source": "services/sessions.py:123–150",
+      "target": "SessionService.java:72–90;Json.java:20–26",
+      "facts": "saveDocument以规范化数值/有序对象语义比较document与current，在appendHistory删除redo前返回；真实文档编辑或真实新增wall才append，DELETE seq>旧seq截redo。noop不会update版本/清selection/更新快照。",
+      "conclusion": "未见新分支截断缺口；不把本轮读已有noOp测试当新执行。"
+    },
+    {
+      "business": "历史当前资产关联和undo/redo内容",
+      "requirement": "设计1.2:34及5.6",
+      "source": "services/sessions.py:32–37,104–107,161–167",
+      "target": "SessionService.java:86,98–102;AiPictureRepository.java:35–37;frontend/api/sessions.ts:61–67;LayerPanel.tsx:历史行",
+      "facts": "每事件单独before_asset_id/after_asset_id和before/after_document，undo/redo配对恢复document+current，revision/row_version递增且失效选区。target正式恢复使用列，不依赖源params.before/result.document形式；实际历史列表消费者仅显示seq/action/created_at，result墙元数据在recordResult保留。",
+      "conclusion": "已核恢复关联不丢；存储快照字段与源内部表示不同是目标设计实现方式，本轮未见消费不可达。"
+    },
+    {
+      "business": "仅上墙结果与重复/noop历史",
+      "requirement": "源record_result保持revision；已批准近期wall-history补齐",
+      "source": "services/sessions.py:139–168,270–287",
+      "target": "SessionService.java:77–81,111–117;RunService.java:243–251",
+      "facts": "recordResult addWall返回0直接return，新增才记录result资产/variants及原document/current/revision；canvasChanged=false不增revision、不清selection但增row_version。selection/export分支不进入墙history，真实document/adopt先addWall再保存新画布。",
+      "conclusion": "墙历史补丁未更改正式素材kind/position，默认导出选择不从history推断，未见新选择影响。"
+    },
+    {
+      "business": "默认物料优先与显式当前/非当前导出",
+      "requirement": "设计1.2:50、5.19",
+      "source": "services/exports.py:47–76,85–105;schemas/export.py:36 EXPORT_KINDS marketing/export",
+      "target": "BatchExportEvaluationService.java:69–76;AssetService.java:41–42;RunService.java:77–99;engine.py:495–535",
+      "facts": "未指定ZIP素材按ready本人墙position选marketing/export；无物料清单为空，冻结并render当前canvas。显式清单须墙内；当前项使用冻结document flatten、其他项source原bytes；manifest含title/session_id/created_at及每项asset/kind/ratio/尺寸，文件顺序来自选定列表；PNG忽略选择并flatten。",
+      "conclusion": "未见优先/归属/顺序新遗漏。实际ZIP像素/透明度/字体下载打开仍需原业务条件，本轮不执行。"
+    }
+  ],
+  "existing_tests_read_only": [
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/SessionHistoryTest.java",
+      "lines": "24–34",
+      "covers": "旧版本/noop/窗口快照/忙会话；只读不新增计数"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/AiPictureMySqlIntegrationTest.java",
+      "lines": "66–67,117–124,235–253,309–314",
+      "covers": "原受控noop/墙历史/selection-export分离/裁剪切回复杂快照/初始历史；未运行、未从存在或历史通过推断本轮业务通过"
+    }
+  ],
+  "intentional_approved_differences": [
+    "源只在history中寻找该asset文档；target按设计1.2增加独立latest_document。",
+    "源undo/redo恢复旧revision；target设计数据一致性段要求revision单调递增避免旧mask复活。",
+    "设计只允许会话墙切换和会话墙显式导出；不将源router允许其它本人asset直接switch扩成未批准的新UI能力。"
+  ],
+  "not_rechecked": [
+    "r13 Plan terminal cancel已闭合",
+    "旧全量技术数量/已通过边界不重测",
+    "账号/真实源导入/Provider费用/OCR-SR质量不作本轮新缺陷"
+  ],
+  "operations": {
+    "tests_executed": 0,
+    "builds": 0,
+    "http": 0,
+    "database": 0,
+    "models": 0,
+    "service": 0,
+    "git": 0,
+    "source_edits": 0
+  },
+  "business_result": {
+    "new_business_passed": 0,
+    "business_cards_changed": false,
+    "acceptance": false,
+    "limit": "静态有限核对未见新具体缺口，不能称全部业务通过；真实会话刷新重新登录、20+编辑图层回读和ZIP实际像素/归属验收依赖原业务前提，由根唯一记录保留。"
+  }
+}

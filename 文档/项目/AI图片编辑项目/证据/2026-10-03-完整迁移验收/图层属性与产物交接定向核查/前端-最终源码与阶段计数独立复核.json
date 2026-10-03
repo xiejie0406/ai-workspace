@@ -1,0 +1,189 @@
+{
+  "reviewed_at": "2026-10-03T09:38:56.496403+00:00",
+  "scope": "r14最终LayerPanel/EditorPage两产品源+既有命令链未改的有界作者分离只读复核；未执行测试/浏览器/服务",
+  "release": {
+    "path": ".runtime/aipicture/r14-layer-properties-release.json",
+    "sha256": "acb5ce083f5ca7430d8f804e61c590daf4b22d5efe3d368374e26281b1b26dd5",
+    "size_bytes": 34799
+  },
+  "source_fingerprints": [
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/LayerPanel.tsx",
+      "sha256": "042be73bccf2619275c1afb0fb9b51e80d9b9cd1830fda9afa58f61592dfa634",
+      "size_bytes": 25062
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "sha256": "78439298692e5e87b558dcd16c5117183087be8e7d2704e22365d9ea1a0a6987",
+      "size_bytes": 11241
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "sha256": "54b532642f51c30e9f35948112b2c38bc8e48f68c2872d50d7bbedb11c2eba38",
+      "size_bytes": 187364
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "sha256": "eb2aeb55c299073488837c62f755f285c5bffa6eda2d705cad7054da6f5ee55f",
+      "size_bytes": 14779
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "sha256": "92ab8c72b6fad1e57d9dfb45eb65f8af436920670b69499300cac4fe04870e01",
+      "size_bytes": 29859
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "sha256": "4ee8406cb664cab2109bf3d6a73bb7242fb5d9f6d5d4d38f6ed041c86fd8f27e",
+      "size_bytes": 10418
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/client.ts",
+      "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054",
+      "size_bytes": 2963
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "sha256": "2cafe8b019026de0c40d0569fe30ac83b4868ae51eaabd34d3fc335015b7fa4e",
+      "size_bytes": 5436
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05",
+      "size_bytes": 4474
+    }
+  ],
+  "artifact": {
+    "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+    "sha256": "aff4180ee55d608678a99d3f9fd543a8718887d5a038eb35d2538552fcfb9473",
+    "size_bytes": 984506
+  },
+  "snapshot_files_verified": 31,
+  "logs_verified": 19,
+  "findings": [],
+  "confirmed_behavior": [
+    {
+      "location": "LayerPanel.tsx:177-227",
+      "fact": "面板set_layer_text/opacity/scale/rotate沿已有invokeAsync({retry:true})，真正等待正式终态；排序/显隐等原invoke未改。完整text/font_size/fill共同发送，原flip signs仍由现有后端命令保留。"
+    },
+    {
+      "location": "LayerPanel.tsx:317-364",
+      "fact": "本地pendingRef同步阻止重复提交，await后finally仅活跃组件撤已提交字段且值仍匹配；只移除本命令仍一致的preview字段，新文案/其他层/其他实例不会被整体清空。cleanup撤自身ownedfields、alivefalse后迟到finally不改新实例。"
+    },
+    {
+      "location": "LayerPanel.tsx:374-418",
+      "fact": "dirty文本/字号/颜色在失败/外部正式GET更新时保留用户输入，只有输入与正式值一致才回同步；颜色和字号携完整原文字。"
+    },
+    {
+      "location": "LayerPanel.tsx:541-611",
+      "fact": "gesture revision+submittedGesture先标记本意图已提交，draftRef置空；失败只保留显示draft，不重新武装提交槽。延迟lostcapture在同序号或空槽时不发第二POST；新明确pointerdown/onChange/dblclick才产生新意图。pending期间不接新提交，原键盘只预览规则不额外自动POST。"
+    },
+    {
+      "location": "EditorPage.tsx:66-74",
+      "fact": "useLayoutEffect按正式session.document校准真正不存在的selectedLayerId及previewid；PATCH失败缓存原A文档不清原subject；仍存在有效层ID保留。效果在布局阶段先于后续用户命令，不以视觉fallback当工具目标。"
+    },
+    {
+      "location": "useSessions.ts:182-232（未改）",
+      "fact": "失败先invalidate会话/历史回正式再提示；反馈重试固定首次expectedVersion及asset，row_version/asset已变化、原signal已abort、runtime inactive或busy则不POST。runtime/client/sessions四命令边界hash与原before相同，当前2源不改metadata默认行为。"
+    }
+  ],
+  "checks_read": {
+    "unique_total": 30,
+    "latest_executed": 18,
+    "latest_passed": 18,
+    "latest_new_gesture": 5,
+    "latest_related_reexecuted": 13,
+    "same_turn_carried": 12,
+    "first_stage_executed": 25,
+    "sum_25_plus_18_is_not_unique_total": true,
+    "final_names": [
+      "独立两轴：实际图片与两文字层按持久幅值变换，等比预览及拖角待回写保持等比",
+      "剩余完整性：adjust在failed后保留原用户参数，不以提交成功清空",
+      "剩余完整性：三原参数表单只有正式成功后才清空，调色显式重置仍可用",
+      "剩余完整性：工具取消和外部未知结果保留参数，不清空或自动再次付费",
+      "剩余完整性：迟到正式调色回读不清除任务结束后用户新改参数",
+      "图层属性恢复：旋转拒绝后实际节点回正式值并保留参数供明确重试",
+      "图层属性恢复：透明度拒绝后实际节点回正式值并保留参数供明确重试",
+      "图层属性恢复：字号拒绝后实际节点回正式值并保留参数供明确重试",
+      "图片墙正式选择：A主体切B底图后翻转和调色参数不能保留旧subject",
+      "图层属性边界：排队不解锁或丢参数，failed取消未知回正式，partial成功才采用",
+      "图层属性边界：正常缩放和文字样式成功保持翻转与完整文案，双击复位只提交一次",
+      "图层属性边界：关面板及换owner/同owner失活后旧回复与重试不影响新实例或其他层",
+      "图层属性边界：订阅先failed解锁另一表单，迟到GET只撤旧旋转字段而保留同层新文字预览",
+      "滑杆手势单次：pointerup拒绝结算后迟到lostcapture不能重POST",
+      "滑杆手势单次：正常捕获成功和提前lostcapture均只提交一次",
+      "滑杆手势单次：失败参数保留，新明确pointergesture无需再次改值即可重试",
+      "滑杆手势单次：失败后明确双击复位按正式基线提交一次，旧lostcapture不参与",
+      "滑杆手势单次：原键盘改值预览不新增自动POST，后续明确指针提交使用新值"
+    ],
+    "carried_names": [
+      "两个编辑器的 Ctrl+Z 只操作所属 mount，影子输入和其他页面按键不会触发编辑",
+      "剩余完整性：background在post503后保留原用户参数，不以提交成功清空",
+      "剩余完整性：replace在conflict后保留原用户参数，不以提交成功清空",
+      "图层属性恢复：颜色拒绝后实际节点回正式值并保留参数供明确重试",
+      "图层属性边界：409正式外部更新恢复新节点，旧反馈不能覆写新版本且文字草稿保留",
+      "图片墙选择边界：PATCH503不改A的subject选择，后续翻转仍指向A",
+      "图片墙选择边界：工具引发正式GET移除旧层与两个挂载的选择互相隔离",
+      "图片墙选择边界：撤销重做正式doc移除旧层需校准，仍存在的有效id继续保留",
+      "文字字体：画布与内联编辑共用中文默认字体，宿主覆盖及更新仅影响当前实例",
+      "文字字框裁切：实际绘制先裁切局部框，翻转旋转及拖动选择都作用同一Group",
+      "权限独立：会话编辑与工具执行的三种组合分别限制撤销、切图和工具",
+      "独立两轴文字编辑：局部字号与CSS双轴围绕正式中心，最小编辑尺寸仍可读"
+    ],
+    "host_checks_carried_separately": 11,
+    "reexecuted_by_reviewer": 0
+  },
+  "failed_evidence_preserved": {
+    "initial_product": {
+      "log": {
+        "path": ".runtime/aipicture/r14-layer-properties-before.log",
+        "sha256": "d4f74f14eefcbb7691f9fba3f0a7e9b1401e09722da5bcca1801585c871b32c3",
+        "size_bytes": 5981
+      },
+      "failures": 5
+    },
+    "a2_late_capture_product": {
+      "log": {
+        "path": ".runtime/aipicture/r14-slider-gesture-before.log",
+        "sha256": "449091a19a05a5522a07d9d6f7aa25bb4564691a02a5df6af1fdfdb880db5d5f",
+        "size_bytes": 1518
+      },
+      "failures": 1,
+      "observed": "2 !== 1，旧pointerup503完整结算后lostcapture第二POST；root另有实际IAB原失败图，不以初25技术通过掩盖。"
+    },
+    "intermediate_fixture_errors": "after-boundaries原3fixture误选/未等GET日志留存，修正后12；不是因这些fixture错误改变产品。"
+  },
+  "checks_exit_read": {
+    "typecheck": 0,
+    "lint": 0,
+    "library_build": 0,
+    "final_lint_warnings": 32,
+    "previous_lint_warnings": 33,
+    "removed_old_warning": 1,
+    "new_lint_warnings_remaining": 0,
+    "normalized_equal_to_previous": false,
+    "normalized_equal_to_first_stage": true
+  },
+  "limitations": [
+    "真实IAB最终45度/.4及手动重试由root执行和截图回读，本独立复核只读源码/日志不冒称自己操作。",
+    "技术30/宿主沿用11不计业务卡通过或用户接受；模型/付费Provider/正式状态未本轮重新执行。",
+    "75源指纹保留仅作参考未改证据，本复核不据此宣布完整迁移完成。"
+  ],
+  "operations": {
+    "new_tests": 0,
+    "builds": 0,
+    "browser": 0,
+    "http": 0,
+    "services": 0,
+    "database": 0,
+    "models": 0,
+    "source_writes": 0,
+    "sole_MD_HTML_writes": 0,
+    "git": 0
+  },
+  "source_locations_checked": {
+    "SliderField_start": 541,
+    "Properties_start": 613,
+    "script": "rg读取源行，无测试/产品修改"
+  }
+}

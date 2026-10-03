@@ -1,0 +1,1067 @@
+{
+  "schemaVersion": "1",
+  "frozenAtUtc": "2026-10-03T07:41:02.9304354Z",
+  "scope": "r12计划终态取消局部修复；原批量/导出其余有界只读审计无新增已证实缺陷",
+  "productionChangedOnly": [
+    "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/PlanService.java"
+  ],
+  "testChangedOnly": [
+    "ruoyi-backend/ruoyi-aipicture/src/test/java/com/ruoyi/aipicture/PlanCancellationTest.java"
+  ],
+  "productionBehavior": "现有turn FOR UPDATE内检查succeeded/failed/cancelled/external_result_unknown，取消返回409 PLAN_STATE并保留原终态/步骤/正文；同已接受cancel key先回放；failed可正常retry。未改协议/表/依赖/装配/锁序。",
+  "mainSource": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\PlanService.java",
+    "bytes": 12981,
+    "sha256": "5b8c31457fcc94345f3fd3d3f0ed307138904861b141ce3ac50e8571f178c107"
+  },
+  "testSource": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\test\\java\\com\\ruoyi\\aipicture\\PlanCancellationTest.java",
+    "bytes": 15436,
+    "sha256": "304b42d3b86e4a9a0d0aed4e0381340451d9b949a00ba199a12dab75c51117ac"
+  },
+  "unchangedRelatedTestSource": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\test\\java\\com\\ruoyi\\aipicture\\PlanSelectionContinuationTest.java",
+    "bytes": 7368,
+    "sha256": "72e347872f986b288b72129ab128ad1ed165825e89285f7373273fc50d0b0e0d"
+  },
+  "moduleTarget": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\ruoyi-aipicture-3.9.2.jar",
+    "bytes": 196776,
+    "sha256": "ae0b08d63e0ccc66a6d99a4b469ecdd87661b61f64b7447eb080c9100061487c"
+  },
+  "moduleFrozen": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\ruoyi-aipicture-r12-terminal-cancel-20261003.jar",
+    "bytes": 196776,
+    "sha256": "ae0b08d63e0ccc66a6d99a4b469ecdd87661b61f64b7447eb080c9100061487c"
+  },
+  "javaSources": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\config\\AiPictureConfiguration.java",
+      "bytes": 1798,
+      "sha256": "5d8d5085eb97d4d4b85773e3d94aba3f1f3cbe6daa74feb4d1db945f04443cc9",
+      "primaryClassEntry": "com/ruoyi/aipicture/config/AiPictureConfiguration.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\config\\AiPictureEnabled.java",
+      "bytes": 445,
+      "sha256": "ad861aa531c54bcb0f399fca7150ece48bc625407fca23154675ee6180907bab",
+      "primaryClassEntry": "com/ruoyi/aipicture/config/AiPictureEnabled.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\config\\AiPictureProperties.java",
+      "bytes": 2301,
+      "sha256": "f0cb15c086d6105b7d9f9c2c232475323c684ffa0807fd9eae662fc80b8df70b",
+      "primaryClassEntry": "com/ruoyi/aipicture/config/AiPictureProperties.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\config\\AiPictureSchemaGuard.java",
+      "bytes": 2519,
+      "sha256": "a0b3ce2ecdeab665e5669b8c20fb99d5b3d759026a24202ce4cb0941b3cf72a5",
+      "primaryClassEntry": "com/ruoyi/aipicture/config/AiPictureSchemaGuard.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\config\\AiPictureWorkerSecurityConfiguration.java",
+      "bytes": 1960,
+      "sha256": "f73e5d914b0ef96f6b32412683f32220b8140a401905f5da02e703c962966995",
+      "primaryClassEntry": "com/ruoyi/aipicture/config/AiPictureWorkerSecurityConfiguration.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\controller\\AiPictureController.java",
+      "bytes": 14061,
+      "sha256": "42cfcc06e867cd42dcc969ccfe16f6c4c40d228dea9f31ae2dcf41160c235df2",
+      "primaryClassEntry": "com/ruoyi/aipicture/controller/AiPictureController.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\controller\\AiPictureErrors.java",
+      "bytes": 915,
+      "sha256": "fc577f6ba182b6303b9a8f882ea573d3dd585f997831c6383ab5ca04e4cafafc",
+      "primaryClassEntry": "com/ruoyi/aipicture/controller/AiPictureErrors.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\controller\\AiPictureExecutionController.java",
+      "bytes": 1646,
+      "sha256": "3e9e623c26428cec96465bc0a54b4abf775c7c0248763eb041c64804b2bdba93",
+      "primaryClassEntry": "com/ruoyi/aipicture/controller/AiPictureExecutionController.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\domain\\AiPictureException.java",
+      "bytes": 1221,
+      "sha256": "20b62610ad190a0e3b884320aba8d4418300e8b9188ca6012fad83906a76c627",
+      "primaryClassEntry": "com/ruoyi/aipicture/domain/AiPictureException.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\domain\\Json.java",
+      "bytes": 2870,
+      "sha256": "2d62e33bd1faaa4000d028a8a16ce98f51854796fb5c356f9c95610d810fd422",
+      "primaryClassEntry": "com/ruoyi/aipicture/domain/Json.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\migration\\AiPictureImportTool.java",
+      "bytes": 22404,
+      "sha256": "8ed031bc5a3930ea5d600b1122f757f7145cb93514158bf735c91fd5ef2cb7f4",
+      "primaryClassEntry": "com/ruoyi/aipicture/migration/AiPictureImportTool.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\migration\\ImportManifest.java",
+      "bytes": 5934,
+      "sha256": "0eae60348bf882f020e9efdbd4463b78027fb22636ed2e44e304eaa0633e714a",
+      "primaryClassEntry": "com/ruoyi/aipicture/migration/ImportManifest.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\migration\\ImportVerifier.java",
+      "bytes": 33757,
+      "sha256": "f6bad41b22d31f07e075f459aa1da57e64f74008c6393bb19720c7a649e40c62",
+      "primaryClassEntry": "com/ruoyi/aipicture/migration/ImportVerifier.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\persistence\\AiPictureRepository.java",
+      "bytes": 2619,
+      "sha256": "51e499324d6d988483e845d38fffca860650f52d2cdb4cef5d9bb2e802aea05b",
+      "primaryClassEntry": "com/ruoyi/aipicture/persistence/AiPictureRepository.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\persistence\\AiPictureTransactions.java",
+      "bytes": 1707,
+      "sha256": "4d72586c6248ea68bc33d5c4da4b499507fe50e8bd5a4803f6015f76e93306cd",
+      "primaryClassEntry": "com/ruoyi/aipicture/persistence/AiPictureTransactions.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\AssetService.java",
+      "bytes": 5093,
+      "sha256": "076faccfdb0c9f4b48645af10bf55c902f81bdb01b2087c97d7712808613a506",
+      "primaryClassEntry": "com/ruoyi/aipicture/service/AssetService.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\BatchExportEvaluationService.java",
+      "bytes": 11551,
+      "sha256": "30d9bbe80da2de4006dee90b9790746d9bd2c709b24f6b415597a782a4c41526",
+      "primaryClassEntry": "com/ruoyi/aipicture/service/BatchExportEvaluationService.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\CommandIdempotency.java",
+      "bytes": 1904,
+      "sha256": "07816db83b973b95b963d221856c1c64b7fb2b0adc7806e17d03e50246d2df07",
+      "primaryClassEntry": "com/ruoyi/aipicture/service/CommandIdempotency.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\EvaluationAssessment.java",
+      "bytes": 10886,
+      "sha256": "1ab70c2bc7f1ef1d6ce9f7c1ae9c9cbbe451df1b167099a74f5d0fc2f125e792",
+      "primaryClassEntry": "com/ruoyi/aipicture/service/EvaluationAssessment.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\PlanService.java",
+      "bytes": 12981,
+      "sha256": "5b8c31457fcc94345f3fd3d3f0ed307138904861b141ce3ac50e8571f178c107",
+      "primaryClassEntry": "com/ruoyi/aipicture/service/PlanService.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\RunService.java",
+      "bytes": 42469,
+      "sha256": "c91d260bd6504a7dee095456c775b5f5b30fe85cf62404e63e08b1ab3e1df8fd",
+      "primaryClassEntry": "com/ruoyi/aipicture/service/RunService.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\SessionService.java",
+      "bytes": 13836,
+      "sha256": "5775e142ee4f9fb3b46d075a80f23ef67a58ce8873e15086bc014b201ebf55dc",
+      "primaryClassEntry": "com/ruoyi/aipicture/service/SessionService.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\storage\\AiPictureStorage.java",
+      "bytes": 6000,
+      "sha256": "f6bffe1b62801d8364e5e272313b9719ed92302c0f35c1cd78d4b18caf6cd9fc",
+      "primaryClassEntry": "com/ruoyi/aipicture/storage/AiPictureStorage.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\tool\\DocumentCommandService.java",
+      "bytes": 6471,
+      "sha256": "d37818a8da41da1d022c32fc9d4212ebbd33ad2b4e6d20cf8473bfd9916cae74",
+      "primaryClassEntry": "com/ruoyi/aipicture/tool/DocumentCommandService.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\tool\\PlanValidator.java",
+      "bytes": 2070,
+      "sha256": "89621ed7b77162b6ce6208e928c1fb2a93594f80d75e2b5a7f02d943b92d1622",
+      "primaryClassEntry": "com/ruoyi/aipicture/tool/PlanValidator.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\tool\\SchemaValidator.java",
+      "bytes": 4986,
+      "sha256": "cd542a4722d321d387e5a708eed247d85bb183249b8f3bc004d090421a05cbc9",
+      "primaryClassEntry": "com/ruoyi/aipicture/tool/SchemaValidator.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\tool\\SelectionInputValidator.java",
+      "bytes": 2137,
+      "sha256": "1f47ff4ebe6f991b103c1bd750e4fad17fb119bb0ddb3a7494156182c7bf4ad4",
+      "primaryClassEntry": "com/ruoyi/aipicture/tool/SelectionInputValidator.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\tool\\ToolPermissionGuard.java",
+      "bytes": 825,
+      "sha256": "3102713db451383b055452cbbc2f89edabf55d98a3af338677a87ce801257cb0",
+      "primaryClassEntry": "com/ruoyi/aipicture/tool/ToolPermissionGuard.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\tool\\ToolRegistry.java",
+      "bytes": 3935,
+      "sha256": "324987b0c80de0f3c3fa21ca707efb0c8bd1bca8ad48d5ff926d93790bc2f060",
+      "primaryClassEntry": "com/ruoyi/aipicture/tool/ToolRegistry.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\worker\\AiPictureWorkerAuthFilter.java",
+      "bytes": 4348,
+      "sha256": "8aef1f68efb4eb90b9bf7f1ecde770c03d40526295a62244683d2f6c2dc37f14",
+      "primaryClassEntry": "com/ruoyi/aipicture/worker/AiPictureWorkerAuthFilter.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\worker\\AiPictureWorkerClient.java",
+      "bytes": 2787,
+      "sha256": "cfd92888413b4357b9270a8b133652950159f9042a695595463b0bc2cade3273",
+      "primaryClassEntry": "com/ruoyi/aipicture/worker/AiPictureWorkerClient.class",
+      "primaryClassPresent": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\worker\\WorkerSignatures.java",
+      "bytes": 1135,
+      "sha256": "1c3fd1a2193c0484d85c27d62a8c5bf7e6c89aee5c7b6561fe87449e04d8734e",
+      "primaryClassEntry": "com/ruoyi/aipicture/worker/WorkerSignatures.class",
+      "primaryClassPresent": true
+    }
+  ],
+  "classes": [
+    {
+      "entry": "com/ruoyi/aipicture/config/AiPictureConfiguration.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\config\\AiPictureConfiguration.class",
+        "bytes": 2772,
+        "sha256": "8c3b96d527ee96b12ccca498d62866c915cd9f779c31bd1c365ea58781e1710b"
+      },
+      "embeddedSha256": "8c3b96d527ee96b12ccca498d62866c915cd9f779c31bd1c365ea58781e1710b",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/config/AiPictureEnabled.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\config\\AiPictureEnabled.class",
+        "bytes": 580,
+        "sha256": "17100230e2527bf3cc838e2d36dc4708eb9214dbb5f0861483151c2fbd75459c"
+      },
+      "embeddedSha256": "17100230e2527bf3cc838e2d36dc4708eb9214dbb5f0861483151c2fbd75459c",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/config/AiPictureProperties.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\config\\AiPictureProperties.class",
+        "bytes": 3540,
+        "sha256": "68f7d3ca941b3f57073e0a65615136713a773d0ba778d60c7183532cc36d46f4"
+      },
+      "embeddedSha256": "68f7d3ca941b3f57073e0a65615136713a773d0ba778d60c7183532cc36d46f4",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/config/AiPictureSchemaGuard.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\config\\AiPictureSchemaGuard.class",
+        "bytes": 5217,
+        "sha256": "588cdc31e2192370f64a8b0d1af7544a57ce294484bca3c39e6b91a77af9cf85"
+      },
+      "embeddedSha256": "588cdc31e2192370f64a8b0d1af7544a57ce294484bca3c39e6b91a77af9cf85",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/config/AiPictureWorkerSecurityConfiguration.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\config\\AiPictureWorkerSecurityConfiguration.class",
+        "bytes": 7718,
+        "sha256": "6698bf1d0b332b14dc02f37bae3d5a4d73f29ede9d38f8317a2b01acbfbaab04"
+      },
+      "embeddedSha256": "6698bf1d0b332b14dc02f37bae3d5a4d73f29ede9d38f8317a2b01acbfbaab04",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/controller/AiPictureController.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\controller\\AiPictureController.class",
+        "bytes": 19248,
+        "sha256": "d73d1234b45a6b64aba0e9efbdce0fc0d496772fa7006c5c634b3a88cdcfd834"
+      },
+      "embeddedSha256": "d73d1234b45a6b64aba0e9efbdce0fc0d496772fa7006c5c634b3a88cdcfd834",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/controller/AiPictureErrors.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\controller\\AiPictureErrors.class",
+        "bytes": 2070,
+        "sha256": "dcd6cae442a30efffc538fc2d7aa98aa08225b7ecd99ea10e7e6a27dcfa21020"
+      },
+      "embeddedSha256": "dcd6cae442a30efffc538fc2d7aa98aa08225b7ecd99ea10e7e6a27dcfa21020",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/controller/AiPictureExecutionController.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\controller\\AiPictureExecutionController.class",
+        "bytes": 4056,
+        "sha256": "5ba72250d3d7a71efdf1d7251c070a4279d208a9498387332f8009c3e135e260"
+      },
+      "embeddedSha256": "5ba72250d3d7a71efdf1d7251c070a4279d208a9498387332f8009c3e135e260",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/domain/AiPictureException.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\domain\\AiPictureException.class",
+        "bytes": 1846,
+        "sha256": "67d060d19e8ef8204d937f5a3b0a75d0804cce149e839b1a2d5de1f3461cb56f"
+      },
+      "embeddedSha256": "67d060d19e8ef8204d937f5a3b0a75d0804cce149e839b1a2d5de1f3461cb56f",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/domain/Json.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\domain\\Json.class",
+        "bytes": 6258,
+        "sha256": "a4dfde57f2105727aabe6b1b03eef7c3719d8a45dfa9b464c61977f8a554c614"
+      },
+      "embeddedSha256": "a4dfde57f2105727aabe6b1b03eef7c3719d8a45dfa9b464c61977f8a554c614",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/AiPictureImportTool.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\AiPictureImportTool.class",
+        "bytes": 32433,
+        "sha256": "d29491cd02319319d0d72ff38d93b42307a4bb95fa016f8313464bae5ed7b4b0"
+      },
+      "embeddedSha256": "d29491cd02319319d0d72ff38d93b42307a4bb95fa016f8313464bae5ed7b4b0",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/AiPictureImportTool$Applied.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\AiPictureImportTool$Applied.class",
+        "bytes": 2716,
+        "sha256": "b88d0d82dcaf4358725637ac0907e5af35e60c2a050930ccd6269d5a6ee5cbbc"
+      },
+      "embeddedSha256": "b88d0d82dcaf4358725637ac0907e5af35e60c2a050930ccd6269d5a6ee5cbbc",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/AiPictureImportTool$Dependency.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\AiPictureImportTool$Dependency.class",
+        "bytes": 2098,
+        "sha256": "8f62d3b515739c4386d4cf0ab8c397840a2e213a51deabbf0ca07052dc96c2ca"
+      },
+      "embeddedSha256": "8f62d3b515739c4386d4cf0ab8c397840a2e213a51deabbf0ca07052dc96c2ca",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/ImportManifest.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\ImportManifest.class",
+        "bytes": 13914,
+        "sha256": "f59c23df4e0c794a24df37409028ace58a84e52b23d09f7aa91bdf053ebe7296"
+      },
+      "embeddedSha256": "f59c23df4e0c794a24df37409028ace58a84e52b23d09f7aa91bdf053ebe7296",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/ImportVerifier.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\ImportVerifier.class",
+        "bytes": 49579,
+        "sha256": "198ad79347bddb684c5651b59428165f15470c229ec9c79f26d00a8ef8abdb06"
+      },
+      "embeddedSha256": "198ad79347bddb684c5651b59428165f15470c229ec9c79f26d00a8ef8abdb06",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/ImportVerifier$ImageDecoder.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\ImportVerifier$ImageDecoder.class",
+        "bytes": 604,
+        "sha256": "75021dc94148fab168efa9cd283882669945e3d050be17353f7d0ba64029bed9"
+      },
+      "embeddedSha256": "75021dc94148fab168efa9cd283882669945e3d050be17353f7d0ba64029bed9",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/ImportVerifier$ImageMeta.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\ImportVerifier$ImageMeta.class",
+        "bytes": 2015,
+        "sha256": "1ba0e6e2b4a758ecc5ff7364a09e75d9462af33682a8f489ef910be133a70fc0"
+      },
+      "embeddedSha256": "1ba0e6e2b4a758ecc5ff7364a09e75d9462af33682a8f489ef910be133a70fc0",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/ImportVerifier$ObjectFile.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\ImportVerifier$ObjectFile.class",
+        "bytes": 2105,
+        "sha256": "f4c7c7b9daccd02dfd19626c2fcfd79e8b597723866bd76b3aa86fc3e9a07289"
+      },
+      "embeddedSha256": "f4c7c7b9daccd02dfd19626c2fcfd79e8b597723866bd76b3aa86fc3e9a07289",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/ImportVerifier$Prepared.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\ImportVerifier$Prepared.class",
+        "bytes": 3109,
+        "sha256": "5a6f015df204882e0f7c497a2e046e0de8d424805b91ae64a90c25aa11b1525f"
+      },
+      "embeddedSha256": "5a6f015df204882e0f7c497a2e046e0de8d424805b91ae64a90c25aa11b1525f",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/migration/ImportVerifier$Row.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\migration\\ImportVerifier$Row.class",
+        "bytes": 3297,
+        "sha256": "5308496a672a9387b80306053cda3f292fcc8f8dff695fd909389107ea7fe7f0"
+      },
+      "embeddedSha256": "5308496a672a9387b80306053cda3f292fcc8f8dff695fd909389107ea7fe7f0",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/persistence/AiPictureRepository.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\persistence\\AiPictureRepository.class",
+        "bytes": 7076,
+        "sha256": "77ceae872698a360f74c2d5680b790b921aea5fcc19e28e4d1380512deca0f0e"
+      },
+      "embeddedSha256": "77ceae872698a360f74c2d5680b790b921aea5fcc19e28e4d1380512deca0f0e",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/persistence/AiPictureTransactions.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\persistence\\AiPictureTransactions.class",
+        "bytes": 3743,
+        "sha256": "2f3fd96d8ea7b041b41e2287a5cd9f3627efdb00f68dfe3dd3116c0670d8db06"
+      },
+      "embeddedSha256": "2f3fd96d8ea7b041b41e2287a5cd9f3627efdb00f68dfe3dd3116c0670d8db06",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/persistence/AiPictureTransactions$1.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\persistence\\AiPictureTransactions$1.class",
+        "bytes": 1060,
+        "sha256": "1c98b65afcd1d7b2ba8f8e40d8a9fe708c417d508099ecef543696f5738ee0ab"
+      },
+      "embeddedSha256": "1c98b65afcd1d7b2ba8f8e40d8a9fe708c417d508099ecef543696f5738ee0ab",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/service/AssetService.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\AssetService.class",
+        "bytes": 10226,
+        "sha256": "5ebd3271512c28987efef6363cd9a09a0505315a9934f61d0dd95ae827b3f09f"
+      },
+      "embeddedSha256": "5ebd3271512c28987efef6363cd9a09a0505315a9934f61d0dd95ae827b3f09f",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/service/BatchExportEvaluationService.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\BatchExportEvaluationService.class",
+        "bytes": 20417,
+        "sha256": "bf868ff2b1e5f8a10544d2298e564c99af4c3f7bfb088b93d5beb6cd5ba2c06e"
+      },
+      "embeddedSha256": "bf868ff2b1e5f8a10544d2298e564c99af4c3f7bfb088b93d5beb6cd5ba2c06e",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/service/CommandIdempotency.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\CommandIdempotency.class",
+        "bytes": 5009,
+        "sha256": "c1d38bb2054dff3e4ee856dc9006b387d6933691c0b9eb3272f6bd0cf55aac96"
+      },
+      "embeddedSha256": "c1d38bb2054dff3e4ee856dc9006b387d6933691c0b9eb3272f6bd0cf55aac96",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/service/EvaluationAssessment.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\EvaluationAssessment.class",
+        "bytes": 15946,
+        "sha256": "4dcb0b37d79afce6d94f19882754cc83ee80daf9a1865a185ee8602bd3c4b141"
+      },
+      "embeddedSha256": "4dcb0b37d79afce6d94f19882754cc83ee80daf9a1865a185ee8602bd3c4b141",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/service/PlanService.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\PlanService.class",
+        "bytes": 21497,
+        "sha256": "c428ac73d3fe9b57796c0c450aea81d3533f0ecbe18ac9d7010fe16a200bc014"
+      },
+      "embeddedSha256": "c428ac73d3fe9b57796c0c450aea81d3533f0ecbe18ac9d7010fe16a200bc014",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/service/RunService.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\RunService.class",
+        "bytes": 53528,
+        "sha256": "5350da47f02029031e804a79999fde36b0846c20a04039a4514778643d891f96"
+      },
+      "embeddedSha256": "5350da47f02029031e804a79999fde36b0846c20a04039a4514778643d891f96",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/service/RunService$1.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\RunService$1.class",
+        "bytes": 989,
+        "sha256": "b587e6b66cb80f91a735ba0de18f41dd45afe4468862244301072b488b585bc0"
+      },
+      "embeddedSha256": "b587e6b66cb80f91a735ba0de18f41dd45afe4468862244301072b488b585bc0",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/service/SessionService.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\service\\SessionService.class",
+        "bytes": 22638,
+        "sha256": "e0c308fbf9fec2cfa4ece3d280837920cc9a91dfc1165374e95beb956d84e1b7"
+      },
+      "embeddedSha256": "e0c308fbf9fec2cfa4ece3d280837920cc9a91dfc1165374e95beb956d84e1b7",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/storage/AiPictureStorage.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\storage\\AiPictureStorage.class",
+        "bytes": 10337,
+        "sha256": "4d5794c831adfded05d6e401636a77f4c659fe79ad04ad411359c0aef11a9702"
+      },
+      "embeddedSha256": "4d5794c831adfded05d6e401636a77f4c659fe79ad04ad411359c0aef11a9702",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/tool/DocumentCommandService.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\tool\\DocumentCommandService.class",
+        "bytes": 10374,
+        "sha256": "b2fa48d073ea2915cfc3902d4f78430ee9c3c1a99bb417af2045356af82c39e0"
+      },
+      "embeddedSha256": "b2fa48d073ea2915cfc3902d4f78430ee9c3c1a99bb417af2045356af82c39e0",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/tool/PlanValidator.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\tool\\PlanValidator.class",
+        "bytes": 4397,
+        "sha256": "a2461cebacb96ef0458f151ebc7d0749a27a3a43f5cc93aff5419be5df2f47ff"
+      },
+      "embeddedSha256": "a2461cebacb96ef0458f151ebc7d0749a27a3a43f5cc93aff5419be5df2f47ff",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/tool/SchemaValidator.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\tool\\SchemaValidator.class",
+        "bytes": 8578,
+        "sha256": "44245bec1a4da03f1ecc441c73e59e3e5ebd80e97230bd417cd2ad37673abd3e"
+      },
+      "embeddedSha256": "44245bec1a4da03f1ecc441c73e59e3e5ebd80e97230bd417cd2ad37673abd3e",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/tool/SelectionInputValidator.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\tool\\SelectionInputValidator.class",
+        "bytes": 3857,
+        "sha256": "16c9f5b1b936581425bf2a0be1c404c485fbe854017b8bc09980822d240feaea"
+      },
+      "embeddedSha256": "16c9f5b1b936581425bf2a0be1c404c485fbe854017b8bc09980822d240feaea",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/tool/ToolPermissionGuard.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\tool\\ToolPermissionGuard.class",
+        "bytes": 1577,
+        "sha256": "04d4f29516eed54f2d87252a0be313a53ef4b31fac85128954095dc2eb46f916"
+      },
+      "embeddedSha256": "04d4f29516eed54f2d87252a0be313a53ef4b31fac85128954095dc2eb46f916",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/tool/ToolRegistry.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\tool\\ToolRegistry.class",
+        "bytes": 7777,
+        "sha256": "ccdaeb73c7f174b627609a1cdb365fe5ebe1adb8fb26b122fa7e5cec613bf3d9"
+      },
+      "embeddedSha256": "ccdaeb73c7f174b627609a1cdb365fe5ebe1adb8fb26b122fa7e5cec613bf3d9",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/worker/AiPictureWorkerAuthFilter.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\worker\\AiPictureWorkerAuthFilter.class",
+        "bytes": 5665,
+        "sha256": "93f26fb2efad8ce587576b0e5598829d188c01714df90d446a2a92eec86fcbc5"
+      },
+      "embeddedSha256": "93f26fb2efad8ce587576b0e5598829d188c01714df90d446a2a92eec86fcbc5",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/worker/AiPictureWorkerAuthFilter$BodyRequest.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\worker\\AiPictureWorkerAuthFilter$BodyRequest.class",
+        "bytes": 1568,
+        "sha256": "2bed01435bd1acf5722fdfefa117202d7efea5ff2cbd1785e357bef7b956bf6d"
+      },
+      "embeddedSha256": "2bed01435bd1acf5722fdfefa117202d7efea5ff2cbd1785e357bef7b956bf6d",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/worker/AiPictureWorkerAuthFilter$BodyRequest$1.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\worker\\AiPictureWorkerAuthFilter$BodyRequest$1.class",
+        "bytes": 1672,
+        "sha256": "8c92e3499650ab116095f615f7529e718df14e029b998e756e8c8018ddd3d77b"
+      },
+      "embeddedSha256": "8c92e3499650ab116095f615f7529e718df14e029b998e756e8c8018ddd3d77b",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/worker/AiPictureWorkerClient.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\worker\\AiPictureWorkerClient.class",
+        "bytes": 6646,
+        "sha256": "9a149d7d906b62ac888beee952ff18a7db248d44e77ec03f5a2257db98ceea52"
+      },
+      "embeddedSha256": "9a149d7d906b62ac888beee952ff18a7db248d44e77ec03f5a2257db98ceea52",
+      "embeddedEqualsDisk": true
+    },
+    {
+      "entry": "com/ruoyi/aipicture/worker/WorkerSignatures.class",
+      "disk": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\target\\classes\\com\\ruoyi\\aipicture\\worker\\WorkerSignatures.class",
+        "bytes": 2492,
+        "sha256": "86b2ebf091e7415107b599bb2675d811a2a27c998b680e76305137ba2ad3c4b5"
+      },
+      "embeddedSha256": "86b2ebf091e7415107b599bb2675d811a2a27c998b680e76305137ba2ad3c4b5",
+      "embeddedEqualsDisk": true
+    }
+  ],
+  "contracts": [
+    {
+      "source": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\contracts\\aipicture\\v1\\aipicture.openapi.yaml",
+        "bytes": 155162,
+        "sha256": "e41cb2e09d00b797e266aa1eb137dca0c881c679793d3d2f2c6950a4c2ca379b"
+      },
+      "entry": "contracts/aipicture/v1/aipicture.openapi.yaml",
+      "embeddedSha256": "e41cb2e09d00b797e266aa1eb137dca0c881c679793d3d2f2c6950a4c2ca379b",
+      "embeddedEqualsSource": true
+    },
+    {
+      "source": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\contracts\\aipicture\\v1\\document.schema.json",
+        "bytes": 3574,
+        "sha256": "e674af80a4871427343c256ba7a4334be48df5a36b2dd37ac9859f76cbf00642"
+      },
+      "entry": "contracts/aipicture/v1/document.schema.json",
+      "embeddedSha256": "e674af80a4871427343c256ba7a4334be48df5a36b2dd37ac9859f76cbf00642",
+      "embeddedEqualsSource": true
+    },
+    {
+      "source": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\contracts\\aipicture\\v1\\run-event.schema.json",
+        "bytes": 1659,
+        "sha256": "0788777b51af3846f7393852cb8876c42e0c04406361728309da451aaba6ec00"
+      },
+      "entry": "contracts/aipicture/v1/run-event.schema.json",
+      "embeddedSha256": "0788777b51af3846f7393852cb8876c42e0c04406361728309da451aaba6ec00",
+      "embeddedEqualsSource": true
+    },
+    {
+      "source": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\contracts\\aipicture\\v1\\tools.schema.json",
+        "bytes": 39162,
+        "sha256": "553745b0f7053684454a41ac5c23cf3c75cddbc4301b4cf10e18f631c89941ed"
+      },
+      "entry": "contracts/aipicture/v1/tools.schema.json",
+      "embeddedSha256": "553745b0f7053684454a41ac5c23cf3c75cddbc4301b4cf10e18f631c89941ed",
+      "embeddedEqualsSource": true
+    },
+    {
+      "source": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\contracts\\aipicture\\v1\\worker.openapi.yaml",
+        "bytes": 15353,
+        "sha256": "1524d63b8319add1c1dfa5e46107aba1a5491a8e26e50caa6a61e8df63c58f7c"
+      },
+      "entry": "contracts/aipicture/v1/worker.openapi.yaml",
+      "embeddedSha256": "1524d63b8319add1c1dfa5e46107aba1a5491a8e26e50caa6a61e8df63c58f7c",
+      "embeddedEqualsSource": true
+    }
+  ],
+  "artifactChecks": {
+    "javaSources": 32,
+    "embeddedClasses": 43,
+    "embeddedContracts": 5,
+    "allPrimaryClassesPresent": true,
+    "allClassesEqualCurrentTarget": true,
+    "allContractsEqualUniqueSources": true,
+    "modulePackageNativeExitCode": 0,
+    "modulePackageCommand": "mvn -o -pl ruoyi-aipicture -am -DskipTests -Dstyle.color=never package",
+    "adminFatJarRebuilt": false,
+    "newDependenciesOrAssemblyChanges": false
+  },
+  "tests": {
+    "effectiveDistinctTests": 20,
+    "effectiveFailures": 0,
+    "effectiveErrors": 0,
+    "effectiveSkipped": 0,
+    "inventory": {
+      "PlanCancellationTest": 15,
+      "PlanSelectionContinuationTest": 5
+    },
+    "newDistinctScenarios": 7,
+    "existingRelatedScenariosActuallyReexecuted": 13,
+    "firstAfterExecution": {
+      "tests": 20,
+      "passed": 15,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0,
+      "failureCause": "仅新增快照helper Json.copy后的Java嵌套容器equals误报，终态409守卫断言已经通过，原XML/log/test源保留"
+    },
+    "latestExecution": {
+      "tests": 5,
+      "passed": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reason": "仅重验helper影响5场景；完整JSON内容前后相同，未降低字段预期"
+    },
+    "retainedUnchangedAfterPasses": 15,
+    "counting": "20去重=最终5+首轮未受影响15；不把20+5=25声称25新场景，也不叠加修前/历史基线",
+    "effectiveCases": [
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#ordinaryPlannerFailureStillPersistsFailureAndReturnsTheError",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#ordinaryMultiStepRequiresHashConfirmationAndConfirmationReplayIsIdempotent",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#planBatchResumeRejectsUnknownPaidItemsBeforeAnyRetry",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanSelectionContinuationTest-first-after.xml",
+        "reason": "同轮受影响计划选区5项通过，后续仅修改新增终态快照helper，未受影响"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#planBatchResumeOnlyRetriesExistingFailedItemsAndKeepsSuccessfulItems",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanSelectionContinuationTest-first-after.xml",
+        "reason": "同轮受影响计划选区5项通过，后续仅修改新增终态快照helper，未受影响"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[3]",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-snapshot-corrected-PlanCancellationTest.xml",
+        "reason": "最终5受影响新场景复验，替换首轮同名失败"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#latePlannerFailureCannotOverwriteCancelledPlanning",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[4]",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-snapshot-corrected-PlanCancellationTest.xml",
+        "reason": "最终5受影响新场景复验，替换首轮同名失败"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#lateMultiStepCannotReplaceCancelledPlanningWithConfirmation",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#cancellationCannotReadAnotherOwnersTurn",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#rejectedCancellationOfAFailedPlanKeepsExplicitRetryAvailable",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-snapshot-corrected-PlanCancellationTest.xml",
+        "reason": "最终5受影响新场景复验，替换首轮同名失败"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#completionBeforeCancellationAcquiresTurnLockKeepsItsTerminalResult",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#ordinarySingleStepStillExecutesAndDuplicateSendDoesNotReplan",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#sameCancellationKeyReplaysTheAcceptedResultWithoutCancellingAgain",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[1]",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-snapshot-corrected-PlanCancellationTest.xml",
+        "reason": "最终5受影响新场景复验，替换首轮同名失败"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#secondLayerOperationKeepsPinnedMaskAcrossOrdinaryRevisionChanges",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanSelectionContinuationTest-first-after.xml",
+        "reason": "同轮受影响计划选区5项通过，后续仅修改新增终态快照helper，未受影响"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#cropChangingCanvasRejectsTheOldPinnedMaskBeforeSubmittingAnotherTool",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanSelectionContinuationTest-first-after.xml",
+        "reason": "同轮受影响计划选区5项通过，后续仅修改新增终态快照helper，未受影响"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#lateSingleStepCannotResumeCancelledPlanning",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#revokedToolPermissionStillRejectsPlanBeforeCreatingSteps",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "reason": "首轮修后；其5个新快照比较失败由最终5复验替换"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanSelectionContinuationTest#planRetryCannotBypassRevokedGenerationPermission",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanSelectionContinuationTest-first-after.xml",
+        "reason": "同轮受影响计划选区5项通过，后续仅修改新增终态快照helper，未受影响"
+      },
+      {
+        "id": "com.ruoyi.aipicture.PlanCancellationTest#terminalPlanCannotBeOverwrittenByANewCancel(String)[2]",
+        "passed": true,
+        "evidence": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-snapshot-corrected-PlanCancellationTest.xml",
+        "reason": "最终5受影响新场景复验，替换首轮同名失败"
+      }
+    ],
+    "xml": [
+      {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+        "bytes": 62757,
+        "sha256": "25d0f1c8dba700a3b063ca170e87f73e66fdde11696b34660eec7f011c4fc77e"
+      },
+      {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanSelectionContinuationTest-first-after.xml",
+        "bytes": 38036,
+        "sha256": "661aef4e835cf6edd9b662fadff9b46b6911c9f8add4dbf4815adad623cf88d7"
+      },
+      {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-snapshot-corrected-PlanCancellationTest.xml",
+        "bytes": 38857,
+        "sha256": "f6fb952f5f74e6364c12d1b8a7380698060da772e0a9efb4c0d5858dac9b9a68"
+      }
+    ],
+    "beforeEvidence": {
+      "firstExecutionTests": 7,
+      "firstProductAssertionFailures": 5,
+      "firstFixtureAssertionFailures": 1,
+      "firstPassed": 1,
+      "correctedRaceExecutionTests": 1,
+      "correctedRaceProductFailures": 1,
+      "correctedRaceErrors": 0,
+      "effectiveBeforeDistinctScenarios": 7,
+      "effectiveBeforeProductFailures": 6,
+      "effectiveBeforePassed": 1,
+      "scope": "源版本仍5682a1…；先复现再修，首次fixture并非产品证据"
+    }
+  },
+  "originalStageFiles": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\before-source-and-expectations.json",
+      "bytes": 915,
+      "sha256": "0b1894897a32ed4137cef9199b209e0c344b49d72de037236b82457e5a68fee4"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-before-race-corrected.xml",
+      "bytes": 39034,
+      "sha256": "087a9050e2b86d8a1b1ac8b90d14ecb5188573008617ab1dd683a2956c342f88"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-before.xml",
+      "bytes": 47036,
+      "sha256": "c22ed6dfac20d6aef2d52f85a1f456b5e4c3e2917a719ef4dc72b719cf3a9be3"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.java",
+      "bytes": 15434,
+      "sha256": "c6cd941c663aeab1e51ba72eaa6ced8dfbe4b119e86ea2c95894bbb437f650af"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-first-after.xml",
+      "bytes": 62757,
+      "sha256": "25d0f1c8dba700a3b063ca170e87f73e66fdde11696b34660eec7f011c4fc77e"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-reproduction-corrected.java",
+      "bytes": 15434,
+      "sha256": "c6cd941c663aeab1e51ba72eaa6ced8dfbe4b119e86ea2c95894bbb437f650af"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest-reproduction-v1.java",
+      "bytes": 15402,
+      "sha256": "9e153a5b244db5e79d16c4710d6c86e340cfeb882a585f381d9bcedd633acba8"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanCancellationTest.java",
+      "bytes": 11576,
+      "sha256": "4b395f74ef414fc86ecd0cff078e0f67410b5fcf65f6eb79e5857311f163db8b"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanSelectionContinuationTest-first-after.xml",
+      "bytes": 38036,
+      "sha256": "661aef4e835cf6edd9b662fadff9b46b6911c9f8add4dbf4815adad623cf88d7"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-r12-plan-terminal-cancel-20261003\\PlanService.java",
+      "bytes": 12646,
+      "sha256": "5682a1b12c16d9fa051bf1c1953b57c7e3a114ce7e1875dd2f27efa0111cdb07"
+    }
+  ],
+  "evidenceFiles": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-batch-export-cancel-readonly-audit-20261003.json",
+      "bytes": 8348,
+      "sha256": "b038ead8f6529654bd07bf45aa466306f61ecbbaf6aaf6352a906d3338208eb3"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-before.log",
+      "bytes": 15336,
+      "sha256": "558e133ce23da1e5630195bab10b7930657c4324d5693bfcfb61e048ad409de2"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-before-exit.json",
+      "bytes": 341,
+      "sha256": "0ac1fcfd6f976682ba5e5cf0b10e4ea7698dc2dfef03d4d46c50b5ce992a4b54"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-before-race-corrected.log",
+      "bytes": 7566,
+      "sha256": "284cf963edd0ccd374995ba8386348b2c58481d4a2c04aa24f1e56855a30b792"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-before-race-corrected-exit.json",
+      "bytes": 332,
+      "sha256": "6f7bd6bc7c124b685255a16d00cf8d856d3db425506c4c556ce121e79ba1c8c8"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after.log",
+      "bytes": 30414,
+      "sha256": "1bc68f4dd82187319e7acfec07d09df8d156ec6467ce01e4f21d6cbbda2733eb"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-exit.json",
+      "bytes": 369,
+      "sha256": "d5e39c87aaa157e9485f5d02f97b0ee3cc581edfa66bae3f4ee02326f17e0dcc"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-snapshot-corrected.log",
+      "bytes": 5652,
+      "sha256": "465d3d0a09700c543273a952626a2c45e16376454b005812e8f43b3604edfcc7"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-after-snapshot-corrected-exit.json",
+      "bytes": 351,
+      "sha256": "ffe8be26fb065d9c7b0897e4ff90ec6e5d4db4c6a9f3e235b9b45adcfa99f7f3"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-module-package.log",
+      "bytes": 3895,
+      "sha256": "b6b1094826f43be7d420513093423e8bb85c337d3c2772e0892edaad3fa4fe2f"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r12-plan-terminal-cancel-module-package-exit.json",
+      "bytes": 440,
+      "sha256": "d2f9465d37013554b7a7987ad927a5bf7d0fdb327e29339fd50499db9ee0fd65"
+    }
+  ],
+  "runtime": {
+    "runtimeSynchronized": false,
+    "runtimeBaselineAdmin": "aad5c14cd7b4f78177606b57a499d5211092592b2fba453d266690ec0aaff9f8由根当前冻结运行；本任务未操作",
+    "unrelatedAdminTarget": "未读取/使用无关a080阶段fatjar，不冒领或覆盖",
+    "rootOwnsNextCandidateAssembly": true
+  },
+  "operationBounds": {
+    "mysqlTests": 0,
+    "databaseOperations": 0,
+    "httpRequests": 0,
+    "modelOrProviderCalls": 0,
+    "serviceStopStart": 0,
+    "gitWrites": 0,
+    "sourceFrozen": true,
+    "moduleBuildOnly": true
+  },
+  "businessResult": "仅20项受控技术证明；不新增22业务项通过/用户接受。真实MySQL此轮未执行。"
+}

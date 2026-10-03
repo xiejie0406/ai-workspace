@@ -1,0 +1,237 @@
+{
+  "reviewedAtUtc": "2026-10-03T10:42:20.562618+00:00",
+  "scope": "独立只读审查Python点选优先的唯一engine差异与4新+12相关实际XML/fixture；不执行任何检查测试、模型或服务",
+  "findings": [],
+  "conclusion": "未发现新的具体正确性或兼容缺陷；源router的if points/elif strokes恢复，全部参数校验仍在分支选择前，新增测试能辨别实际mask扩大。",
+  "sourceEvidence": {
+    "originalRouter": {
+      "file": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\参考项目\\ai-picture-editor-main\\backend\\app\\routers\\sessions.py",
+        "bytes": 11166,
+        "sha256": "2743994bc7328f04712f429b175f89e46a6c253f29d5bf042b50331f4397fc55"
+      },
+      "lines": "135–150",
+      "fact": "非空points走select_points，elif strokes只有无points才涂抹。"
+    },
+    "beforeEngine": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-selection-priority-20261003\\engine.py",
+      "bytes": 36817,
+      "sha256": "7df0afdaedc60e7512869930d7bde1ee5de1c660c17c120a81613651192d7baf"
+    },
+    "currentEngine": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\aipicture_runtime\\engine.py",
+      "bytes": 36934,
+      "sha256": "6a7e356893c28b3ab1ab8b40012f70834ebacf42a31e01a84d0c699d0f33f739"
+    },
+    "sourceDelta": [
+      "--- protected-before/engine.py",
+      "+++ current/engine.py",
+      "@@ -452,7 +452,8 @@",
+      "                 session = segment._sam",
+      "                 if not get_settings().offline_test and session is not None and getattr(session, \"encoder\", None) is not None and getattr(session, \"decoder\", None) is not None:",
+      "                     self.sam_provenance = {\"provider\": \"onnxruntime\", \"model\": \"sam\", \"loaded\": True, \"inference\": \"points\"}",
+      "-            if traces:",
+      "+            # 原接口采用 if points / elif strokes；混合字段已校验，但不能扩大点选作用区。",
+      "+            elif traces:",
+      "                 luma = rasterize_strokes(size, traces, radius=radius, base=luma)",
+      "             identifier = self.store(overlay_png(luma), \"mask\")",
+      "             return {\"mask_asset_id\": str(identifier), \"asset_ids\": [str(identifier)], \"revision\": self.revision,"
+    ],
+    "inputValidation": {
+      "lines": "424–442",
+      "fact": "radius/点数/笔画总量/全部coords和traces归一化坐标在SAM与点选/笔刷分支前验证，非法忽略笔画仍拒绝。"
+    },
+    "actualSelection": {
+      "lines": "443–460",
+      "fact": "coords分支只采用SAM遮罩；elif traces保留纯笔刷当前mask累加；append只合并正式previous markers；revision与provenance原逻辑未变。"
+    },
+    "javaConsumption": {
+      "file": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-aipicture\\src\\main\\java\\com\\ruoyi\\aipicture\\service\\RunService.java",
+        "bytes": 43099,
+        "sha256": "edecaca5d2849cada3a97348a237fcc5536acf7e5c6c7e2e6d4c27fa56975bb1"
+      },
+      "fact": "commitSelection仅保存result.markers/strokes，缺strokes为空；不把忽略request.strokes记为正式选区，run.params仅请求诊断；后续只注入正式selection_markers。"
+    }
+  },
+  "testEvidence": {
+    "newTestSource": {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_selection_priority.py",
+      "bytes": 2257,
+      "sha256": "d9444f397279f190aedb8947913e824554173552a143e2bc50851fabcd51c39e"
+    },
+    "retainedRelatedTestSources": [
+      {
+        "before": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-selection-priority-20261003\\test_selection_radius.py",
+          "bytes": 3124,
+          "sha256": "02c0b8e1f1b21320d862f6fdd39ebf287911ff33f99c001aedc5cc1cd141ca76"
+        },
+        "current": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_selection_radius.py",
+          "bytes": 3124,
+          "sha256": "02c0b8e1f1b21320d862f6fdd39ebf287911ff33f99c001aedc5cc1cd141ca76"
+        },
+        "unchangedBytes": true
+      },
+      {
+        "before": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-selection-priority-20261003\\test_selection_sequence.py",
+          "bytes": 4494,
+          "sha256": "a98d033080e4e7100a6ed6be9ae4a62c3428e40bd4ea0ab46603c40d505ffee6"
+        },
+        "current": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_selection_sequence.py",
+          "bytes": 4494,
+          "sha256": "a98d033080e4e7100a6ed6be9ae4a62c3428e40bd4ea0ab46603c40d505ffee6"
+        },
+        "unchangedBytes": true
+      },
+      {
+        "before": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-selection-priority-20261003\\test_worker.py",
+          "bytes": 19757,
+          "sha256": "2011a51ce806d9614942bcb53e6c6bf2548dc792b4fbee46b60493b98ef7929b"
+        },
+        "current": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_worker.py",
+          "bytes": 19757,
+          "sha256": "2011a51ce806d9614942bcb53e6c6bf2548dc792b4fbee46b60493b98ef7929b"
+        },
+        "unchangedBytes": true
+      },
+      {
+        "before": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\before-selection-priority-20261003\\test_source_edits.py",
+          "bytes": 14157,
+          "sha256": "3f98a046119f4f659e087811354f1b79e3dd4cc48925a6a70c86e26c0e1e4ead"
+        },
+        "current": {
+          "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_source_edits.py",
+          "bytes": 14157,
+          "sha256": "3f98a046119f4f659e087811354f1b79e3dd4cc48925a6a70c86e26c0e1e4ead"
+        },
+        "unchangedBytes": true
+      }
+    ],
+    "meaningfulIndependentExpectations": [
+      "固定SAM返回64×80遮罩半开矩形[9,11,16,20]；远处笔刷(50,64)alpha必须0，整幅alpha须等于固定SAM产物；旧源真实得到255并保留2失败。",
+      "append=False/True分别断言SAM调用坐标为本次点或已有marker+本次点，并核markers顺序与revision0。",
+      "非法stroke归一化越界/错shape在模型替身调用前拒绝，calls为空；未因为该笔画实际忽略而绕过校验。",
+      "12个相关原用例源码字节未改：点追加/替换、连续笔刷与replay、默认/显式radius/范围/签名ASGI、过期/尺寸mask拒绝、闭环与两点笔画。"
+    ],
+    "before": {
+      "tests": 4,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "case_ids": [
+        "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[False]",
+        "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[True]",
+        "tests.test_selection_priority::test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke0]",
+        "tests.test_selection_priority::test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke1]"
+      ],
+      "composition": {
+        "tests.test_selection_priority": 4
+      },
+      "failed_cases": [
+        {
+          "id": "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[False]",
+          "message": "AssertionError: 原points分支忽略strokes，远处笔刷不能扩大mask\nassert 255 == 0\n +  where 255 = getpixel((50, 64))\n +    where getpixel = <PIL.Image.Image image mode=L size=64x80 at 0x1FD853CB930>.getpixel"
+        },
+        {
+          "id": "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[True]",
+          "message": "AssertionError: 原points分支忽略strokes，远处笔刷不能扩大mask\nassert 255 == 0\n +  where 255 = getpixel((50, 64))\n +    where getpixel = <PIL.Image.Image image mode=L size=64x80 at 0x1FD85455090>.getpixel"
+        }
+      ],
+      "file": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\selection-priority-before.xml",
+        "bytes": 4611,
+        "sha256": "0685b1ab641b4e752b615dd5be3d16d374b057989b9f7b36f9760712ec4a3ac8"
+      }
+    },
+    "after": {
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "case_ids": [
+        "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[False]",
+        "tests.test_selection_priority::test_mixed_selection_keeps_original_points_priority[True]",
+        "tests.test_selection_priority::test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke0]",
+        "tests.test_selection_priority::test_ignored_strokes_still_validate_all_input_before_segmentation[invalid_stroke1]",
+        "tests.test_selection_sequence::test_joint_points_then_two_strokes_and_replay",
+        "tests.test_selection_sequence::test_point_replace_ignores_old_markers_and_mask",
+        "tests.test_selection_radius::test_original_default_and_explicit_brush_pixels[None-bounds0-255-255]",
+        "tests.test_selection_radius::test_original_default_and_explicit_brush_pixels[0.03-bounds1-255-255]",
+        "tests.test_selection_radius::test_original_default_and_explicit_brush_pixels[0.025-bounds2-0-0]",
+        "tests.test_selection_radius::test_selection_adapter_default_matches_original_public_dto",
+        "tests.test_selection_radius::test_existing_brush_radius_resource_range_is_unchanged[0.0049]",
+        "tests.test_selection_radius::test_existing_brush_radius_resource_range_is_unchanged[0.1201]",
+        "tests.test_selection_radius::test_signed_private_brush_request_omitting_radius_preserves_original_pixels",
+        "tests.test_worker::test_expired_or_resized_selection_rejected",
+        "tests.test_source_edits::test_brush_loop_selects_the_enclosed_area",
+        "tests.test_source_edits::test_two_point_stroke_only_covers_the_band"
+      ],
+      "composition": {
+        "tests.test_selection_priority": 4,
+        "tests.test_selection_sequence": 2,
+        "tests.test_selection_radius": 7,
+        "tests.test_worker": 1,
+        "tests.test_source_edits": 2
+      },
+      "failed_cases": [],
+      "file": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\selection-priority-after.xml",
+        "bytes": 2371,
+        "sha256": "622398c24cf6ba260b4385d36dd4e5e9afd241a28e4a3bbf6c98440d8c590532"
+      }
+    },
+    "countRule": "本轮作者实际16=新4+相关原12；修前4及历史59均不叠加。独立审查新执行测试0。",
+    "fixtureIsolation": {
+      "conftest": {
+        "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\conftest.py",
+        "bytes": 777,
+        "sha256": "b602fc02335636bb6dd6ba89d84da2e4316f925909d9f8f94b5bda0c8d480b4c"
+      },
+      "fact": "autouse固定offline/mock/测试secret，每例前后清get_settings/get_image_provider缓存；新SAM仅monkeypatch固定遮罩，不运行真实权重。"
+    }
+  },
+  "release": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\selection-priority-release.json",
+    "bytes": 10981,
+    "sha256": "ab9293b9820f951ed86c7f72279639f68ca4de285ca0bcb63f6b3f9371e830e0"
+  },
+  "aggregateArtifacts": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\selection-progress-final-artifacts.json",
+    "bytes": 179043,
+    "sha256": "6438902259c142d6ee4828aa2a16cabe324485adb2a8b2c296797308e16b3212"
+  },
+  "artifactFacts": {
+    "sourceCount": 38,
+    "wheelSdistSourcesMatched": 38,
+    "changedVsR14": [
+      "aipicture_runtime/engine.py"
+    ],
+    "wheelSha256": "a95fe4237804846d5f0f2b7187cd3fa74cc3467de31e1bbfe2c90b1132725135",
+    "sdistSha256": "b94f7f34304e0d6f8dd77a29d532680e1f918036851ccfc8daf3b4d01d53455c",
+    "runtimeSynchronized": false,
+    "runtimeJavaJarSha256": "5d2209f112ee63573f890c28d2a923c2c81502d9ae51de1717041c1ed97fccb7"
+  },
+  "operations": {
+    "newTests": 0,
+    "builds": 0,
+    "http": 0,
+    "database": 0,
+    "provider": 0,
+    "realModel": 0,
+    "serviceProcess": 0,
+    "productSourceWrites": 0,
+    "git": 0
+  },
+  "limitations": [
+    "只读复核既有作者技术证据，不替代独立真实SAM质量/界面验收。",
+    "Java受控仓储与Python固定SAM结果不计22业务项通过。",
+    "本次候选装配仍未运行同步；不得从包一致称联机完成。"
+  ]
+}

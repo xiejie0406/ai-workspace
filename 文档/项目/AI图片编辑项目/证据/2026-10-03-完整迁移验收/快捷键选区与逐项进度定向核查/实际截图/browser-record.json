@@ -1,0 +1,247 @@
+{
+  "recorded_at": "2026-10-03T11:18:05.670198+00:00",
+  "scope": "保存主执行者已完成的真实IAB技术场景；不执行浏览器、正式API或测试。",
+  "actual_browser": {
+    "browser": "Codex内置浏览器",
+    "browser_id": "2",
+    "tab_id": "7",
+    "final_url": "http://127.0.0.1:8416/view-selection-caption-final.html?scenario=selection-preview-failure"
+  },
+  "cases": [
+    {
+      "name": "真实画布快捷键与输入隔离",
+      "stage": "749未受影响沿用",
+      "before": "BODY焦点时1/0未生效；原100%按0仍100%",
+      "after": "点击实际画布focus=图片编辑画布；1=100%、0=143%、加号=125%；输入框1只输入字符并保持125%",
+      "limitation": "另一实例及contenteditable隔离来自组件检查，本次没有双实例真实IAB验收"
+    },
+    {
+      "name": "点选失败立即清理",
+      "stage": "749未受影响沿用",
+      "before": "503保留1标记",
+      "after": "失败提示和清标记，不等GET完成；正式选区空"
+    },
+    {
+      "name": "笔刷失败和退出清理",
+      "stage": "749未受影响沿用",
+      "before": "503残留线",
+      "after": "立即清线，Escape后仍清理"
+    },
+    {
+      "name": "撤销DELETE失败保留历史",
+      "stage": "749未受影响沿用",
+      "before": "正式标记1但undo=false/redo=true",
+      "after": "正式标记1且undo=true/redo=false，POST1/DELETE1/GET3",
+      "explicit_retry": "用户再撤销DELETE2，正式空、undo=false/redo=true；POST仍1"
+    },
+    {
+      "name": "部分清除后回放POST失败校准",
+      "stage": "749未受影响沿用",
+      "before": "正式空而UI旧遮罩/2标记/可清除仍留",
+      "after": "GET4正式空且UI清理，undo=true/redo=false/clear=false，POST3含两次原选择及一次失败回放",
+      "explicit_retry": "用户再撤销POST4/DELETE2/GET5，正式1标记/redo=true"
+    },
+    {
+      "name": "失败后GET等待的真实提示和恢复",
+      "stage": "011受影响新执行",
+      "before_caption": "749已清预览，但仍提示正在识别选区，实际POST已失败",
+      "after": "011显示正在处理选区，识别提示0/处理提示1；失败可见、预览无、busy=true；POST1/GET2",
+      "explicit_release": "用户仅释放技术GET，点选入口恢复、正常提示，POST仍1/GET2",
+      "caption_only_change": "749→011只有同字节长度的一处提示字符串，独立复核另存"
+    }
+  ],
+  "unique_cases": 6,
+  "current_caption_cases_newly_executed": 1,
+  "unchanged_mechanism_cases_carried_from_749": 5,
+  "before_bundle_sha256": "aff4180ee55d608678a99d3f9fd543a8718887d5a038eb35d2538552fcfb9473",
+  "functional_bundle_sha256": "74907cbd5e771cc7b6ac15766a35f74808f66aee648dec838dc92dfaf8b3d216",
+  "current_bundle_sha256": "01104508f0792232d1701a5edf299848d58f3f7b7bd71f60c189b6f640c74e5f",
+  "images": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\keyboard-before-body-focus-stays-143.jpg",
+      "bytes": 53477,
+      "sha256": "f5938c4158affbb76ace68bad8ec533fc50c58470e01ac0a5fd47cac56e1aca1",
+      "observation": "原库辅助截图，缩放数字未在图内展开，不单独作失败证明",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\keyboard-before-visible-fit-key-ignored-100.jpg",
+      "bytes": 48775,
+      "sha256": "ca27209a8a6eb9ffb54ea9b82f4d0a90fe957057f966cdc631edc8064629c114",
+      "observation": "原库画布点击后按0仍100%，可见失败",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\point-before-failure-retains-preview.jpg",
+      "bytes": 55829,
+      "sha256": "aaaa26bb7b701b71114e50bf980292e36232a051816f2e94fa7a584f6c98bf99",
+      "observation": "原库点选503后残留一个预览标记",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\brush-before-failure-retains-preview.jpg",
+      "bytes": 72199,
+      "sha256": "ee46c4b884dec380fb47117c6351094f0ce8e6c417d5de6647eb2aa7d04dcaed",
+      "observation": "原库笔刷503后残留预览线",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\undo-before-delete-failure-moves-history.jpg",
+      "bytes": 71114,
+      "sha256": "e5547f698c08f069ef6124da9f294c2b65e2f5b0507358ff910e7801450b9011",
+      "observation": "原库DELETE失败仍移动历史游标",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\undo-before-partial-delete-keeps-stale-mask.jpg",
+      "bytes": 71669,
+      "sha256": "3a5aeea51941bf84a0c140c8f0a3e33e5c7793f17b464c796542cb55c268a268",
+      "observation": "原库DELETE成功而回放POST失败，仍显示旧选区",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\keyboard-after-real-canvas-key-one-100.jpg",
+      "bytes": 49776,
+      "sha256": "fc9685b3c26ef94ec07571cc6bf85fd033dcae762a948f4d8d82e1e0595d3b89",
+      "observation": "749辅助截图，实际DOM缩放100，图内数字未展开，不单独作完整视觉证明",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\keyboard-after-visible-100-and-input-isolation.jpg",
+      "bytes": 47638,
+      "sha256": "5f3258cd0e07158c42a1460f8a387e0dcd40d396fe9fbbba92a6f9a762c8ff8b",
+      "observation": "749画布1键显示100，输入框输入1保持原缩放",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\keyboard-after-visible-fit-143.jpg",
+      "bytes": 52928,
+      "sha256": "25d5f386128503fa144ec44afa0e854d38f1dab9f46457dd7747783affec277b",
+      "observation": "749画布0键显示适合143%",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\point-after-failure-clears-preview.jpg",
+      "bytes": 55637,
+      "sha256": "1720464727f5e38ad1bda875be42ab499e1466258127edfe359f01a96dba97a6",
+      "observation": "749点选失败立即清预览及提示原失败",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\brush-after-failure-clears-preview.jpg",
+      "bytes": 71956,
+      "sha256": "f7ef51a58036c12eb8e703abea5f415c6518c33bf549994c48a47991d84596b1",
+      "observation": "749笔刷失败立即清预览",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\brush-after-escape-keeps-preview-cleared.jpg",
+      "bytes": 69812,
+      "sha256": "cb7adf1ff5bc0e05a7326c129c1a1c5aac2afaa17512460331e4825b4f257f74",
+      "observation": "749按Escape退出选区后仍无残留",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\undo-after-delete-failure-keeps-history.jpg",
+      "bytes": 71142,
+      "sha256": "d6e6c82f2e2133302b9a9b845cc5c894eb1ffde307830c00e73130ed4f931696",
+      "observation": "749DELETE失败回读正式选区且游标不前移",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\undo-after-explicit-retry-clears-formal-mask.jpg",
+      "bytes": 71261,
+      "sha256": "1752d12d7ceffcb89a61a7fb8aec1a0ca4a0d62d4d3aab4a6d93d81bfcfaeef3",
+      "observation": "749用户明确再撤销才成功清正式选区，无额外POST",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\undo-after-partial-delete-reads-empty-mask.jpg",
+      "bytes": 71701,
+      "sha256": "c3ab5f2ce851d3b7ff15e5881adb29b7b9ffdb6a422f2743358c6c643f2dbe54",
+      "observation": "749部分成功后回读空选区，不显示旧遮罩",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\undo-after-partial-delete-explicit-retry-one-marker.jpg",
+      "bytes": 71719,
+      "sha256": "2983f9147ab340eaabd7e6276c3fffe1db58579f445c68195e3dc1a7fa57fa10",
+      "observation": "749用户明确重试回放一个标记，重做可用",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\point-after-failure-pending-get-clears-preview-now.jpg",
+      "bytes": 54203,
+      "sha256": "fbeeaf6be035b919566bc037be3297ece5ff5dcc7269a425983d0e1e820d3b57",
+      "observation": "749等待GET时已清预览，处理提示仍错误写识别；保留该失败",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\point-after-pending-get-released-no-extra-post.jpg",
+      "bytes": 71607,
+      "sha256": "156b61eef4ccab98b952308707ab86d4e76c71085c65f46773c10bb0a4c48194",
+      "observation": "749释放GET后恢复，未多POST；仅机制基线",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\point-final-pending-get-processing-caption.jpg",
+      "bytes": 54196,
+      "sha256": "16a57a59717d54c22d4751933f1fa109bca19f02eb8b7417559e568b3b29a578",
+      "observation": "011当前等待GET提示正在处理选区，失败可见且无预览",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\view-selection-browser\\point-final-pending-get-restored-once.jpg",
+      "bytes": 71607,
+      "sha256": "156b61eef4ccab98b952308707ab86d4e76c71085c65f46773c10bb0a4c48194",
+      "observation": "011当前释放GET后可再次点选，POST仍1、GET2",
+      "saved_format": "JPEG",
+      "disk_readback_by_root": true
+    }
+  ],
+  "harnesses": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\browser-check\\view-selection.html",
+      "bytes": 25713,
+      "sha256": "fbccafc4736b693ac4484ee2a8dbf110e6a9b033ee8a099110b1bf092d20ced9"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\browser-check\\view-selection-after.html",
+      "bytes": 25765,
+      "sha256": "4ce9eb65ae1a07e707a49d55d97f42e24da415fab73144477faff36ad24412d0"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\browser-check\\view-selection-caption-final.html",
+      "bytes": 25765,
+      "sha256": "ac333f033dac536984c43c9a9c6ee51ce0f2d53772d0efbbe1e8a4468b76fef7"
+    }
+  ],
+  "actual_actions": "原生点击、按键、输入及可见技术开关；不以隐藏状态修改模拟用户动作",
+  "technical_responses": "内存正式状态fixture及本地静态图片，不连接正式业务API；预热prepare不计选区POST",
+  "technical_mask_is_not_quality_evidence": true,
+  "formal_business_http_requests": 0,
+  "database_writes": 0,
+  "model_or_provider_calls": 0,
+  "formal_acceptance_cases_passed": 0,
+  "invalid_or_auxiliary_screenshots_retained": true,
+  "html_report_render_or_filter_verified": false
+}

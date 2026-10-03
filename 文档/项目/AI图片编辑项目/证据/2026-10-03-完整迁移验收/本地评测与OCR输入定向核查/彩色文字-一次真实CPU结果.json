@@ -1,0 +1,142 @@
+{
+  "scope": "修复后一次预先固定彩色英文/中文的真实CPU OCR技术复验",
+  "completed_at": "2026-10-03T04:01:41.175344+00:00",
+  "seconds": 1.5738227999972878,
+  "inference_started_after_expect_saved": true,
+  "ocr_invocations": 1,
+  "input_sha256": "c087cbbcb0de5a058506ffd43e866ddf0d969a0d376e7debb6d8f44bb9b2fffd",
+  "model_parameters_unchanged": true,
+  "model_thresholds_unchanged": true,
+  "source_after_sha256": "ec4b9ef752ee1010c1e75fb1f1ec1886482e7b60d23b0cd39ee439e4ac1fc43b",
+  "execution_providers": {
+    "det": [
+      "CPUExecutionProvider"
+    ],
+    "rec": [
+      "CPUExecutionProvider"
+    ],
+    "cls": [
+      "CPUExecutionProvider"
+    ]
+  },
+  "input_tensor_shape": [
+    384,
+    1024,
+    3
+  ],
+  "raw_model_result": [
+    [
+      [
+        [
+          36.0,
+          59.0
+        ],
+        [
+          413.0,
+          60.0
+        ],
+        [
+          413.0,
+          109.0
+        ],
+        [
+          36.0,
+          108.0
+        ]
+      ],
+      "Product 2026",
+      0.980444610118866
+    ],
+    [
+      [
+        [
+          31.0,
+          235.0
+        ],
+        [
+          443.0,
+          237.0
+        ],
+        [
+          443.0,
+          308.0
+        ],
+        [
+          30.0,
+          306.0
+        ]
+      ],
+      "中文价格2026",
+      0.9998542964458466
+    ]
+  ],
+  "rows": [
+    {
+      "id": "red-english",
+      "expected_text": "Product 2026",
+      "independent_ink_bbox": [
+        36,
+        60,
+        413,
+        107
+      ],
+      "actual_textboxes": [
+        {
+          "text": "Product 2026",
+          "x": 36,
+          "y": 59,
+          "width": 377,
+          "height": 50
+        }
+      ],
+      "text_exact": true,
+      "boxes_within_canvas": true,
+      "technical_row_passed": true
+    },
+    {
+      "id": "blue-chinese",
+      "expected_text": "中文价格2026",
+      "independent_ink_bbox": [
+        37,
+        238,
+        437,
+        302
+      ],
+      "actual_textboxes": [
+        {
+          "text": "中文价格2026",
+          "x": 30,
+          "y": 235,
+          "width": 413,
+          "height": 73
+        }
+      ],
+      "text_exact": true,
+      "boxes_within_canvas": true,
+      "technical_row_passed": true
+    }
+  ],
+  "actual_result_count": 2,
+  "expected_result_count": 2,
+  "technical_passed": true,
+  "old_gray_failure": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\cv-ocr-followup\\diagnostic-result.json",
+    "sha256": "2957f432339d93040b330ade1a2dd92e3bfb406d3dc96d63e59db73ed2a3c34e",
+    "actual": "Al Picture 2026",
+    "expected": "AI Picture 2026",
+    "passed": false,
+    "retained": true
+  },
+  "network_calls": 0,
+  "provider_calls": 0,
+  "database_writes": 0,
+  "formal_asset_writes": 0,
+  "source_patched_while_running": false,
+  "quality_accepted": false,
+  "business_acceptance": false,
+  "limits": [
+    "仅一张合成固定色文字图；不能据此概括所有商品、旋转文字/语言/字体识别质量。",
+    "本地OCR与框技术检查，不是split完整任务；未调用抠图/SAM或付费背景修补。",
+    "首轮Arial灰度AI→Al模型失败保留，新彩色通过不能覆盖。"
+  ]
+}

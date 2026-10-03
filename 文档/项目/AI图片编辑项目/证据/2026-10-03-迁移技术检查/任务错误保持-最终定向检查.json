@@ -1,0 +1,67 @@
+{
+  "名称": "自动或手动重读期间保持正式任务最后读取错误",
+  "日期": "2026-10-03T08:20:33.703678+08:00",
+  "性质": "本地真实React/Query hook、Happy DOM与受控宿主传输的定向技术检查，不计正式账号登录或真实业务验收通过",
+  "范围": "仅useRun及必要检查/映射；不改变任务业务状态、原轮询间隔、鉴权拒绝规则、字体、几何、API或全局状态。",
+  "修复行为": "最后读取错误按当前runId保留。首次失败后自动和手动refetch进入pending时，错误/重新读取任务按钮维持同一DOM入口；该资源正式GET成功或明确null清除，runId切换立即隔离并清除旧错误；迟到旧请求不能更新新任务。notFound、SSE unavailable及不可自动循环状态沿同一错误；不把GET失败当job.failed。",
+  "修复前": {
+    "日志": "任务错误保持-修复前.log",
+    "exit_code": 1,
+    "总数": 2,
+    "通过": 1,
+    "失败": 1,
+    "说明": "首次失败后自动refetch pending清除错误和入口场景真实失败；当前版本的同一hook资源切换不串错误通过，保留为新增记忆状态的隔离基线。旧失败在editor首分支终止，Batch原UI失败另由根IAB截图记录，不冒称此前此技术测试也执行完Batch分支。"
+  },
+  "最终定向结果": {
+    "日志": "任务错误保持-定向检查.log",
+    "实际一次命令": "node tests/run.mjs --test-name-pattern='任务错误保持：|辅助任务读取：|计划动作回读：|批量动作回读：|规划恢复：|会话在途恢复：|权限独立：'",
+    "exit_code": 0,
+    "总数": 21,
+    "通过": 21,
+    "失败": 0,
+    "新增": 2,
+    "受影响既有复验": 19,
+    "说明": "本次同一个最终源码测试bundle一次21/21通过；不是累计首轮失败与补充复验计数。新增pending测试在Editor和Batch两个消费者执行，保持按钮DOM连接与对象身份、调用同一DOM按钮的click()且不重发POST，成功正式回读后清除；资源切换检查直接挂同一useRun，不借mount重建掩盖串错误。"
+  },
+  "类型检查": {
+    "日志": "任务错误保持-类型检查.log",
+    "命令": "npm run typecheck",
+    "exit_code": 0
+  },
+  "定向lint": {
+    "日志": "任务错误保持-定向lint.log",
+    "命令": "oxlint src/hooks/useRun.ts tests/entry.ts",
+    "exit_code": 0,
+    "错误": 0,
+    "警告": 1,
+    "警告内容": "react(set-state-in-effect): 保留外部Query最近读取错误会产生一次额外render。",
+    "说明": "该effect只在runId/正式查询error/success/null变化时同步本任务的最后读取错误；pending时返回同一previous对象，避免循环更新。没有隐藏警告或改全局lint规则。"
+  },
+  "冻结指纹": {
+    "复合SHA256": "745552AE8AD9C1FB1A16F94FDCECAB285A52CD5F09A4F3480BD3B719B796AE1C",
+    "文件SHA256": {
+      "src/lib/errors.ts": "3FF713390C308D869261BB5CAA5E27D9FAA250FCDEC495A3110379A7B47F7125",
+      "src/hooks/useRun.ts": "C054D6ABA4255147E65A88094ECA5EC64EC4901374E811278408BEE90E5821CC",
+      "src/hooks/useSessions.ts": "0930A854DC90EF97A72A2A3DD268BEC5DEFD7C7F2BFE321A47B7EA42727053DA",
+      "src/hooks/useAgent.ts": "FF6E54E4651519EE4D527AA7133561332E6A80F22BC961BACACF62908078B759",
+      "src/hooks/useBatch.ts": "DC8A9988310D8AB31A80527EADE48BA75B60049BAAF809835BB07B077CA86B90",
+      "src/pages/EditorPage.tsx": "CF9D45BBB6F729EBF4E2A36466A83BF8A01F677B9D3AAEE3EA98FF378A398E74",
+      "src/pages/MarketingPage.tsx": "55A61C6FBF02A67DA18C17E269D54CED26CA38274460118A95694F0D2D54D643",
+      "src/pages/BatchPage.tsx": "7C0ABB55E757405A20A9FD3BCF0E124F50A102B6D89DE4683775FC0C91869148",
+      "src/components/editor/AgentConversation.tsx": "66F96F927A9DE24932E3AE12DADF17E3A35F9645C1C23D0E92FB6E8230A3067B",
+      "tests/entry.ts": "DCD401B239A41C4EBB4317288E84E2354BFCD6A30974896579B6C284D407637C",
+      "tests/lifecycle.test.mjs": "CE39D5B05540E25DDDC83C42D2C8C84F2E686DCCAEEFDCD0850218008ED365DF",
+      "migration-coverage.json": "5CF89BEA1D48DB9283FEC9511313E0DD85117FEDA06885FC6AC63079F95E895D"
+    },
+    "CanvasStage未变SHA256": "28C16776EF999087334E25770444B9DF47F1B4E3B82CB465D5F468B508AF4F37",
+    "75原参考源码SHA256": "全部再次实际核对一致，source_sha256未变"
+  },
+  "日志SHA256": {
+    "任务错误保持-修复前.log": "F1B8DDB11C76582CA0D95FC7911DC147EAB136B60FADBD006AE39E0EA0B7BCDA",
+    "任务错误保持-定向检查.log": "BF6E9AE1336C1990EF54780A2B979614BA1A3E6E05C29509CC29DA66F32A13C4",
+    "任务错误保持-类型检查.log": "4A7E37A9EA95FBE9A4639391A628BCB452F57F34791FC85D773232694A915332",
+    "任务错误保持-定向lint.log": "0FC6F7CE8A238A113314E41F4D8F441EE4D7437EFEAB25D42662C742405A320F"
+  },
+  "既有证据": "任务回读-定向检查.json及该阶段所有日志原样保留；未覆盖旧19项结果或生产制品阶段。",
+  "未执行": "未生产构建、未public/runtime同步、未操作浏览器、服务、Git、正式业务或Provider。根负责最后统一生产构建及IAB编辑器/批量两状态复验；真实业务验收状态不据此变更。"
+}

@@ -1,0 +1,121 @@
+{
+  "记录时间": "2026-10-03T00:57:14.819375+00:00",
+  "范围": "原批量多文件连续mutate页面回调只末项入选的不足，按完整迁移设计2026.10-r2第1.2及第5节18补齐；非原源码已有保证，参考源不改。仅React业务库局部队列与共用Dropzone必要校验。",
+  "原失败": {
+    "实际命令": "node tests/run.mjs --test-name-pattern='批量多图上传：'",
+    "exit_code": 1,
+    "tests": 2,
+    "passed": 0,
+    "failed": 2,
+    "实际结果": [
+      "三个上传均成功，实际入选1/预期3",
+      "末项上传失败，前两成功实际入选0/预期2"
+    ],
+    "日志": "批量多图上传-修复前.log",
+    "旧BatchPage_sha256": "7C0ABB55E757405A20A9FD3BCF0E124F50A102B6D89DE4683775FC0C91869148"
+  },
+  "检查准备错误": {
+    "日志": "批量多图上传-测试脚本首次检查.log",
+    "原因": "追加定向测试时重复test.after声明导致Unexpected end of input；未执行8个场景，属于测试脚本准备错误，已去掉重复声明。",
+    "exit_code": 1,
+    "不计业务失败或新增业务检查通过": true
+  },
+  "最终定向结果": {
+    "实际一次命令": "AIPICTURE_TEST_REACT_MODE=development node tests/run.mjs --test-name-pattern='批量多图上传：'",
+    "exit_code": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "日志": "批量多图上传-最终定向检查.log",
+    "场景": [
+      "多个成功按输入顺序全部入选并通过原adapter提交",
+      "末项失败保留前成功并按文件显示错误",
+      "整轮pending禁止提前开始及插入历史素材，已选不丢",
+      "十九张后仅预留一个位置，已满二十不再上传",
+      "中间失败不阻断后项且后成功不抹错误",
+      "同轮非法文件保留反馈，pending再次输入不上传",
+      "失活停止未开始队列，迟到结果不串另实例",
+      "共用Dropzone创作单文件仍创建会话与导航",
+      "真实StrictMode Effect重放后仍逐文件入选并提交，probe setup2/cleanup1"
+    ],
+    "口径": "真实React开发版/Query/adapter+HappyDOM受控宿主，非真实上传、MySQL、Provider或业务验收；一次9项包含初步8项相关重验，不重复累计；既有字体/几何/规划/任务回读基线保留。"
+  },
+  "类型检查": {
+    "命令": "npm run typecheck",
+    "exit_code": 0,
+    "日志": "批量多图上传-最终类型检查.log"
+  },
+  "定向lint": {
+    "命令": "oxlint src/pages/BatchPage.tsx src/components/ImageDropzone.tsx tests/entry.ts",
+    "exit_code": 0,
+    "stdout": "空输出",
+    "日志": "批量多图上传-最终定向lint.log"
+  },
+  "源码冻结": {
+    "文件": {
+      "src/pages/BatchPage.tsx": "41913E58C920D6623401D5000F91C99FB30F097218F34F4651D01A972CD286AC",
+      "src/components/ImageDropzone.tsx": "DB48F68899C10D762DD644095C2BD382333488CF8B77D33005CAE8624D62971E",
+      "tests/entry.ts": "44C6D0EA218BE3193C21ABA03D76AD1772BED9D082C04C80660789A894FD20D9",
+      "tests/run.mjs": "88E30AC8EB0C908E927FDA7A1E648465AF3512C241036B71605F804BCBF6DE13",
+      "tests/lifecycle.test.mjs": "06AA9E0FFDA9E94DB21A7BAAD9A7A31A74FB0C36089DCFB17F0A3AB49E26C73E",
+      "README.md": "9450E5295FBFEE9E8C74A3E7B413418F7BC4F699389F99F29B7BBA1D3AF5C51C",
+      "migration-coverage.json": "0D6040D3CB65548A42B0389A3CA48F082F79191D4E86CDE29BD241C47F5BDB14"
+    },
+    "组合SHA256": "6B6FCF8C5E87EC2DB1DA416A005CE84D3E5A1F6231C81BD3C9CF497E519212BD",
+    "原75源码指纹逐文件核对": {
+      "count": 75,
+      "mismatch": []
+    },
+    "旧其他源码冻结沿用": "任务错误保持-最终定向检查.json；当前7文件冻结取代其受影响BatchPage/entry/tests/coverage，其他恢复/字体/几何源码未改。tests/run.mjs仅新增显式开发React测试开关，默认仍生产模式，不改变正式生产配置。"
+  },
+  "日志SHA256": {
+    "批量多图上传-修复前.log": "F5EA0F9A1B1691262520604E47C932C5317C9860B85460939B5ADC1AF390447F",
+    "批量多图上传-测试脚本首次检查.log": "D20F67FAAF94887AAF9A7F440F742FC0AE1762730BFFEA3D7AC49D8200565C3F",
+    "批量多图上传-定向检查.log": "026AC3D371B50D24B9FBB907BD74C4257D871EFCDF22AF953A0C64C81DB1E36C",
+    "批量多图上传-类型检查.log": "4A7E37A9EA95FBE9A4639391A628BCB452F57F34791FC85D773232694A915332",
+    "批量多图上传-定向lint.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "批量多图上传-StrictMode修复前.log": "DED0C1044041F77C2959AF2EE626266EB2684101A2D700B338741EBAA94F6818",
+    "批量多图上传-最终定向检查.log": "FA9E02808A9ECE6A1C688173E24611A519F25EB8154F5191F89D65BEEC3CEA83",
+    "批量多图上传-最终类型检查.log": "4A7E37A9EA95FBE9A4639391A628BCB452F57F34791FC85D773232694A915332",
+    "批量多图上传-最终定向lint.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  "生产制品与运行": "本轮未执行生产build/public/runtime同步/浏览器/HTTP/服务/正式业务/Provider/Git，当前72DED旧阶段生产制品仍保留；根统一构建和受影响浏览器复验。",
+  "初步8项阶段": {
+    "结果": {
+      "实际一次命令": "node tests/run.mjs --test-name-pattern='批量多图上传：'",
+      "exit_code": 0,
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "日志": "批量多图上传-定向检查.log",
+      "场景": [
+        "多个成功按输入顺序全部入选并通过原adapter提交",
+        "末项失败保留前成功并按文件显示错误",
+        "整轮pending禁止提前开始及插入历史素材，已选不丢",
+        "十九张后仅预留一个位置，已满二十不再上传",
+        "中间失败不阻断后项且后成功不抹错误",
+        "同轮非法文件保留反馈，pending再次输入不上传",
+        "失活停止未开始队列，迟到结果不串另实例",
+        "共用Dropzone创作单文件仍创建会话与导航"
+      ],
+      "口径": "真实React/Query/adapter+HappyDOM受控宿主，非真实上传、MySQL、Provider或业务验收；仅8新增定向，既有字体/几何/规划/任务回读基线保留不累计。"
+    },
+    "源码冻结及日志": "批量多图上传-初步定向检查.json",
+    "口径": "8项生产模式通过是StrictMode修复前阶段；最终9含这8项相关重验，不作17累计。"
+  },
+  "StrictMode修复前": {
+    "命令": "AIPICTURE_TEST_REACT_MODE=development node tests/run.mjs --test-name-pattern='批量多图上传：StrictMode'",
+    "exit_code": 1,
+    "tests": 1,
+    "passed": 0,
+    "failed": 1,
+    "实际结果": "真实React开发StrictMode的probe setup=2/cleanup=1，Batch输入两文件但实际upload请求0/预期2；不是生产模式伪重放。",
+    "日志": "批量多图上传-StrictMode修复前.log",
+    "旧queue_BatchPage_sha256": "BEFE27F467C01A0ECC3AE5109C73C50317D2503B2DD9EC3C98440315208B820A",
+    "修复": "仅Effect setup queue.alive=true；当前正式embed未包StrictMode，原参考main.tsx确有StrictMode。该点属于新增队列初步实现遗漏，已保留失败；不误称原参考源码已有此队列错误。"
+  }
+}

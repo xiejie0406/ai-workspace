@@ -1,0 +1,97 @@
+{
+  "scope": "实际恢复服务 HMAC 内联计算与独立商品遮罩比较",
+  "checked_at": "2026-10-03T03:30:24.258223+00:00",
+  "source_sha256": "bb4d28230e31246825bb45abb7b142c3b5ac20c4742a6f0e30f8bab95421de06",
+  "expect_sha256": "cd5ac47dba40d9a22905d99364e4be39f50a30fb8c614ee007458d8e321d30fd",
+  "threshold": 0.8,
+  "sam_positive_points": [
+    [
+      0.3,
+      0.4
+    ],
+    [
+      0.65,
+      0.45
+    ]
+  ],
+  "alpha_threshold": 128,
+  "formal_asset_writes": 0,
+  "database_writes": 0,
+  "provider_calls": 0,
+  "cases": [
+    {
+      "tool": "remove_background",
+      "seconds": 9.84468989999732,
+      "passed": true,
+      "output": "matting-http.png",
+      "sha256": "0cb9079192b9f0c6dcb540cc0b59b7b2bfdf6035de866a4504d35bd08a4345ae",
+      "size": [
+        1080,
+        1080
+      ],
+      "alpha_iou": 0.9843738320861743,
+      "points_selected": [
+        true,
+        true
+      ],
+      "background_corner_selected": false,
+      "foreground_pixels": 240697,
+      "provider": {
+        "image": "dashscope",
+        "matting": "rembg",
+        "ocr": "rapidocr",
+        "offline_test": false,
+        "enhancement_implementation": "image_edit",
+        "true_super_resolution": false
+      }
+    },
+    {
+      "tool": "selection",
+      "seconds": 9.880016900002374,
+      "passed": true,
+      "output": "sam-foreground-http.png",
+      "sha256": "1fef10592468a044e7c9c4d43ca78c737999fe5f784170246aacbefd13fd1a38",
+      "size": [
+        1080,
+        1080
+      ],
+      "alpha_iou": 0.9639788889731981,
+      "points_selected": [
+        true,
+        true
+      ],
+      "background_corner_selected": false,
+      "foreground_pixels": 228731,
+      "provider": {
+        "image": "dashscope",
+        "matting": "rembg",
+        "ocr": "rapidocr",
+        "offline_test": false,
+        "enhancement_implementation": "image_edit",
+        "true_super_resolution": false,
+        "sam": {
+          "provider": "onnxruntime",
+          "model": "sam",
+          "loaded": true,
+          "inference": "points"
+        }
+      }
+    }
+  ],
+  "loaded_before": {
+    "matting": false,
+    "sam": false,
+    "ocr": false
+  },
+  "loaded_after": {
+    "matting": true,
+    "sam": true,
+    "ocr": false
+  },
+  "files_ready": {
+    "matting": true,
+    "sam": true,
+    "ocr": true
+  },
+  "passed": true
+}

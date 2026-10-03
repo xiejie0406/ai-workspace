@@ -1,0 +1,38 @@
+{
+  "scope": "SAM缓存像素和模型身份，真实PNG解码＋受控构造/编码器",
+  "pytest_exit": 1,
+  "tests": 15,
+  "failures": 10,
+  "errors": 0,
+  "skipped": 0,
+  "failed_cases": [
+    "test_same_rgb_pixels_reuse_across_png_compression_and_metadata",
+    "test_alpha_only_difference_reuses_actual_rgb_encoder_input",
+    "test_different_loaded_encoder_instances_never_share_cache",
+    "test_changed_weights_in_new_instance_do_not_return_old_embedding",
+    "test_preprocessing_version_is_part_of_embedding_identity",
+    "test_changed_file_during_loading_is_rejected_even_if_stat_is_restored[encoder]",
+    "test_changed_file_during_loading_is_rejected_even_if_stat_is_restored[decoder]",
+    "test_loaded_identity_has_fixed_namespace_and_observation_fingerprints",
+    "test_pixel_digest_uses_bounded_strips_not_a_second_full_image",
+    "test_same_pixels_different_encoding_share_one_inflight_encoder"
+  ],
+  "files": [
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/segment.py",
+      "sha256": "848a422e609b62a020f273ba5ba58abed2e8a70d0a92ba25936d58f917a65f9d"
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_segment_cache_identity.py",
+      "sha256": "efa05b3bbb8d5488f4d34ff5ac63b4075df196bab1195dfefcbad9a485a4aeab"
+    }
+  ],
+  "log": ".runtime/aipicture/sam-cache-identity-before.log",
+  "xml": ".runtime/aipicture/sam-cache-identity-before.xml",
+  "real_inference": 0,
+  "network": 0,
+  "provider_requests": 0,
+  "database_writes": 0,
+  "runtime_changed": false,
+  "business_passed": false
+}

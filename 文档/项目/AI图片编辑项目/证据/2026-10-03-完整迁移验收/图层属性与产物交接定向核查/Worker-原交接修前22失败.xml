@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="22" skipped="0" tests="22" time="3.498" timestamp="2026-10-03T17:07:04.775432+08:00" hostname="DESKTOP-9TNRTIR"><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[503-artifacts]" time="0.263"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB36C930&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB1EF230&gt;
+endpoint = 'artifacts', failure = '503'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB22F380&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB36C930&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[503-receipt]" time="0.042"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4B4C70&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB3DE330&gt;
+endpoint = 'receipt', failure = '503'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB331A90&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4B4C70&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[timeout-artifacts]" time="0.071"><failure message="AssertionError: assert ({'run_id': 'c324c14e-561a-4b2b-bf84-1f62fdfdc633', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} is not None and 'external_result_unknown' == 'succeeded'&#10; +  where {'run_id': 'c324c14e-561a-4b2b-bf84-1f62fdfdc633', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} = &lt;test_delivery_replay.Center object at 0x000001CDEB333110&gt;.receipt&#10;  &#10;  - succeeded&#10;  + external_result_unknown)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB20E250&gt;
+endpoint = 'artifacts', failure = 'timeout'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+        assert_no_failed_receipt(center)
+&gt;       assert center.receipt is not None and center.receipt["status"] == "succeeded"
+E       AssertionError: assert ({'run_id': 'c324c14e-561a-4b2b-bf84-1f62fdfdc633', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} is not None and 'external_result_unknown' == 'succeeded'
+E        +  where {'run_id': 'c324c14e-561a-4b2b-bf84-1f62fdfdc633', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} = &lt;test_delivery_replay.Center object at 0x000001CDEB333110&gt;.receipt
+E         
+E         - succeeded
+E         + external_result_unknown)
+
+tests\test_delivery_replay.py:138: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[timeout-receipt]" time="0.063"><failure message="AssertionError: assert ({'run_id': '7906c1ef-d6e5-4c8f-8341-6f2295b804a2', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} is not None and 'external_result_unknown' == 'succeeded'&#10; +  where {'run_id': '7906c1ef-d6e5-4c8f-8341-6f2295b804a2', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} = &lt;test_delivery_replay.Center object at 0x000001CDEB4A4510&gt;.receipt&#10;  &#10;  - succeeded&#10;  + external_result_unknown)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB3D6F50&gt;
+endpoint = 'receipt', failure = 'timeout'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+        assert_no_failed_receipt(center)
+&gt;       assert center.receipt is not None and center.receipt["status"] == "succeeded"
+E       AssertionError: assert ({'run_id': '7906c1ef-d6e5-4c8f-8341-6f2295b804a2', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} is not None and 'external_result_unknown' == 'succeeded'
+E        +  where {'run_id': '7906c1ef-d6e5-4c8f-8341-6f2295b804a2', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} = &lt;test_delivery_replay.Center object at 0x000001CDEB4A4510&gt;.receipt
+E         
+E         - succeeded
+E         + external_result_unknown)
+
+tests\test_delivery_replay.py:138: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[body-503-artifacts]" time="0.064"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4B7850&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB3BD400&gt;
+endpoint = 'artifacts', failure = 'body-503'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB4A4E90&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4B7850&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[body-503-receipt]" time="0.055"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4B5F20&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB431E10&gt;
+endpoint = 'receipt', failure = 'body-503'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB3DF650&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4B5F20&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[body-500-artifacts]" time="0.053"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8A9FF0&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEAC9C710&gt;
+endpoint = 'artifacts', failure = 'body-500'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB4C5480&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8A9FF0&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[body-500-receipt]" time="0.050"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4B7D30&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB4C81B0&gt;
+endpoint = 'receipt', failure = 'body-500'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB4C6140&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4B7D30&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[disconnect-artifacts]" time="0.052"><failure message="AssertionError: assert ({'run_id': 'fb02a0b3-6181-4143-9766-3065ac5a6c80', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} is not None and 'external_result_unknown' == 'succeeded'&#10; +  where {'run_id': 'fb02a0b3-6181-4143-9766-3065ac5a6c80', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} = &lt;test_delivery_replay.Center object at 0x000001CDEB4B9D50&gt;.receipt&#10;  &#10;  - succeeded&#10;  + external_result_unknown)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB489DB0&gt;
+endpoint = 'artifacts', failure = 'disconnect'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+        assert_no_failed_receipt(center)
+&gt;       assert center.receipt is not None and center.receipt["status"] == "succeeded"
+E       AssertionError: assert ({'run_id': 'fb02a0b3-6181-4143-9766-3065ac5a6c80', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} is not None and 'external_result_unknown' == 'succeeded'
+E        +  where {'run_id': 'fb02a0b3-6181-4143-9766-3065ac5a6c80', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} = &lt;test_delivery_replay.Center object at 0x000001CDEB4B9D50&gt;.receipt
+E         
+E         - succeeded
+E         + external_result_unknown)
+
+tests\test_delivery_replay.py:138: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_center_delivery_replays_same_payload_without_recomputing[disconnect-receipt]" time="0.052"><failure message="AssertionError: assert ({'run_id': 'a2127567-40dc-4f5f-9d5f-f3041c8b58a1', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} is not None and 'external_result_unknown' == 'succeeded'&#10; +  where {'run_id': 'a2127567-40dc-4f5f-9d5f-f3041c8b58a1', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} = &lt;test_delivery_replay.Center object at 0x000001CDEB4BA850&gt;.receipt&#10;  &#10;  - succeeded&#10;  + external_result_unknown)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB4870B0&gt;
+endpoint = 'receipt', failure = 'disconnect'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["503", "timeout", "body-503", "body-500", "disconnect"])
+    async def test_temporary_center_delivery_replays_same_payload_without_recomputing(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        payload = await actual_batch(monkeypatch, center)
+        assert_no_failed_receipt(center)
+&gt;       assert center.receipt is not None and center.receipt["status"] == "succeeded"
+E       AssertionError: assert ({'run_id': 'a2127567-40dc-4f5f-9d5f-f3041c8b58a1', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} is not None and 'external_result_unknown' == 'succeeded'
+E        +  where {'run_id': 'a2127567-40dc-4f5f-9d5f-f3041c8b58a1', 'attempt': 1, 'lease_token': 'controlled-fixed-lease', 'status': 'external_result_unknown', ...} = &lt;test_delivery_replay.Center object at 0x000001CDEB4BA850&gt;.receipt
+E         
+E         - succeeded
+E         + external_result_unknown)
+
+tests\test_delivery_replay.py:138: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_explicit_center_refusal_stops_without_failed_receipt_or_replay[403-artifacts]" time="0.039"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8AB9F0&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB493DD0&gt;
+endpoint = 'artifacts', failure = '403'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["403", "body-409"])
+    async def test_explicit_center_refusal_stops_without_failed_receipt_or_replay(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB4F5310&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8AB9F0&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_explicit_center_refusal_stops_without_failed_receipt_or_replay[403-receipt]" time="0.044"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8A93C0&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB42D9B0&gt;
+endpoint = 'receipt', failure = '403'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["403", "body-409"])
+    async def test_explicit_center_refusal_stops_without_failed_receipt_or_replay(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB4F5E50&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8A93C0&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_explicit_center_refusal_stops_without_failed_receipt_or_replay[body-409-artifacts]" time="0.046"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8AA5A0&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB42D400&gt;
+endpoint = 'artifacts', failure = 'body-409'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["403", "body-409"])
+    async def test_explicit_center_refusal_stops_without_failed_receipt_or_replay(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB49B150&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8AA5A0&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_explicit_center_refusal_stops_without_failed_receipt_or_replay[body-409-receipt]" time="0.054"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4C0110&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB42F5B0&gt;
+endpoint = 'receipt', failure = 'body-409'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    @pytest.mark.parametrize("failure", ["403", "body-409"])
+    async def test_explicit_center_refusal_stops_without_failed_receipt_or_replay(monkeypatch, endpoint, failure):
+        center = Center(endpoint, failure)
+        await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB8D8670&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4C0110&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_delivery_exhaustion_is_bounded_and_never_overwrites_success[artifacts]" time="0.056"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4C1F20&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB42F7E0&gt;
+endpoint = 'artifacts'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    async def test_temporary_delivery_exhaustion_is_bounded_and_never_overwrites_success(monkeypatch, endpoint):
+        center = Center(endpoint, "503", exhausted=True)
+        await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB4C20D0&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4C1F20&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_temporary_delivery_exhaustion_is_bounded_and_never_overwrites_success[receipt]" time="0.060"><failure message="httpx.HTTPStatusError: Server error '503 Service Unavailable' for url 'http://127.0.0.1:8080/aipicture/internal/v1/execution/receipt'&#10;For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503">self = &lt;aipicture_runtime.execution.ExecutionClient object at 0x000001CDEB46F4D0&gt;
+claim = {'schema_version': '1', 'tool_registry_version': '2026.10-r2', 'run_id': '04f3bbf3-c424-4074-a42c-65ae7cf31718', 'attempt': 1, ...}
+
+    async def process(self, claim: dict):
+        base = {key: claim[key] for key in ["run_id", "attempt", "lease_token"]}
+        running = True
+        lost = False
+        cancelled = False
+        last_progress, last_stage = 0, "准备计算"
+        provider_task_id = claim.get("provider_task_id")
+    
+        def ensure_active():
+            if lost:
+                raise ExecutionLeaseLost("执行租约无法确认，已停止后续步骤和上传；在途供应商结果由中心核对")
+            if cancelled:
+                raise ExecutionCancelled("中心已取消后续步骤，未采用正在完成的第三方结果")
+    
+        async def report(progress: int, stage: str, details: dict | None = None):
+            nonlocal last_progress, last_stage, cancelled, lost, provider_task_id
+            if details and details.get("provider_task_id"):
+                provider_task_id = details["provider_task_id"]
+            ensure_active()
+            last_progress, last_stage = max(last_progress, min(99, progress)), stage
+            try:
+                response = await self.post("/heartbeat", {**base, "progress": last_progress, "stage": stage,
+                    **({"provider_task_id": details["provider_task_id"]} if details and "provider_task_id" in details else {}),
+                    **({"result": details} if details else {})})
+                if response and response.get("cancelled"):
+                    cancelled = True
+            except ExecutionCancelled:
+                raise
+            except Exception as exc:
+                # 前台与后台心跳都不能把中心拒绝/通信异常当作可恢复单项失败。
+                lost = True
+                raise ExecutionLeaseLost("中心心跳未确认执行租约，已停止后续步骤和上传") from exc
+            # 前台请求等待期间，后台心跳也可能已确认停止。
+            ensure_active()
+    
+        async def heartbeat():
+            nonlocal lost
+            while running:
+                await asyncio.sleep(15)
+                if running:
+                    try:
+                        await report(last_progress, last_stage)
+                    except ExecutionCancelled:
+                        return
+                    except Exception:
+                        lost = True
+                        return
+    
+        timer = asyncio.create_task(heartbeat())
+        request = None
+        try:
+            allowed = set(ComputeRequest.model_fields)
+            request = ComputeRequest.model_validate({key: value for key, value in claim.items() if key in allowed})
+            computed = await compute(request, report)
+            ensure_active()
+            identifiers = {}
+            uploaded = []
+            for artifact in computed["artifacts"]:
+                ensure_active()
+                payload = {**base, "id": artifact["id"], "content_base64": artifact["content_base64"], "kind": artifact["kind"],
+                    "source": artifact["source"], "format": artifact["format"].lower(), "manifest": computed["result"].get("manifest")}
+                saved = await self.post("/artifacts", payload)
+                ensure_active()
+                identifier = str(saved.get("id", artifact["id"]))
+                identifiers[artifact["id"]] = identifier
+                uploaded.append(identifier)
+            result = remap_ids(computed["result"], identifiers)
+            status = "failed" if result.get("summary", {}).get("status") == "failed" else "succeeded"
+            message = "全部批量项失败" if status == "failed" else None
+            items = result.get("items")
+            if status == "failed" and isinstance(items, list) and len(items) == 1:
+                cause = items[0].get("error") if isinstance(items[0], dict) else None
+                if isinstance(cause, str) and cause:
+                    # Java单图子run把顶层message入正式batch item，保留源逐图错误与已有脱敏边界。
+                    message = _safe_error(RuntimeError(cause))
+            ensure_active()
+&gt;           await self.post("/receipt", {**base, "schema_version": request.schema_version, "tool_registry_version": request.tool_registry_version,
+                "status": status, "result": result, "artifacts": uploaded, "provider": computed["provider"],
+                "error_code": "BATCH_ALL_FAILED" if status == "failed" else None, "message": message})
+
+aipicture_runtime\execution.py:138: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+aipicture_runtime\execution.py:54: in post
+    response.raise_for_status()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;Response [503 Service Unavailable]&gt;
+
+    def raise_for_status(self) -&gt; Response:
+        """
+        Raise the `HTTPStatusError` if one occurred.
+        """
+        request = self._request
+        if request is None:
+            raise RuntimeError(
+                "Cannot call `raise_for_status` as the request "
+                "instance has not been set on this response."
+            )
+    
+        if self.is_success:
+            return self
+    
+        if self.has_redirect_location:
+            message = (
+                "{error_type} '{0.status_code} {0.reason_phrase}' for url '{0.url}'\n"
+                "Redirect location: '{0.headers[location]}'\n"
+                "For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/{0.status_code}"
+            )
+        else:
+            message = (
+                "{error_type} '{0.status_code} {0.reason_phrase}' for url '{0.url}'\n"
+                "For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/{0.status_code}"
+            )
+    
+        status_class = self.status_code // 100
+        error_types = {
+            1: "Informational response",
+            3: "Redirect response",
+            4: "Client error",
+            5: "Server error",
+        }
+        error_type = error_types.get(status_class, "Invalid status code")
+        message = message.format(self, error_type=error_type)
+&gt;       raise HTTPStatusError(message, request=request, response=self)
+E       httpx.HTTPStatusError: Server error '503 Service Unavailable' for url 'http://127.0.0.1:8080/aipicture/internal/v1/execution/receipt'
+E       For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+
+.venv\Lib\site-packages\httpx\_models.py:829: HTTPStatusError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB42F2A0&gt;
+endpoint = 'receipt'
+
+    @pytest.mark.parametrize("endpoint", ["artifacts", "receipt"])
+    async def test_temporary_delivery_exhaustion_is_bounded_and_never_overwrites_success(monkeypatch, endpoint):
+        center = Center(endpoint, "503", exhausted=True)
+&gt;       await actual_batch(monkeypatch, center)
+
+tests\test_delivery_replay.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_delivery_replay.py:113: in actual_batch
+    await asyncio.wait_for(client.process(payload), timeout=5)
+C:\Users\admin\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\tasks.py:507: in wait_for
+    return await fut
+           ^^^^^^^^^
+aipicture_runtime\execution.py:148: in process
+    await self.post("/receipt", {**base, "status": "cancelled" if cancelled else "external_result_unknown" if unknown else "failed", "result": {}, "artifacts": [],
+aipicture_runtime\execution.py:54: in post
+    response.raise_for_status()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;Response [503 Service Unavailable]&gt;
+
+    def raise_for_status(self) -&gt; Response:
+        """
+        Raise the `HTTPStatusError` if one occurred.
+        """
+        request = self._request
+        if request is None:
+            raise RuntimeError(
+                "Cannot call `raise_for_status` as the request "
+                "instance has not been set on this response."
+            )
+    
+        if self.is_success:
+            return self
+    
+        if self.has_redirect_location:
+            message = (
+                "{error_type} '{0.status_code} {0.reason_phrase}' for url '{0.url}'\n"
+                "Redirect location: '{0.headers[location]}'\n"
+                "For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/{0.status_code}"
+            )
+        else:
+            message = (
+                "{error_type} '{0.status_code} {0.reason_phrase}' for url '{0.url}'\n"
+                "For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/{0.status_code}"
+            )
+    
+        status_class = self.status_code // 100
+        error_types = {
+            1: "Informational response",
+            3: "Redirect response",
+            4: "Client error",
+            5: "Server error",
+        }
+        error_type = error_types.get(status_class, "Invalid status code")
+        message = message.format(self, error_type=error_type)
+&gt;       raise HTTPStatusError(message, request=request, response=self)
+E       httpx.HTTPStatusError: Server error '503 Service Unavailable' for url 'http://127.0.0.1:8080/aipicture/internal/v1/execution/receipt'
+E       For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+
+.venv\Lib\site-packages\httpx\_models.py:829: HTTPStatusError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_replay_requires_fresh_lease_confirmation_and_preserves_cancellation[409]" time="0.045"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEBA486C0&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB42F690&gt;
+stop = '409'
+
+    @pytest.mark.parametrize("stop", ["409", "503", "cancel"])
+    async def test_replay_requires_fresh_lease_confirmation_and_preserves_cancellation(monkeypatch, stop):
+        center = Center("artifacts", "503", heartbeat_stop=stop)
+        await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB37DD90&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEBA486C0&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_replay_requires_fresh_lease_confirmation_and_preserves_cancellation[503]" time="0.042"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8A8D40&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB42DFD0&gt;
+stop = '503'
+
+    @pytest.mark.parametrize("stop", ["409", "503", "cancel"])
+    async def test_replay_requires_fresh_lease_confirmation_and_preserves_cancellation(monkeypatch, stop):
+        center = Center("artifacts", "503", heartbeat_stop=stop)
+        await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB4CA780&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB8A8D40&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_replay_requires_fresh_lease_confirmation_and_preserves_cancellation[cancel]" time="0.039"><failure message="AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED&#10;assert not True&#10; +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4C3C60&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB8FD9B0&gt;
+stop = 'cancel'
+
+    @pytest.mark.parametrize("stop", ["409", "503", "cancel"])
+    async def test_replay_requires_fresh_lease_confirmation_and_preserves_cancellation(monkeypatch, stop):
+        center = Center("artifacts", "503", heartbeat_stop=stop)
+        await actual_batch(monkeypatch, center)
+&gt;       assert_no_failed_receipt(center)
+
+tests\test_delivery_replay.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+center = &lt;test_delivery_replay.Center object at 0x000001CDEB4CAFC0&gt;
+
+    def assert_no_failed_receipt(center):
+&gt;       assert not any(call["body"].get("error_code") == "COMPUTE_FAILED" for call in center.of("receipt")), \
+            "成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED"
+E       AssertionError: 成功外部结果的交付错误不能降为可重新付费的COMPUTE_FAILED
+E       assert not True
+E        +  where True = any(&lt;generator object assert_no_failed_receipt.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001CDEB4C3C60&gt;)
+
+tests\test_delivery_replay.py:128: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_committed_artifact_response_loss_uses_same_id_and_bytes" time="0.043"><failure message="AssertionError: assert (1 == 2)&#10; +  where 1 = len({'4ca397c1-8b62-5689-9e27-593d40eb70ac': 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABQCAYAAACpv3NFAAAArUlEQVR4nO3bQRGAMAADwesNPhCE...ncRIncRIncRIncRIncRIncRIncRIncRIncRIncRInceP/DsdJnMRJnMRJnMRJnMRJnMRJnMRJnMRJnMRJnKsHrPYC4RwLmb9Wg3MAAAAASUVORK5CYII='})&#10; +    where {'4ca397c1-8b62-5689-9e27-593d40eb70ac': 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABQCAYAAACpv3NFAAAArUlEQVR4nO3bQRGAMAADwesNPhCE...ncRIncRIncRIncRIncRIncRIncRIncRIncRIncRInceP/DsdJnMRJnMRJnMRJnMRJnMRJnMRJnMRJnMRJnKsHrPYC4RwLmb9Wg3MAAAAASUVORK5CYII='} = &lt;test_delivery_replay.Center object at 0x000001CDEB4CB120&gt;.registered">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB9073F0&gt;
+
+    async def test_committed_artifact_response_loss_uses_same_id_and_bytes(monkeypatch):
+        center = Center("artifacts", "timeout", committed=True)
+        await actual_batch(monkeypatch, center)
+        assert_no_failed_receipt(center)
+&gt;       assert len(center.registered) == 2 and center.receipt_commits == 1
+E       AssertionError: assert (1 == 2)
+E        +  where 1 = len({'4ca397c1-8b62-5689-9e27-593d40eb70ac': 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABQCAYAAACpv3NFAAAArUlEQVR4nO3bQRGAMAADwesNPhCE...ncRIncRIncRIncRIncRIncRIncRIncRIncRIncRInceP/DsdJnMRJnMRJnMRJnMRJnMRJnMRJnMRJnMRJnKsHrPYC4RwLmb9Wg3MAAAAASUVORK5CYII='})
+E        +    where {'4ca397c1-8b62-5689-9e27-593d40eb70ac': 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABQCAYAAACpv3NFAAAArUlEQVR4nO3bQRGAMAADwesNPhCE...ncRIncRIncRIncRIncRIncRIncRIncRIncRIncRInceP/DsdJnMRJnMRJnMRJnMRJnMRJnMRJnMRJnMRJnKsHrPYC4RwLmb9Wg3MAAAAASUVORK5CYII='} = &lt;test_delivery_replay.Center object at 0x000001CDEB4CB120&gt;.registered
+
+tests\test_delivery_replay.py:199: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_committed_receipt_response_loss_replays_only_same_terminal_receipt" time="0.034"><failure message="AssertionError: 只允许重交原始同一JSON/ID/内容&#10;assert 2 == 1&#10; +  where 2 = len({b'{&quot;run_id&quot;:&quot;ece8f3cd-dd20-4185-a923-8350808112f7&quot;,&quot;attempt&quot;:1,&quot;lease_token&quot;:&quot;controlled-fixed-lease&quot;,&quot;schema_version...UNKNOWN&quot;,&quot;message&quot;:&quot;\xe8\xae\xa1\xe7\xae\x97\xe4\xb8\x8d\xe5\x8f\xaf\xe7\x94\xa8\xef\xbc\x88ReadTimeout\xef\xbc\x89&quot;}'})">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB9078C0&gt;
+
+    async def test_committed_receipt_response_loss_replays_only_same_terminal_receipt(monkeypatch):
+        center = Center("receipt", "timeout", committed=True)
+        await actual_batch(monkeypatch, center)
+        assert_no_failed_receipt(center)
+        assert center.receipt_commits == 1 and center.receipt["status"] == "succeeded"
+        assert len(center.of("artifacts")) == 2, "终态心跳后不能重复上传或重新计算"
+&gt;       assert_replay_same(center.of("receipt"))
+
+tests\test_delivery_replay.py:218: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+calls = [{'endpoint': 'receipt', 'body': {'run_id': 'ece8f3cd-dd20-4185-a923-8350808112f7', 'attempt': 1, 'lease_token': 'cont...e4\xb8\x8d\xe5\x8f\xaf\xe7\x94\xa8\xef\xbc\x88ReadTimeout\xef\xbc\x89"}', 'nonce': '483c3ca54d9e4f7b9e839f5a8228497f'}]
+
+    def assert_replay_same(calls):
+        assert len(calls) &gt;= 2
+&gt;       assert len({call["raw"] for call in calls}) == 1, "只允许重交原始同一JSON/ID/内容"
+E       AssertionError: 只允许重交原始同一JSON/ID/内容
+E       assert 2 == 1
+E        +  where 2 = len({b'{"run_id":"ece8f3cd-dd20-4185-a923-8350808112f7","attempt":1,"lease_token":"controlled-fixed-lease","schema_version...UNKNOWN","message":"\xe8\xae\xa1\xe7\xae\x97\xe4\xb8\x8d\xe5\x8f\xaf\xe7\x94\xa8\xef\xbc\x88ReadTimeout\xef\xbc\x89"}'})
+
+tests\test_delivery_replay.py:123: AssertionError</failure></testcase><testcase classname="tests.test_delivery_replay" name="test_center_terminal_unknown_before_delivery_prevents_upload_and_receipt" time="0.044"><failure message="AssertionError: 中心终态不能被迟到计算采用覆盖&#10;assert (not [{'endpoint': 'artifacts', 'body': {'run_id': '166f22c3-f424-4cb8-a94f-22bfb2de29d6', 'attempt': 1, 'lease_token': 'co...5CYII=&quot;,&quot;kind&quot;:&quot;export&quot;,&quot;source&quot;:&quot;tool&quot;,&quot;format&quot;:&quot;png&quot;,&quot;manifest&quot;:null}', 'nonce': '16ffa9bcaa0b43508dc59baba0681b2c'}])&#10; +  where [{'endpoint': 'artifacts', 'body': {'run_id': '166f22c3-f424-4cb8-a94f-22bfb2de29d6', 'attempt': 1, 'lease_token': 'co...5CYII=&quot;,&quot;kind&quot;:&quot;export&quot;,&quot;source&quot;:&quot;tool&quot;,&quot;format&quot;:&quot;png&quot;,&quot;manifest&quot;:null}', 'nonce': '16ffa9bcaa0b43508dc59baba0681b2c'}] = of('artifacts')&#10; +    where of = &lt;test_delivery_replay.Center object at 0x000001CDEB4CBB70&gt;.of">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CDEB906EB0&gt;
+
+    async def test_center_terminal_unknown_before_delivery_prevents_upload_and_receipt(monkeypatch):
+        center = Center("artifacts", "503", heartbeat_stop="terminal-unknown")
+        await actual_batch(monkeypatch, center)
+&gt;       assert not center.of("artifacts") and not center.of("receipt"), "中心终态不能被迟到计算采用覆盖"
+E       AssertionError: 中心终态不能被迟到计算采用覆盖
+E       assert (not [{'endpoint': 'artifacts', 'body': {'run_id': '166f22c3-f424-4cb8-a94f-22bfb2de29d6', 'attempt': 1, 'lease_token': 'co...5CYII=","kind":"export","source":"tool","format":"png","manifest":null}', 'nonce': '16ffa9bcaa0b43508dc59baba0681b2c'}])
+E        +  where [{'endpoint': 'artifacts', 'body': {'run_id': '166f22c3-f424-4cb8-a94f-22bfb2de29d6', 'attempt': 1, 'lease_token': 'co...5CYII=","kind":"export","source":"tool","format":"png","manifest":null}', 'nonce': '16ffa9bcaa0b43508dc59baba0681b2c'}] = of('artifacts')
+E        +    where of = &lt;test_delivery_replay.Center object at 0x000001CDEB4CBB70&gt;.of
+
+tests\test_delivery_replay.py:226: AssertionError</failure></testcase></testsuite></testsuites>

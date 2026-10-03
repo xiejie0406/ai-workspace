@@ -1,0 +1,186 @@
+{
+  "created_at": "2026-10-03T09:00:07.648205+00:00",
+  "scope": "六批量工具/有序比例格式分支/逐项恢复/物料manifest和Provider多候选登记采用协调，只读不重复r13纯render函数对照",
+  "findings": [
+    {
+      "priority": "P1",
+      "file": "python/aipicture-runtime/aipicture_runtime/execution.py",
+      "lines": [
+        123,
+        138,
+        141,
+        148
+      ],
+      "trigger": "compute已经成功产生收费结果，中心/artifacts或/receipt返回503/HTTP200业务503，异常支路误发failed/COMPUTE_FAILED空结果；Java失败子item可重新整pipeline",
+      "source_or_design": "设计3.5对象/回执重交同run/attempt，不重新付费计算；JavaRunService:277、BatchExportEvaluationService:59-61确认当前无额外阻挡",
+      "independent_expected": "同payload/ID/bytes有界重交，计算次数1；拒绝/取消/失租/耗尽不发普通失败覆盖原外部效果",
+      "reproduction": "仅本地MockTransport，Provider替身返回预固定2PNG，中心第一次上传503、记录最终receipt；没有真实执行本轮复现时先写此审计",
+      "status": "静态发现，root已明确确认P1并批准局部修复；原失败证据待定向执行"
+    }
+  ],
+  "branch_review": [
+    {
+      "feature": "六操作与输入上限",
+      "source": "backend/app/schemas/batch.py:10-38",
+      "target": "params.py:15,104-111 + JavaBatchExportEvaluationService:16,23-26",
+      "conclusion": "相同六工具、20图/6步、PNG/JPG默认PNG；Java和Worker按唯一schema二次校验操作参数。"
+    },
+    {
+      "feature": "尺寸/格式/alpha/来源",
+      "source": "services/batch.py:46-106",
+      "target": "engine.py:255-294",
+      "conclusion": "每frame串行执行下一step，比例按用户顺序去重再格式顺序输出；adjust/drop layer_id、remove、upscale、expand cover_size、replace count1/negative、delivery letterbox对应源；PNG保alpha，JPG白底encode；source_id/output_ids→Java正式source_asset_id和按position结果列表。"
+    },
+    {
+      "feature": "普通单项失败/取消/重试",
+      "source": "services/batch.py:111-150",
+      "target": "engine.py:281-308/execution.py + JavaBatchExportEvaluationService:56-67/RunService:301-318",
+      "conclusion": "普通失败仅回滚该item产物/bytes/IDs；特殊取消/失租/未知中断；正式Java每图独立子run，成功项保留，onlyfailed允许重试，unknown拒重试。新增问题仅成功产物登记交付失败阶段。"
+    },
+    {
+      "feature": "Provider候选墙与采用",
+      "source": "services/generation.py/tools/enhance.py/tools/marketing.py",
+      "target": "engine.py:160-169,322-356,371-383; execution.py:119-140; JavaRunService:229-251/SessionService:16-27,78-86; ReactCandidatesPage:48-56",
+      "conclusion": "生成保完整候选列表/sourcegenerate，选一张创建会话并带所有候选墙；换背景count>1或layered只上墙；扩/增强layered不adopt；marketing/delivery含variants且wall-only；IDs递归remap与正式上传产物核验。"
+    },
+    {
+      "feature": "清单/下载名",
+      "source": "services/exports.py:75-126/services/batch.py:211-231",
+      "target": "engine.control export/JavacommitExport/exports.awaitExport",
+      "conclusion": "现存manifest文件名/真实格式尺寸ratioassetid、UTCcreated_at/safe-title日期ZIP，原资产字节保持、current文档合成、Java授权exportid再download文件名消费；批量成功项ZIP新增manifest为批准补齐。"
+    }
+  ],
+  "limitations": [
+    "未调用模型/Provider、HTTP、DB或运行测试/构建；静态对齐不能宣布业务/质量通过。",
+    "原严格SR缺口和首轮OCR质量不作为本轮新代码遗漏；未改阈值或预算。",
+    "existing25frames/200outputs/128MB为当前边界，只记录不擅自新增预算。"
+  ],
+  "source_fingerprints": [
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+      "bytes": 36817,
+      "sha256": "7df0afdaedc60e7512869930d7bde1ee5de1c660c17c120a81613651192d7baf"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/execution.py",
+      "bytes": 8725,
+      "sha256": "55f0beb1d9178d3f42299b2300e78674594621c6e2759ee1b9e6ae12f57f8d44"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/params.py",
+      "bytes": 7364,
+      "sha256": "ec464e7a0ae6cea1ec75c1e7f967a63109f37120056d81da1a0972d4686e216d"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/providers/dashscope.py",
+      "bytes": 10801,
+      "sha256": "8ef299ef47ba1adf64c37a2c310f8531060873a19cd61cd03e1aa89a777b2db2"
+    },
+    {
+      "path": "contracts/aipicture/v1/tools.schema.json",
+      "bytes": 39162,
+      "sha256": "553745b0f7053684454a41ac5c23cf3c75cddbc4301b4cf10e18f631c89941ed"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/BatchExportEvaluationService.java",
+      "bytes": 11551,
+      "sha256": "30d9bbe80da2de4006dee90b9790746d9bd2c709b24f6b415597a782a4c41526"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+      "bytes": 42469,
+      "sha256": "c91d260bd6504a7dee095456c775b5f5b30fe85cf62404e63e08b1ab3e1df8fd"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java",
+      "bytes": 13836,
+      "sha256": "5775e142ee4f9fb3b46d075a80f23ef67a58ce8873e15086bc014b201ebf55dc"
+    }
+  ],
+  "actions": {
+    "tests": 0,
+    "http": 0,
+    "models": 0,
+    "provider": 0,
+    "db": 0,
+    "services": 0,
+    "builds": 0,
+    "installs": 0,
+    "git": 0,
+    "source_edits": 0
+  },
+  "backup": [
+    {
+      "original": {
+        "path": "python/aipicture-runtime/aipicture_runtime/execution.py",
+        "bytes": 8725,
+        "sha256": "55f0beb1d9178d3f42299b2300e78674594621c6e2759ee1b9e6ae12f57f8d44"
+      },
+      "backup": {
+        "path": ".runtime/aipicture/before-delivery-replay-20261003/python/aipicture-runtime/aipicture_runtime/execution.py",
+        "bytes": 8725,
+        "sha256": "55f0beb1d9178d3f42299b2300e78674594621c6e2759ee1b9e6ae12f57f8d44"
+      }
+    },
+    {
+      "original": {
+        "path": "python/aipicture-runtime/README.md",
+        "bytes": 19572,
+        "sha256": "26654ca48bb592c8b844703b0d5772dae26aec61f4ce8911fa1eb2a425b53442"
+      },
+      "backup": {
+        "path": ".runtime/aipicture/before-delivery-replay-20261003/python/aipicture-runtime/README.md",
+        "bytes": 19572,
+        "sha256": "26654ca48bb592c8b844703b0d5772dae26aec61f4ce8911fa1eb2a425b53442"
+      }
+    },
+    {
+      "original": {
+        "path": "python/aipicture-runtime/tests/test_lease_boundaries.py",
+        "bytes": 12133,
+        "sha256": "93ca852691c274f01bc6ca251309b0082f07e98f0596557230b42d0697107a7d"
+      },
+      "backup": {
+        "path": ".runtime/aipicture/before-delivery-replay-20261003/python/aipicture-runtime/tests/test_lease_boundaries.py",
+        "bytes": 12133,
+        "sha256": "93ca852691c274f01bc6ca251309b0082f07e98f0596557230b42d0697107a7d"
+      }
+    },
+    {
+      "original": {
+        "path": "python/aipicture-runtime/tests/test_remote_protocol_outcomes.py",
+        "bytes": 5572,
+        "sha256": "c9556715aa188d56bbf4518d7cf447247e4e678a22dd223c773a6c878287ec9b"
+      },
+      "backup": {
+        "path": ".runtime/aipicture/before-delivery-replay-20261003/python/aipicture-runtime/tests/test_remote_protocol_outcomes.py",
+        "bytes": 5572,
+        "sha256": "c9556715aa188d56bbf4518d7cf447247e4e678a22dd223c773a6c878287ec9b"
+      }
+    },
+    {
+      "original": {
+        "path": "python/aipicture-runtime/tests/test_paid_recovery_and_exports.py",
+        "bytes": 11990,
+        "sha256": "1deb96a2713889831b054b6319b974a91dca108d7a8e1e72e91eea3afbfefdf2"
+      },
+      "backup": {
+        "path": ".runtime/aipicture/before-delivery-replay-20261003/python/aipicture-runtime/tests/test_paid_recovery_and_exports.py",
+        "bytes": 11990,
+        "sha256": "1deb96a2713889831b054b6319b974a91dca108d7a8e1e72e91eea3afbfefdf2"
+      }
+    },
+    {
+      "original": {
+        "path": "python/aipicture-runtime/tests/test_batch_failure_message.py",
+        "bytes": 2685,
+        "sha256": "80a44a81e07b90fe3c11dc0f12c1c3214487f22b47cdf0c38787f6a8a5ec3ea6"
+      },
+      "backup": {
+        "path": ".runtime/aipicture/before-delivery-replay-20261003/python/aipicture-runtime/tests/test_batch_failure_message.py",
+        "bytes": 2685,
+        "sha256": "80a44a81e07b90fe3c11dc0f12c1c3214487f22b47cdf0c38787f6a8a5ec3ea6"
+      }
+    }
+  ]
+}

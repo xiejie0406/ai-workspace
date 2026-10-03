@@ -1,0 +1,547 @@
+{
+  "source": "参考项目/ai-picture-editor-main/frontend/src",
+  "target": "frontend/aipicture-workbench/src",
+  "date": "2026-10-03",
+  "scope": "源码静态对应，不能证明业务联机通过",
+  "files": [
+    {
+      "source": "api/agent.ts",
+      "target": "api/agent.ts",
+      "status": "迁移适配",
+      "reason": "保留原计划DTO及接口；明确接收Java正式planning状态，确认仍携带plan_hash及row_version",
+      "source_sha256": "a187ed08bc7fbe74f06e99be978965f6cf95514eb89ca4f14cec529f2bc3d918"
+    },
+    {
+      "source": "api/assets.ts",
+      "target": "api/assets.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "5c967134221f36877d6a99e7c22ea3e53e7c702e4fbb80b371d257095e25e6f9"
+    },
+    {
+      "source": "api/auth.ts",
+      "target": null,
+      "status": "平台替代",
+      "reason": "原自有登录注册身份API被若依唯一认证替代",
+      "source_sha256": "ae6e1778f1b0aa9016f5fa0a69ec468709ddc89aed7391ed9eda9ad78b83751d"
+    },
+    {
+      "source": "api/batches.ts",
+      "target": "api/batches.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "352fe8d4586d90b28ee93b3acad91aa55a31553f7ed2d8455f547a0f32b4254a"
+    },
+    {
+      "source": "api/client.ts",
+      "target": "api/client.ts",
+      "status": "迁移适配",
+      "reason": "通信沿宿主共享request；POST可选固定提交版本供画布命令与显式重试使用，未指定仍取原row_version机制",
+      "source_sha256": "8c5491fa49172cb3922fde04e652bcf12610bbcfdfc7acd2a52f9ead92e2c342"
+    },
+    {
+      "source": "api/runs.ts",
+      "target": "api/runs.ts",
+      "status": "迁移适配",
+      "reason": "保留原任务与候选DTO；接收正式planning状态和在途工具params用于刷新恢复",
+      "source_sha256": "85558319c8ccd5d9c5631eef7df5becee75f059ba90da7427053eceff012826f"
+    },
+    {
+      "source": "api/sessions.ts",
+      "target": "api/sessions.ts",
+      "status": "迁移适配",
+      "reason": "保留会话/历史/素材墙/选区/导出；异步选区GET暂错续读同一run并回读正式mask，失败/鉴权不重POST，固定原AbortSignal；工具可选传固定提交版本，其他消费者保持原协议。；失败选区的正式GET可显式复用有界readWithRecovery与原signal，默认初始读取保持原行为，不自动重POST",
+      "source_sha256": "cc51382477ad4639d762cedf39b256274bce455c667df7823f27ca4dce44fc19"
+    },
+    {
+      "source": "App.tsx",
+      "target": "Workbench.tsx",
+      "status": "平台替代",
+      "reason": "由宿主页标识选择完整业务页，不创建第二 BrowserRouter/主导航",
+      "source_sha256": "afbdd77871d0e8bbf9dae510f1c011a28e0fb92b4bd7c696f28dd9e45dda5dc6"
+    },
+    {
+      "source": "components/AssetCard.tsx",
+      "target": "components/AssetCard.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "6676d87f8b6e0fdb997e06248fa6b15a914834bfc57fee694f32d7774d3cfe00"
+    },
+    {
+      "source": "components/AssetLibrary.tsx",
+      "target": "components/AssetLibrary.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "1cb886ad0b6f75590421da826a201d7645973578258eed8ef298e83ca7f37565"
+    },
+    {
+      "source": "components/BrandMark.tsx",
+      "target": "components/BrandMark.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "e8dbcbfa9ece2ae93964008d4af4990d4da5c345b9d4f055ad16ffc6d4f1b78e"
+    },
+    {
+      "source": "components/editor/AgentConversation.tsx",
+      "target": "components/editor/AgentConversation.tsx",
+      "status": "迁移适配",
+      "reason": "保留计划确认、取消及步骤重试；规划中明确显示，正式规划失败无步骤时提示重新发送，不展示不可用步骤重试；步骤辅助run快照读取错误明确展示及可重读，保留正式步骤状态并按正式结果恢复。",
+      "source_sha256": "48800cc82dbb5427cd137323fd842b79da5e2ae9ed977fd67e2a1307f37c0a58"
+    },
+    {
+      "source": "components/editor/CanvasHint.tsx",
+      "target": "components/editor/CanvasHint.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "93d69c16cc6817a7b7434216e36df89cf8f672b308144a4e66ce3423586a1c19"
+    },
+    {
+      "source": "components/editor/CanvasStage.tsx",
+      "target": "components/editor/CanvasStage.tsx",
+      "status": "迁移适配",
+      "reason": "保留原画布/内联编辑及中心变换；文字共用宿主字体并经Group按框裁切，持久文档各自双轴显示、scalar预览/钉住仍等比；编辑框双轴围绕正式中心且保留正向可读/最小尺寸。拖动/拖角失败撤去本地变换恢复正式值，文字失败保留输入且成功才关闭，取消与迟到回复隔离，不增加字段；画布指针取得本实例焦点但不抢输入/文字编辑，点选/笔刷接正式Promise与局部失败序号，失败/退出/修订变更清临时预览，迟到旧请求不清新草稿",
+      "source_sha256": "dd5fb67eaedeb32bca2b262c0ae798a36addfb43b70868bc2ee3d761d96602fa"
+    },
+    {
+      "source": "components/editor/EditorToolbar.tsx",
+      "target": "components/editor/EditorToolbar.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留工具条及选区入口；执行锁与权限分开，工具按tool:execute，文档撤销重做按session:edit，选区历史仍按工具权限；裁剪等待正式成功才关闭，失败保留原框且等待/取消/失活隔离",
+      "source_sha256": "3c3ac9984f70037e497385ac228acd974c485107da2b64419a680eb8f0829731"
+    },
+    {
+      "source": "components/editor/GenerateEdits.tsx",
+      "target": "components/editor/GenerateEdits.tsx",
+      "status": "迁移适配",
+      "reason": "保留换背景/扩图/替换参数及原布局；背景和替换等待正式成功Promise才清提示词，失败/取消/未知保留原参数。",
+      "source_sha256": "dbde73f78708bf75e0e0ce29aca945b345c9ff8d6e6dd37487d3e12d551c1181"
+    },
+    {
+      "source": "components/editor/ImageWall.tsx",
+      "target": "components/editor/ImageWall.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "c49f3d5b9287efa44d09b37909d03c96c1059f022239dc1d301cf702dfd4c689"
+    },
+    {
+      "source": "components/editor/LayerPanel.tsx",
+      "target": "components/editor/LayerPanel.tsx",
+      "status": "迁移适配",
+      "reason": "保留图层/OCR/调色/文本样式/排序/变换；背景/替换/调色沿正式完成Promise，失败保留待重试值，显式重置保留。；正式终态回读迟到时以本地修改序号保护后续新调色参数，原字段与协议不变；图层透明度/旋转/等比缩放与面板文字/字号/颜色等待正式命令，失败撤回本组件字段预览并保留输入，原版本反馈重试不自动覆新版本；字号以正式基线判断提交，迟到完成保护同层另一表单新预览；实际快速拒绝后的延迟失捕事件以明确手势序号保护单次提交，失败draft与提交槽分离，保留新手势及原键盘预览语义",
+      "source_sha256": "c2280d48079258e66abb28ca757315921a8aca2b1594282cff6085b8f92b5caa"
+    },
+    {
+      "source": "components/editor/MessageComposer.tsx",
+      "target": "components/editor/MessageComposer.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "e678e21ae92366cd1170dae959fe232d6a1044680182fc9eab2e23ec3e54f1e3"
+    },
+    {
+      "source": "components/editor/SelectionOverlay.tsx",
+      "target": "components/editor/SelectionOverlay.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "e48236fe71186b5a3ed4297c2d7c84c863cb61d3f6b70eb23a94900f4e96ba62"
+    },
+    {
+      "source": "components/editor/SessionSidebar.tsx",
+      "target": "components/editor/SessionSidebar.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留会话侧栏、历史和消息入口；正式planning阻止重复发送并显示思考中",
+      "source_sha256": "aff5a46c407feef4c54338c264d4b085f034d8167afbad57e44fffa730b1544f"
+    },
+    {
+      "source": "components/GenerateForm.tsx",
+      "target": "components/GenerateForm.tsx",
+      "status": "迁移适配",
+      "reason": "保留原生成表单与参数；未提交提示词随输入写已有按用户草稿，TagsView失活/重挂载可恢复，不增加全局store。；按原1500码点上限显示和拒绝超限，移除UTF16原生截断；保持IME/Enter/原样草稿及原参数",
+      "source_sha256": "86b2bddbd8f186607c2ad34af61f8db12d80fc1640709e1653cabc766fd44956"
+    },
+    {
+      "source": "components/ImageDropzone.tsx",
+      "target": "components/ImageDropzone.tsx",
+      "status": "迁移适配",
+      "reason": "保留单文件及多文件输入、拖放、类型/体积校验；补齐同轮非法文件提示累加且合法后项不清除拒绝原因，disabled时不接收新输入；批量逐文件成功消费由页面局部有序队列完成，参考源码不改。",
+      "source_sha256": "b5fa64f52f21bb85fbe5c24425174335d34a839e1d7395547ac1093d26ee0dde"
+    },
+    {
+      "source": "components/landing/CapabilityShowcase.tsx",
+      "target": "components/landing/CapabilityShowcase.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "78a6007556160decaf5d282e6624a7204d12eed0a51c403cc3626e5ac844a601"
+    },
+    {
+      "source": "components/landing/DeliverySteps.tsx",
+      "target": "components/landing/DeliverySteps.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "24ed901a0dfa233778c7e40e2315c02cd8b7af041f997d363d437a4bfdfdd35f"
+    },
+    {
+      "source": "components/landing/LandingFooter.tsx",
+      "target": "components/landing/LandingFooter.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "24e062f723dfa0088785a6e4002301beb2edb6772242a1dbc1669710b3ab89d5"
+    },
+    {
+      "source": "components/landing/LandingHeader.tsx",
+      "target": "pages/LandingPage.tsx",
+      "status": "平台替代",
+      "reason": "宣传账号页头改为内部创作指南说明",
+      "source_sha256": "85e4de391d2dfa392cfb2cda9edae5365b51ef476cbb021a931665ff11f77aee"
+    },
+    {
+      "source": "components/landing/LandingHero.tsx",
+      "target": "components/landing/LandingHero.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "d52601fc08923bcea98084f36ca69594ea573159479b53d768e130f14abf7d92"
+    },
+    {
+      "source": "components/landing/previews.tsx",
+      "target": "components/landing/previews.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "2039582cedd544297eca78dc016ea0d8a862325b75686297099e316ac5ea89d8"
+    },
+    {
+      "source": "components/landing/PromptComposer.tsx",
+      "target": "components/landing/PromptComposer.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "4581dab0fc6dd6e38f78215fa1ba53d2a6c9e9e4a07e8bc46febeedbb1e419e6"
+    },
+    {
+      "source": "components/landing/StartBanner.tsx",
+      "target": "components/landing/StartBanner.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "dcae45592f9f60371343a4bd298a6ff2cbb5a4cb4604e7619b7e704932c70f21"
+    },
+    {
+      "source": "components/ToastHost.tsx",
+      "target": "host/HostContext.tsx",
+      "status": "平台替代",
+      "reason": "提示和可撤销动作委托若依host.notify",
+      "source_sha256": "a294db7a3e3cd5323c47e4f9cb4a348af67489064b03010c4c7fbf91f3d30b65"
+    },
+    {
+      "source": "components/ui/Button.tsx",
+      "target": "components/ui/Button.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "9ebfb08bcfa498d972d861e5263e426cb43b44fc10185ee1ab60581080ee6574"
+    },
+    {
+      "source": "components/ui/buttonStyles.ts",
+      "target": "components/ui/buttonStyles.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "4ca361e5b87899f0986a3883f84974ba8a5facccb7633a35ec04688a367c78c7"
+    },
+    {
+      "source": "components/ui/ProgressBar.tsx",
+      "target": "components/ui/ProgressBar.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "05d664dcf9769e901a944ab78f93a325338fd817e33d5b5030161495aa3ec600"
+    },
+    {
+      "source": "hooks/useAgent.ts",
+      "target": "hooks/useAgent.ts",
+      "status": "迁移适配",
+      "reason": "完整保留单步及多步计划操作；正式planning持续轮询，发送传输失败也回读已保存turn，沿用共享请求和幂等；发送、确认、重试和取消均在onSettled等待原正式计划、会话与历史刷新，响应丢失期间保持动作pending，正式running继续原计划轮询。",
+      "source_sha256": "5b1a280180a32b5f65d9a634c8cd8ef4e268b02f776560bca6e5baba429dfcfb"
+    },
+    {
+      "source": "hooks/useAssets.ts",
+      "target": "hooks/useAssets.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "40b18838edfc03c907753897a1093bcbb1acbfb45fd95938f6b4e5b8cba59b6c"
+    },
+    {
+      "source": "hooks/useAuth.ts",
+      "target": "lib/errors.ts",
+      "status": "平台替代",
+      "reason": "移除自有身份缓存；保留错误文字处理",
+      "source_sha256": "468f7836d956399bad7b6af0a5d0b3817a89b70dba56f550fad79e66413d83f8"
+    },
+    {
+      "source": "hooks/useBatch.ts",
+      "target": "hooks/useBatch.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配；批量详情可依据自身正式母任务继续原1200ms轮询；单项重试和取消即使POST响应丢失也等待正式详情、母任务和列表回读，不重发副作用。",
+      "source_sha256": "76143c2f786d15e96df091339c16b2daf730d4f9a5243272da18e45c0e20ab8a"
+    },
+    {
+      "source": "hooks/useCanvasImage.ts",
+      "target": "hooks/useCanvasImage.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "dbc4d83421005e60c349d01eba5e7af28c834bac11e76383a22047809ac52ad9"
+    },
+    {
+      "source": "hooks/useElementSize.ts",
+      "target": "hooks/useElementSize.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "26ec0c85bdb0f1d4c8d948c3d153cb2ee4ef81895fc904f75fffc713a9a40c38"
+    },
+    {
+      "source": "hooks/useHeldCanvas.ts",
+      "target": "hooks/useHeldCanvas.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "ed0e3191ae90819d2d46424daaa51d4da4024972a4ba672a17b71ed25500bb09"
+    },
+    {
+      "source": "hooks/useMountTransition.ts",
+      "target": "hooks/useMountTransition.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "b803e2b98ed5ae892a394f3eba4d6d3c2b9bdb5a1a0b593ce8d951e3a4243f03"
+    },
+    {
+      "source": "hooks/usePointPreview.ts",
+      "target": "hooks/usePointPreview.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "ae8060ef114832d01c679ef051a90f49c41422f54c1e0c2c666e0ab42aa43ce8"
+    },
+    {
+      "source": "hooks/useRun.ts",
+      "target": "hooks/useRun.ts",
+      "status": "迁移适配",
+      "reason": "沿宿主认证快照及订阅合并任务进度；保留工具参数，首次错误与真正404/null区分并提供原查询重试；辅助正式任务GET网络或5xx耗尽自动重试后仍沿原1500ms轮询，明确暴露读取错误与重读；鉴权、不存在和业务拒绝不自动循环；同任务自动/手动重读pending保留最后读取错误与入口，正式成功或明确null清除，资源切换及旧响应不串任务，SSE不可用判断沿同一读取错误。",
+      "source_sha256": "64007069d964965b7a228c31f7de77a0587ff57449ca99ea0d479af2eba4c29a"
+    },
+    {
+      "source": "hooks/useSelection.ts",
+      "target": "hooks/useSelection.ts",
+      "status": "迁移适配",
+      "reason": "保留连续点选涂抹及历史回放；revision=0仍读正式选区，选择等待锁与工具权限独立；失败立即反馈并读正式mask，会话/修订/AbortSignal守卫隔离迟到结果；回放peek目标后正式成功才提交游标，失败保留明确重试目标，预热不因渲染重复派发",
+      "source_sha256": "20ca80299c8cc4d3b2e966ca05382611a1a161e8a43507466a150eaab57b5744"
+    },
+    {
+      "source": "hooks/useSelectStroke.ts",
+      "target": "hooks/useSelectStroke.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "83fc784d446e02c05851b172c5c137181d7fe3c8b648990e5d41fd37b9ab0ed5"
+    },
+    {
+      "source": "hooks/useSessions.ts",
+      "target": "hooks/useSessions.ts",
+      "status": "迁移适配",
+      "reason": "保留会话/历史/工具及辅助run恢复；参数表单等待同一run正式succeeded/partial，POST接受不等同完成，AbortError不跨身份提示；画布命令失败回读正式session/history，拖动与倍率显式重试固定原版本，外部更新或busy/失活时阻止旧重试。",
+      "source_sha256": "e9824e15ed00bf003096064ee9e54de409269a3d5264a8d5752215b4f39f4106"
+    },
+    {
+      "source": "hooks/useSmoothedProgress.ts",
+      "target": "hooks/useSmoothedProgress.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "1c992b9d1a5d1e32716fe91e8c82787b424e0daeea017b2e09173b972e0d7860"
+    },
+    {
+      "source": "index.css",
+      "target": "index.css",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "4c0025a586866b5e3a2a6595a912faac34d74712970b43ad418622a8c86b886b"
+    },
+    {
+      "source": "layouts/RequireAuth.tsx",
+      "target": "Workbench.tsx",
+      "status": "平台替代",
+      "reason": "服务器授权菜单及host.hasPermission读取若依权限",
+      "source_sha256": "a1ff5a26689e9e2c974537b7f7895e95caecaba32063b69a4527ced54caf9c15"
+    },
+    {
+      "source": "layouts/WorkbenchLayout.tsx",
+      "target": "Workbench.tsx",
+      "status": "平台替代",
+      "reason": "若依Layout/TagsView是唯一主导航，业务库只渲染内容",
+      "source_sha256": "93169572126f4534f9fec15daac3d71e19d57b5be181765fb6b72d5a05178899"
+    },
+    {
+      "source": "lib/adjustPreview.ts",
+      "target": "lib/adjustPreview.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "e0c6a80c9b8c447bb87554bba02e71fad702e5f268d5e410f0ae8fa802354752"
+    },
+    {
+      "source": "lib/batch.ts",
+      "target": "lib/batch.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "86773a2d7d3d4d6b83ddf50e182ba59277396f42d8109d249c96b95831e16bae"
+    },
+    {
+      "source": "lib/brush.ts",
+      "target": "lib/brush.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "a2d900bc0179de7b1d45f63b586ecd8298de411ae818ff392a7fb788adcbaa02"
+    },
+    {
+      "source": "lib/floodPreview.ts",
+      "target": "lib/floodPreview.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "49e11dd256c4c306ed4f16eb0918cbb4f84f743901671997dc914d1801b1efdf"
+    },
+    {
+      "source": "lib/format.ts",
+      "target": "lib/format.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "3d32a89e80cb4fbc9f63ec01551ba297ec335c9d7e2299758bb0926e5302144f"
+    },
+    {
+      "source": "lib/layers.ts",
+      "target": "lib/layers.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "822e1305b6be36a78baabf3d73bf9afc690ae01ac4d5b334999c293f9a45b478"
+    },
+    {
+      "source": "lib/marketing.ts",
+      "target": "lib/marketing.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "2d3b21b8570eb36e72e6f3e3e498ed64f137e02f1502465cd2b1c61bac12c2a8"
+    },
+    {
+      "source": "lib/promptDraft.ts",
+      "target": "lib/promptDraft.ts",
+      "status": "迁移适配",
+      "reason": "复用按若依userId作用域的既有sessionStorage草稿；保存未提交的换行/空格，成功/身份退出按原规则清除。",
+      "source_sha256": "d90db806b2352fa396ef30219876693706c9d95ee9282e36a03d5fa2ca789038"
+    },
+    {
+      "source": "lib/runPacing.ts",
+      "target": "lib/runPacing.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "10de91bac2c7fb71b335ed68bbc5b6e0ce5681b4e674a5e61c6a66f958ef8d9a"
+    },
+    {
+      "source": "lib/selectionHistory.ts",
+      "target": "lib/selectionHistory.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配；保留原提交/撤销/重做/清除算法，新增peekUndo/peekRedo用于异步正式成功后提交游标",
+      "source_sha256": "a53fa0840bb4027bec5adf2846660d4d0f78c838aa922fb5a0ac85db9a2e23a9"
+    },
+    {
+      "source": "lib/tools.ts",
+      "target": "lib/tools.ts",
+      "status": "原样保留",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "71598c435dadcd25825af5b8f4fa226a1f0cdf9a250027b008486aeb72f2b98c"
+    },
+    {
+      "source": "main.tsx",
+      "target": "embed.tsx",
+      "status": "平台替代",
+      "reason": "库模式 mount/update/unmount，ShadowRoot 隔离",
+      "source_sha256": "be1d17bbf4fa4d0973a75b567a37b4aad7fda432a80892df19eb88bda1ec399e"
+    },
+    {
+      "source": "pages/AuthPage.tsx",
+      "target": null,
+      "status": "平台替代",
+      "reason": "若依统一登录注册，不迁入另一登录页",
+      "source_sha256": "7c833a48b2e5d1ff6f969aad3b208e1ec2169871891c12413600570661a77408"
+    },
+    {
+      "source": "pages/BatchPage.tsx",
+      "target": "pages/BatchPage.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留批量流程、详情、部分成功及重试取消；未知外部结果如实展示，首次404/null与权限服务网络错误分别明示并可重读；辅助任务快照读取错误和重读明确展示；已读取的正式批量终态可决定结果与打包状态，不能以GET异常伪造业务失败。 原连续上传仅末次回调入选的不足按完整批量要求补齐：本页有序mutateAsync队列逐文件保留成功，整轮pending禁止提前处理，已选+待上传≤20且超限不上传，失败按文件明确保留，失活停止未开始队列；原单文件上传API及批量结果路径保持。 Effect setup恢复本实例存活标记，兼容原React StrictMode开发重放；未新增正式StrictMode入口。",
+      "source_sha256": "ca205a2d0794ccec0e7336989387da1e830c9369097351d48224169b4ba05ff5"
+    },
+    {
+      "source": "pages/CandidatesPage.tsx",
+      "target": "pages/CandidatesPage.tsx",
+      "status": "迁移适配",
+      "reason": "保留点选采用及同批候选上墙；按批准设计第3项补齐实例内大图预览、授权原图下载和返回创作，原页面本身无这些入口；首次读取错误明示并可重读",
+      "source_sha256": "6be611c0b34118b55e6d2d97ca74f90fd3adee8d6ab65238d304d19cc98e1d62"
+    },
+    {
+      "source": "pages/CreatePage.tsx",
+      "target": "pages/CreatePage.tsx",
+      "status": "迁移适配",
+      "reason": "保留原生成/上传/历史素材；草稿随输入保存，成功只清对应提交内容，退出身份清除旧草稿且迟到回复隔离。",
+      "source_sha256": "3fe3fa02b6920b5967aa4ad5819453036ab9b5c15d233f7022fc42680ecf6647"
+    },
+    {
+      "source": "pages/EditorPage.tsx",
+      "target": "pages/EditorPage.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留画布、会话侧栏和素材墙；快捷键限定当前ShadowRoot，会话编辑与工具权限独立，首次404/null及权限服务网络错误分别明示并可重读；主会话正常但辅助任务GET失败时明确显示原错误和重新读取任务，收到正式成功再解除等待锁；拖动/拖角/文字回调接同一正式Promise，不吞命令失败或提前关闭编辑。；图片墙、撤销重做和正式回读在layout提交后仅清不存在的选中层及旧层预览，失败换图/有效层/其他实例保持原状态；画布选区回调传正式Promise、当前修订与局部失败信号，快捷键仍属于当前实例",
+      "source_sha256": "04c1335fa182943f851ab958966e566c30c5585e8e2e30fbf4d505586fd3264c"
+    },
+    {
+      "source": "pages/LandingPage.tsx",
+      "target": "pages/LandingPage.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "ef0645fd9add0dd79aa29c9bd0950f7847180a118c5c5545264d57261f198e4e"
+    },
+    {
+      "source": "pages/MarketingPage.tsx",
+      "target": "pages/MarketingPage.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留四类营销图、投放尺寸和打包下载；工具入口按tool:execute，导出沿正式下载权限，首次读取错误明示并可重读；主会话正常但辅助任务GET失败时明确显示原错误和重新读取任务，恢复后刷新营销结果。；200字文案按正式schema码点计数和提交前校验，合法Unicode不截断，四类/数量/比例不变",
+      "source_sha256": "c94b913643192deb89cf29f53afd9b7207a948dabf5ff397791bbae14080e42b"
+    },
+    {
+      "source": "pages/PlaceholderPage.tsx",
+      "target": "pages/PlaceholderPage.tsx",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "d424294336acfb66284f62c88a459b580fbbf0e51c9407a39a4090c6840ebd4f"
+    },
+    {
+      "source": "stores/canvasView.ts",
+      "target": "stores/canvasView.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "50816a62ce6a587a22fd6988e638c819041b7a100071d672907bc30b7967af95"
+    },
+    {
+      "source": "stores/editorUi.ts",
+      "target": "stores/editorUi.ts",
+      "status": "迁移适配",
+      "reason": "完整保留原业务组件和交互；通信/状态依赖按宿主边界局部适配",
+      "source_sha256": "53c1afa761f2d3405f1b786727affe773317fe1981461e467a59b9ab18286e5e"
+    },
+    {
+      "source": "stores/toasts.ts",
+      "target": "host/HostContext.tsx",
+      "status": "平台替代",
+      "reason": "删除第二全局提示状态和未释放超时",
+      "source_sha256": "e29d28d069d4540456ee277e0f208d9a24a377a77877a69e28ebc030cee0dfcf"
+    }
+  ],
+  "total_source_files": 75,
+  "business_source_pages": [
+    "pages/LandingPage.tsx",
+    "pages/CreatePage.tsx",
+    "pages/CandidatesPage.tsx",
+    "pages/EditorPage.tsx",
+    "pages/MarketingPage.tsx",
+    "pages/BatchPage.tsx"
+  ],
+  "platform_source_page": "pages/AuthPage.tsx",
+  "unused_source_placeholder": "pages/PlaceholderPage.tsx",
+  "target_added_pages": [
+    "pages/ExportPage.tsx"
+  ]
+}

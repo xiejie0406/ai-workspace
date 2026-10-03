@@ -1,0 +1,133 @@
+{
+  "source": "完整迁移设计第5节第21项及已保存业务验收记录第21项",
+  "scope": "原CLI的确定性子场景；不是整项通过，不执行抠图、SAM、OCR、Provider或数据库写入",
+  "fixed_inputs": {
+    "solid": {
+      "width": 64,
+      "height": 64,
+      "rgba": [
+        100,
+        50,
+        25,
+        255
+      ]
+    },
+    "alpha": {
+      "width": 64,
+      "height": 64,
+      "opaque_rectangle_inclusive": [
+        16,
+        16,
+        47,
+        47
+      ],
+      "opaque_pixels": 1024,
+      "transparent_pixels": 3072
+    }
+  },
+  "independent_expected": {
+    "brightness": {
+      "rgba": [
+        120,
+        60,
+        30,
+        255
+      ],
+      "reason": "各RGB已知整数乘1.2，Alpha保持255"
+    },
+    "letterbox": {
+      "width": 96,
+      "height": 64,
+      "placed_rectangle_inclusive": [
+        16,
+        0,
+        79,
+        63
+      ],
+      "reason": "源64方图不缩放，左右各16像素白色留白"
+    },
+    "resize": {
+      "width": 128,
+      "height": 96,
+      "rgba": [
+        100,
+        50,
+        25,
+        255
+      ],
+      "reason": "常量像素的缩放仍为同一常量"
+    },
+    "delivery_ratios": {
+      "1:1": [
+        1080,
+        1080
+      ],
+      "4:5": [
+        1080,
+        1350
+      ],
+      "3:4": [
+        1080,
+        1440
+      ],
+      "9:16": [
+        1080,
+        1920
+      ],
+      "16:9": [
+        1920,
+        1080
+      ]
+    },
+    "png_alpha_iou": {
+      "expected": 1,
+      "reason": "PNG编码应完整保留人工构造的同一透明通道，与抠图效果无关"
+    },
+    "metric_direction": {
+      "mae": "越低越好",
+      "psnr": "越高越好；完全相同在原CLI中记99",
+      "contain": "仅几何容纳",
+      "size": "尺寸完全相同=1"
+    }
+  },
+  "pre_execution_expected_exit_codes": {
+    "成功五任务": 0,
+    "故意阈值失败": 1,
+    "缺少清单": 2,
+    "未知任务": 2,
+    "越界路径": 1,
+    "缺少对比图": 1
+  },
+  "strict_threshold_reason": "相同像素原指标PSNR为99，特意将阈值设为100必须失败；此测试只验证阈值与退出码，不定义产品质量阈值",
+  "execution_mode": {
+    "offline_test": false,
+    "paid_provider_enabled": false,
+    "uses_mock": false
+  },
+  "source_original_cases_sha256": "72bdc519cb1858d99bbe71bfa5763c226a1a921ceb46db55ed25d3430b46bd12",
+  "fixture_sha256": {
+    "existing-outside.png": "867bcd27067234128604de4acc2f70c9265d891d56e90eb46f9ec59303035b17",
+    "成功五任务\\cases.json": "4ecb4320504093ead075576842091e8c111483c5091cb8a35cebcbd9f5a20c21",
+    "故意阈值失败\\cases.json": "88f9ba0907e50d610ee2c98c5ca122604ee2950ef1923e6a05f983b7545d99cb",
+    "未知任务\\cases.json": "438c50e8c4d822ea11d7f69cb960782f0391b93f802e47e6cd4af0e66eb24fb9",
+    "缺少对比图\\cases.json": "9eb34a5557c85af3a1a359332442b0d8e4a68bac4fcae37b80d4627781768fff",
+    "越界路径\\cases.json": "5429ddd4d773911bde82d6c6def44a669896d79ed481748d7e7c832c00439bd2",
+    "缺少对比图\\images\\solid.png": "867bcd27067234128604de4acc2f70c9265d891d56e90eb46f9ec59303035b17",
+    "未知任务\\images\\solid.png": "867bcd27067234128604de4acc2f70c9265d891d56e90eb46f9ec59303035b17",
+    "故意阈值失败\\expect\\alpha.png": "a9e4b7c43f840f93acfe9a7b783da6f22c3597de2a5853a17dfffe692d9d4cd5",
+    "故意阈值失败\\expect\\bright.png": "0ec252d1d65213e5cfdba5494502acf3b6b7f24f01c2e8012ca44be7b3a32f4e",
+    "故意阈值失败\\expect\\letterbox.png": "99d286c626ce5b3fcdedfcc38494955fad77e50b39c07965753cba6d4e3f139d",
+    "故意阈值失败\\expect\\resize.png": "ba4c230a6aac5b563b236fad493c94e781973311f8f564da8471f8f6e1a30e2f",
+    "故意阈值失败\\expect\\solid.png": "867bcd27067234128604de4acc2f70c9265d891d56e90eb46f9ec59303035b17",
+    "故意阈值失败\\images\\alpha.png": "a9e4b7c43f840f93acfe9a7b783da6f22c3597de2a5853a17dfffe692d9d4cd5",
+    "故意阈值失败\\images\\solid.png": "867bcd27067234128604de4acc2f70c9265d891d56e90eb46f9ec59303035b17",
+    "成功五任务\\expect\\alpha.png": "a9e4b7c43f840f93acfe9a7b783da6f22c3597de2a5853a17dfffe692d9d4cd5",
+    "成功五任务\\expect\\bright.png": "0ec252d1d65213e5cfdba5494502acf3b6b7f24f01c2e8012ca44be7b3a32f4e",
+    "成功五任务\\expect\\letterbox.png": "99d286c626ce5b3fcdedfcc38494955fad77e50b39c07965753cba6d4e3f139d",
+    "成功五任务\\expect\\resize.png": "ba4c230a6aac5b563b236fad493c94e781973311f8f564da8471f8f6e1a30e2f",
+    "成功五任务\\expect\\solid.png": "867bcd27067234128604de4acc2f70c9265d891d56e90eb46f9ec59303035b17",
+    "成功五任务\\images\\alpha.png": "a9e4b7c43f840f93acfe9a7b783da6f22c3597de2a5853a17dfffe692d9d4cd5",
+    "成功五任务\\images\\solid.png": "867bcd27067234128604de4acc2f70c9265d891d56e90eb46f9ec59303035b17"
+  },
+  "record_order": "本文件及cases/expect均在调用CLI之前保存，预期不调用被测像素函数生成"
+}

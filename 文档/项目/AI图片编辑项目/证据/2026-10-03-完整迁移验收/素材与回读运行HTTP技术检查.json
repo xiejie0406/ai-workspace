@@ -1,0 +1,134 @@
+{
+  "scope": "实际 HTTP 技术边界；无真实模型或用户业务验收",
+  "checks": [
+    {
+      "name": "计算接口拒绝未签名请求",
+      "passed": true
+    },
+    {
+      "name": "实际 HMAC 能力读取",
+      "passed": true,
+      "registeredTools": 22,
+      "capabilities": {
+        "deterministic_pixels": {
+          "ready": true,
+          "provider": "pillow",
+          "offline_test": false
+        },
+        "text_rendering": {
+          "ready": true,
+          "provider": "pillow",
+          "loaded": true,
+          "family": "Microsoft YaHei",
+          "validation": "font_load_and_basic_glyph_probe",
+          "probe": "中文价格ABC123",
+          "font": {
+            "present": true,
+            "name": "msyh.ttc",
+            "size_bytes": 19704352,
+            "sha256": "d79c55e68b1131eea0cc1c47be4f572d964f28c682e143db2ad09c1e4cb07a3f"
+          },
+          "error": null,
+          "offline_test": false
+        },
+        "image_generation": {
+          "ready": false,
+          "provider": "dashscope",
+          "offline_test": false
+        },
+        "image_edit": {
+          "ready": false,
+          "provider": "dashscope",
+          "offline_test": false
+        },
+        "enhancement": {
+          "ready": false,
+          "provider": "image_edit",
+          "offline_test": false,
+          "true_super_resolution": false
+        },
+        "matting": {
+          "ready": false,
+          "provider": "unconfigured",
+          "offline_test": false,
+          "loaded": false,
+          "validation": "files_and_dependencies_only",
+          "models": {
+            "u2net": {
+              "present": false,
+              "sha256": null,
+              "size_bytes": null
+            }
+          }
+        },
+        "sam": {
+          "ready": false,
+          "provider": "sam",
+          "offline_test": false,
+          "loaded": false,
+          "validation": "files_and_dependencies_only",
+          "models": {
+            "encoder": {
+              "present": false,
+              "sha256": null,
+              "size_bytes": null
+            },
+            "decoder": {
+              "present": false,
+              "sha256": null,
+              "size_bytes": null
+            }
+          }
+        },
+        "ocr": {
+          "ready": false,
+          "provider": "unconfigured",
+          "offline_test": false,
+          "loaded": false,
+          "validation": "files_and_dependencies_only",
+          "models": {
+            "det": {
+              "present": false,
+              "sha256": null,
+              "size_bytes": null
+            },
+            "rec": {
+              "present": false,
+              "sha256": null,
+              "size_bytes": null
+            },
+            "cls": {
+              "present": false,
+              "sha256": null,
+              "size_bytes": null
+            }
+          }
+        },
+        "planner": {
+          "ready": false,
+          "provider": "qwen-plus",
+          "offline_test": false
+        }
+      }
+    },
+    {
+      "name": "正式素材接口要求若依认证",
+      "passed": true
+    },
+    {
+      "name": "中心 HMAC 与租约/素材边界",
+      "passed": true,
+      "rejectedStatus": 404,
+      "errorCode": "NOT_FOUND"
+    },
+    {
+      "name": "实际 HTTP 确定性调色与产物指纹",
+      "passed": true,
+      "format": "PNG",
+      "size": [
+        32,
+        32
+      ]
+    }
+  ]
+}

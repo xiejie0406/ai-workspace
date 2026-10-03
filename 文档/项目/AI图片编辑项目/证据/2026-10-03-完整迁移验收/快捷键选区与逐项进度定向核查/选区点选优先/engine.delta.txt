@@ -1,0 +1,12 @@
+--- protected-before/engine.py
++++ frozen-current/engine.py
+@@ -452,7 +452,8 @@
+                 session = segment._sam
+                 if not get_settings().offline_test and session is not None and getattr(session, "encoder", None) is not None and getattr(session, "decoder", None) is not None:
+                     self.sam_provenance = {"provider": "onnxruntime", "model": "sam", "loaded": True, "inference": "points"}
+-            if traces:
++            # 原接口采用 if points / elif strokes；混合字段已校验，但不能扩大点选作用区。
++            elif traces:
+                 luma = rasterize_strokes(size, traces, radius=radius, base=luma)
+             identifier = self.store(overlay_png(luma), "mask")
+             return {"mask_asset_id": str(identifier), "asset_ids": [str(identifier)], "revision": self.revision,

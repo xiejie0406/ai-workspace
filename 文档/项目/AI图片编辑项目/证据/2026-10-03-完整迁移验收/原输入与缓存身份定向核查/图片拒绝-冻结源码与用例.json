@@ -1,0 +1,144 @@
+{
+  "frozen_at": "2026-10-03T06:08:09.7250980Z",
+  "source_frozen": true,
+  "scope": "仅已知图像异常转安全422，保持计算故障503、签名、输入预算和既有收费未知语义",
+  "sources": [
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/artifacts.py",
+      "bytes": 4855,
+      "sha256": "3796e19f70253aeaf749d88af1632fb3fc52426ddb7388289170e53f81aae157"
+    },
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/main.py",
+      "bytes": 5320,
+      "sha256": "3377f744977e3bbfff5d95e52e0ff99916e1a78073f2336ed4fac2dd45999f6a"
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_image_rejection.py",
+      "bytes": 8675,
+      "sha256": "8df160e34fd7d0b4dba2bf12666a78ed272b5ddad551e94a8668b59006168cc6"
+    }
+  ],
+  "before_source_record": ".runtime/aipicture/before-image-input-rejection-20261003/source-before.json",
+  "before": {
+    "native_exit": 1,
+    "summary": {
+      "path": ".runtime/aipicture/image-input-rejection-before.xml",
+      "tests": 11,
+      "failures": 4,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 7,
+      "case_names": [
+        "tests.test_image_rejection::test_actual_invalid_images_return_safe_structured_422[unidentified]",
+        "tests.test_image_rejection::test_actual_invalid_images_return_safe_structured_422[truncated_png]",
+        "tests.test_image_rejection::test_actual_invalid_images_return_safe_structured_422[bomb]",
+        "tests.test_image_rejection::test_valid_png_webp_keeps_real_metadata_and_zero_artifacts[PNG]",
+        "tests.test_image_rejection::test_valid_png_webp_keeps_real_metadata_and_zero_artifacts[WEBP]",
+        "tests.test_image_rejection::test_prepare_selection_uses_same_safe_rejection_for_corrupted_inline_asset",
+        "tests.test_image_rejection::test_real_compute_fault_still_503_without_image_rejection_code",
+        "tests.test_image_rejection::test_pydantic_validation_is_not_globally_forwarded_as_image_message",
+        "tests.test_image_rejection::test_image_rejection_still_requires_service_signature",
+        "tests.test_image_rejection::test_fifty_million_pixel_header_is_rejected_before_decode",
+        "tests.test_image_rejection::test_twenty_mb_limit_rejects_before_pillow_parser"
+      ]
+    },
+    "fact": "11项真实执行：4产品失败/7通过；非请求准备错误；3真实Pillow异常及prepare-selection损坏内联asset均误返503"
+  },
+  "after": {
+    "native_exit": 0,
+    "summary": {
+      "path": ".runtime/aipicture/image-input-rejection-after.xml",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 23,
+      "case_names": [
+        "tests.test_image_rejection::test_actual_invalid_images_return_safe_structured_422[unidentified]",
+        "tests.test_image_rejection::test_actual_invalid_images_return_safe_structured_422[truncated_png]",
+        "tests.test_image_rejection::test_actual_invalid_images_return_safe_structured_422[bomb]",
+        "tests.test_image_rejection::test_valid_png_webp_keeps_real_metadata_and_zero_artifacts[PNG]",
+        "tests.test_image_rejection::test_valid_png_webp_keeps_real_metadata_and_zero_artifacts[WEBP]",
+        "tests.test_image_rejection::test_prepare_selection_uses_same_safe_rejection_for_corrupted_inline_asset",
+        "tests.test_image_rejection::test_real_compute_fault_still_503_without_image_rejection_code",
+        "tests.test_image_rejection::test_pydantic_validation_is_not_globally_forwarded_as_image_message",
+        "tests.test_image_rejection::test_image_rejection_still_requires_service_signature",
+        "tests.test_image_rejection::test_fifty_million_pixel_header_is_rejected_before_decode",
+        "tests.test_image_rejection::test_twenty_mb_limit_rejects_before_pillow_parser",
+        "tests.test_selection_sequence::test_private_inspection_accepts_actual_small_webp_layer_only_explicitly",
+        "tests.test_worker::test_private_api_signature_and_actual_java_shape",
+        "tests.test_provider_boundaries::test_private_selection_http_accepts_java_params_and_true_revision",
+        "tests.test_provider_boundaries::test_frozen_read_url_matches_run_attempt_lease_and_expected_asset",
+        "tests.test_remote_protocol_outcomes::test_paid_post_remote_disconnect_is_unknown_not_retryable_failure[replace_background]",
+        "tests.test_remote_protocol_outcomes::test_paid_post_remote_disconnect_is_unknown_not_retryable_failure[batch_process]",
+        "tests.test_remote_protocol_outcomes::test_paid_post_remote_disconnect_is_unknown_not_retryable_failure[generate_image]",
+        "tests.test_remote_protocol_outcomes::test_known_generation_disconnect_keeps_original_task_and_never_reposts[existing]",
+        "tests.test_remote_protocol_outcomes::test_known_generation_disconnect_keeps_original_task_and_never_reposts[submitted]",
+        "tests.test_remote_protocol_outcomes::test_batch_adapter_remote_disconnect_propagates_before_item_failure",
+        "tests.test_remote_protocol_outcomes::test_local_protocol_and_json_errors_keep_explicit_failure_boundary[local_protocol]",
+        "tests.test_remote_protocol_outcomes::test_local_protocol_and_json_errors_keep_explicit_failure_boundary[malformed_json]"
+      ]
+    },
+    "composition": {
+      "new_image_tests": 11,
+      "existing_small_internal_webp": 1,
+      "existing_java_shape_signature_api": 1,
+      "existing_prepare_selection_api": 1,
+      "existing_frozen_asset_read": 1,
+      "existing_paid_remote_protocol_boundaries": 8
+    },
+    "count_rule": "本轮实际23互异=新增11+受影响既有12；修前11不累计，历史其他基线不累计"
+  },
+  "evidence": [
+    {
+      "path": ".runtime/aipicture/image-input-rejection-before.log",
+      "bytes": 7003,
+      "sha256": "d570bcaeb8a675ed28378617dd3b7ae33b270f19e014d9c33628c28c87c042c1"
+    },
+    {
+      "path": ".runtime/aipicture/image-input-rejection-before.xml",
+      "bytes": 9061,
+      "sha256": "217f1faa76b3884ba6b7adab05535a786aa6a09b15dbc11fba37a666c03d0564"
+    },
+    {
+      "path": ".runtime/aipicture/image-input-rejection-after.log",
+      "bytes": 102,
+      "sha256": "47fb1feffd4ff01c8ccf34d0675e89ae662c5b7b76789d39c3308612909dc1ea"
+    },
+    {
+      "path": ".runtime/aipicture/image-input-rejection-after.xml",
+      "bytes": 3553,
+      "sha256": "2cd71598225ba786b1803012874b9fad50df7fde0775c7609caffde20c1b2c97"
+    },
+    {
+      "path": ".runtime/aipicture/before-image-input-rejection-20261003/source-before.json",
+      "bytes": 997,
+      "sha256": "e0def6d985827325048b9e32a8671d4480818eba074277286e2e91d4bdaaebd3"
+    }
+  ],
+  "behaviors": {
+    "known_image_rejection": "ImageRejected(ValueError) + error_code INVALID_IMAGE/message，两个私有计算入口422；固定消息不转原输入/解码器exception",
+    "true_compute_fault": "503/COMPUTE_UNAVAILABLE，原异常边界保持",
+    "pydantic_validation": "既有422 detail保持，不全局复制到message/error_code",
+    "header_checks": "20MiB/50M检查在解析或完整decode前；未改变默认资源限额",
+    "minimum_side": "既有公共32/内部1保持，已有真实小WebP定向通过",
+    "bomb_fixture": "64x80真实PNG+仅测试临时MAX_IMAGE_PIXELS=1000，真实BombError，无大图分配",
+    "real_png_corruption": "真实IDAT截断，header可读64x80而image.load真实OSError"
+  },
+  "new_image_tests_side_effects": {
+    "provider_calls": 0,
+    "external_http": 0,
+    "artifact_registrations": 0
+  },
+  "existing_paid_tests": "仅受控httpx.MockTransport/本地替身，无真实Provider/中心请求",
+  "real_model_inference": false,
+  "real_provider_calls": 0,
+  "database_or_service_operations": false,
+  "dependency_installation": false,
+  "java_or_contract_changes": false,
+  "build_executed": false,
+  "runtime_synchronized": false,
+  "business_acceptance": false,
+  "note": "只冻结源码及定向技术结果；构建、制品一致性与运行同步由根线程完成，不能据此宣称生产通道或22项业务通过"
+}

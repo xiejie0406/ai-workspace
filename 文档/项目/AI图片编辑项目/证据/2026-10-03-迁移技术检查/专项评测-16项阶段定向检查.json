@@ -1,0 +1,112 @@
+{
+  "日期": "2026-10-03",
+  "要求来源": "完整迁移设计.md 1.2 导出与评测、第5/9节专项评估；根本轮定稿suite契约",
+  "范围": "现有若依管理员评测页/API与定向检查；原六CLI与React批量冻结保持",
+  "修复前": {
+    "命令": "node node_modules/vitest/vitest.mjs run --config vitest.aipicture.config.js tests/unit/aipicture/evaluation.spec.ts",
+    "日志": "专项评测-修复前.log",
+    "exit_code": 1,
+    "原检查通过": 2,
+    "新增缺口失败": 2
+  },
+  "中间检查": {
+    "日志": "专项评测-定向检查.log",
+    "通过": 15,
+    "类型首次日志": "专项评测-类型检查.log",
+    "类型exit_code": 2,
+    "原因": "新增受控Axios mock重载签名推断为string；仅fixture类型明确修正"
+  },
+  "最终检查": {
+    "cwd": "frontend/admin-web",
+    "命令": "node node_modules/vitest/vitest.mjs run --config vitest.aipicture.config.js tests/unit/aipicture/evaluation.spec.ts tests/unit/aipicture/evaluation-page.spec.ts",
+    "日志": "专项评测-最终定向检查.log",
+    "exit_code": 0,
+    "通过": 16,
+    "API检查": 12,
+    "实际Vue组件检查": 4,
+    "失败": 0,
+    "类型命令": "node node_modules/vue-tsc/bin/vue-tsc.js --noEmit --project tsconfig.aipicture.json",
+    "类型日志": "专项评测-最终类型检查.log",
+    "类型exit_code": 0
+  },
+  "检查覆盖": [
+    "保留六操作与五旧指标，专项独立分支",
+    "五suite固定指标与独立预期，人审pending/failed保留、passed说明必需",
+    "禁止客户端自造assessment/provider/document/mask",
+    "OCR像素JSON、非空文本、有限负坐标与越界拒绝",
+    "正式输出只选本任务成功候选，复用共享request及幂等metadata",
+    "实际Vue源ID切换、关窗、销毁隔离迟到响应",
+    "实际Vue提交选中候选及人审记录，无自造接受结论",
+    "实际Vue503来源读取错误可重读，独立输入保留",
+    "实际Vue技术通过/人审失败/整体失败分开显示"
+  ],
+  "源码冻结": {
+    "files": [
+      {
+        "path": "frontend/admin-web/src/views/aipicture/evaluation/index.vue",
+        "sha256": "0CEA4D388A6F0398ED49598F4834397F9C91BD055C20DE4F273D32ED4705BE04"
+      },
+      {
+        "path": "frontend/admin-web/src/api/aipicture/evaluation.js",
+        "sha256": "5D3516A2E8519CB3E4825AEBFE3C7B91C25139CA6CD513EBD014113892DE2C6A"
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/aipicture/evaluation.spec.ts",
+        "sha256": "FD593B24B4F0B949A4A02CE4D282A52E9EFD27501DA34C41772A9558512FEF40"
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/aipicture/evaluation-page.spec.ts",
+        "sha256": "1E0C14C83B71B0664193EE2EB86EAADF67E52234495FD54FEA2FB4CEA501B7A1"
+      },
+      {
+        "path": "frontend/admin-web/README.md",
+        "sha256": "AB36D71B1A6DBF6D399E44076209689E2232FCA019E6B20679015FCE740DF794"
+      }
+    ],
+    "combined_sha256": "DE43777A7DD45028D30BBF35C0298AA9514F05D866AA91A7996BD41AD9C1992A",
+    "combined_rule": "按path排序，UTF8 newline join path:UPPERCASE SHA256"
+  },
+  "批量7冻结文件核对": [
+    {
+      "path": "frontend/aipicture-workbench/src/pages/BatchPage.tsx",
+      "sha256": "41913E58C920D6623401D5000F91C99FB30F097218F34F4651D01A972CD286AC",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/ImageDropzone.tsx",
+      "sha256": "DB48F68899C10D762DD644095C2BD382333488CF8B77D33005CAE8624D62971E",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/entry.ts",
+      "sha256": "44C6D0EA218BE3193C21ABA03D76AD1772BED9D082C04C80660789A894FD20D9",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/run.mjs",
+      "sha256": "88E30AC8EB0C908E927FDA7A1E648465AF3512C241036B71605F804BCBF6DE13",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "sha256": "06AA9E0FFDA9E94DB21A7BAAD9A7A31A74FB0C36089DCFB17F0A3AB49E26C73E",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "sha256": "9450E5295FBFEE9E8C74A3E7B413418F7BC4F699389F99F29B7BBA1D3AF5C51C",
+      "unchanged": true
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "sha256": "0D6040D3CB65548A42B0389A3CA48F082F79191D4E86CDE29BD241C47F5BDB14",
+      "unchanged": true
+    }
+  ],
+  "限制": [
+    "受控sharedrequest传输和jsdom组件，没有真实HTTP/DB/Provider调用",
+    "未生产构建、同步public/runtime、浏览器或真实账号操作",
+    "不证明真实模型质量、业务验收通过或用户接受"
+  ],
+  "生产构建": "由根聚合执行，当前本代理未构建/同步"
+}

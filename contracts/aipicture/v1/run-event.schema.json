@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "若依图片任务持久事件",
+  "type": "object",
+  "required": [
+    "event_seq",
+    "payload",
+    "created_at"
+  ],
+  "properties": {
+    "event_seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_at": {
+      "type": "integer",
+      "description": "中心毫秒时间戳"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "progress",
+        "event_seq"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "event_seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "enum": [
+            "queued",
+            "running",
+            "succeeded",
+            "partial_success",
+            "failed",
+            "cancelled",
+            "external_result_unknown"
+          ]
+        },
+        "progress": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "stage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "result": {
+          "type": "object"
+        },
+        "error_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "x-delivery": "至少一次；客户端按任务id+event_seq去重，MySQL快照为唯一状态源；终态不接受迟到running。"
+}

@@ -1,0 +1,422 @@
+{
+  "generated_at": "2026-10-03T08:11:59.193822+00:00",
+  "scope": "已批准设计失败恢复补齐；仅目标React工作台7产品文件＋测试/README/既有覆盖理由，不改原源码、Java、Python、adminHost或唯一业务记录",
+  "before": {
+    "audit": {
+      "path": ".runtime/aipicture/canvas-formal-sync-readonly-audit-20261003.json",
+      "bytes": 6758,
+      "sha256": "ec790ed702875438466a2ea63cfa1d8ff2e851cd9f956cba9e05074567bbd098"
+    },
+    "snapshot": ".runtime/aipicture/canvas-command-before",
+    "log": {
+      "path": ".runtime/aipicture/canvas-command-before.log",
+      "bytes": 4832,
+      "sha256": "bca088d30e7eeda9665054e3df9594cdf8582593bd842a2571bcf843fb2bfc9a"
+    },
+    "tests": 4,
+    "passed": 0,
+    "failed": 4,
+    "native_exit": 1,
+    "observations": [
+      "拖动失败后节点仍121/95而正式104/104",
+      "倍率失败后节点仍-2而正式-1.5",
+      "文字失败后编辑器已卸载而原输入应保留",
+      "裁剪失败后确定按钮/框已清空而原框应保留"
+    ]
+  },
+  "changes": [
+    "move/scale/text/crop接现有invokeAsync正式完成链",
+    "失败回读正式session/history，清drop/pinned，拖动/倍率经原feedback明确重试",
+    "文字与crop参数等待期间保留并禁止重复提交，正式成功才关闭，取消/owner/失活/迟到隔离",
+    "可选captured expectedVersion保留原正式提交版本，默认其他请求仍取Runtime现有版本机制，外部更新旧重试不POST",
+    "新增refs只在layout commit更新，crop pending由当前提交框身份派生，无新增lint提示"
+  ],
+  "source_original_mapping": {
+    "files": 75,
+    "all_source_sha256_match": true,
+    "reference_modified": false,
+    "note": "源指纹与静态映射仅证明参考保留，不代替功能通过"
+  },
+  "artifact": {
+    "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+    "bytes": 982778,
+    "sha256": "0f351d33604ba17096dea92b2e082d74f799fbef51f91dd488dd0ad936982e26"
+  },
+  "tests": {
+    "command": "npm test -- --test-name-pattern='画布正式命令：|画布命令边界：|两个编辑器|文字字体：|文字字框裁切：|独立两轴|剩余完整性：(三原参数|工具取消|迟到正式调色|background|replace|adjust)'",
+    "native_exit": 0,
+    "executed": 21,
+    "passed": 21,
+    "failed": 0,
+    "composition": {
+      "new_canvas_checks": 10,
+      "related_existing_reexecuted": 11,
+      "new_names": [
+        "画布正式命令：拖动POST503后回正式坐标并保留显式重试原参数",
+        "画布正式命令：拖角POST409后回正式倍率和位置并保留显式重试",
+        "画布正式命令：inline文字POST503后保留原输入，正式成功才关闭",
+        "画布正式命令：裁剪POST503后保留原框，正式成功才关闭",
+        "画布命令边界：实际adapter固定提交版本，后续hydrate不改变它，普通请求仍取当前版本",
+        "画布命令边界：409回读外部新版本后恢复该正式变换，旧重试不覆新文档",
+        "画布命令边界：另一个命令繁忙时旧失败反馈不能再次POST",
+        "画布命令边界：等待响应期间文字Esc与裁剪取消不被迟到拒绝重新打开",
+        "画布命令边界：换owner和同owner失活重挂载隔离旧重试与迟到文字回复",
+        "画布命令边界：正式failed响应不清文字或裁剪参数，不能把POST200当成功"
+      ],
+      "related_names": [
+        "两个编辑器的 Ctrl+Z 只操作所属 mount，影子输入和其他页面按键不会触发编辑",
+        "文字字体：画布与内联编辑共用中文默认字体，宿主覆盖及更新仅影响当前实例",
+        "文字字框裁切：实际绘制先裁切局部框，翻转旋转及拖动选择都作用同一Group",
+        "独立两轴：实际图片与两文字层按持久幅值变换，等比预览及拖角待回写保持等比",
+        "独立两轴文字编辑：局部字号与CSS双轴围绕正式中心，最小编辑尺寸仍可读",
+        "剩余完整性：background在post503后保留原用户参数，不以提交成功清空",
+        "剩余完整性：replace在conflict后保留原用户参数，不以提交成功清空",
+        "剩余完整性：adjust在failed后保留原用户参数，不以提交成功清空",
+        "剩余完整性：三原参数表单只有正式成功后才清空，调色显式重置仍可用",
+        "剩余完整性：工具取消和外部未知结果保留参数，不清空或自动再次付费",
+        "剩余完整性：迟到正式调色回读不清除任务结束后用户新改参数"
+      ]
+    },
+    "note": "最终一次21去重计数；前期4/4、10/10及中间21/21保留不累计。其他旧技术基线没有重跑；host11未受改动仅沿用、另列不加入21。"
+  },
+  "checks": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "native_exit": 0,
+      "log": ".runtime/aipicture/canvas-command-typecheck-release.log",
+      "scope": "全workbench消费者tsc -b"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "native_exit": 0,
+      "errors": 0,
+      "previous_warnings": 33,
+      "intermediate_warnings": 41,
+      "final_warnings": 33,
+      "new_warnings_remaining": 0,
+      "normalized_multiset_equal_to_previous": true,
+      "log": ".runtime/aipicture/canvas-command-lint-release.log"
+    },
+    "library_build": {
+      "command": "npm run build",
+      "native_exit": 0,
+      "log": ".runtime/aipicture/canvas-command-build-release.log",
+      "vite_warning": "inlineDynamicImports deprecated; 原Vite配置，未改变或说消除",
+      "node_process_reference_absent": true,
+      "bundle": {
+        "path": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+        "bytes": 982778,
+        "sha256": "0f351d33604ba17096dea92b2e082d74f799fbef51f91dd488dd0ad936982e26"
+      }
+    }
+  },
+  "logs": [
+    {
+      "path": ".runtime/aipicture/canvas-command-before.log",
+      "bytes": 4832,
+      "sha256": "bca088d30e7eeda9665054e3df9594cdf8582593bd842a2571bcf843fb2bfc9a"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-after-initial.log",
+      "bytes": 833,
+      "sha256": "f6de165d3e794f71a7c1b6765b3b78c7d9f909d172508fae1e86cc1c7e2996f3"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-after-boundary.log",
+      "bytes": 1530,
+      "sha256": "141ed96bbd2ab2cc0b94793dd5bf5f1a91b7357e4e8e50ca7cbe176b318148a7"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-after-final.log",
+      "bytes": 2952,
+      "sha256": "33436c091119bb813e446c79102ff016957849b03c41627c0e79f19a3ff63a57"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-typecheck-final.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-lint-final.log",
+      "bytes": 14655,
+      "sha256": "a3cdebd6b14953ce5606167b37f3b4138868de3bd9cf54c5f02074700ee16e8f"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-build-final.log",
+      "bytes": 381,
+      "sha256": "d5eb6e425065fd3f789d9237d78e914b1c7c39fac1d44e6bdcd4660949f5a18a"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-after-release.log",
+      "bytes": 2955,
+      "sha256": "ec66b406bb182bb596b3e85ecbc4db20f200cdf6169b91c7a885e9b9770a721a"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-typecheck-release.log",
+      "bytes": 42,
+      "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-lint-release.log",
+      "bytes": 11518,
+      "sha256": "f12ff33e013521523c2f49073f8dc2db9809fd4296f3b9db7e49a18bdc385bf6"
+    },
+    {
+      "path": ".runtime/aipicture/canvas-command-build-release.log",
+      "bytes": 381,
+      "sha256": "e84e8c2bdd76512f6c14379a96db9ef617deb8f668a81bceafd61d232d995e55"
+    }
+  ],
+  "snapshot": ".runtime/aipicture/canvas-command-final-0f351d33",
+  "copies": [
+    {
+      "original": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/src/host/HostRuntime.ts",
+        "bytes": 4474,
+        "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/api/client.ts",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/src/api/client.ts",
+        "bytes": 2963,
+        "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/src/api/sessions.ts",
+        "bytes": 5436,
+        "sha256": "2cafe8b019026de0c40d0569fe30ac83b4868ae51eaabd34d3fc335015b7fa4e"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/src/hooks/useSessions.ts",
+        "bytes": 10418,
+        "sha256": "4ee8406cb664cab2109bf3d6a73bb7242fb5d9f6d5d4d38f6ed041c86fd8f27e"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/src/pages/EditorPage.tsx",
+        "bytes": 10562,
+        "sha256": "395e1e4576a4472e2706392efcfaabe4a724695326666bf7e0a14f25d7f7b715"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/src/components/editor/CanvasStage.tsx",
+        "bytes": 38673,
+        "sha256": "46a1e505a6b70d9e44ac49174aa8439fb43aa4111b280b0d0daa43a92a435d0d"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/src/components/editor/EditorToolbar.tsx",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/src/components/editor/EditorToolbar.tsx",
+        "bytes": 15704,
+        "sha256": "091514c2ae33210f2cad448b7068388eeb4f0c2e118bb11c26899681717dafdf"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/tests/lifecycle.test.mjs",
+        "bytes": 159443,
+        "sha256": "91e30c0af842b268f77879a2315a0f3098733d8d6e76a6ffe35af6c434bed11f"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/README.md",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/README.md",
+        "bytes": 12671,
+        "sha256": "0f5787bb7211a975efec1f86dbe2da1edcee3f7f6206a1d0e8dc50a74727a7b9"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/migration-coverage.json",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/migration-coverage.json",
+        "bytes": 29272,
+        "sha256": "8ef1d12604b91d4c67ec185f055722468fd1e990626aa179f6b4a64281eab693"
+      }
+    },
+    {
+      "original": "frontend/aipicture-workbench/dist/aipicture-workbench.js",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/dist/aipicture-workbench.js",
+        "bytes": 982778,
+        "sha256": "0f351d33604ba17096dea92b2e082d74f799fbef51f91dd488dd0ad936982e26"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-before.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-before.log",
+        "bytes": 4832,
+        "sha256": "bca088d30e7eeda9665054e3df9594cdf8582593bd842a2571bcf843fb2bfc9a"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-after-initial.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-after-initial.log",
+        "bytes": 833,
+        "sha256": "f6de165d3e794f71a7c1b6765b3b78c7d9f909d172508fae1e86cc1c7e2996f3"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-after-boundary.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-after-boundary.log",
+        "bytes": 1530,
+        "sha256": "141ed96bbd2ab2cc0b94793dd5bf5f1a91b7357e4e8e50ca7cbe176b318148a7"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-after-final.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-after-final.log",
+        "bytes": 2952,
+        "sha256": "33436c091119bb813e446c79102ff016957849b03c41627c0e79f19a3ff63a57"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-typecheck-final.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-typecheck-final.log",
+        "bytes": 42,
+        "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-lint-final.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-lint-final.log",
+        "bytes": 14655,
+        "sha256": "a3cdebd6b14953ce5606167b37f3b4138868de3bd9cf54c5f02074700ee16e8f"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-build-final.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-build-final.log",
+        "bytes": 381,
+        "sha256": "d5eb6e425065fd3f789d9237d78e914b1c7c39fac1d44e6bdcd4660949f5a18a"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-after-release.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-after-release.log",
+        "bytes": 2955,
+        "sha256": "ec66b406bb182bb596b3e85ecbc4db20f200cdf6169b91c7a885e9b9770a721a"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-typecheck-release.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-typecheck-release.log",
+        "bytes": 42,
+        "sha256": "4a7e37a9ea95fbe9a4639391a628bcb452f57f34791fc85d773232694a915332"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-lint-release.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-lint-release.log",
+        "bytes": 11518,
+        "sha256": "f12ff33e013521523c2f49073f8dc2db9809fd4296f3b9db7e49a18bdc385bf6"
+      }
+    },
+    {
+      "original": ".runtime/aipicture/canvas-command-build-release.log",
+      "frozen": {
+        "path": ".runtime/aipicture/canvas-command-final-0f351d33/logs/canvas-command-build-release.log",
+        "bytes": 381,
+        "sha256": "e84e8c2bdd76512f6c14379a96db9ef617deb8f668a81bceafd61d232d995e55"
+      }
+    }
+  ],
+  "handoff": {
+    "source_frozen": true,
+    "public_admin_runtime_synced_by_this_agent": false,
+    "root_to_sync_and_build_admin_and_actual_iab": true,
+    "fixture_advice_sent_to_root": true
+  },
+  "business_boundary": {
+    "new_business_passes": 0,
+    "business_22_status_unchanged": true,
+    "model_api_calls": 0,
+    "formal_business_posts": 0,
+    "browser_operations": 0,
+    "service_process_operations": 0,
+    "git_operations": 0,
+    "proof": "真实React/Query/Konva事件＋受控宿主；stub绘图不构成实际浏览器字形/业务/用户接受证据"
+  },
+  "source_release": {
+    "path": ".runtime/aipicture/canvas-command-release.json",
+    "sha256": "7416f93faa22c5eff012ec16bc71eb7fb530f646e1ea8cc433fa108c9a3466d6"
+  },
+  "sources": [
+    {
+      "path": "frontend/aipicture-workbench/src/host/HostRuntime.ts",
+      "bytes": 4474,
+      "sha256": "1bafeb272573e6dc0c5d5005b802a127bce3d08cecc8b1282c22c2642a041a05"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/client.ts",
+      "bytes": 2963,
+      "sha256": "8bbfbe260a31571a09ce997c98d9d9b78f06edf3420e14121bfbeafbbb851054"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+      "bytes": 5436,
+      "sha256": "2cafe8b019026de0c40d0569fe30ac83b4868ae51eaabd34d3fc335015b7fa4e"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/hooks/useSessions.ts",
+      "bytes": 10418,
+      "sha256": "4ee8406cb664cab2109bf3d6a73bb7242fb5d9f6d5d4d38f6ed041c86fd8f27e"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/pages/EditorPage.tsx",
+      "bytes": 10562,
+      "sha256": "395e1e4576a4472e2706392efcfaabe4a724695326666bf7e0a14f25d7f7b715"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/CanvasStage.tsx",
+      "bytes": 38673,
+      "sha256": "46a1e505a6b70d9e44ac49174aa8439fb43aa4111b280b0d0daa43a92a435d0d"
+    },
+    {
+      "path": "frontend/aipicture-workbench/src/components/editor/EditorToolbar.tsx",
+      "bytes": 15704,
+      "sha256": "091514c2ae33210f2cad448b7068388eeb4f0c2e118bb11c26899681717dafdf"
+    },
+    {
+      "path": "frontend/aipicture-workbench/tests/lifecycle.test.mjs",
+      "bytes": 159443,
+      "sha256": "91e30c0af842b268f77879a2315a0f3098733d8d6e76a6ffe35af6c434bed11f"
+    },
+    {
+      "path": "frontend/aipicture-workbench/README.md",
+      "bytes": 12671,
+      "sha256": "0f5787bb7211a975efec1f86dbe2da1edcee3f7f6206a1d0e8dc50a74727a7b9"
+    },
+    {
+      "path": "frontend/aipicture-workbench/migration-coverage.json",
+      "bytes": 29272,
+      "sha256": "8ef1d12604b91d4c67ec185f055722468fd1e990626aa179f6b4a64281eab693"
+    }
+  ],
+  "scope_note": "仅本次10文件冻结；原75来源映射由独立checker另核，不将未列其他文件说成本次新冻结。原代理同步前阶段保持，根实际同步另存。"
+}

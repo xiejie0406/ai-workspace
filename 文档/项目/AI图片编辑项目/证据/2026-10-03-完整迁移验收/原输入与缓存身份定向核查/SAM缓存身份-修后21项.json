@@ -1,0 +1,217 @@
+{
+  "scope": "SAM RGB像素/尺寸＋固定encoder namespace＋加载期权重观察＋预处理版本",
+  "source_frozen": true,
+  "product_source_files": 1,
+  "test_files": 3,
+  "documentation_files": 1,
+  "files": [
+    {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/segment.py",
+      "sha256": "13db45720cdadc9f84e04b32ea5af072fe4e00ce0aa87f915c1412fc3a9c09cf",
+      "size_bytes": 8589
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_segment_cache_identity.py",
+      "sha256": "8fe672fda183c341542de53d8f77bf239f2cf558e5a5e5a23c1ec55251d41d7f",
+      "size_bytes": 11226
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_cv_concurrency.py",
+      "sha256": "e86d75ba49218a933addb0f3850c6fcd8fafe614cfc21d7c94218b321389c49f",
+      "size_bytes": 7858
+    },
+    {
+      "path": "python/aipicture-runtime/tests/test_provider_boundaries.py",
+      "sha256": "28f22f25df1b3a7e76c555dc0843fde1c3723c99c9d0eb78fffc1b32018d1f24",
+      "size_bytes": 10661
+    },
+    {
+      "path": "python/aipicture-runtime/README.md",
+      "sha256": "26654ca48bb592c8b844703b0d5772dae26aec61f4ce8911fa1eb2a425b53442",
+      "size_bytes": 19572
+    }
+  ],
+  "before": {
+    "tests": 15,
+    "failures": 10,
+    "passed": 5,
+    "skipped": 0,
+    "pytest_exit": 1,
+    "original_production_sha256": "848a422e609b62a020f273ba5ba58abed2e8a70d0a92ba25936d58f917a65f9d",
+    "test_stage": "初始新增15项，原文及测试字节均备份"
+  },
+  "after": {
+    "tests": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_exit": 0,
+    "composition": {
+      "new_identity_checks": 16,
+      "changed_existing_concurrency_cache_checks": 4,
+      "changed_existing_provider_cache_check": 1
+    },
+    "extra_after_guard": "新增超宽行内块1项，未声称该项有修前失败",
+    "prior_baseline_added_to_total": 0,
+    "checks": [
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_same_rgb_pixels_reuse_across_png_compression_and_metadata",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_alpha_only_difference_reuses_actual_rgb_encoder_input",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_equal_pixel_byte_stream_with_different_dimensions_does_not_reuse",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_changed_pixel_does_not_reuse_same_size_input",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_different_loaded_encoder_instances_never_share_cache",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_changed_weights_in_new_instance_do_not_return_old_embedding",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_loaded_session_key_does_not_reread_changed_disk_model",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_preprocessing_version_is_part_of_embedding_identity",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_changed_file_during_loading_is_rejected_even_if_stat_is_restored[encoder]",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_changed_file_during_loading_is_rejected_even_if_stat_is_restored[decoder]",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_constructor_failure_does_not_publish_session_and_can_retry[encoder]",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_constructor_failure_does_not_publish_session_and_can_retry[decoder]",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_loaded_identity_has_fixed_namespace_and_observation_fingerprints",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_pixel_digest_uses_bounded_strips_not_a_second_full_image[vertical-strips]",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_pixel_digest_uses_bounded_strips_not_a_second_full_image[horizontal-blocks]",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_segment_cache_identity",
+        "name": "test_same_pixels_different_encoding_share_one_inflight_encoder",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_cv_concurrency",
+        "name": "test_same_image_cold_cache_has_one_encoder_owner[success]",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_cv_concurrency",
+        "name": "test_same_image_cold_cache_has_one_encoder_owner[failure-cleanup]",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_cv_concurrency",
+        "name": "test_different_images_keep_parallel_encoding",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_cv_concurrency",
+        "name": "test_embedding_lru_still_keeps_four_and_recomputes_evicted_image",
+        "passed": true
+      },
+      {
+        "classname": "tests.test_provider_boundaries",
+        "name": "test_embedding_cache_reuses_hash_and_evicts_lru_four",
+        "passed": true
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": ".runtime/aipicture/sam-cache-identity-before/manifest.json",
+      "sha256": "1c81298deb76f3ae4c3b418cfdfb38c2b8bec273a9e05c82c11d55243c867e2f"
+    },
+    {
+      "path": ".runtime/aipicture/sam-cache-identity-before.json",
+      "sha256": "30392c4c7b73a3b49b6d3b9603d96d9ec834654b6d7079694a7bc9501f9b819d"
+    },
+    {
+      "path": ".runtime/aipicture/sam-cache-identity-before.log",
+      "sha256": "7e38967bee839ac478f1a859d1ce47ef99ed32667e789e0522e3c228eab02a4d"
+    },
+    {
+      "path": ".runtime/aipicture/sam-cache-identity-before.xml",
+      "sha256": "1ea988828609f46426715d4e7c2045365ce0b4fe060c363090e79b8edcd5f593"
+    },
+    {
+      "path": ".runtime/aipicture/sam-cache-identity-after.log",
+      "sha256": "15174ca11646d2384757c66a2f08ae039fc64d6f4982f84ed07a559d12d8bb5f"
+    },
+    {
+      "path": ".runtime/aipicture/sam-cache-identity-after.xml",
+      "sha256": "52a1bebd86c9415fbceef7b2e4099a6b4307c06ae7c77d6d6c78c43a9e72c1ac"
+    }
+  ],
+  "unchanged": {
+    "config_sha256": "8b142a052bf0d7b9a618c944407cc15ca10046885235150380896a069d8edc0a",
+    "capabilities_sha256": "4a6e1d47a49af832201f630ed537f3620f29902c1d9b02071ea55b159f96e685",
+    "uv_lock_sha256": "a734eee25ad754eeebc990fe3b038e64496eb2d0b92bc6d94a435a47af7b4d50",
+    "contracts_modified": false,
+    "byte_budget_changed": false,
+    "concurrency_budget_changed": false,
+    "hot_reload_added": false,
+    "ort_bytes_constructor": false
+  },
+  "limits": [
+    "加载期前后新鲜指纹是两次文件观察一致，不绝对证明期间无替换再恢复，不冒称精确loaded bytes SHA。",
+    "namespace对象绑定成功加载encoder；后续缓存键不读取当前模型路径；不同实例不共享。",
+    "LRU4保留；缓存字节上限与运行并发预算尚未固化。",
+    "受控模型替身检查不证明真实SAM质量、峰值内存或业务验收。"
+  ],
+  "real_inference": 0,
+  "network_requests": 0,
+  "provider_requests": 0,
+  "database_writes": 0,
+  "dependencies_installed": 0,
+  "builds_performed": 0,
+  "services_operated": 0,
+  "runtime_synced_by_this_agent": false,
+  "root_to_build_and_sync": true,
+  "sole_md_modified": false,
+  "git_operations": 0
+}

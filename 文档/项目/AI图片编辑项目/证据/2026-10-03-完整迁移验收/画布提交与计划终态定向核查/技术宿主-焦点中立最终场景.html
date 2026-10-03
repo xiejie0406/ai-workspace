@@ -1,0 +1,170 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>图片迁移构建产物技术检查</title><style>body{margin:0;background:#f4f5f7;font:14px sans-serif}header{padding:10px 20px;display:flex;gap:12px;align-items:center;background:white;border-bottom:1px solid #ddd}header span{margin-right:auto}#canvas{height:calc(100vh - 55px)}button{cursor:pointer;padding:6px 14px}</style></head><body><header><span>本地构建产物技术检查 · 测试素材与宿主 · 不计业务验收</span><button data-page="create">图片创作</button><button data-page="editor">图片工作台</button><button data-page="candidates">候选详情</button><button data-page="marketing">营销物料</button><button data-page="batch">批量处理</button><button data-page="guide">使用指引</button><button data-page="exports">导出与下载</button></header><output id="technical-download" aria-live="polite"></output><main id="canvas"></main><script type="module">
+const { mount } = await import(new URLSearchParams(location.search).get('bundle') === 'before-upload' ? './aipicture-workbench-before-upload.js' : new URLSearchParams(location.search).get('bundle') === 'before-recovery' ? './aipicture-workbench-before-recovery.js' : new URLSearchParams(location.search).get('bundle') === 'before-canvas-command' ? './aipicture-workbench-before-canvas-command.js' : './aipicture-workbench.js?v=0f351d33')
+const assetId='00000000-0000-4000-8000-000000000001',sessionId='00000000-0000-4000-8000-000000000002'
+const asset={id:assetId,kind:'original',source:'upload',format:'png',image_format:'PNG',width:320,height:320,size_bytes:400,has_alpha:true,created_at:1790985600000,url:'/never-trust-dto-url'}
+const session={id:sessionId,title:'浏览器技术检查素材',revision:0,row_version:0,history_seq:0,original_asset_id:assetId,current_asset_id:assetId,created_at:1790985600000,updated_at:1790985600000,document:{width:320,height:320,layers:[{id:'00000000-0000-4000-8000-000000000003',kind:'image',name:'原图',width:320,height:320,asset_id:assetId,transform:{x:0,y:0,scale_x:1,scale_y:1,rotation:0},opacity:1,visible:true,locked:false}]},previous_document:null,can_undo:false,can_redo:false,assets:[asset]}
+const candidateRunId='00000000-0000-4000-8000-000000000004'
+const candidateAsset={...asset,id:'00000000-0000-4000-8000-000000000005',kind:'generated',source:'generate_image'}
+// 仅技术宿主的可见场景控制，不写业务库或调用模型。
+const technicalScenario=new URLSearchParams(location.search).get('scenario') || ''
+const technicalControls=document.createElement('nav')
+technicalControls.style.cssText='padding:6px 12px;background:#fff;display:flex;gap:12px;align-items:center;flex-wrap:wrap'
+technicalControls.innerHTML='<span>受控技术场景：</span><a href="?scenario=planning">规划恢复</a><a href="?scenario=session-edit">仅会话编辑权限</a><a href="?scenario=tool-edit">仅工具执行权限</a><a href="?scenario=session-unavailable">会话服务故障</a><a href="?scenario=text-layout">文字导出一致性</a><a href="?scenario=text-overflow">文字框极限</a><a href="?scenario=text-nonuniform">两轴缩放</a>'
+technicalControls.insertAdjacentHTML('beforeend', '<a href="?scenario=run-read-error">工作台任务读取恢复</a><a href="?scenario=batch-run-read-error">批量任务读取恢复</a><a href="?scenario=batch-upload">批量多图上传</a>')
+technicalControls.insertAdjacentHTML('beforeend', '<a href="?scenario=draft-persistence">创作草稿切换</a><a href="?scenario=tool-retention">工具失败参数保留</a><a href="?scenario=selection-read-recovery">选区原任务读取恢复</a><a href="?scenario=export-read-recovery">导出原任务读取恢复</a>')
+document.querySelector('header').after(technicalControls)
+document.getElementById('canvas').style.height='calc(100vh - 100px)'
+// 上传替身只保留本轮技术样本，不访问正式服务、数据库或供应商。
+const technicalUploadPending=[]
+const technicalUploadNames=[]
+let technicalUploadFailLast=false
+if(technicalScenario==='batch-upload') {
+ const fail=document.createElement('input');fail.type='checkbox';fail.id='technical-upload-fail'
+ const label=document.createElement('label');label.htmlFor=fail.id;label.textContent='技术替身使第三个文件失败'
+ fail.onchange=()=>{technicalUploadFailLast=fail.checked}
+ const release=document.createElement('button');release.textContent='完成当前技术上传'
+ const status=document.createElement('output');status.id='technical-upload-status';status.textContent='技术上传调用：0；正式写入与供应商调用：0'
+ release.onclick=()=>{
+  if(!technicalUploadPending.length)return
+  const pending=technicalUploadPending.shift()
+  if(technicalUploadFailLast&&pending.index===3)pending.resolve({code:503,msg:'技术模拟：第三个文件上传失败'})
+  else pending.resolve({code:200,data:{...asset,id:`00000000-0000-4000-8000-${String(100+pending.index).padStart(12,'0')}`}})
+ }
+ technicalControls.append(fail,label,release,status)
+}
+let technicalTurnState='planning'
+let technicalRunReady=false
+const technicalRemaining=['tool-retention','selection-read-recovery','export-read-recovery'].includes(technicalScenario)
+let technicalPostCount=0,technicalRunReads=0,technicalToolQueued=false,technicalToolState='running'
+let technicalCanvasAccept=false,technicalCanvasPosts=0,technicalCanvasLast=null
+const technicalCanvasStatus=document.createElement('output');technicalCanvasStatus.id='technical-canvas-command-status'
+function updateCanvasStatus(){
+ const image=session.document.layers[0],text=session.document.layers.find(layer=>layer.kind==='text')
+ technicalCanvasStatus.textContent=`受控命令POST：${technicalCanvasPosts}；最后命令：${technicalCanvasLast?.tool || '无'}；固定expectedVersion：${technicalCanvasLast?.expectedVersion ?? '无'}；正式图层x=${image.transform.x},y=${image.transform.y},scale=${image.transform.scale_x}；正式文字=${text?.text || '无'}；正式业务写入与供应商调用：0`
+}
+if(technicalScenario==='canvas-command-recovery'){
+ session.title='画布提交失败恢复技术检查'
+ const image=session.document.layers[0];image.width=96;image.height=96;image.transform={x:16,y:176,scale_x:1,scale_y:1,rotation:0}
+ session.document.layers.push({id:'00000000-0000-4000-8000-000000000017',kind:'text',name:'技术文字',width:240,height:64,text:'原文字',font_size:32,fill:'#126bc9',transform:{x:40,y:56,scale_x:1,scale_y:1,rotation:0},opacity:1,visible:true,locked:false})
+ const accept=document.createElement('input');accept.type='checkbox';accept.id='technical-canvas-accept'
+ const label=document.createElement('label');label.htmlFor=accept.id;label.textContent='仅使技术替身的下一次显式命令成功'
+ // 技术响应开关不抢业务编辑器焦点，避免触发原有文字失焦提交。
+ accept.onmousedown=event=>event.preventDefault()
+ accept.onchange=()=>{technicalCanvasAccept=accept.checked}
+ technicalControls.append(accept,label,technicalCanvasStatus);updateCanvasStatus()
+}
+const technicalStatus=document.createElement('output');technicalStatus.id='technical-remaining-status'
+const updateTechnicalStatus=()=>{technicalStatus.textContent=`受控POST：${technicalPostCount}；同任务GET：${technicalRunReads}；正式业务写入与供应商调用：0`}
+if(technicalRemaining){technicalControls.append(technicalStatus);updateTechnicalStatus()}
+if(['selection-read-recovery','export-read-recovery'].includes(technicalScenario)){
+ const ready=document.createElement('button');ready.textContent='恢复原任务读取';ready.onclick=()=>{technicalRunReady=true;ready.disabled=true};technicalControls.append(ready)
+}
+if(technicalScenario==='tool-retention'){
+ const queued=document.createElement('input');queued.type='checkbox';queued.id='technical-tool-queued'
+ const label=document.createElement('label');label.htmlFor=queued.id;label.textContent='工具POST接受后等待正式结果'
+ queued.onchange=()=>{technicalToolQueued=queued.checked}
+ const fail=document.createElement('button');fail.textContent='提供工具正式失败';fail.onclick=()=>{technicalToolState='failed';session.active_run_id=null}
+ const success=document.createElement('button');success.textContent='提供工具正式成功';success.onclick=()=>{technicalToolState='succeeded';session.active_run_id=null}
+ technicalControls.append(queued,label,fail,success)
+}
+if(technicalScenario==='draft-persistence'){
+ const active=document.createElement('button');active.textContent='切换业务标签（失活）';active.onclick=()=>{host.active=!host.active;active.textContent=host.active?'切换业务标签（失活）':'返回业务标签（激活）';instance.update({...host})};technicalControls.append(active)
+}
+const technicalRunError=['run-read-error','batch-run-read-error'].includes(technicalScenario)
+if(technicalRunError) {
+ session.active_run_id=candidateRunId
+ const ready=document.createElement('button');ready.textContent='提供正式任务技术结果'
+ ready.onclick=()=>{technicalRunReady=true;session.active_run_id=null;ready.disabled=true;note.textContent='受控正式任务GET现可返回完成结果；等待页面重新读取。不写业务。'}
+ technicalControls.append(ready)
+ const note=document.createElement('span');note.textContent='会话或批量详情正常，任务GET持续503；按钮仅切换受控技术响应，不写业务。';technicalControls.append(note)
+}
+if(technicalScenario==='planning') {
+ const ready=document.createElement('button');ready.textContent='提供技术计划结果'
+ ready.onclick=()=>{technicalTurnState='waiting_confirmation';ready.disabled=true}
+ technicalControls.append(ready)
+}
+if(technicalScenario.endsWith('-edit')) {session.can_undo=true;session.can_redo=true;session.assets.push(candidateAsset)}
+if(['text-layout','text-overflow','text-nonuniform'].includes(technicalScenario)) {
+ session.title='中文文字排版技术检查'
+ session.document.layers[0].visible=false
+ const textLayer=(id,text,width,height,x,y,fontSize,fill)=>({id,kind:'text',name:'技术文字',width,height,text,font_size:fontSize,fill,transform:{x,y,scale_x:1,scale_y:1,rotation:0},opacity:1,visible:true,locked:false})
+ session.document.layers.push(
+  textLayer('00000000-0000-4000-8000-000000000011','中文价格优惠今日购',96,128,16,16,32,'#126bc9'),
+  textLayer('00000000-0000-4000-8000-000000000012','Price SALE\n ¥99',144,96,144,16,24,'#141414'),
+  textLayer('00000000-0000-4000-8000-000000000013','中文价格优惠今日购',96,32,16,192,32,'#126bc9'),
+  textLayer('00000000-0000-4000-8000-000000000014','  A B  \n\nC',144,128,144,152,24,'#ba3333'))
+ const note=document.createElement('span');note.textContent='固定样本：96px中文三行与32px一行裁切；英文换行和空白。未调用正式服务。';technicalControls.append(note)
+ if(technicalScenario==='text-overflow') {
+  session.document.layers=session.document.layers.slice(0,1)
+  session.document.layers.push(textLayer('00000000-0000-4000-8000-000000000015','中文价格',192,24,64,144,64,'#126bc9'))
+  note.textContent='固定极限样本：文字框192×24，字号64；未调用正式服务。'
+ }
+ if(technicalScenario==='text-nonuniform') {
+  session.document.layers=session.document.layers.slice(0,1)
+  const image=session.document.layers[0];image.visible=true;image.transform={x:0,y:-80,scale_x:0.5,scale_y:0.25,rotation:0}
+  const text=textLayer('00000000-0000-4000-8000-000000000016','中文价格',192,64,64,160,48,'#126bc9')
+  text.transform.scale_x=-1;text.transform.scale_y=0.5
+  session.document.layers.push(text)
+  note.textContent='固定两轴样本：图片0.5×0.25（160×80），文字-1×0.5（镜像192×32）；未调用正式服务。'
+ }
+}
+const technicalTurn=()=>({id:'00000000-0000-4000-8000-000000000006',revision:session.revision,goal:'受控技术宿主规划状态',reply:technicalTurnState==='waiting_confirmation'?'请核对技术计划后再执行':'',status:technicalTurnState,error:null,created_at:1790985600000,plan_hash:'technical-fixed-plan',steps:technicalTurnState==='planning'?[]:[{id:'p1',tool:'flip_layer',label:'水平翻转',params:{direction:'horizontal'},depends_on:[],run_id:null,status:'pending'},{id:'p2',tool:'move_layer',label:'移动',params:{dx:1},depends_on:['p1'],run_id:null,status:'pending'}]})
+let instance
+const host={identity:{userId:'technical-check'},page:technicalScenario==='draft-persistence'?'create':['batch-run-read-error','batch-upload'].includes(technicalScenario)?'batch':technicalScenario?'editor':'create',active:true,params:technicalScenario==='batch-run-read-error'?{runId:candidateRunId}:['batch-upload','draft-persistence'].includes(technicalScenario)?{}:technicalScenario?{sessionId}:{},hasPermission:(permission)=>technicalScenario==='session-edit'&&permission==='aipicture:tool:execute'||technicalScenario==='tool-edit'&&permission==='aipicture:session:edit'?false:true,
+ request:async ({url,method,responseType,data})=>{
+   if(technicalScenario==='canvas-command-recovery'&&method==='POST'&&url.endsWith('/tools')){
+    technicalCanvasPosts++;technicalCanvasLast={tool:data.tool,expectedVersion:data.expectedVersion,params:data.params};updateCanvasStatus()
+    if(!technicalCanvasAccept)return {code:503,msg:'技术模拟：正式命令拒绝，未修改正式画布'}
+    const layer=session.document.layers.find(item=>item.id===data.params.layer_id)
+    if(data.tool==='move_layer'){layer.transform.x=data.params.x;layer.transform.y=data.params.y}
+    else if(data.tool==='scale_layer'){Object.assign(layer.transform,{x:data.params.x,y:data.params.y,scale_x:layer.transform.scale_x*data.params.scale_x,scale_y:layer.transform.scale_y*data.params.scale_y})}
+    else if(data.tool==='set_layer_text')layer.text=data.params.text
+    else if(data.tool==='crop_canvas'){session.document.width=Math.round(session.document.width*data.params.rect.width);session.document.height=Math.round(session.document.height*data.params.rect.height)}
+    else throw new Error('本技术场景只允许四类受控画布命令')
+    technicalCanvasAccept=false;document.getElementById('technical-canvas-accept').checked=false
+    session.row_version++;session.revision++;updateCanvasStatus()
+    return {code:200,data:{session,run:{id:`00000000-0000-4000-8000-${String(200+technicalCanvasPosts).padStart(12,'0')}`,tool:data.tool,status:'succeeded',progress:100}}}
+   }
+   if(technicalScenario==='tool-retention'&&method==='POST'&&url.endsWith('/tools')){
+    technicalPostCount++;updateTechnicalStatus()
+    if(!technicalToolQueued)return {code:503,msg:'技术模拟：工具提交暂不可用，保留输入'}
+    session.active_run_id=candidateRunId;technicalToolState='running'
+    return {code:200,data:{session,run:{id:candidateRunId,tool:data.tool,status:'queued',progress:0}}}
+   }
+   if(['selection-read-recovery','export-read-recovery'].includes(technicalScenario)&&method==='POST'&&(url.endsWith('/selection')||url.endsWith('/exports'))){
+    technicalPostCount++;updateTechnicalStatus();return {code:200,data:{id:candidateRunId,status:'queued',progress:0,tool:url.endsWith('/exports')?'export':'selection'}}
+   }
+   if(technicalScenario==='selection-read-recovery'&&method==='POST'&&url.endsWith('/selection/prepare'))return {code:200,data:{id:'00000000-0000-4000-8000-000000000035',tool:'selection',status:'succeeded',progress:100}}
+   if(technicalRemaining&&method==='GET'&&url===`/aipicture/runs/${candidateRunId}`){
+    technicalRunReads++;updateTechnicalStatus()
+    if(technicalScenario!=='tool-retention'&&!technicalRunReady)return {code:503,msg:'技术模拟：原任务GET暂不可用，不重复提交'}
+    return {code:200,data:{id:candidateRunId,tool:technicalScenario==='export-read-recovery'?'export':technicalScenario==='selection-read-recovery'?'selection':'replace_background',status:technicalScenario==='tool-retention'?technicalToolState:'succeeded',progress:100,error:technicalToolState==='failed'?'受控正式失败':null,result:{export_id:'00000000-0000-4000-8000-000000000031',filename:'原任务技术导出.png'}}}
+   }
+   if(technicalScenario==='selection-read-recovery'&&method==='GET'&&url.endsWith('/selection'))return {code:200,data:technicalRunReady&&technicalPostCount?{revision:0,mask:{...asset,id:'00000000-0000-4000-8000-000000000032'},markers:[{index:1,x:0.5,y:0.5}]}:null}
+   if(technicalScenario==='batch-upload'&&url==='/aipicture/assets'&&method==='POST'&&data instanceof FormData){
+    const file=data.get('file');technicalUploadNames.push(file.name)
+    document.getElementById('technical-upload-status').textContent=`技术上传调用：${technicalUploadNames.length}；文件顺序：${technicalUploadNames.join(' → ')}；正式写入与供应商调用：0`
+    return new Promise(resolve=>{technicalUploadPending.push({index:technicalUploadNames.length,resolve})})
+   }
+   if(technicalScenario==='batch-upload'&&url.startsWith('/aipicture/batches')&&method==='GET')return {code:200,rows:[],total:0}
+
+   if(responseType==='blob')return (await fetch('./sample.png')).blob()
+   if(technicalScenario==='canvas-command-recovery'&&method==='GET'&&url.endsWith('/history'))return {code:200,data:[]}
+   if(method!=='GET')throw new Error('技术渲染检查不写业务数据')
+   if(url.startsWith('/aipicture/runs/')&&technicalRunError&&!technicalRunReady)return {code:503,msg:'技术模拟：正式任务状态服务暂不可用'}
+   if(url.startsWith('/aipicture/batches/')&&technicalScenario==='batch-run-read-error')return {code:200,data:{id:candidateRunId,run:{id:candidateRunId,tool:'batch_process',status:technicalRunReady?'succeeded':'running',progress:technicalRunReady?100:0,stage:'受控批量任务',result:{}},items:[{id:'00000000-0000-4000-8000-000000000021',source:asset,asset_id:asset.id,status:technicalRunReady?'succeeded':'running',output_ids:technicalRunReady?[candidateAsset.id]:[],outputs:technicalRunReady?[candidateAsset]:[],error:null}],created_at:1790985600000}}
+   if(url.startsWith('/aipicture/runs/'))return {code:200,data:{id:candidateRunId,tool:technicalScenario==='batch-run-read-error'?'batch_process':'generate_image',status:'succeeded',progress:100,stage:'受控技术结果',prompt:'技术检查候选',candidates:[asset,candidateAsset],result:{asset_ids:[asset.id,candidateAsset.id]}}}
+   if(url.startsWith('/aipicture/assets/library'))return {code:200,data:[{session_id:sessionId,title:session.title,updated_at:session.updated_at,cover:asset,assets:[asset]}]}
+   if(url.startsWith('/aipicture/assets'))return {code:200,rows:[asset],total:1}
+   if(url.endsWith('/messages'))return {code:200,data:technicalScenario==='planning'?[technicalTurn()]:[]}
+   if(url===`/aipicture/sessions/${sessionId}`&&technicalScenario==='session-unavailable')return {code:503,msg:'技术模拟：会话服务暂不可用，请重试'}
+   if(url===`/aipicture/sessions/${sessionId}`)return {code:200,data:session}
+   if(url.includes('/selection'))return {code:200,data:null}
+   if(url.startsWith('/aipicture/sessions')&&!url.includes('/messages'))return {code:200,rows:[session],total:1}
+   return {code:200,data:[]}
+ },navigate:({page,params})=>{host.page=page;host.params=params||{};instance.update({...host})},notify:notice=>{if(technicalScenario!=='canvas-command-recovery'){console.info(notice.message);return}let out=document.getElementById('technical-canvas-notice');if(!out){out=document.createElement('aside');out.id='technical-canvas-notice';out.style.cssText='padding:8px;background:#fff2d8';technicalControls.after(out)}out.replaceChildren();out.append(document.createTextNode(notice.message));if(notice.action){const button=document.createElement('button');button.textContent=notice.action.label;button.onclick=notice.action.run;out.append(button)}},download:(blob,filename)=>{document.getElementById("technical-download").textContent=`技术下载回调：${filename} · ${blob.size} 字节 · ${blob.type}`}}
+instance=mount(document.getElementById('canvas'),host)
+document.querySelectorAll('[data-page]').forEach(button=>button.onclick=()=>host.navigate({page:button.dataset.page,params:button.dataset.page==='editor'||button.dataset.page==='marketing'?{sessionId}:button.dataset.page==='candidates'?{runId:candidateRunId}:{}}))
+window.pictureCheck={navigate:host.navigate,unmount:()=>instance.unmount()}
+</script></body></html>
+

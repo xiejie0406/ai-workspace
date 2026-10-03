@@ -1,0 +1,182 @@
+{
+  "reviewed_at_utc": "2026-10-03T09:39:13.938580+00:00",
+  "role": "独立只读复核",
+  "scope": "execution.py 与受控交付回放测试/既有受影响fixture及release/XML；不重跑检查、不构建、不访问HTTP/DB/模型/服务",
+  "conclusion": "有界范围未发现新增具体P0/P1；可由主线程完成包/实际WorkerOnly同步，技术测试不代替22项业务结果",
+  "release": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\r14-delivery-replay-release.json",
+    "sha256": "c5eb3da9cef9900ba13ee054d919ec5f64ee6cbb08c64d4ca46683394e4ccca0",
+    "size_bytes": 104733
+  },
+  "expected_release_sha_matches": true,
+  "source_fingerprints": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\aipicture_runtime\\execution.py",
+      "sha256": "44f95fbd674d070925119661071ef802f3f9bb8ed3875506262554161f1efa5e",
+      "size_bytes": 11289,
+      "release_sha_matches": true,
+      "frozen_sha_matches": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\README.md",
+      "sha256": "e0ec831cd76f3f7611d86a8dfdb5ee56ecb622bcc587bd354e7961a17c42eddd",
+      "size_bytes": 20618,
+      "release_sha_matches": true,
+      "frozen_sha_matches": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_delivery_replay.py",
+      "sha256": "c263b9de1e35087ac33f108db22cf33a2cdaa7073dc1a8909cf247c80e99652d",
+      "size_bytes": 11393,
+      "release_sha_matches": true,
+      "frozen_sha_matches": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_lease_boundaries.py",
+      "sha256": "e9f71558e1e2e9061b933b37c64ded1fb61a339ce2f9fbb3f9ec10e0b1c8c5a0",
+      "size_bytes": 12481,
+      "release_sha_matches": true,
+      "frozen_sha_matches": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_paid_recovery_and_exports.py",
+      "sha256": "6ca5d0b9f1896eb7da0a8c54a30f76476d8a5c3f38745cf8f7adb529e37c65fc",
+      "size_bytes": 12088,
+      "release_sha_matches": true,
+      "frozen_sha_matches": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_worker.py",
+      "sha256": "2011a51ce806d9614942bcb53e6c6bf2548dc792b4fbee46b60493b98ef7929b",
+      "size_bytes": 19757,
+      "release_sha_matches": true,
+      "frozen_sha_matches": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_remote_protocol_outcomes.py",
+      "sha256": "c9556715aa188d56bbf4518d7cf447247e4e678a22dd223c773a6c878287ec9b",
+      "size_bytes": 5572,
+      "release_sha_matches": true,
+      "frozen_sha_matches": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aipicture-runtime\\tests\\test_batch_failure_message.py",
+      "sha256": "80a44a81e07b90fe3c11dc0f12c1c3214487f22b47cdf0c38787f6a8a5ec3ea6",
+      "size_bytes": 2685,
+      "release_sha_matches": true,
+      "frozen_sha_matches": true
+    }
+  ],
+  "facts": [
+    {
+      "location": "execution.py:27-42,66-77",
+      "finding": "中心拒绝只保存数值code；传输5xx、数值业务5xx及Timeout/Network/RemoteProtocolError才可重交，4xx或无可识别状态不重交，不输出中心原响应。"
+    },
+    {
+      "location": "execution.py:116-142",
+      "finding": "每个artifact/receipt最多原发送+2次，退避1/2秒；每次先心跳并明确检查running。空data、缺data、nullstatus或不匹配终态停止。相同预期终态仅允许receipt原回放，不允许artifact重交。"
+    },
+    {
+      "location": "execution.py:162-188",
+      "finding": "compute只调用一次，payload在单次deliver外构造且不修改；同run/attempt/lease/id/content/result以同JSON再次序列化，新nonce重新签名；ID映射在确认artifact后发生。"
+    },
+    {
+      "location": "execution.py:189-205",
+      "finding": "已有computed后交付格式错误/拒绝/耗尽或租约失效不发送COMPUTE_FAILED；取消保留既有cancelled回执。已知任务query与计算阶段外部unknown分类未改变。"
+    },
+    {
+      "location": "test_delivery_replay.py:84-124,127-239",
+      "finding": "采用真实ExecutionClient+真实engine批量路径及真实PNG/JPEG产物，Provider为内存替身且中心MockTransport；独立断言compute/provider各1、原rawJSON不变/nonce新、最多3次、上传已提交丢响应同bytes、receipt已提交丢响应单commit、明确失租/取消/空状态0再上传。"
+    },
+    {
+      "location": "tests/test_lease_boundaries.py / test_paid_recovery_and_exports.py / test_worker.py vs before snapshot",
+      "finding": "既有fixture仅补明确running心跳；上传中断测试区分前台交付确认与后台原故障通知以保留触发时序，未降低原assert；RemoteProtocol和批量message测试字节未变。"
+    }
+  ],
+  "observed_original_test_evidence": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\delivery-replay-before.xml",
+      "sha256": "ff73f23a756e461b2488448e232ace5d43dbbc542aa8a7b2fb3e4b2eeab7125a",
+      "size_bytes": 48832,
+      "record_sha_matches": true,
+      "cases": 22,
+      "counts": {
+        "failed": 22
+      }
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\delivery-replay-empty-state-before.xml",
+      "sha256": "6d6417d1e3fa912ff4f54113bd06001423a3cd0c844cd60b2ed9d29b76872aa4",
+      "size_bytes": 7337,
+      "record_sha_matches": true,
+      "cases": 3,
+      "counts": {
+        "failed": 3
+      }
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\delivery-replay-after.xml",
+      "sha256": "4c37c19230cb8433ac93c56b794c85767d8c7e9a904093cdbb8cdb2540c373d6",
+      "size_bytes": 12156,
+      "record_sha_matches": true,
+      "cases": 51,
+      "counts": {
+        "passed": 51
+      }
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\delivery-replay-paid-regression.xml",
+      "sha256": "50a47915169184b198d50ff5756e9c0576dab0d63399d44a9db2c14adb340e50",
+      "size_bytes": 837,
+      "record_sha_matches": true,
+      "cases": 4,
+      "counts": {
+        "passed": 4
+      }
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\aipicture\\delivery-replay-final-affected.xml",
+      "sha256": "cd4ce5291e535cea35931bf2424304129d2f4e0b894c687b1d651ec11bfb998f",
+      "size_bytes": 9347,
+      "record_sha_matches": true,
+      "cases": 33,
+      "counts": {
+        "passed": 33
+      }
+    }
+  ],
+  "unique_historical_evidence": {
+    "total": 59,
+    "unique": 59,
+    "all_final_evidence_matches_xml": true,
+    "composition_by_suite": {
+      "tests.test_delivery_replay": 25,
+      "tests.test_lease_boundaries": 16,
+      "tests.test_remote_protocol_outcomes": 8,
+      "tests.test_batch_failure_message": 5,
+      "tests.test_paid_recovery_and_exports": 4,
+      "tests.test_worker": 1
+    },
+    "note": "作者本轮59去重=新25+原相关34；final受影响33另沿用未受影响本轮22+收费4。51/4/33阶段不相加。独立审查执行测试0。"
+  },
+  "actual_findings": [],
+  "limits": [
+    "未运行真实收费Provider、中心DB或新的端到端业务；MockTransport不证明实际HTTP服务结果。",
+    "只在当前进程内持有已计算产物，进程崩溃不恢复产物；交付停止后仍由Java唯一中心租约恢复裁决，不建立Worker第二账本。",
+    "每次前台交付必须明确状态；本轮未将未改计算阶段report额外扩大为新状态协议。",
+    "未独立核对本轮wheel/sdist或运行身份，后续同步由root及独立进程证据证明。"
+  ],
+  "operations": {
+    "tests": 0,
+    "builds": 0,
+    "http": 0,
+    "database": 0,
+    "model": 0,
+    "services": 0,
+    "git": 0
+  },
+  "business_result": {
+    "new_passed_cards": 0,
+    "technical_not_business": true
+  }
+}

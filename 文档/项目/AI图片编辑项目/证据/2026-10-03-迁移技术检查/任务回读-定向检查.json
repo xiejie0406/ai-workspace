@@ -1,0 +1,95 @@
+{
+  "名称": "任务读取与已受理动作的正式状态恢复定向检查",
+  "日期": "2026-10-03T07:51:25.087394+08:00",
+  "性质": "本地 Happy DOM 与受控宿主传输的技术检查，不计真实登录、Provider、业务写入或业务验收通过",
+  "复现前提": {
+    "query_retry": 1,
+    "读取失败": "两次GET均失败，自动重试耗尽后正式run查询进入error；主session或batch详情GET成功",
+    "已受理动作": "受控宿主已改变正式turn/batch状态，再返回503；查询正式状态期间用受控Promise暂停，不重发POST",
+    "历史刷新": "图层面板打开使useSessionHistory为活跃查询；关闭面板时只失效缓存不要求立即GET"
+  },
+  "原失败": [
+    {
+      "日志": "任务回读-修复前.log",
+      "exit_code": 1,
+      "通过": 0,
+      "失败": 11,
+      "业务意义": "Editor/Marketing/Batch辅助GET原错误静默；任务GET停止恢复；三种计划动作POST丢响应无正式回读；步骤辅助GET错误静默"
+    },
+    {
+      "日志": "批量动作回读-修复前.log",
+      "exit_code": 1,
+      "通过": 0,
+      "失败": 2,
+      "业务意义": "正式failed批量的单项重试丢响应没有主动回读；running取消可能被既有轮询读取，但正式刷新前动作已解锁"
+    }
+  ],
+  "首轮检查": {
+    "日志": "任务回读-定向检查.log",
+    "exit_code": 1,
+    "总数": 19,
+    "通过": 16,
+    "失败": 3,
+    "说明": "三种计划动作已完成正式刷新/等待锁/终态/不重发断言，最后活跃历史GET断言因测试未打开图层面板失败；保留结果，补齐既有查询前提，不改变产品查询行为"
+  },
+  "定向复验": {
+    "日志": "计划动作回读-定向复验.log",
+    "exit_code": 0,
+    "总数": 3,
+    "通过": 3,
+    "失败": 0,
+    "说明": "只重验三种计划动作，先打开图层面板使历史查询活跃，再证明正式turn/session/history回读、pending期间禁止重复和终态恢复"
+  },
+  "最终定向结果": {
+    "总数": 19,
+    "通过": 19,
+    "失败": 0,
+    "新增": 15,
+    "受影响既有复验": 4,
+    "计数依据": "首轮未受后续测试前提调整影响的16项通过保留；三项计划动作采用最新复验通过。不是声称某次19项命令全部通过。",
+    "组成": {
+      "辅助读取三页503与network": 6,
+      "既有1500ms自动恢复": 1,
+      "三种计划动作丢响应": 3,
+      "Agent步骤辅助GET": 1,
+      "两种批量动作丢响应": 2,
+      "正式错误状态分类": 1,
+      "辅助403404null消费者": 1,
+      "规划恢复既有": 2,
+      "在途会话等待锁既有": 1,
+      "独立权限组合既有": 1
+    }
+  },
+  "类型检查": {
+    "日志": "任务回读-类型检查.log",
+    "命令": "npm run typecheck",
+    "exit_code": 0
+  },
+  "定向lint": {
+    "日志": "任务回读-定向lint.log",
+    "exit_code": 0,
+    "警告": 2,
+    "说明": "useSessions既有render ref与effect toast依赖警告；没有新错误"
+  },
+  "源码冻结": {
+    "复合SHA256": "CE0CF55496CB7B01CB3A55659684E5AA39A113CD78D0229FD2968C82F03B2475",
+    "文件SHA256": {
+      "src/lib/errors.ts": "3FF713390C308D869261BB5CAA5E27D9FAA250FCDEC495A3110379A7B47F7125",
+      "src/hooks/useRun.ts": "3C763DB348703F7C97F43FC5FF005375C57FB22BC640C7F76F40559FA7924C42",
+      "src/hooks/useSessions.ts": "0930A854DC90EF97A72A2A3DD268BEC5DEFD7C7F2BFE321A47B7EA42727053DA",
+      "src/hooks/useAgent.ts": "FF6E54E4651519EE4D527AA7133561332E6A80F22BC961BACACF62908078B759",
+      "src/hooks/useBatch.ts": "DC8A9988310D8AB31A80527EADE48BA75B60049BAAF809835BB07B077CA86B90",
+      "src/pages/EditorPage.tsx": "CF9D45BBB6F729EBF4E2A36466A83BF8A01F677B9D3AAEE3EA98FF378A398E74",
+      "src/pages/MarketingPage.tsx": "55A61C6FBF02A67DA18C17E269D54CED26CA38274460118A95694F0D2D54D643",
+      "src/pages/BatchPage.tsx": "7C0ABB55E757405A20A9FD3BCF0E124F50A102B6D89DE4683775FC0C91869148",
+      "src/components/editor/AgentConversation.tsx": "66F96F927A9DE24932E3AE12DADF17E3A35F9645C1C23D0E92FB6E8230A3067B",
+      "tests/entry.ts": "8F80F505AD77E84C24BECC94C7F7F3196CB50A09DAD4E1E973C4754EE2CFA75B",
+      "tests/lifecycle.test.mjs": "360AA494ADC7E3713258A539DE7ED76A18DF5CCD5FF02ABBAB50638590C2A19B",
+      "migration-coverage.json": "486AB0F9E38CB537177AC1C92F5B7824E529C3AE5454DAC5498042EBDCAF497D"
+    },
+    "CanvasStage保留SHA256": "28C16776EF999087334E25770444B9DF47F1B4E3B82CB465D5F468B508AF4F37",
+    "源覆盖记录条数": 75,
+    "原参考源码75项指纹": "实际重新核对全部一致，未改变source_sha256"
+  },
+  "未执行": "未生产构建、未同步public或runtime、未运行浏览器或服务、未登录、未调用模型、未写正式业务或Git；根任务负责最终制品聚合构建及IAB定向复验，字体/两轴/候选未受影响基线保持。"
+}

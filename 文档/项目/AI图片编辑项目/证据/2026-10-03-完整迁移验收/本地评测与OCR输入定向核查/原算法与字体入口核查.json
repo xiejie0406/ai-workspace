@@ -1,0 +1,120 @@
+{
+  "scope": "原/现OCR来源、字体和坐标的有界非模型核查",
+  "recorded_at": "2026-10-03T03:54:27.336887+00:00",
+  "new_inference": 0,
+  "new_http": 0,
+  "provider_calls": 0,
+  "database_writes": 0,
+  "source_edits": 0,
+  "image_input_contract": {
+    "probe_original_RGB_pixels": [
+      [
+        [
+          240,
+          20,
+          10
+        ],
+        [
+          10,
+          20,
+          240
+        ]
+      ]
+    ],
+    "numpy_path_loaded_pixels": [
+      [
+        [
+          240,
+          20,
+          10
+        ],
+        [
+          10,
+          20,
+          240
+        ]
+      ]
+    ],
+    "difference_confirmed_without_inference": true,
+    "source_and_target_current_call": "np.array(PILImage.convert(\"RGB\")) -> RapidOCR(ndarray)",
+    "installed_RapidOCR_byte_PIL_contract": "RGB decoded input converted to BGR; ndarray assumed alreadyBGR",
+    "inherited_source_limitation": true,
+    "impact": "彩色输入的红蓝通道与库受控bytes/PIL入口不一致；本次原失败是灰度，各RGB通道相同，因此不能解释AI→Al。",
+    "minimal_proposed_fix_not_applied": "保留Pillow convertRGB与透明处理，显式RGB数组转BGR后传RapidOCR；只统一入口，不改模型、阈值或文字纠错。",
+    "PNG_bytes_path_loaded_BGR_pixels": [
+      [
+        [
+          10,
+          20,
+          240
+        ],
+        [
+          240,
+          20,
+          10
+        ]
+      ]
+    ]
+  },
+  "arial_64_glyph_probe": {
+    "characters": {
+      "I": {
+        "advance": 18.0,
+        "mask_size": [
+          18,
+          46
+        ],
+        "ink_bbox": [
+          5,
+          0,
+          13,
+          46
+        ],
+        "cropped_ink_size": [
+          8,
+          46
+        ],
+        "cropped_ink_sha256": "16e14ea8d5dc27b3aa3d1b4f38b7dc31c31143fe2383a0e6347321a75ea163ab"
+      },
+      "l": {
+        "advance": 14.0,
+        "mask_size": [
+          14,
+          46
+        ],
+        "ink_bbox": [
+          4,
+          0,
+          10,
+          46
+        ],
+        "cropped_ink_size": [
+          6,
+          46
+        ],
+        "cropped_ink_sha256": "b6b2e2264876c8cebdcd72939221e47785f15282fa33cd837af96c944b4e9092"
+      }
+    },
+    "trimmed_I_l_ink_bytes_equal": false,
+    "interpretation": "字体探针只比较固定字号位图/advance，不把字符置信度或相似字形解释成模型正确，也不改独立AI预期。"
+  },
+  "coordinate_chain": {
+    "source_and_target": "flattened canvas -> RapidOCR original-size quad -> axis-aligned TextBox -> Layer frame x/y/w/h -> Java result.document -> React Text Group",
+    "size_grid": "文字识别发生在正式画布flatten网格，不在asset native网格；split图像背景/主体与文字层均使用相同document宽高。",
+    "transforms": "flatten先应用图片平移/两轴缩放/翻转/旋转与画布裁切，OCR识别已变换像素，不应再次应用原图层变换。",
+    "inherited_approximations": [
+      "quad旋转角度丢失，文字层默认rotation0；原源和现实现相同。",
+      "font_size取max(10,height*0.72)，默认fill黑色、配置字体，并非原像素字形/字号/颜色的识别重建。"
+    ],
+    "new_migration_coordinate_defect_found": false,
+    "full_split_local_or_paid_run_executed": false
+  },
+  "fingerprints": {
+    "参考项目/ai-picture-editor-main/backend/app/edits/ocr.py": "63709e5f1c0a8b251071cb1d290b52231e4b566742d0bd13e2235ed00347ed8f",
+    "python/aipicture-runtime/aipicture_runtime/edits/ocr.py": "d5b57b6045df242bff3ac643ee543838b9fb488f6835e03125530b5ad892b8be",
+    "参考项目/ai-picture-editor-main/backend/app/edits/split.py": "779b6b86ab4ae1cbe07686636ea3334827467d26bb6e228565750997c9ff2f06",
+    "python/aipicture-runtime/aipicture_runtime/edits/split.py": "f0d0a84e9152de86e05c76c2f92ab9fb12412c39b6309e2d2fd5632058204db1",
+    "python/aipicture-runtime/.venv/Lib/site-packages/rapidocr_onnxruntime/utils/load_image.py": "2335171bf0574b56fc4d6d7261bd9bf0dc955db6cec3b5aaf060d345256e65a4"
+  },
+  "quality_accepted": false
+}

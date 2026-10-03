@@ -1,0 +1,621 @@
+{
+  "schemaVersion": "1",
+  "frozenAtUtc": "2026-10-03T10:44:36.126182+00:00",
+  "scope": "root评测报告旧读取/关闭/销毁/当前失败明确重读的源码、已有定向检查和实际受控浏览器截图冻结；独立审查不重复运行",
+  "productionChangedOnly": [
+    "frontend/admin-web/src/views/aipicture/evaluation/index.vue"
+  ],
+  "testAddedOnly": [
+    "frontend/admin-web/tests/unit/aipicture/evaluation-report-recovery.spec.ts"
+  ],
+  "source": {
+    "path": "frontend/admin-web/src/views/aipicture/evaluation/index.vue",
+    "bytes": 24107,
+    "sha256": "69500d5a22441d404678bbe4080c562939ca90301f125d39259931f2d9fbcc82"
+  },
+  "testSource": {
+    "path": "frontend/admin-web/tests/unit/aipicture/evaluation-report-recovery.spec.ts",
+    "bytes": 5583,
+    "sha256": "ab9c4b78fe2a16baf420775ad4c0290d8fdcfde250d36a1df161ad87c8b13ba0"
+  },
+  "unchangedExistingTest": {
+    "path": "frontend/admin-web/tests/unit/aipicture/evaluation-page.spec.ts",
+    "bytes": 7681,
+    "sha256": "1e0c14c83b71b0664193ee2eb86eaadf67e52234495fd54fea2fb4cea501b7a1"
+  },
+  "independentReview": {
+    "path": ".runtime/aipicture/r15-evaluation-report-independent-review.json",
+    "bytes": 6947,
+    "sha256": "84ebbd9fd713a6dc795980daa25690bb7ac576413cfac2a4382906882416a5a0"
+  },
+  "beforeSource": {
+    "path": ".runtime/aipicture/before-report-selection-20261003/evaluation-index.vue",
+    "bytes": 23010,
+    "sha256": "0cea4d388a6f0398ed49598f4834397f9c91bd055c20de4f273d32ed4705be04"
+  },
+  "firstProbeSource": {
+    "path": ".runtime/aipicture/before-report-selection-20261003/evaluation-report-recovery-first.spec.ts",
+    "bytes": 5747,
+    "sha256": "0b46312d3e5d7c50b4a8ae4c36f2a501ee3b725c9e57465d3117c84fa0021dd1"
+  },
+  "behavior": "同reportRead/弹窗/销毁三重守卫成功、catch、finally；关闭同步清理；当前失败显示错误并保留报告ID供明确GET重读；原评测/来源规则保持",
+  "tests": {
+    "before": {
+      "uniqueNewCases": 5,
+      "firstProbeCount": 5,
+      "firstFailures": 5,
+      "firstExitCode": 1,
+      "log": {
+        "path": ".runtime/aipicture/report-selection-before.log",
+        "bytes": 5026,
+        "sha256": "abd8a84cde5bce9831c0f1cf3261d2986a8d10647eba11fde0beaf6285babee0"
+      },
+      "qualification": "首轮两项先遇旧实现没有reportLoading的undefined断言，不能单凭该断言证明用户可见失败"
+    },
+    "observableBeforeCorrection": {
+      "executedSubset": 2,
+      "failed": 2,
+      "skipped": 3,
+      "exitCode": 1,
+      "log": {
+        "path": ".runtime/aipicture/report-selection-before-user-observable.log",
+        "bytes": 3256,
+        "sha256": "a60d7103d4ba4c6b68fbb988226b32c0a5bdc3b06816ec35a3bb6c83761b0256"
+      },
+      "reason": "仅调整两项断言为可见永久加载文案及销毁后旧错误toast，同一两个用例，未增加新的独立用例"
+    },
+    "after": {
+      "exitCode": 0,
+      "uniqueTests": 9,
+      "newTests": 5,
+      "existingActuallyReexecuted": 4,
+      "failed": 0,
+      "errors": 0,
+      "log": {
+        "path": ".runtime/aipicture/report-selection-after.log",
+        "bytes": 461,
+        "sha256": "1c2b72bba4ed2012959d8849e1b90770e550a749d54e3c0a52221e4ca2c897bb"
+      },
+      "newCaseNames": [
+        "先打开的报告迟到不能覆盖后来打开的报告",
+        "关闭报告后不接纳迟到的成功结果",
+        "旧报告的迟到失败不能覆盖当前成功报告或弹出旧错误",
+        "读取失败停止加载并在原报告明确重读后恢复，不发送评测POST",
+        "销毁页面后不接纳迟到报告或弹出错误"
+      ],
+      "existingCaseNames": [
+        "换来源、关闭和销毁后不接纳迟到正式结果",
+        "仅提交用户选中的正式候选与人工记录，不制造来源或接受结论",
+        "来源读取错误可重读并保留独立输入，未读取成功不能加入清单",
+        "报告明确区分技术通过、人工未通过与专项整体，OCR 格式可见"
+      ],
+      "notAddedToBefore": true
+    },
+    "typecheck": {
+      "exitCode": 0,
+      "exitEvidenceSource": "root本轮明确提供实际exit0，既有日志无错误；本冻结未重跑",
+      "log": {
+        "path": ".runtime/aipicture/report-selection-typecheck.log",
+        "bytes": 116,
+        "sha256": "6ef5ec6bb7ff5fc3f41ec7b489e97d79f89136bc7cb0b08676f8592d8b6ab25a"
+      }
+    },
+    "qualityBoundary": "9项是实际组件/内存技术响应的单元检查，不是模型质量或正式业务通过",
+    "executedByThisFreeze": 0
+  },
+  "browser": {
+    "actor": "root既有实际IAB操作和截图；本冻结只本地回读原7jpg/JSON",
+    "record": {
+      "path": ".runtime/aipicture/report-read-browser/browser-record.json",
+      "bytes": 1271,
+      "sha256": "aa68348f031ef97bd3c9c45adece1286d9bee1ba5cf61ed6de8d7c277c5becf7"
+    },
+    "uniqueTechnicalCases": 2,
+    "validImages": 5,
+    "validBeforeImages": 2,
+    "validAfterImages": 3,
+    "invalidFirstAttemptImages": 2,
+    "cases": [
+      {
+        "case": "迟到报告隔离",
+        "independentExpected": "旧A203关闭后打开B204，释放旧响应仍可见B204",
+        "beforeActual": "00000000-0000-4000-8000-000000000203",
+        "afterActual": {
+          "visible": true,
+          "id": "00000000-0000-4000-8000-000000000204"
+        },
+        "beforeImage": "report-before-stale-overwrite.jpg",
+        "afterImage": "report-after-neutral-A-keeps-B.jpg",
+        "afterTechnicalPassed": true
+      },
+      {
+        "case": "读取失败后用户明确重读",
+        "independentExpected": "C失败停加载并显示错误/重读按钮，恢复技术响应后明确重读得到C205，不创建评测任务",
+        "beforeActual": {
+          "stuckLoading": true,
+          "retryButton": 0
+        },
+        "afterFailure": {
+          "loadingText": 0,
+          "retryButton": 1,
+          "visible": true
+        },
+        "afterExplicitRetry": {
+          "visible": true,
+          "id": "00000000-0000-4000-8000-000000000205",
+          "loadingText": 0
+        },
+        "beforeImage": "report-before-C-visible-stuck-loading.jpg",
+        "afterImages": [
+          "report-after-C-failure-error-and-retry.jpg",
+          "report-after-C-explicit-retry-restored.jpg"
+        ],
+        "afterTechnicalPassed": true
+      }
+    ],
+    "images": [
+      {
+        "path": ".runtime/aipicture/report-read-browser/report-before-stale-overwrite.jpg",
+        "bytes": 78183,
+        "sha256": "d534c4076be9f3e81383f8d8a8b273fb9574bc157579ce1291fa07c5d1aea0c0",
+        "stage": "before",
+        "evidence": "valid",
+        "purpose": "迟到A203实际覆盖后来打开的B，修前失败证据",
+        "dimensions": [
+          1279,
+          720
+        ],
+        "format": "JPEG",
+        "root_actual_screenshot": true,
+        "root_readback_recorded": true,
+        "independent_local_view_image_readback": true
+      },
+      {
+        "path": ".runtime/aipicture/report-read-browser/report-before-C-visible-stuck-loading.jpg",
+        "bytes": 60922,
+        "sha256": "10b577b4e1cfcdfab6069a2402bd586084d67ecbe8a81baca47b6aa93a688552",
+        "stage": "before",
+        "evidence": "valid",
+        "purpose": "C失败后弹窗可见且仍显示正在读取，没有重读按钮，修前失败证据",
+        "dimensions": [
+          1279,
+          720
+        ],
+        "format": "JPEG",
+        "root_actual_screenshot": true,
+        "root_readback_recorded": true,
+        "independent_local_view_image_readback": true
+      },
+      {
+        "path": ".runtime/aipicture/report-read-browser/report-after-neutral-A-keeps-B.jpg",
+        "bytes": 78561,
+        "sha256": "2c944e178feadb7a3c97d0c86a2cc186d27d92e51debbcc1aceb06c3b9cdc691",
+        "stage": "after",
+        "evidence": "valid",
+        "purpose": "修后实际可见报告B204，释放旧A后仍保持B",
+        "dimensions": [
+          1279,
+          720
+        ],
+        "format": "JPEG",
+        "root_actual_screenshot": true,
+        "root_readback_recorded": true,
+        "independent_local_view_image_readback": true
+      },
+      {
+        "path": ".runtime/aipicture/report-read-browser/report-after-C-failure-error-and-retry.jpg",
+        "bytes": 64344,
+        "sha256": "7c5a71fe926a8b0940faf456f01e58d9d13721d517e0c1e08d2784430a50d98d",
+        "stage": "after",
+        "evidence": "valid",
+        "purpose": "修后C失败停止加载，显示503错误与重新读取报告按钮",
+        "dimensions": [
+          1279,
+          720
+        ],
+        "format": "JPEG",
+        "root_actual_screenshot": true,
+        "root_readback_recorded": true,
+        "independent_local_view_image_readback": true
+      },
+      {
+        "path": ".runtime/aipicture/report-read-browser/report-after-C-explicit-retry-restored.jpg",
+        "bytes": 78267,
+        "sha256": "35fb18f4af973e59f6a66832fc9debb536bc188a93327897376b6701ded6ace3",
+        "stage": "after",
+        "evidence": "valid",
+        "purpose": "用户明确重读后实际可见C205",
+        "dimensions": [
+          1279,
+          720
+        ],
+        "format": "JPEG",
+        "root_actual_screenshot": true,
+        "root_readback_recorded": true,
+        "independent_local_view_image_readback": true
+      },
+      {
+        "path": ".runtime/aipicture/report-read-browser/report-before-failure-loading.jpg",
+        "bytes": 82360,
+        "sha256": "724fddeb32f1ddf01a5cc8abea8a66282f8df42b0e960673b189d1a70aef4c96",
+        "stage": "before_first_attempt",
+        "evidence": "not_valid_evidence",
+        "purpose": "首尝试没有可见C弹窗，不能证明永久加载或通过；原图保留",
+        "dimensions": [
+          1266,
+          712
+        ],
+        "format": "JPEG",
+        "root_actual_screenshot": true,
+        "root_readback_recorded": true,
+        "independent_local_view_image_readback": true
+      },
+      {
+        "path": ".runtime/aipicture/report-read-browser/report-after-late-A-keeps-B.jpg",
+        "bytes": 82868,
+        "sha256": "3662ef6045fc2d7df6059c6c70df562da000146bf4e0eebc994864d7d68b98eb",
+        "stage": "after_first_attempt",
+        "evidence": "not_valid_evidence",
+        "purpose": "首尝试只有隐藏JSON瞬时204且随后弹窗关闭，没有可见B，不能当通过图；原图保留",
+        "dimensions": [
+          1266,
+          712
+        ],
+        "format": "JPEG",
+        "root_actual_screenshot": true,
+        "root_readback_recorded": true,
+        "independent_local_view_image_readback": true
+      }
+    ],
+    "businessHttp": 0,
+    "databaseWrites": 0,
+    "modelCalls": 0,
+    "userAcceptance": false,
+    "firstAttemptsKept": true,
+    "firstAttemptsNotCountedAsPassingEvidence": true,
+    "fixtureControlsCorrection": "仅私有宿主开关按钮位置/z5000修正，避免技术开关关闭报告弹窗；不是产品代码修改。首尝试及原截图完整保留。",
+    "limitations": "只有两项受控Vue技术场景，响应来自本地内存，不读取真实账号或来源任务；不能证明正式报告下载/授权/模型质量或用户业务接受"
+  },
+  "controlledBuilds": [
+    {
+      "stage": "before",
+      "directory": ".runtime/aipicture/browser-check/evaluation-ui-before-report-read",
+      "index": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui-before-report-read/index.html",
+        "bytes": 379,
+        "sha256": "37a9bd91a66ff9ff8da14113c69a825463c692957dd03829c4ee139a59a3f46c"
+      },
+      "javascript": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui-before-report-read/assets/index-CiI8XN2E.js",
+        "bytes": 1128863,
+        "sha256": "33e2026b2bd3637d3525479b749f9564f4985f64675a7fce9ca8b45e98b76329"
+      },
+      "css": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui-before-report-read/assets/index-if7vtKPm.css",
+        "bytes": 380904,
+        "sha256": "b3f1a99824cb4b61ef634c3b7b952da13117dcb6bb510ce2fb30d38aaf9c743b"
+      },
+      "index_linked_assets_verified": true,
+      "unused_stale_assets_not_counted": true,
+      "build_log": {
+        "path": ".runtime/aipicture/report-selection-browser-before-controls-build.log",
+        "bytes": 821,
+        "sha256": "d1338352325b181a3ff1507c4bcd2d311215f932942137bce983ae77757e4016"
+      },
+      "compiled_retry_label_present": false,
+      "purpose": "受控Vue技术宿主，不是若依正式业务构建/模型质量验收"
+    },
+    {
+      "stage": "final",
+      "directory": ".runtime/aipicture/browser-check/evaluation-ui",
+      "index": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/index.html",
+        "bytes": 379,
+        "sha256": "09f20e35ad5bb0efcfbf3999d87ab6e47ee30ab2f38e9a607532fc859ef42c24"
+      },
+      "javascript": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/assets/index-CMMeJpmH.js",
+        "bytes": 1129621,
+        "sha256": "89364482ce95685776d91e16c8b52f0a1dba4be030c8e832e863b55fa380dcdb"
+      },
+      "css": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/assets/index-Cfl07t0m.css",
+        "bytes": 380904,
+        "sha256": "993178b5e261f69996fc10e13ad746a65649b74fd1dfece1c442dc38e3df97f9"
+      },
+      "index_linked_assets_verified": true,
+      "unused_stale_assets_not_counted": true,
+      "build_log": {
+        "path": ".runtime/aipicture/report-selection-browser-final-controls-build.log",
+        "bytes": 764,
+        "sha256": "42320fe9488c89dbe151ad43e001b1f8e9d97ace87f6eea91a3996449424da95"
+      },
+      "compiled_retry_label_present": true,
+      "purpose": "受控Vue技术宿主，不是若依正式业务构建/模型质量验收"
+    }
+  ],
+  "frozenDirectory": ".runtime/aipicture/r15-evaluation-report-final",
+  "frozenCopies": [
+    {
+      "source": {
+        "path": "frontend/admin-web/src/views/aipicture/evaluation/index.vue",
+        "bytes": 24107,
+        "sha256": "69500d5a22441d404678bbe4080c562939ca90301f125d39259931f2d9fbcc82"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/frontend/admin-web/src/views/aipicture/evaluation/index.vue",
+        "bytes": 24107,
+        "sha256": "69500d5a22441d404678bbe4080c562939ca90301f125d39259931f2d9fbcc82"
+      }
+    },
+    {
+      "source": {
+        "path": "frontend/admin-web/tests/unit/aipicture/evaluation-report-recovery.spec.ts",
+        "bytes": 5583,
+        "sha256": "ab9c4b78fe2a16baf420775ad4c0290d8fdcfde250d36a1df161ad87c8b13ba0"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/frontend/admin-web/tests/unit/aipicture/evaluation-report-recovery.spec.ts",
+        "bytes": 5583,
+        "sha256": "ab9c4b78fe2a16baf420775ad4c0290d8fdcfde250d36a1df161ad87c8b13ba0"
+      }
+    },
+    {
+      "source": {
+        "path": "frontend/admin-web/tests/unit/aipicture/evaluation-page.spec.ts",
+        "bytes": 7681,
+        "sha256": "1e0c14c83b71b0664193ee2eb86eaadf67e52234495fd54fea2fb4cea501b7a1"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/frontend/admin-web/tests/unit/aipicture/evaluation-page.spec.ts",
+        "bytes": 7681,
+        "sha256": "1e0c14c83b71b0664193ee2eb86eaadf67e52234495fd54fea2fb4cea501b7a1"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-selection-after.log",
+        "bytes": 461,
+        "sha256": "1c2b72bba4ed2012959d8849e1b90770e550a749d54e3c0a52221e4ca2c897bb"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-selection-after.log",
+        "bytes": 461,
+        "sha256": "1c2b72bba4ed2012959d8849e1b90770e550a749d54e3c0a52221e4ca2c897bb"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-selection-before.log",
+        "bytes": 5026,
+        "sha256": "abd8a84cde5bce9831c0f1cf3261d2986a8d10647eba11fde0beaf6285babee0"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-selection-before.log",
+        "bytes": 5026,
+        "sha256": "abd8a84cde5bce9831c0f1cf3261d2986a8d10647eba11fde0beaf6285babee0"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-selection-before-user-observable.log",
+        "bytes": 3256,
+        "sha256": "a60d7103d4ba4c6b68fbb988226b32c0a5bdc3b06816ec35a3bb6c83761b0256"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-selection-before-user-observable.log",
+        "bytes": 3256,
+        "sha256": "a60d7103d4ba4c6b68fbb988226b32c0a5bdc3b06816ec35a3bb6c83761b0256"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-selection-typecheck.log",
+        "bytes": 116,
+        "sha256": "6ef5ec6bb7ff5fc3f41ec7b489e97d79f89136bc7cb0b08676f8592d8b6ab25a"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-selection-typecheck.log",
+        "bytes": 116,
+        "sha256": "6ef5ec6bb7ff5fc3f41ec7b489e97d79f89136bc7cb0b08676f8592d8b6ab25a"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-read-browser/browser-record.json",
+        "bytes": 1271,
+        "sha256": "aa68348f031ef97bd3c9c45adece1286d9bee1ba5cf61ed6de8d7c277c5becf7"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-read-browser/browser-record.json",
+        "bytes": 1271,
+        "sha256": "aa68348f031ef97bd3c9c45adece1286d9bee1ba5cf61ed6de8d7c277c5becf7"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-read-browser/report-before-stale-overwrite.jpg",
+        "bytes": 78183,
+        "sha256": "d534c4076be9f3e81383f8d8a8b273fb9574bc157579ce1291fa07c5d1aea0c0"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-read-browser/report-before-stale-overwrite.jpg",
+        "bytes": 78183,
+        "sha256": "d534c4076be9f3e81383f8d8a8b273fb9574bc157579ce1291fa07c5d1aea0c0"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-read-browser/report-before-C-visible-stuck-loading.jpg",
+        "bytes": 60922,
+        "sha256": "10b577b4e1cfcdfab6069a2402bd586084d67ecbe8a81baca47b6aa93a688552"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-read-browser/report-before-C-visible-stuck-loading.jpg",
+        "bytes": 60922,
+        "sha256": "10b577b4e1cfcdfab6069a2402bd586084d67ecbe8a81baca47b6aa93a688552"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-read-browser/report-after-neutral-A-keeps-B.jpg",
+        "bytes": 78561,
+        "sha256": "2c944e178feadb7a3c97d0c86a2cc186d27d92e51debbcc1aceb06c3b9cdc691"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-read-browser/report-after-neutral-A-keeps-B.jpg",
+        "bytes": 78561,
+        "sha256": "2c944e178feadb7a3c97d0c86a2cc186d27d92e51debbcc1aceb06c3b9cdc691"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-read-browser/report-after-C-failure-error-and-retry.jpg",
+        "bytes": 64344,
+        "sha256": "7c5a71fe926a8b0940faf456f01e58d9d13721d517e0c1e08d2784430a50d98d"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-read-browser/report-after-C-failure-error-and-retry.jpg",
+        "bytes": 64344,
+        "sha256": "7c5a71fe926a8b0940faf456f01e58d9d13721d517e0c1e08d2784430a50d98d"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-read-browser/report-after-C-explicit-retry-restored.jpg",
+        "bytes": 78267,
+        "sha256": "35fb18f4af973e59f6a66832fc9debb536bc188a93327897376b6701ded6ace3"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-read-browser/report-after-C-explicit-retry-restored.jpg",
+        "bytes": 78267,
+        "sha256": "35fb18f4af973e59f6a66832fc9debb536bc188a93327897376b6701ded6ace3"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-read-browser/report-before-failure-loading.jpg",
+        "bytes": 82360,
+        "sha256": "724fddeb32f1ddf01a5cc8abea8a66282f8df42b0e960673b189d1a70aef4c96"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-read-browser/report-before-failure-loading.jpg",
+        "bytes": 82360,
+        "sha256": "724fddeb32f1ddf01a5cc8abea8a66282f8df42b0e960673b189d1a70aef4c96"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/report-read-browser/report-after-late-A-keeps-B.jpg",
+        "bytes": 82868,
+        "sha256": "3662ef6045fc2d7df6059c6c70df562da000146bf4e0eebc994864d7d68b98eb"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/report-read-browser/report-after-late-A-keeps-B.jpg",
+        "bytes": 82868,
+        "sha256": "3662ef6045fc2d7df6059c6c70df562da000146bf4e0eebc994864d7d68b98eb"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/r15-evaluation-report-independent-review.json",
+        "bytes": 6947,
+        "sha256": "84ebbd9fd713a6dc795980daa25690bb7ac576413cfac2a4382906882416a5a0"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/r15-evaluation-report-independent-review.json",
+        "bytes": 6947,
+        "sha256": "84ebbd9fd713a6dc795980daa25690bb7ac576413cfac2a4382906882416a5a0"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui-before-report-read/index.html",
+        "bytes": 379,
+        "sha256": "37a9bd91a66ff9ff8da14113c69a825463c692957dd03829c4ee139a59a3f46c"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/browser-check/evaluation-ui-before-report-read/index.html",
+        "bytes": 379,
+        "sha256": "37a9bd91a66ff9ff8da14113c69a825463c692957dd03829c4ee139a59a3f46c"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui-before-report-read/assets/index-CiI8XN2E.js",
+        "bytes": 1128863,
+        "sha256": "33e2026b2bd3637d3525479b749f9564f4985f64675a7fce9ca8b45e98b76329"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/browser-check/evaluation-ui-before-report-read/assets/index-CiI8XN2E.js",
+        "bytes": 1128863,
+        "sha256": "33e2026b2bd3637d3525479b749f9564f4985f64675a7fce9ca8b45e98b76329"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui-before-report-read/assets/index-if7vtKPm.css",
+        "bytes": 380904,
+        "sha256": "b3f1a99824cb4b61ef634c3b7b952da13117dcb6bb510ce2fb30d38aaf9c743b"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/browser-check/evaluation-ui-before-report-read/assets/index-if7vtKPm.css",
+        "bytes": 380904,
+        "sha256": "b3f1a99824cb4b61ef634c3b7b952da13117dcb6bb510ce2fb30d38aaf9c743b"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/index.html",
+        "bytes": 379,
+        "sha256": "09f20e35ad5bb0efcfbf3999d87ab6e47ee30ab2f38e9a607532fc859ef42c24"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/browser-check/evaluation-ui/index.html",
+        "bytes": 379,
+        "sha256": "09f20e35ad5bb0efcfbf3999d87ab6e47ee30ab2f38e9a607532fc859ef42c24"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/assets/index-CMMeJpmH.js",
+        "bytes": 1129621,
+        "sha256": "89364482ce95685776d91e16c8b52f0a1dba4be030c8e832e863b55fa380dcdb"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/browser-check/evaluation-ui/assets/index-CMMeJpmH.js",
+        "bytes": 1129621,
+        "sha256": "89364482ce95685776d91e16c8b52f0a1dba4be030c8e832e863b55fa380dcdb"
+      }
+    },
+    {
+      "source": {
+        "path": ".runtime/aipicture/browser-check/evaluation-ui/assets/index-Cfl07t0m.css",
+        "bytes": 380904,
+        "sha256": "993178b5e261f69996fc10e13ad746a65649b74fd1dfece1c442dc38e3df97f9"
+      },
+      "frozen": {
+        "path": ".runtime/aipicture/r15-evaluation-report-final/.runtime/aipicture/browser-check/evaluation-ui/assets/index-Cfl07t0m.css",
+        "bytes": 380904,
+        "sha256": "993178b5e261f69996fc10e13ad746a65649b74fd1dfece1c442dc38e3df97f9"
+      }
+    }
+  ],
+  "frozenCopyCount": 22,
+  "actions": {
+    "productEdits": 0,
+    "testRuns": 0,
+    "builds": 0,
+    "browserOperations": 0,
+    "http": 0,
+    "database": 0,
+    "modelInference": 0,
+    "provider": 0,
+    "processOperations": 0,
+    "downloads": 0,
+    "installs": 0,
+    "git": 0,
+    "existingLocalImagesRead": 7
+  },
+  "runtime": "只绑定受控技术宿主构建的实际index/JS/CSS及源码；不声明若依正式运行同步或业务验收完成"
+}

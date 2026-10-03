@@ -1,0 +1,117 @@
+{
+  "reviewed_at_utc": "2026-10-03T04:50:45.766918+00:00",
+  "scope": "SAM同图冷embedding去重、OCR首次初始化双检锁以及test_cv_concurrency，结合原备份及既有13项XML；不扩展模型热换或缓存预算",
+  "files": {
+    "segment": {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/segment.py",
+      "sha256": "848a422e609b62a020f273ba5ba58abed2e8a70d0a92ba25936d58f917a65f9d"
+    },
+    "ocr": {
+      "path": "python/aipicture-runtime/aipicture_runtime/edits/ocr.py",
+      "sha256": "ee428a3e37d3f41007e1e115af02454e7e83cbfe019d48abbd6fe6d897482b26"
+    },
+    "tests": {
+      "path": "python/aipicture-runtime/tests/test_cv_concurrency.py",
+      "sha256": "85624a1768f39afcccc35bd5c552d4a626bd90a35a66b631965b7589a0129e32"
+    },
+    "ocr_contract_tests": {
+      "path": "python/aipicture-runtime/tests/test_ocr_input_contract.py",
+      "sha256": "abab5b027cee8c6bea1f661cf70540fc3e764bacfbcd4980893ae6e1e30452b3"
+    },
+    "segment_before": {
+      "path": ".runtime/aipicture/cv-concurrency-segment.py.before",
+      "sha256": "4942296daf99f429eb313b952267a83372d0984f45b42e13d5bef6051ca5a454"
+    },
+    "ocr_before": {
+      "path": ".runtime/aipicture/cv-concurrency-ocr.py.before",
+      "sha256": "ec4b9ef752ee1010c1e75fb1f1ec1886482e7b60d23b0cd39ee439e4ac1fc43b"
+    },
+    "rapidocr_loaded_main": {
+      "path": "python/aipicture-runtime/.venv/Lib/site-packages/rapidocr_onnxruntime/main.py",
+      "sha256": "156c49e683fddd26f04280f391f882b857a74d2f020497870f7dd8d850ed5a2c"
+    },
+    "before_xml": {
+      "path": ".runtime/aipicture/cv-concurrency-before.xml",
+      "sha256": "f5cdb30f31ca3a05127f4c6fd9cf084f6764b3b4b2eb8aee83355e55e12277ea"
+    },
+    "after_xml": {
+      "path": ".runtime/aipicture/cv-concurrency-after.xml",
+      "sha256": "e56f5b22303d18168a1170d19c2e8d49a4ec6bdc028c18ea1aed76a941a7fcac"
+    },
+    "before_record": {
+      "path": ".runtime/aipicture/cv-concurrency-before.json",
+      "sha256": "c227c629def92c2bee44fcd80b4ccde0c4749b53ac63907a2a76603ffabc28c3"
+    },
+    "after_record": {
+      "path": ".runtime/aipicture/cv-concurrency-after.json",
+      "sha256": "6212ecb134c9783a619a61e8a66720b5c5c4bbbad65ee69948ec4da2793e0a05"
+    }
+  },
+  "source_and_test_match_frozen_record": {
+    "segment": true,
+    "ocr": true,
+    "tests": true,
+    "ocr_contract_tests": true
+  },
+  "unified_diff": {
+    "segment": "--- .runtime\\aipicture\\cv-concurrency-segment.py.before\n+++ python\\aipicture-runtime\\aipicture_runtime\\edits\\segment.py\n@@ -1,6 +1,7 @@\n import hashlib\n import io\n from collections import OrderedDict\n+from concurrent.futures import Future\n from threading import Lock\n \n from PIL import Image, ImageDraw\n@@ -11,6 +12,7 @@\n _CACHE_LIMIT = 4\n _lock = Lock()\n _embeddings: OrderedDict[str, object] = OrderedDict()\n+_inflight: dict[str, Future] = {}\n _sam = None\n \n \n@@ -78,13 +80,28 @@\n         if cached is not None:\n             _embeddings.move_to_end(key)\n             return cached\n-\n-    embedding = _encode(session, source)\n-    with _lock:\n-        _embeddings[key] = embedding\n-        _embeddings.move_to_end(key)\n-        while len(_embeddings) > _CACHE_LIMIT:\n-            _embeddings.popitem(last=False)\n+        pending = _inflight.get(key)\n+        producer = pending is None\n+        if producer:\n+            pending = Future()\n+            _inflight[key] = pending\n+    # 同图共享一次冷编码；不同图编码与等待都在全局缓存锁外进行。\n+    if not producer:\n+        return pending.result()\n+    try:\n+        embedding = _encode(session, source)\n+        with _lock:\n+            _embeddings[key] = embedding\n+            _embeddings.move_to_end(key)\n+            while len(_embeddings) > _CACHE_LIMIT:\n+                _embeddings.popitem(last=False)\n+            _inflight.pop(key, None)\n+    except BaseException as exc:\n+        with _lock:\n+            _inflight.pop(key, None)\n+        pending.set_exception(exc)\n+        raise\n+    pending.set_result(embedding)\n     return embedding\n \n \n",
+    "ocr": "--- .runtime\\aipicture\\cv-concurrency-ocr.py.before\n+++ python\\aipicture-runtime\\aipicture_runtime\\edits\\ocr.py\n@@ -1,5 +1,6 @@\n import io\n from dataclasses import dataclass\n+from threading import Lock\n \n from PIL import Image\n \n@@ -16,6 +17,7 @@\n \n \n _engine = None\n+_engine_lock = Lock()\n \n \n def detect_text(data: bytes) -> list[TextBox]:\n@@ -36,10 +38,13 @@\n \n     global _engine\n     if _engine is None:\n-        settings = get_settings()\n-        _engine = RapidOCR(det_model_path=str(settings.ocr_det_model_path),\n-                           rec_model_path=str(settings.ocr_rec_model_path),\n-                           cls_model_path=str(settings.ocr_cls_model_path))\n+        # 只保护首次构造；真实识别在锁外，不把不同图片的推理串行化。\n+        with _engine_lock:\n+            if _engine is None:\n+                settings = get_settings()\n+                _engine = RapidOCR(det_model_path=str(settings.ocr_det_model_path),\n+                                   rec_model_path=str(settings.ocr_rec_model_path),\n+                                   cls_model_path=str(settings.ocr_cls_model_path))\n \n     # RapidOCR 的 ndarray 入口使用 BGR；保留原 RGB 解码/丢弃 alpha，再统一通道约定。\n     image = np.array(Image.open(io.BytesIO(data)).convert(\"RGB\"))[:, :, ::-1].copy()\n"
+  },
+  "existing_test_results": {
+    "before": {
+      "tests": 7,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    },
+    "after": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "executed_by_this_review": false,
+    "after_composition": "7本次并发+5此前OCR入口+1既有缺模型，13总计；此前6不重复相加"
+  },
+  "reviewed_boundaries": [
+    {
+      "boundary": "同图唯一编码者与等待",
+      "fact": "_lock内原子检查cache/在途Future并登记producer；_encode和Future.result均在锁外，第二同key调用复用在途结果。"
+    },
+    {
+      "boundary": "编码异常通知/可重试",
+      "fact": "BaseException分支先在锁内移除在途项，锁外Future.set_exception后原异常重抛，等待者可退出；失败不写embedding，下次可重试。"
+    },
+    {
+      "boundary": "成功通知与LRU",
+      "fact": "编码完成后短锁写入LRU并裁至4，再于锁外set_result；没有Future等待/通知与cache锁的嵌套。"
+    },
+    {
+      "boundary": "不同图并行",
+      "fact": "编码不持有全局锁，受控Barrier测试要求两不同key同时进入；单点decoder仍锁外，真实模型初始化仍沿原同一_lock。"
+    },
+    {
+      "boundary": "OCR单次初始化与失败",
+      "fact": "外层None快路径及锁内复检；RapidOCR构造完全返回才发布_engine。构造异常由with释放锁且_engine保持None，后续可重试。"
+    },
+    {
+      "boundary": "OCR识别并行/共享设置",
+      "fact": "_engine(image)位于初始化锁外；本wrapper不传可修改阈值的kwargs。核对本机锁定RapidOCR.main，调用级img/boxes/op_record为局部变量，kwargs设置修改分支本路径不进入；没有引入额外串行推理锁。"
+    },
+    {
+      "boundary": "既有协议",
+      "fact": "模型显式路径、RGB→BGR连续数组、alpha去除、原文字框/过滤与阈值、SAM编码/解码算法均未被此次变更替换。"
+    },
+    {
+      "boundary": "测试有效范围",
+      "fact": "新增测试用实际线程、受控constructor/encoder和Event/Barrier计数验证同步边界，原日志确有同图两重复编码与两OCR构造3失败；没有将受控engine并行当真实ONNX质量/内存证据。"
+    }
+  ],
+  "issues": [],
+  "opinion": "没有发现本轮实际正确性或锁顺序阻断，可继续既定离线构建与由主线程统一同步；仍须按制品指纹核对运行版本。",
+  "limits": [
+    "未执行测试、模型、HTTP/Provider、数据库、构建或进程操作。",
+    "既有XML13通过只证明受控线程与原入口契约，不代替真实并发模型/质量/资源验收。",
+    "不新增模型热换、字节预算或假想配置场景。"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "checked_at": "2026-10-03T09:38:40.265213+00:00",
+  "reviewer": "root，非脚本作者",
+  "scope": "最终source/差异只读复核，无重复测试/进程操作",
+  "passed": true,
+  "release_sha256": "2047d4dac632f15375e00c26b7290f44b13aa6f45f05f3ead7c59d45c79a3313",
+  "scripts": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\scripts\\aipicture\\启动图片本地通道.ps1",
+      "sha256": "9eb4eee331f7a36ea876a69887c9521d7ab32e626c640e7e4fc32134ee3323ff",
+      "matches_final": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\scripts\\aipicture\\停止图片本地通道.ps1",
+      "sha256": "f83a2bcbcb04c496a74b2646b4bbcb43f95026a8c72ecd1dd4c7660271c20f63",
+      "matches_final": true
+    }
+  ],
+  "source_review": [
+    "WorkerOnly早期互斥，无Java复制/启动/serve启动或secret创建",
+    "原java/serve/worker唯一，原jar命令hash/8415、venv父basepy子7405严格归属",
+    "stop仅登记worker子后父并pinhandle/creationtime，未登记残留或PID复用停止动作",
+    "原configpath、DateKind String日期及非worker清单保持",
+    "StartProcess派发前失败不写清单，原worker登记可继续重试；成功仅替换worker及worker时间/config",
+    "source及安全10checks对应，first8/缺少派发first失败保留"
+  ],
+  "root_independent_found_boundary": "首次finally空派发删原worker登记，已由作者final-v2最小修正",
+  "technical_tests_executed": 0,
+  "business_acceptance": false
+}
