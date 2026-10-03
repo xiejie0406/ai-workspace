@@ -1,0 +1,324 @@
+"""保存源码逻辑评估及已完成的编译证据；不启动业务或执行测试。"""
+from pathlib import Path
+from datetime import datetime
+import json, html, os, re, hashlib
+E=Path(__file__).resolve().parent; ROOT=E.parents[4]
+P='ruoyi-backend/ruoyi-paicli/'
+A=P+'paicli-api/src/main/java/com/ruoyi/paicli/'
+C=P+'paicli-core/src/main/java/com/paicli/'
+R=P+'paicli-runner/src/main/java/com/paicli/runner/'
+L=P+'paicli-cli/src/main/java/com/paicli/'
+F='frontend/admin-web/src/views/paicli/'
+refs={}; anchors=[]
+def add(key,path,needle=None):
+    file=ROOT/path
+    content=file.read_text(encoding='utf-8-sig')
+    line=1
+    if needle:
+        lines=[i+1 for i,v in enumerate(content.splitlines()) if needle in v]
+        if not lines:raise ValueError(f'源码锚点不存在: {path}: {needle}')
+        line=lines[0]
+    refs[key]=(path,line)
+    anchors.append({'key':key,'path':path,'line':line,'needle':needle,'sha256':hashlib.sha256(file.read_bytes()).hexdigest()})
+def link(key):
+    path,line=refs[key]
+    href=os.path.relpath(ROOT/path,E).replace('\\','/')
+    return f'<a href="{html.escape(href)}#L{line}">{html.escape(Path(path).name)}:{line}</a>'
+def ev(name,label=None):
+    if not (E/name).exists():raise ValueError(name)
+    return f'<a href="{html.escape(name)}">{html.escape(label or name)}</a>'
+for key,sub,needle in [
+ ('access','service/PcAccess.java','public PcRecord workspace'),('session','service/PcSessionService.java','public Map<String,Object> turn'),
+ ('device','service/PcDeviceService.java',None),('runner','service/PcRunnerService.java','public PcRecord lease'),
+ ('tools','service/PcToolService.java','validateSkillResource'),('toolCatalogue','service/PcToolCatalogue.java','validateValue'),
+ ('policy','service/PcToolPolicy.java',None),('commands','service/PcCommandService.java','public Map<String,Object> command'),
+ ('connection','service/PcConnectionService.java','effectiveSkillRows'),('context','service/PcRunnerContextService.java',None),
+ ('knowledge','service/PcKnowledgeService.java',None),('pai','service/PcProjectRuleService.java',None),
+ ('prompt','service/PcPromptService.java',None),('artifact','service/PcArtifactService.java',None),('output','service/PcRunnerOutputService.java',None),
+ ('snapClean','service/PcSnapshotClean.java',None),('snapPermit','service/PcSnapshotPermit.java',None),('import','service/PcImportService.java',None),
+ ('wechat','service/PcWechatService.java','public Map<String,Object> commands'),('evidence','service/PcEvidence.java',None),
+ ('ctrlSession','controller/PcSessionController.java',None),('ctrlRunner','controller/PcRunnerController.java',None),
+ ('ctrlConnection','controller/PcConnectionController.java',None),('ctrlKnowledge','controller/PcKnowledgeController.java',None),
+ ('ctrlCommand','controller/PcCommandController.java',None),('ctrlAudit','controller/PcAuditController.java',None)]:add(key,A+sub,needle)
+for key,sub,needle in [('react','agent/Agent.java','enum RunOutcome'),('plan','agent/PlanExecuteAgent.java',None),
+ ('team','agent/AgentOrchestrator.java',None),('dag','plan/ExecutionPlan.java',None),('review','agent/TeamReviewVerdict.java',None),
+ ('nativeTools','tool/ToolRegistry.java','private void registerFileTools'),('edit','tool/TextEditMatcher.java',None),
+ ('assembler','prompt/PromptAssembler.java',None),('memory','memory/MemoryManager.java',None),('ledger','history/ConversationLedger.java',None),
+ ('rag','rag/CodeRetriever.java',None),('web','web/WebFetcher.java',None),('mcp','mcp/McpClient.java',None),('skills','skill/SkillRegistry.java',None),
+ ('lsp','lsp/LspManager.java',None),('images','image/ImageProcessor.java',None),('sideGit','snapshot/SideGitManager.java',None)]:add(key,C+sub,needle)
+for key,file,needle in [('taskExecutor','NativeTaskExecutor.java','private String runCoding'),('centerTools','CenterToolRegistry.java','setCentralSkillBindings'),
+ ('engine','RunnerEngine.java','public boolean runOnce'),('runtime','CenterRuntimeApiServer.java','catch (CenterHttpClient.ResponseFailure'),
+ ('gateway','HttpCenterCommandGateway.java',None),('snapAdapter','NativeSnapshotAdapter.java',None),('controls','NativeControlExecutor.java',None),
+ ('spool','ReceiptSpool.java',None),('http','CenterHttpClient.java','class ResponseFailure'),('fingerprint','ResourceFingerprint.java',None)]:add(key,R+file,needle)
+for key,sub,needle in [('cli','cli/CenterCli.java','private boolean awaitTask'),('main','cli/Main.java','public static void main'),
+ ('exporter','cli/LegacyBundleExporter.java',None),('paiNative','cli/CenterProjectMemoryControl.java',None),
+ ('wechatNative','wechat/CenterWechatControl.java','static final class Bridge'),('wechatLoop','wechat/WechatMessageLoop.java','private void handleBypass'),
+ ('wechatCommand','wechat/WechatCommandParser.java',None)]:add(key,L+sub,needle)
+for key,sub in [('workbench','workbench/index.vue'),('uiSession','useSession.ts'),('tasks','tasks/index.vue'),('knowledgeUI','knowledge/index.vue'),
+ ('connectionsUI','connections/index.vue'),('auditUI','audit/index.vue'),('approvalUI','components/ApprovalDrawer.vue'),
+ ('planUI','components/PlanPanel.vue'),('ledgerUI','components/LedgerReader.vue'),('snapshotUI','components/SnapshotDialog.vue'),
+ ('paiUI','components/ProjectRules.vue'),('imageUI','components/ImageAttachments.vue')]:add(key,F+sub)
+add('api','frontend/admin-web/src/api/paicli/sessions.ts')
+add('operatorContract','contracts/paicli/operator-v1.openapi.json')
+add('runnerContract','contracts/paicli/runner-v1.openapi.yaml')
+add('eventContract','contracts/paicli/events-v1.schema.json')
+add('evalPom',P+'paicli-eval/pom.xml','agentbench-trusted-runner')
+add('design','文档/项目/PaiCLI智能编码项目/完整迁移设计.md','## 5. 业务验收方法')
+add('record','文档/项目/PaiCLI智能编码项目/开发记录/2026-10-03-完整迁移实施记录.md')
+
+# 每项按同一业务链记录实际逻辑依据，而非用文件数量作功能证明。
+# 字段：业务点/状态/入口/条件/中心归属/执行/结果/异常/需要运行才能判断的范围/源码引用。
+points=[
+('若依入口与权限','逻辑成立',
+ '既有若依服务器菜单进入编码工作台、后台任务、知识与记忆、连接与模型、审计与评测；CLI经中心设备绑定。',
+ '操作者Controller用@PreAuthorize，服务再次核对工作区成员、ADMIN/APPROVER角色及资源归属；菜单可见不等于业务授权。',
+ '平台JWT、角色与菜单继续由若依维护，pc_workspace/member与session只关联稳定用户ID；不增加用户名密码库。',
+ 'Web复用既有请求封装和路由；设备短期能力限定owner/workspace/runner，撤销后新调用失败。',
+ '页面从同一中心资源读取会话、计划和任务，API不通过前端参数改变owner。',
+ '非成员、越工作区、只读历史、无批准权限在服务边界拒绝；凭证只写或脱敏，不能从菜单反推权限。',
+ '三角色实际身份、navType=1/2/3导航和权限刷新尚未操作；本轮没有授予菜单、按钮或成员。',
+ ['workbench','ctrlSession','access','device','api']),
+('直接编码与文件工具','实现后已静态核对',
+ '工作台/CLI文本提交→中心turn→Runner NativeTaskExecutor ReAct→中心授权的17工具登记。',
+ '输入非空、附件归属与模型能力、ACTIVE会话、绑定设备及政策先核对；工具schema在中心和Runner执行侧均检查。',
+ 'MySQL保存TURN/TASK/MESSAGE/outbox，文件内容仍归属用户授权仓库；不在admin执行shell或本机文件算法。',
+ '保留read/list/glob/grep/search/write/edit/create_project原算法，edit沿用唯一匹配、归一化回退与CRLF处理。',
+ '工具consume后才执行，完整工具输出、图片和实际意图先保存在Runner私有证据，再上报收据与正式账本。',
+ '本轮修复ReAct把LLM异常/预算部分结果当普通成功返回的问题：RunOutcome仅COMPLETED可成为TASK_COMPLETED，流式最终正文也返回中心。',
+ '未执行真实CRLF替换、软链、模板创建或文件差异检查；静态终态映射已修正，不声称业务工具实际成功。',
+ ['uiSession','session','react','taskExecutor','nativeTools','edit','centerTools','engine']),
+('命令安全与批准','实现后已静态核对',
+ 'execute_command/写工具/动态MCP及恢复控制从中心提案进入批准抽屉或CLI批准入口。',
+ '任务租约、fencing、工作区根指纹、策略/计划版本、参数哈希、资源哈希全部绑定；硬拒绝不转成人工批准。',
+ 'pc_tool_call、pc_approval、policy_version和lease是唯一许可事实源；客户端不签发自己的批准。',
+ '执行侧在已consume单次permit之后核对当前资源；REQUIRED隔离不可用时拒绝shell，不沿用源AUTO直接运行回退。',
+ '允许/拒绝/消费与收据均写审计；APPROVE/SKIP/REJECT/REVISE保留语义，修订参数需新调用和新批准。',
+ '重复消费、过期、改参数/策略/计划、并发写冲突拒绝；本轮加上load_skill的中心批准配置身份/版本/全文hash，防旧上下文继续加载已换层或停用Skill。',
+ '分类器、隔离、取消进程树和三次拒绝未运行；无隔离Windows限制保留，不能以本轮编译推断可以执行shell。',
+ ['approvalUI','tools','policy','runner','centerTools','fingerprint','runnerContract']),
+('计划与重规划','逻辑成立',
+ '/plan及PLAN模式提交目标，Planner生成DAG→中心保存计划→用户审阅/修订/批准。',
+ '重复ID、未知依赖、循环等在DAG验证中拒绝；approvedVersion必须匹配当前definitionVersion。',
+ '计划、步骤进度与批准版本由中心保存；Runner保留原PlanExecuteAgent调度/重规划算法。',
+ '独立步骤并行、依赖结果传递；失效步骤不供下游使用；原完成度阈值与重规划上限不因迁移放宽。',
+ 'PLAN_PROGRESS与PLAN_STEP向中心回写；执行观察失败抛异常，不能只凭最终字符串说成功。',
+ '取消或修订令批准版本失效；保留已完成产物和部分结果；超限停止新任务，不从头重放已确认副作用。',
+ '有效/非法DAG、50%边界、两次重规划及UI修订状态均未新执行。',
+ ['planUI','commands','tools','dag','plan','taskExecutor']),
+('团队协作','逻辑成立',
+ '/team→中心TEAM任务→原AgentOrchestrator Planner/Worker/Reviewer链。',
+ 'Team计划同样经中心批准；Reviewer必须严格布尔approved:true，字符串和畸形JSON不当通过。',
+ '中心保存角色事件、步骤和审查状态；Runner输出仅是执行证据，不能自建另一套正式批准。',
+ '保留严格审查与两次拒绝上限，未审查通过的产物不被后续依赖当成功结果。',
+ 'TeamExecutionObserver传角色轨迹；NativeTaskExecutor检查明确成功终态，Runner最终事件还核对Team结论。',
+ '审查调用异常、解析错误、耗尽保留结果并失败关闭；观察上报失败不标记已审查成功。',
+ '三角色模型fixture和审查异常没有运行；真实模型是否遵循结构需后续授权验收。',
+ ['team','review','taskExecutor','engine','runner','eventContract']),
+('并行、预算与后台任务','实现后已静态核对',
+ '后台任务页与/task add/list/log/cancel读写同一中心任务；Runner领取outbox对应任务。',
+ 'Runner单槽、工作区根/状态目录锁；中心只读最多4、写1；token预算与日限额在中心及调用包装核对。',
+ 'TASK/LEASE/outbox/event/receipt保存在MySQL；本地spool只存待确认收据与私有执行证据。',
+ '定期心跳续lease，fencing区分attempt；工具调用用独立UUID，原模型call_id仅作关联。',
+ '中心终态和分页事件驱动任务页；收据ACK必须精确匹配task/call/lease/fence才删除派生待传内容。',
+ '断线/未知副作用进入RECONCILE_REQUIRED，迟到收据归档不复活任务。本轮CLI与微信收到待核对事件即返回提示，不再等待30分钟或自动重交。',
+ '真实并发、预算耗尽、队列满、断线和取消竞态均未制造；实际运行状态没有被本轮改写。',
+ ['tasks','commands','engine','runner','centerTools','spool','cli']),
+('Runtime与会话连续性','实现后已静态核对',
+ '显式启用的loopback Runtime保留/v1/threads、turns、events和cancel旧兼容入口。',
+ '拒绝非loopback与Origin、核对本机Key、固定中心workspace/runner/session，body只接受input，不能任意更换身份/模型/批准模式。',
+ '通过HttpCenterCommandGateway转交中心会话/消息/event，不使用旧SQLite线程表保存正式状态。',
+ '按after与limit顺序读取中心事件，账本快照和文本delta分别映射，避免重复拼接同一正文。',
+ '旧thread_/turn_ ID映射为同一中心ID；后续Web/CLI访问同一账本，兼容响应保留来源authority。',
+ '本轮把中心HTTP错误保留为400/401/403/404/409/410/413/429，cursor过期明确410；连接IO错误仍502，错误正文不泄露秘密。',
+ '未启动兼容服务，也未实际发两turn或请求过期cursor；本轮只核对入口与异常映射及编译。',
+ ['runtime','http','gateway','session','context','ledger']),
+('模型与提示词','逻辑成立',
+ '连接与模型页及/model、/config登记Provider/Model，刷新/添加/切换经中心版本和权限。',
+ '8供应商原客户端独立保留；模型原ID与中心配置ID区分；密钥由ManagedSecretService引用，未知能力采用保守文本默认。',
+ 'Provider/Model/Prompt配置和版本由中心所有；Runner只取当前任务能力，派生上下文不能反写平台密钥。',
+ 'PromptAssembler依既定base/personality/mode/approval/runtime/PAI/Skill/handoff层组装，原reasoning/DSML/tool/usage解析及重试保留。',
+ '中心模型切换后新turn读取当前配置；刷新失败不覆盖旧模型选择，usage事件更新中心预算。',
+ '图片能力不匹配、坏配置、HTTP非重试状态/半截流按原失败边界；本轮ReAct失败终态修复使错误不冒充完成。',
+ '8供应商协议及付费调用没有执行；没有新配置或回显密钥，网络可达与模型能力不作运行结论。',
+ ['connectionsUI','connection','context','taskExecutor','assembler','prompt']),
+('记忆、PAI与上下文','逻辑成立',
+ '知识页、ProjectRules/Prompt模板及/memory、/init、/save、/context接中心规则与记忆服务。',
+ '个人/项目scope、owner与工作区权限、版本CAS、待核实/数字冲突分别核对；PAI原文下载核对用途、归属、UTF-8和全文hash。',
+ '中心保存原始账本、派生模型上下文、记忆与PAI来源，不将本地JSON当正式真相；历史导入原文保留但默认停用。',
+ 'HttpCentralMemoryStore与原MemoryManager接中心；外部正文后自动提取停，显式save_memory必须取得已消费许可；Skill与网页文本不提升权限。',
+ 'LEDGER_MESSAGE与CONTEXT_COMPACT单独保存；UI分页读完整原始账本，tool_call_id与原文可追溯。',
+ '摘要不合格/Token不降保留原上下文；冲突需要明确replace/共存；历史页只读，不以新会话覆盖原消息。',
+ '未执行记忆写入、并发CAS、超大卸载、PAI原文上传或压缩；原处理链路有静态依据，实际内容正确性待运行。',
+ ['knowledgeUI','paiUI','ledgerUI','knowledge','pai','paiNative','memory','ledger','output']),
+('仓库检索与关系图','逻辑成立',
+ '/index、/search、/graph及知识查询→中心控制任务→Runner原RAG/AST与索引工具。',
+ '只允许绑定仓库、当前模型/embedding配置；查询回执与任务归属核对，不能把“已派发”当搜索结果。',
+ '索引SQLite只作可再生成派生数据；正式控制任务、结果引用与manifest版本在中心，不建立第二业务数据库。',
+ '保留JavaParser类/方法/继承/导入/调用关系以及Java/ripgrep精确搜索回退；语义向量需要已配置embedding。',
+ '异步查询等待终态与结果产物再呈现，缺路径/行号等元数据如实显示；manifest区分旧索引与当前文件。',
+ '无Ollama/remote embedding时不伪造语义结果；超时、失效版本、解析失败保留失败/缺元数据。',
+ '没有新建索引、启动embedding或对golden set运行比较；语义检索可用性仍依真实环境。',
+ ['knowledgeUI','knowledge','controls','rag','nativeTools']),
+('Web、MCP和浏览器','逻辑成立（沿用已有补修）',
+ 'web_search/web_fetch、/mcp tools/resources/prompts与@引用、/browser配置由中心派发。',
+ 'URL来源和网络策略、配置trust hash、托管secretRef、MCP动态schema及浏览器模式均需当前批准版本；无条件执行任意网络不被开放。',
+ 'MCP/Browser配置与信任、控制结果及日志归中心；HTTP/STDIO客户端和实际CDP调用在独立Runner。',
+ '保留4搜索Provider、两MCP transport、resources/prompts与通知缓存；16:15之前已补齐提示定义对象含arguments，历史字符串目录只提示重读，不伪造可执行定义。',
+ 'Runner保全完整RPC实际证据与全部图片后再上传；UI用结构化参数；浏览器探活失败保留原连接状态。',
+ '正文伪造URL、内网/重定向、信任改变、非法图片/结果脱敏冲突等失败关闭；不补源路线图未实现的prompts/list_changed、protocolVersion协商或更深CDP协议。',
+ '本轮没有连接MCP、搜索Provider或Chrome；引用缓存、通知与浏览器探活的真实协议互通未新验证。',
+ ['connectionsUI','connection','controls','mcp','web','centerTools','artifact']),
+('Skills及运行检查','实现后已静态核对',
+ 'Skill list/show/on/off/reload通过中心配置与SKILLS_RELOAD；模型load_skill按已批准同名生效层加载。',
+ 'builtin→user/personal→project覆盖，按名称停用影响所有同名候选；manifestApproved、sha256和trustedHash必须匹配。',
+ 'SKILL_CONFIG与工作区disabledSkillNames、configurationVersion是正式状态；Native registry只保留任务冻结正文。',
+ '本轮统一winner规则，Runner resourceHash绑定{id,version,sha256}字符串对象；中心proposal、permit与consume再次计算当前winner，旧生效层/版本不能继续加载。',
+ '原20个/4KB索引与同轮LoadedSkillMessages注入保留；JavaParser诊断经原LspManager提供行列；不声称非Java完整LSP。',
+ '停用/换层/信任变化、未知Skill与摘要不符明确拒绝；已消费前的配置变化不以旧任务缓存掩盖。',
+ '未运行恶意Skill、同名覆盖、Java语法损坏/修复或真实构建fixture；本轮只补边界与编译。',
+ ['connection','tools','centerTools','taskExecutor','skills','lsp','runnerContract']),
+('快照、账本与恢复','逻辑成立',
+ '每轮pre/post、/snapshot list/status/clean、/restore及revert_turn由中心控制和审批。',
+ '预览产物、用途/归属、完整manifest/currentTreeProof、参数和目标快照绑定；恢复和清理都不能仅凭模糊文字获批。',
+ '中心保存快照记录/预览产物/批准/回执；本地side-Git是派生文件快照，不能替代MySQL任务或批准。',
+ 'NativeSnapshotAdapter重核当前根、文件/父路径、软链和当前树proof；清理先保存私有可恢复归档再删确认范围。',
+ 'restore/revert回写实际文件结果及冲突；原账本和导出仍可追溯，context clear与history clear作用分开。',
+ '后来编辑、变化proof、外部软链或写失败拒绝/补偿；部分结果保全。文件恢复不撤销shell/外部副作用。',
+ '没有执行实际恢复/清理/注入失败或备份演练，不能声明RPO/RTO、NTFS模式和完整补偿已经通过。',
+ ['snapshotUI','snapPermit','snapClean','snapAdapter','sideGit','ledgerUI']),
+('CLI/TUI与图片','实现后已静态核对',
+ 'Main正式入口强制CenterGateway；CenterCli保留JLine inline/plain与Lanterna，两套TUI接同一中心。',
+ '选择workspace/runner/session，历史只读，未知斜杠拒绝；图片先登记中心私有产物、检查模型能力。',
+ '会话/任务/附件由中心保存；CLI本地输入历史和设备缓存只是交互/派生数据，旧runNative不作正式生产入口。',
+ '沿用补全、渲染、快捷键与完整ID；PNG/JPEG/WebP按真实MIME/像素/字节限额，懒加载按有效租约核对。',
+ '中心事件驱动终端正文、审批、计划及状态；本轮待核对任务立即显示taskID并退出等待；保留完整流式最终结果。',
+ '损坏、超限、文本模型、未知命令拒绝；无解码器的WebP仅按已核对静态容器边界直通，不能吞图假成功。',
+ '没有操作真实键盘、剪贴板或上传图片；Windows/Linux/macOS窄屏/ANSI与交互可用性未本轮验证。',
+ ['main','cli','taskExecutor','imageUI','images','artifact']),
+('微信文本通道','实现后已静态核对',
+ '/wechat setup/start/status/pause/resume/stop/restart经中心控制任务与原iLink二维码/长轮询；仅文字与有限命令。',
+ '配置ID/稳定configVersion、workspace、若依owner与唯一senderHash匹配；没有审批面板的副作用按微信白名单拒绝。',
+ '托管token、binding、syncBuf、task与日限额在中心；本地消息队列仍为原进程内队列，未声明其跨进程持久化。',
+ '本轮修复account顶层token/accountId/baseUrl接线、续期同时替换channelId/bridgeKey、命令携带senderHash；PAUSED允许状态/续期/resume，turn仍拒绝。',
+ '保存账户返回稳定定义版本；文字回复与typing核对实际sender；RemoteSession用中心事件取最终结果，30分钟/4Mi字符展示限额保留taskID供查账。',
+ '未知/未绑定sender拒绝；失败暂停/恢复不改本地状态；待核对停止等待，/stop保留原取消当前任务语义，/send保留原未实现文件推送提示，不伪造消息提交。',
+ '未扫码、未连接iLink、未发送任何微信消息；真实续期/去重/队列/日限额和账号可用性未执行；不承诺图片、语音或文件推送。',
+ ['wechat','wechatNative','wechatLoop','wechatCommand','runnerContract']),
+('审计、Better Harness与评测','逻辑成立；历史失败保留',
+ '审计页和/audit读中心记录；/harness原quick/normal/inline与独立Eval/Judge/AgentBench设施保持独立分发。',
+ '审计权限、task/usage归属和私有报告用途核对；正式Eval暂停不能通过页面绕过，缺证据不记0分。',
+ '中心审计与评测导入记录是控制事实；Runner派生报告写私有状态目录，Eval不是admin后台自动进程。',
+ '保留Judge位置平衡、冻结配方/generator/relay/verifier与thin可信worker，调用和模型成绩区别记录。',
+ '本轮只打包Eval，未运行worker、verifier或新测评分；formalScores=null/publishable=false的原边界保留。',
+ '原quick139失败/545错误，以及最后相关9项8通过1失败保留；chmod000在Windows未撤销NTFS读取权限的forbiddenRead未通过不能改成通过。',
+ '正式模型成绩、Linux隔离/隐私/篡改与备份演练均未恢复；既有失败是实际限制，不是新编译阻塞。',
+ ['auditUI','ctrlAudit','evidence','controls','evalPom']),
+('旧资料导入、分发与恢复','逻辑成立；本轮制品已核对',
+ '离线LegacyBundleExporter只读来源→操作者预检→显式commit/revoke；Core/Runner/CLI/Eval/API及管理端独立输出。',
+ 'DB/WAL一致副本、schema、source指纹、identity/scope/附件映射与冲突核对；不复活旧running任务、批准或secret。',
+ '导入批次和源关联保存到中心，旧会话历史只读，旧Provider/MCP/Skill/Wechat等默认停用；后续编辑阻止批次撤销覆盖。',
+ '本轮冻结825份生产内容，快照仅裁剪聚合POM构建范围，未复制测试、运行账号配置；六jar及前端在独占私有目录构建。',
+ '制品逐字节对照各模块target/classes和原资源，类major61；Eval thin按原POM可信worker includes检查，SPI/入口静态读取，不加载应用。',
+ '初次核对脚本误要求thin含全Eval类已保存并修正为原POM分发范围，生产包未因此修改；真实导入/回撤/恢复没有执行。',
+ '未更新运行中的中心、分发旧target或安装版，也未发布。原库35业务表+迁移表V1–V5仅沿用既有记录，本轮无DB访问/DDL。',
+ ['exporter','import','evalPom','operatorContract','record'])]
+
+fixes=[
+ ('ReAct错误与部分结果终态','原Agent将IOException/预算收尾文字普通返回，Runner可能上报TASK_COMPLETED；流式完成还可能返回空串。','显式RunOutcome区分COMPLETED/PARTIAL/FAILED/CANCELLED；Runner只接受明确完成；返回完整流式最终正文。',['react','taskExecutor','engine']),
+ ('Skill生效层及版本消费边界','历史任务已经拿到正文，随后名称停用/换层/配置变更，通用仓库指纹不能区分Skill版本。','统一中心winner；resourceHash绑定id/version/sha256；proposal与permit/consume核当前批准winner。',['connection','tools','centerTools','runnerContract']),
+ ('Runtime错误状态丢失','HTTP410等中心拒绝统一被兼容层变成502，客户端不能识别事件cursor过期。','HTTP客户端保留状态；Runtime安全映射410及指定4xx；IO连接失败仍502。',['http','runtime']),
+ ('待核对任务等待','RECONCILE_REQUIRED非终态，CLI/微信可能一直等待终态，未即时说明实际副作用不明。','两入口按taskID提示待核对并结束当前等待，不伪造完成、取消或重新提交。',['cli','wechatNative']),
+ ('微信账户、命令与续期接线','账户错误嵌套、命令未带senderHash、续期仍使用旧credential ID、账户返回活动row version；pause之后channel拒绝全部操作，缺resume。','恢复既有contract顶层字段、稳定配置版本和sender绑定；续期同步更换id/key；PAUSED保留状态/续期/resume但禁turn；失败命令不切本地状态。',['wechat','wechatNative','wechatLoop','runnerContract'])]
+
+tool_rules={
+ 'read_file':'仓库路径/读取范围与行号；真实字节上限，结果进入untrusted-data与收据。',
+ 'write_file':'目标/父路径和资源hash、5MB写上限；写许可消费后执行，diff与完整结果保全。',
+ 'edit_file':'唯一匹配、replace_all、归一化与行号回退；CRLF保持，失败不写原文。',
+ 'list_dir':'已授权根下目录、目录数量/展示限额；只读收据，不随意列任意服务端路径。',
+ 'glob_files':'根内通配与数量边界；共享路径防护、只读许可。',
+ 'grep_code':'根内精确搜索，行号/路径/输出限额；rg可选，Java回退。',
+ 'execute_command':'中心政策+硬拒绝+人工决定+REQUIRED隔离；超时/进程树取消；副作用不明不自动重放。',
+ 'create_project':'已批准目录/模板java/python/node；创建前核资源与路径，完成回写文件结果。',
+ 'search_code':'当前派生索引和embedding依赖；中心任务结果与manifest，未具依赖不伪造语义命中。',
+ 'web_search':'4 Provider原实现、预算/网络限制；结构URL来源供后续web_fetch，不信正文伪造来源。',
+ 'web_fetch':'URL来源、地址/重定向及正文/读取容量；返回不可信材料。',
+ 'browser_connect':'批准配置模式/指定端口探活；失败保留旧模式，敏感共享动作另核策略。',
+ 'browser_disconnect':'仅当前已批准浏览器能力；结果回写连接状态，不推断其他浏览器/项目进程已停止。',
+ 'browser_status':'当前授权连接及解析状态；返回探活/状态信息，不从配置存在推断真实已连。',
+ 'load_skill':'批准winner的id/version/全文sha绑定，中心再次核配置；正文同轮注入不增加权限。',
+ 'save_memory':'中心已消费save_memory许可、owner/scope/CAS与冲突；外部材料不自动成为用户事实。',
+ 'revert_turn':'中心恢复预览/目标/完整proof、批准和再次核对；后来编辑/软链拒绝，保全回滚证据。'}
+
+checked=json.loads((E/'逻辑交付制品核对.json').read_text(encoding='utf-8'))
+now=datetime.now().astimezone().isoformat(timespec='seconds')
+def escape(v):return html.escape(str(v))
+css='''*{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#172a3a;font:16px/1.75 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1160px;margin:auto;padding:28px}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin:32px 0 14px}h3{font-size:19px;margin:0}p{margin:9px 0}a{color:#065ea0;text-decoration:none;overflow-wrap:anywhere}a:hover{text-decoration:underline}.card,section{background:white;border:1px solid #d5dfe7;border-radius:12px;padding:22px;margin:16px 0}.bar{border-left:5px solid #1d7c83;background:#eef8f8;padding:16px}.limits{background:#fff6e9;border-left-color:#bd6f00}.status{font-size:14px;color:#136369}.muted{color:#596b78;font-size:14px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#eaf1f6;padding:12px;border-radius:8px}.metric strong{font-size:25px;display:block}dl{display:grid;grid-template-columns:115px 1fr;gap:8px 14px}dt{font-weight:600}dd{margin:0}table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #dbe3ea;padding:10px;text-align:left;vertical-align:top}th{background:#edf3f7}code{font-size:13px;background:#edf1f4;padding:2px 5px;overflow-wrap:anywhere}.scroll{overflow:auto}.nav{columns:2}.chain{color:#106a76;font-weight:600}details summary{cursor:pointer;color:#065ea0}.sources{font-size:14px;border-top:1px solid #e3e8ed;padding-top:12px}@media(max-width:720px){main{padding:12px}.grid{grid-template-columns:1fr}dl{grid-template-columns:1fr;gap:2px}dd{margin-bottom:12px}.nav{columns:1}h1{font-size:24px}}@media print{body{background:white}main{max-width:none;padding:0}section{break-inside:avoid}a{color:#172a3a}.nav{columns:2}}'''
+out=[f'<!doctype html><html lang="zh-CN"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PaiCLI 全链路逻辑验收报告</title><style>{css}</style><main>',
+ '<h1>PaiCLI 智能编码 · 全链路逻辑验收报告</h1>',f'<p class="muted">文档类型：源码逻辑核对与私有制品交付 · owner：Agent · 更新时间：{escape(now)}</p>',
+ '<div class="bar"><b>交付结论：</b>已按批准设计第5节核对17个业务点的中心接入链路，修复本轮发现的确定接线及终态缺陷；生产源码编译、契约结构与私有制品一致性核对完成。全部真实运行行为保留为未执行，不能据此声明业务通过、用户接受或已发布。</div>',
+ '<div class="grid"><div class="metric"><strong>17</strong>业务点有分段源码逻辑记录</div><div class="metric"><strong>17</strong>内置工具有登记及执行映射</div><div class="metric"><strong>0</strong>本轮真实业务验收通过项</div></div>',
+ '<div class="bar limits"><b>本轮授权：</b>只作源码实现、静态链路审查、必要类型/编译/打包与制品核对；不写或运行单元、组件、集成、浏览器业务测试，不准备真实样本，不访问数据库、不做DDL、不启动/停止服务、不调用模型/微信/支付、不改账号权限、不导入旧业务数据、不更新运行包或发布、不作Git写入。旧证据只说明当时版本。</div>',
+ f'<p>范围来源：{link("design")}；唯一实施事实源：{link("record")}。控制链始终为 <span class="chain">用户入口 → 若依授权与中心数据 → 单次许可/租约 → 独立Runner原算法 → 实际证据/中心回写 → 页面或终端反馈</span>。</p>',
+ '<p class="muted">“逻辑成立”表示所列源码分支、条件与回写路径互相对应；“实现后已静态核对”表示缺陷已在源码中修复并重新编译；“前提缺失未验证”只描述相应运行场景，不掩盖既有失败。任何一种都不是实际业务通过。</p>',
+ '<h2>业务点目录</h2><ol class="nav">']
+for i,p in enumerate(points,1):out.append(f'<li><a href="#business-{i}">{escape(p[0])}</a></li>')
+out.append('</ol><h2>本轮发现与修复</h2><div class="scroll"><table><tr><th>问题</th><th>原链路及影响</th><th>修改后的处理</th><th>源码</th></tr>')
+for title,before,after,keys in fixes:out.append(f'<tr><td>{escape(title)}</td><td>{escape(before)}</td><td>{escape(after)}</td><td>{"<br>".join(link(k) for k in keys)}</td></tr>')
+out.append('</table></div><p>修改前生产原文保留在同证据目录的“逻辑验收修复前”；不使用Git HEAD覆盖未提交内容。修复保持既有业务、算法与公开输入语义，不添加源路线图未实现能力。MCP结构化提示目录补修属于此前16:15源码基线，本轮沿用，不冒称新执行。</p><h2>逐项全链路逻辑核对</h2>')
+labels=['用户入口','参数与授权','数据归属','实际执行','结果回写与反馈','失败、取消与恢复','运行证据缺口']
+for i,p in enumerate(points,1):
+    title,status,*tail=p; vals=tail[:-1]; keys=tail[-1]
+    out.append(f'<section id="business-{i}"><h3>{i}. {escape(title)}</h3><p class="status">判断：{escape(status)}；真实运行：未执行</p><dl>')
+    for name,value in zip(labels,vals):out.append(f'<dt>{name}</dt><dd>{escape(value)}</dd>')
+    out.append(f'</dl><p class="sources">源码依据：{" · ".join(link(k) for k in keys)}</p></section>')
+out.append('<h2>17个内置工具逐一对应</h2><p>共同入口为中心schema登记→参数/资源/租约/策略核对→单次permit消费→CenterToolRegistry→原ToolRegistry→私有完整结果→中心收据/账本。动态MCP另按批准配置登记，不计入17个内置工具数量。</p><div class="scroll"><table><tr><th>工具</th><th>已核对输入/执行/结果边界</th><th>原实现位置</th></tr>')
+native=ROOT/(C+'tool/ToolRegistry.java'); lines=native.read_text(encoding='utf-8').splitlines()
+for name in checked['toolNames']:
+    number=next(i+1 for i,s in enumerate(lines) if f'tools.put("{name}"' in s)
+    key='tool:'+name; add(key,C+'tool/ToolRegistry.java',f'tools.put("{name}"')
+    out.append(f'<tr><td><code>{escape(name)}</code></td><td>{escape(tool_rules[name])}</td><td>{link(key)}</td></tr>')
+out.append(f'</table></div><p>中心输入定义及规则：{link("toolCatalogue")}、{link("policy")}、{link("tools")}；执行适配：{link("centerTools")}。数量与登记匹配只证明覆盖关系，不证明各工具业务结果。</p>')
+out.append('<h2>CLI命令与终端覆盖关系</h2><div class="scroll"><table><tr><th>命令/入口</th><th>中心或独立执行归属</th><th>限制</th></tr>')
+command_groups=[
+ ('help/status/context/ctx/policy；exit/quit','中心当前状态与会话上下文；exit只退出终端','未知斜杠不传模型，旧会话只读'),
+ ('mode/hitl；plan/team；approval','模式配置、DAG与审批服务','硬安全规则不随auto改变；修订需当前版本'),
+ ('task add/list/log/cancel；cancel','中心任务/事件/lease','同一后台数据；待核对不会重交'),
+ ('memory/mem；init/save；index/search/graph','中心记忆/PAI与知识任务','个人/项目scope与权限；embedding依赖明确'),
+ ('model/config；mcp/browser/skill/wechat','中心连接配置→CONTROL任务→Runner扩展','托管秘密、配置版本与信任核对'),
+ ('snapshot/restore；history/clear/compact；export','中心快照批准/账本与只读导出','清模型输入不删除正式账本；恢复不撤销外部副作用'),
+ ('audit；harness（评测页/evaluations为独立API入口）','中心审计、原Harness与独立Eval','正式评测暂停；不新跑成绩'),
+ ('Main、inline/JLine、Lanterna、plain、图片','CenterCli→HttpCenterCommandGateway','不以本地native旧控制面作为生产回退')]
+for row in command_groups:out.append('<tr>'+''.join(f'<td>{escape(v)}</td>' for v in row)+'</tr>')
+out.append(f'</table></div><p>命令分派：{link("commands")}；正式入口与终端：{link("main")}、{link("cli")}；Runner控制操作：{link("controls")}。表为同类命令归组；命令的参数与输出仍以源码和批准设计附录为准，未作实际终端键盘验收。</p>')
+out.append('<h2>本轮技术检查与可访问制品</h2><div class="scroll"><table><tr><th>检查</th><th>实际结果</th><th>能证明什么</th><th>证据</th></tr>')
+checks=[
+ ('中心私有Maven构建','exit 0 / BUILD SUCCESS；test.skip和skipTests均true','三个已有共享依赖与PaiCLI API可编译打包；未装配/启动新ruoyi-admin',ev('全链路逻辑交付-中心最终打包.log')),
+ ('Native私有Maven构建','exit 0 / BUILD SUCCESS；测试源码未编译，测试未运行','Core/Runner/CLI/Eval生产代码与资源可打包',ev('全链路逻辑交付-Native最终打包.log')),
+ ('前端定向类型','vue-tsc --noEmit --project tsconfig.paicli.json；exit 0','PaiCLI类型引用有效；原tsconfig包含历史测试类型，未执行任何测试',ev('全链路逻辑交付-前端类型.log')),
+ ('前端私有Vite构建','exit 0；built in 1m35s','当前admin-web生产构建输出成功，独占outDir/cacheDir；不覆盖共享dist',ev('全链路逻辑交付-前端私有构建.log')),
+ ('契约结构/实际路由','96操作、77路径、10操作者Controller；30 Runner操作，本地引用有效','声明路由及结构一致；不证明业务权限或协议互通',ev('全链路逻辑交付-契约核对.log')),
+ ('源码/制品一致性','825生产记录；workspace/snapshot差异0；六jar自身类与编译class/资源差异0、major61；前端798文件','制品可追溯到本轮冻结内容；API69/Core386/Runner60/CLI151/Eval515/thin109自身类',' · '.join([ev('逻辑交付最终源码冻结.json'),ev('逻辑交付制品核对.json')]))]
+for row in checks:out.append('<tr>'+''.join(f'<td>{escape(v) if j<3 else v}</td>' for j,v in enumerate(row))+'</tr>')
+out.append('</table></div><p class="muted">首次制品核对误以全Eval集合检查thin专用包，保留首次结果后改为原POM包含范围；这是一处核对脚本错误，不是生产包缺类，也不是新的业务测试结果。'+ev('逻辑交付制品核对-首次.json')+'。</p>')
+out.append('<div class="scroll"><table><tr><th>制品</th><th>大小/版本</th><th>SHA-256</th><th>入口</th></tr>')
+for artifact in checked['artifacts']:
+    path=Path(artifact['path']); href=os.path.relpath(path,E).replace('\\','/')
+    out.append(f'<tr><td>{escape(artifact["label"])}</td><td>{artifact["bytes"]:,} bytes / 3.9.2</td><td><code>{artifact["sha256"]}</code></td><td><a href="{escape(href)}">{escape(path.name)}</a></td></tr>')
+out.append('</table></div>')
+front=os.path.relpath(Path(checked['frontendOutput'])/'index.html',E).replace('\\','/')
+out.append(f'<p>前端私有制品：<a href="{escape(front)}">frontend-dist/index.html</a>。它需要正式若依服务及路由环境；file方式打开产物不算联机或页面验收。</p>')
+out.append('<h2>历史证据、运行版本与未验证范围</h2><div class="card"><p>原库35个PaiCLI业务表与迁移表V1–V5已经完成的事实沿用既有实施记录；本轮未访问MySQL、未重新建表、未引入另一套数据库。旧样本、历史测试和旧HTTP记录未被清零。</p><p>已有本机Skill修复运行包HTTP记录时间为16:15:57，另有16:15的MCP提示目录分发核对；23:06接续启动记录仍引用同一固定旧主包。这些运行证据先于本轮最终修复，且来自既有记录；本轮未探测、启动、停止或同步该运行通道，不能说当前进程已包含本轮修改。</p><p>历史中心123项全回归、随后Skill/MCP定向及前端组件结果仅适用于当时源码；本轮没有新增任何测试，不能相加当成当前全量通过。正式Eval原失败/Windows限制继续有效，未改变断言、金标、评分或正式暂停范围。</p><p>真实Runner绑定、三若依身份、17项业务操作、截图/数据回读、外部模型/MCP/CDP/微信、终端多平台操作、故障及恢复演练均未执行；这是当前用户指定的本轮边界，并非要求用户补做后才交付本报告。业务通过0，用户接受未记录，未发布。</p></div>')
+out.append(f'<p>机器契约：{link("operatorContract")} · {link("runnerContract")} · {link("eventContract")}。源码锚点与本地文件存在性核对记录随报告保存；报表在已有证据目录维护，不另建长期任务事实源。</p><p class="muted">报告依据为本轮源码静态分析和已保存构建输出。未作独立第二执行者复核；本轮没有启动其他Agent。</p></main></html>')
+report=E/'全链路逻辑验收报告.html'; report.write_text('\n'.join(out),encoding='utf-8')
+(E/'全链路逻辑源码锚点.json').write_text(json.dumps({'recordedAt':now,'anchors':anchors,'businessPoints':17,'builtinTools':17,'businessVerified':False},ensure_ascii=False,indent=2),encoding='utf-8')
+# 验证生成HTML的每个本地入链及章节锚点，不访问服务或浏览器业务页面。
+from urllib.parse import unquote
+links=re.findall(r'href="([^"]+)"',report.read_text(encoding='utf-8')); missing=[]
+for href in links:
+    if href.startswith('#'):
+        if f'id="{href[1:]}"' not in report.read_text(encoding='utf-8'):missing.append(href)
+    elif not (E/unquote(html.unescape(href.split('#')[0]))).resolve().exists():missing.append(href)
+result={'report':str(report),'businessSections':len(points),'toolRows':len(tool_rules),'sourceAnchors':len(anchors),'localLinks':len(links),'missingLinks':missing,'realBusinessPassed':0}
+(E/'全链路逻辑报告链接核对.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(result,ensure_ascii=False))
+if missing:raise SystemExit(1)

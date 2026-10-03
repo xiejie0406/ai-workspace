@@ -1,0 +1,660 @@
+openapi: 3.0.3
+info:
+  title: PaiCLI 中心与本机执行器协议
+  version: 1.0.0
+  description: >-
+    平台接口沿用若依JWT、成员关系和按钮权限。本协议仅允许已绑定设备访问中心授予的任务。
+    默认模块禁用，启用须配置中心控制密钥并核验所属数据库；此文件不触发建库或迁移。
+servers:
+  - url: /paicli/runner/v1
+security:
+  - runnerToken: []
+paths:
+  /sessions:
+    post:
+      summary: 消费五分钟单次绑定码，或以已绑定设备凭证续期短期会话
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rootFingerprint, capabilities, capacity]
+              properties:
+                rootFingerprint: {type: string, pattern: '^[0-9a-f]{64}$'}
+                capabilities: {type: array, items: {type: string}}
+                capacity: {type: integer, minimum: 1, maximum: 8}
+      responses:
+        '200':
+          description: >-
+            若依AjaxResult.data包含runnerId、workspaceId、sessionToken、expiresAt、heartbeatSeconds、leaseSeconds。
+            首次绑定另返回deviceToken，Runner须在本机用户独占的凭证缓存中保存；它仅用于续期，不能直接领取任务。
+            绑定码五分钟有效且成功即消费；同幂等键可在有效期内取回原结果，其他键拒绝。
+        '401': {description: 凭证失效、设备撤销或种类错误}
+        '409': {description: 工作根摘要与绑定不一致}
+  /claims:
+    post:
+      summary: 在设备授权工作区领取一项任务
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody: {content: {application/json: {schema: {type: object, properties: {taskId: {type: string}}}}}}
+      responses:
+        '200': {description: 'data为空或available=false表示无任务，否则包含Lease字段、sessionId、turnId、workspaceId、runnerId与payload'}
+        '409': {description: 容量占满或已有不确定执行需要对账}
+  /heartbeats:
+    post:
+      summary: 延长有效租约并获取取消标志
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody: {$ref: '#/components/requestBodies/Lease'}
+      responses:
+        '200': {description: data为version、expiresAt、cancelRequested。正常心跳不会递增任务控制版本}
+        '409': {description: 租约过期、fencing不符或任务控制版本改变}
+  /proposals:
+    post:
+      summary: 按精确参数、资源及计划版本提案，不执行工具
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody: {$ref: '#/components/requestBodies/Proposal'}
+      responses:
+        '200':
+          description: >-
+            data为DENIED、PENDING或PERMITTED。原revert_turn无正式预览回执时返回PREVIEW_REQUIRED，
+            snapshotContext给同会话/owner/Runner正式PRE_TURN目标，previewToolName=snapshot__preview；不创建可消费恢复许可。
+            Runner另以新执行ID申请内部只读预览（不是模型第18工具），正式回执完成后以新ID提案恢复。
+            最终argsHash覆盖offset、snapshotMetadataId/snapshotId/snapshotVersion、previewToolCallId、currentFingerprint、restorePreview；
+            resourceHash为预览当前树指纹。仅中心确定性只读白名单可直接许可，shell另需中心已核验隔离记录。
+  /permits:
+    post:
+      summary: 查询指定提案的当前许可，不能借查询变更参数
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody: {$ref: '#/components/requestBodies/Binding'}
+      responses:
+        '200': {description: '返回decision、approvalId及受绑定的短期permitToken；拒绝时返回approvalDecision、feedback及可选revisedArguments/revisedArgsHash，不能消费或执行修改后的参数'}
+        '409': {description: 任何绑定字段不符或审批已经失效}
+  /permits/consume:
+    post:
+      summary: 执行前原子消费一次性许可
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody: {$ref: '#/components/requestBodies/Binding'}
+      responses:
+        '200': {description: data必须consumed=true且返回toolCallId、argsHash、resourceHash、fencingToken、version。响应丢失不能据本地猜测重跑}
+        '409': {description: 许可已消费、失效或参数资源改变}
+  /receipts:
+    post:
+      summary: 上传已消费许可的真实执行结果，同幂等键可重传证据
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Lease'
+                - type: object
+                  required: [toolCallId, permitToken, eventId, status, result, beforeHash, afterHash]
+                  properties:
+                    toolCallId: {type: string, maxLength: 128}
+                    permitToken: {type: string}
+                    eventId: {type: string, maxLength: 128}
+                    status: {type: string, enum: [COMPLETED, FAILED, CANCELLED]}
+                    result: {type: object}
+                    beforeHash: {type: string}
+                    afterHash: {type: string}
+                    exitCode: {type: integer}
+      responses:
+        '200':
+          description: >-
+            data必须accepted=true、acknowledged=true、archived为boolean，并返回原taskId/toolCallId/leaseId/fencingToken。
+            当前回执status与请求一致；过期原attempt的有效已消费许可只归档为LATE_ARCHIVED，不推进当前任务。
+            Runner核对确认绑定和状态后才可删除本地spool；重传不能重新执行PREPARED/CONSUMED或已完成操作。
+        '409': {description: 许可、原attempt绑定或原回执摘要不符，保留证据并对账}
+  /context:
+    get:
+      summary: 与POST context相同的有效租约只读视图，参数通过query传入
+      parameters:
+        - {name: taskId, in: query, required: true, schema: {type: string}}
+        - {name: leaseId, in: query, required: true, schema: {type: string}}
+        - {name: fencingToken, in: query, required: true, schema: {type: integer, format: int64}}
+        - {name: version, in: query, required: true, schema: {type: integer, format: int64}}
+      responses:
+        '200': {description: 'no-store；同POST context的正式历史分页和用途受限配置视图'}
+        '409': {description: 租约、attempt或冻结版本无效}
+    post:
+      summary: 在有效租约下重建中心正式历史、记忆及已批准连接
+      requestBody: {$ref: '#/components/requestBodies/Lease'}
+      responses:
+        '200':
+          description: >-
+            no-store；返回messages首批、ledgerEntries首批、记忆、计划、快照元数据及用途受限供应商grant，图片仅返回产物引用。
+            historyCursor/historySummaryOffset/historyHasMore和ledgerCursor/ledgerHasMore用于继续读取，endSequence固定本租约历史截止点。
+            不静默截断旧消息，不把分页末尾误判为历史完成。
+        '409': {description: 租约或固定配置版本失效，不能回退本地可写历史}
+  /history/read:
+    post:
+      summary: 按租约固定截止点读取下一页有效模型历史及派生摘要
+      requestBody: {$ref: '#/components/requestBodies/HistoryPage'}
+      responses:
+        '200': {description: 'no-store；messages/cursor/summaryOffset/hasMore/endSequence，目标16MB且最多200条，单条最大20MB不截断'}
+        '409': {description: 租约或固定截止点不匹配}
+  /ledger/read:
+    post:
+      summary: 按租约固定截止点读取原始账本页供复盘与Harness
+      requestBody: {$ref: '#/components/requestBodies/HistoryPage'}
+      responses:
+        '200': {description: 'no-store；entries/cursor/hasMore/endSequence；图片只返回引用；原始内容不另复制为本机正式真相'}
+        '409': {description: 租约或固定截止点不匹配}
+  /provider-context:
+    post:
+      summary: 续取当前租约固定模型及embedding/search用途的短期凭据
+      requestBody: {$ref: '#/components/requestBodies/Lease'}
+      responses:
+        '200':
+          description: >-
+            no-store；固定provider/model/用途配置以及secretRef和secretVersion，仅凭据有效期可续期。
+            grant不写入事件、spool、日志或正式消息；已过期、版本改变或中心不可达时停止新供应商调用。
+        '409': {description: 固定供应商定义、模型或用途密钥版本改变}
+  /mcp-context:
+    post:
+      summary: 在已消耗许可及有效租约内获取当前MCP配置的托管凭证
+      description: '只派发当前工作区 ai.paicli.<workspaceId>.* 的env/header secretRef；必须匹配已信任的配置ID/版本/hash及本次CONSUMED工具许可。中心固定引用与密钥版本，配置编辑、信任撤销、密钥轮换或租约失效均拒绝续用；不得落本机config、账本或日志。响应禁止缓存，不保存含明文的业务幂等响应；有效期为60秒或当前租约剩余期中的较短值。'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Lease'
+                - type: object
+                  required: [toolCallId, permitToken, configId, configVersion, configHash]
+                  properties:
+                    toolCallId: {type: string, minLength: 1, maxLength: 128}
+                    permitToken: {type: string}
+                    configId: {type: string, pattern: '^[1-9][0-9]{0,18}$'}
+                    configVersion: {type: integer, format: int64, minimum: 1}
+                    configHash: {type: string, pattern: '^[0-9a-f]{64}$'}
+      responses:
+        '200':
+          description: 'data含configId/configVersion/configHash、envSecretRefs/headerSecretRefs、secretVersions、短期env/headers、taskId/leaseId/fencingToken/version、expiresAt和grantHash；grantHash固定配置、引用、密钥版本及四项租约身份，排除明文与expiresAt；不表示MCP已真实联机'
+          headers:
+            Cache-Control: {schema: {type: string, enum: ['no-store']}}
+        '403': {description: 凭证用途、工作区或配置未经信任}
+        '409': {description: 租约、许可、配置或密钥版本失效}
+  /artifacts/{id}/image:
+    post:
+      summary: 按中心产物引用读取租约所属任务可见图片
+      parameters: [{name: id, in: path, required: true, schema: {type: string, pattern: '^[1-9][0-9]{0,18}$'}}]
+      requestBody: {$ref: '#/components/requestBodies/Lease'}
+      responses:
+        '200': {description: 'no-store；仅授权工作区/owner的TURN_IMAGE或LEDGER_IMAGE，返回mimeType、sha256、size及base64，Runner逐项验证'}
+        '403': {description: 图片归属、用途、租约或有效期不符}
+  /memory:
+    post:
+      summary: 通过已消费save_memory许可写中心正式记忆
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Binding'
+                - type: object
+                  required: [permitToken, fact, scope]
+                  properties:
+                    fact: {type: string, maxLength: 8192}
+                    scope: {type: string, enum: [global, project, PERSONAL, PROJECT]}
+      responses:
+        '200': {description: 内容与批准参数一致；正式记忆与许可回执按中心事务更新，禁止本地JSON正式写入}
+        '409': {description: 内容、范围或已消费许可不符}
+  /plans/review:
+    post:
+      summary: 查询当前计划版本的用户批准、取消或修订决定
+      requestBody: {$ref: '#/components/requestBodies/Lease'}
+      responses:
+        '200': {description: '返回status和planVersion；修订提供feedback/newPlanVersion，原版本批准失效，Runner不得执行未批准DAG'}
+  /tool-outputs:
+    post:
+      summary: 在已消费工具绑定下持久化完整超长工具正文
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Binding'
+                - type: object
+                  required: [permitToken, toolName, content, sha256]
+                  properties:
+                    toolName: {type: string}
+                    content: {type: string, description: 完整UTF8正文；请求与产物另有有界容量检查}
+                    sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+      responses:
+        '200': {description: 返回artifactId/sha256/size/lines；内容放私密产物目录且中心保存元数据，不暴露真实storageKey}
+  /tool-outputs/{id}/read:
+    post:
+      summary: 获取产物摘要或按已消费read_file许可分段读回
+      parameters: [{name: id, in: path, required: true, schema: {type: string, pattern: '^[1-9][0-9]{0,18}$'}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Lease'
+                - type: object
+                  properties:
+                    metadataOnly: {type: boolean}
+                    toolCallId: {type: string}
+                    permitToken: {type: string}
+                    offset: {type: integer, minimum: 1}
+                    limit: {type: integer, minimum: 1, maximum: 2000}
+      responses:
+        '200':
+          description: >-
+            no-store；metadataOnly=true只返回同工作区/owner/session的摘要。
+            正文需已消费read_file参数精确匹配虚拟路径.paicli/tool-outputs/center/{id}.txt及offset/limit，最多2MB；校验内容哈希和保留期。
+        '403': {description: 产物归属或消费绑定不符}
+  /tool-outputs/images:
+    post:
+      summary: 将真实工具图片转为中心私密产物引用
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Binding'
+                - type: object
+                  required: [permitToken, part]
+                  properties:
+                    part: {type: object, description: 'image_base64/mimeType；最多5MB图片并校验解码像素预算'}
+      responses:
+        '200': {description: 'type=image_artifact，artifactId/sha256/size/mimeType；回执及账本只保存引用'}
+  /revert-context:
+    post:
+      summary: 读取已消费revert_turn的正式冻结恢复参数，禁止Runner自行按本机ordinal选择快照
+      requestBody: {$ref: '#/components/requestBodies/Binding'}
+      responses:
+        '200':
+          description: >-
+            no-store；data含arguments全文、argsHash、taskId/sessionId/workspaceId/leaseId/fencingToken/version，
+            另含snapshotMetadataId/snapshotId/commitId/snapshotVersion、currentFingerprint、restorePreview、previewToolCallId/previewReceiptId。
+            必须同有效租约已消费revert_turn；正式preview receipt须同task/attempt/owner/session且beforeHash=afterHash=currentFingerprint。
+            Runner双核arguments canonical SHA及租约身份，再捕获当前整个授权root和六字段proof核对后恢复。
+        '403': {description: 未消费revert_turn、跨scope、伪造或旧attempt预览证据}
+        '409': {description: 正式快照版本、offset目标、批准指纹或proof已改变}
+  /tool-outputs/chunks/begin:
+    post:
+      summary: 为已消费调用申请完整UTF8产物分块上传，原文最多128MiB
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Binding'
+                - type: object
+                  required: [permitToken, toolName, size, sha256]
+                  properties:
+                    toolName: {type: string}
+                    size: {type: integer, format: int64, minimum: 1, maximum: 134217728}
+                    sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+      responses:
+        '200': {description: 'data含uploadId（中心数字字符串）、size/sha256、chunkSize=4MiB；同task/call只能对应同一完整原文'}
+        '403': {description: scope或已消费调用种类不符}
+        '409': {description: lease/fence/已冻结原文改变}
+        '413': {description: 单产物128MiB或当前任务累计512MiB上传额度超限}
+  /tool-outputs/{id}/chunks:
+    post:
+      summary: 上传一块完整字节，序号0至31，每块不超过4MiB
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - {name: id, in: path, required: true, schema: {type: string, pattern: '^[1-9][0-9]{0,18}$'}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Binding'
+                - type: object
+                  required: [permitToken, toolName, index, sha256, base64]
+                  properties:
+                    toolName: {type: string}
+                    index: {type: integer, minimum: 0, maximum: 31}
+                    sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+                    base64: {type: string, description: 当前块字节Base64，不能截文本或按字符划分UTF8}
+      responses:
+        '200': {description: '当前块已持久化；同序号同SHA重试可确认，改变原文拒绝'}
+        '400': {description: 非法base64或序号（含整数溢出输入）}
+        '403': {description: 非同一已消费调用/scope}
+        '409': {description: 原lease/fence/块SHA不符}
+  /tool-outputs/{id}/complete:
+    post:
+      summary: 按流完整核验所有块的UTF8、长度和SHA后发布正式产物
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - {name: id, in: path, required: true, schema: {type: string, pattern: '^[1-9][0-9]{0,18}$'}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Binding'
+                - type: object
+                  required: [permitToken, toolName]
+                  properties: {toolName: {type: string}}
+      responses:
+        '200': {description: 'data含artifactId/sha256/size/lines；正式引用才能进入回执、账本和事件'}
+        '403': {description: 非同一已消费调用/scope}
+        '409': {description: 缺块、完整SHA/长度或lease/fence不符}
+        '422': {description: 完整原文不是严格UTF8}
+  /wechat/context:
+    post:
+      summary: 从已消费微信控制许可创建通道，或使用当前微信通道凭证续期
+      security: [{runnerToken: []}, {wechatBridgeToken: []}]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - allOf:
+                    - $ref: '#/components/schemas/Binding'
+                    - type: object
+                      required: [permitToken, configId, configVersion]
+                      properties: {configId: {type: string}, configVersion: {type: integer, format: int64}}
+                - $ref: '#/components/schemas/WechatChannel'
+      responses:
+        '200':
+          description: >-
+            no-store；首次只允许SESSION凭证且同lease已消费WECHAT_START/RESTART/RESUME/SETUP。
+            续期只允许WECHAT凭证且同channelId/configVersion，原通道凭证撤销；同幂等键重传不另创建通道。
+            data={channelId,bridgeKey,expiresAt,configVersion,senderHash,policy,account:{token,accountId,baseUrl,boundUserId,workspaceId,syncBuf}}。
+            boundUserId为若依用户ID，actual微信fromUserId仅在Runner内存按顶层senderHash验证；不能用若依ID作微信回复地址。
+            账号和短期bridgeKey仅受控用途下发，不进入普通配置/日志；不要求已完成微信START任务的租约继续有效。
+        '403': {description: 设备撤销、通道种类/scope/配置版本或消费用途不匹配}
+        '503': {description: 尚未完成批准扫码账号托管}
+  /wechat/account:
+    post:
+      summary: 同有效租约已消费WECHAT_SETUP后托管实际扫码账号
+      security: [{runnerToken: []}]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Binding'
+                - type: object
+                  required: [permitToken, configId, configVersion, token, accountId, baseUrl]
+                  properties:
+                    configId: {type: string}
+                    configVersion: {type: integer, format: int64}
+                    token: {type: string, maxLength: 8192, writeOnly: true}
+                    accountId: {type: string, maxLength: 256}
+                    baseUrl: {type: string, enum: ['https://ilinkai.weixin.qq.com']}
+      responses:
+        '200': {description: 'data={stored:true,configId,configVersion}；通过既有ManagedSecretService保存固定用途alias，不回显token；SESSION凭证限定WECHAT_SETUP消费'}
+        '403': {description: 类型、作用域、配置或已消费许可不符}
+  /wechat/turn:
+    post:
+      summary: 使用微信专属通道凭证和真实sender摘要提交中心文字轮次
+      security: [{wechatBridgeToken: []}]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/WechatChannel'
+                - type: object
+                  required: [senderHash, messageId, text]
+                  properties:
+                    senderHash: {type: string, pattern: '^[a-f0-9]{64}$'}
+                    messageId: {type: string, minLength: 1, maxLength: 256}
+                    text: {type: string, description: '原微信用户文字UTF8不超过64KiB，媒体不伪造处理'}
+      responses:
+        '200': {description: 'data={sessionId,taskId,version,configVersion?}；消息ID同原文重试返回原task，不重复计轮次数或额度'}
+        '403': {description: 通道/绑定sender/scope或配置版本不符}
+        '409': {description: 同微信messageId不同原文、会话状态或模型配置失配}
+        '429': {description: 真实中心每日轮次或Token预算已用尽}
+  /wechat/events:
+    post:
+      summary: 读取此微信通道所提交任务的真实事件页
+      security: [{wechatBridgeToken: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/WechatChannel'
+                - type: object
+                  required: [taskId, after]
+                  properties: {taskId: {type: string}, after: {type: integer, format: int64, minimum: 0}, limit: {type: integer, minimum: 1, maximum: 200}}
+      responses:
+        '200': {description: 'data={events,cursor,endSequence,hasMore,terminal}；正式task必须绑定当前wechatBindingId，不借通道读取其它任务'}
+        '403': {description: 非当前通道/用户/工作区所提交任务}
+  /wechat/commands:
+    post:
+      summary: 使用真实sender绑定处理有限中心文字命令
+      security: [{wechatBridgeToken: []}]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/WechatChannel'
+                - type: object
+                  required: [senderHash, name]
+                  properties:
+                    senderHash: {type: string, pattern: '^[a-f0-9]{64}$'}
+                    name: {type: string, enum: [help, status, cancel, clear, compact, model, cwd, send, pause, stop]}
+                    arguments: {type: string}
+                    messageId: {type: string, description: send使用}
+                    text: {type: string, description: send使用}
+      responses:
+        '200': {description: '按命令返回正式状态、模型、会话、控制任务或取消结果；pause/stop撤销通道后阻止继续提交，不能绕过Web批准副作用'}
+        '403': {description: sender、通道或命令允许名单不匹配}
+        '409': {description: 会话尚未创建、模型歧义或状态不允许}
+  /wechat/cursor:
+    post:
+      summary: 在专属有效通道内持久化同步游标
+      security: [{wechatBridgeToken: []}]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/WechatChannel'
+                - type: object
+                  required: [syncBuf]
+                  properties: {syncBuf: {type: string, maxLength: 65536}}
+      responses:
+        '200': {description: 'data={stored:true,configVersion}；运行态游标写入不改变通道定义版本'}
+        '403': {description: 通道或绑定版本已失效}
+  /events:
+    post:
+      summary: 上传账本、状态或终态事件
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Lease'
+                - type: object
+                  required: [eventId, type, payload]
+                  properties:
+                    eventId: {type: string}
+                    type: {type: string}
+                    payload: {type: object}
+      responses:
+        '200':
+          description: >-
+            中心分配单调游标；任务完成还须工具回执全部确认和团队审查通过。
+            大型CONNECTION_RESULT只发送eventArtifactId/Sha256/Size和catalogueDigests，完整产物是原事件envelope：
+            {taskId,sessionId,type:CONNECTION_RESULT,payload:{kind,configId,configVersion,status,result,tools,resources,prompts,...}}。
+            中心核同task/scope/当前consume调用及完整SHA后只流式提取payload的声明catalogue，单字段最多16MiB，
+            digests大小/SHA针对递归排序compact UTF8 canonical数组。完整result保留产物，不截数组或把48MiB目录重复计入20MiB累计事件正文。
+            SNAPSHOT_CLEAN_PREVIEW报告完整cache proof；SNAPSHOT_CLEAN只接受同正式预览记录及先行可恢复私有备份的成功结果。
+        '409': {description: 租约/版本无效或尚有未决审批、回执或审查}
+components:
+  securitySchemes:
+    runnerToken: {type: apiKey, in: header, name: X-PaiCLI-Runner-Token}
+    wechatBridgeToken: {type: apiKey, in: header, name: X-PaiCLI-Runner-Token, description: '仅WECHAT种类的pcw_短期通道凭证；普通SESSION/DEVICE/平台JWT不能替代'}
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: {type: string, minLength: 1, maxLength: 128}
+      description: Runner写请求按taskId、原toolCallId及操作名的UTF8 SHA256派生；不得在重试时换键重复副作用
+  requestBodies:
+    HistoryPage:
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Lease'
+              - type: object
+                required: [afterSequence, endSequence]
+                properties:
+                  afterSequence: {type: integer, format: int64, minimum: 0}
+                  endSequence: {type: integer, format: int64, minimum: 0}
+                  limit: {type: integer, minimum: 1, maximum: 200}
+                  summaryOffset: {type: integer, minimum: 0, description: '仅history/read用于继续派生摘要；原始账本不使用此字段'}
+    Lease:
+      required: true
+      content: {application/json: {schema: {$ref: '#/components/schemas/Lease'}}}
+    Binding:
+      required: true
+      content: {application/json: {schema: {$ref: '#/components/schemas/Binding'}}}
+    Proposal:
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Binding'
+              - type: object
+                required: [toolName, arguments, sensitive]
+                properties:
+                  toolName: {type: string}
+                  arguments: {type: object}
+                  sensitive: {type: boolean}
+  schemas:
+    WechatChannel:
+      type: object
+      required: [channelId, configVersion]
+      properties:
+        channelId: {type: string, pattern: '^[1-9][0-9]{0,18}$'}
+        configVersion: {type: integer, format: int64, minimum: 1}
+      description: 微信操作使用专属通道身份和配置定义版本，不使用普通Runner任务lease；每次重新核设备撤销和成员绑定。
+    SnapshotPreviewArguments:
+      type: object
+      additionalProperties: false
+      required: [snapshotMetadataId, snapshotId, snapshotVersion]
+      properties:
+        snapshotMetadataId: {type: string, pattern: '^[1-9][0-9]{0,18}$'}
+        snapshotId: {type: string, pattern: '^[a-f0-9]{40}$'}
+        snapshotVersion: {type: integer, format: int64, minimum: 1}
+      description: >-
+        内部snapshot__preview使用仅三字段参数，走同一propose/consume/receipt。
+        receipt.result.text为JSON {restorePreview,currentFingerprint,commitId,snapshotMetadataId,snapshotVersion}。
+        大diff时完整同消费调用bare JSON存TOOL_OUTPUT，text保留完整六字段proof无diff并添加previewArtifactId/Sha256/Size；
+        proof投影最多16MiB且绝不截文件，中心流式对照原始产物与SHA。批准者通过用途限定的/paicli/v1/approvals/{id}/preview-text读取完整差异。
+    RestorePreview:
+      type: object
+      required: [currentFingerprint, files, canRestore, conflicts]
+      properties:
+        currentFingerprint: {type: string, pattern: '^[a-f0-9]{64}$'}
+        canRestore: {type: boolean}
+        conflicts: {type: array, maxItems: 10000, items: {type: string}}
+        files:
+          type: array
+          maxItems: 10000
+          items:
+            type: object
+            required: [path, status, currentHash, targetHash, currentMode, targetMode]
+            properties:
+              path: {type: string}
+              status: {type: string, enum: [ADD, MODIFY, DELETE, UNCHANGED]}
+              currentHash: {type: string, nullable: true, pattern: '^[a-f0-9]{64}$'}
+              targetHash: {type: string, nullable: true, pattern: '^[a-f0-9]{64}$'}
+              currentMode: {type: integer, nullable: true, description: '实际JGit FileMode bits，如33188/33261'}
+              targetMode: {type: integer, nullable: true}
+              diff: {type: string, description: '有界inline真实差异；完整大差异在正式产物保留'}
+      description: 'ADD当前hash/mode可null，DELETE目标可null；其它状态需双hash和实际mode。冲突时canRestore必须false。'
+    SnapshotCleanArguments:
+      type: object
+      required: [range, runnerId, rootFingerprint, targets]
+      properties:
+        range: {type: string, enum: [current]}
+        runnerId: {type: string}
+        rootFingerprint: {type: string, pattern: '^[a-f0-9]{64}$'}
+        targets:
+          type: array
+          items: {$ref: '#/components/schemas/SnapshotPreviewArguments'}
+        cleanPreviewRecordId: {type: string, description: '仅最终SNAPSHOT_CLEAN必需；正式DERIVED_READY预览绑定此cleanupTaskId为BOUND_CLEANUP'}
+        cleanPreview: {$ref: '#/components/schemas/SnapshotCleanProof'}
+        backupPolicy: {type: object, description: '批准可见：RUNNER_PRIVATE_ARCHIVE、retentionDays、restorable及恢复说明；不是已完成备份证据'}
+      description: >-
+        SNAPSHOT_CLEAN_PREVIEW为只读控制动作。完成正式回执后再次请求同clean命令才冻结SNAPSHOT_CLEAN，人工批准。
+        all仅在操作者聚合多个成员工作区任务，每项含自己的sessionId；每个Runner只执行current，不删除其它root。
+        最终许可hash覆盖完整targets版本、实际HEAD/ref/commit/unknown及缓存manifest；中心formal metadata变化或Runner实际缓存变化均拒绝。
+    SnapshotCleanProof:
+      type: object
+      required: [operation, range, head, refs, commits, knownTargets, unregistered, repositoryManifestHash, fileCount, totalBytes, previewVersion]
+      properties:
+        operation: {type: string, enum: [CLEAN_PREVIEW]}
+        range: {type: string, enum: [current]}
+        head: {type: string, nullable: true, pattern: '^[a-f0-9]{40}$'}
+        refs: {type: array, items: {type: object, required: [name, objectId], properties: {name: {type: string}, objectId: {type: string, pattern: '^[a-f0-9]{40}$'}}}}
+        commits: {type: array, items: {type: string, pattern: '^[a-f0-9]{40}$'}}
+        knownTargets: {type: array, items: {$ref: '#/components/schemas/SnapshotPreviewArguments'}}
+        unregistered: {type: array, items: {type: string, pattern: '^[a-f0-9]{40}$'}}
+        repositoryManifestHash: {type: string, pattern: '^[a-f0-9]{64}$'}
+        fileCount: {type: integer, format: int64, minimum: 0}
+        totalBytes: {type: integer, format: int64, minimum: 0}
+        previewVersion: {type: integer, enum: [1]}
+      description: >-
+        完整cache文件path/hash/size canonical manifest、loose/pack全部commit和ref，unknown是完整commits减正式targets，不升格用户快照真相。
+        成功SNAPSHOT operation=CLEAN另报告同knownTargets/repositoryManifestHash和backup
+        {archiveId:UUID,manifestHash,sha256,fileCount,totalBytes,restorable:true}；实际原子私有归档失败不清理或标CLEANED。
+        中心只将被冻结knownTargets标CLEANED，保留原证据/备份引用，不公开私有磁盘路径。
+    Lease:
+      type: object
+      required: [taskId, leaseId, fencingToken, version, policyVersion, rootFingerprint]
+      properties:
+        taskId: {type: string, pattern: '^[1-9][0-9]{0,18}$'}
+        leaseId: {type: string}
+        fencingToken: {type: integer, format: int64}
+        version: {type: integer, format: int64}
+        policyVersion: {type: integer, format: int64}
+        rootFingerprint: {type: string, pattern: '^[0-9a-f]{64}$'}
+    Binding:
+      allOf:
+        - $ref: '#/components/schemas/Lease'
+        - type: object
+          required: [toolCallId, argsHash, resourceHash, planVersion]
+          properties:
+            toolCallId: {type: string, minLength: 1, maxLength: 128}
+            modelToolCallIdHash: {type: string, pattern: '^[0-9a-f]{64}$', description: '仅关联原模型调用编号的摘要；实际执行使用新的中心toolCallId，不借模型重复编号重放已消费许可'}
+            argsHash: {type: string, pattern: '^[0-9a-f]{64}$'}
+            resourceHash: {type: string, pattern: '^[0-9a-f]{64}$'}
+            planVersion: {type: integer, format: int64, minimum: 0}
+            permitToken: {type: string, description: 仅consume时必需，不作为平台登录凭证}

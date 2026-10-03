@@ -1,0 +1,19 @@
+import { flushPromises, mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { PcContext } from '@/types/paicli'
+const mocks = vi.hoisted(() => ({ raw: vi.fn(), action: vi.fn() }))
+vi.mock('@/store/modules/user',()=>({default:()=>({permissions:[],roles:[]})}))
+vi.mock('@/api/paicli/tasks',()=>({getTask:vi.fn()}))
+vi.mock('@/api/paicli/sessions', () => ({ getRawContext: mocks.raw, contextAction: mocks.action, downloadArtifact: vi.fn(), getSessionExport: vi.fn(), getExportSection:vi.fn(), getSessionLedger:vi.fn() }))
+import ContextPanel from '../components/ContextPanel.vue'
+const Container = { template: '<div><slot /></div>' }
+const global = { directives: { hasPermi: () => {} }, stubs: { ElButton: { props: ['loading','disabled'], emits: ['click'], template: '<button :disabled="loading || disabled" @click="$emit(\'click\')"><slot /></button>' }, ElProgress: true, ElCollapse: Container, ElCollapseItem: Container, ElEmpty: true, ElAlert: true } }
+function context(sessionId = '1'): PcContext { return { sessionId, version: 2, estimatedTokens: 10, contextWindow: 128000, messages: 1, compressionCount: 0, externalMemoryPaused: false, rawLedgerAvailable: true, promptLayers: [{ name: 'PROJECT_MEMORY', source: '已登记的项目规则' }], artifacts: [], diagnostics: [] } }
+describe('原始提示层按独立权限入口读取', () => {
+  beforeEach(() => { mocks.raw.mockReset(); mocks.action.mockReset() })
+  it('普通上下文渲染仅使用元数据，不自动请求原始提示', () => { const wrapper = mount(ContextPanel, { props: { context: context(), active: false }, global }); expect(wrapper.text()).toContain('PROJECT_MEMORY'); expect(mocks.raw).not.toHaveBeenCalled(); wrapper.unmount() })
+  it('用户点击后才读取当前会话，正文保持转义', async () => { mocks.raw.mockResolvedValue({ code: 200, data: { ...context(), promptLayers: [{ name: 'PROJECT_MEMORY', source: '项目规则', content: '<script>fixture</script>' }] } }); const wrapper = mount(ContextPanel, { props: { context: context(), active: false }, global }); await wrapper.findAll('button').find(button => button.text() === '读取原始提示层')!.trigger('click'); await flushPromises(); expect(mocks.raw).toHaveBeenCalledWith('1'); expect((wrapper.vm as unknown as { error: string }).error).toBe(''); expect((wrapper.vm as unknown as { rawContext: PcContext }).rawContext).toMatchObject({ sessionId: '1' }); expect(wrapper.text()).toContain('<script>fixture</script>'); expect(wrapper.find('script').exists()).toBe(false); wrapper.unmount() })
+  it('读取期间切换会话，旧正文不会出现在新会话', async () => { let resolve!: (value: unknown) => void; mocks.raw.mockReturnValue(new Promise(done => { resolve = done })); const wrapper = mount(ContextPanel, { props: { context: context(), active: false }, global }); await wrapper.findAll('button').find(button => button.text() === '读取原始提示层')!.trigger('click'); await wrapper.setProps({ context: context('2') }); resolve({ code: 200, data: { ...context(), promptLayers: [{ name: 'OLD', source: '旧来源', content: '旧会话私有提示' }] } }); await flushPromises(); expect(wrapper.text()).not.toContain('旧会话私有提示'); expect(wrapper.text()).toContain('PROJECT_MEMORY'); wrapper.unmount() })
+  it('历史只读上下文禁用3个写按钮，程序调用也不发送变更', async () => { const wrapper = mount(ContextPanel,{ props:{ context:context(),active:false,readonly:true },global }); for(const text of ['压缩上下文','清空模型上下文','清理输入历史'])expect(wrapper.findAll('button').find(button=>button.text()===text)?.attributes('disabled')).toBeDefined(); expect(wrapper.findAll('button').find(button=>button.text()==='收齐并导出会话证据')).toBeDefined();expect(wrapper.findAll('button').find(button=>button.text()==='收齐并导出会话证据')?.attributes('disabled')).toBeUndefined(); const vm=wrapper.vm as unknown as { action:(value:'COMPRESS'|'CLEAR'|'CLEAR_INPUT_HISTORY')=>Promise<void> }; for(const value of ['COMPRESS','CLEAR','CLEAR_INPUT_HISTORY'] as const)await vm.action(value); expect(mocks.action).not.toHaveBeenCalled(); wrapper.unmount() })
+})
+

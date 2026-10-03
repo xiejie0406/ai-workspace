@@ -1,0 +1,1370 @@
+{
+  "schemaVersion": 4,
+  "sourceOfTruth": "payload; generated columns cannot be updated independently",
+  "scope": "all existing function tables; new prompt overrides; code_chunks/code_relations are reconstructible Runner derived cache",
+  "columns": {
+    "workspace": [
+      [
+        "workspace_name",
+        "VARCHAR(128)",
+        "name"
+      ],
+      [
+        "root_fingerprint",
+        "CHAR(64)",
+        "rootFingerprint"
+      ],
+      [
+        "root_path",
+        "VARCHAR(4096)",
+        "rootPath"
+      ],
+      [
+        "policy_version",
+        "BIGINT",
+        "policyVersion",
+        "number"
+      ],
+      [
+        "search_provider",
+        "VARCHAR(32)",
+        "searchConfig.provider"
+      ],
+      [
+        "embedding_provider",
+        "VARCHAR(32)",
+        "embeddingConfig.provider"
+      ],
+      [
+        "embedding_model",
+        "VARCHAR(256)",
+        "embeddingConfig.model"
+      ],
+      [
+        "usage_day",
+        "VARCHAR(10)",
+        "usageDay"
+      ],
+      [
+        "daily_token_used",
+        "BIGINT",
+        "dailyTokenUsed",
+        "number"
+      ]
+    ],
+    "workspace_member": [
+      [
+        "member_role",
+        "VARCHAR(16)",
+        "role"
+      ],
+      [
+        "member_user_id",
+        "BIGINT",
+        "userId",
+        "number"
+      ]
+    ],
+    "runner": [
+      [
+        "device_name",
+        "VARCHAR(128)",
+        "name"
+      ],
+      [
+        "platform",
+        "VARCHAR(128)",
+        "platform"
+      ],
+      [
+        "root_fingerprint",
+        "CHAR(64)",
+        "rootFingerprint"
+      ],
+      [
+        "administration_version",
+        "BIGINT",
+        "administrationVersion",
+        "number"
+      ],
+      [
+        "capacity",
+        "INT",
+        "capacity",
+        "number"
+      ],
+      [
+        "sandbox_verified",
+        "TINYINT",
+        "sandboxVerified",
+        "boolean"
+      ],
+      [
+        "distribution_version",
+        "VARCHAR(128)",
+        "distributionVersion"
+      ]
+    ],
+    "runner_credential": [
+      [
+        "credential_type",
+        "VARCHAR(32)",
+        "@kind"
+      ],
+      [
+        "token_hash",
+        "CHAR(64)",
+        "@unique_key"
+      ],
+      [
+        "administration_version",
+        "BIGINT",
+        "administrationVersion",
+        "number"
+      ]
+    ],
+    "session": [
+      [
+        "title",
+        "VARCHAR(256)",
+        "title"
+      ],
+      [
+        "execution_mode",
+        "VARCHAR(16)",
+        "mode"
+      ],
+      [
+        "approval_mode",
+        "VARCHAR(16)",
+        "approvalMode"
+      ],
+      [
+        "model_record_id",
+        "BIGINT",
+        "modelId",
+        "number"
+      ],
+      [
+        "context_start_sequence",
+        "BIGINT",
+        "contextStartSequence",
+        "number"
+      ],
+      [
+        "input_history_cleared_at",
+        "VARCHAR(40)",
+        "inputHistoryClearedAt"
+      ]
+    ],
+    "turn": [
+      [
+        "input_text",
+        "LONGTEXT",
+        "text"
+      ],
+      [
+        "execution_mode",
+        "VARCHAR(16)",
+        "mode"
+      ],
+      [
+        "model_record_id",
+        "BIGINT",
+        "modelId",
+        "number"
+      ]
+    ],
+    "message": [
+      [
+        "message_role",
+        "VARCHAR(16)",
+        "role"
+      ],
+      [
+        "message_content",
+        "LONGTEXT",
+        "content"
+      ],
+      [
+        "tool_call_id",
+        "VARCHAR(128)",
+        "toolCallId"
+      ],
+      [
+        "ledger_event",
+        "VARCHAR(128)",
+        "_ledger.event"
+      ],
+      [
+        "ledger_actor",
+        "VARCHAR(128)",
+        "_ledger.actor"
+      ],
+      [
+        "ledger_source",
+        "VARCHAR(256)",
+        "_ledger.source"
+      ],
+      [
+        "ledger_timestamp_ms",
+        "BIGINT",
+        "_ledger.timestamp",
+        "number"
+      ]
+    ],
+    "task": [
+      [
+        "task_title",
+        "VARCHAR(256)",
+        "title"
+      ],
+      [
+        "execution_mode",
+        "VARCHAR(16)",
+        "mode"
+      ],
+      [
+        "operation_name",
+        "VARCHAR(64)",
+        "operation"
+      ],
+      [
+        "prompt_text",
+        "LONGTEXT",
+        "input|prompt"
+      ],
+      [
+        "result_text",
+        "LONGTEXT",
+        "result"
+      ],
+      [
+        "error_text",
+        "LONGTEXT",
+        "error"
+      ],
+      [
+        "started_at_iso",
+        "VARCHAR(40)",
+        "startedAt"
+      ],
+      [
+        "finished_at_iso",
+        "VARCHAR(40)",
+        "finishedAt"
+      ],
+      [
+        "duration_ms",
+        "BIGINT",
+        "durationMs",
+        "number"
+      ],
+      [
+        "task_source",
+        "VARCHAR(32)",
+        "source"
+      ]
+    ],
+    "plan": [
+      [
+        "plan_goal",
+        "LONGTEXT",
+        "goal"
+      ],
+      [
+        "execution_mode",
+        "VARCHAR(16)",
+        "mode"
+      ],
+      [
+        "definition_version",
+        "BIGINT",
+        "definitionVersion",
+        "number"
+      ],
+      [
+        "approved_version",
+        "BIGINT",
+        "approvedVersion",
+        "number"
+      ],
+      [
+        "replan_count",
+        "INT",
+        "replanCount",
+        "number"
+      ],
+      [
+        "plan_steps",
+        "JSON",
+        "steps",
+        "json"
+      ]
+    ],
+    "plan_step": [
+      [
+        "step_id",
+        "VARCHAR(128)",
+        "id"
+      ],
+      [
+        "step_description",
+        "LONGTEXT",
+        "description"
+      ],
+      [
+        "step_status",
+        "VARCHAR(40)",
+        "status"
+      ],
+      [
+        "review_status",
+        "VARCHAR(40)",
+        "reviewStatus"
+      ],
+      [
+        "step_result",
+        "LONGTEXT",
+        "result"
+      ],
+      [
+        "step_dependencies",
+        "JSON",
+        "dependencies",
+        "json"
+      ]
+    ],
+    "task_lease": [
+      [
+        "task_record_id",
+        "BIGINT",
+        "taskId",
+        "number"
+      ],
+      [
+        "used_tokens",
+        "BIGINT",
+        "usedTokens",
+        "number"
+      ],
+      [
+        "output_bytes",
+        "BIGINT",
+        "outputBytes",
+        "number"
+      ],
+      [
+        "context_end_sequence",
+        "BIGINT",
+        "contextEndSequence",
+        "number"
+      ]
+    ],
+    "approval": [
+      [
+        "tool_call_id",
+        "VARCHAR(128)",
+        "toolCallId"
+      ],
+      [
+        "tool_name",
+        "VARCHAR(128)",
+        "toolName"
+      ],
+      [
+        "args_hash",
+        "CHAR(64)",
+        "argsHash"
+      ],
+      [
+        "resource_hash",
+        "CHAR(64)",
+        "resourceHash"
+      ],
+      [
+        "approval_decision",
+        "VARCHAR(40)",
+        "@state"
+      ],
+      [
+        "approval_feedback",
+        "LONGTEXT",
+        "feedback"
+      ],
+      [
+        "decided_at_iso",
+        "VARCHAR(40)",
+        "decisionAt"
+      ]
+    ],
+    "tool_call": [
+      [
+        "tool_call_id",
+        "VARCHAR(128)",
+        "toolCallId"
+      ],
+      [
+        "model_tool_call_id_hash",
+        "CHAR(64)",
+        "modelToolCallIdHash"
+      ],
+      [
+        "tool_name",
+        "VARCHAR(128)",
+        "toolName"
+      ],
+      [
+        "args_hash",
+        "CHAR(64)",
+        "argsHash"
+      ],
+      [
+        "resource_hash",
+        "CHAR(64)",
+        "resourceHash"
+      ],
+      [
+        "permit_hash",
+        "CHAR(64)",
+        "permitHash"
+      ],
+      [
+        "read_only",
+        "TINYINT",
+        "readOnly",
+        "boolean"
+      ],
+      [
+        "tool_arguments",
+        "JSON",
+        "arguments",
+        "json"
+      ]
+    ],
+    "tool_receipt": [
+      [
+        "tool_call_id",
+        "VARCHAR(128)",
+        "toolCallId"
+      ],
+      [
+        "model_tool_call_id_hash",
+        "CHAR(64)",
+        "modelToolCallIdHash"
+      ],
+      [
+        "original_lease_id",
+        "BIGINT",
+        "leaseId",
+        "number"
+      ],
+      [
+        "before_hash",
+        "CHAR(64)",
+        "beforeHash"
+      ],
+      [
+        "after_hash",
+        "CHAR(64)",
+        "afterHash"
+      ],
+      [
+        "receipt_result",
+        "JSON",
+        "result",
+        "json"
+      ]
+    ],
+    "policy_version": [
+      [
+        "task_token_budget",
+        "BIGINT",
+        "taskTokenBudget",
+        "number"
+      ],
+      [
+        "daily_token_budget",
+        "BIGINT",
+        "dailyTokenBudget",
+        "number"
+      ],
+      [
+        "max_read_tools",
+        "INT",
+        "maxReadTools",
+        "number"
+      ],
+      [
+        "max_write_tasks",
+        "INT",
+        "maxWriteTasks",
+        "number"
+      ],
+      [
+        "retention_days",
+        "INT",
+        "retentionDays",
+        "number"
+      ]
+    ],
+    "memory": [
+      [
+        "memory_content",
+        "LONGTEXT",
+        "content"
+      ],
+      [
+        "memory_type",
+        "VARCHAR(32)",
+        "type"
+      ],
+      [
+        "memory_scope",
+        "VARCHAR(16)",
+        "scope"
+      ],
+      [
+        "memory_source",
+        "VARCHAR(64)",
+        "source"
+      ],
+      [
+        "written_at_iso",
+        "VARCHAR(40)",
+        "timestamp"
+      ],
+      [
+        "last_verified_at_iso",
+        "VARCHAR(40)",
+        "lastVerifiedAt"
+      ],
+      [
+        "verified_at_iso",
+        "VARCHAR(40)",
+        "verifiedAt"
+      ],
+      [
+        "token_count",
+        "BIGINT",
+        "tokenCount",
+        "number"
+      ],
+      [
+        "memory_metadata",
+        "JSON",
+        "metadata",
+        "json"
+      ]
+    ],
+    "memory_version": [
+      [
+        "memory_content",
+        "LONGTEXT",
+        "content"
+      ],
+      [
+        "memory_type",
+        "VARCHAR(32)",
+        "type"
+      ],
+      [
+        "memory_scope",
+        "VARCHAR(16)",
+        "scope"
+      ],
+      [
+        "last_verified_at_iso",
+        "VARCHAR(40)",
+        "lastVerifiedAt"
+      ],
+      [
+        "memory_metadata",
+        "JSON",
+        "metadata",
+        "json"
+      ]
+    ],
+    "context_summary": [
+      [
+        "start_sequence",
+        "BIGINT",
+        "startSequence",
+        "number"
+      ],
+      [
+        "end_sequence",
+        "BIGINT",
+        "endSequence",
+        "number"
+      ],
+      [
+        "summary_text",
+        "LONGTEXT",
+        "summary"
+      ],
+      [
+        "derived_messages",
+        "JSON",
+        "messages",
+        "json"
+      ]
+    ],
+    "index_manifest": [
+      [
+        "manifest_hash",
+        "CHAR(64)",
+        "manifestHash"
+      ],
+      [
+        "embedding_model",
+        "VARCHAR(256)",
+        "index.embeddingModel"
+      ],
+      [
+        "file_count",
+        "BIGINT",
+        "index.fileCount",
+        "number"
+      ],
+      [
+        "chunk_count",
+        "BIGINT",
+        "index.chunkCount",
+        "number"
+      ],
+      [
+        "relation_count",
+        "BIGINT",
+        "index.relationCount",
+        "number"
+      ],
+      [
+        "query_text",
+        "VARCHAR(2048)",
+        "query"
+      ],
+      [
+        "query_mode",
+        "VARCHAR(16)",
+        "mode"
+      ],
+      [
+        "index_version",
+        "BIGINT",
+        "indexVersion",
+        "number"
+      ]
+    ],
+    "snapshot": [
+      [
+        "commit_id",
+        "VARCHAR(64)",
+        "commitId"
+      ],
+      [
+        "snapshot_phase",
+        "VARCHAR(32)",
+        "phase"
+      ],
+      [
+        "legacy_turn_id",
+        "VARCHAR(128)",
+        "turnId"
+      ],
+      [
+        "snapshot_summary",
+        "LONGTEXT",
+        "summary"
+      ],
+      [
+        "manifest_hash",
+        "CHAR(64)",
+        "manifestHash"
+      ]
+    ],
+    "artifact": [
+      [
+        "artifact_purpose",
+        "VARCHAR(64)",
+        "purpose"
+      ],
+      [
+        "file_name",
+        "VARCHAR(512)",
+        "fileName"
+      ],
+      [
+        "mime_type",
+        "VARCHAR(128)",
+        "mimeType"
+      ],
+      [
+        "artifact_sha256",
+        "CHAR(64)",
+        "sha256"
+      ],
+      [
+        "byte_size",
+        "BIGINT",
+        "size",
+        "number"
+      ],
+      [
+        "line_count",
+        "BIGINT",
+        "lines",
+        "number"
+      ]
+    ],
+    "provider_config": [
+      [
+        "provider_name",
+        "VARCHAR(32)",
+        "provider"
+      ],
+      [
+        "base_url",
+        "VARCHAR(4096)",
+        "baseUrl"
+      ],
+      [
+        "secret_ref",
+        "VARCHAR(255)",
+        "secretRef"
+      ],
+      [
+        "default_model",
+        "VARCHAR(256)",
+        "model"
+      ],
+      [
+        "lora_id",
+        "VARCHAR(256)",
+        "loraId"
+      ],
+      [
+        "temperature",
+        "DECIMAL(10,6)",
+        "temperature",
+        "decimal"
+      ],
+      [
+        "max_tokens",
+        "BIGINT",
+        "maxTokens",
+        "number"
+      ],
+      [
+        "definition_version",
+        "BIGINT",
+        "configurationVersion",
+        "number"
+      ]
+    ],
+    "model_config": [
+      [
+        "provider_record_id",
+        "BIGINT",
+        "providerId",
+        "number"
+      ],
+      [
+        "model_id",
+        "VARCHAR(256)",
+        "modelId"
+      ],
+      [
+        "template_model",
+        "VARCHAR(256)",
+        "template"
+      ],
+      [
+        "context_window",
+        "BIGINT",
+        "contextWindow",
+        "number"
+      ],
+      [
+        "max_output_tokens",
+        "BIGINT",
+        "maxOutputTokens",
+        "number"
+      ],
+      [
+        "supports_images",
+        "TINYINT",
+        "supportsImages",
+        "boolean"
+      ],
+      [
+        "thinking_mode",
+        "VARCHAR(16)",
+        "thinking"
+      ],
+      [
+        "reasoning_effort",
+        "VARCHAR(16)",
+        "reasoningEffort"
+      ],
+      [
+        "reasoning_history",
+        "TINYINT",
+        "reasoningHistory",
+        "boolean"
+      ],
+      [
+        "dsml_enabled",
+        "TINYINT",
+        "dsml",
+        "boolean"
+      ],
+      [
+        "model_enabled",
+        "TINYINT",
+        "enabled",
+        "boolean"
+      ]
+    ],
+    "mcp_config": [
+      [
+        "server_name",
+        "VARCHAR(64)",
+        "name"
+      ],
+      [
+        "transport_type",
+        "VARCHAR(16)",
+        "transport"
+      ],
+      [
+        "endpoint_url",
+        "VARCHAR(4096)",
+        "url"
+      ],
+      [
+        "command_name",
+        "VARCHAR(4096)",
+        "command"
+      ],
+      [
+        "configuration_hash",
+        "CHAR(64)",
+        "configHash"
+      ],
+      [
+        "trusted_hash",
+        "CHAR(64)",
+        "trustedHash"
+      ],
+      [
+        "definition_version",
+        "BIGINT",
+        "configurationVersion",
+        "number"
+      ],
+      [
+        "server_enabled",
+        "TINYINT",
+        "enabled",
+        "boolean"
+      ],
+      [
+        "env_secret_refs",
+        "JSON",
+        "envSecretRefs",
+        "json"
+      ],
+      [
+        "header_secret_refs",
+        "JSON",
+        "headerSecretRefs",
+        "json"
+      ]
+    ],
+    "skill_config": [
+      [
+        "skill_name",
+        "VARCHAR(128)",
+        "name"
+      ],
+      [
+        "skill_scope",
+        "VARCHAR(32)",
+        "scope"
+      ],
+      [
+        "skill_source",
+        "VARCHAR(32)",
+        "source"
+      ],
+      [
+        "skill_sha256",
+        "CHAR(64)",
+        "sha256"
+      ],
+      [
+        "manifest_approved",
+        "TINYINT",
+        "manifestApproved",
+        "boolean"
+      ],
+      [
+        "skill_enabled",
+        "TINYINT",
+        "enabled",
+        "boolean"
+      ],
+      [
+        "skill_content",
+        "LONGTEXT",
+        "content"
+      ]
+    ],
+    "browser_config": [
+      [
+        "browser_mode",
+        "VARCHAR(32)",
+        "mode"
+      ],
+      [
+        "endpoint_url",
+        "VARCHAR(4096)",
+        "endpoint"
+      ],
+      [
+        "browser_connected",
+        "TINYINT",
+        "connected",
+        "boolean"
+      ],
+      [
+        "mcp_config_id",
+        "BIGINT",
+        "mcpConfigId",
+        "number"
+      ]
+    ],
+    "wechat_binding": [
+      [
+        "account_id",
+        "VARCHAR(256)",
+        "accountId"
+      ],
+      [
+        "bound_user_id",
+        "BIGINT",
+        "boundUserId",
+        "number"
+      ],
+      [
+        "sender_hash",
+        "CHAR(64)",
+        "senderHash"
+      ],
+      [
+        "daily_budget",
+        "BIGINT",
+        "dailyBudget",
+        "number"
+      ],
+      [
+        "daily_used",
+        "BIGINT",
+        "dailyUsed",
+        "number"
+      ],
+      [
+        "channel_version",
+        "BIGINT",
+        "channelVersion",
+        "number"
+      ],
+      [
+        "sync_cursor",
+        "LONGTEXT",
+        "syncBuf"
+      ]
+    ],
+    "event": [
+      [
+        "event_type",
+        "VARCHAR(128)",
+        "@kind"
+      ],
+      [
+        "event_task_id",
+        "BIGINT",
+        "@parent_id"
+      ]
+    ],
+    "dispatch_outbox": [
+      [
+        "task_record_id",
+        "BIGINT",
+        "taskId",
+        "number"
+      ],
+      [
+        "attempts",
+        "BIGINT",
+        "attempts",
+        "number"
+      ],
+      [
+        "delivered_lease_id",
+        "BIGINT",
+        "leaseId",
+        "number"
+      ]
+    ],
+    "security_audit": [
+      [
+        "audit_action",
+        "VARCHAR(64)",
+        "action"
+      ],
+      [
+        "audit_decision",
+        "VARCHAR(64)",
+        "decision"
+      ],
+      [
+        "tool_name",
+        "VARCHAR(128)",
+        "details.toolName"
+      ],
+      [
+        "tool_call_id",
+        "VARCHAR(128)",
+        "details.toolCallId"
+      ],
+      [
+        "audit_task_id",
+        "BIGINT",
+        "@parent_id"
+      ]
+    ],
+    "evaluation_run": [
+      [
+        "report_artifact_id",
+        "BIGINT",
+        "reportArtifactId",
+        "number"
+      ],
+      [
+        "formal_scores",
+        "JSON",
+        "formalScores",
+        "json"
+      ],
+      [
+        "publishable",
+        "TINYINT",
+        "publishable",
+        "boolean"
+      ],
+      [
+        "evaluation_paused",
+        "TINYINT",
+        "paused",
+        "boolean"
+      ],
+      [
+        "source_digest",
+        "CHAR(64)",
+        "sourceDigest"
+      ]
+    ],
+    "harness_run": [
+      [
+        "harness_mode",
+        "VARCHAR(16)",
+        "mode"
+      ],
+      [
+        "harness_task_id",
+        "BIGINT",
+        "taskId",
+        "number"
+      ],
+      [
+        "report_artifact_id",
+        "BIGINT",
+        "reportArtifactId",
+        "number"
+      ]
+    ],
+    "idempotency": [
+      [
+        "request_fingerprint",
+        "CHAR(64)",
+        "fingerprint"
+      ]
+    ],
+    "import_batch": [
+      [
+        "source_fingerprint",
+        "CHAR(64)",
+        "fingerprint"
+      ],
+      [
+        "source_artifact_id",
+        "BIGINT",
+        "sourceArtifactId",
+        "number"
+      ],
+      [
+        "import_allowed",
+        "TINYINT",
+        "canImport",
+        "boolean"
+      ],
+      [
+        "committed_at_iso",
+        "VARCHAR(40)",
+        "committedAt"
+      ],
+      [
+        "revoked_at_iso",
+        "VARCHAR(40)",
+        "revokedAt"
+      ]
+    ],
+    "prompt_template": [
+      [
+        "template_path",
+        "VARCHAR(256)",
+        "relativePath"
+      ],
+      [
+        "template_scope",
+        "VARCHAR(16)",
+        "scope"
+      ],
+      [
+        "template_sha256",
+        "CHAR(64)",
+        "sha256"
+      ],
+      [
+        "template_content",
+        "LONGTEXT",
+        "content"
+      ],
+      [
+        "template_enabled",
+        "TINYINT",
+        "enabled",
+        "boolean"
+      ]
+    ]
+  },
+  "indexes": {
+    "workspace": [
+      "workspace_name"
+    ],
+    "workspace_member": [
+      "member_role"
+    ],
+    "runner": [
+      "administration_version"
+    ],
+    "session": [
+      "model_record_id",
+      "execution_mode"
+    ],
+    "message": [
+      "message_role",
+      "tool_call_id"
+    ],
+    "task": [
+      "operation_name",
+      "execution_mode"
+    ],
+    "plan": [
+      "definition_version"
+    ],
+    "plan_step": [
+      "step_id"
+    ],
+    "approval": [
+      "tool_call_id"
+    ],
+    "tool_call": [
+      "tool_call_id",
+      "model_tool_call_id_hash"
+    ],
+    "tool_receipt": [
+      "tool_call_id"
+    ],
+    "memory": [
+      "memory_scope",
+      "memory_type"
+    ],
+    "index_manifest": [
+      "index_version",
+      "query_mode"
+    ],
+    "snapshot": [
+      "commit_id"
+    ],
+    "provider_config": [
+      "provider_name"
+    ],
+    "model_config": [
+      "provider_record_id",
+      "model_id"
+    ],
+    "mcp_config": [
+      "server_name",
+      "transport_type"
+    ],
+    "skill_config": [
+      "skill_name",
+      "skill_scope"
+    ],
+    "browser_config": [
+      "mcp_config_id"
+    ],
+    "wechat_binding": [
+      "sender_hash"
+    ],
+    "security_audit": [
+      "audit_action",
+      "audit_decision"
+    ],
+    "evaluation_run": [
+      "report_artifact_id"
+    ],
+    "harness_run": [
+      "harness_mode"
+    ],
+    "prompt_template": [
+      "template_scope",
+      "template_path"
+    ]
+  },
+  "verification": [
+    "pc_flyway_schema_history latest successful version=4",
+    "pc_prompt_template exists with owner/scope/version constraints",
+    "all generated columns named in this manifest exist with is_generated=ALWAYS and generation_expression",
+    "all ix_pc_<table>_<field> business indexes exist",
+    "JSON→generated sample equals decoded payload; no shadow writable business facts",
+    "SHOW CREATE TABLE model_config/policy/task/prompt includes explicit functional CHECK constraints"
+  ],
+  "sourceMappings": [
+    {
+      "source": "runtime_threads",
+      "target": "pc_session",
+      "identity": "legacySessionId retained in import payload; new scope-bound bigint id",
+      "fields": {
+        "id": "id + legacySessionId",
+        "created_at": "created_at + legacyOccurredAt"
+      }
+    },
+    {
+      "source": "runtime_events",
+      "target": "pc_event",
+      "fields": {
+        "id": "sequence_number + source legacyId",
+        "thread_id": "session_id",
+        "type": "kind/event_type",
+        "data": "payload.payload",
+        "created_at": "created_at + legacyOccurredAt"
+      }
+    },
+    {
+      "source": "runtime_tasks",
+      "target": "pc_task",
+      "fields": {
+        "id": "id + legacyId",
+        "status": "state",
+        "prompt": "payload.input or imported payload.prompt -> prompt_text",
+        "result": "payload.result -> result_text",
+        "error": "payload.error -> error_text",
+        "created_at": "created_at + legacyOccurredAt",
+        "started_at": "payload.startedAt -> started_at_iso",
+        "finished_at": "payload.finishedAt -> finished_at_iso",
+        "updated_at": "updated_at + legacyUpdatedAt",
+        "duration_ms": "payload.durationMs -> duration_ms"
+      },
+      "recovery": "running/leased/waiting/imported uncertain attempts remain RECONCILE_REQUIRED; never auto-replayed"
+    },
+    {
+      "source": "code_chunks/code_relations",
+      "target": "pc_index_manifest",
+      "fields": {
+        "project_path": "workspace root fingerprint",
+        "embedding_json": "Runner reconstructible derived cache; model/hash/version authoritative manifest",
+        "relations": "Runner derived graph; center SEARCH_RESULT/GRAPH_RESULT with actual source metadata"
+      },
+      "scope": "approved design derived SQLite cache only; no formal task/approval/config truth"
+    },
+    {
+      "source": "ConversationLedger.Entry",
+      "target": "pc_message + pc_event",
+      "fields": {
+        "schemaVersion": "payload._ledger.schemaVersion",
+        "sessionId": "session_id",
+        "sequence": "sequence_number; source sequence preserved _ledger.sequence",
+        "timestamp": "payload._ledger.timestamp",
+        "event": "payload._ledger.event",
+        "mode": "payload._ledger.mode",
+        "actor": "payload._ledger.actor",
+        "source": "payload._ledger.source",
+        "message": "payload message fields or null LEDGER_EVENT",
+        "metadata": "payload._ledger.metadata"
+      }
+    },
+    {
+      "source": "long_term_memory.json",
+      "target": "pc_memory + pc_memory_version",
+      "fields": {
+        "id": "center id + legacyId",
+        "content": "memory_content",
+        "type": "memory_type",
+        "timestamp": "written_at_iso",
+        "lastVerifiedAt": "last_verified_at_iso",
+        "metadata": "memory_metadata",
+        "tokenCount": "token_count"
+      }
+    },
+    {
+      "source": "config.json/providers/models",
+      "target": "pc_provider_config + pc_model_config + pc_workspace",
+      "fields": {
+        "apiKey": "managed secretRef only; original value never imported",
+        "defaultProvider": "workspace payload.defaultProviderId",
+        "providerModel": "provider default_model",
+        "loraId": "provider lora_id",
+        "temperature": "provider temperature",
+        "maxTokens": "provider max_tokens",
+        "modelProfile": "model template/context/max output/image/thinking/effort/history/dsml fields"
+      }
+    },
+    {
+      "source": "prompts builtin/user/project",
+      "target": "builtin immutable resources + pc_prompt_template",
+      "precedence": "BUILTIN -> PERSONAL owner -> PROJECT workspace; normalized relative path, explicit enabled, version/hash"
+    },
+    {
+      "source": "skills.json/MCP/browser/Wechat account + policy",
+      "target": "pc_skill_config/pc_mcp_config/pc_browser_config/pc_wechat_binding/pc_policy_version",
+      "credentials": "only scoped managed secret references; no old plaintext keys or automatic local scan"
+    },
+    {
+      "source": "snapshots metadata",
+      "target": "pc_snapshot",
+      "fields": {
+        "commitId": "commit_id",
+        "phase": "snapshot_phase",
+        "turnId": "legacy_turn_id or center task parent mapping",
+        "createdAt": "created_at + legacyOccurredAt",
+        "summary": "snapshot_summary",
+        "manifestHash": "manifest_hash"
+      },
+      "content": "Runner private JGit derived working copy; center owns metadata and restore approval"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+const mocks = vi.hoisted(() => ({ request:vi.fn() }))
+vi.mock('@/utils/request',() => ({ default:mocks.request }))
+import { getSessionEvents } from '@/api/paicli/events'
+import { decideApproval, submitTurn, uploadAttachment, downloadArtifact,requestRestorePreview } from '@/api/paicli/sessions'
+import {exportAudit} from '@/api/paicli/audit'
+import { savePolicy, removeMember } from '@/api/paicli/workspaces'
+describe('共用鉴权传输与副作用协议', () => {
+  beforeEach(() => { mocks.request.mockReset();mocks.request.mockResolvedValue({ code:200,data:{} }) })
+  it('快照预览显式派发CONTROL而非依赖CLI缓存，并带快照CAS与幂等',async()=>{await requestRestorePreview('11',4,'preview-idem');expect(mocks.request.mock.calls[0][0]).toMatchObject({url:'/paicli/v1/snapshots/11/restore-preview',method:'post',data:{version:4},headers:{'If-Match':'4','Idempotency-Key':'preview-idem',repeatSubmit:false}})})
+  it('私有产物下载选择共享业务错误处理，审计JSON数组正常下载且错误不成文件',async()=>{await downloadArtifact('9');expect(mocks.request.mock.calls[0][0]).toMatchObject({url:'/paicli/v1/artifacts/9/content',responseType:'blob',preserveBusinessError:true});mocks.request.mockResolvedValueOnce([{id:'1',reason:'原记录'}]);const blob=await exportAudit({workspaceId:'42'});expect(blob.type).toContain('application/json');expect(mocks.request.mock.calls[1][0]).toMatchObject({url:'/paicli/v1/audit/export',method:'get',preserveBusinessError:true});expect(mocks.request.mock.calls[1][0].responseType).toBeUndefined();mocks.request.mockRejectedValueOnce(new Error('无读取权限'));await expect(exportAudit({workspaceId:'42'})).rejects.toThrow('无读取权限');mocks.request.mockResolvedValueOnce({code:403,msg:'不可导出'});await expect(exportAudit({workspaceId:'42'})).rejects.toThrow('协议无效')})
+  it('有限长轮询带取消信号与cursor，URL无token参数', async () => { const controller = new AbortController(); await getSessionEvents('session/42','120',controller.signal); expect(mocks.request).toHaveBeenCalledWith({ url:'/paicli/v1/sessions/session%2F42/events',method:'get',params:{ after:'120',limit:200,waitSeconds:20 },timeout:25000,signal:controller.signal,preserveBusinessError:true }); expect(mocks.request.mock.calls[0]![0].url).not.toMatch(/token|Authorization/) })
+  it('turn与批准固定幂等键及版本，修订仍绑定输入哈希', async () => { await submitTurn('42',{ text:'修复测试',mode:'PLAN',approvalMode:'ASK',modelId:'3',attachments:[],version:8 },'stable-key'); expect(mocks.request.mock.calls[0]![0].headers).toEqual({ 'Idempotency-Key':'stable-key','If-Match':'8' }); await decideApproval('9',{ decision:'REVISE',version:5,inputHash:'hash',feedback:'范围修改',revisedArguments:{ command:'echo safe' } },'approval-key'); expect(mocks.request.mock.calls[1]![0].data.inputHash).toBe('hash'); expect(mocks.request.mock.calls[1]![0].headers['If-Match']).toBe('5') })
+  it('图片multipart不写入共享重复提交缓存', async () => { await uploadAttachment('1',new File(['test'],'test.png',{ type:'image/png' }),'image-key'); const config = mocks.request.mock.calls[0]![0]; expect(config.data).toBeInstanceOf(FormData); expect(config.headers.repeatSubmit).toBe(false); expect(config.headers['Idempotency-Key']).toBe('image-key') })
+  it('配置和移除成员也需要幂等键与中心版本', async () => { await removeMember('1','2',3,'member-key'); expect(mocks.request.mock.calls[0]![0].headers).toEqual({ 'If-Match':'3','Idempotency-Key':'member-key' }); await savePolicy('1',{ version:5 } as never,'policy-key'); expect(mocks.request.mock.calls[1]![0].headers['Idempotency-Key']).toBe('policy-key') })
+})
+

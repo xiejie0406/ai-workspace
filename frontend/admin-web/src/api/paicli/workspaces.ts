@@ -1,0 +1,14 @@
+import request from '@/utils/request'
+import type { PcEnvelope, PcWorkspace, PcMember, PcRunner, PcEnrollment, PcPage, PcPageQuery, PcPolicy } from '@/types/paicli'
+export const listWorkspaces = (params: Partial<PcPageQuery> = {}) => request({ url: '/paicli/v1/workspaces', method: 'get', params }) as unknown as Promise<PcPage<PcWorkspace>>
+export const saveWorkspace = (data: Partial<PcWorkspace>, key: string) => request({ url: '/paicli/v1/workspaces', method: 'post', data, headers: { 'If-Match':String(data.version ?? 0),'Idempotency-Key': key,repeatSubmit:false } }) as unknown as Promise<PcEnvelope<PcWorkspace>>
+export const listMembers = (id: string) => request({ url: `/paicli/v1/workspaces/${encodeURIComponent(id)}/members`, method: 'get' }) as unknown as Promise<PcEnvelope<PcMember[]>>
+export const saveMember = (id: string, data: Partial<PcMember>, version: number, key: string) => request({ url: `/paicli/v1/workspaces/${encodeURIComponent(id)}/members`, method: 'put', data, headers: { 'If-Match': String(version), 'Idempotency-Key': key } })
+export const removeMember = (id: string, userId: string, version: number, key: string) => request({ url: `/paicli/v1/workspaces/${encodeURIComponent(id)}/members/${encodeURIComponent(userId)}`, method: 'delete', headers: { 'If-Match': String(version), 'Idempotency-Key': key } })
+export const listRunners = (workspaceId: string) => request({ url: '/paicli/v1/runners', method: 'get', params: { workspaceId } }) as unknown as Promise<PcEnvelope<PcRunner[]>>
+export const enrollRunner = (data: { workspaceId: string; name: string; rootFingerprint: string }, key: string) => request({ url: '/paicli/v1/runners/enroll', method: 'post', data, headers: { 'Idempotency-Key': key } }) as unknown as Promise<PcEnvelope<PcEnrollment>>
+export const revokeRunner = (id: string, version: number, key: string) => request({ url: `/paicli/v1/runners/${encodeURIComponent(id)}/revoke`, method: 'post', headers: { 'If-Match': String(version), 'Idempotency-Key': key } })
+export type PcSandboxInput = { verified: false; reason: string } | { verified: true; attestation: { provider: 'seatbelt'|'bubblewrap'; sha256: string; checkedAt: string }; reason: string }
+export const recordRunnerSandbox = (id: string, version: number, data: PcSandboxInput, key: string) => request({ url: `/paicli/v1/runners/${encodeURIComponent(id)}/sandbox`, method: 'post', data, headers: { 'If-Match': String(version), 'Idempotency-Key': key } }) as unknown as Promise<PcEnvelope<PcRunner>>
+export const getPolicy = (workspaceId: string) => request({ url: '/paicli/v1/policies', method: 'get', params: { workspaceId } }) as unknown as Promise<PcEnvelope<PcPolicy>>
+export const savePolicy = (workspaceId: string, data: PcPolicy, key: string) => request({ url: '/paicli/v1/policies', method: 'put', data: { ...data, workspaceId }, headers: { 'If-Match': String(data.version), 'Idempotency-Key': key } })

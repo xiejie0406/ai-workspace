@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+task_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+task_java=${JAVA_HOME:+$JAVA_HOME/bin/}java
+task_jar="$task_dir/../../paicli-eval/target/paicli-eval-3.9.2.jar"
+[ -f "$task_jar" ] || { echo 'Eval package is missing; build paicli-eval first.' >&2; exit 2; }
+exec "$task_java" -jar "$task_jar" "$@"

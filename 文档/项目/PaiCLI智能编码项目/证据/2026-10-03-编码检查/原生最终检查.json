@@ -1,0 +1,267 @@
+{
+  "snapshotDescription": "构建在固定用户home私有源码快照中执行，产物复制到各模块target；聚合快照仅排除中心API，868项源码清单摘要与工作区一致",
+  "runs": [
+    {
+      "name": "Core传输与预算",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 6,
+      "scope": "Budget3、协议5、STDIO11、HTTP12；6项为原Windows shell跳过",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-latest.log"
+    },
+    {
+      "name": "Runner收口基线",
+      "tests": 83,
+      "failures": 0,
+      "errors": 1,
+      "skipped": 0,
+      "scope": "1项JGit DOS只读临时文件清理错误；其余断言通过，原错误保留",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-latest.log"
+    },
+    {
+      "name": "Runner清理定向复验",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "Native7、托管MCP6；仅处理自身临时fixture的DOS只读清理",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-cli.log"
+    },
+    {
+      "name": "CLI导出、补全与渲染",
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "scope": "Exporter11、Completion3、Inline18；原符号链接跳过保留",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-cli.log"
+    },
+    {
+      "name": "Core图片与协议最后复验",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "图片16、图片引用解析10、MCP协议5；旧随机PNG fixture首失败日志保留",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-images-harness-fixed.log"
+    },
+    {
+      "name": "Runner执行边界最后复验",
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "托管MCP6、Native7、边界22；包含同模型编号重用consume幂等响应回归",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-images-harness-fixed.log"
+    },
+    {
+      "name": "Harness报告位置复验",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "原算法及三份报告保留；派生报告写批准状态目录，不隐式写工作区",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-images-harness-fixed.log"
+    },
+    {
+      "name": "Eval最后相关复验",
+      "tests": 9,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "D3七项与valid LF generator通过；forbiddenRead因Windows chmod未撤销NTFS读取仍失败",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-eval-related.log"
+    },
+    {
+      "name": "图片调用方补验",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "模型图片wire18、McpClient13；旧hello冒充PNG技术fixture首失败日志保留，production未改变",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-image-consumers-fixed.log"
+    },
+    {
+      "name": "MCP异常完整证据链最后复验",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "JsonRpc2、ManagedMCP7、Native8；真实多块证据已私有保存，0receipt、CONSUMED仍待对账。旧整个error无正文断言与内部data冲突，首失败保留。",
+      "log": "../../../../../ruoyi-backend/ruoyi-paicli/native-snapshot-final-mcp-evidence-fixed.log"
+    }
+  ],
+  "packageChecks": [
+    "MCP异常链补修后的Core、Runner、CLI、独立Eval重包06:37:45 BUILD SUCCESS；打包跳过测试，测试结果另列。",
+    "新CLI与Eval --help、SPI编译及实际加载、thin worker EOF入口均exit0；无真实账号或业务请求。",
+    "CLI实际加载Harness、微信、项目记忆三个Extension及中心Gateway；独立Eval不并入CLI。",
+    "自身类字节码major61/release17；快照生产class与jar逐byte一致，实际运行JDK21。",
+    "五个旧jar已备份，再复制最终新jar到工作区各模块target，SHA-256与构建产物5/5一致；868项源码/POM/benchmarks清单0差异。"
+  ],
+  "businessPassed": 0,
+  "userAccepted": false,
+  "limits": [
+    "正式评测未通过；完整Eval原失败和最后相关1失败均保留。",
+    "真实MySQL、设备、模型、MCP、微信、生产隔离和正式评测未联机验收。",
+    "实际Java17运行时尚未复验。",
+    "最大MCP聚合及文字offload仍受中心64MB请求/当前12MB本机上传限制；超限先保全再暂停，未验证分块或真实multipart大输出。"
+  ],
+  "artifacts": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-core\\target\\paicli-core-3.9.2.jar",
+      "builtInSnapshot": "C:\\Users\\admin\\paicli-native-final-243e4b4217464a2289f1becd71b337f4\\paicli-core\\target\\paicli-core-3.9.2.jar",
+      "sha256": "D1379C0CD5698BCCB787DDDD07127397C22054CDCF8EC66B2E13182F7FB90492",
+      "size": 931172,
+      "backup": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-core\\target\\paicli-core-3.9.2.jar.previous-20261003T064311.bak",
+      "backupSha256": "B3D7BD48A8386D0C141B40F7A0A5CB4002194E1FDB128B4B52C508517418F29C",
+      "copiedHashVerified": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\target\\paicli-runner-3.9.2.jar",
+      "builtInSnapshot": "C:\\Users\\admin\\paicli-native-final-243e4b4217464a2289f1becd71b337f4\\paicli-runner\\target\\paicli-runner-3.9.2.jar",
+      "sha256": "0EBEC9BB9283B7057278D18B9314CF80856BF8545315879F42712492363709C0",
+      "size": 184137,
+      "backup": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\target\\paicli-runner-3.9.2.jar.previous-20261003T064311.bak",
+      "backupSha256": "4F827439D2C59F6A28ED986A5A733137CEE670AD85342A1937B8680BC8EF2CFE",
+      "copiedHashVerified": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-cli\\target\\paicli-cli-3.9.2.jar",
+      "builtInSnapshot": "C:\\Users\\admin\\paicli-native-final-243e4b4217464a2289f1becd71b337f4\\paicli-cli\\target\\paicli-cli-3.9.2.jar",
+      "sha256": "31EE35CF212A18D2C63F3470ED40652CD6A57F76D4F2584D08558362A9C0C1EB",
+      "size": 33300405,
+      "backup": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-cli\\target\\paicli-cli-3.9.2.jar.previous-20261003T064311.bak",
+      "backupSha256": "931901458F7A11358B8D7EA84BFFE61F576847B9A2CBE15BBBC963AC38990F0A",
+      "copiedHashVerified": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-eval\\target\\paicli-eval-3.9.2.jar",
+      "builtInSnapshot": "C:\\Users\\admin\\paicli-native-final-243e4b4217464a2289f1becd71b337f4\\paicli-eval\\target\\paicli-eval-3.9.2.jar",
+      "sha256": "4B1CE55E97C6036D3DA0FBB11382D040B49306A560AF5D2334D89134CA97788D",
+      "size": 32967138,
+      "backup": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-eval\\target\\paicli-eval-3.9.2.jar.previous-20261003T064311.bak",
+      "backupSha256": "52F4C9C0D5E2904251CB6BB6216D57B5135E5F3C49567395B12FB13F6D2AD597",
+      "copiedHashVerified": true
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-eval\\target\\paicli-eval-3.9.2-agentbench-runner.jar",
+      "builtInSnapshot": "C:\\Users\\admin\\paicli-native-final-243e4b4217464a2289f1becd71b337f4\\paicli-eval\\target\\paicli-eval-3.9.2-agentbench-runner.jar",
+      "sha256": "762DDB7E5909FB5B4B397D6AFF6F4A640B13332BCE34DD2A342D855B2DA54E22",
+      "size": 229275,
+      "backup": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-eval\\target\\paicli-eval-3.9.2-agentbench-runner.jar.previous-20261003T064311.bak",
+      "backupSha256": "1F00BD89421C9AF66E02F2C3447EAC703266460D65BC02F457A5F8ADB7BEEC40",
+      "copiedHashVerified": true
+    }
+  ],
+  "packageEvidence": "../../../../../ruoyi-backend/ruoyi-paicli/native-final-package-checks.json",
+  "finalSelectedUnique": {
+    "core": {
+      "errors": 0,
+      "skipped": 6,
+      "logs": [
+        "native-snapshot-final-latest.log",
+        "native-snapshot-final-images-harness-fixed.log",
+        "native-snapshot-final-image-consumers-fixed.log",
+        "native-snapshot-final-mcp-evidence-fixed.log"
+      ],
+      "failures": 0,
+      "passed": 84,
+      "uniqueTests": 90
+    },
+    "skipNotes": [
+      "Stdio原6个Windows shell测试跳过保持原source",
+      "LegacyBundleExporterTest原1个符号链接测试跳过保持原source；InlineRenderer18全部执行通过"
+    ],
+    "runner": {
+      "errors": 0,
+      "skipped": 0,
+      "logs": [
+        "native-snapshot-final-latest.log",
+        "native-snapshot-final-cli.log",
+        "native-snapshot-final-images-harness-fixed.log",
+        "native-snapshot-final-mcp-evidence-fixed.log"
+      ],
+      "failures": 0,
+      "passed": 86,
+      "uniqueTests": 86
+    },
+    "cli": {
+      "errors": 0,
+      "skipped": 1,
+      "logs": [
+        "native-snapshot-final-cli.log",
+        "native-snapshot-final-images-harness-fixed.log"
+      ],
+      "failures": 0,
+      "passed": 35,
+      "uniqueTests": 36
+    },
+    "longEvalBaseline": "native-eval-targeted-fifth.log: 102项 3fail/4error/0skip，保留Windows真实metadata超时/符号链接特权/原Unix工具链限制，不重跑一小时Compiler全类",
+    "originalQuickBaseline": "native-quick-fourth.log: Core878 0fail/0error/4skip;Runner42通过;CLI332 0fail/0error/1skip;Eval1212 139fail/545error/76skip",
+    "evalRelated": {
+      "failures": 1,
+      "failedTest": "DevSafeBundleVerifierTest.forbiddenReadStillFailsAfterWritableScratchPreparation",
+      "errors": 0,
+      "log": "native-snapshot-final-eval-related.log",
+      "passed": 8,
+      "actual": "dev-secret-safe-bundle: PASS; exit0",
+      "cause": "Git Bash chmod000不能撤销Windows NTFS读取权限；Linux权限用例保持未通过",
+      "passedGroups": [
+        "D3ScriptedApprovalTest 7项含25实现ID",
+        "DevSafe valid LF generator 1项"
+      ],
+      "tests": 9,
+      "skipped": 0,
+      "expected": "exit1"
+    },
+    "preservedFailures": [
+      "native-snapshot-final-runner.log",
+      "native-snapshot-home-final-runner.log",
+      "native-snapshot-final-functional.log",
+      "native-snapshot-final-latest.log",
+      "native-snapshot-final-images-harness.log",
+      "native-snapshot-final-eval-related.log",
+      "native-snapshot-final-image-consumers.log",
+      "native-snapshot-final-mcp-evidence.log"
+    ],
+    "imageConsumers": {
+      "tests": 31,
+      "passed": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "log": "native-snapshot-final-image-consumers-fixed.log",
+      "groups": [
+        "McpClientTest13",
+        "AbstractOpenAiCompatibleClientImageInputTest18"
+      ],
+      "firstFailure": "native-snapshot-final-image-consumers.log: McpClient假hello PNG 1失败，改真实PNG材料保持断言；未修改production"
+    },
+    "mcpEvidenceClosure": {
+      "tests": 17,
+      "passed": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "groups": [
+        "JsonRpcClientTest2",
+        "ManagedMcpTransportTest7",
+        "NativeExecutionTest8"
+      ],
+      "log": "native-snapshot-final-mcp-evidence-fixed.log",
+      "finishedAt": "2026-10-03T06:36:41+08:00",
+      "asserted": "Actual safe RPC result preserves all three content blocks in the private evidence file after lease invalidation; returned non-success; no receipt sent; consumed uncertain evidence retained; 129-block over-limit evidence kept complete while public result stays failed",
+      "firstFailure": "native-snapshot-final-mcp-evidence.log: internal evidence newly retains all 129 blocks; legacy public-message no-prefix assertion corrected to public message only without weakening 128-block support limit"
+    },
+    "mcpStructureClosure": {
+      "tests": 7,
+      "passed": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "log": "native-snapshot-final-mcp-structure.log",
+      "supersededBy": "native-snapshot-final-mcp-evidence-fixed.log"
+    }
+  }
+}

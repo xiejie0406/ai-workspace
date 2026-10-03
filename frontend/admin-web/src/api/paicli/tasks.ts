@@ -1,0 +1,8 @@
+import request from '@/utils/request'
+import type { PcEnvelope, PcPage, PcPageQuery, PcTask, PcTaskDetail, PcMode, PcEventBatch } from '@/types/paicli'
+export const getTaskEvents=(id:string,after='0',endSequence?:number,signal?:AbortSignal)=>request({url:`/paicli/v1/tasks/${encodeURIComponent(id)}/events`,method:'get',params:{after,endSequence,limit:200},signal}) as unknown as Promise<PcEnvelope<PcEventBatch>>
+export const listTasks = (params: PcPageQuery & { requester?: string; source?: string }) => request({ url: '/paicli/v1/tasks', method: 'get', params }) as unknown as Promise<PcPage<PcTask>>
+export const getTask = (id: string, signal?: AbortSignal) => request({ url: `/paicli/v1/tasks/${encodeURIComponent(id)}`, method: 'get', signal }) as unknown as Promise<PcEnvelope<PcTaskDetail>>
+export const createTask = (data: { workspaceId: string; runnerId: string; modelId: string; title: string; text: string; mode: PcMode }, key: string) => request({ url: '/paicli/v1/tasks', method: 'post', data, headers: { 'Idempotency-Key': key } }) as unknown as Promise<PcEnvelope<PcTask>>
+export const cancelTask = (id: string, version: number, key: string) => request({ url: `/paicli/v1/tasks/${encodeURIComponent(id)}/cancel`, method: 'post', data: { version }, headers: { 'If-Match': String(version), 'Idempotency-Key': key } })
+export const reconcileTask = (id: string, version: number, data: { decision: string; evidence: string; currentFingerprint: string }, key: string) => request({ url: `/paicli/v1/tasks/${encodeURIComponent(id)}/reconcile`, method: 'post', data: { ...data, version }, headers: { 'If-Match': String(version), 'Idempotency-Key': key } })

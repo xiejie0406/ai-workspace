@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paicli:events:v1",
+  "title": "PaiCLI 中心事件及原始账本协议",
+  "description": "中心发布事件、Runner输入及原始账本为不同对象；大正文只保存完整私有产物引用。事件内容不能授予新工具或账号权限。",
+  "$ref": "#/$defs/PublishedEvent",
+  "$defs": {
+    "PublishedEvent": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,18}$"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$"
+            }
+          },
+          "additionalProperties": true
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "taskId": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,18}$"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "eventId",
+        "sequence",
+        "type",
+        "payload",
+        "occurredAt"
+      ]
+    },
+    "LedgerEntry": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "sessionId": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,18}$"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "rawPromptRequired": {
+          "type": "boolean"
+        },
+        "sourceSequence": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,18})$"
+            }
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "schemaVersion",
+        "sessionId",
+        "sequence",
+        "event",
+        "message",
+        "metadata"
+      ]
+    },
+    "RunnerEventInput": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$"
+            },
+            "leaseId": {
+              "type": "string"
+            },
+            "fencingToken": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "policyVersion": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "rootFingerprint": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "additionalProperties": true,
+          "required": [
+            "taskId",
+            "leaseId",
+            "fencingToken",
+            "version",
+            "policyVersion",
+            "rootFingerprint"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "eventId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._:-]{1,128}$"
+            },
+            "type": {
+              "enum": [
+                "RUNNING",
+                "WAITING_APPROVAL",
+                "CANCELLING",
+                "PC_EVENT_ID_REUSED",
+                "MESSAGE",
+                "LEDGER_MESSAGE",
+                "MODEL_DELTA",
+                "USAGE",
+                "DIAGNOSTICS",
+                "PLAN_CREATED",
+                "PLAN_STEP",
+                "PLAN_PROGRESS",
+                "TEAM_PROGRESS",
+                "CONTEXT_SUMMARY",
+                "CONTEXT_COMPACT",
+                "PROJECT_MEMORY",
+                "DIRECTORY_RESULT",
+                "INDEX_MANIFEST",
+                "SEARCH_RESULT",
+                "GRAPH_RESULT",
+                "SNAPSHOT",
+                "ARTIFACT",
+                "CONNECTION_RESULT",
+                "HARNESS_RESULT",
+                "TASK_COMPLETED",
+                "TASK_FAILED",
+                "TASK_CANCELLED"
+              ]
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "eventArtifactId": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,18}$"
+                    },
+                    {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9223372036854775807
+                    }
+                  ]
+                },
+                "eventArtifactSha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "eventArtifactSize": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 134217728
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true,
+          "required": [
+            "eventId",
+            "type",
+            "payload"
+          ]
+        }
+      ]
+    },
+    "EventPage": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PublishedEvent"
+          }
+        },
+        "cursor": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,18})$"
+            }
+          ]
+        },
+        "endSequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hasMore": {
+          "type": "boolean"
+        },
+        "terminal": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "events",
+        "cursor",
+        "hasMore",
+        "terminal"
+      ]
+    }
+  }
+}

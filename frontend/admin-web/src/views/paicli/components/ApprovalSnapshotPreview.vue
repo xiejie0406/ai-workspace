@@ -1,0 +1,10 @@
+<template><section class="pc-panel" aria-label="本次恢复的冻结预览"><h3>恢复目标与完整差异</h3><el-alert v-if="problem" :title="problem" type="error" :closable="false" /><template v-if="context"><p class="pc-muted">快照记录 {{context.snapshotMetadataId}} · 版本 {{context.snapshotVersion}} · Git {{context.snapshotId}}</p><p class="pc-muted">正式预览回执 {{context.previewReceiptId}} · 调用 {{context.previewToolCallId}}</p><pre class="pc-pre">当前文件指纹 {{context.currentFingerprint}}</pre><el-alert v-if="context.restorePreview?.warning" :title="context.restorePreview.warning" type="warning" :closable="false" /><pre v-if="context.restorePreview?.conflicts?.length" class="pc-pre">{{safeText(context.restorePreview.conflicts)}}</pre><article v-for="file in context.restorePreview?.files || []" :key="file.path"><h4>{{file.path}} · {{file.status}}</h4><pre class="pc-pre">当前 SHA {{file.currentHash ?? '不存在'}} · 模式 {{file.currentMode ?? '不存在'}}
+目标 SHA {{file.targetHash ?? '不存在'}} · 模式 {{file.targetMode ?? '不存在'}}</pre><pre v-if="file.diff!==undefined" class="pc-pre">{{safeText(file.diff)}}</pre><p v-else class="pc-muted">{{context.previewArtifact?'完整文本差异保留在下方本次审批专用产物。':'此文件未提供文本差异，请核对文件状态、摘要与模式；不将未知差异当作空差异。'}}</p></article><template v-if="context.previewArtifact"><p class="pc-muted">完整差异产物 {{context.previewArtifact.artifactId}} · SHA {{context.previewArtifact.sha256}} · {{context.previewArtifact.size}}B；读取仅限本次申请的预览用途。</p><ArtifactText v-if="!problem && approval.sessionId" :artifact-id="context.previewArtifact.artifactId" :session-id="approval.sessionId" :approval-id="approval.id" :expected-sha256="context.previewArtifact.sha256" :expected-size="context.previewArtifact.size" /></template></template></section></template>
+<script setup lang="ts">
+import {computed} from 'vue'
+import type {PcApproval} from '@/types/paicli'
+import {safeText} from '../model'
+import {approvalSnapshotProblem} from '../shared/approvalSnapshot'
+import ArtifactText from './ArtifactText.vue'
+const props=defineProps<{approval:PcApproval}>(),context=computed(()=>props.approval.snapshotContext),problem=computed(()=>approvalSnapshotProblem(props.approval))
+</script>

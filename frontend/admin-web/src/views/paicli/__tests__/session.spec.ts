@@ -1,0 +1,28 @@
+import { defineComponent, h } from 'vue'
+import { flushPromises, mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+const mocks = vi.hoisted(() => ({ getSession:vi.fn(),getEvents:vi.fn(),submit:vi.fn() }))
+vi.mock('@/api/paicli/sessions',() => ({ getSession:mocks.getSession,submitTurn:mocks.submit }))
+vi.mock('@/api/paicli/events',() => ({ getSessionEvents:mocks.getEvents }))
+import { useSession } from '../useSession'
+import type { PcSessionDetail } from '@/types/paicli'
+const detail = (id: string): PcSessionDetail => ({ id,title:`会话 ${id}`,workspaceId:'w',runnerId:'r',modelId:'m',mode:'REACT',approvalMode:'ASK',status:'ACTIVE',version:1,eventCursor:'0',createdAt:'2026-01-01T00:00:00Z',updatedAt:'2026-01-01T00:00:00Z',messages:[],approvals:[],context:{ sessionId:id,version:1,estimatedTokens:0,contextWindow:128000,messages:0,compressionCount:0,externalMemoryPaused:false,rawLedgerAvailable:true,promptLayers:[],artifacts:[],diagnostics:[] } })
+const envelope = (data: unknown) => ({ code:200,data })
+function setup() { let state: ReturnType<typeof useSession>; const wrapper = mount(defineComponent({ setup() { state = useSession(); return () => h('div') } })); return { wrapper,state:state! } }
+describe('会话续取与陈旧响应保护', () => {
+  beforeEach(() => { mocks.getSession.mockImplementation(async (id: string) => envelope(detail(id))); mocks.getEvents.mockResolvedValue(envelope({ events:[],cursor:'0',hasMore:false,terminal:true })); mocks.submit.mockResolvedValue(envelope({ taskId:'t',version:2,eventCursor:'1' })) })
+  it('切换会话后旧加载响应不能覆盖新会话', async () => { let resolveOld!: (value: unknown) => void; mocks.getSession.mockImplementation((id: string) => id === 'old' ? new Promise(resolve => { resolveOld = resolve }) : Promise.resolve(envelope(detail(id)))); const { state,wrapper } = setup(); const old = state.select('old'); await state.select('new'); resolveOld(envelope(detail('old'))); await old; expect(state.detail.value?.id).toBe('new'); wrapper.unmount() })
+  it('重复事件按eventId去重并保留确认cursor', async () => { const e = { eventId:'e1',sequence:1,type:'TOOL_RESULT',payload:{ result:'source result' },occurredAt:'2026-01-01T00:00:00Z' }; mocks.getEvents.mockResolvedValueOnce(envelope({ events:[e],cursor:'1',hasMore:true,terminal:false })).mockResolvedValueOnce(envelope({ events:[e,{ ...e,eventId:'e2',sequence:2 }],cursor:'2',hasMore:false,terminal:true })); const { state,wrapper } = setup(); await state.select('42'); await flushPromises(); expect(state.events.value.map(event => event.eventId)).toEqual(['e1','e2']); expect(state.cursor.value).toBe('2'); expect(mocks.getEvents.mock.calls[1]![1]).toBe('1'); wrapper.unmount() })
+  it('流错误停止自动重试，重连继续原位置', async () => { mocks.getEvents.mockRejectedValueOnce(new Error('断线')).mockResolvedValue(envelope({ events:[],cursor:'8',hasMore:false,terminal:true })); mocks.getSession.mockResolvedValue(envelope({ ...detail('42'),eventCursor:'7' })); const { state,wrapper } = setup(); await state.select('42'); await flushPromises(); expect(state.streamState.value).toBe('DISCONNECTED'); expect(mocks.getEvents).toHaveBeenCalledTimes(1); await state.subscribe(); expect(mocks.getEvents.mock.calls[1]![1]).toBe('7'); expect(state.cursor.value).toBe('8'); wrapper.unmount() })
+  it('410游标过期保留旧视图并要求重新加载', async () => { mocks.getEvents.mockRejectedValue({ response:{ status:410 } }); const { state,wrapper } = setup(); await state.select('42'); await flushPromises(); expect(state.streamState.value).toBe('EXPIRED'); expect(state.detail.value?.id).toBe('42'); expect(state.error.value).toContain('重新加载'); wrapper.unmount() })
+  it('活跃任务阻止第二个turn，避免同会话并发修改', async () => { mocks.getSession.mockResolvedValue(envelope({ ...detail('42'),activeTaskId:'running' })); const { state,wrapper } = setup(); await state.select('42'); const result = await state.send({ text:'next',mode:'REACT',approvalMode:'ASK',modelId:'m',attachments:[],version:1 }); expect(result).toBe(false); expect(mocks.submit).not.toHaveBeenCalled(); wrapper.unmount() })
+  it('已导入历史可读取消息，程序调用也不能恢复旧会话执行', async () => { mocks.getSession.mockResolvedValue(envelope({ ...detail('42'),status:'HISTORICAL',runnerId:null,modelId:'0' })); const { state,wrapper } = setup(); await state.select('42'); expect(state.detail.value?.id).toBe('42'); const result = await state.send({ text:'continue legacy',mode:'REACT',approvalMode:'ASK',modelId:'m',attachments:[],version:1 }); expect(result).toBe(false); expect(mocks.submit).not.toHaveBeenCalled(); expect(state.error.value).toContain('只读'); wrapper.unmount() })
+  it('事件到达但详情刷新失败时不提前消费，重连重新取得权威快照', async () => {
+    const event = { eventId:'confirmed-event',sequence:1,type:'MESSAGE',payload:{ content:'中心新结果' },occurredAt:'2026-01-01T00:00:00Z' }
+    mocks.getSession.mockResolvedValueOnce(envelope(detail('42'))).mockRejectedValueOnce(new Error('快照断线')).mockResolvedValue(envelope({ ...detail('42'),title:'新快照',eventCursor:'1' }))
+    mocks.getEvents.mockResolvedValue(envelope({ events:[event],cursor:'1',hasMore:false,terminal:true }))
+    const { state,wrapper } = setup(); await state.select('42'); await flushPromises()
+    expect(state.streamState.value).toBe('DISCONNECTED'); expect(state.events.value).toEqual([]); expect(state.cursor.value).toBe('0')
+    await state.subscribe(); expect(state.detail.value?.title).toBe('新快照'); expect(state.events.value.map(value => value.eventId)).toEqual(['confirmed-event']); expect(state.cursor.value).toBe('1'); wrapper.unmount()
+  })
+})

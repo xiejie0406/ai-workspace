@@ -1,0 +1,137 @@
+{
+  "PreparedAt": "2026-10-03T13:32:46.0719768+08:00",
+  "PrivateRoot": "C:\\Users\\admin\\paicli-local-20261003T123101-ed12e6a6cb174b07bfd8db55753e8ac5\\acceptance-samples",
+  "DataOnly": true,
+  "DatabaseWrites": 0,
+  "Files": [
+    {
+      "Workspace": "A",
+      "Path": "文本/crlf-repeat.txt",
+      "Size": 45,
+      "SHA256": "5b74ad355625c1ed7ff23909eb6d39a852db1124e5e2b938a0a82cddab9ebe99"
+    },
+    {
+      "Workspace": "A",
+      "Path": "文本/long-2005.txt",
+      "Size": 20947,
+      "SHA256": "434062b332241ab8958ac2714d28b8bdb91b39e37005f6f924291df9fe11268f"
+    },
+    {
+      "Workspace": "A",
+      "Path": "src/demo/Parent.java",
+      "Size": 70,
+      "SHA256": "c5fa94f2da7e532ccfb20a7e48c68b1b4ef1d63f282d7b4d503cdd8912cb90c6"
+    },
+    {
+      "Workspace": "A",
+      "Path": "src/demo/Marker.java",
+      "Size": 54,
+      "SHA256": "14c94b719a04bb64981e71358a00d658483c50a2a860e332105151f00480f0b0"
+    },
+    {
+      "Workspace": "A",
+      "Path": "src/demo/Child.java",
+      "Size": 200,
+      "SHA256": "d34993dd5ece2f3572ad6189861fcf3d47193584e04c58cfdf612af960f888a5"
+    },
+    {
+      "Workspace": "A",
+      "Path": "settings.txt",
+      "Size": 12,
+      "SHA256": "0195cfb91d4301072ab2b258fd06787c082c4dbfe3e322d4c55e470ba165a794"
+    },
+    {
+      "Workspace": "B",
+      "Path": "隔离标记.txt",
+      "Size": 40,
+      "SHA256": "2b4855131661fc483365012c8a90f51288bf8287b18abbd52b0a03e0aef97a5c"
+    },
+    {
+      "Workspace": "A",
+      "Path": "规则/PAI-large-source.md",
+      "Size": 1344080,
+      "SHA256": "3ea784648e27a5fb1e6711030fb5ae3fb3994646f1cc35dee9fb62562ca31f08"
+    },
+    {
+      "Workspace": "A",
+      "Path": "规则/imports/code-style.md",
+      "Size": 55,
+      "SHA256": "e2123fcd56505336a0ab59e56ac1e1ffdeca7843b0d8b77ccc6c0dea7ef9b669"
+    },
+    {
+      "Workspace": "A",
+      "Path": "规则/invalid-utf8.bin",
+      "Size": 2,
+      "SHA256": "eddf68639913a3cb8331cdfe7f87559e0beccf2c289c0d90ac4d89b3204004f8"
+    },
+    {
+      "Workspace": "A",
+      "Path": "图片/valid-png.png",
+      "Size": 134,
+      "SHA256": "ea398fb05ccb86089664130d5f82f3dfcd1c06246305b21ecd8b7a8475f278b8"
+    },
+    {
+      "Workspace": "A",
+      "Path": "图片/valid-jpg.jpg",
+      "Size": 910,
+      "SHA256": "7d336fb2f5925b1eeb905121a37dad05c67552e324fbf29639890f592b76e1a7"
+    },
+    {
+      "Workspace": "A",
+      "Path": "图片/valid-webp.webp",
+      "Size": 56,
+      "SHA256": "34aa3097cb7d18f2d18a071b4693c0ff4d9df5d8e2593647f0783ce1977b6931"
+    },
+    {
+      "Workspace": "A",
+      "Path": "图片/invalid-image.png",
+      "Size": 13,
+      "SHA256": "c04bee9d659201c6647cbc29f7c2e1556b8370c54f4a50a32d84ceab2fddf6cd"
+    },
+    {
+      "Workspace": "A",
+      "Path": "图片/oversized-pixel-header.png",
+      "Size": 45,
+      "SHA256": "61a14771a2ecf9e51149c6811a30ff417ad220448a48df2504c974472dcea31a"
+    }
+  ],
+  "Expected": {
+    "UniqueReplacementOnRepeatedText": "拒绝，原文SHA不变",
+    "ReplaceAllSHA256": "6f0d2b67adadc1fa894a89ab4e1b29577c5ad68c248982ed7b455b7004f22a48",
+    "CRLFPreserved": true,
+    "LongTextLines": 2005,
+    "SnapshotInitial": "maxWorkers=4",
+    "SnapshotLaterEdit": "maxWorkers=6",
+    "GraphRelations": [
+      "Child extends Parent",
+      "Child implements Marker",
+      "Child imports java.util.Objects",
+      "Child.value calls Parent.value"
+    ],
+    "PAISource": {
+      "SourcePath": "PAI.md",
+      "UTF8Bytes": 1344080,
+      "SHA256": "3ea784648e27a5fb1e6711030fb5ae3fb3994646f1cc35dee9fb62562ca31f08",
+      "CRLFCount": 16003,
+      "FinalMarker": "PAI_SOURCE_END",
+      "ImportPath": "imports/code-style.md",
+      "ImportSHA256": "e2123fcd56505336a0ab59e56ac1e1ffdeca7843b0d8b77ccc6c0dea7ef9b669"
+    },
+    "Images": {
+      "ValidFormats": [
+        "PNG",
+        "JPEG",
+        "WEBP"
+      ],
+      "Width": 32,
+      "Height": 24,
+      "PNGAndWebPTransparentCorner": true,
+      "InvalidImage": "拒绝且不创建产物",
+      "OversizedPixels": 40000001,
+      "OversizedExpected": "在像素预算检查阶段拒绝，不解码分配40000001像素"
+    },
+    "InvalidPAISource": "严格UTF-8校验拒绝且不创建产物"
+  },
+  "SupplementedAt": "2026-10-03T14:06:47.857107+08:00",
+  "BusinessExecuted": 0
+}

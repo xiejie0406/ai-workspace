@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-03T08:15:32.687288+00:00",
+  "technicalOnly": true,
+  "realBusinessExecuted": 0,
+  "change": "MCP提示词正式目录保留完整对象及参数；原List<String>终端显示接口保留",
+  "source": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-core\\src\\main\\java\\com\\paicli\\mcp\\McpClient.java",
+      "sha256": "42b6ffa0d8d6a5042a746ee58dea6f92880cdd6c18079474559c5223d6dbc1c2",
+      "size": 14558
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-core\\src\\test\\java\\com\\paicli\\mcp\\McpClientTest.java",
+      "sha256": "b28dc1f7214085eaf52e2a20cbda823dd3b8b9e8b86e31fa9720df8e7fdc2999",
+      "size": 14546
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\src\\main\\java\\com\\paicli\\runner\\NativeControlExecutor.java",
+      "sha256": "c0e74c9be11d93e45e7816485986633fc20079caa28f1e911c8a0a016bc8ba19",
+      "size": 59814
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\src\\test\\java\\com\\paicli\\runner\\NativePromptCatalogueTest.java",
+      "sha256": "99ea9a1d2233ecf5fa6cd812d47fb5793488829240acc5c1388e81b5ae9f8833",
+      "size": 14396
+    }
+  ],
+  "regression": {
+    "result": "PASS",
+    "finishedAt": "2026-10-03T16:06:40+08:00",
+    "exitCode": 0,
+    "total": 30,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "classes": [
+      {
+        "class": "com.paicli.mcp.McpClientTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "xml": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-core\\target\\surefire-reports\\TEST-com.paicli.mcp.McpClientTest.xml",
+        "sha256": "f255806a4f0b451d756efaca6dc9d74678f5aba8e4a8a85b4b8128abc024537e"
+      },
+      {
+        "class": "com.paicli.runner.ManagedMcpTransportTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "xml": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\target\\surefire-reports\\TEST-com.paicli.runner.ManagedMcpTransportTest.xml",
+        "sha256": "e0809ab9a660e1bb72a432b94cc794dd11de9c230926c13e4d1241f3726166c4"
+      },
+      {
+        "class": "com.paicli.runner.NativeBrowserConnectionTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "xml": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\target\\surefire-reports\\TEST-com.paicli.runner.NativeBrowserConnectionTest.xml",
+        "sha256": "4f5d38beb3f785fbcaa8cdc7cd83385a8ce86492d2f1aa3a2ef507cc1291458c"
+      },
+      {
+        "class": "com.paicli.runner.NativeLargeControlEventTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "xml": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\target\\surefire-reports\\TEST-com.paicli.runner.NativeLargeControlEventTest.xml",
+        "sha256": "00df99ed518c1faec0553b08e9e1b8f780d296d73693f53ca4139e6cc60df7f9"
+      },
+      {
+        "class": "com.paicli.runner.NativePromptCatalogueTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "xml": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\target\\surefire-reports\\TEST-com.paicli.runner.NativePromptCatalogueTest.xml",
+        "sha256": "2bca47cc067b0c299bb10985138c79b2349507c65a1212db03461ddc7e55ba7f"
+      }
+    ],
+    "log": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-first.log",
+    "logSha256": "bf0d3f57e27b957ad93c8f6b4bfe8e50a095a80eca7fbc51329d109115eeb2e2",
+    "scope": "实际Native控制器+Core MCP客户端+内存MCP transport+fake HTTP中心，未执行真实外部MCP或中心导入/业务DB"
+  },
+  "expectations": [
+    "正式prompts对象保留name/description/title/arguments及未知字段",
+    "已上报目录可选择提示词，实际prompts/get仅携最终冻结批准参数",
+    "未知提示词/缺必填/未知参数不发送MCP RPC、不产生执行回执",
+    "超过4MiB目录经原chunk artifact保存完整值与canonical digests，不截断",
+    "非法required字段保留完整已收到安全响应，停止租约且不发送普通失败回执"
+  ],
+  "package": {
+    "result": "PASS",
+    "finishedAt": "2026-10-03T16:13:32+08:00",
+    "log": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-package.log",
+    "sha256": "784bbb917c2fe1b351fcff4316948c7374163099b85323595c1251dbffbdcbd7",
+    "testsDuringPackage": "SKIPPED; dedicated regression logs retained separately",
+    "originalJarsBackup": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\MCP提示词目录修复前\\jars"
+  },
+  "jars": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-core\\target\\paicli-core-3.9.2.jar",
+      "sha256": "71b4f45741e7b2b68e92efaf66d4c865c3bd8585fef654e2da79ed7940c4ae71",
+      "size": 951933,
+      "ownClassCount": 386,
+      "ownClassMajorVersions": {
+        "61": 386
+      },
+      "ownClassDiffFromTarget": [],
+      "mainManifest": "Manifest-Version: 1.0\r\nCreated-By: Maven JAR Plugin 3.5.0\r\nJava-Version: 17\r\nBuild-Jdk-Spec: 21\r\n\r\n"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-runner\\target\\paicli-runner-3.9.2.jar",
+      "sha256": "8ed9eb15862740c9ddcb7eb44253347838d3358abf025a2c94e7b29420cd3bd4",
+      "size": 209948,
+      "ownClassCount": 59,
+      "ownClassMajorVersions": {
+        "61": 59
+      },
+      "ownClassDiffFromTarget": [],
+      "mainManifest": "Manifest-Version: 1.0\r\nCreated-By: Maven JAR Plugin 3.5.0\r\nJava-Version: 17\r\nBuild-Jdk-Spec: 21\r\n\r\n"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-cli\\target\\paicli-cli-3.9.2.jar",
+      "sha256": "8b5716fed8e3550b6147c98a76672e7e0f0f377f0c8c35a1fd98f6ed3dc10773",
+      "size": 33374130,
+      "ownClassCount": 596,
+      "ownClassMajorVersions": {
+        "61": 596
+      },
+      "ownClassDiffFromTarget": [],
+      "mainManifest": "Manifest-Version: 1.0\r\nCreated-By: Maven JAR Plugin 3.5.0\r\nJava-Version: 17\r\nBuild-Jdk-Spec: 21\r\nMain-Class: com.paicli.cli.Main\r\n\r\n"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-eval\\target\\paicli-eval-3.9.2.jar",
+      "sha256": "123f3c29ac252405ebcc188430ff4a042e90e3799c6e4bb4ee7bf35a3718126d",
+      "size": 32988045,
+      "ownClassCount": 901,
+      "ownClassMajorVersions": {
+        "61": 901
+      },
+      "ownClassDiffFromTarget": [],
+      "mainManifest": "Manifest-Version: 1.0\r\nCreated-By: Maven JAR Plugin 3.3.0\r\nBuild-Jdk-Spec: 21\r\nMain-Class: com.paicli.eval.benchmark.BenchmarkCoordinatorMain\r\n\r\n"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-eval\\target\\paicli-eval-3.9.2-agentbench-runner.jar",
+      "sha256": "a896744e83b9b9ed9d3c420031cc3183ce242682b2093795e21bc47f1f5e2baa",
+      "size": 229275,
+      "ownClassCount": 109,
+      "ownClassMajorVersions": {
+        "61": 109
+      },
+      "ownClassDiffFromTarget": [],
+      "mainManifest": "Manifest-Version: 1.0\r\nCreated-By: Maven JAR Plugin 3.3.0\r\nBuild-Jdk-Spec: 21\r\nMain-Class: com.paicli.eval.benchmark.BenchmarkRelayWorkerMain\r\n\r\n"
+    }
+  ],
+  "sourceManifest": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-full-source-manifest.json",
+    "sha256": "3fd3e3b0ab9cb265ea854faf87790d72eea5eb2b05215791d0a1f9db65d1fa37",
+    "fileCount": 991,
+    "listSha256": "4ccb8e5cb9e10e30fc854d34b0caa7e1eb8306acace2c08266e5d3c4cca9c5c8",
+    "changesSinceCaptured": [],
+    "sourceFilesModifiedAfterBuildStart": [],
+    "preBuildFreeze": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-source-freeze.json",
+    "changesFromPreBuildFreeze": []
+  },
+  "sourceMigration": {
+    "count": 802,
+    "sourceModifiedOrTargetMissing": [],
+    "targetAlgorithmSafetyChanges": "intentional; target hash equality to original is not claimed"
+  },
+  "referenceAssets": {
+    "count": 83,
+    "mismatches": [],
+    "originalScriptsExecuted": false
+  },
+  "commands": {
+    "parserEntryCountIncludingNoneAndUnknown": 48,
+    "entries": [
+      "NONE",
+      "UNKNOWN_COMMAND",
+      "INIT_PROJECT_MEMORY",
+      "CANCEL",
+      "EXIT",
+      "CLEAR",
+      "COMPACT",
+      "HISTORY_CLEAR",
+      "SWITCH_MODEL",
+      "MODEL_MANAGE",
+      "SWITCH_PLAN",
+      "SWITCH_TEAM",
+      "SWITCH_HITL",
+      "SESSION_MODE",
+      "MEMORY_STATUS",
+      "MEMORY_CLEAR",
+      "MEMORY_LIST",
+      "MEMORY_DELETE",
+      "MEMORY_SEARCH",
+      "MEMORY_SAVE",
+      "MEMORY_VERIFY",
+      "MEMORY_REPLACE",
+      "INDEX_CODE",
+      "SEARCH_CODE",
+      "GRAPH_QUERY",
+      "CONTEXT_STATUS",
+      "POLICY_STATUS",
+      "AUDIT_TAIL",
+      "SNAPSHOT",
+      "RESTORE_SNAPSHOT",
+      "MCP_LIST",
+      "MCP_RESTART",
+      "MCP_LOGS",
+      "MCP_DISABLE",
+      "MCP_ENABLE",
+      "MCP_RESOURCES",
+      "MCP_PROMPTS",
+      "BROWSER",
+      "WECHAT",
+      "TASK",
+      "SKILL_LIST",
+      "SKILL_SHOW",
+      "SKILL_ON",
+      "SKILL_OFF",
+      "SKILL_RELOAD",
+      "BETTER_HARNESS",
+      "CONFIG",
+      "EXPORT"
+    ],
+    "sourceTargetEnumEqual": true,
+    "scope": "original enum source entry preservation; command centre semantics need independent tests"
+  },
+  "smokes": [
+    {
+      "name": "windows-cli-help",
+      "exitCode": 0,
+      "log": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-windows-cli-help.log",
+      "sha256": "572468086cd83a07fa322c833ef3a1d3f6d7fd32ef8f7ee698a79196d4e1767b",
+      "command": [
+        "powershell.exe",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\distribution\\windows\\paicli.ps1",
+        "--help"
+      ]
+    },
+    {
+      "name": "windows-runner-help",
+      "exitCode": 0,
+      "log": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-windows-runner-help.log",
+      "sha256": "036df8382b63a05879d62bbdf72174fe220f8110d4dfe42bd34eee0281ae6463",
+      "command": [
+        "powershell.exe",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\distribution\\windows\\runner.ps1",
+        "--help"
+      ]
+    },
+    {
+      "name": "windows-eval-help",
+      "exitCode": 0,
+      "log": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-windows-eval-help.log",
+      "sha256": "8cea6d9d7a43fc6af023e3135fdda1efdc34a1e74dc76a1c7fed1aa1c2f89464",
+      "command": [
+        "powershell.exe",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\distribution\\windows\\eval.ps1",
+        "--help"
+      ]
+    },
+    {
+      "name": "cli-spi",
+      "exitCode": 0,
+      "log": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-cli-spi.log",
+      "sha256": "fc334e1ebd4b39078e4b129ae377ea8b197fbe9afb0eab5fe11fd2ab3445ba7b",
+      "command": [
+        "C:\\Users\\admin\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe",
+        "-cp",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\distribution-probe-classes;D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-cli\\target\\paicli-cli-3.9.2.jar",
+        "NativeDistributionProbe",
+        "cli"
+      ]
+    },
+    {
+      "name": "eval-classpath",
+      "exitCode": 0,
+      "log": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-eval-classpath.log",
+      "sha256": "6b97e4673ec27a8ca89d4b36426a915ee68e37f912abd30752a32f2eed020c2f",
+      "command": [
+        "C:\\Users\\admin\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe",
+        "-cp",
+        "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\distribution-probe-classes;D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\paicli-eval\\target\\paicli-eval-3.9.2.jar",
+        "NativeDistributionProbe",
+        "eval"
+      ]
+    }
+  ],
+  "runtime": {
+    "compilerRelease": 17,
+    "ownClassMajorExpected": 61,
+    "executedJdk": "C:\\Users\\admin\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot",
+    "actualJava17RuntimeExecuted": false
+  },
+  "distributionChecks": {
+    "exitCode": 0,
+    "log": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-mcp-prompt-catalogue-distribution.log",
+    "sha256": "a9cabf8beb289ff899add1a496a67d49fc653033f79242cd4b2f813c494558d1",
+    "fullChecks": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\native-full-package-checks.json",
+    "fullChecksSha256": "fcd16fa6419dac45103e3f5b16be795762ba0f5a02cf4c5810f1cfacb0cbd6b5",
+    "distributionManifest": "D:\\2025Ai\\26-05-23\\java-workspace\\ruoyi-backend\\ruoyi-paicli\\distribution\\package-manifest.json",
+    "distributionManifestSha256": "fcd16fa6419dac45103e3f5b16be795762ba0f5a02cf4c5810f1cfacb0cbd6b5"
+  },
+  "oldProtected": {
+    "directory": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\MCP提示词目录修复前",
+    "manifest": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiCLI智能编码项目\\证据\\2026-10-03-完整功能与数据库\\MCP提示词目录修复前\\旧包与清单摘要.json",
+    "sha256": "f85f92bfe54141f1064f59bbc65e29a76920ceb7a69e29899023175cc59c89ab"
+  },
+  "notAdded": [
+    "prompts/list_changed handler",
+    "initialize protocolVersion协商",
+    "CDP协议检查"
+  ],
+  "limitations": [
+    "真实Provider/MCP/微信和业务验收未执行",
+    "Linux/macOS包装未在对应系统运行",
+    "正式Eval沿用真实未通过及Windows SecureDirectoryStream/工具链限制，不重复全量运行",
+    "公开再分发许可证尚待确认",
+    "真实用户快照归档恢复演练未执行"
+  ]
+}

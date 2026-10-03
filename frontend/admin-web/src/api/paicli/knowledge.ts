@@ -1,0 +1,11 @@
+import request from '@/utils/request'
+import type { PcEnvelope, PcPage, PcPageQuery, PcMemory, PcMemoryWriteResult, PcIndex, PcSearchHit, PcGraph, PcPendingReceipt, PcTask } from '@/types/paicli'
+export const listMemories = (params: PcPageQuery & { scope?: string }) => request({ url: '/paicli/v1/memories', method: 'get', params }) as unknown as Promise<PcPage<PcMemory>>
+export interface PcMemoryInput {workspaceId:string;scope:'PROJECT'|'PERSONAL';content:string;source:string;allowConflict?:boolean;conflictVersions?:Record<string,number>;replace_id?:string;replaceVersion?:number}
+export const saveMemory = (data: PcMemoryInput, key: string) => request({ url: '/paicli/v1/memories', method: 'post', data, headers: { 'Idempotency-Key': key } }) as unknown as Promise<PcEnvelope<PcMemory|PcMemoryWriteResult>>
+export const memoryAction = (id: string, action: 'verify' | 'replace' | 'coexist', version: number, content: string, key: string) => request({ url: `/paicli/v1/memories/${encodeURIComponent(id)}/${action}`, method: 'post', data: { content, version }, headers: { 'If-Match': String(version), 'Idempotency-Key': key } }) as unknown as Promise<PcEnvelope<PcMemory>>
+export const deleteMemory = (id: string, version: number, key: string) => request({ url: `/paicli/v1/memories/${encodeURIComponent(id)}`, method: 'delete', headers: { 'If-Match': String(version), 'Idempotency-Key': key } })
+export const getIndex = (workspaceId: string) => request({ url: '/paicli/v1/indexes', method: 'get', params: { workspaceId } }) as unknown as Promise<PcEnvelope<PcIndex | null>>
+export const rebuildIndex = (workspaceId: string, key: string) => request({ url: '/paicli/v1/indexes', method: 'post', data: { workspaceId }, headers: { 'Idempotency-Key': key } }) as unknown as Promise<PcEnvelope<PcTask>>
+export const searchRepository = (workspaceId: string, query: string, mode: 'EXACT' | 'SEMANTIC', signal?: AbortSignal) => request({ url: '/paicli/v1/search', method: 'get', params: { workspaceId, query, mode, limit: 50 }, signal }) as unknown as Promise<PcEnvelope<PcSearchHit[] | PcPendingReceipt>>
+export const getGraph = (workspaceId: string, query: string, signal?: AbortSignal) => request({ url: '/paicli/v1/graph', method: 'get', params: { workspaceId, query }, signal }) as unknown as Promise<PcEnvelope<PcGraph | PcPendingReceipt>>

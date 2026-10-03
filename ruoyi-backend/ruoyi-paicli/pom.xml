@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.ruoyi</groupId>
+  <artifactId>ruoyi-paicli</artifactId>
+  <version>3.9.2</version>
+  <packaging>pom</packaging>
+  <name>RuoYi :: PaiCLI</name>
+  <description>PaiCLI 独立业务聚合，中心 API 与本机执行/终端/评测依赖隔离</description>
+  <!-- 独立父 POM 保留原生 Jackson 2 等协议依赖，Boot 4 仅由 paicli-api 采用若依父 POM。 -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>17</maven.compiler.release>
+    <skipTests>false</skipTests>
+  </properties>
+  <modules>
+    <module>paicli-core</module>
+    <module>paicli-runner</module>
+    <module>paicli-cli</module>
+    <module>paicli-eval</module>
+    <module>paicli-api</module>
+  </modules>
+  <dependencyManagement>
+    <dependencies>
+      <dependency><groupId>com.ruoyi</groupId><artifactId>paicli-core</artifactId><version>3.9.2</version></dependency>
+      <dependency><groupId>com.ruoyi</groupId><artifactId>paicli-runner</artifactId><version>3.9.2</version></dependency>
+      <dependency><groupId>com.ruoyi</groupId><artifactId>paicli-cli</artifactId><version>3.9.2</version></dependency>
+      <dependency><groupId>com.ruoyi</groupId><artifactId>paicli-eval</artifactId><version>3.9.2</version></dependency>
+      <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>5.10.2</version><scope>test</scope></dependency>
+      <dependency><groupId>com.squareup.okhttp3</groupId><artifactId>mockwebserver</artifactId><version>4.12.0</version><scope>test</scope></dependency>
+      <dependency><groupId>org.mockito</groupId><artifactId>mockito-core</artifactId><version>5.11.0</version><scope>test</scope></dependency>
+    </dependencies>
+  </dependencyManagement>
+  <build><pluginManagement><plugins>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version><configuration><release>17</release><encoding>UTF-8</encoding><parameters>true</parameters></configuration></plugin>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.5.2</version><configuration><skipTests>${skipTests}</skipTests><argLine>-Dfile.encoding=UTF-8</argLine></configuration></plugin>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-shade-plugin</artifactId><version>3.5.1</version></plugin>
+  </plugins></pluginManagement><plugins>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId></plugin>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId></plugin>
+  </plugins></build>
+</project>

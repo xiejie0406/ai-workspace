@@ -1,0 +1,14 @@
+import { flushPromises,mount } from '@vue/test-utils'
+import { beforeEach,describe,expect,it,vi } from 'vitest'
+const mocks=vi.hoisted(()=>({permissions:['paicli:session:export'],ledger:vi.fn()}))
+vi.mock('@/store/modules/user',()=>({default:()=>({permissions:mocks.permissions,roles:['ordinary']})}))
+vi.mock('@/api/paicli/sessions',()=>({getSessionLedger:mocks.ledger}))
+import LedgerReader from '../components/LedgerReader.vue'
+import hasPermi from '@/directive/permission/hasPermi'
+const global={directives:{hasPermi},stubs:{ElDrawer:{template:'<div><slot /></div>'},ElButton:{props:['disabled','loading'],emits:['click'],template:'<button :disabled="disabled||loading" @click="$emit(\'click\')"><slot /></button>'},ElAlert:{props:['title'],template:'<p>{{title}}</p>'},ElEmpty:true}}
+describe('真实账本分页与固定读取范围',()=>{
+  beforeEach(()=>{mocks.permissions=['paicli:session:export'];mocks.ledger.mockReset()})
+  it('默认不读取账本，缺导出权限按钮消失且程序读取无API调用',async()=>{mocks.permissions=[];const wrapper=mount(LedgerReader,{props:{sessionId:'8'},global});expect(wrapper.findAll('button').some(button=>button.text()==='分页读取原始账本')).toBe(false);await(wrapper.vm as unknown as{start:()=>Promise<void>}).start();expect(mocks.ledger).not.toHaveBeenCalled();wrapper.unmount()})
+  it('下一批固定首次endSequence，原始system权限提示保持，正文只作转义文本',async()=>{mocks.ledger.mockResolvedValueOnce({data:{entries:[{sequence:1,message:'<script>未执行</script>'}],cursor:10,endSequence:50,hasMore:true,rawPromptIncluded:false}}).mockResolvedValueOnce({data:{entries:[{sequence:11}],cursor:50,endSequence:50,hasMore:false,rawPromptIncluded:false}});const wrapper=mount(LedgerReader,{props:{sessionId:'8'},global});expect(mocks.ledger).not.toHaveBeenCalled();await wrapper.findAll('button').find(button=>button.text()==='分页读取原始账本')!.trigger('click');await flushPromises();expect(wrapper.text()).toContain('已由中心移除');expect(wrapper.find('script').exists()).toBe(false);await wrapper.findAll('button').find(button=>button.text()==='下一批')!.trigger('click');await flushPromises();expect(mocks.ledger.mock.calls.map(call=>call.slice(0,3))).toEqual([['8',0,undefined],['8',10,50]]);expect(wrapper.findAll('button').find(button=>button.text()==='下一批')!.attributes('disabled')).toBeDefined();wrapper.unmount()})
+  it('翻页错误保留原批正文和页位置，切换会话清除旧账本',async()=>{mocks.ledger.mockResolvedValueOnce({data:{entries:[{sequence:1,message:'原批正文'}],cursor:10,endSequence:50,hasMore:true,rawPromptIncluded:false}}).mockRejectedValueOnce(new Error('账本读取失败'));const wrapper=mount(LedgerReader,{props:{sessionId:'8'},global});const vm=wrapper.vm as unknown as{start:()=>Promise<void>;next:()=>Promise<void>;position:number};await vm.start();await vm.next();expect(wrapper.text()).toContain('原批正文');expect(wrapper.text()).toContain('账本读取失败');expect(vm.position).toBe(0);await wrapper.setProps({sessionId:'9'});expect(wrapper.text()).not.toContain('原批正文');wrapper.unmount()})
+})

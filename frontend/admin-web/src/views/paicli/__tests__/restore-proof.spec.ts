@@ -1,0 +1,22 @@
+import {flushPromises,mount} from '@vue/test-utils'
+import {beforeEach,describe,expect,it,vi} from 'vitest'
+import type {PcRestorePreview,PcSnapshot,PcTaskDetail} from '@/types/paicli'
+const mocks=vi.hoisted(()=>({permissions:['paicli:snapshot:read','paicli:snapshot:restore'],list:vi.fn(),request:vi.fn(),preview:vi.fn(),restore:vi.fn()}))
+vi.mock('@/store/modules/user',()=>({default:()=>({permissions:mocks.permissions,roles:['ordinary']})}))
+vi.mock('@/api/paicli/sessions',()=>({listSnapshots:mocks.list,requestRestorePreview:mocks.request,previewRestore:mocks.preview,restoreSnapshot:mocks.restore}))
+import SnapshotDialog from '../components/SnapshotDialog.vue'
+import {requireRestoreProof} from '../shared/restoreProof'
+import hasPermi from '@/directive/permission/hasPermi'
+const Container={template:'<div><slot /></div>'},Button={props:['disabled','loading'],emits:['click'],template:'<button :disabled="disabled||loading" @click="$emit(\'click\')"><slot /></button>'}
+const global={directives:{hasPermi},stubs:{ElDialog:Container,ElButton:Button,ElAlert:{props:['title'],template:'<p>{{title}}</p>'},ElTable:true,ElTableColumn:true,ElEmpty:true,ElCheckbox:Container,ElCollapse:Container,ElCollapseItem:Container,OperationTask:true,ArtifactEvidence:true}}
+const snapshot:PcSnapshot={id:'11',sessionId:'8',turnId:'1',kind:'MANUAL',createdAt:'',version:1,files:2,sha256:'a'.repeat(64)}
+const task={id:'99',workspaceId:'42',status:'COMPLETED'} as PcTaskDetail
+function proof():PcRestorePreview{return {snapshotId:'11',commitId:'c'.repeat(40),version:2,currentFingerprint:'a'.repeat(64),files:[{path:'src/a.java',status:'MODIFY',currentHash:'a'.repeat(64),targetHash:'b'.repeat(64),currentMode:420,targetMode:420,diff:'真实小文本差异'}],conflicts:[],canRestore:true}}
+describe('恢复预览真实字段与只读排队闭合',()=>{
+  beforeEach(()=>{mocks.permissions=['paicli:snapshot:read','paicli:snapshot:restore'];for(const name of ['list','request','preview','restore'] as const)mocks[name].mockReset();mocks.list.mockResolvedValue({data:[snapshot]});mocks.request.mockResolvedValue({data:task})})
+  it('原producer文件名列表不是proof；缺hash/跨快照/错误ADD空值均拒绝',()=>{expect(()=>requireRestoreProof({commitId:'abc',restoredFiles:['src/a.java']},'11')).toThrow('真实当前指纹');expect(()=>requireRestoreProof(proof(),'12')).toThrow();const missing=proof();missing.files[0]!.currentHash=null;expect(()=>requireRestoreProof(missing,'11')).toThrow();missing.files[0]!.status='ADD';expect(requireRestoreProof(missing,'11').files[0]!.currentHash).toBeNull();missing.files[0]!.currentHash='a'.repeat(64);expect(()=>requireRestoreProof(missing,'11')).toThrow()})
+  it('真实DELETE targetHash=null及冲突原样保留，不补global diff或虚构动作',()=>{const value=proof();value.files[0]!.status='DELETE';value.files[0]!.targetHash=null;value.conflicts=['当前文件被占用'];value.canRestore=false;expect(requireRestoreProof(value,'11')).toBe(value);expect('diff' in value).toBe(false)})
+  it('只排队预览，不提前读取或恢复；任务完成后读完整proof',async()=>{mocks.preview.mockResolvedValue({data:proof()});const wrapper=mount(SnapshotDialog,{props:{modelValue:false,sessionId:'8'},global});await wrapper.setProps({modelValue:true});await flushPromises();const vm=wrapper.vm as unknown as{preview:(row:PcSnapshot)=>Promise<void>;settled:(row:PcTaskDetail)=>Promise<void>};await vm.preview(snapshot);expect(mocks.request.mock.calls[0].slice(0,2)).toEqual(['11',1]);expect(mocks.preview).not.toHaveBeenCalled();expect(mocks.restore).not.toHaveBeenCalled();await vm.settled({...task,status:'FAILED'});expect(mocks.preview).not.toHaveBeenCalled();await vm.settled(task);expect(mocks.preview).toHaveBeenCalledWith('11');expect(wrapper.text()).toContain('c'.repeat(40));wrapper.unmount()})
+  it('任务完成但仍只有文件名时显示proof缺口，页面不异常且恢复未开放',async()=>{mocks.preview.mockResolvedValue({data:{commitId:'abc',restoredFiles:['src/a.java']}});const wrapper=mount(SnapshotDialog,{props:{modelValue:false,sessionId:'8'},global});const vm=wrapper.vm as unknown as{preview:(row:PcSnapshot)=>Promise<void>;settled:(row:PcTaskDetail)=>Promise<void>};await vm.preview(snapshot);await vm.settled(task);expect(wrapper.text()).toContain('禁止提交恢复');expect(wrapper.findAll('button').some(button=>button.text()==='提交恢复申请')).toBe(false);expect(mocks.restore).not.toHaveBeenCalled();wrapper.unmount()})
+  it('历史只读覆盖已授予snapshot权限，程序预览不派发',async()=>{const wrapper=mount(SnapshotDialog,{props:{modelValue:false,sessionId:'8',readonly:true},global});await(wrapper.vm as unknown as{preview:(row:PcSnapshot)=>Promise<void>}).preview(snapshot);expect(mocks.request).not.toHaveBeenCalled();wrapper.unmount()})
+})
