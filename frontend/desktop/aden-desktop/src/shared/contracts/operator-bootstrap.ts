@@ -16,7 +16,7 @@ const CAPABILITY_STATES = new Set(['AVAILABLE', 'GATED', 'DISABLED', 'EXPERIMENT
 const CAPABILITIES = new Set(['CORE', 'WX', 'PUR', 'COL'])
 
 /** Bootstrap 的主进程 runtime Schema 边界；未知字段、枚举和 int64 number 均拒绝。 */
-export function parseWorkspaceBootstrap(value: unknown): WorkspaceBootstrapSnapshot {
+export function parseWorkspaceBootstrap(value: unknown, allowRestricted = false): WorkspaceBootstrapSnapshot {
   const body = exactObject(value, [
     'schemaVersion', 'workspace', 'tasks', 'runners', 'capabilities', 'snapshotQueryHash',
     'streamFilter', 'streamWatermark', 'streamCursor', 'generatedAt'
@@ -38,9 +38,11 @@ export function parseWorkspaceBootstrap(value: unknown): WorkspaceBootstrapSnaps
 
   if (!Array.isArray(body.runners) || body.runners.length > 100) throw new TypeError('runners 非法')
   body.runners.forEach(parseRunner)
-  if (!Array.isArray(body.capabilities) || body.capabilities.length !== 4) throw new TypeError('capabilities 必须恰好四项')
+  if (!Array.isArray(body.capabilities)) throw new TypeError('capabilities 非法')
+  const restricted = allowRestricted && body.capabilities.length === 0 && tasks.items.length === 0 && body.runners.length === 0
+  if (!restricted && body.capabilities.length !== 4) throw new TypeError('capabilities 必须恰好四项')
   const codes = new Set(body.capabilities.map(parseCapability))
-  if (codes.size !== 4 || [...CAPABILITIES].some((code) => !codes.has(code))) throw new TypeError('capabilities 必须各包含 CORE/WX/PUR/COL 一项')
+  if (!restricted && (codes.size !== 4 || [...CAPABILITIES].some((code) => !codes.has(code)))) throw new TypeError('capabilities 必须各包含 CORE/WX/PUR/COL 一项')
   sha(body.snapshotQueryHash, 'snapshotQueryHash')
   parseCanonicalInt64(body.streamWatermark)
   nonEmpty(body.streamCursor, 'streamCursor', 768)

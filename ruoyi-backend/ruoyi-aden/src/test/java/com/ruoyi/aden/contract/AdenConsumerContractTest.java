@@ -92,6 +92,23 @@ class AdenConsumerContractTest {
     }
 
     @Test
+    void collectionMissingConfirmationIsScopedToEachSection() throws Exception {
+        Map<String, Object> document = readObject("collection-v1.openapi.json");
+        Map<String, Object> schemas = object(object(document.get("components")).get("schemas"));
+        Map<String, Object> aggregateProperties = object(object(schemas.get("Extraction")).get("properties"));
+        assertTrue(!aggregateProperties.containsKey("missingConfirmed"), "总载荷不能替代逐区确认");
+        Map<String, Object> section = object(schemas.get("ExtractionSection"));
+        Map<String, Object> properties = object(section.get("properties"));
+        assertEquals("boolean", object(properties.get("missingConfirmed")).get("type"));
+        Map<String, Object> condition = object(list(section.get("allOf")).get(0));
+        assertEquals(List.of("missingReason"), list(object(condition.get("if")).get("required")));
+        Map<String, Object> confirmed = object(condition.get("then"));
+        assertEquals(List.of("missingConfirmed"), list(confirmed.get("required")));
+        assertEquals(true, object(object(confirmed.get("properties")).get("missingConfirmed")).get("const"));
+        assertEquals(false, object(object(object(condition.get("else")).get("properties")).get("missingConfirmed")).get("const"));
+    }
+
+    @Test
     void publicCommandConsumerMatchesSchemaAndRejectsInternalCommands() throws Exception {
         Set<String> schemaCommands = operatorCommandsFromSchema();
         Set<String> consumerCommands = Arrays.stream(OperatorTaskCommand.values())

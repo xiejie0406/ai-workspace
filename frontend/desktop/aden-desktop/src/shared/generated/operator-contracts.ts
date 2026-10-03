@@ -36,7 +36,7 @@ export type RunnerSessionState = "ACTIVE" | "EXPIRED" | "REVOKED" | "SUPERSEDED"
 
 export type DeliveryState = "READY" | "LEASED" | "RUNNING" | "COMPLETED" | "FAILED_RETRYABLE" | "FAILED_FINAL" | "CANCELED" | "OUTCOME_UNKNOWN"
 
-export type ErrorCode = "ADEN_INVALID_ARGUMENT" | "ADEN_STREAM_CURSOR_INVALID" | "ADEN_AUTH_REQUIRED" | "ADEN_RUNNER_AUTH_INVALID" | "ADEN_PERMISSION_DENIED" | "ADEN_EXTERNAL_ACTION_DISABLED" | "ADEN_TASK_NOT_FOUND" | "ADEN_RUNNER_NOT_FOUND" | "ADEN_STATE_TRANSITION_DENIED" | "ADEN_IDEMPOTENCY_KEY_REUSED" | "ADEN_RUNNER_LEASE_LOST" | "ADEN_SESSION_EPOCH_STALE" | "ADEN_RECEIPT_STALE" | "ADEN_OUTCOME_UNKNOWN" | "ADEN_STREAM_CURSOR_EXPIRED" | "ADEN_VERSION_CONFLICT" | "ADEN_TASK_VALIDATION_FAILED" | "ADEN_PRECONDITION_REQUIRED" | "ADEN_RATE_LIMITED" | "ADEN_DEPENDENCY_UNAVAILABLE" | "ADEN_AUDIT_UNAVAILABLE"
+export type ErrorCode = "ADEN_INVALID_ARGUMENT" | "ADEN_STREAM_CURSOR_INVALID" | "ADEN_AUTH_REQUIRED" | "ADEN_RUNNER_AUTH_INVALID" | "ADEN_PERMISSION_DENIED" | "ADEN_EXTERNAL_ACTION_DISABLED" | "ADEN_TASK_NOT_FOUND" | "ADEN_RUNNER_NOT_FOUND" | "ADEN_STATE_TRANSITION_DENIED" | "ADEN_DEFAULT_WORKSPACE_UNAVAILABLE" | "ADEN_IDEMPOTENCY_KEY_REUSED" | "ADEN_RUNNER_LEASE_LOST" | "ADEN_SESSION_EPOCH_STALE" | "ADEN_RECEIPT_STALE" | "ADEN_OUTCOME_UNKNOWN" | "ADEN_STREAM_CURSOR_EXPIRED" | "ADEN_VERSION_CONFLICT" | "ADEN_TASK_VALIDATION_FAILED" | "ADEN_PRECONDITION_REQUIRED" | "ADEN_RATE_LIMITED" | "ADEN_DEPENDENCY_UNAVAILABLE" | "ADEN_AUDIT_UNAVAILABLE"
 
 export type ErrorEnvelope = { readonly code: 400 | 401 | 403 | 404 | 409 | 410 | 412 | 422 | 428 | 429 | 503; readonly msg: string; readonly data: null; readonly errorCode: ErrorCode; readonly retryable: boolean; readonly correlationId: CorrelationId; readonly details?: { readonly [key: string]: string | number | boolean | null } }
 
@@ -72,7 +72,7 @@ export type EnrollRunnerRequest = { readonly displayName: string; readonly capab
 
 export type RunnerEnrollmentResponse = { readonly runnerId: Uuid; readonly credentialId: Uuid; readonly credentialToken: string; readonly credentialEpoch: CanonicalInt64String; readonly expiresAt: UtcDateTime; readonly issuedAt: UtcDateTime }
 
-export type WorkspaceBootstrapSnapshot = { readonly schemaVersion: 1; readonly workspace: WorkspaceSnapshot; readonly tasks: TaskPage; readonly runners: readonly (RunnerSummary)[]; readonly capabilities: CapabilityProjectionList; readonly snapshotQueryHash: Sha256; readonly streamFilter: "workspace-all-v1"; readonly streamWatermark: CanonicalInt64String; readonly streamCursor: StreamCursor; readonly generatedAt: UtcDateTime }
+export type WorkspaceBootstrapSnapshot = { readonly schemaVersion: 1; readonly workspace: WorkspaceSnapshot; readonly tasks: TaskPage; readonly runners: readonly (RunnerSummary)[]; readonly capabilities: CapabilityProjectionList | readonly (CapabilityProjection)[]; readonly snapshotQueryHash: Sha256; readonly streamFilter: "workspace-all-v1"; readonly streamWatermark: CanonicalInt64String; readonly streamCursor: StreamCursor; readonly generatedAt: UtcDateTime }
 
 export type PublicProjectionState = "DRAFT" | "VALIDATING" | "QUEUED" | "RUNNING" | "WAITING_USER" | "WAITING_EXTERNAL" | "CANCEL_REQUESTED" | "SUCCEEDED" | "FAILED" | "CANCELED" | "ONLINE" | "OFFLINE" | "LEASED" | "QUARANTINED" | "AVAILABLE" | "GATED" | "DISABLED" | "EXPERIMENTAL"
 

@@ -12,4 +12,11 @@ $destination = Join-Path $desktopRoot 'test-results/collector-native'
 New-Item -ItemType Directory -Path $destination -Force | Out-Null
 & $PythonExecutable -m PyInstaller --noconfirm --onefile --console --name AdenCollectorHost --distpath (Join-Path $destination 'dist') --workpath (Join-Path $destination 'build') --specpath $destination (Join-Path $repoRoot 'python/aden-runner/src/aden_runner/native_host/__main__.py')
 if ($LASTEXITCODE -ne 0) { throw "Native Host构建失败：$LASTEXITCODE" }
-Get-FileHash -LiteralPath (Join-Path $destination 'dist/AdenCollectorHost.exe') -Algorithm SHA256
+$hostExecutable = Join-Path $destination 'dist/AdenCollectorHost.exe'
+$hashStream = [IO.File]::OpenRead($hostExecutable)
+try {
+    $sha256 = [Security.Cryptography.SHA256]::Create()
+    try { $digest = [BitConverter]::ToString($sha256.ComputeHash($hashStream)).Replace('-', '') }
+    finally { $sha256.Dispose() }
+} finally { $hashStream.Dispose() }
+Write-Host "AdenCollectorHost.exe SHA256 $digest"

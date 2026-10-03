@@ -1,10 +1,13 @@
 import type { EventBatch, EpochContext } from './operator-events'
 import type { CollectionApi } from './collection'
+import type { CollectionSetupApi } from './collection-setup'
 import type {
   CreateTaskRequest,
   OperatorTaskCommandRequest,
   TaskSnapshot,
-  WorkspaceListResponse
+  WorkspaceListResponse,
+  WorkspaceSnapshot,
+  WorkspaceBootstrapSnapshot
 } from '../generated/operator-contracts'
 
 export const DESKTOP_IPC = Object.freeze({
@@ -21,7 +24,8 @@ export const DESKTOP_IPC = Object.freeze({
   commandTask: 'aden:tasks:command',
   eventBatch: 'aden:events:batch',
   streamStatus: 'aden:events:status',
-  collection: 'aden:collection:execute'
+  collection: 'aden:collection:execute',
+  collectionSetup: 'aden:collection:setup'
 })
 
 export interface CaptchaChallenge {
@@ -49,6 +53,8 @@ export interface AuthenticatedUser {
   readonly roles: readonly string[]
   readonly permissions: readonly string[]
   readonly session: SessionContext
+  readonly workspace?: WorkspaceSnapshot
+  readonly bootstrap?: WorkspaceBootstrapSnapshot
 }
 
 export interface StreamStatus extends EpochContext {
@@ -62,6 +68,7 @@ export interface IpcResult<T> {
 }
 
 export interface AdenRuntimeInfo {
+  readonly appVersion?: string
   readonly platform: string
   readonly versions: { readonly electron: string; readonly chrome: string }
 }
@@ -99,6 +106,7 @@ export interface TaskMutationResult {
 }
 
 export interface AdenDesktopApi {
+  readonly collectionSetup: CollectionSetupApi
   readonly collection: CollectionApi
   readonly getRuntimeInfo: () => AdenRuntimeInfo
   readonly auth: {

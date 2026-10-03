@@ -1,15 +1,18 @@
 import { spawn, spawnSync, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { join } from 'node:path'
+import { createHash, randomBytes } from 'node:crypto'
 import type { SessionController, SessionContext } from '../auth/session-controller'
 import type { AdenApiClient } from '../transport/api-client'
 import { assertCollectorSession, collectorUuid, COLLECTOR_EXTENSION_ID, MAX_COLLECTOR_FRAME, parseCollectorRequest } from './protocol'
+import { validateCaptureExtraction } from './extraction'
+import type { CollectionLibraryTarget } from '../../shared/contracts/collection'
 
 export interface CollectorBridgeOptions {
   helperPath: string
   session: SessionController
   api: AdenApiClient
   confirmPair: (workspaceId: string) => Promise<boolean>
-  openLibrary: () => void
+  openLibrary: (target?: CollectionLibraryTarget) => void
   onFailure?: (code: string) => void
   pipePath?: string
 }
@@ -22,6 +25,14 @@ export class CollectorBridge {
   #buffer = ''
   #queue: Promise<void> = Promise.resolve()
   #disposed = false
+  #nonce: string | null = null
+  #expiresAt: string | null = null
+  #lastSequence = -1n
+  readonly #acknowledgements = new Map<string, { fingerprint: string; response: Record<string, unknown> }>()
+
+  #resetProof(): void {
+    this.#nonce = null; this.#expiresAt = null; this.#lastSequence = -1n; this.#acknowledgements.clear()
+  }
 
   constructor(readonly options: CollectorBridgeOptions) {}
 
@@ -54,6 +65,7 @@ export class CollectorBridge {
     child.on('exit', () => {
       this.#context = null
       this.#child = null
+      this.#resetProof()
       this.#connectionGeneration++
       if (!this.#disposed) this.options.onFailure?.('COLLECTOR_PIPE_STOPPED')
     })
@@ -63,6 +75,7 @@ export class CollectorBridge {
     this.#disposed = true
     this.#context = null
     this.#connectionGeneration++
+    this.#resetProof()
     this.#child?.stdin.end()
     this.#child?.kill()
     this.#child = null
@@ -85,6 +98,7 @@ export class CollectorBridge {
       if (event.kind === 'connected' || event.kind === 'disconnected') {
         this.#context = null
         this.#connectionGeneration++
+        this.#resetProof()
       } else if (event.kind === 'message') {
         const connectionGeneration = this.#connectionGeneration
         this.#queue = this.#queue.then(async () => {
@@ -106,13 +120,37 @@ export class CollectorBridge {
     try {
       const request = parseCollectorRequest(value)
       messageId = request.messageId
+      if (request.type !== 'hello') {
+        assertCollectorSession(this.#context, this.options.session.context())
+        if (!this.#nonce || request.nonce !== this.#nonce || request.expiresAt !== this.#expiresAt) {
+          throw Object.assign(new Error('连接已失效，请重新连接插件。'), { code: 'SESSION_REVOKED' })
+        }
+        if (Date.now() >= Date.parse(this.#expiresAt!)) throw Object.assign(new Error('连接确认已过期，请重新连接后继续。'), { code: 'COLLECTOR_PROOF_EXPIRED' })
+        const fingerprint = createHash('sha256').update(canonicalJson(request)).digest('hex')
+        const cached = this.#acknowledgements.get(messageId)
+        if (cached) {
+          if (cached.fingerprint !== fingerprint) throw Object.assign(new Error('同一消息编号的内容不一致。'), { code: 'COLLECTOR_REPLAY_CONFLICT' })
+          return cached.response
+        }
+        const sequence = BigInt(request.sequence!)
+        if (sequence <= this.#lastSequence) throw Object.assign(new Error('消息顺序已过期，请重新连接。'), { code: 'COLLECTOR_SEQUENCE_REJECTED' })
+        this.#lastSequence = sequence
+        let response: Record<string, unknown>
+        const nonce = this.#nonce
+        try {
+          const data = await this.#dispatch(request.type, request.payload)
+          response = { protocolVersion: 1, messageId, ok: true, data }
+          if (Buffer.byteLength(JSON.stringify(response)) > MAX_COLLECTOR_FRAME) throw Object.assign(new Error('响应过大，请在桌面端查看。'), { code: 'RESPONSE_TOO_LARGE' })
+        } catch (error) { response = collectorError(messageId, error) }
+        if (nonce !== this.#nonce) return collectorError(messageId, Object.assign(new Error('连接已变化，请重新核对保存结果。'), { code: 'SESSION_REVOKED' }))
+        this.#acknowledgements.set(messageId, { fingerprint, response })
+        while (this.#acknowledgements.size > 64) this.#acknowledgements.delete(this.#acknowledgements.keys().next().value!)
+        return response
+      }
       const data = await this.#dispatch(request.type, request.payload)
       return { protocolVersion: 1, messageId, ok: true, data }
     } catch (error) {
-      const message = error instanceof Error ? error.message : '采集操作失败'
-      const code = error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
-        ? error.code : 'COLLECTOR_REQUEST_REJECTED'
-      return { protocolVersion: 1, messageId, ok: false, error: { code, message: message.slice(0, 300) } }
+      return collectorError(messageId, error)
     }
   }
 
@@ -121,7 +159,7 @@ export class CollectorBridge {
     if (type === 'hello') {
       if (payload.extensionId !== COLLECTOR_EXTENSION_ID) throw new Error('扩展身份不匹配')
       const context = session.context()
-      if (!context.authenticated || !context.workspaceId) throw Object.assign(new Error('请先登录 Aden 并选择工作空间'), { code: 'AUTH_REQUIRED' })
+      if (!context.authenticated || !context.workspaceId) throw Object.assign(new Error('请先登录 Aden，后台将确定你的业务范围。'), { code: 'AUTH_REQUIRED' })
       const generation = this.#connectionGeneration
       if (!this.#context || !session.isCurrent(this.#context)) {
         if (!await this.options.confirmPair(context.workspaceId)) throw new Error('用户未允许插件连接')
@@ -131,14 +169,24 @@ export class CollectorBridge {
       if (!/^[0-9]{1,20}$/.test(principalId)) throw new Error('无法确定当前账号身份')
       if (!session.isCurrent(context) || generation !== this.#connectionGeneration) throw Object.assign(new Error('连接期间会话已变化，请重新连接'), { code: 'SESSION_REVOKED' })
       this.#context = context
+      this.#resetProof()
+      this.#nonce = randomBytes(32).toString('hex')
+      this.#expiresAt = new Date(Date.now() + 120_000).toISOString()
       return { connected: true, workspaceId: context.workspaceId, principalId, protocolVersion: 1,
-        maxChunkBytes: 128 * 1024, maxFrameBytes: MAX_COLLECTOR_FRAME }
+        maxChunkBytes: 128 * 1024, maxFrameBytes: MAX_COLLECTOR_FRAME,
+        proofRequired: true, nonce: this.#nonce, expiresAt: this.#expiresAt }
     }
     const bound = this.#context
     assertCollectorSession(bound, session.context())
     const base = `/api/v1/aden/collection/workspaces/${encodeURIComponent(bound.workspaceId!)}`
     if ('workspaceId' in payload) throw new Error('插件不能指定工作空间')
-    if (type === 'library.open') { this.options.openLibrary(); return { opened: true } }
+    if (type === 'library.open') {
+      if (Object.keys(payload).some(key => !['view', 'captureId', 'taskId'].includes(key))) throw new Error('打开资料参数非法')
+      if (payload.captureId !== undefined) collectorUuid(payload.captureId)
+      if (payload.view !== undefined && payload.view !== 'task') throw new Error('打开资料目标非法')
+      const target: CollectionLibraryTarget = payload.view === 'task' ? { view: 'task', ...(payload.taskId !== undefined ? { taskId: collectorUuid(payload.taskId) } : {}) } : {}
+      this.options.openLibrary(target); return { opened: true }
+    }
     if (type === 'capture.lookup') {
       if (typeof payload.sku !== 'string' || !/^\d{1,32}$/.test(payload.sku)) throw new Error('商品SKU非法')
       const response = await api.request({ path: `${base}/items/lookup?sku=${encodeURIComponent(payload.sku)}` })
@@ -151,6 +199,7 @@ export class CollectorBridge {
     if (type === 'capture.prepare') {
       collectorUuid(payload.captureId)
       if (payload.source !== 'JD') throw new Error('插件只允许采集京东商品')
+      validateCaptureExtraction(payload.extraction)
       path = `${base}/captures`
     } else {
       const captureId = collectorUuid(payload.captureId)
@@ -173,4 +222,16 @@ export class CollectorBridge {
     assertCollectorSession(bound, session.context())
     return response.data
   }
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']'
+  if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map(key => JSON.stringify(key) + ':' + canonicalJson((value as Record<string, unknown>)[key])).join(',') + '}'
+  return JSON.stringify(value) ?? 'null'
+}
+
+function collectorError(messageId: string, error: unknown): Record<string, unknown> {
+  const message = error instanceof Error ? error.message : '采集操作失败'
+  const code = error && typeof error === 'object' && 'code' in error && typeof error.code === 'string' ? error.code : 'COLLECTOR_REQUEST_REJECTED'
+  return { protocolVersion: 1, messageId, ok: false, error: { code, message: message.slice(0, 300) } }
 }

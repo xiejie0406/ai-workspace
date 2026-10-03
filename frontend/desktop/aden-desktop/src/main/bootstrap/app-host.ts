@@ -78,15 +78,15 @@ export class AdenAppHost {
       confirmPair: async (workspaceId) => {
         const result = await dialog.showMessageBox(window, {
           type: 'question', title: '连接商品采集扩展',
-          message: '允许 Chrome 商品采集扩展连接当前工作空间？',
-          detail: `扩展可将你主动采集的商品和图片保存到当前工作空间。\n工作空间：${workspaceId}`,
+          message: '允许 Chrome 商品采集扩展连接当前账号？',
+          detail: '扩展只保存你主动提取并确认的商品内容和图片。切换账号后需要重新连接。',
           buttons: ['允许连接', '取消'], defaultId: 1, cancelId: 1, noLink: true
         })
         return result.response === 0
       },
-      openLibrary: () => {
+      openLibrary: (target) => {
         this.activate()
-        this.#send('aden:collection:open-library', {})
+        this.#send('aden:collection:open-library', target ?? {})
       },
       onFailure: (code) => process.stderr.write(`${code}\n`)
     })

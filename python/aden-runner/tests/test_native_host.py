@@ -62,6 +62,9 @@ def test_reject_out_of_bounds_chunk():
                 "protocolVersion": 1,
                 "messageId": "a",
                 "type": "asset.chunk",
+                "nonce": "synthetic-nonce-0123456789",
+                "sequence": "1",
+                "expiresAt": "2026-10-01T00:02:00Z",
                 "payload": {"dataBase64": "YQ==", "offset": 2, "totalSize": 1, "sha256": "a" * 64},
             }
         )
@@ -111,3 +114,32 @@ def test_long_lived_bridge_keeps_two_message_correlations():
     assert bridge.ids == ["hello1", "status2"]
     assert read_message(destination)["messageId"] == "hello1"
     assert read_message(destination)["messageId"] == "status2"
+
+
+def proved_message():
+    return {"protocolVersion": 1, "messageId": "a", "type": "capture.status", "payload": {},
+            "nonce": "synthetic-nonce-0123456789", "sequence": "9007199254740993", "expiresAt": "2026-10-01T00:02:00.000Z"}
+
+
+def test_connection_proof_preserves_decimal_sequence():
+    value = proved_message()
+    validate_message(value)
+    stream = io.BytesIO()
+    write_message(stream, value)
+    stream.seek(0)
+    assert read_message(stream)["sequence"] == "9007199254740993"
+
+
+@pytest.mark.parametrize("patch", [
+    {"nonce": ""}, {"sequence": 1}, {"sequence": "01"}, {"sequence": "0"},
+    {"expiresAt": "2026-10-01T00:02:00+08:00"}, {"expiresAt": "2026-99-01T00:02:00Z"},
+    {"unknown": True},
+])
+def test_reject_malformed_connection_proof(patch):
+    with pytest.raises(ValueError):
+        validate_message(proved_message() | patch)
+
+
+def test_legacy_non_hello_requires_upgrade():
+    with pytest.raises(ValueError, match="升级"):
+        validate_message({"protocolVersion": 1, "messageId": "a", "type": "capture.status", "payload": {}})

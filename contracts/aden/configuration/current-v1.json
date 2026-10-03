@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "configurationVersion": "1.0.0",
+  "configurationVersion": "1.1.0",
   "bindingPrefix": "aden",
   "bindingModel": "Spring Boot external configuration with relaxed environment-variable binding",
   "defaultProfile": "productionDefault",
@@ -192,6 +192,14 @@
       "minimum": 10,
       "maximum": 2678400,
       "externallyConfigurable": true
+    },
+    {
+      "id": "defaultWorkspaceId",
+      "externalKey": "aden.workspace.default-workspace-id",
+      "type": "string",
+      "productionDefault": "",
+      "externallyConfigurable": true,
+      "description": "Explicit existing default workspace; invalid configured membership fails closed. Empty selects only a sole active membership, never creates a workspace."
     }
   ],
   "invariants": [

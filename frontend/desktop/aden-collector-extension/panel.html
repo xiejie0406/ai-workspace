@@ -1,11 +1,22 @@
-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aden 商品采集</title><link rel="stylesheet" href="panel.css"><body>
-<h1>商品采集</h1><p>自行打开京东详情页，选择规格并加载需要的内容后采集。</p>
-<button id="connect">连接 Aden</button><button id="preview">识别当前商品</button>
-<section aria-label="当前商品"><h2 id="title">尚未识别商品</h2><p id="spec"></p><p id="scope">仅保存当前已加载的商品区块，未加载内容不会自动补抓。</p></section>
-<fieldset><legend>采集图片范围</legend><label><input type="checkbox" value="MAIN" checked>主图</label><label><input type="checkbox" value="GALLERY" checked>轮播图</label><label><input type="checkbox" value="DETAIL" checked>详情图</label></fieldset>
-<button id="permission" disabled>授权本页图片域名</button><p>同一商品再次采集将新增快照版本，旧版本保留。</p><button id="capture" disabled>采集当前商品并新增快照</button><button id="stop">停止后续图片</button>
-<p id="status" role="status" aria-live="polite">请先打开 Aden 并连接工作空间</p><ul id="failures"></ul>
-<button id="refresh">查询上次保存结果</button><button id="retry">重试未保存图片</button><button id="library">查看已采集商品</button>
-<section aria-label="离线暂存"><h2>离线暂存</h2><p>最多 24 小时、共 100 MiB。恢复前核对账号和工作空间；恢复只上传已存字节，不访问源站。</p><button id="pending">查询离线暂存</button><label>选择待恢复商品<select id="pendingList" aria-label="待恢复商品"></select></label><button id="resume">恢复所选暂存</button><button id="clearSpool">清理离线暂存</button></section>
-<dialog id="captureDialog" aria-labelledby="confirmTitle"><h2 id="confirmTitle">保存为新的采集快照</h2><p>若此 SKU 已存在，新建版本并保留旧版本。你可以先查看采集库中的已有记录。</p><button id="confirmCapture">新增快照并采集</button><button id="viewExisting">查看已有记录</button><button id="cancelCapture">取消</button></dialog>
-<script type="module" src="panel.js"></script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aden 商品采集</title><link rel="stylesheet" href="panel.css"></head>
+<body>
+<header class="top"><div class="brand"><span class="brand-mark">A</span><div><strong>Aden 商品采集</strong><small>京东商品详情页</small></div></div><button id="settingsButton" class="text-button" type="button">内容说明</button></header>
+<main>
+<section id="readyView" class="view">
+  <div class="step">01 / 提取当前商品</div><h1>先提取，再核对保存</h1><p class="help">请在京东商品页选择好规格，页面内容加载后点击提取。提取不会自动保存。</p>
+  <div class="card product"><span class="eyebrow">当前页面</span><h2 id="title">尚未提取商品</h2><p id="spec">打开京东商品详情页后即可开始</p></div>
+  <div class="card"><div class="section-heading"><h2>本次提取内容</h2><span id="scopeCount">已选 7 项</span></div><p class="help">每个分区可独立提取、展开核对；提取不会保存。</p><div id="scopeList" class="scope-list"></div><p class="minor">商品身份和来源始终保留，便于核对。</p><button id="pickButton" class="text-button wide" type="button">在网页上点选：增加或排除区域</button><button id="resetButton" class="text-button wide" type="button">恢复默认全选</button></div>
+  <p id="previewStale" class="notice" hidden>采集内容已调整，请重新提取并核对预览。</p>
+</section>
+<section id="settingsView" class="view" hidden><button id="settingsBack" class="back" type="button">← 返回提取</button><div class="step">内容说明</div><h1>要提取哪些内容？</h1><p class="help">这里与首页使用同一份勾选状态。页面未加载的内容会在预览中标出。</p><div id="settingsScopes" class="scope-list card"></div><button id="settingsPick" type="button">在网页上点选区域</button></section>
+<section id="pickView" class="view" hidden><button id="pickBack" class="back" type="button">← 返回提取</button><div class="step">网页点选</div><h1>增加或排除页面区域</h1><p class="help">移动指针预览范围，点击选择一块商品内容。确认前不会改变提取范围；Esc 可退出。</p><button id="startPick" type="button">开始点选网页区域</button><div class="card"><span class="eyebrow">当前选中</span><h2 id="pickedLabel">尚未选择区域</h2><p id="pickedSample" class="sample">请先点击左侧商品页的一块内容</p><label>所属分区<select id="pickedSection"><option value="basic">商品信息</option><option value="params">规格参数</option><option value="intro">商品介绍</option><option value="detail">详情内容</option><option value="main">主图</option><option value="gallery">轮播图</option><option value="detailImages">详情图</option></select></label><label id="customNameWrap">区域名称<input id="customName" type="text" maxlength="80" value="自选区域"></label></div><button id="includePick" class="primary" type="button" disabled>确认加入该区域</button><button id="excludePick" type="button" disabled>确认排除该区域</button><p id="pickFeedback" class="notice" hidden></p></section>
+<section id="previewView" class="view" hidden><button id="previewBack" class="back" type="button">← 调整提取内容</button><h1>各区结果请在首页展开核对</h1></section>
+<section id="resultView" class="view" hidden><div class="step">03 / 保存结果</div><h1 id="resultTitle">正在保存</h1><p id="resultSummary" class="help">等待 Aden 确认商品内容和图片。</p><button id="library" type="button">在 Aden 查看采集任务</button><button id="again" class="primary" type="button">继续提取</button><button id="stop" type="button">停止后续图片</button><button id="refresh" type="button">查询上次保存结果</button><button id="retry" type="button">重试未保存图片</button><ul id="failures"></ul></section>
+<section id="advancedView" class="view" hidden><button id="advancedBack" class="back" type="button">← 返回提取</button><h2>离线暂存</h2><p class="help">最多 24 小时、共 100 MiB。恢复前核对当前登录账号；暂存不表示后台已保存。</p><button id="pending">查询离线暂存</button><label>选择待恢复商品<select id="pendingList" aria-label="待恢复商品"></select></label><button id="resume">恢复所选暂存</button><button id="clearSpool">清理离线暂存</button></section>
+</main>
+<footer><div id="captureActions"><p id="saveHint" class="minor"></p><div class="section-buttons"><button id="connect" type="button">连接 Aden</button><button id="permission" type="button" disabled>授权图片域名</button></div><button id="pagePermission" type="button">授权京东商品页</button><button id="preview" type="button">提取全部所选</button><button id="cancelExtract" type="button" hidden>取消当前提取</button><button id="capture" class="primary" type="button" disabled>确认保存</button></div><p id="status" role="status" aria-live="polite">打开京东商品页后提取；保存前需要连接 Aden。</p><button id="advancedButton" class="text-button" type="button">离线暂存与恢复</button></footer>
+<dialog id="captureDialog" aria-labelledby="confirmTitle"><h2 id="confirmTitle">保存为新的采集快照</h2><p id="confirmMessage"></p><button id="confirmCapture" class="primary">确认继续保存</button><button id="viewExisting">查看已有记录</button><button id="cancelCapture">取消</button></dialog>
+<script type="module" src="panel.js"></script>
+</body></html>

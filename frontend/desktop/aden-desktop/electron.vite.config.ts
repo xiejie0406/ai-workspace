@@ -25,6 +25,11 @@ export default defineConfig({
     }
   },
   renderer: {
+    define: {
+      // 仅本地测试安装版预填原库已有账号，正式渠道保持空表单。
+      __ADEN_TEST_LOGIN__: JSON.stringify(process.env.ADEN_PACKAGE_CHANNEL === 'local-test'
+        ? { username: 'admin', password: 'admin123' } : null)
+    },
     root: resolve(__dirname, 'src/renderer'),
     plugins: [vue()],
     resolve: {

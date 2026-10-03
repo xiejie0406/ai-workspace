@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aden 插件与桌面任务改版｜技术验证与手工验收准备</title>
+  <style>
+    :root{font-family:system-ui,"Microsoft YaHei",sans-serif;color:#17352b;background:#f4f7f4}*{box-sizing:border-box}body{margin:0}main{max-width:1200px;margin:0 auto;padding:30px 22px 70px}h1{font-size:30px;margin:8px 0 10px}h2{font-size:21px;margin:30px 0 12px}.lead{color:#52645b;line-height:1.7}.badge{display:inline-block;background:#fff0d2;color:#745000;border-radius:99px;padding:5px 12px;font-weight:700}.card{background:#fff;border:1px solid #d8e5db;border-radius:14px;padding:20px;margin-top:16px;box-shadow:0 2px 12px #143b2410}.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.fact{background:#f6faf7;padding:14px;border-radius:9px}.fact strong{display:block;margin-bottom:7px}code{overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #e1e8e2;padding:12px 10px;line-height:1.55}th{background:#e8f1ea;position:sticky;top:0}tr:last-child td{border-bottom:0}.scroll{overflow-x:auto}a{color:#17664d}.state{color:#916000;font-weight:700}.small{font-size:13px;color:#607269}ul{line-height:1.8;margin:8px 0;padding-left:22px}.note{border-left:4px solid #d6a743;padding-left:14px;background:#fffaf0;padding-top:8px;padding-bottom:8px}
+  </style>
+</head>
+<body><main>
+  <span class="badge">技术验证／验收准备 · 用户验收未开始</span>
+  <h1>Aden 插件采集与桌面任务中心改版</h1>
+  <p class="lead">对象：FEAT-ADEN-003，2026-09-26 本地测试版 0.3.0、Chrome 插件版 0.2.0。以下八项由用户在安装版与真实京东商品页逐项操作、截图并决定是否接受。线框图、合成测试和构建结果均不计作页面验收。</p>
+  <div class="card facts">
+    <div class="fact"><strong>手工结果</strong>0 Pass / 0 Fail / 0 Blocked / <b>8 NotRun</b></div>
+    <div class="fact"><strong>页面截图</strong>0 已截图 / 8 待截图</div>
+    <div class="fact"><strong>用户决定</strong>待确认</div>
+    <div class="fact"><strong>执行者与环境</strong>手工执行者：用户；0.3.0 安装版与本地 API 已启动；实际 Chrome 版本、工作空间、京东页面与输入待用户记录</div>
+  </div>
+  <h2>版本与入口</h2>
+  <div class="card">
+    <p><b>安装包：</b><code>D:\2025Ai\26-05-23\java-workspace\frontend\desktop\aden-desktop\dist\local-test\Aden-Local-Test-0.3.0-Setup.exe</code>（131,805,654 字节，SHA-256：<code>3778E92045AC792BAECE4CA3989C594EED0F83994884CB68C1494E93AFFD7B2E</code>）</p>
+    <p><b>配套本地中心服务：</b><code>D:\2025Ai\26-05-23\java-workspace\.runtime\aden-local-test\ruoyi-admin-collection-redesign.jar</code>（SHA-256：<code>CF1B4E7451AAEC66079812F38BD63DEBF1E276271BD365320C8AC9394B07599C</code>）。本地测试启动脚本已指向该 JAR。</p>
+    <p><b>插件：</b>安装版资源目录 <code>resources\collector\extension</code>；Chrome 需从新安装目录重新加载插件，随后在 Aden 检查连接。打包检查确认 <code>picker.js</code>、<code>panel.js</code> 和 Native Host 程序均存在。</p>
+    <p class="note">2026-09-26 20:16 已正常关闭旧版并安装 0.3.0；安装版窗口实际打开，本地 API <code>http://127.0.0.1:6364</code> 返回 HTTP 200。Chrome 的 Native Host 当前注册在另一份 Aden 安装目录；两份 Host 的 SHA-256 一致、扩展授权 ID 一致，因此是兼容注册，不表示 Chrome 已加载新版插件。请在 Chrome 重新加载 0.2.0 插件并从侧栏检查连接。本轮真实商品输入、保存数据与截图仍待用户记录。</p>
+  </div>
+  <h2>逐项手工清单</h2>
+  <p>完整操作前置与截图位置见 <a href="手工验收清单.md">手工验收清单</a>。每项实际操作时间、商品 URL/SKU、页面观察、截图文件、必要的任务/商品回读和复验情况尚待用户填写。</p>
+  <div class="card scroll"><table>
+    <thead><tr><th>ID / 目标</th><th>输入与操作步骤</th><th>预期</th><th>实际 / 结果</th><th>页面证据与遗留</th></tr></thead><tbody>
+    <tr><td><b>MANUAL-28</b><br>默认范围</td><td>连接 Aden，打开京东商品详情页与插件。</td><td>首页显示当前商品、规格与默认全选的七项。</td><td class="state">未操作 · NotRun</td><td>待截图：插件首页。Chrome/商品实况未知。</td></tr>
+    <tr><td><b>MANUAL-29</b><br>已有区域联动</td><td>首页取消商品介绍；网页点选介绍区并加入。</td><td>首页与说明页同步恢复勾选，显示区域和样本。</td><td class="state">未操作 · NotRun</td><td>待截图：取消后首页、点选侧栏、加入后首页。</td></tr>
+    <tr><td><b>MANUAL-30</b><br>新增与排除</td><td>点选售后区加入；点选介绍区排除。</td><td>新增自选项出现，已有项取消勾选，其他项保持。</td><td class="state">未操作 · NotRun</td><td>待截图：两次操作后的首页及反馈。</td></tr>
+    <tr><td><b>MANUAL-31</b><br>提取预览</td><td>确定范围，点击提取当前商品。</td><td>只预览所选范围，明确字段、图片、缺失项；尚未称已保存。</td><td class="state">未操作 · NotRun</td><td>待截图：完整预览及必要滚动段。</td></tr>
+    <tr><td><b>MANUAL-32</b><br>预览失效</td><td>预览后调整勾选或点选规则，再重新提取。</td><td>旧预览失效且不能直接保存；新预览按新范围生成。</td><td class="state">未操作 · NotRun</td><td>待截图：失效提示与新预览。</td></tr>
+    <tr><td><b>MANUAL-33</b><br>确认保存与任务</td><td>核对预览并保存，进入桌面采集任务。</td><td>插件按服务端回执展示内容/图片；桌面可找到对应任务。</td><td class="state">未操作 · NotRun</td><td>待截图：插件保存结果、桌面任务列表；待做服务端回读。</td></tr>
+    <tr><td><b>MANUAL-34</b><br>结果追溯</td><td>打开任务详情与关联商品、历史版本。</td><td>本次字段、图片、失败信息与保存的商品版本一致，关源页后可回看图片。</td><td class="state">未操作 · NotRun</td><td>待截图：任务详情、商品详情、图片/版本；待做数据回读。</td></tr>
+    <tr><td><b>MANUAL-35</b><br>异常页</td><td>在非商品页或撤销当前页权限后提取。</td><td>中文说明失败和恢复动作；不报成功，不新增错误商品。</td><td class="state">未操作 · NotRun</td><td>待截图：插件错误态、任务列表前后对照。</td></tr>
+  </tbody></table></div>
+  <h2>独立技术检查</h2>
+  <div class="card"><ul>
+    <li>Chrome 插件定向测试 27/27 通过；<code>background.js</code> 与 <code>picker.js</code> 语法检查通过。执行环境为合成 DOM/消息，不是真实京东页面。</li>
+    <li>桌面端任务页、路由等定向组件测试 9/9 通过；任务 API 桥接相关单元测试 6/6 通过；安装检查定向测试 11/11 通过。</li>
+    <li><code>npm run pack:local</code> 完成：包含契约检查、Vue/TypeScript 类型检查、Electron 构建、Native Host 构建与 NSIS 安装包生成；完成码 0。</li>
+    <li>RuoYi 后端 <code>mvn -f ruoyi-backend/pom.xml -pl ruoyi-admin -am '-Dmaven.test.skip=true' package</code> 完成，18 个模块 BUILD SUCCESS；此项跳过了 Java 测试，不能据此声称联机通过。</li>
+    <li>包内插件脚本与 Native Host 文件检查通过。安装目录版本回读为 0.3.0，安装版窗口可见，本地 API 返回 HTTP 200；真实 Chrome 扩展连接、真实页面提取、中心写入和用户截图均未执行。</li>
+  </ul></div>
+  <h2>证据基线与报告检查</h2>
+  <div class="card"><p>输入基线为同目录手工清单、上述命令的实际输出和生成安装包；本 HTML 逐项整理这些事实。任何手工结果变化应先更新清单和截图，再同步修订本报告并记录时间。当前没有截图文件，因此没有图片占位或虚构缩略图。</p><p>本报告的 ID、状态和数量将做静态一致性检查。因当前工具对本地 <code>file://</code> 页面访问受限，报告视觉打开检查未执行，页面可读性需用户打开本文件确认。用户接受决定仍为待确认。</p></div>
+</main></body></html>

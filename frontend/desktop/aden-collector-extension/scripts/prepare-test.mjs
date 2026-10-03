@@ -12,7 +12,7 @@ if (url.hostname !== '127.0.0.1' || url.protocol !== 'http:' || url.origin !== o
 if (output === root || root.startsWith(output + '/'))
     throw new Error('输出必须为独立目录');
 await mkdir(output, { recursive: true });
-for (const file of ['manifest.json', 'config.js', 'background.js', 'parser.js', 'resources.js', 'spool.js', 'panel.html', 'panel.js', 'panel.css'])
+for (const file of ['manifest.json', 'config.js', 'background.js', 'parser.js', 'resources.js', 'spool.js', 'picker.js', 'sections.js', 'page-watch.js', 'panel.html', 'panel.js', 'panel.css'])
     await cp(resolve(root, file), resolve(output, file));
 const manifest = JSON.parse(await readFile(resolve(output, 'manifest.json'), 'utf8'));
 manifest.name = 'Aden 商品采集合成测试';

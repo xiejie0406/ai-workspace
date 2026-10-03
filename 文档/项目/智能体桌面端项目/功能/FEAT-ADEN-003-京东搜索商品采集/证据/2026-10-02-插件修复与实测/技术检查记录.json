@@ -1,0 +1,32 @@
+[
+  {
+    "name": "插件自动检查",
+    "result": "通过",
+    "count": 57,
+    "evidence": "插件自动检查.log",
+    "scope": "Node/jsdom、模拟Chrome/桥接口；不能代替用户Chrome业务验收"
+  },
+  {
+    "name": "Native Host协议检查",
+    "result": "通过",
+    "count": 20,
+    "scope": "python -m pytest python/aden-runner/tests/test_native_host.py -q，工具返回20项通过"
+  },
+  {
+    "name": "已安装编译Host独立管道",
+    "result": "通过",
+    "scope": "旧Aden Collection Test及当前Aden Local Test各hello/library.open两帧，随机命名管道合成回执，不连接账号或业务服务；两者都兼容，旧路径不是协议失败证据"
+  },
+  {
+    "name": "安装组件哈希和路由",
+    "result": "通过",
+    "evidence": "安装文件核对.json",
+    "scope": "12个扩展文件+Host+管道14文件；HKCU精确扩展Origin保持"
+  },
+  {
+    "name": "安装版启动及中心",
+    "result": "通过",
+    "evidence": "安装版与中心回读.json",
+    "scope": "主窗口句柄非零、响应正常；captcha端点业务code200；不证明登录或采集"
+  }
+]

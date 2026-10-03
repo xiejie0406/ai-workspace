@@ -28,6 +28,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
+import com.ruoyi.aden.domain.workspace.AdenWorkspaceRepository;
+import com.ruoyi.aden.application.workspace.AdenWorkspaceSecurityAuditPort;
+import com.ruoyi.aden.application.error.AdenAccessDeniedException;
+import com.ruoyi.aden.application.error.AdenNotFoundException;
 
 class AdenOperatorQueryServiceTest {
     private static final AdenWorkspaceId WORKSPACE =
@@ -129,6 +134,36 @@ class AdenOperatorQueryServiceTest {
                 () -> service.events(principal, WORKSPACE, null, 10, "correlation"));
 
         assertEquals("ADEN_STREAM_UNAVAILABLE", failure.errorCode());
+    }
+
+    @Test
+    void collectionViewerBootstrapReadsNoCoreProjectionAndDoesNotGrantEventAccess() {
+        AdenWorkspaceRepository members=mock(AdenWorkspaceRepository.class);
+        when(members.findActiveMembership(WORKSPACE,42)).thenReturn(Optional.of(membership(AdenWorkspaceRole.VIEWER)));
+        var guard=new AdenWorkspaceAccessGuard(members,mock(AdenWorkspaceSecurityAuditPort.class));
+        ObjectMapper mapper=new ObjectMapper();
+        var restricted=new AdenOperatorQueryService(repository,guard,cursors,new AdenRequestFingerprint(mapper),mapper,
+                Clock.fixed(NOW,ZoneOffset.UTC),Duration.ofMinutes(5));
+        var viewer=new AdenOperatorPrincipal(42,"viewer",Set.of("aden:collection:read"));
+        var snapshot=restricted.bootstrap(viewer,WORKSPACE,null,null,50,"correlation");
+        assertEquals(List.of(),snapshot.tasks().items());assertEquals(List.of(),snapshot.runners());assertEquals(List.of(),snapshot.capabilities());
+        assertEquals("0",snapshot.streamWatermark());assertEquals(WORKSPACE.value(),snapshot.workspace().workspaceId());
+        assertThrows(AdenAccessDeniedException.class,()->restricted.events(viewer,WORKSPACE,snapshot.streamCursor(),10,"correlation"));
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void collectionBootstrapCannotReadAnotherWorkspaceOrAcceptCorePagination() {
+        AdenWorkspaceRepository members=mock(AdenWorkspaceRepository.class);
+        when(members.findActiveMembership(WORKSPACE,42)).thenReturn(Optional.empty());
+        ObjectMapper mapper=new ObjectMapper();
+        var restricted=new AdenOperatorQueryService(repository,new AdenWorkspaceAccessGuard(members,mock(AdenWorkspaceSecurityAuditPort.class)),cursors,
+                new AdenRequestFingerprint(mapper),mapper,Clock.fixed(NOW,ZoneOffset.UTC),Duration.ofMinutes(5));
+        var viewer=new AdenOperatorPrincipal(42,"viewer",Set.of("aden:collection:read"));
+        assertThrows(AdenNotFoundException.class,()->restricted.bootstrap(viewer,WORKSPACE,null,null,50,"correlation"));
+        when(members.findActiveMembership(WORKSPACE,42)).thenReturn(Optional.of(membership(AdenWorkspaceRole.VIEWER)));
+        assertThrows(IllegalArgumentException.class,()->restricted.bootstrap(viewer,WORKSPACE,null,"old-core-cursor",50,"correlation"));
+        verifyNoInteractions(repository);
     }
 
     private static AdenOperatorProjectionRepository.TaskView task(String state) {

@@ -2,6 +2,8 @@ import { Buffer } from 'node:buffer'
 import { AdenApiClient, isRecord } from '../transport/api-client'
 import { AdenTransportError } from '../transport/error-mapper'
 import type { SessionContext } from './session-controller'
+import { parseWorkspaceBootstrap, parseWorkspaceList } from '../../shared/contracts/operator-bootstrap'
+import type { WorkspaceBootstrapSnapshot, WorkspaceSnapshot } from '../../shared/generated/operator-contracts'
 
 export interface CaptchaChallenge {
   readonly enabled: boolean
@@ -21,6 +23,8 @@ export interface AuthenticatedUser {
   readonly roles: readonly string[]
   readonly permissions: readonly string[]
   readonly session: SessionContext
+  readonly workspace: WorkspaceSnapshot
+  readonly bootstrap: WorkspaceBootstrapSnapshot
 }
 
 export class AdenAuthService {
@@ -61,10 +65,11 @@ export class AdenAuthService {
       throw invalidResponse(login.correlationId, '登录响应没有有效 Token')
     }
     this.api.session.authenticate(body.token)
+    const epoch = this.api.session.context().sessionEpoch
     try {
       return await this.getInfo()
     } catch (error) {
-      this.api.session.clear()
+      if (this.api.session.context().sessionEpoch === epoch) this.api.session.clear()
       throw error
     }
   }
@@ -75,7 +80,17 @@ export class AdenAuthService {
     const user = requireRecord(body.user, response.correlationId)
     const roles = stringArray(body.roles, response.correlationId, 'roles')
     const permissions = stringArray(body.permissions, response.correlationId, 'permissions')
-    return Object.freeze({ user, roles, permissions, session: this.api.session.context() })
+    const resolved = await this.api.request<unknown>({ path: '/api/v1/aden/default-workspace' }).catch(error => {
+      if (error instanceof AdenTransportError && error.status === 409) throw new AdenTransportError('DEFAULT_WORKSPACE_UNAVAILABLE', '账号业务范围未配置或不可用，请联系管理员。', 409, error.correlationId, false)
+      throw error
+    })
+    const workspace = parseWorkspaceList({ items: [resolved.data] }).items[0]
+    if (!workspace || workspace.status !== 'ACTIVE') throw invalidResponse(resolved.correlationId, '默认业务范围不可用，请联系管理员配置。')
+    this.api.session.selectWorkspace(workspace.workspaceId)
+    const snapshot = await this.api.request<unknown>({ path: `/api/v1/aden/workspaces/${workspace.workspaceId}/bootstrap?taskLimit=50` })
+    const bootstrap = parseWorkspaceBootstrap(snapshot.data, permissions.includes('aden:collection:read'))
+    if (bootstrap.workspace.workspaceId !== workspace.workspaceId) throw invalidResponse(snapshot.correlationId, '登录数据范围不一致，请重新登录。')
+    return Object.freeze({ user, roles, permissions, workspace, bootstrap, session: this.api.session.context() })
   }
 
   async logout(): Promise<SessionContext> {

@@ -64,6 +64,7 @@ public class AdenApiExceptionHandler {
             case "ADEN_PERMISSION_DENIED" -> HttpStatus.FORBIDDEN;
             case "ADEN_TASK_NOT_FOUND", "ADEN_RUNNER_NOT_FOUND" -> HttpStatus.NOT_FOUND;
             case "ADEN_STATE_TRANSITION_DENIED", "ADEN_IDEMPOTENCY_KEY_REUSED",
+                    "ADEN_DEFAULT_WORKSPACE_UNAVAILABLE",
                     "ADEN_RUNNER_LEASE_LOST", "ADEN_SESSION_EPOCH_STALE",
                     "ADEN_RECEIPT_STALE", "ADEN_OUTCOME_UNKNOWN",
                     "ADEN_RUNNER_SESSION_INVALID", "ADEN_RUNNER_CAPACITY_MISMATCH",

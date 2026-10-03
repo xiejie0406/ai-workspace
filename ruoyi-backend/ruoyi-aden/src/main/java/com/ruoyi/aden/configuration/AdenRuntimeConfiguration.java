@@ -295,8 +295,10 @@ public class AdenRuntimeConfiguration {
     @Bean
     public AdenWorkspaceService adenWorkspaceService(AdenWorkspaceRepository repository,
                                                       AdenIdGenerator idGenerator,
-                                                      @Qualifier("adenClock") Clock clock) {
-        return new AdenWorkspaceService(repository, idGenerator, clock);
+                                                      @Qualifier("adenClock") Clock clock,
+                                                      AdenProperties properties) {
+        return new AdenWorkspaceService(repository, idGenerator, clock,
+                properties.getWorkspace().getDefaultWorkspaceId());
     }
 
     @Bean

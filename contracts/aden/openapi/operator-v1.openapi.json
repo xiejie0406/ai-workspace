@@ -13,6 +13,7 @@
   ],
   "security": [{"OperatorBearer": []}],
   "paths": {
+    "/api/v1/aden/default-workspace": {"get": {"operationId": "resolveDefaultWorkspace", "tags": ["Workspace"], "x-aden-permission-any": ["aden:workspace:list", "aden:collection:read"], "description": "Resolve existing configured default or sole active membership; no client selection, no automatic creation.", "responses": {"200": {"description": "Effective default membership", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/WorkspaceSnapshot"}}}}, "401": {"$ref": "#/components/responses/AuthRequired"}, "403": {"$ref": "#/components/responses/PermissionDenied"}, "409": {"description": "ADEN_DEFAULT_WORKSPACE_UNAVAILABLE; contact administrator to configure existing default scope", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorEnvelope"}}}}}}},
     "/api/v1/aden/workspaces": {
       "get": {
         "operationId": "listWorkspaces",

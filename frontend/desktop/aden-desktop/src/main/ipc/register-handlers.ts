@@ -12,7 +12,8 @@ import { DESKTOP_IPC as IPC } from '../../shared/contracts/desktop-api'
 import { assertPlainPayload, assertTrustedSender } from './validate-sender'
 import { serializeTransportError } from '../transport/error-mapper'
 import { CollectionService } from '../collection/collection-service'
-import type { CollectionOperation } from '../../shared/contracts/collection'
+import { CollectionSetupService } from '../collection/collection-setup'
+import type { CollectionAction, CollectionOperation } from '../../shared/contracts/collection'
 
 const BOOTSTRAP_PERMISSIONS = ['aden:task:list', 'aden:runner:list', 'aden:capability:list', 'aden:event:subscribe']
 
@@ -29,6 +30,7 @@ export function registerDesktopIpcHandlers(options: {
   const permissions = new Set<string>()
   const channels: string[] = []
   const collection = new CollectionService(api, session)
+  const collectionSetup = new CollectionSetupService()
   const handle = (channel: string, handler: (payload: unknown) => Promise<unknown> | unknown): void => {
     channels.push(channel)
     ipcMain.handle(channel, async (event, payload) => {
@@ -44,28 +46,49 @@ export function registerDesktopIpcHandlers(options: {
     })
   }
 
+  handle(IPC.collectionSetup, (payload) => {
+    if (!isRecord(payload)) throw new TypeError('扩展安装操作参数非法')
+    exactKeys(payload, ['action'])
+    if (payload.action === 'status') return collectionSetup.status()
+    if (payload.action === 'open-install') return collectionSetup.openInstall()
+    if (payload.action === 'copy-directory') return collectionSetup.copyDirectory()
+    throw new TypeError('未知扩展安装操作')
+  })
   handle(IPC.collection, (payload) => {
     if (!isRecord(payload) || typeof payload.action !== 'string') throw new TypeError('采集库参数非法')
     exactKeys(payload, ['workspaceId', 'sessionEpoch', 'workspaceEpoch', 'action', 'input'])
-    const permission: Record<string, string> = { list: 'read', detail: 'read', versions: 'read', snapshot: 'read', image: 'read', create: 'create', curation: 'edit', upload: 'edit', trash: 'delete', restore: 'restore', export: 'export' }
-    if (!permission[payload.action]) throw new TypeError('未知采集库操作')
-    requirePermissions(permissions, [`aden:collection:${permission[payload.action]}`])
+    const permission: Record<CollectionAction, string> = { list: 'read', detail: 'read', versions: 'read', snapshot: 'read', tasks: 'read', taskDetail: 'read', image: 'read', create: 'create', curation: 'edit', upload: 'edit', trash: 'delete', restore: 'restore', export: 'export', overview: 'read', exports: 'read', exportDetail: 'read', downloadExport: 'export' }
+    if (!Object.hasOwn(permission, payload.action)) throw new TypeError('未知采集库操作')
+    requirePermissions(permissions, [`aden:collection:${permission[payload.action as CollectionAction]}`])
     assertContext(payload, session, stringField(payload, 'workspaceId', 36))
     return collection.execute(payload as unknown as CollectionOperation)
   })
   handle(IPC.captcha, () => auth.captcha())
   handle(IPC.login, async (payload) => {
     const input = parseLogin(payload)
+    sse.stop(); permissions.clear()
     const result = await auth.login(input)
     permissions.clear()
     result.permissions.forEach((permission) => permissions.add(permission))
+    if (permissions.has('*:*:*') || permissions.has('aden:event:subscribe')) {
+      void sse.start(result.workspace.workspaceId, result.bootstrap.streamCursor, parseCanonicalInt64(result.bootstrap.streamWatermark))
+    }
     return result
   })
   handle(IPC.restore, async () => {
-    const result = await auth.getInfo()
-    permissions.clear()
-    result.permissions.forEach((permission) => permissions.add(permission))
-    return result
+    const restoringEpoch = session.context().sessionEpoch
+    try {
+      const result = await auth.getInfo()
+      permissions.clear()
+      result.permissions.forEach((permission) => permissions.add(permission))
+      if (permissions.has('*:*:*') || permissions.has('aden:event:subscribe')) {
+        void sse.start(result.workspace.workspaceId, result.bootstrap.streamCursor, parseCanonicalInt64(result.bootstrap.streamWatermark))
+      }
+      return result
+    } catch (error) {
+      if (session.context().sessionEpoch === restoringEpoch) { sse.stop(); permissions.clear(); session.clear() }
+      throw error
+    }
   })
   handle(IPC.logout, async () => {
     sse.stop()
@@ -85,17 +108,17 @@ export function registerDesktopIpcHandlers(options: {
     return parseWorkspaceList(response.data)
   })
   handle(IPC.bootstrapWorkspace, async (payload) => {
-    requirePermissions(permissions, BOOTSTRAP_PERMISSIONS)
+    if (!permissions.has('aden:collection:read')) requirePermissions(permissions, BOOTSTRAP_PERMISSIONS)
     const workspaceId = stringField(payload, 'workspaceId', 36)
     exactKeys(payload as Record<string, unknown>, ['workspaceId', 'sessionEpoch', 'workspaceEpoch'])
     assertContext(payload, session, workspaceId)
     const response = await api.request<unknown>({
       path: `/api/v1/aden/workspaces/${encodeURIComponent(workspaceId)}/bootstrap?taskLimit=50`
     })
-    const bootstrap = parseWorkspaceBootstrap(response.data)
+    const bootstrap = parseWorkspaceBootstrap(response.data, permissions.has('aden:collection:read'))
     const cursor = bootstrap.streamCursor
     const watermark = parseCanonicalInt64(bootstrap.streamWatermark)
-    void sse.start(workspaceId, cursor, watermark)
+    if (permissions.has('*:*:*') || permissions.has('aden:event:subscribe')) void sse.start(workspaceId, cursor, watermark)
     return { data: bootstrap, context: response.context, correlationId: response.correlationId }
   })
   handle(IPC.eventAck, (payload) => {

@@ -1,5 +1,6 @@
 import { ipcRenderer, type IpcRendererEvent } from 'electron'
-import type { CollectionOperation } from '../shared/contracts/collection'
+import type { CollectionLibraryTarget, CollectionOperation } from '../shared/contracts/collection'
+import type { CollectionDirectoryCopied, CollectionSetupStatus, CollectionSetupOpened } from '../shared/contracts/collection-setup'
 import {
   DESKTOP_IPC as IPC,
   type AdenDesktopApi,
@@ -38,7 +39,12 @@ interface IpcEnvelope<T> {
 export function createPreloadApi(runtime: AdenRuntimeInfo): AdenDesktopApi {
   return Object.freeze({
     getRuntimeInfo: () => runtime,
-    collection: Object.freeze({ execute: <T>(operation: CollectionOperation) => invoke<T>(IPC.collection, operation), onOpenLibrary: (listener: () => void) => subscribe('aden:collection:open-library', listener) }),
+    collectionSetup: Object.freeze({
+      status: () => invoke<CollectionSetupStatus>(IPC.collectionSetup, { action: 'status' }),
+      openInstall: () => invoke<CollectionSetupOpened>(IPC.collectionSetup, { action: 'open-install' }),
+      copyDirectory: () => invoke<CollectionDirectoryCopied>(IPC.collectionSetup, { action: 'copy-directory' })
+    }),
+    collection: Object.freeze({ execute: <T>(operation: CollectionOperation) => invoke<T>(IPC.collection, operation), onOpenLibrary: (listener: (target?: CollectionLibraryTarget) => void) => subscribe('aden:collection:open-library', listener) }),
     auth: Object.freeze({
       captcha: () => invoke<CaptchaChallenge>(IPC.captcha, null),
       login: (input: LoginInput) => invoke<AuthenticatedUser>(IPC.login, input),

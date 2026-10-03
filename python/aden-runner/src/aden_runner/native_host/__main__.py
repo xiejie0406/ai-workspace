@@ -7,6 +7,7 @@ import os
 import re
 import struct
 import sys
+from datetime import datetime
 from typing import BinaryIO
 
 MAX_MESSAGE = 256 * 1024
@@ -57,6 +58,8 @@ def write_message(stream: BinaryIO, value: dict) -> None:
 
 
 def validate_message(value: dict) -> None:
+    if set(value) - {"protocolVersion", "messageId", "type", "payload", "nonce", "sequence", "expiresAt"}:
+        raise ValueError("消息包含不支持的字段")
     if value.get("protocolVersion") != 1 or value.get("type") not in TYPES:
         raise ValueError("不支持的协议版本或消息类型")
     if not isinstance(value.get("messageId"), str) or not re.fullmatch(
@@ -66,6 +69,18 @@ def validate_message(value: dict) -> None:
     payload = value.get("payload")
     if not isinstance(payload, dict):
         raise ValueError("payload 必须是对象")
+    if value["type"] != "hello":
+        if not isinstance(value.get("nonce"), str) or not re.fullmatch(r"[A-Za-z0-9_-]{16,128}", value["nonce"]):
+            raise ValueError("缺少有效连接证明，请升级扩展并重新连接")
+        if not isinstance(value.get("sequence"), str) or not re.fullmatch(r"[1-9][0-9]{0,31}", value["sequence"]):
+            raise ValueError("消息序号必须为规范正整数字符串")
+        expiry = value.get("expiresAt")
+        if not isinstance(expiry, str) or len(expiry) > 40 or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z", expiry):
+            raise ValueError("连接有效期必须为 UTC 时间")
+        try:
+            datetime.fromisoformat(expiry.replace("Z", "+00:00"))
+        except ValueError as error:
+            raise ValueError("连接有效期无效") from error
     if any(key in payload for key in ("token", "cookie", "authorization", "workspaceId")):
         raise ValueError("消息不可携带凭据或自行指定工作空间")
     if value["type"] == "asset.chunk":

@@ -18,6 +18,16 @@ export const useWorkspaceStore = defineStore('workspace', {
     selected: (state) => state.items.find((item) => item.workspaceId === state.selectedId) ?? null
   },
   actions: {
+    applyResolved(workspace: WorkspaceSnapshot, bootstrap: WorkspaceBootstrapSnapshot): void {
+      this.resetWorkspaceData()
+      this.items = [workspace]
+      this.selectedId = workspace.workspaceId
+      this.bootstrapSnapshot = bootstrap
+      this.error = null
+      useTasksStore().replace(bootstrap.tasks.items)
+      useRunnersStore().replace(bootstrap.runners)
+      useCapabilitiesStore().replace(bootstrap.capabilities)
+    },
     async loadList(): Promise<void> {
       this.loading = true
       this.error = null

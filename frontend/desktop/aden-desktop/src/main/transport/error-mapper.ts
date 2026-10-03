@@ -12,6 +12,7 @@ export type TransportErrorCode =
   | 'INVALID_CONTENT_TYPE'
   | 'RESPONSE_TOO_LARGE'
   | 'INVALID_RESPONSE'
+  | 'DEFAULT_WORKSPACE_UNAVAILABLE'
   | 'NETWORK_ERROR'
 
 export class AdenTransportError extends Error {

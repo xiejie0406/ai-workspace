@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { AuthenticatedUser, CaptchaChallenge, LoginInput, SessionContext } from '../../../shared/contracts/desktop-api'
+import { useWorkspaceStore } from './workspace'
 
 const emptyContext = (): SessionContext => ({ authenticated: false, sessionEpoch: 0, workspaceEpoch: 0, workspaceId: null })
 
@@ -41,8 +42,8 @@ export const useSessionStore = defineStore('session', {
         this.applyAuthenticated(response.value)
       } catch (error) {
         this.clear()
-        this.error = safeMessage(error)
         await this.loadCaptcha()
+        this.error = safeMessage(error)
         throw error
       }
     },
@@ -53,10 +54,16 @@ export const useSessionStore = defineStore('session', {
       await remoteLogout.catch(() => undefined)
     },
     applyAuthenticated(result: AuthenticatedUser): void {
+      if (!result.session.authenticated || !result.session.workspaceId || !result.workspace || !result.bootstrap
+          || result.workspace.workspaceId !== result.session.workspaceId
+          || result.bootstrap.workspace.workspaceId !== result.session.workspaceId) {
+        throw new Error('默认业务范围未准备好，请联系管理员配置后重新登录。')
+      }
       this.user = { ...result.user }
       this.roles = [...result.roles]
       this.permissions = [...result.permissions]
       this.context = { ...result.session }
+      useWorkspaceStore().applyResolved(result.workspace, result.bootstrap)
       this.phase = 'authenticated'
       this.error = null
     },
@@ -65,6 +72,7 @@ export const useSessionStore = defineStore('session', {
       if (!context.authenticated) this.clear()
     },
     clear(): void {
+      useWorkspaceStore().resetWorkspaceData()
       this.phase = 'anonymous'
       this.user = null
       this.roles = []

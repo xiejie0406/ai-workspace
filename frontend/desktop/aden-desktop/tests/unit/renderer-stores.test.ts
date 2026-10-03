@@ -7,6 +7,8 @@ import { useTasksStore } from '../../src/renderer/src/stores/tasks'
 import { useConnectionStore } from '../../src/renderer/src/stores/connection'
 import { router } from '../../src/renderer/src/router'
 import { parseCanonicalInt64 } from '../../src/shared/contracts/wire-scalars'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 const workspaceId = '11111111-1111-4111-8111-111111111111'
 const context = { authenticated: true, workspaceId, sessionEpoch: 1, workspaceEpoch: 2 }
@@ -15,6 +17,37 @@ describe('renderer stores', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     const session = useSessionStore(); session.phase = 'authenticated'; session.context = { ...context }
+  })
+
+  it('finishes login only after the returned default scope bootstrap is usable', async () => {
+    let complete!: (value: unknown) => void
+    installApi({ authLogin: vi.fn(() => new Promise(resolve => { complete = resolve })) })
+    const session = useSessionStore(); session.clear()
+    const login = session.login({ username: 'viewer', password: 'secret' })
+    expect(session.phase).toBe('loading')
+    expect(useWorkspaceStore().selectedId).toBeNull()
+    const bootstrap = JSON.parse(readFileSync(resolve('../../../contracts/aden/examples/current/operator/bootstrap-long-max-watermark.json'), 'utf8'))
+    bootstrap.tasks.items = []; bootstrap.runners = []; bootstrap.capabilities = []
+    complete({ value: { user: {}, roles: ['viewer'], permissions: ['aden:collection:read'], workspace: bootstrap.workspace, bootstrap,
+      session: { ...context, workspaceId: bootstrap.workspace.workspaceId } } })
+    await login
+    expect(session.phase).toBe('authenticated')
+    expect(useWorkspaceStore().selectedId).toBe(bootstrap.workspace.workspaceId)
+    expect(useTasksStore().items).toEqual([])
+    expect(session.permissions).toEqual(['aden:collection:read'])
+  })
+
+  it('retains the default-scope error after refreshing captcha and clears protected projections', async () => {
+    installApi({ authLogin: vi.fn(async () => { throw new Error('账号业务范围未配置或不可用，请联系管理员。') }),
+      authCaptcha: vi.fn(async () => ({ value: { enabled: false, uuid: null, jpegDataUrl: null }, context })) })
+    const workspace = useWorkspaceStore(); workspace.selectedId = workspaceId
+    useTasksStore().replace([task('1')])
+    const session = useSessionStore()
+    await expect(session.login({ username: 'viewer', password: 'secret' })).rejects.toThrow(/范围未配置/)
+    expect(session.phase).toBe('anonymous')
+    expect(session.error).toContain('账号业务范围未配置')
+    expect(workspace.selectedId).toBeNull()
+    expect(useTasksStore().items).toEqual([])
   })
 
   it('drops a late response from an old workspace epoch', async () => {
@@ -103,10 +136,10 @@ describe('renderer stores', () => {
   })
 })
 
-function installApi(overrides: { create?: unknown; command?: unknown; get?: unknown; select?: unknown; authLogout?: unknown }): void {
+function installApi(overrides: { create?: unknown; command?: unknown; get?: unknown; select?: unknown; authLogout?: unknown; authLogin?: unknown; authCaptcha?: unknown }): void {
   window.adenDesktop = {
     getRuntimeInfo: () => ({ platform: 'win32', versions: { electron: '44', chrome: '1' } }),
-    auth: { captcha: vi.fn(), login: vi.fn(), restore: vi.fn(), logout: overrides.authLogout ?? vi.fn() },
+    auth: { captcha: overrides.authCaptcha ?? vi.fn(), login: overrides.authLogin ?? vi.fn(), restore: vi.fn(), logout: overrides.authLogout ?? vi.fn() },
     workspace: { list: vi.fn(), select: overrides.select ?? vi.fn(), bootstrap: vi.fn(async () => { throw new Error('bootstrap stopped') }) },
     tasks: { create: overrides.create ?? vi.fn(), get: overrides.get ?? vi.fn(), command: overrides.command ?? vi.fn() },
     events: { ack: vi.fn(), onBatch: vi.fn(() => () => undefined), onStatus: vi.fn(() => () => undefined) }

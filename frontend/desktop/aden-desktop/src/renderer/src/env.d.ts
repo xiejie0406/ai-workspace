@@ -2,6 +2,7 @@
 import type { AdenDesktopApi } from '../../shared/contracts/desktop-api'
 
 declare global {
+  const __ADEN_TEST_LOGIN__: Readonly<{ username: string; password: string }> | null
   interface Window {
     adenDesktop: AdenDesktopApi
   }

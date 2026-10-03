@@ -132,6 +132,24 @@ public class AdenOperatorQueryService {
     public Bootstrap bootstrap(AdenOperatorPrincipal principal, AdenWorkspaceId workspaceId,
                                String capability, String taskCursor, int taskLimit,
                                String correlationId) {
+        boolean fullProjection = principal.hasPermission(TASK_LIST) && principal.hasPermission(RUNNER_LIST)
+                && principal.hasPermission(CAPABILITY_LIST) && principal.hasPermission(EVENT_SUBSCRIBE);
+        if (!fullProjection && principal.hasPermission("aden:collection:read")) {
+            AdenWorkspaceMembership member = accessGuard.requireWorkspace(principal, "aden:collection:read",
+                    workspaceId, AdenWorkspaceAccessGuard.READ_ROLES, correlationId);
+            if (taskLimit < 1 || taskLimit > 100 || taskCursor != null
+                    || capability != null && !Set.of("CORE", "WX", "PUR", "COL").contains(capability)) {
+                throw new IllegalArgumentException("受限快照请求参数无效");
+            }
+            // 空投影不读取或暴露 CORE 水位、任务、Runner 与能力。事件端点仍有独立权限门禁。
+            String queryHash = fingerprint.hashValue(Map.of("projection", "collection-only-v1"));
+            Instant generatedAt = clock.instant();
+            String snapshotHash = fingerprint.hashValue(Map.of("schemaVersion", 1, "taskQueryHash", queryHash,
+                    "streamFilter", STREAM_FILTER, "projection", "collection-only-v1"));
+            return new Bootstrap(1, workspace(member), new TaskPage(List.of(), null, queryHash),
+                    List.of(), List.of(), snapshotHash, STREAM_FILTER, "0",
+                    cursors.encodeStream(workspaceId, streamFilterHash(), 0, generatedAt), generatedAt);
+        }
         AdenWorkspaceMembership membership = accessGuard.requireWorkspace(principal, TASK_LIST, workspaceId,
                 AdenWorkspaceAccessGuard.READ_ROLES, correlationId);
         accessGuard.requirePermission(principal, RUNNER_LIST);

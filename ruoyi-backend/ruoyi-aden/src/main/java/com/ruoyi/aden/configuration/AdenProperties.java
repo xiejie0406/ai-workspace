@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AdenProperties implements InitializingBean {
     private boolean enabled = true;
     private final Schema schema = new Schema();
+    private final Workspace workspace = new Workspace();
     private final Runner runner = new Runner();
     private final Stream stream = new Stream();
     private final Outbox outbox = new Outbox();
@@ -18,6 +19,7 @@ public class AdenProperties implements InitializingBean {
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public Schema getSchema() { return schema; }
+    public Workspace getWorkspace() { return workspace; }
     public Runner getRunner() { return runner; }
     public Stream getStream() { return stream; }
     public Outbox getOutbox() { return outbox; }
@@ -70,6 +72,12 @@ public class AdenProperties implements InitializingBean {
 
     private static void require(boolean condition, String message) {
         if (!condition) throw new IllegalStateException(message);
+    }
+
+    public static final class Workspace {
+        private String defaultWorkspaceId = "";
+        public String getDefaultWorkspaceId() { return defaultWorkspaceId; }
+        public void setDefaultWorkspaceId(String value) { defaultWorkspaceId = value == null ? "" : value.trim(); }
     }
 
     public static final class Schema {

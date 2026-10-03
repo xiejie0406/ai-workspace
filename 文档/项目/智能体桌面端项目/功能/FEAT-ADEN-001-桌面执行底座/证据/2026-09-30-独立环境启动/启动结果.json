@@ -1,0 +1,180 @@
+{
+  "runId": "20260930-235836",
+  "origin": "http://127.0.0.1:18093",
+  "workspaceId": "c8a0eb9b-bf35-47b3-bc98-b645f7e5b12a",
+  "workspaceName": "Aden 独立测试 20260930-235836",
+  "runnerIds": [
+    "7b118aa7-0931-4aef-8c28-fc2f054bfa7e"
+  ],
+  "desktopProfile": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\four-projects\\aden\\electron-profile-20260930-235836",
+  "collectorPipe": "\\\\.\\pipe\\aden-collector-dev-20260930-235836",
+  "desktopPid": 27956,
+  "runnerPids": [
+    4056,
+    29376
+  ],
+  "bundleHashes": [
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\desktop\\aden-desktop\\out\\main\\index.js",
+      "sha256": "79073A6F14D635243756F0B664C007928376F2E783433123970E295B9B8A3BDB"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\desktop\\aden-desktop\\out\\preload\\index.cjs",
+      "sha256": "86764F5AD403D3ABA30EED7EE8B5E01D140307F4F7CE62740784C3FB5E3D5BB5"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\desktop\\aden-desktop\\out\\renderer\\index.html",
+      "sha256": "297D4C3E79D059A3D12734060E751C2774ABF34E958ADC14198CE085590BF445"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\desktop\\aden-desktop\\out\\renderer\\assets\\index-BCjLNqE_.js",
+      "sha256": "C6612AF070EFFF7A36B9092EA652333BD45FF380EE1040D8358C0AE822D2A853"
+    },
+    {
+      "path": "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\desktop\\aden-desktop\\out\\renderer\\assets\\index-Bz36Ic-Y.css",
+      "sha256": "3F7463333E3BFB111063CA3BE37B93C0AC82CB424927BC2668816FD56C344851"
+    }
+  ],
+  "createdAt": "2026-10-01T00:01:49.2225997+08:00",
+  "firstFailure": "Electron bad option --user-data-dir；首次桌面进程退出，Runner和Workspace保留",
+  "recovery": "Node spawn显式去除ELECTRON_RUN_AS_NODE；未修改全局环境；本轮隐藏启动未产生可见窗口，修正为明确可见交互窗口并仅重启自有桌面",
+  "data": "公开合成账号、新建测试Workspace；无真实商品",
+  "completedAt": "2026-09-30T16:19:29.467Z",
+  "feature": "FEAT-ADEN-001",
+  "desktopVersion": "0.3.0",
+  "electronVersion": "44.3.0",
+  "nativeScreenshotPixels": "1471×934",
+  "rendererViewport": "未知，未通过原生采证工具取得 CSS viewport",
+  "processes": [
+    {
+      "name": "aden-runner-simulator",
+      "pid": 4056,
+      "parentPid": 31116,
+      "startedUtc": "2026-09-30T15:58:41.10036Z",
+      "commandLine": "\"D:\\2025Ai\\26-05-23\\java-workspace\\python\\aden-runner\\.venv\\Scripts\\python.exe\" -u \"D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\four-projects\\aden\\runner-simulator.py\"",
+      "executablePath": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\aden-runner\\.venv\\Scripts\\python.exe"
+    },
+    {
+      "name": "aden-runner-simulator",
+      "pid": 29376,
+      "parentPid": 4056,
+      "startedUtc": "2026-09-30T15:58:41.302352Z",
+      "commandLine": "\"C:\\Program Files\\Python312\\python.exe\" -u \"D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\four-projects\\aden\\runner-simulator.py\"",
+      "executablePath": "C:\\Program Files\\Python312\\python.exe"
+    },
+    {
+      "name": "aden-desktop",
+      "pid": 27956,
+      "parentPid": 30076,
+      "startedUtc": "2026-09-30T16:05:56.691045Z",
+      "commandLine": "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\desktop\\aden-desktop\\node_modules\\electron\\dist\\electron.exe --user-data-dir=D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\four-projects\\aden\\electron-profile-20260930-235836 D:/2025Ai/26-05-23/java-workspace/frontend/desktop/aden-desktop",
+      "executablePath": "D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\desktop\\aden-desktop\\node_modules\\electron\\dist\\electron.exe"
+    }
+  ],
+  "publicServiceChecks": [
+    {
+      "name": "aden-java",
+      "pid": 27148,
+      "port": 18093,
+      "commandMatches": true,
+      "startMatches": true
+    },
+    {
+      "name": "aden-redis",
+      "pid": 27832,
+      "port": 16393,
+      "commandMatches": true,
+      "startMatches": true
+    }
+  ],
+  "backendJarSha256": "a6d07cf3aa1b406c4490e42e8afe4d0b6e19e5f7a7f41d9b1dd9426f0b91231a",
+  "evidenceResults": [
+    {
+      "id": "UAT-BOOT-ADEN-01",
+      "kind": "UI",
+      "target": "真实独立 Electron 登录页",
+      "input": "本地 0.3.0 bundle、专用 profile / 采集管道、API 18093",
+      "steps": "启动本项目 Electron → 通过 sky.list_windows 选唯一窗口 → 获取并保存原生截图 → view_image 回读",
+      "expected": "真实登录页可辨，无中心服务连接错误",
+      "actual": "Electron 44.3.0 原生窗口已显示登录页；验证码关闭，密码遮罩。首次 Node 模式/隐藏启动失败已保留，修正后通过。",
+      "result": "Pass",
+      "screenshotStatus": "已截图",
+      "screenshots": [
+        "UAT-BOOT-ADEN-01-登录页.png"
+      ],
+      "limitation": "只证明启动与登录页，不证明登录成功或采集。"
+    },
+    {
+      "id": "UAT-BOOT-ADEN-02",
+      "kind": "UI",
+      "target": "合成登录、Workspace 与中心连接",
+      "input": "公开 loopback 合成操作员；Aden 独立测试 20260930-235836",
+      "steps": "原生窗口填写合成账号 → 登录 → 自动选择唯一 Workspace → 保存首页截图 → view_image 回读",
+      "expected": "首页、指定 Workspace、LIVE/中心服务已连接可辨",
+      "actual": "指定 Workspace 自动选中，中心显示已连接、侧栏 LIVE；商品数 0。另观察到采集数据读取失败、任务数为 —，技术缺陷另列 EV-03。",
+      "result": "Pass",
+      "screenshotStatus": "已截图",
+      "screenshots": [
+        "UAT-BOOT-ADEN-02-首页连接及采集错误.png"
+      ],
+      "limitation": "Pass 范围限登录及中心连接；Chrome 扩展未连接，新版采集业务未通过。"
+    },
+    {
+      "id": "EV-BOOT-ADEN-01",
+      "kind": "EV",
+      "target": "服务与产物归属",
+      "input": "公共 Aden 进程登记、loopback 18093/16393、本地 bundle",
+      "steps": "只读核对 PID/命令/UTC 启动时间/监听 → 请求 captchaImage → SHA-256 回读",
+      "expected": "服务归属一致、API可读、运行版本可追溯",
+      "actual": "Java 27148、Redis 27832 归属与监听匹配；captchaImage code=200、captchaEnabled=false；当前 JAR 与 bundle 哈希保存在启动结果。",
+      "result": "Pass",
+      "screenshotStatus": "不适用",
+      "screenshots": [],
+      "limitation": "本轮未运行 Maven/npm 构建；复用产物不能宣称当前全工作树干净构建通过。"
+    },
+    {
+      "id": "EV-BOOT-ADEN-02",
+      "kind": "EV",
+      "target": "低权限 CORE Runner simulator 准备",
+      "input": "新 Workspace、CORE 注册、现有 Python 3.12 venv",
+      "steps": "注册 CORE Runner → 只以内存凭据启动 simulator → Session/3秒单轮轮询 → 日志及服务端只读回读",
+      "expected": "只访问 loopback；真实执行能力关闭；Session可建立",
+      "actual": "Session 已建立；venv launcher 4056 / Python 29376 持续运行；服务端 presence=ONLINE，capabilities=[CORE]；日志无异常。",
+      "result": "Pass",
+      "screenshotStatus": "不适用",
+      "screenshots": [],
+      "limitation": "本轮没有创建 CORE 任务；成功与取消链路未重新执行。没有真实 UIA/Shell/浏览器/外部写入。"
+    },
+    {
+      "id": "EV-BOOT-ADEN-03",
+      "kind": "EV",
+      "target": "新版采集任务读取兼容核查",
+      "input": "首页真实采集数据错误；新 Workspace 中 items/tasks 接口",
+      "steps": "保存首页失败画面 → GET 商品/任务接口 → 只读检查运行 JAR 和桌面 IPC 操作表",
+      "expected": "新版桌面可读取采集任务摘要；运行包具备对应路由",
+      "actual": "后端 items/tasks 两接口均 HTTP 200、有效空列表，JAR 包含 tasks/taskDetail。桌面源代码与 bundle 的 permission 表缺 tasks/taskDetail，在网络前抛“未知采集库操作”。",
+      "result": "Fail",
+      "screenshotStatus": "不适用",
+      "screenshots": [],
+      "limitation": "最小修复为补两个只读操作的既有 read 权限映射并定向验证；本轮只读诊断，业务源码和共用 JAR均未修改。"
+    }
+  ],
+  "userDecision": "待确认",
+  "manualBaseline": {
+    "feature": "FEAT-ADEN-003",
+    "ids": [
+      "MANUAL-28",
+      "MANUAL-29",
+      "MANUAL-30",
+      "MANUAL-31",
+      "MANUAL-32",
+      "MANUAL-33",
+      "MANUAL-34",
+      "MANUAL-35"
+    ],
+    "Pass": 0,
+    "NotRun": 8,
+    "待截图": 8
+  },
+  "reportVisualCheck": "NotRun：IAB URL安全策略拒绝file协议；未切换浏览器或用HTTP绕过"
+}

@@ -6,7 +6,7 @@
 > owner：用户负责产品范围、关键技术边界与执行授权；Codex 负责按本决策实施和验证  
 > 决策日期：2026-09-12；创建 / 更新：2026-09-12  
 > 批准依据：2026-09-12 用户批准十阶段执行包并明确要求按十个阶段进入编码实现  
-> 上游：[十阶段实施任务清单](../功能/FEAT-ADEN-001-桌面执行底座/任务清单.md)、[功能规格](../功能/FEAT-ADEN-001-桌面执行底座/功能规格.md)、[总技术设计](../功能/FEAT-ADEN-001-桌面执行底座/技术设计.md)  
+> 上游：[十阶段实施任务清单](../产品/统一设计文档.md#implementation)、[功能规格](../产品/统一设计文档.md#core-rules)、[总技术设计](../产品/统一设计文档.md#backend)<br>
 > 适用范围：`contracts/aden/`、`ruoyi-backend/ruoyi-aden/`、`frontend/desktop/aden-desktop/`、`python/aden-runner/`、`python/aden-agent-runtime/`
 > 状态边界：本文记录已批准的稳定取舍，不维护任务进度或验证结论；实施状态以任务清单为准，实际命令与结果以 Feature 验证记录为准
 

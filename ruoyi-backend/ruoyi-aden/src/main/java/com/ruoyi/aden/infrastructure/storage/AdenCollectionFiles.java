@@ -16,11 +16,17 @@ public final class AdenCollectionFiles {
         root = Path.of(configuredRoot).toAbsolutePath().normalize();
     }
     public Path path(String workspace, String key) {
+        return path(workspace, key, true);
+    }
+    public boolean exists(String workspace, String key) {
+        return Files.isRegularFile(path(workspace, key, false), LinkOption.NOFOLLOW_LINKS);
+    }
+    private Path path(String workspace, String key, boolean createParent) {
         if (!UUID.fromString(workspace).toString().equals(workspace) || !key.matches("[a-zA-Z0-9.-]{1,100}")) throw new IllegalArgumentException("非法存储键");
         Path result = root.resolve(workspace).resolve(key).normalize();
         if (!result.startsWith(root)) throw new IllegalArgumentException("非法存储路径");
         try {
-            Files.createDirectories(result.getParent());
+            if (createParent) Files.createDirectories(result.getParent());
             Path p = result.getParent();
             while (p != null) {
                 if (Files.isSymbolicLink(p)) throw new IllegalArgumentException("附件目录不能使用符号链接");

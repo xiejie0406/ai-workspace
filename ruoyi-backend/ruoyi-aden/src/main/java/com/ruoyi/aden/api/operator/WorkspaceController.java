@@ -38,6 +38,13 @@ public class WorkspaceController {
         return new WorkspaceListResponse(service.list(principal).stream().map(WorkspaceSnapshot::from).toList());
     }
 
+    @GetMapping("/default-workspace")
+    @PreAuthorize("@ss.hasPermi('aden:workspace:list') or @ss.hasPermi('aden:collection:read')")
+    public ResponseEntity<WorkspaceSnapshot> defaultWorkspace() {
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore())
+                .body(WorkspaceSnapshot.from(service.resolveDefault(principalProvider.current())));
+    }
+
     @PostMapping("/admin/workspaces")
     @PreAuthorize("@ss.hasPermi('aden:workspace:create')")
     public ResponseEntity<WorkspaceSnapshot> create(@Valid @RequestBody CreateWorkspaceRequest request,

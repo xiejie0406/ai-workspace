@@ -10,12 +10,16 @@ import com.ruoyi.aden.domain.workspace.AdenWorkspaceId;
 import com.ruoyi.aden.infrastructure.persistence.AdenCollectionStore;
 import com.ruoyi.aden.infrastructure.storage.AdenCollectionFiles;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 import tools.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /** 采集库的事务入口。Workspace 行串行化写入、幂等、清单修订与 CORE ledger 一起提交。 */
@@ -30,6 +34,12 @@ public class AdenCollectionService {
     private final AdenRequestFingerprint fingerprint;
     private final long quota;
     private final String fixtureOrigin;
+    private static final ZoneId BUSINESS_ZONE = ZoneId.of("Asia/Shanghai");
+    private static final String TASK_JOIN = " from aden_collection_snapshot s join aden_collection_item i on i.workspace_id=s.workspace_id and i.item_id=s.item_id " +
+            "join aden_task t on t.workspace_id=s.workspace_id and t.task_id=s.core_task_id ";
+    private static final String TASK_BOUNDARY = "where s.workspace_id=? and s.source='JD' and t.task_type='JD_DETAIL_CAPTURE' ";
+    private static final String TASK_COLUMNS = "select s.*,i.title,i.sku,i.platform,i.deleted,t.task_state,t.error_code,t.error_message";
+    private static final String PENDING_CONDITION = "(s.status='PARTIAL' or t.task_state='FAILED' or json_extract(s.content_json,'$.needsReview')=true)";
     private static final Set<String> IMAGE_HOSTS=Set.of("img10.360buyimg.com","img11.360buyimg.com","img12.360buyimg.com","img13.360buyimg.com","img14.360buyimg.com","img30.360buyimg.com");
     public AdenCollectionService(AdenCollectionStore db, AdenCollectionFiles files, AdenWorkspaceAccessGuard guard,
             AdenTaskLedgerRepository ledger, AdenTaskCasRepository cas, ObjectMapper json,
@@ -44,21 +54,104 @@ public class AdenCollectionService {
         if(!fixtureOrigin.isBlank() && !fixtureOrigin.matches("http://(127\\.0\\.0\\.1|localhost):[0-9]{1,5}"))throw new IllegalArgumentException("fixture-origin只允许明确端口的loopback origin");
         this.fixtureOrigin=fixtureOrigin;
     }
-    private void access(AdenOperatorPrincipal p,String ws,String operation,boolean write) {
-        guard.requireWorkspace(p,"aden:collection:"+operation,new AdenWorkspaceId(ws),
+    private com.ruoyi.aden.domain.workspace.AdenWorkspaceMembership access(AdenOperatorPrincipal p,String ws,String operation,boolean write) {
+        var member=guard.requireWorkspace(p,"aden:collection:"+operation,new AdenWorkspaceId(ws),
             write?AdenWorkspaceAccessGuard.WRITE_ROLES:AdenWorkspaceAccessGuard.READ_ROLES,UUID.randomUUID().toString());
         if(write) ledger.lockWorkspaceEventSequence(new AdenWorkspaceId(ws));
+        return member;
     }
     public Map<String,Object> list(AdenOperatorPrincipal p,String ws,String q,boolean deleted,int page,int size) {
         access(p,ws,"read",false);
         if(page<1 || page>100000 || size<1 || size>100 || q.length()>200) throw new IllegalArgumentException("分页参数无效");
         String search="%"+q.replace("!","!!").replace("%","!%").replace("_","!_")+"%";
-        Object total=db.one("select count(*) as n from aden_collection_item where workspace_id=? and deleted=? and (title like ? escape '!' or sku like ? escape '!')",ws,deleted,search,search).get("n");
-        var rows=db.rows("select * from aden_collection_item where workspace_id=? and deleted=? and (title like ? escape '!' or sku like ? escape '!') order by updated_at desc,item_id limit ? offset ?",ws,deleted,search,search,size,(page-1)*size);
+        Object total=db.one("select count(*) as n from aden_collection_item where workspace_id=? and deleted=? and (sku is not null or platform='MANUAL') and (title like ? escape '!' or sku like ? escape '!')",ws,deleted,search,search).get("n");
+        var rows=db.rows("select * from aden_collection_item where workspace_id=? and deleted=? and (sku is not null or platform='MANUAL') and (title like ? escape '!' or sku like ? escape '!') order by updated_at desc,item_id limit ? offset ?",ws,deleted,search,search,size,(page-1)*size);
         return map("items",rows.stream().map(this::summary).toList(),"total",total,"page",page,"pageSize",size);
     }
     public Map<String,Object> detail(AdenOperatorPrincipal p,String ws,String id) {
         access(p,ws,"read",false); return detailInternal(ws,id);
+    }
+    /** 一次用户确认保存对应一个 CORE 任务；从权威任务与其快照联合读取。 */
+    public Map<String,Object> tasks(AdenOperatorPrincipal p,String ws,String q,String status,int page,int size) {
+        return tasks(p,ws,q,status,page,size,"","");
+    }
+    @Transactional(transactionManager="adenTransactionManager", readOnly=true, isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> tasks(AdenOperatorPrincipal p,String ws,String q,String status,int page,int size,String fromDate,String toDate) {
+        access(p,ws,"read",false);
+        if(page<1 || page>100000 || size<1 || size>100 || q.length()>200 ||
+                !Set.of("ALL","SAVING","SAVED","PARTIAL").contains(status)) throw new IllegalArgumentException("采集任务筛选参数无效");
+        String search="%"+q.replace("!","!!").replace("%","!%").replace("_","!_")+"%";
+        LocalDate start=date(fromDate), end=date(toDate);
+        if(start!=null && end!=null && start.isAfter(end)) throw new IllegalArgumentException("起始日期不能晚于结束日期");
+        String where=TASK_JOIN+TASK_BOUNDARY+
+            "and (json_unquote(json_extract(s.content_json,'$.fields.title')) like ? escape '!' " +
+            "or json_unquote(json_extract(s.content_json,'$.fields.sku')) like ? escape '!') and (?='ALL' or s.status=?)";
+        var parameters=new ArrayList<Object>(Arrays.asList(ws,search,search,status,status));
+        if(start!=null){where+=" and s.created_at>=?";parameters.add(Timestamp.from(start.atStartOfDay(BUSINESS_ZONE).toInstant()));}
+        if(end!=null){where+=" and s.created_at<?";parameters.add(Timestamp.from(end.plusDays(1).atStartOfDay(BUSINESS_ZONE).toInstant()));}
+        Object total=db.one("select count(*) as n"+where,parameters.toArray()).get("n");
+        parameters.add(size); parameters.add((page-1)*size);
+        var rows=db.rows(TASK_COLUMNS+where+" order by s.created_at desc,s.snapshot_id desc limit ? offset ?",parameters.toArray());
+        return map("items",rows.stream().map(this::taskSummary).toList(),"total",total,"page",page,"pageSize",size);
+    }
+
+    /** 三个计数及近期列表从同一个只读一致快照取得，不累加客户端事件。 */
+    @Transactional(transactionManager="adenTransactionManager", readOnly=true, isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> overview(AdenOperatorPrincipal p,String ws) {
+        access(p,ws,"read",false);
+        Instant now=Instant.now(); LocalDate today=now.atZone(BUSINESS_ZONE).toLocalDate();
+        long saved=number(db.one("select count(*) as n from aden_collection_item where workspace_id=? and deleted=false and (sku is not null or platform='MANUAL')",ws).get("n"));
+        long captures=number(db.one("select count(*) as n"+TASK_JOIN+TASK_BOUNDARY+"and s.created_at>=? and s.created_at<?",ws,
+                Timestamp.from(today.atStartOfDay(BUSINESS_ZONE).toInstant()),Timestamp.from(today.plusDays(1).atStartOfDay(BUSINESS_ZONE).toInstant())).get("n"));
+        long pending=number(db.one("select count(*) as n"+TASK_JOIN+TASK_BOUNDARY+"and "+PENDING_CONDITION,ws).get("n"));
+        var items=db.rows("select * from aden_collection_item where workspace_id=? and deleted=false and (sku is not null or platform='MANUAL') order by updated_at desc,item_id desc limit 5",ws);
+        var recent=db.rows(TASK_COLUMNS+TASK_JOIN+TASK_BOUNDARY+"order by s.created_at desc,s.snapshot_id desc limit 5",ws);
+        var waiting=db.rows(TASK_COLUMNS+TASK_JOIN+TASK_BOUNDARY+"and "+PENDING_CONDITION+" order by s.created_at desc,s.snapshot_id desc limit 5",ws);
+        return map("savedProductCount",saved,"todayCaptureCount",captures,"pendingTaskCount",pending,
+                "recentItems",items.stream().map(this::summary).toList(),"recentTasks",recent.stream().map(this::taskSummary).toList(),
+                "pendingTasks",waiting.stream().map(this::taskSummary).toList(),"updatedAt",now.toString(),"timezone",BUSINESS_ZONE.getId());
+    }
+
+    private static LocalDate date(String value) {
+        if(value==null || value.isBlank())return null;
+        if(!value.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}"))throw new IllegalArgumentException("日期必须为YYYY-MM-DD");
+        try{return LocalDate.parse(value);}catch(DateTimeParseException invalid){throw new IllegalArgumentException("日期无效",invalid);}
+    }
+    public Map<String,Object> taskDetail(AdenOperatorPrincipal p,String ws,String taskId) {
+        access(p,ws,"read",false);
+        var row=db.one("select s.*,i.title,i.sku,i.platform,i.deleted,t.task_state,t.error_code,t.error_message " +
+            "from aden_collection_snapshot s join aden_collection_item i on i.workspace_id=s.workspace_id and i.item_id=s.item_id " +
+            "join aden_task t on t.workspace_id=s.workspace_id and t.task_id=s.core_task_id " +
+            "where s.workspace_id=? and s.core_task_id=? and s.source='JD' and t.task_type='JD_DETAIL_CAPTURE'",ws,taskId);
+        if(row==null) throw new AdenNotFoundException();
+        var result=taskSummary(row);
+        result.put("fields",decode(row.get("content_json")).get("fields"));
+        result.put("blocks",decode(row.get("content_json")).get("blocks"));
+        result.put("images",decode(row.get("manifest_json")).get("images"));
+        result.put("parserVersion",decode(row.get("content_json")).get("parserVersion"));
+        result.put("completeness",decode(row.get("content_json")).get("completeness"));
+        result.put("extraction",decode(row.get("content_json")).get("extraction"));
+        return result;
+    }
+    private Map<String,Object> taskSummary(Map<String,Object> row) {
+        var content=decode(row.get("content_json")); var fields=object(content.get("fields"));
+        var images=objects(decode(row.get("manifest_json")).get("images"));
+        return map("taskId",row.get("core_task_id"),"captureId",row.get("snapshot_id"),"snapshotId",row.get("snapshot_id"),
+            "itemId",row.get("item_id"),"title",fields.get("title"),"sku",fields.get("sku"),"platform",row.get("platform"),
+            "source",row.get("source"),"sourceUrl",fields.get("sourceUrl"),"specification",fields.get("specification"),
+            "createdAt",time(row.get("created_at")),"taskState",row.get("task_state"),"status",row.get("status"),
+            "contentSaved",true,"imageSaved",images.stream().filter(i->"SAVED".equals(i.get("status"))).count(),
+            "imageFailed",images.stream().filter(i->"FAILED".equals(i.get("status"))).count(),"imageTotal",images.size(),
+            "blockCount",listValue(content.get("blocks")).size(),"deleted",bool(row.get("deleted")),
+            "needsReview",Boolean.TRUE.equals(content.get("needsReview")),"pendingReason",pendingReason(content,images,row),
+            "errorCode",row.get("error_code"),"errorMessage",row.get("error_message"));
+    }
+    private static String pendingReason(Map<String,Object> content,List<Map<String,Object>> images,Map<String,Object> row) {
+        if(!str(content.get("pendingReason")).isBlank())return str(content.get("pendingReason"));
+        if(!str(row.get("error_message")).isBlank())return str(row.get("error_message"));
+        for(var section:objects(object(content.get("extraction")).get("sections")))if(!str(section.get("missingReason")).isBlank())return str(section.get("missingReason"));
+        for(var image:images)if("FAILED".equals(image.get("status")))return str(image.getOrDefault("error","图片未保存，请查看详情"));
+        return "PARTIAL".equals(row.get("status"))?"部分资料未保存，请查看详情":"";
     }
     public Map<String,Object> lookup(AdenOperatorPrincipal p,String ws,String sku) {
         access(p,ws,"read",false); if(!sku.matches("[0-9]{1,32}"))throw new IllegalArgumentException("SKU无效");
@@ -89,7 +182,7 @@ public class AdenCollectionService {
         var snap=db.one("select * from aden_collection_snapshot where workspace_id=? and snapshot_id=?",row.get("workspace_id"),row.get("snapshot_id"));
         var result=map("itemId",row.get("item_id"),"title",row.get("title"),"platform",row.get("platform"),"sku",row.get("sku"),
             "snapshotId",row.get("snapshot_id"),"generation",number(row.get("generation")),"version",number(row.get("version")),"deleted",bool(row.get("deleted")),
-            "updatedAt",time(row.get("updated_at")),"status",snap==null?"SAVING":snap.get("status"));
+            "updatedAt",time(row.get("updated_at")),"status",snap==null?"SAVING":snap.get("status"),"needsReview",row.get("sku")==null && "JD".equals(row.get("platform")));
         if(snap!=null) {
             var fields=object(decode(snap.get("content_json")).get("fields")); var images=objects(decode(snap.get("manifest_json")).get("images"));
             var curation=curation(str(row.get("workspace_id")),str(row.get("item_id")));
@@ -134,25 +227,29 @@ public class AdenCollectionService {
         var fields=object(body.get("fields")); String title=required(fields,"title",500);
         validatePrice(fields.get("price"));
         String sku=str(fields.get("sku"));
-        if(!manual && !sku.matches("[0-9]{1,32}")) throw new IllegalArgumentException("无法确认京东SKU，请手动新增");
+        if(!manual && !sku.isBlank() && !sku.matches("[0-9]{1,32}")) throw new IllegalArgumentException("京东SKU格式无效");
+        boolean needsReview=!manual && sku.isBlank();
+        Map<String,Object> extraction=manual?map("legacy",true):AdenCollectionExtraction.validate(body);
         String sourceUrl=str(fields.get("sourceUrl"));
         boolean sourceFixture=false;
         if(!sourceUrl.isBlank()) {
             URI uri=URI.create(sourceUrl);
             sourceFixture=isFixture(uri);
             if((!"https".equals(uri.getScheme())&&!sourceFixture) || uri.getHost()==null || uri.getRawUserInfo()!=null) throw new IllegalArgumentException("来源链接无效");
-            if(!manual && !sourceFixture && (!"item.jd.com".equals(uri.getHost()) || !uri.getPath().equals("/"+sku+".html") || uri.getPort()!=-1)) throw new IllegalArgumentException("京东详情链接与SKU不匹配");
+            if(!manual && !sourceFixture && (!"item.jd.com".equals(uri.getHost()) || uri.getPort()!=-1
+                    || (needsReview?!uri.getPath().matches("/[0-9]{1,32}\\.html"):!uri.getPath().equals("/"+sku+".html")))) throw new IllegalArgumentException("京东详情链接与SKU不匹配");
             fields.put("sourceUrl", uri.getScheme()+"://"+uri.getRawAuthority()+uri.getRawPath());
         } else if(!manual) throw new IllegalArgumentException("京东详情链接缺失");
         Set<String> allowed=Set.of("title","sku","price","priceText","sourceUrl","specification","shop","parameters","stockText","deliveryText","promotionText");
         fields.keySet().retainAll(allowed);
         List<Map<String,Object>> images=objects(body.get("images"));
         if(images.size()>50) throw new IllegalArgumentException("每次最多50张图片");
+        images=AdenCollectionExtraction.validateImageSources(images,extraction);
         Set<String> imageIds=new HashSet<>();
         for(var image:images) {
             String imageId=required(image,"imageId",128);
             if(!imageId.matches("[A-Za-z0-9_-]+") || !imageIds.add(imageId)) throw new IllegalArgumentException("图片标识重复或无效");
-            image.keySet().retainAll(Set.of("imageId","url","group","order"));
+            image.keySet().retainAll(Set.of("imageId","url","group","order","sourceId","sectionIds"));
             String url=str(image.get("url"));
             if(!url.isBlank()) { var uri=URI.create(url); if((!"https".equals(uri.getScheme())&&!isFixture(uri)) || uri.getHost()==null || uri.getRawUserInfo()!=null) throw new IllegalArgumentException("图片URL不合法"); image.put("url",uri.getScheme()+"://"+uri.getRawAuthority()+uri.getRawPath()); }
             image.put("status","PENDING"); image.put("source",manual?"MANUAL":"JD");
@@ -165,8 +262,9 @@ public class AdenCollectionService {
         }
         List<Map<String,Object>> blocks=objects(body.get("blocks"));
         if(blocks.size()>1000) throw new IllegalArgumentException("内容区块超限");
-        blocks.forEach(b->b.keySet().retainAll(Set.of("type","text","imageId")));
-        String identity=manual?"MANUAL:"+id:"JD:"+sku;
+        blocks.forEach(b->b.keySet().retainAll(Set.of("type","text","imageId","sourceId","sectionIds")));
+        blocks=AdenCollectionExtraction.normalizeBlocks(blocks,extraction);
+        String identity=manual?"MANUAL:"+id:needsReview?"JD_PENDING:"+id:"JD:"+sku;
         var existing=db.one("select * from aden_collection_item where workspace_id=? and identity_key=? for update",ws,identity);
         if(existing!=null && bool(existing.get("deleted"))) throw conflict("商品位于回收站，请先恢复后采集");
         Instant now=Instant.now(); String itemId=existing==null?newId():str(existing.get("item_id"));
@@ -185,10 +283,13 @@ public class AdenCollectionService {
         }
         String taskId=newId();
         createTask(p,ws,taskId,title,id,manual,now);
-        if(existing==null) db.update("insert into aden_collection_item(workspace_id,item_id,identity_key,platform,sku,title,snapshot_id,generation,created_at,updated_at) values(?,?,?,?,?,?,?,?,?,?)",ws,itemId,identity,manual?"MANUAL":"JD",manual?null:sku,title,id,generation,Timestamp.from(now),Timestamp.from(now));
+        if(existing==null) db.update("insert into aden_collection_item(workspace_id,item_id,identity_key,platform,sku,title,snapshot_id,generation,created_at,updated_at) values(?,?,?,?,?,?,?,?,?,?)",ws,itemId,identity,manual?"MANUAL":"JD",manual||needsReview?null:sku,title,id,generation,Timestamp.from(now),Timestamp.from(now));
         else db.update("update aden_collection_item set title=?,snapshot_id=?,version=version+1,updated_at=? where workspace_id=? and item_id=?",title,id,Timestamp.from(now),ws,itemId);
         var content=map("fields",fields,"blocks",blocks,"documentId",str(body.get("documentId")),"parserVersion",str(body.get("parserVersion")),"completeness",body.getOrDefault("completeness","UNKNOWN"));
         content.put("sourceFixture",sourceFixture);
+        content.put("extraction",extraction);
+        content.put("needsReview",needsReview);
+        if(needsReview)content.put("pendingReason","未确认SKU，请核对来源后重新提取");
         String manifest=encoded(map("images",images));
         db.update("insert into aden_collection_snapshot(workspace_id,snapshot_id,item_id,core_task_id,request_hash,actor_id,generation,source,content_json,manifest_json,status,created_at) values(?,?,?,?,?,?,?,?,?,?,?,?)",ws,id,itemId,taskId,hash,p.userId(),generation,manual?"MANUAL":"JD",encoded(content),manifest,"SAVING",Timestamp.from(now));
         db.update("insert into aden_collection_manifest(workspace_id,snapshot_id,version,manifest_json,created_at) values(?,?,1,?,?)",ws,id,manifest,Timestamp.from(now));
@@ -268,7 +369,7 @@ public class AdenCollectionService {
         }
         for(var image:images) if("PENDING".equals(image.get("status"))) image.putAll(map("status","FAILED","error","资源尚未保存"));
         saveManifest(ws,snap,images);
-        String status=images.stream().allMatch(i->"SAVED".equals(i.get("status")))?"SAVED":"PARTIAL";
+        String status=completedStatus(snap,images);
         db.update("update aden_collection_snapshot set status=? where workspace_id=? and snapshot_id=?",status,ws,id);
         var task=ledger.findTaskForUpdate(new AdenWorkspaceId(ws),new AdenTaskId(str(snap.get("core_task_id")))).orElseThrow(AdenNotFoundException::new).task();
         if(task.state()==AdenTaskState.RUNNING) {
@@ -286,7 +387,12 @@ public class AdenCollectionService {
         long next=number(snap.get("manifest_version"))+1;
         db.update("insert into aden_collection_manifest(workspace_id,snapshot_id,version,manifest_json,created_at) values(?,?,?,?,?)",ws,snap.get("snapshot_id"),next,value,Timestamp.from(Instant.now()));
         db.update("update aden_collection_snapshot set manifest_json=?,manifest_version=? where workspace_id=? and snapshot_id=?",value,next,ws,snap.get("snapshot_id"));
-        if(!"SAVING".equals(snap.get("status"))) db.update("update aden_collection_snapshot set status=? where workspace_id=? and snapshot_id=?",images.stream().allMatch(i->"SAVED".equals(i.get("status")))?"SAVED":"PARTIAL",ws,snap.get("snapshot_id"));
+        if(!"SAVING".equals(snap.get("status"))) db.update("update aden_collection_snapshot set status=? where workspace_id=? and snapshot_id=?",completedStatus(snap,images),ws,snap.get("snapshot_id"));
+    }
+    private String completedStatus(Map<String,Object> snap,List<Map<String,Object>> images) {
+        var content=decode(snap.get("content_json"));
+        return !Boolean.TRUE.equals(content.get("needsReview")) && !AdenCollectionExtraction.hasMissing(object(content.get("extraction")))
+                && images.stream().allMatch(i->"SAVED".equals(i.get("status")))?"SAVED":"PARTIAL";
     }
     public Map<String,Object> curate(AdenOperatorPrincipal p,String ws,String id,Map<String,Object> body) {
         access(p,ws,"edit",true); var item=item(ws,id); requireLive(item,number(item.get("generation")));
@@ -362,6 +468,54 @@ public class AdenCollectionService {
         var row=db.one("select * from aden_collection_export where workspace_id=? and export_id=?",ws,id); if(row==null) throw new AdenNotFoundException();
         for(var selection:objects(json.readValue(str(row.get("selection_json")),List.class))) requireLive(item(ws,str(selection.get("itemId"))),number(selection.get("generation")));
         return new Binary(files.read(ws,id+".export"),str(row.get("mime_type")),str(row.get("file_name")));
+    }
+
+    @Transactional(transactionManager="adenTransactionManager", readOnly=true, isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> exports(AdenOperatorPrincipal p,String ws,int page,int pageSize) {
+        var member=access(p,ws,"export",false);
+        if(page<1 || page>100000 || pageSize<1 || pageSize>100)throw new IllegalArgumentException("导出分页参数无效");
+        Object total=db.one("select count(*) as n from aden_collection_export where workspace_id=?",ws).get("n");
+        var rows=db.rows("select * from aden_collection_export where workspace_id=? order by created_at desc,export_id desc limit ? offset ?",ws,pageSize,(page-1)*pageSize);
+        boolean canDownload=member.role()!=com.ruoyi.aden.domain.workspace.AdenWorkspaceRole.VIEWER;
+        return map("items",rows.stream().map(row->exportRecord(ws,row,canDownload,false)).toList(),"total",total,"page",page,"pageSize",pageSize);
+    }
+
+    @Transactional(transactionManager="adenTransactionManager", readOnly=true, isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> exportDetail(AdenOperatorPrincipal p,String ws,String id) {
+        var member=access(p,ws,"export",false);
+        var row=db.one("select * from aden_collection_export where workspace_id=? and export_id=?",ws,uuid(id));
+        if(row==null)throw new AdenNotFoundException();
+        return exportRecord(ws,row,member.role()!=com.ruoyi.aden.domain.workspace.AdenWorkspaceRole.VIEWER,true);
+    }
+
+    private Map<String,Object> exportRecord(String ws,Map<String,Object> row,boolean canDownload,boolean detail) {
+        var selections=objects(json.readValue(str(row.get("selection_json")),List.class));
+        boolean live=true; long saved=0,missing=0,removedCount=0;
+        for(var selection:selections) {
+            var current=db.one("select * from aden_collection_item where workspace_id=? and item_id=?",ws,selection.get("itemId"));
+            if(current==null || bool(current.get("deleted")) || number(current.get("generation"))!=number(selection.get("generation")))live=false;
+            var snapshot=object(selection.get("snapshot")); var curation=object(selection.get("curation"));
+            Set<Object> removed=Objects.equals(curation.get("snapshotId"),snapshot.get("snapshotId"))?new HashSet<>(listValue(curation.get("removedImageIds"))):Set.of();
+            for(var image:objects(snapshot.get("images"))) {
+                if(removed.contains(image.get("imageId")))removedCount++;
+                else if("SAVED".equals(image.get("status")))saved++;
+                else missing++;
+            }
+        }
+        boolean file=files.exists(ws,str(row.get("export_id"))+".export");
+        String reason=!live?"商品状态已变化，请重新生成导出":!file?"导出文件已不可用，请重新生成":!canDownload?"当前角色仅可查看导出记录":"";
+        var result=map("exportId",row.get("export_id"),"fileName",row.get("file_name"),"mimeType",row.get("mime_type"),
+                "size",number(row.get("byte_size")),"format","application/zip".equals(row.get("mime_type"))?"ZIP":"XLSX",
+                "status",live&&file?"COMPLETED":"UNAVAILABLE","createdAt",time(row.get("created_at")),"itemCount",selections.size(),
+                "imageSaved",saved,"imageMissing",missing,"imageRemoved",removedCount,"downloadAvailable",live&&file&&canDownload);
+        if(!reason.isBlank())result.put("unavailableReason",reason);
+        if(detail)result.put("selections",selections.stream().map(selection->{
+            var snapshot=object(selection.get("snapshot"));
+            return map("itemId",selection.get("itemId"),"snapshotId",snapshot.get("snapshotId"),
+                    "title",object(snapshot.get("fields")).get("title"),"createdAt",snapshot.get("createdAt"),
+                    "curationRevision",str(object(selection.get("curation")).get("revision")),"assetManifestVersion",str(snapshot.get("assetManifestVersion")));
+        }).toList());
+        return result;
     }
     private void createTask(AdenOperatorPrincipal p,String ws,String taskId,String title,String captureId,boolean manual,Instant now) {
         var workspace=new AdenWorkspaceId(ws); String safeTitle=title.replace('\n',' ').replace('\r',' '); if(safeTitle.length()>120) safeTitle=safeTitle.substring(0,120);

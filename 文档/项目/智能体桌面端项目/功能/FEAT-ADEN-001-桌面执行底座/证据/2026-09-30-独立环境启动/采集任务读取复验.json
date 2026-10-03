@@ -1,0 +1,200 @@
+{
+  "recordVersion": "1.0.0",
+  "checkedAt": "2026-10-01T17:02:10.992651+08:00",
+  "executor": "Codex",
+  "requirementVersion": "统一设计文档 1.0.0",
+  "scope": "桌面采集任务列表与详情 IPC 分发的局部修复及安装版定向复验",
+  "version": {
+    "startedAt": "2026-10-01T16:59:49.1209705+08:00",
+    "pid": 4924,
+    "executable": "C:\\Users\\admin\\AppData\\Local\\Programs\\Aden Local Test\\Aden Local Test.exe",
+    "profile": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\four-projects\\aden\\installed-electron-profile-20261001154323",
+    "origin": "http://127.0.0.1:18093",
+    "sourceVersion": "0.3.0",
+    "installedPackageVersion": "0.3.0",
+    "outBackup": "C:\\Users\\admin\\AppData\\Local\\Programs\\Aden Local Test\\resources\\app\\out-sync-backup-20261001-165821",
+    "configBackup": "C:\\Users\\admin\\AppData\\Local\\Programs\\Aden Local Test\\resources\\app\\local-test-before-task-readfix-20261001-165807.json",
+    "files": [
+      {
+        "file": "main\\index.js",
+        "sha256": "0CBE7AF1E5FB2863C948FE64AC6A6E8FF52C098F3B33B969998A9AD4DECE2B36",
+        "matches": true
+      },
+      {
+        "file": "preload\\index.cjs",
+        "sha256": "86764F5AD403D3ABA30EED7EE8B5E01D140307F4F7CE62740784C3FB5E3D5BB5",
+        "matches": true
+      },
+      {
+        "file": "renderer\\index.html",
+        "sha256": "297D4C3E79D059A3D12734060E751C2774ABF34E958ADC14198CE085590BF445",
+        "matches": true
+      },
+      {
+        "file": "renderer\\assets\\index-BCjLNqE_.js",
+        "sha256": "C6612AF070EFFF7A36B9092EA652333BD45FF380EE1040D8358C0AE822D2A853",
+        "matches": true
+      },
+      {
+        "file": "renderer\\assets\\index-Bz36Ic-Y.css",
+        "sha256": "3F7463333E3BFB111063CA3BE37B93C0AC82CB424927BC2668816FD56C344851",
+        "matches": true
+      }
+    ],
+    "javaUpdated": false,
+    "extensionUpdated": false,
+    "nativeHostUpdated": false
+  },
+  "backendComparison": {
+    "checkedAt": "2026-10-01T16:58:40.1639118+08:00",
+    "origin": "http://127.0.0.1:18093",
+    "workspaceId": "c8a0eb9b-bf35-47b3-bc98-b645f7e5b12a",
+    "workspaceName": "Aden 独立测试 20260930-235836",
+    "captchaEnabled": false,
+    "productsTotal": 0,
+    "tasksTotal": 0,
+    "productIds": [],
+    "taskIds": [],
+    "runnerId": "28623ee2-a55d-405b-be47-03ad9f5d59f9",
+    "runnerPresence": "ONLINE",
+    "runnerLastSeen": "2026-10-01T07:56:52.938004Z",
+    "runnerHeartbeat": "2026-10-01T16:58:31.17533+08:00",
+    "permissionChanges": false,
+    "businessWrites": false
+  },
+  "postLaunchProcesses": {
+    "checkedAt": "2026-10-01T17:01:31.1393371+08:00",
+    "launchPid": 4924,
+    "targetProcesses": [],
+    "uiControlStoppedByUser": true,
+    "additionalLaunchAttempt": false
+  },
+  "businessResults": [
+    {
+      "id": "UAT-BOOT-ADEN-02",
+      "name": "安装版与中心连接",
+      "prerequisite": "本机安装版、18093 中心、16393 Redis、原测试空间及既有模拟执行端。",
+      "steps": "核对安装路径、配置与心跳；从重新启动的安装版查看连接状态及当前空间并截图。",
+      "expected": "安装版指向 18093，原空间可用，连接状态真实；模拟执行端在线不代表采集插件连接。",
+      "actual": "中心与 Redis 已运行；模拟执行端近期成功心跳持续更新。恢复安装配置为 18093，完成产物同步并发起安装版启动。重新定位窗口时用户按 Escape 停止电脑控制，尚未核对修复后的实际页面。随后只读回读未找到目标安装目录的任何 Aden 进程；启动未保持运行，退出原因未确认。未再次启动。",
+      "impact": "本轮启动未保持运行，当前不能提供已核对的可用安装版窗口。缺少修复后页面截图，仍保留已观察到的启动失败。",
+      "result": "Fail",
+      "resultLabel": "未通过",
+      "screenshotState": "截图阻塞",
+      "screenshots": [],
+      "recovery": "在用户允许恢复桌面操作后，先定位本次退出原因，修复后重新启动并复验连接页面。"
+    },
+    {
+      "id": "UAT-BOOT-ADEN-03",
+      "name": "首页采集摘要",
+      "prerequisite": "合成账号、原测试空间；后台只读对照为商品 0 个、采集任务 0 个。",
+      "steps": "进入工作台，查看商品数、任务数、最近记录及错误提示，保存首页截图。",
+      "expected": "商品数和任务数均为 0，无读取失败提示；未知或失败不能显示成零。",
+      "actual": "权限分发缺口已修复，定向测试验证两个读取操作可到达后台请求。因电脑控制停止，尚未在同步后的安装版核对首页。",
+      "impact": "无法确认用户在首页看到正确数量及读取错误已消失。原读取失败事实与证据保留。",
+      "result": "Blocked",
+      "resultLabel": "受阻",
+      "screenshotState": "截图阻塞",
+      "screenshots": [],
+      "recovery": "用户恢复桌面操作后，按本轮清单继续核对安装版并保存实际截图。"
+    },
+    {
+      "id": "UAT-BOOT-ADEN-04",
+      "name": "采集任务列表",
+      "prerequisite": "原空间有读取权限，当前后台任务为 0 个。",
+      "steps": "进入采集任务，查询并刷新；有任务时打开详情核对商品、规格、内容与图片结果。",
+      "expected": "任务列表显示真实空态且无读取错误；有数据时详情与后台一致。",
+      "actual": "任务列表与详情的主进程分发均已补齐读取权限；无权限、过期空间及不受信窗口的拒绝测试通过。页面操作因用户停止电脑控制受阻，且原空间无任务详情样本。",
+      "impact": "空列表页面与任务详情页面未确认。详情分发的技术测试不能代替真实详情场景。",
+      "result": "Blocked",
+      "resultLabel": "受阻",
+      "screenshotState": "截图阻塞",
+      "screenshots": [],
+      "recovery": "用户恢复桌面操作后，按本轮清单继续核对安装版并保存实际截图。"
+    },
+    {
+      "id": "UAT-BOOT-ADEN-05",
+      "name": "商品结果关联检查",
+      "prerequisite": "同一空间；本轮没有创建或改写商品。",
+      "steps": "进入商品结果核对数据，再返回任务与工作台，保存截图并核对空间。",
+      "expected": "商品读取仍可用，空态与后台商品数 0 一致；切页后不串空间。",
+      "actual": "后台商品接口只读成功，原商品读取服务的定向测试通过。同步后的页面切换与截图未执行，原因是电脑控制已被用户停止。",
+      "impact": "商品页面及导航关联的实际效果仍需定向复验。",
+      "result": "Blocked",
+      "resultLabel": "受阻",
+      "screenshotState": "截图阻塞",
+      "screenshots": [],
+      "recovery": "用户恢复桌面操作后，按本轮清单继续核对安装版并保存实际截图。"
+    }
+  ],
+  "counts": {
+    "business": {
+      "Pass": 0,
+      "Fail": 1,
+      "Blocked": 3,
+      "NotRun": 0
+    },
+    "unitAssertions": {
+      "Pass": 18
+    },
+    "baselineReusedAsCurrentPass": 0
+  },
+  "technicalResults": [
+    {
+      "name": "修复前复现",
+      "result": "Fail",
+      "detail": "两个有读取权限的操作失败，另六个拒绝边界测试通过。",
+      "evidence": "IPC修复前测试.log"
+    },
+    {
+      "name": "测试开发错误",
+      "result": "Fail",
+      "detail": "首次导入路径错误；修复后发现新增 URL 类型断言错误；均已修正。后者原日志保留。",
+      "evidence": "IPC修复后测试.log"
+    },
+    {
+      "name": "定向回归测试",
+      "result": "Pass",
+      "detail": "三个测试文件共 18 项通过，覆盖任务分发、服务和安全边界。使用模拟网络与账号，不代表真实采集。",
+      "evidence": "IPC定向复验测试.log"
+    },
+    {
+      "name": "任务列表组件",
+      "result": "Pass",
+      "detail": "此前批次中两项组件测试通过，整体批次因新增 URL 断言错误退出 1。",
+      "evidence": "IPC修复后测试.log"
+    },
+    {
+      "name": "类型检查与构建同步",
+      "result": "Pass",
+      "detail": "契约生成检查、三类 TypeScript 检查、构建入口检查及同步命令退出 0。",
+      "evidence": "采集任务修复构建同步.log"
+    },
+    {
+      "name": "安装产物一致性",
+      "result": "Pass",
+      "detail": "5 个文件的构建与安装 SHA-256 一致，配置与旧 out 备份已保存。",
+      "evidence": "任务读取同步版本.json"
+    }
+  ],
+  "historicalFailure": {
+    "id": "EV-BOOT-ADEN-03",
+    "statusAtOriginalExecution": "Fail",
+    "currentTechnicalRepair": "Pass",
+    "currentPageReverification": "Blocked",
+    "evidence": "验收清单.md"
+  },
+  "userDecision": "待确认",
+  "gitWrites": false,
+  "businessWrites": false,
+  "uiTool": "computer-use / @oai/sky",
+  "uiRuntimeObservedBeforeRestart": "Electron 44.3.0 / Chromium 152.0.7977.78；1471×934 截图；实际安装目录；旧页面显示版本 0.2.0，安装 package 为 0.3.0，重启后的显示版本未核对。",
+  "reportVisualCheck": "未执行：用户已停止电脑控制；本轮只进行静态结构与链接检查。",
+  "limits": [
+    "重新启动后未找到目标安装目录进程，退出原因未确认；一项未通过、三项受阻，均无修复后页面截图。",
+    "原空间没有任务详情样本；真实详情未覆盖。",
+    "插件、Native Host、安装器与 Java 本轮未更新。",
+    "原插件手工清单八项未执行状态保留，真实京东、图片、导出、完整权限矩阵未在本轮验收。",
+    "旧启动清单和旧截图仍作为历史证据，不计作本轮通过。"
+  ]
+}

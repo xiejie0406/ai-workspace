@@ -622,7 +622,18 @@
           }
         },
         "capabilities": {
-          "$ref": "#/$defs/CapabilityProjectionList"
+          "oneOf": [
+            {
+              "$ref": "#/$defs/CapabilityProjectionList"
+            },
+            {
+              "type": "array",
+              "maxItems": 0,
+              "items": {
+                "$ref": "#/$defs/CapabilityProjection"
+              }
+            }
+          ]
         },
         "snapshotQueryHash": {
           "$ref": "./common.schema.json#/$defs/Sha256"
@@ -639,7 +650,8 @@
         "generatedAt": {
           "$ref": "./common.schema.json#/$defs/UtcDateTime"
         }
-      }
+      },
+      "description": "Complete projection requires task:list, runner:list, capability:list and event:subscribe. Effective collection:read members may receive same shape with empty CORE lists and zero stream watermark; this does not grant event access."
     },
     "PublicProjectionState": {
       "type": "string",

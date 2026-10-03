@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { join } from 'node:path'
 import type { RendererTrust } from '../config/trusted-origins'
 import { installSessionSecurity, installWebContentsSecurity } from '../security/web-contents-policy'
@@ -14,7 +14,7 @@ export function createMainWindow(options: WindowFactoryOptions): BrowserWindow {
   const window = new BrowserWindow({
     width: 1360,
     height: 860,
-    minWidth: 1080,
+    minWidth: 1024,
     minHeight: 720,
     show: false,
     backgroundColor: '#f3f5f2',
@@ -27,7 +27,8 @@ export function createMainWindow(options: WindowFactoryOptions): BrowserWindow {
       webSecurity: true,
       allowRunningInsecureContent: false,
       webviewTag: false,
-      spellcheck: false
+      spellcheck: false,
+      additionalArguments: [`--aden-desktop-version=${app.getVersion()}`]
     }
   })
   installSessionSecurity(window.webContents.session, options.trust)
