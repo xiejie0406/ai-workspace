@@ -38,6 +38,8 @@ import com.ruoyi.interview.application.interview.port.InterviewRecoveryProjectio
 import com.ruoyi.interview.application.interview.port.InterviewRepository;
 import com.ruoyi.interview.application.interview.port.PlanQuestionSelectionPort;
 import com.ruoyi.interview.application.platform.IdempotencyGuard;
+import com.ruoyi.interview.application.shared.ApplicationErrorCode;
+import com.ruoyi.interview.application.shared.ApplicationException;
 import com.ruoyi.interview.application.platform.port.ClockPort;
 import com.ruoyi.interview.application.platform.port.DomainEventPort;
 import com.ruoyi.interview.application.platform.port.IdGeneratorPort;
@@ -111,7 +113,9 @@ public class InterviewUseCaseConfiguration {
                     """, Map.of("tenantId", request.tenantId().value(), "userId", request.userId().value()),
                     (row, index) -> new ImmutableVersionRef(ResourceId.of(row.getString("profile_version_id")),
                             row.getInt("version_no"), row.getString("content_hash")))
-                    .stream().findFirst().orElseThrow(() -> new IllegalStateException("当前账号缺少有效面试档案"));
+                    .stream().findFirst().orElseThrow(() -> new ApplicationException(
+                            ApplicationErrorCode.PLAN_NOT_READY,
+                            "当前账号缺少有效面试档案", false, Map.of("reason", "PROFILE_MISSING")));
 
             // 本地迁移验收的试用权益。生产套餐接入后由 Billing onboarding 取代此幂等初始化。
             jdbc.update("""
@@ -177,7 +181,10 @@ public class InterviewUseCaseConfiguration {
                             topic, new TimeBudget(Duration.ofMillis(millis)),
                             index < request.totalFollowUpBudget() ? 1 : 0));
             if (selected.isEmpty()) {
-                throw new IllegalStateException("公开题库中没有匹配当前岗位的已发布题目");
+                throw new ApplicationException(
+                        ApplicationErrorCode.PLAN_NOT_READY,
+                        "公开题库中没有匹配当前岗位的已发布题目", false,
+                        Map.of("reason", "PUBLISHED_QUESTIONS_MISSING"));
             }
             return selected;
         };

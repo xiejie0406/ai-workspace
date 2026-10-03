@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -25,6 +26,7 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,6 +37,19 @@ import java.util.Map;
 @RestControllerAdvice(basePackages = "com.ruoyi.interview.controller.rest")
 public class ApiErrorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiErrorHandler.class);
+
+    @ExceptionHandler(ResponseStatusException.class)
+    ResponseEntity<AjaxResult> statusFailure(ResponseStatusException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.resolve(exception.getStatusCode().value());
+        if (status == null) status = HttpStatus.INTERNAL_SERVER_ERROR;
+        LOG.warn("Request rejected correlationId={} path={} status={}",
+                correlationId(request), request.getRequestURI(), status.value());
+        // 当前受控朗读接口的中文原因不包含供应商响应或秘密；其他接口使用通用提示。
+        String message = request.getRequestURI().endsWith("/question-speech") && exception.getReason() != null
+                ? exception.getReason() : "请求暂时无法完成";
+        return response(status, status == HttpStatus.SERVICE_UNAVAILABLE ? "VOICE_SYNTHESIS_UNAVAILABLE" : "REQUEST_REJECTED",
+                message, status.is5xxServerError(), Map.of(), request);
+    }
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     ResponseEntity<AjaxResult> accessDenied(Exception exception, HttpServletRequest request) {
@@ -90,7 +105,7 @@ public class ApiErrorHandler {
         return response(
                 status,
                 exception.code().name(),
-                applicationMessage(exception.code()),
+                applicationMessage(exception),
                 exception.retryable(),
                 details,
                 request);
@@ -133,6 +148,7 @@ public class ApiErrorHandler {
         if (!details.isEmpty()) result.put("data", details);
         return ResponseEntity.status(status)
                 .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(result);
     }
 
@@ -147,20 +163,26 @@ public class ApiErrorHandler {
             case FORBIDDEN -> HttpStatus.FORBIDDEN;
             case IDEMPOTENCY_IN_PROGRESS, IDEMPOTENCY_REPLAY_FAILURE -> HttpStatus.CONFLICT;
             case CAPABILITY_UNAVAILABLE -> HttpStatus.NOT_IMPLEMENTED;
+            case PLAN_NOT_READY -> HttpStatus.CONFLICT;
             case PROVIDER_BAD_RESPONSE -> HttpStatus.BAD_GATEWAY;
             case DEADLINE_EXCEEDED -> HttpStatus.GATEWAY_TIMEOUT;
             case INTERNAL_CONSISTENCY_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
 
-    private String applicationMessage(ApplicationErrorCode code) {
-        return switch (code) {
+    private String applicationMessage(ApplicationException exception) {
+        return switch (exception.code()) {
             case NOT_FOUND -> "请求的资源不存在";
             case AUTH_REQUIRED -> "需要登录后继续";
             case FORBIDDEN -> "没有执行该操作的权限";
             case IDEMPOTENCY_IN_PROGRESS -> "相同操作仍在处理中";
             case IDEMPOTENCY_REPLAY_FAILURE -> "该幂等操作已记录失败结果";
             case CAPABILITY_UNAVAILABLE -> "该能力暂不可用";
+            case PLAN_NOT_READY -> switch (exception.details().getOrDefault("reason", "")) {
+                case "PROFILE_MISSING" -> "当前账号缺少有效面试档案，请先准备档案";
+                case "PUBLISHED_QUESTIONS_MISSING" -> "没有匹配岗位的已发布题目，请联系题库维护人员";
+                default -> "面试前提资料尚未就绪，请检查档案和已发布题目";
+            };
             case PROVIDER_BAD_RESPONSE -> "外部能力返回了不可接受的结果";
             case DEADLINE_EXCEEDED -> "操作未能在时限内完成";
             case INTERNAL_CONSISTENCY_ERROR -> "服务暂时不可用";

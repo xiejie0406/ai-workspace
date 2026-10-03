@@ -6,6 +6,7 @@ import vue from '@vitejs/plugin-vue'
 const backendUrl = process.env.INTERVIEW_DEV_BACKEND_URL || 'http://127.0.0.1:8081'
 
 export default defineConfig({
+  cacheDir: process.env.PROJECT_VITE_CACHE_DIR || 'node_modules/.vite',
   plugins: [vue()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },

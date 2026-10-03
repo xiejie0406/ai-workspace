@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Voice OpenAPI 的 REST 入站层；音频正文只通过受控 WebSocket 传输。 */
+/** Voice OpenAPI 的 REST 入站层；录音与后续题 TTS 通过受控 WebSocket 传输，首题朗读另走本人鉴权的 QuestionSpeechController。 */
 @Validated
 @InterviewEnabled
 @RestController

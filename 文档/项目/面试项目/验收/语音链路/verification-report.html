@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>语音面试链路验收受阻｜2026-09-26</title>
+  <style>
+    :root{font-family:system-ui,"Microsoft YaHei",sans-serif;color:#1b2941;background:#f3f6fb}
+    body{max-width:1080px;margin:auto;padding:28px 20px 64px}h1{margin:0 0 10px;font-size:30px}h2{font-size:20px;margin:0 0 16px}
+    p,dd,li{line-height:1.7}.lead,footer{color:#61708a}.meta,.card{background:#fff;border:1px solid #e2e8f3;border-radius:15px;padding:20px;margin:16px 0;box-shadow:0 10px 28px #2435600a}
+    .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.meta span{display:block;color:#71809a;font-size:12px}.meta strong{display:block;margin-top:5px;overflow-wrap:anywhere}
+    .tag{display:inline-block;padding:3px 9px;border-radius:99px;background:#fff0e8;color:#a94b13;font-size:12px}.tag.wait{background:#edf1f7;color:#5c6880}
+    dl{display:grid;grid-template-columns:100px 1fr;gap:8px 16px;margin:0}dt{color:#66758f;font-weight:700}dd{margin:0}a{color:#3157d5}code{background:#edf1f8;padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}
+    @media(max-width:700px){.meta{grid-template-columns:1fr}dl{grid-template-columns:1fr;gap:3px}dd{margin-bottom:10px}}
+  </style>
+</head>
+<body>
+  <h1>语音面试链路验收受阻</h1>
+  <p class="lead">阶段报告 · 2026-09-26。实际场景、命令和结果以<a href="../2026-09-26-语音链路专项验收清单.md">逐项清单</a>为准。用户接受决定：<strong>待确认</strong>。</p>
+  <section class="meta">
+    <div><span>测试版本</span><strong>8085 JAR SHA-256 1aaeab80752ca38e42e828e09d457a71494a47de95962e135e3f521d6e9d3005</strong></div>
+    <div><span>环境与数据</span><strong>Portal 5177 / 独立后端 8085；本地测试账号、合成面试会话；共享本机 MySQL / PostgreSQL；Codex 内置浏览器 IAB，约 1279×720，内核版本未知</strong></div>
+    <div><span>逐项结果</span><strong>6 项：Pass 0、Fail 0、Blocked 5、NotRun 1；全部 UI 截图状态为“待截图”</strong></div>
+  </section>
+  <section class="card" id="V-01"><h2>V-01 · 语音服务预检 <span class="tag">Blocked</span></h2><dl>
+    <dt>目标／输入</dt><dd>启动独立服务，用现有本地测试账号进入<a href="http://127.0.0.1:5177/interviews/40ec57fc-5501-460f-be6f-b4ee335b448e">语音房间</a>。</dd>
+    <dt>操作与预期</dt><dd>回读数据库、存储、加密、票据、ASR、TTS 六项；实际缺项应明确显示，齐备后才可录音。</dd>
+    <dt>实际</dt><dd>旧 API Key 经用户授权导入若依托管密钥，状态 ACTIVE / api-key / v1。独立 8085 的能力接口 HTTP 200、configured=true，六项均 ready=true；页面没有未就绪横幅。配置检查本身不证明真实供应商调用。</dd>
+    <dt>证据／截图</dt><dd><code>.runtime/import-speech-secret-uat.ps1</code>、<code>.runtime/start-interview-voice-uat-8085.ps1</code>、IAB 能力回读；实际页面截图未归档，状态<strong>待截图</strong>。</dd>
+    <dt>限制／复验</dt><dd>需归档能力页面与密钥状态截图；真实调用另见 V-02 至 V-04。</dd>
+  </dl></section>
+  <section class="card" id="V-02"><h2>V-02 · 麦克风与手动录音 <span class="tag">Blocked</span></h2><dl>
+    <dt>目标／输入</dt><dd>本机麦克风、短语音测试；面试房间中用户明确控制开始和结束。</dd>
+    <dt>操作与预期</dt><dd>勾选语音说明，点击麦克风并授权；先显示授权状态，再实际录制，结束后转写。</dd>
+    <dt>实际</dt><dd>修复无限 PREPARING 后，页面先提示等待授权，15 秒超时可重试；浏览器麦克风权限由 prompt 变为 granted，后续录音约 1.68 MB 并进入转写。</dd>
+    <dt>证据／截图</dt><dd><code>InterviewRoomPage.vue</code>、Portal 构建和 IAB 页面状态；录音中及结束画面未保存，状态<strong>待截图</strong>。</dd>
+    <dt>限制／复验</dt><dd>需留存授权、录音中、结束后截图，并在干净会话复查一次。</dd>
+  </dl></section>
+  <section class="card" id="V-03"><h2>V-03 · ASR 与转写确认 <span class="tag">Blocked</span></h2><dl>
+    <dt>目标／输入</dt><dd>本地短测试语句；ASR 1.0 资源；用户确认前不得保存正式答案。</dd>
+    <dt>操作与预期</dt><dd>上传录音、显示 final、可编辑；刷新后恢复；本人确认后产生唯一正式答案和下一题。</dd>
+    <dt>实际</dt><dd>真实 ASR final 已在页面显示。用户先前两次点击确认得到 HTTP 500；定位为 PostgreSQL 历史约束仍检查旧列。按用户批准备份并执行 V15 后，旧约束为 0、新约束回读正常。刷新后从服务端 ASR_FINAL 恢复待确认文本。迁移后的正式提交仍待用户操作。</dd>
+    <dt>证据／截图</dt><dd><code>.runtime/backups/voice-confirm-20260926-193004/</code>、<code>V15__voice_ruoyi_confirmation_constraints.sql</code>、IAB 转写恢复；页面截图未归档，状态<strong>待截图</strong>。</dd>
+    <dt>限制／复验</dt><dd>用户确认当前转写后核对 answerVersionId、下一题与页面状态。</dd>
+  </dl></section>
+  <section class="card" id="V-04"><h2>V-04 · TTS 真实播报 <span class="tag">Blocked</span></h2><dl>
+    <dt>目标／输入</dt><dd>当前真实语音题；已托管的火山 TTS 凭据和现有同意。</dd>
+    <dt>操作与预期</dt><dd>点击“朗读题目”，当前题在浏览器发声，结束后仍由用户控制麦克风；后续题也能朗读、停止和重播。</dd>
+    <dt>实际</dt><dd>当前题 <code>question-speech</code> POST HTTP 200，<code>audio/ogg</code> 约 93 KB；浏览器 blob 音频请求 206。界面依次显示准备、正在朗读、待确认转写，未自动开麦。后续题 WebSocket TTS、停止/重播尚未现场完成。无 Token 本地请求返回若依 JSON code=401、无音频。</dd>
+    <dt>证据／截图</dt><dd>IAB Network 与页面状态；旧供应商短句探针另有 25,965 字节音频摘要。朗读截图未能安全导出，状态<strong>待截图</strong>。</dd>
+    <dt>限制／复验</dt><dd>用户确认当前题后检查下一题自动朗读或可见重播入口，补逐步截图。</dd>
+  </dl></section>
+  <section class="card" id="V-05"><h2>V-05 · 失败保留与文字降级 <span class="tag wait">NotRun</span></h2><dl>
+    <dt>目标／输入</dt><dd>受控的设备或供应商失败，当前题与已确认答案。</dd>
+    <dt>操作与预期</dt><dd>观察可操作错误；切换文字后完成当前题，不冒充语音成功。</dd>
+    <dt>实际</dt><dd>麦克风授权超时已有错误与重试；本项的文字提交及服务端回读尚未执行。</dd>
+    <dt>证据／截图</dt><dd>完整场景证据缺失，状态<strong>待截图</strong>。</dd>
+    <dt>限制／复验</dt><dd>在独立测试会话进行异常与降级闭环。</dd>
+  </dl></section>
+  <section class="card" id="V-06"><h2>V-06 · 面试官形象与轮换 <span class="tag">Blocked</span></h2><dl>
+    <dt>目标／输入</dt><dd>用户明确要求的形象、题面、先朗读后手动回答。</dd>
+    <dt>操作与预期</dt><dd>打开语音房间，人物形象和完整题目同屏可读；朗读状态可辨；播放结束不自动采集。</dd>
+    <dt>实际</dt><dd>约 1279×720 视口同屏看见面试官人物、完整题目和待确认转写；朗读中状态可见，播放结束未自动录音。右侧已移除没有数据来源的模拟质量百分条，仅展示真实轮次和已确认数量。新场次自动首题朗读与窄屏尚未验证。</dd>
+    <dt>证据／截图</dt><dd><code>InterviewRoomPage.vue</code>、Portal 构建、IAB 视觉回看；截图未归档，状态<strong>待截图</strong>。</dd>
+    <dt>限制／复验</dt><dd>补形象、题面、朗读前中后截图，并复验新场次开场。</dd>
+  </dl></section>
+  <footer>本报告由逐项清单的真实记录整理，并已在内置浏览器打开检查。浏览器安全策略拒绝通过临时页面导出截图；没有用其他浏览器或无关图片替代。因此技术检查不能计为用户验收 Pass。用户决定仍待确认。</footer>
+</body>
+</html>

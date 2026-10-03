@@ -19,6 +19,21 @@ paths:
       responses:
         '201': { description: Short-lived one-use socket handle with server-selected flow limits, content: { application/json: { schema: { $ref: '#/components/schemas/VoiceSessionHandle' } } } }
         '409': { $ref: '#/components/responses/Error' }
+  /interviews/{interviewId}/turns/{turnId}/question-speech:
+    post:
+      operationId: speakCurrentInterviewQuestion
+      description: Synthesize only the caller's currently committed voice question after voice/model consent. The response is transient and must not be cached.
+      parameters: [{ $ref: '#/components/parameters/InterviewId' }, { $ref: '#/components/parameters/TurnId' }]
+      responses:
+        '200':
+          description: Complete synthesized question audio, without opening a microphone session
+          headers: { Cache-Control: { schema: { type: string, const: no-store } } }
+          content:
+            audio/ogg: { schema: { type: string, format: binary } }
+            audio/mpeg: { schema: { type: string, format: binary } }
+            audio/wav: { schema: { type: string, format: binary } }
+        '409': { $ref: '#/components/responses/Error' }
+        '503': { $ref: '#/components/responses/Error' }
   /transcripts/{transcriptId}:
     get:
       operationId: getTranscript
@@ -55,6 +70,7 @@ components:
   securitySchemes: { bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT } }
   parameters:
     InterviewId: { name: interviewId, in: path, required: true, schema: { type: string, format: uuid } }
+    TurnId: { name: turnId, in: path, required: true, schema: { type: string, format: uuid } }
     TranscriptId: { name: transcriptId, in: path, required: true, schema: { type: string, format: uuid } }
     ArtifactId: { name: artifactId, in: path, required: true, schema: { type: string, format: uuid } }
     IdempotencyKey: { name: Idempotency-Key, in: header, required: true, schema: { type: string, minLength: 16, maxLength: 128 } }

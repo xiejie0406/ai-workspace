@@ -102,6 +102,7 @@ public final class ManagedInterviewProviderAdapters {
     }
 
     public static final class Tts implements TextToSpeechPort, ProviderAdapter {
+        private volatile java.util.Map<String, String> observation = java.util.Map.of("status", "NOT_CHECKED");
         private final ManagedSecretService secrets;
         private final HttpClient http;
         private final ObjectMapper json;
@@ -123,11 +124,16 @@ public final class ManagedInterviewProviderAdapters {
         }
 
         @Override public Result synthesize(Request request, AudioSink sink, InvocationContext context) {
-            VolcengineTextToSpeechAdapter adapter;
+            TextToSpeechPort adapter;
             try { adapter = current(); }
-            catch (RuntimeException unavailable) { return new DisabledTextToSpeechAdapter().synthesize(request, sink, context); }
-            return adapter.synthesize(request, sink, context);
+            catch (RuntimeException unavailable) { adapter = new DisabledTextToSpeechAdapter(); }
+            Result result = adapter.synthesize(request, sink, context);
+            observation = java.util.Map.of("status", result instanceof Success ? "PASS" : "FAIL",
+                    "observedAt", java.time.Instant.now().toString(), "reasonCode",
+                    result instanceof Failure failure ? failure.failure().errorClass() : "AVAILABLE");
+            return result;
         }
+        @Override public java.util.Map<String, String> lastObservation() { return observation; }
         @Override public String adapterId() { return VolcengineTextToSpeechAdapter.ADAPTER_ID; }
         @Override public boolean available() { try { return current().available(); } catch (RuntimeException unavailable) { return false; } }
         @Override public String reasonCode() { return available() ? "AVAILABLE" : VolcengineTextToSpeechAdapter.NOT_CONFIGURED; }

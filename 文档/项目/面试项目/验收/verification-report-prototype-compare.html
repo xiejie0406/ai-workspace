@@ -1,0 +1,96 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>文字与语音面试原型对照验收报告</title><style>
+:root{--ink:#17243a;--muted:#58677c;--line:#dce4f0;--bg:#f4f7fd;--blue:#3159d5}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg);font:15px/1.65 system-ui,'Microsoft YaHei',sans-serif}header{background:#132c57;color:white;padding:30px max(20px,calc((100vw - 1120px)/2))}h1{margin:0 0 8px;font-size:28px}header p{margin:4px 0;color:#d8e4ff}main{max-width:1120px;margin:auto;padding:22px}a{color:var(--blue)}.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:-40px 0 24px}.summary div,.intro,.case{background:white;border:1px solid var(--line);border-radius:15px;box-shadow:0 8px 25px #2137580d}.summary div{padding:15px}.summary strong{display:block;font-size:23px}.summary span{color:var(--muted)}.intro,.case{padding:20px;margin-bottom:14px}.intro h2{margin:0 0 8px}.intro p{margin:8px 0}.case h2{font-size:19px;margin:7px 0 14px}.id{font-weight:800;color:var(--blue)}.pill{display:inline-block;margin-left:9px;padding:1px 9px;border-radius:40px;font-size:12px;font-weight:700}.fail{background:#ffe5e1;color:#a32e21}.blocked{background:#fff0d7;color:#8b5300}.pass{background:#e2f4e9;color:#176239}nav{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0 23px}nav a{background:#e7edfa;padding:4px 9px;border-radius:7px;text-decoration:none}dl{display:grid;grid-template-columns:140px 1fr;gap:8px 14px;margin:0}dt{color:var(--muted);font-weight:700}dd{margin:0;overflow-wrap:anywhere}.shots{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.shot{width:min(215px,100%);text-decoration:none;color:var(--ink)}.shot img{display:block;width:100%;height:150px;object-fit:cover;object-position:top;border:1px solid var(--line);border-radius:8px}.shot span{display:block;font-size:12px;margin-top:4px}.note{color:var(--muted)}footer{padding:20px;text-align:center;color:var(--muted)}@media(max-width:680px){header{padding:22px}main{padding:16px}dl{grid-template-columns:1fr}dt{margin-top:5px}}
+</style></head><body><p class="intro">设计引用整理（2026-10-01）：本文保留原历史事实与结论。被删除旧设计的原名、章节和版本属于当时上下文；迁移后的设计链接只用于查阅当前统一设计，不替代当时的验收基线。原文及对应见<a href="../开发记录/2026-10-01-设计文档统一与清理.md">统一记录</a>。</p><header><h1>文字与语音面试原型对照验收报告</h1><p>2026-09-26 17:53 CST · 当前本地站点对照 Draft 原型 · 用户接受决定：待确认</p><p>产品建议尚未批准；本报告的 Fail 表示与建议稿有差异，不自动等于既有规格下的实现缺陷。</p></header><main>
+<section class="summary"><div><strong>8</strong><span>清单项目</span></div><div><strong>0</strong><span>Pass</span></div><div><strong>4</strong><span>Fail / 原型差异</span></div><div><strong>4</strong><span>Blocked</span></div><div><strong>7 / 1</strong><span>已截图 / 截图阻塞</span></div></section>
+<section class="intro"><h2>对象、环境与结论</h2><p>对象：Portal <code>127.0.0.1:5176</code> → 独立 RuoYi <code>127.0.0.1:8084</code>；JAR SHA-256 <code>f25bff0e6ce93d99ad9072f029cc0e7bf10bd7b1b0913276123eeda4ed3a9507</code>。浏览器：Codex 内置浏览器 IAB，操作标签可见，内核版本未取得；默认有效视口约 677×709，窄屏实际 341–375px。仅标签分开，浏览器登录态及本地 PostgreSQL/Redis 并未隔离。截图来自本次 IAB 页面，已保存并逐张回读。</p><p>数据：本机既有测试账号；本轮创建合成文字会话 <code>9b879eec-4b49-494d-bd08-73be42ab0fe6</code>（已结束）、语音降级会话 <code>40ec57fc-5501-460f-be6f-b4ee335b448e</code>（进行中）及窄屏文字会话 <code>a7847e95-c853-4920-8f03-27b36b0eaf75</code>（进行中）。未调用收费 Provider、写对象存储、生成模型反馈或进行删除。后端启动参数关闭外部 Provider 与对象存储写入；共享 8081 未启动或重启。</p><p><strong>已观察到可用：</strong>两种入口可辨、文字计划与正式开场分离、正常文字提交后进入下一题、刷新保留当前题及计时、语音不可用提示明确、文字和语音降级页面在窄屏无横向溢出。<strong>对照 Draft 的待改差异：</strong>文字默认仍是 6 题／30 分钟；反馈同意直到结束后才出现；语音服务未就绪仍可用“语音面试”名义开场。真实录音、识别、确认转写与报告质量本轮无法验证。</p><p>基线：<a href="../架构/面试项目完整设计.md#interview-flow">交互方案 Draft</a>、<a href="../架构/界面图稿/面试项目界面图稿.html#setup">可交互原型</a>；唯一执行事实源为<a href="2026-09-26-文字语音原型对照验收清单.md">逐项清单</a>。本 HTML 由本地脚本读取清单两张表、核对 8 个 ID 与截图路径后生成，只展示执行结果。用户决定保持“待确认”。</p><p>控制台：本轮页面未捕获 warn/error；未完整采集所有 Network 请求，不能以此断言后台幂等、计费或缓存策略。截图外的接口和真实服务能力限制见各项。</p><p>报告检查：8 个条目、17 处图片引用及相对路径已通过静态校验。内置浏览器安全策略禁止本任务打开本地 <code>file://</code> 报告，因此报告本身的视觉检查未执行；没有改用其他通道绕过限制。</p></section>
+<nav aria-label="验收项目"><a href="#PC-01">PC-01</a><a href="#PC-02">PC-02</a><a href="#PC-03">PC-03</a><a href="#PC-04">PC-04</a><a href="#PC-05">PC-05</a><a href="#PC-06">PC-06</a><a href="#PC-07">PC-07</a><a href="#PC-08">PC-08</a></nav>
+<article class="case" id="PC-01"><div><span class="id">PC-01</span><span class="pill fail">Fail</span></div><h2>两种面试入口可区分；原型 D-01</h2><dl>
+<dt>前置与输入</dt><dd>本地测试账号；文字/语音入口</dd>
+<dt>计划步骤／预期</dt><dd>分别打开入口；文字明确短练习题量/时长且无需麦克风，语音说明设备及可用条件；记录现站与 5 题默认建议的差异</dd>
+<dt>实际操作与时间</dt><dd>17:40–17:41；本地测试账号登录后从首页核对两入口，并打开 <code>/interviews/new</code> 与 <code>?mode=voice</code>。</dd>
+<dt>实际结果</dt><dd>首页与配置标题能区分文字和语音；文字说明无需麦克风，语音说明不可用可改文字。但两种配置几乎同形，默认均为 30 分钟，文字首屏未说明建议 5 题／10–15 分钟；与 Draft D-01 有差异。</dd>
+<dt>截图状态</dt><dd>已截图：<a href="证据/2026-09-26-原型对照/PC-01-home.jpg">首页</a>、<a href="证据/2026-09-26-原型对照/PC-01-text-config.jpg">文字配置</a>、<a href="证据/2026-09-26-原型对照/PC-01-voice-config.jpg">语音配置</a>；三图已逐张回读</dd>
+<dt>限制与下一步</dt><dd>入口可区分是已实现部分；默认题量/时长属待确认产品方向，不能据本项说正式功能已批准缺陷。</dd>
+</dl><div class="shots">
+<a class="shot" href="证据/2026-09-26-原型对照/PC-01-home.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-01-home.jpg" alt="PC-01 首页"><span>首页 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-01-text-config.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-01-text-config.jpg" alt="PC-01 文字配置"><span>文字配置 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-01-voice-config.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-01-voice-config.jpg" alt="PC-01 语音配置"><span>语音配置 · 查看原图</span></a>
+</div></article>
+<article class="case" id="PC-02"><div><span class="id">PC-02</span><span class="pill fail">Fail</span></div><h2>计划、正式开场和反馈条件明确；原型 D-01/D-04</h2><dl>
+<dt>前置与输入</dt><dd>已登录；测试计划</dd>
+<dt>计划步骤／预期</dt><dd>打开或生成计划；回读题量、时长、用量、首题准备与模型反馈同意提示；不能把计划生成直接显示为正式开场</dd>
+<dt>实际操作与时间</dt><dd>17:42–17:43；以 Java 后端/中级/默认 30 分钟生成文字计划，预览后确认并创建测试会话 <code>9b879eec-4b49-494d-bd08-73be42ab0fe6</code>，再点击“开始面试”。</dd>
+<dt>实际结果</dt><dd>DRAFT 显示 6 题、6 INTERVIEW_CREDIT；创建会话后先显示“计划已准备好”，开始后才出首题，状态区分成立。计划页未在开场前说明模型反馈同意条件；默认 6 题/30 分钟与 Draft D-01/D-04 不一致。</dd>
+<dt>截图状态</dt><dd>已截图：<a href="证据/2026-09-26-原型对照/PC-02-text-plan.jpg">计划</a>、<a href="证据/2026-09-26-原型对照/PC-02-before-start.jpg">开场前</a>；已回读</dd>
+<dt>限制与下一步</dt><dd>原型尚待批准；本地新建的合成会话保留用于本轮，未核算真实权益台账。</dd>
+</dl><div class="shots">
+<a class="shot" href="证据/2026-09-26-原型对照/PC-02-text-plan.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-02-text-plan.jpg" alt="PC-02 计划"><span>计划 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-02-before-start.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-02-before-start.jpg" alt="PC-02 开场前"><span>开场前 · 查看原图</span></a>
+</div></article>
+<article class="case" id="PC-03"><div><span class="id">PC-03</span><span class="pill blocked">Blocked</span></div><h2>文字房间提交与保存可信；原型文字房间</h2><dl>
+<dt>前置与输入</dt><dd>已有进行中合成文字会话</dd>
+<dt>计划步骤／预期</dt><dd>检查主操作、草稿提示、提交和下一题；提交后回读服务端答案，失败/未知状态应保留原文；不能显示无依据的 AI 能力</dd>
+<dt>实际操作与时间</dt><dd>17:43–17:44；在首题输入合成的虚拟线程回答并发送，下一题出现；随后刷新同一会话。</dd>
+<dt>实际结果</dt><dd>提交前提示草稿仅在本页，提交后回答气泡与 Spring Cache 下一题可见；刷新后仍有当前题和“服务端确认”提示。提交失败/响应未知的保留与去重分支未触发，不能据正常路径判全项通过。</dd>
+<dt>截图状态</dt><dd>已截图：<a href="证据/2026-09-26-原型对照/PC-03-text-question.jpg">首题</a>、<a href="证据/2026-09-26-原型对照/PC-03-before-submit.jpg">提交前</a>、<a href="证据/2026-09-26-原型对照/PC-03-after-submit.jpg">下一题</a>；已回读</dd>
+<dt>限制与下一步</dt><dd>模型未启用，出现的是按计划下一题；未验证动态追问质量。</dd>
+</dl><div class="shots">
+<a class="shot" href="证据/2026-09-26-原型对照/PC-03-text-question.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-03-text-question.jpg" alt="PC-03 首题"><span>首题 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-03-before-submit.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-03-before-submit.jpg" alt="PC-03 提交前"><span>提交前 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-03-after-submit.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-03-after-submit.jpg" alt="PC-03 下一题"><span>下一题 · 查看原图</span></a>
+</div></article>
+<article class="case" id="PC-04"><div><span class="id">PC-04</span><span class="pill fail">Fail</span></div><h2>文字结束与报告边界；原型 D-04</h2><dl>
+<dt>前置与输入</dt><dd>已有文字会话/反馈页</dd>
+<dt>计划步骤／预期</dt><dd>查看结束后的报告状态、同意与证据；未同意不生成模型反馈，结束不等于报告完成；记录同意时点差异</dd>
+<dt>实际操作与时间</dt><dd>17:45；主动结束上述文字会话，打开反馈页；不勾选模型处理同意。</dd>
+<dt>实际结果</dt><dd>会话结束后明确显示可生成反馈；未勾选时按钮禁用，没有发送给模型。原型建议在计划确认前说明同意及反馈可得性，当前直到结束才显示；未授权路径尚无独立的“无 AI 反馈”结果页。</dd>
+<dt>截图状态</dt><dd>已截图：<a href="证据/2026-09-26-原型对照/PC-04-feedback-consent.jpg">会后同意</a>；已回读</dd>
+<dt>限制与下一步</dt><dd>未勾选或调用外部模型；报告证据质量未验。</dd>
+</dl><div class="shots">
+<a class="shot" href="证据/2026-09-26-原型对照/PC-04-feedback-consent.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-04-feedback-consent.jpg" alt="PC-04 会后同意"><span>会后同意 · 查看原图</span></a>
+</div></article>
+<article class="case" id="PC-05"><div><span class="id">PC-05</span><span class="pill fail">Fail</span></div><h2>语音开场前能力检查；原型 D-02/D-03</h2><dl>
+<dt>前置与输入</dt><dd>语音入口；本地当前能力状态</dd>
+<dt>计划步骤／预期</dt><dd>查看麦克风、存储、ASR、TTS 就绪情况；未就绪不得冒充成功语音开场；可清楚转文字且标明性质</dd>
+<dt>实际操作与时间</dt><dd>17:46–17:47；生成语音 DRAFT 计划 6 题/30 分钟，创建合成语音会话 <code>40ec57fc-5501-460f-be6f-b4ee335b448e</code>，在明确“音频存储、ASR、TTS 未就绪”的情况下点击“开始面试”。</dd>
+<dt>实际结果</dt><dd>页面诚实提示语音未就绪，但开场按钮仍可用，正式开始后仍标“语音面试”、显示文字题和文字回答框；未见开场前切换成文字计划或保留未开场状态。与 Draft D-03 相反。</dd>
+<dt>截图状态</dt><dd>已截图：<a href="证据/2026-09-26-原型对照/PC-05-voice-plan.jpg">语音计划</a>、<a href="证据/2026-09-26-原型对照/PC-05-unavailable-before-start.jpg">未就绪开场前</a>、<a href="证据/2026-09-26-原型对照/PC-05-unavailable-running.jpg">未就绪已开场</a>；已回读</dd>
+<dt>限制与下一步</dt><dd>尚未复算本地测试权益扣次；D-03 是待确认方向，开场行为不能据此直接认定为既有批准规格缺陷。</dd>
+</dl><div class="shots">
+<a class="shot" href="证据/2026-09-26-原型对照/PC-05-voice-plan.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-05-voice-plan.jpg" alt="PC-05 语音计划"><span>语音计划 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-05-unavailable-before-start.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-05-unavailable-before-start.jpg" alt="PC-05 未就绪开场前"><span>未就绪开场前 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-05-unavailable-running.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-05-unavailable-running.jpg" alt="PC-05 未就绪已开场"><span>未就绪已开场 · 查看原图</span></a>
+</div></article>
+<article class="case" id="PC-06"><div><span class="id">PC-06</span><span class="pill blocked">Blocked</span></div><h2>语音回答逐步确认；原型 D-02</h2><dl>
+<dt>前置与输入</dt><dd>真实可用的本地语音能力才执行</dd>
+<dt>计划步骤／预期</dt><dd>录音→“我说完了”→最终转写→本人确认→唯一正式回答；若能力不可用，记录具体阻塞，不把文字降级算语音通过</dd>
+<dt>实际操作与时间</dt><dd>17:47；在已开始的语音测试会话检查能力提示及录音控件。</dd>
+<dt>实际结果</dt><dd>存储、ASR、TTS 均未就绪，页面不显示录音、停录、最终转写和确认控件，只能文字作答；因此没有执行真实语音链路。</dd>
+<dt>截图状态</dt><dd>截图阻塞（所需录音/转写各阶段无法产生）；<a href="证据/2026-09-26-原型对照/PC-05-unavailable-running.jpg">现场不可用画面</a>已截图并回读，仅证明阻塞条件</dd>
+<dt>限制与下一步</dt><dd>不能把文字输入或“语音面试”标题算作真实语音通过；需具备经授权的本地/测试语音能力再验。</dd>
+</dl><div class="shots">
+<a class="shot" href="证据/2026-09-26-原型对照/PC-05-unavailable-running.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-05-unavailable-running.jpg" alt="PC-06 现场不可用画面"><span>现场不可用画面 · 查看原图</span></a>
+</div></article>
+<article class="case" id="PC-07"><div><span class="id">PC-07</span><span class="pill blocked">Blocked</span></div><h2>断线恢复与历史答案；原型恢复规则</h2><dl>
+<dt>前置与输入</dt><dd>既有文字/语音合成会话深链</dd>
+<dt>计划步骤／预期</dt><dd>刷新后核对当前题、计时、已确认答案/明确缺失提示；不把仅在页面的草稿说成持久化；录音不能自行重启</dd>
+<dt>实际操作与时间</dt><dd>17:44 与 17:47；分别刷新上述进行中文字会话和语音降级会话。</dd>
+<dt>实际结果</dt><dd>两者恢复同一当前题，计时显示距开始的累计时间；文字已确认答案的正文在刷新后不回显，但明确标“回答已由服务端确认”；草稿提示为仅本页。真正录音中的断线与停播/停录未能执行。</dd>
+<dt>截图状态</dt><dd>已截图：<a href="证据/2026-09-26-原型对照/PC-07-text-refresh.jpg">文字刷新</a>、<a href="证据/2026-09-26-原型对照/PC-07-voice-refresh.jpg">语音降级刷新</a>；已回读</dd>
+<dt>限制与下一步</dt><dd>仅以 UI 回读确认持久状态，未在本轮复核答案版本接口/禁缓存标头；真实录音恢复依赖 PC-06。</dd>
+</dl><div class="shots">
+<a class="shot" href="证据/2026-09-26-原型对照/PC-07-text-refresh.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-07-text-refresh.jpg" alt="PC-07 文字刷新"><span>文字刷新 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-07-voice-refresh.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-07-voice-refresh.jpg" alt="PC-07 语音降级刷新"><span>语音降级刷新 · 查看原图</span></a>
+</div></article>
+<article class="case" id="PC-08"><div><span class="id">PC-08</span><span class="pill blocked">Blocked</span></div><h2>窄屏下主任务仍可操作；原型响应式原则</h2><dl>
+<dt>前置与输入</dt><dd>375px 左右视口</dd>
+<dt>计划步骤／预期</dt><dd>文字和语音房间分别检查题目、状态、输入/录音及主要动作顺序，不横向遮挡；记录实际视口</dd>
+<dt>实际操作与时间</dt><dd>17:47–17:48；内置浏览器以移动视口检查运行中语音降级会话和另一新建文字测试会话 <code>a7847e95-c853-4920-8f03-27b36b0eaf75</code>；DOM 实测有效宽度在 341–375px，页面 <code>scrollWidth</code> 未超过视口。</dd>
+<dt>实际结果</dt><dd>文字及语音降级房间的题目、状态、输入、发送、跳过、结束均可见且无横向溢出；语音录音控件因能力未就绪不存在，无法判定真实语音窄屏状态。</dd>
+<dt>截图状态</dt><dd>已截图：<a href="证据/2026-09-26-原型对照/PC-08-text-mobile.jpg">文字窄屏</a>、<a href="证据/2026-09-26-原型对照/PC-08-voice-full.jpg">语音降级全页</a>；已回读</dd>
+<dt>限制与下一步</dt><dd>浏览器原生视口设置受面板宽度影响，另用本标签 CDP 设备尺寸覆盖并以 <code>window.innerWidth</code> 实测；离开本项后恢复默认。</dd>
+</dl><div class="shots">
+<a class="shot" href="证据/2026-09-26-原型对照/PC-08-text-mobile.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-08-text-mobile.jpg" alt="PC-08 文字窄屏"><span>文字窄屏 · 查看原图</span></a>
+<a class="shot" href="证据/2026-09-26-原型对照/PC-08-voice-full.jpg" target="_blank" rel="noopener"><img src="证据/2026-09-26-原型对照/PC-08-voice-full.jpg" alt="PC-08 语音降级全页"><span>语音降级全页 · 查看原图</span></a>
+</div></article>
+<footer>用户接受决定：待确认 · 正式功能尚未按 Draft 原型修改 · 旧轮验收报告保持原样</footer></main></body></html>
