@@ -1,7 +1,8 @@
 import { fashionRequest, type FashionQuery } from './client'
 import type { FashionCustomer, RuoYiResult } from './types'
 
-export interface CustomerPage { items: FashionCustomer[]; total: number; page: number; pageSize: number }
+export type CustomerView = FashionCustomer & { salespersonName?: string | null }
+export interface CustomerPage { items: CustomerView[]; total: number; page: number; pageSize: number }
 export interface CustomerQuery extends FashionQuery { status?: string; keyword?: string; page: number; pageSize: number }
 export interface CustomerBody {
   code?: string

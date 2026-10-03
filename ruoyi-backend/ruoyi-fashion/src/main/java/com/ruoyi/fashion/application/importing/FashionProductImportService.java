@@ -102,6 +102,9 @@ public class FashionProductImportService {
         String safeFilename = FashionUploadPolicy.safeFilename(filename);
         String fileHash = FashionHashing.sha256(content);
         Map<String, String> mapping = parser.resolvedMapping(requestedMapping);
+        if (!mapping.keySet().containsAll(clears)) {
+            throw new ServiceException("显式清空字段必须在本次已选导入字段中");
+        }
         String requestKey = stableHash(Map.of(
                 "type", "product", "fileHash", fileHash, "mapping", new TreeMap<>(mapping),
                 "clearFields", clears.stream().sorted().toList(), "sourceCode", sourceCode, "asOf", asOf.toString()));
@@ -248,7 +251,7 @@ public class FashionProductImportService {
         validateDictionary("fashion_product_color", "colorCode", values, errors);
         validateDictionary("fashion_product_unit", "unit", values, errors);
         validateDictionary("fashion_product_season", "season", values, errors);
-        if (!Set.of("CN", "EU", "US", "LETTER", "FREE").contains(values.get("sizeSystem"))) {
+        if (!Set.of("CN", "EU", "US", "LETTER", "FREE").contains(Objects.toString(values.get("sizeSystem"), ""))) {
             errors.add(error("sizeSystem", "invalid_enum", values.get("sizeSystem"), "尺码制式无效"));
         }
         ProductAttributeFields.FIELDS.keySet().forEach(field -> {
@@ -280,15 +283,13 @@ public class FashionProductImportService {
         return new ImportRowError(field, code, summary, message);
     }
 
-    private static Map<String, Object> normalize(
+    static Map<String, Object> normalize(
             Map<String, String> values, Set<String> clears, FashionProduct before) {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = before == null ? new LinkedHashMap<>() : new LinkedHashMap<>(productFields(before));
         values.forEach((key, value) -> {
             if (value != null || clears.contains(key) || !OPTIONAL_CLEARABLE.contains(key)) {
                 result.put(key, value);
-            } else if (before != null) {
-                result.put(key, existingValue(before, key));
-            } else {
+            } else if (before == null) {
                 result.put(key, null);
             }
         });

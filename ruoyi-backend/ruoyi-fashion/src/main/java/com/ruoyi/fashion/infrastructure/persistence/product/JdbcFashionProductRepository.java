@@ -31,6 +31,15 @@ import org.springframework.stereotype.Repository;
 @FashionModuleEnabled
 @Repository
 public class JdbcFashionProductRepository implements FashionProductRepository {
+    @Override
+    public Map<Long, CommercialPrices> commercialPrices(Set<Long> ids) {
+        if (ids.isEmpty()) return Map.of();
+        Map<Long, CommercialPrices> result = new LinkedHashMap<>();
+        jdbc.query("select id,group_price,vip_price from fq_product where id in (:ids)",
+                Map.of("ids", ids), (org.springframework.jdbc.core.RowCallbackHandler) rs ->
+                        result.put(rs.getLong("id"), new CommercialPrices(rs.getBigDecimal("group_price"), rs.getBigDecimal("vip_price"))));
+        return result;
+    }
     private static final String COLUMNS = """
             id,source_code,sku_code,style_code,name,category_code,color_code,color_name,size_code,size_system,unit,
             sale_price,currency,tax_mode,price_as_of,last_price_import_batch_id,brand,material,season,tags_json,

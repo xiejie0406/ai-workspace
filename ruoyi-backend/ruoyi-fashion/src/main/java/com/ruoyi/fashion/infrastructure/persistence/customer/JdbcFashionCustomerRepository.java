@@ -25,6 +25,14 @@ import org.springframework.stereotype.Repository;
 @FashionModuleEnabled
 @Repository
 public class JdbcFashionCustomerRepository implements FashionCustomerRepository {
+    @Override
+    public Map<Long,String> salespersonNames(java.util.Set<Long> ids) {
+        if (ids.isEmpty()) return Map.of();
+        Map<Long,String> result = new java.util.LinkedHashMap<>();
+        jdbc.query("select user_id,coalesce(nullif(nick_name,''),user_name) display_name from sys_user where user_id in (:ids)",
+                Map.of("ids",ids),(org.springframework.jdbc.core.RowCallbackHandler)rs -> result.put(rs.getLong("user_id"),rs.getString("display_name")));
+        return result;
+    }
     private static final String COLUMNS = "id,code,name,customer_type,contact_name,contact_phone,region,"
             + "salesperson_id,collaborator_ids,internal_note,status,create_by,create_time,update_by,update_time,row_version";
 

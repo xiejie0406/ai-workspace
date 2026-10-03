@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.ruoyi.fashion.domain.customer.FashionCustomer;
 
 public interface FashionCustomerRepository {
+    default java.util.Map<Long,String> salespersonNames(java.util.Set<Long> ids) { return java.util.Map.of(); }
     List<FashionCustomer> search(long userId, boolean administrator, String status, String keyword, int offset, int limit);
 
     long count(long userId, boolean administrator, String status, String keyword);

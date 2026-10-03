@@ -17,4 +17,15 @@ class FashionPoolServiceTest {
  @Test void staleExportVersionIsRejected(){when(repository.get("pool",7)).thenReturn(pool);when(repository.selection("pool",7)).thenReturn(selection(true,List.of(),List.of(),List.of()));assertThrows(ServiceException.class,()->service.requireExport("pool",7,0));}
  @Test void foreignCombinationCannotBeSaved(){when(repository.get("pool",7)).thenReturn(pool);assertThrows(ServiceException.class,()->service.save("pool",7,selection(false,List.of("99-99"),List.of(),List.of())));verify(repository,never()).save(anyString(),anyLong(),any());}
  @Test void readRequiresOwnerAccess(){when(repository.get("pool",8)).thenThrow(new ServiceException("no access"));assertThrows(ServiceException.class,()->service.selection("pool",8));verify(repository,never()).selection(anyString(),anyLong());}
+ @Test void legacySingleGroupRemainsReadableButCannotSaveOrStartNewDelivery(){var legacy=PoolCombinationsTest.pool(List.of(PoolCombinationsTest.group("a",3)),null,null);when(repository.get("pool",7)).thenReturn(legacy);when(repository.selection("pool",7)).thenReturn(selection(true,List.of(),List.of(),List.of()));assertSame(legacy,service.get("pool",7));assertEquals(3,service.combinations("pool",7,1,20,"identity",null,false).get("total"));assertTrue(assertThrows(ServiceException.class,()->service.save("pool",7,selection(true,List.of(),List.of(),List.of()))).getMessage().contains("只读"));assertTrue(assertThrows(ServiceException.class,()->service.requireExport("pool",7,1)).getMessage().contains("只读"));verify(repository,never()).save(anyString(),anyLong(),any());}
+ @Test void historicalPoolPageAndExportKeepUnknownDemandUndetermined(){
+  var unknown=new MainSku("u","u","unknown","manual","leaf",null,null,null,"1",null,java.math.BigDecimal.ONE,java.math.BigDecimal.ONE,null,null,null,true,"CNY","included",List.of());
+  var historical=PoolCombinationsTest.pool(List.of(new Group("a",List.of(unknown)),PoolCombinationsTest.group("b",1)),null,null);
+  var json=tools.jackson.databind.json.JsonMapper.builder().build();
+  when(repository.get("pool",7)).thenReturn(json.readValue(json.writeValueAsString(historical),Pool.class));
+  when(repository.selection("pool",7)).thenReturn(selection(true,List.of(),List.of(),List.of()));
+  var page=service.combinations("pool",7,1,20,"identity",null,false);
+  var result=((List<Combination>)page.get("items")).get(0);assertNull(result.meetsDemand());assertNull(result.availableSets());
+  assertNull(service.requireExport("pool",7,1).combinations().get(0).meetsDemand());
+ }
 }

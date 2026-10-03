@@ -48,7 +48,7 @@ class FashionMySqlMigrationTest {
         assertTrue(inspection.businessSchemaEmpty());
         flyway = FashionFlywayFactory.create(dataSource);
         flyway.baseline();
-        assertEquals(3, flyway.migrate().migrationsExecuted);
+        assertEquals(4, flyway.migrate().migrationsExecuted);
         flyway.validate();
         FashionDatabasePreconditions.verifyCurrentSchema(dataSource, "fashion_test");
         jdbc = new JdbcTemplate(dataSource);
@@ -61,7 +61,7 @@ class FashionMySqlMigrationTest {
                  where table_schema = 'fashion_test' and table_name like 'fq\\_%'
                  order by table_name
                 """, String.class);
-        assertEquals(19, tables.size());
+        assertEquals(20, tables.size());
         assertEquals(FashionDatabasePreconditions.EXPECTED_BUSINESS_TABLES, SetSupport.copyOf(tables));
         assertEquals(1, jdbc.queryForObject("""
                 select count(*) from information_schema.tables

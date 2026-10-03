@@ -33,7 +33,7 @@ public final class FashionProductImportParser {
     private static final Set<String> BASE_FIELDS = Set.of(
             "sourceCode", "skuCode", "styleCode", "name", "categoryCode", "colorCode", "colorName",
             "sizeCode", "sizeSystem", "unit", "brand", "material", "season", "jdItemId", "jdUrl");
-    private static final Set<String> REQUIRED = Set.of(
+    public static final Set<String> REQUIRED = Set.of(
             "sourceCode", "skuCode", "styleCode", "name", "categoryCode", "colorCode", "colorName",
             "sizeCode", "sizeSystem", "unit", "season");
     private static final Set<String> TEXT_ONLY_CODES = Set.of(
@@ -73,6 +73,22 @@ public final class FashionProductImportParser {
 
     public Map<String, String> resolvedMapping(Map<String, String> requested) {
         return mapping(requested);
+    }
+
+    public List<String> defaultFields() {
+        return List.of("sourceCode", "skuCode", "styleCode", "name", "categoryCode", "colorCode", "colorName",
+                "sizeCode", "sizeSystem", "unit", "brand", "material", "season");
+    }
+
+    public Map<String, String> selectedMapping(Map<String, String> requested, Set<String> selected) {
+        Map<String, String> resolved = mapping(requested);
+        if (selected == null || selected.isEmpty()) return resolved;
+        if (!FIELDS.containsAll(selected) || !selected.containsAll(REQUIRED)) {
+            throw new ServiceException("导入字段必须包含全部必填商品字段，且只能选择商品白名单字段");
+        }
+        Map<String, String> result = new LinkedHashMap<>();
+        DEFAULT_HEADERS.keySet().stream().filter(selected::contains).forEach(key -> result.put(key, resolved.get(key)));
+        return Collections.unmodifiableMap(result);
     }
 
     private List<ParsedProductRow> parseCsv(byte[] content, Map<String, String> mapping) {
@@ -186,7 +202,9 @@ public final class FashionProductImportParser {
             throw new ServiceException(exception.getMessage());
         }
         Map<String, String> result = new LinkedHashMap<>();
-        for (String field : FIELDS) {
+        Set<String> fields = new java.util.LinkedHashSet<>(REQUIRED);
+        fields.addAll(requested.keySet());
+        for (String field : fields) {
             String header = requested.getOrDefault(field, DEFAULT_HEADERS.get(field));
             if (header == null || header.isBlank() || header.length() > 100) {
                 throw new ServiceException("字段映射无效：" + field);
@@ -211,7 +229,7 @@ public final class FashionProductImportParser {
             throw new ServiceException("导入文件存在重复表头：" + duplicates);
         }
         Set<String> missing = new HashSet<>();
-        BASE_FIELDS.forEach(field -> missing.add(mapping.get(field)));
+        REQUIRED.forEach(field -> missing.add(mapping.get(field)));
         missing.removeAll(actual);
         if (!missing.isEmpty()) {
             throw new ServiceException("导入文件缺少映射列：" + missing);

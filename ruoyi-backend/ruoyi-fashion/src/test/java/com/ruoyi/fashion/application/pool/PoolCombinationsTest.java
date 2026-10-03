@@ -18,4 +18,14 @@ class PoolCombinationsTest {
  @Test void excessivePoolFailsExplicitly(){assertThrows(ServiceException.class,()->pool(List.of(group("a",101),group("b",100),group("c",100)),null,null));}
  @Test void excessiveVariantPriceWorkFailsWithoutReturningPartialResults(){var variant=new Variant("1","s","c","c","S",BigDecimal.ONE,null,1L,null,null,List.of(),1);List<MainSku> rows=new ArrayList<>();for(int i=0;i<500;i++)rows.add(new MainSku("m"+i,"m"+i,"name","source","cat",null,null,null,"1",null,BigDecimal.ONE,BigDecimal.ONE,null,null,1L,false,"CNY","included",Collections.nCopies(5000,variant)));var p=pool(List.of(new Group("one",rows)),null,BigDecimal.TEN);assertThrows(ServiceException.class,()->PoolCombinations.enumerate(p));}
  @Test void orderingIsStableAndMissingPricesLast(){var p=pool(List.of(new Group("a",List.of(item("a","CNY",null),item("b","CNY",BigDecimal.TEN),item("c","CNY",BigDecimal.ONE)))),null,null);var rows=PoolCombinations.enumerate(p);rows.sort(PoolCombinations.comparator("groupDesc"));assertEquals("1",rows.get(0).id());assertEquals("0",rows.get(2).id());}
+ @Test void demandJsonRetainsBooleansAndSupportsNullAndLegacyMissingField(){
+  var json=tools.jackson.databind.json.JsonMapper.builder().build();
+  for(Boolean demand:Arrays.asList(Boolean.TRUE,Boolean.FALSE,null)){
+   var combination=new Combination("x",List.of(),null,null,null,null,demand==null,"CNY","included",null,demand);
+   var wire=json.writeValueAsString(combination);assertEquals(demand,json.readValue(wire,Combination.class).meetsDemand());
+   if(demand==null)assertTrue(json.readTree(wire).path("meetsDemand").isNull());
+  }
+  assertNull(json.readValue("{\"id\":\"legacy\",\"items\":[],\"stockUnknown\":true}",Combination.class).meetsDemand());
+  assertNull(new Combination("legacy",List.of(),null,null,null,null,true,"CNY","included").meetsDemand());
+ }
 }

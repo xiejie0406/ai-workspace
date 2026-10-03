@@ -1,7 +1,7 @@
 <template>
   <div class="app-container fashion-products">
     <el-alert
-      title="商品按颜色尺码 SKU 保存；主SKU与三级分类在详情中维护。销售价/库存通过批次更新，团购价/VIP价使用独立维护入口。"
+      title="商品列表直接展示身份、资料、三种价格及审核图片。使用列工具查看全部业务字段，展开行核对完整属性与图片；库存按仓库查询。"
       type="info" :closable="false" show-icon class="mb20"
     />
     <el-alert
@@ -9,8 +9,8 @@
       :title="`AI 商品属性建议已禁用：${capabilityReason(aiCapability.reason)}`"
       type="warning" :closable="false" show-icon class="mb20"
     />
-    <el-form :inline="true" :model="query" @submit.prevent="loadProducts">
-      <el-form-item label="关键词"><el-input v-model="query.keyword" clearable placeholder="SKU、款号、商品名" /></el-form-item>
+    <el-form v-show="showSearch" :inline="true" :model="query" @submit.prevent="searchProducts">
+      <el-form-item label="关键词"><el-input v-model="query.keyword" clearable placeholder="规格SKU、款号、商品名" /></el-form-item>
       <el-form-item label="来源">
         <el-select v-model="query.sourceCode" clearable filterable style="width: 160px">
           <el-option v-for="item in dictionaries.source" :key="item.value" :label="item.label" :value="item.value" />
@@ -28,42 +28,60 @@
         </el-select>
       </el-form-item>
       <el-form-item label="服装属性"><el-select v-model="query.attributeKey" clearable style="width:160px"><el-option v-for="field in attributeFields" :key="field.key" :label="field.label" :value="field.key" /></el-select><el-input v-model="query.attributeValue" clearable placeholder="输入属性值" style="width:180px;margin-left:8px" /></el-form-item>
-      <el-form-item><el-button type="primary" icon="Search" @click="loadProducts">查询</el-button></el-form-item>
+      <el-form-item><el-button type="primary" icon="Search" @click="searchProducts">查询</el-button></el-form-item>
     </el-form>
+    <el-alert v-if="metadataError" :title="metadataError" type="warning" :closable="false" class="mb20"><el-button link @click="loadFields">重新读取字段定义</el-button></el-alert>
+    <el-alert v-if="dictionaryError" :title="dictionaryError" type="warning" :closable="false" class="mb20"><el-button link @click="loadDictionaries">重新读取字典</el-button></el-alert>
+    <el-alert v-if="loadError" :title="loadError" type="error" :closable="false" show-icon class="mb20"><el-button link @click="loadProducts">重新查询</el-button></el-alert>
     <div class="toolbar mb8">
-      <el-button type="primary" plain icon="Plus" v-hasPermi="['fashion:product:edit']" @click="openCreate">新增 SKU</el-button>
-      <el-button icon="Refresh" @click="loadProducts">刷新</el-button>
+      <div class="actions">
+        <el-button type="primary" plain icon="Plus" v-hasPermi="['fashion:product:edit']" @click="openCreate">新增 SKU</el-button>
+        <el-button v-hasPermi="['fashion:product:import']" @click="router.push('/fashion/import')">导入商品资料</el-button>
+        <el-popover placement="bottom-start" :width="520" trigger="click">
+          <template #reference><el-button>分组选择列（{{visibleColumns.length}}）</el-button></template>
+          <div class="column-groups">
+            <div class="group-actions"><el-button link @click="selectGroup(undefined,true)">全部业务字段</el-button><el-button link @click="restoreDefaultColumns">恢复默认28列</el-button></div>
+            <section v-for="group in columnGroups" :key="group.name">
+              <el-checkbox :model-value="group.columns.every(column=>column.visible)" :indeterminate="group.columns.some(column=>column.visible)&&!group.columns.every(column=>column.visible)" @change="selectGroup(group.name,Boolean($event))">{{group.name}}</el-checkbox>
+              <div class="group-options"><el-checkbox v-for="column in group.columns" :key="column.key" v-model="column.visible">{{column.label}}</el-checkbox></div>
+            </section>
+          </div>
+        </el-popover>
+      </div>
+      <RightToolbar v-if="fieldsLoaded" v-model:show-search="showSearch" :columns="columns" :storage-key="columnStorageKey" @query-table="loadProducts" />
+      <RightToolbar v-else v-model:show-search="showSearch" @query-table="loadProducts" />
     </div>
-    <el-table v-loading="loading" :data="page.items" empty-text="没有符合条件的商品">
-      <el-table-column label="款色分组" min-width="190">
-        <template #default="{ row }"><strong>{{ row.sourceCode }} / {{ row.styleCode }}</strong><br><span>{{ row.colorName }}（{{ row.colorCode }}）</span></template>
-      </el-table-column>
-      <el-table-column label="SKU / 尺码" min-width="150"><template #default="{ row }"><code>{{ row.skuCode }}</code><br>{{ row.sizeSystem }} {{ row.sizeCode }}</template></el-table-column>
-      <el-table-column prop="name" label="商品" min-width="180" show-overflow-tooltip />
-      <el-table-column prop="categoryCode" label="品类" width="100"><template #default="{ row }">{{ labelOf(dictionaries.category, row.categoryCode) }}</template></el-table-column>
-      <el-table-column label="当前价" width="110"><template #default="{ row }">{{ row.salePrice == null ? '缺价' : `¥${row.salePrice}` }}</template></el-table-column>
-      <el-table-column label="完整性" min-width="180">
-        <template #default="{ row }">
-          <el-tag v-if="!row.incompleteReasons.length" type="success">可用</el-tag>
-          <el-tag v-for="reason in row.incompleteReasons" v-else :key="reason" type="warning" class="reason-tag">{{ reasonLabel(reason) }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" width="90"><template #default="{ row }"><el-tag :type="row.status === 'active' ? 'success' : 'info'">{{ statusLabel(row.status) }}</el-tag></template></el-table-column>
-      <el-table-column label="操作" width="370" fixed="right">
-        <template #default="{ row }">
-          <el-tooltip :content="aiCapability.enabled ? '生成待人工确认的商品属性建议' : capabilityReason(aiCapability.reason)" placement="top">
-            <span><el-button link type="success" :disabled="!aiCapability.enabled" v-hasPermi="['fashion:ai:run:execute']" @click="suggestAttributes(row)">AI 属性建议</el-button></span>
-          </el-tooltip>
-          <el-button link type="primary" v-hasPermi="['fashion:product:edit']" @click="details?.open(row.id)">详情 / 编辑</el-button>
-          <el-button link type="primary" v-hasPermi="['fashion:price:import']" @click="commercialPrices?.open(row)">团购 / VIP价</el-button>
-          <el-button link type="primary" v-hasPermi="['fashion:product:edit']" @click="toggleStatus(row)">{{ row.status === 'active' ? '下架' : '上架' }}</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="product-table-region">
+      <el-table v-loading="loading" :data="page.items" row-key="id" border :empty-text="loading?'商品加载中':loadError?'查询失败，请重新查询':'没有符合条件的商品'" table-layout="fixed">
+        <el-table-column type="expand" width="48" fixed="left"><template #default="{row}"><ProductListExpansion :product="row" :fields="attributeFields" /></template></el-table-column>
+        <el-table-column v-for="column in visibleColumns" :key="column.key" :label="column.label" :width="column.width" :fixed="column.fixed" :show-overflow-tooltip="column.key!=='picture'">
+          <template #default="{row}">
+            <template v-if="column.key==='picture'">
+              <ProductThumbnail v-if="row.mainImageKey" :product-id="row.id" :image-key="row.mainImageKey" :can-view="mainImageCanView(row)" class="list-thumbnail" />
+              <span v-else>未维护主图</span>
+            </template>
+            <template v-else-if="column.key==='sourceCode'">{{labelOf(dictionaries.source,row.sourceCode)}}</template>
+            <template v-else-if="column.key==='season'">{{labelOf(dictionaries.season,row.season)||'未维护'}}</template>
+            <span v-else>{{productColumnText(row,column)}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="240" fixed="right">
+          <template #default="{row}">
+            <div class="row-actions">
+              <el-button link type="primary" @click="details?.open(row.id)">详情</el-button>
+              <el-button link type="primary" v-hasPermi="['fashion:product:edit']" @click="details?.open(row.id)">编辑资料</el-button>
+              <el-button link type="primary" v-hasPermi="['fashion:price:import']" @click="prices?.open(row)">维护价格</el-button>
+              <el-button link type="primary" v-hasPermi="['fashion:product:image']" @click="details?.open(row.id,'images')">维护图片</el-button>
+              <el-button link type="primary" v-hasPermi="['fashion:product:edit']" @click="toggleStatus(row)">{{row.status==='active'?'下架':'上架'}}</el-button>
+              <el-tooltip :content="aiCapability.enabled?'生成待人工确认的商品属性建议':capabilityReason(aiCapability.reason)" placement="top"><span><el-button link type="success" :disabled="!aiCapability.enabled" v-hasPermi="['fashion:ai:run:execute']" @click="suggestAttributes(row)">AI 属性建议</el-button></span></el-tooltip>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <pagination v-show="page.total > 0" :total="page.total" v-model:page="query.page" v-model:limit="query.pageSize" @pagination="loadProducts" />
 
-    <ProductDetails ref="details" @saved="loadProducts" />
-    <CommercialPrices ref="commercialPrices" @saved="loadProducts" />
+    <ProductDetails ref="details" @saved="loadProducts" /><CommercialPrices ref="prices" @saved="loadProducts" />
     <el-dialog v-model="createVisible" title="新增 SKU 商品" width="760px" append-to-body>
       <el-form label-width="100px" :model="createForm">
         <el-row :gutter="16">
@@ -108,12 +126,20 @@
 <script setup lang="ts">
 import ProductDetails from './ProductDetails.vue'
 import CommercialPrices from './CommercialPrices.vue'
+import ProductListExpansion from './ProductListExpansion.vue'
+import ProductThumbnail from '../components/ProductThumbnail.vue'
+import RightToolbar from '@/components/RightToolbar/index.vue'
+import cache from '@/plugins/cache'
+import useUserStore from '@/store/modules/user'
+import auth from '@/plugins/auth'
+import { createProductColumns, productColumnText, setColumnGroup, type ProductColumn } from './productList'
 import ProductAttributes from './ProductAttributes.vue'
 import { getProductFields } from '@/api/fashion/importBatch'
 import type { ProductAttributeField } from '@/api/fashion/types'
-import { computed, onActivated, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getDicts } from '@/api/system/dict/data'
+import { useRoute, useRouter } from 'vue-router'
 import { createProduct, listProducts, updateProducts, updateProductStatus, type ProductCreateBody } from '@/api/fashion/product'
 import { applyProductAttributeRun, createProductAttributeRun, getProductAttributeCapability, getRun, type RunCapability } from '@/api/fashion/agent'
 import type { FashionProduct, FashionRun, ProductStatus } from '@/api/fashion/types'
@@ -123,7 +149,20 @@ type DictionaryKey = 'source' | 'category' | 'color' | 'unit' | 'season'
 const dictionaries = reactive<Record<DictionaryKey, Option[]>>({ source: [], category: [], color: [], unit: [], season: [] })
 const dictTypes: Record<DictionaryKey, string> = { source: 'fashion_product_source', category: 'fashion_product_category', color: 'fashion_product_color', unit: 'fashion_product_unit', season: 'fashion_product_season' }
 const details = ref<InstanceType<typeof ProductDetails>>()
-const commercialPrices = ref<InstanceType<typeof CommercialPrices>>()
+const prices = ref<InstanceType<typeof CommercialPrices>>()
+const showSearch = ref(true), loadError = ref(''), metadataError = ref(''), dictionaryError = ref(''), fieldsLoaded = ref(false)
+const canManage=auth.hasPermiOr(['fashion:product:edit','fashion:product:image'])
+const columns = reactive<Record<string,ProductColumn>>(createProductColumns([],canManage))
+const columnStorageKey = 'fashion:product:columns:v1:' + useUserStore().id
+const visibleColumns = computed(()=>Object.values(columns).filter(column=>column.visible))
+const columnGroups = computed(()=>[...new Set(Object.values(columns).map(column=>column.group))].map(name=>({name,columns:Object.values(columns).filter(column=>column.group===name)})))
+function selectGroup(group:string|undefined,visible:boolean){setColumnGroup(columns,group,visible)}
+function restoreDefaultColumns(){const defaults=createProductColumns(attributeFields.value,canManage);Object.values(columns).forEach(column=>{column.visible=defaults[column.key]?.visible??false})}
+let columnPreferencesReady=false
+watch(columns,()=>{if(columnPreferencesReady)try{cache.local.setJSON(columnStorageKey,Object.fromEntries(Object.values(columns).map(column=>[column.key,column.visible])))}catch{/* 浏览器禁止缓存时仍允许查看字段。 */}},{deep:true})
+function mainImageCanView(product:FashionProduct){return product.images?.find(image=>image.objectKey===product.mainImageKey)?.allowInternal!==false}
+const router = useRouter()
+const route = useRoute()
 const createAttributes = ref<Record<string,string>>({})
 const attributeFields = ref<ProductAttributeField[]>([])
 const loading = ref(false)
@@ -137,6 +176,7 @@ const activeProduct = ref<FashionProduct>()
 const page = reactive({ items: [] as FashionProduct[], total: 0 })
 const query = reactive<{ sourceCode?: string; categoryCode?: string; status: ProductStatus | ''; keyword?: string; attributeKey?: string; attributeValue?: string; page: number; pageSize: number }>({ status: '', page: 1, pageSize: 20 })
 let controller: AbortController | undefined
+let loadSequence=0, disposed=false
 let pollingTimer: ReturnType<typeof setTimeout> | undefined
 const createForm = reactive<Record<string, string>>({ sizeSystem: 'LETTER', season: '四季' })
 const createFields: { key: string; label: string; required: boolean; dict?: DictionaryKey }[] = [
@@ -151,17 +191,42 @@ const createFields: { key: string; label: string; required: boolean; dict?: Dict
 ]
 
 async function loadDictionaries() {
-  await Promise.all((Object.keys(dictTypes) as DictionaryKey[]).map(async key => {
+  dictionaryError.value=''
+  const results=await Promise.allSettled((Object.keys(dictTypes) as DictionaryKey[]).map(async key => {
     const response = await getDicts(dictTypes[key])
-    dictionaries[key] = (response.data ?? []).filter((item: any) => String(item.status) === '0').map((item: any) => ({ label: String(item.dictLabel), value: String(item.dictValue) }))
+    if(!disposed)dictionaries[key] = (response.data ?? []).filter((item: any) => String(item.status) === '0').map((item: any) => ({ label: String(item.dictLabel), value: String(item.dictValue) }))
   }))
+  if(!disposed&&results.some(result=>result.status==='rejected'))dictionaryError.value='部分字典读取失败，列表保留原编码；请重试后选择查询条件。'
 }
-async function loadProducts() {
-  controller?.abort(); controller = new AbortController(); loading.value = true
+async function loadFields() {
+  metadataError.value=''
   try {
-    const response = await listProducts({ ...query }, controller.signal)
-    page.items = response.data.items; page.total = response.data.total
-  } finally { loading.value = false }
+    const response=await getProductFields()
+    if(disposed)return
+    columnPreferencesReady=false
+    attributeFields.value=response.data.attributes
+    const next=createProductColumns(attributeFields.value,canManage)
+    Object.entries(next).forEach(([key,column])=>{if(columns[key])column.visible=columns[key].visible;columns[key]=column})
+    fieldsLoaded.value=true
+    // 等若依列工具恢复偏好后才持久化，避免初始化覆盖已有选择。
+    await nextTick()
+    columnPreferencesReady=true
+  } catch(e) { if(!disposed)metadataError.value=e instanceof Error?`完整字段定义读取失败：${e.message}`:'完整字段定义读取失败' }
+}
+function searchProducts(){query.page=1;void loadProducts()}
+async function loadProducts() {
+  const sequence=++loadSequence
+  controller?.abort(); controller = new AbortController(); loading.value=true;loadError.value=''
+  page.items=[];page.total=0
+  try {
+    const response=await listProducts({...query},controller.signal)
+    if(disposed||sequence!==loadSequence)return
+    page.items=response.data.items;page.total=response.data.total
+  } catch(e) {
+    if(disposed||sequence!==loadSequence)return
+    const status=(e as {status?:number})?.status
+    loadError.value=status===403?'无商品查看权限，请联系管理员':e instanceof Error?`商品查询失败：${e.message}`:'商品查询失败，请重试'
+  } finally { if(!disposed&&sequence===loadSequence)loading.value=false }
 }
 async function loadAiCapability() {
   try { Object.assign(aiCapability, (await getProductAttributeCapability()).data) }
@@ -228,11 +293,11 @@ function capabilityReason(value?: string) { return ({ provider_disabled: 'Provid
 function runStatusLabel(value: string) { return ({ queued: '排队中', running: '执行中', retry_wait: '等待重试', succeeded: '已完成', failed: '失败', expired: '超时', cancelled: '已取消' } as Record<string,string>)[value] ?? value }
 function runStatusType(value: string) { return value === 'succeeded' ? 'success' : ['failed','expired','cancelled'].includes(value) ? 'danger' : 'warning' }
 let initialized = false
-onMounted(async () => { await Promise.all([loadDictionaries(), loadAiCapability(), getProductFields().then(response=>{attributeFields.value=response.data.attributes})]); await loadProducts(); initialized=true })
+onMounted(async () => { await Promise.allSettled([loadDictionaries(),loadAiCapability(),loadFields(),loadProducts()]); initialized=true;if(typeof route.query.productId==='string')await details.value?.open(route.query.productId) })
 onActivated(() => { if(initialized) void loadProducts() })
-onBeforeUnmount(() => { controller?.abort(); stopPolling() })
+onBeforeUnmount(() => { disposed=true;loadSequence++;controller?.abort(); stopPolling() })
 </script>
 
 <style scoped>
-.toolbar{display:flex;gap:8px}.reason-tag{margin:2px}.fashion-products code{font-weight:600}.run-waiting{padding:36px;text-align:center;color:var(--el-text-color-secondary)}
+.fashion-products{min-width:0;max-width:100%;box-sizing:border-box}.toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions .el-button{margin-left:0}.product-table-region{width:100%;max-width:100%;min-width:0}.row-actions{display:flex;gap:6px 12px;flex-wrap:wrap}.row-actions .el-button{margin-left:0}.list-thumbnail{width:76px!important;height:80px!important}.column-groups{max-height:60vh;overflow-y:auto}.column-groups section{margin:12px 0}.group-actions{display:flex;gap:16px}.group-options{display:flex;flex-wrap:wrap;padding-left:16px;gap:0 12px}.group-options .el-checkbox{margin-right:0}.reason-tag{margin:2px}.fashion-products code{font-weight:600}.run-waiting{padding:36px;text-align:center;color:var(--el-text-color-secondary)}
 </style>

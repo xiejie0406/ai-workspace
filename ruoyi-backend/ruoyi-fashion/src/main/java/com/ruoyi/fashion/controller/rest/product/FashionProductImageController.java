@@ -19,6 +19,16 @@ public class FashionProductImageController {
     public ResponseEntity<byte[]> image(@PathVariable String id){
         var product=products.findById(FashionId.parse(id).value()).orElseThrow(()->new ServiceException("商品不存在"));
         var image=product.images().stream().filter(i->i.objectKey().equals(product.mainImageKey())&&"active".equals(i.status())&&(i.allowInternal()||i.allowProposal())).findFirst().orElseThrow(()->new ServiceException("商品没有可查看的主图"));
+        return content(image);
+    }
+    @GetMapping("/{id}/images/{imageId}/content")
+    @PreAuthorize("@ss.hasPermi('fashion:product:query') or @ss.hasPermi('fashion:quote:list')")
+    public ResponseEntity<byte[]> imageContent(@PathVariable String id,@PathVariable String imageId){
+        var product=products.findById(FashionId.parse(id).value()).orElseThrow(()->new ServiceException("商品不存在"));
+        var image=product.images().stream().filter(i->imageId.equals(i.imageId())&&"active".equals(i.status())&&(i.allowInternal()||i.allowProposal())).findFirst().orElseThrow(()->new ServiceException("图片不属于当前商品或没有查看许可"));
+        return content(image);
+    }
+    private ResponseEntity<byte[]> content(com.ruoyi.fashion.domain.product.FashionProductImage image){
         byte[] bytes=storage.read(image.objectKey());
         if(!FashionHashing.sha256(bytes).equals(image.sha256()))throw new ServiceException("商品图片摘要不一致");
         String type;

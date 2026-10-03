@@ -69,13 +69,16 @@ public class FashionProductService {
         ProductSearchCriteria criteria = new ProductSearchCriteria(
                 trimToNull(sourceCode), trimToNull(categoryCode), trimToNull(status), trimToNull(keyword),
                 (normalizedPage - 1) * normalizedSize, normalizedSize, trimToNull(attributeKey), trimToNull(attributeValue));
+        List<FashionProduct> products = repository.search(criteria);
+        var prices = repository.commercialPrices(products.stream().map(FashionProduct::id).collect(java.util.stream.Collectors.toSet()));
         return new ProductPage(
-                repository.search(criteria).stream().map(ProductView::from).toList(),
+                products.stream().map(product -> ProductView.from(product, prices.get(product.id()))).toList(),
                 repository.count(criteria), normalizedPage, normalizedSize);
     }
 
     public ProductView get(String id) {
-        return ProductView.from(requireProduct(FashionId.parse(id).value()));
+        var product = requireProduct(FashionId.parse(id).value());
+        return ProductView.from(product, repository.commercialPrices(Set.of(product.id())).get(product.id()));
     }
 
     public ProductView create(ProductCreate command, long operatorId) {
@@ -104,9 +107,11 @@ public class FashionProductService {
         if (patches == null || patches.isEmpty() || patches.size() > 200) {
             throw new ServiceException("一次必须修改 1～200 个商品");
         }
-        return transaction.execute(status -> catalogWriteLock.executeLocked(10, () -> patches.stream()
-                .map(patch -> updateOne(patch, operatorId))
-                .toList()));
+        return transaction.execute(status -> catalogWriteLock.executeLocked(10, () -> {
+            var products = patches.stream().map(patch -> updateOne(patch, operatorId)).toList();
+            var prices = repository.commercialPrices(products.stream().map(FashionProduct::id).collect(java.util.stream.Collectors.toSet()));
+            return products.stream().map(product -> ProductView.from(product,prices.get(product.id()))).toList();
+        }));
     }
 
     public ProductView changeStatus(String id, String statusCode, long rowVersion, long operatorId) {
@@ -117,7 +122,7 @@ public class FashionProductService {
             if (!repository.updateStatus(productId, newStatus, rowVersion, operatorId)) {
                 throw conflict();
             }
-            return ProductView.from(requireProduct(productId));
+            return view(requireProduct(productId));
         }));
     }
 
@@ -141,11 +146,11 @@ public class FashionProductService {
             safe.put("lastAiRunId", runId);
             safe.put("attributesConfirmed", true);
             if (!repository.updateFields(productId, safe, expectedRowVersion, operatorId)) throw conflict();
-            return ProductView.from(requireProduct(productId));
+            return view(requireProduct(productId));
         }));
     }
 
-    private ProductView updateOne(ProductPatch patch, long operatorId) {
+    private FashionProduct updateOne(ProductPatch patch, long operatorId) {
         long id = FashionId.parse(patch.id()).value();
         if (patch.changes() == null || patch.changes().isEmpty()) {
             throw new ServiceException("商品修改字段不能为空");
@@ -160,7 +165,7 @@ public class FashionProductService {
         if (!repository.updateFields(id, normalized, patch.rowVersion(), operatorId)) {
             throw conflict();
         }
-        return ProductView.from(requireProduct(id));
+        return requireProduct(id);
     }
 
     private Map<String, Object> normalizeChanges(Map<String, Object> changes, FashionProduct current) {
@@ -240,6 +245,10 @@ public class FashionProductService {
 
     private FashionProduct requireProduct(long id) {
         return repository.findById(id).orElseThrow(() -> new ServiceException("商品不存在或已不可见"));
+    }
+
+    private ProductView view(FashionProduct product) {
+        return ProductView.from(product,repository.commercialPrices(Set.of(product.id())).get(product.id()));
     }
 
     public static String businessKey(String sourceCode, String skuCode) {

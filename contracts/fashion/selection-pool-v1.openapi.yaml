@@ -1,9 +1,8 @@
 openapi: 3.1.0
 info:
   title: 智能选品方案池与提案 API
-  version: 1.0.0
-  description: v0.3 三步业务实现契约：横版筛选→完整方案池→已选清单，试衣及PPT为独立弹窗能力。依据当前 Java 控制器/DTO 编写；不表示真实Provider或用户验收通过。认证沿用RuoYi Bearer令牌，权限及pool
-    owner同时校验。HTTP200也可能是业务错误，客户端必须判断AjaxResult.code；二进制接口同时检查Content-Type。商品数据/价格由Java/MySQL持有，旧销售价与新增双价互不复制。
+  version: 1.2.0
+  description: 设计1.2实施契约：商品内价格与图片，2/3/4组草稿和逐字段继承、完整组合、上下试衣与PPT。权限沿用既有RuoYi值，Java/MySQL维护业务真相；本地技术检查不代表联机及用户接受。
 security:
 - RuoYiBearer: []
 tags:
@@ -11,6 +10,8 @@ tags:
   description: 商品筛选、组合、已选与双价维护
 - name: proposal
   description: 提案PPT与模特试衣
+- name: catalog
+  description: 商品导入元数据及仓库字典维护
 paths:
   /fashion/pools/options:
     get:
@@ -214,7 +215,10 @@ paths:
           - groupDesc
           - vipAsc
           - vipDesc
+          - stockDesc
+          - salesDesc
           default: identity
+        description: stockDesc按瓶颈套数；salesDesc无真实来源时业务503不可用
       - name: keyword
         in: query
         required: false
@@ -761,6 +765,421 @@ paths:
         schema:
           type: integer
           minimum: 0
+  /fashion/imports/products/fields:
+    get:
+      summary: 读取商品导入列元数据
+      tags:
+      - catalog
+      description: 11必填列锁定、13列默认模板；全部59个可导入字段按稳定key返回，其中44个扩展属性。
+      x-ruoyi-permissions:
+      - fashion:product:import
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ProductImportFields'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      operationId: getFashionImportsProductsFields
+  /fashion/warehouses:
+    get:
+      summary: 仓库列表
+      tags:
+      - catalog
+      description: 来自fashion_warehouse字典，空仓仍可见；库存汇总仅用于展示。
+      x-ruoyi-permissions:
+      - fashion:stock:list
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/WarehouseList'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      operationId: getFashionWarehouses
+    post:
+      summary: 新建仓库
+      tags:
+      - catalog
+      description: 新建仓库
+      x-ruoyi-permissions:
+      - fashion:stock:import
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                  required:
+                  - code
+                  - msg
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarehouseInput'
+      operationId: postFashionWarehouses
+  /fashion/warehouses/{code}:
+    put:
+      summary: 修改仓库资料
+      tags:
+      - catalog
+      description: 路径与body.code必须一致；仓库编码不可变，历史库存归属不迁移。
+      x-ruoyi-permissions:
+      - fashion:stock:import
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                  required:
+                  - code
+                  - msg
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarehouseInput'
+      parameters:
+      - &id004
+        name: code
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/WarehouseCode'
+      operationId: putFashionWarehousesCode
+  /fashion/warehouses/{code}/status:
+    put:
+      summary: 启停仓库
+      tags:
+      - catalog
+      description: 默认仓库须先指定替代默认仓再停用，保留历史库存。
+      x-ruoyi-permissions:
+      - fashion:stock:import
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                  required:
+                  - code
+                  - msg
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id004
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - active
+                  - inactive
+              required:
+              - status
+      operationId: putFashionWarehousesCodeStatus
+  /fashion/warehouses/{code}/default:
+    put:
+      summary: 设置默认仓库
+      tags:
+      - catalog
+      description: 只能设启用仓库，沿用fashion.catalog.defaultWarehouse，不迁移库存。
+      x-ruoyi-permissions:
+      - fashion:stock:import
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                  required:
+                  - code
+                  - msg
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id004
+      operationId: putFashionWarehousesCodeDefault
+  /fashion/tasks:
+    get:
+      summary: 当前用户AI任务聚合列表
+      tags:
+      - proposal
+      description: 权限任一可进入；服务端只投影有对应来源读取权限的任务，owner隔离，不维护第二套任务真相。
+      x-ruoyi-permissions:
+      - fashion:ai:run:list
+      - fashion:quote:query
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/BusinessTaskPage'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - &id005
+        name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - &id006
+        name: pageSize
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      operationId: getFashionTasks
+  /fashion/proposal-deliveries:
+    get:
+      summary: 当前用户提案交付记录
+      tags:
+      - proposal
+      description: 当前用户提案交付记录
+      x-ruoyi-permissions:
+      - fashion:quote:export
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ProposalDeliveryPage'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      parameters:
+      - *id005
+      - *id006
+      operationId: getFashionProposalDeliveries
+    post:
+      summary: 同步生成提案交付
+      tags:
+      - proposal
+      description: 同owner/requestKey及同内容复用记录，内容冲突409。同步生成1～100套、嵌入图不超过50MB，冻结当次顺序、价格、图片和版本；失败保留记录不提供文件。
+      x-ruoyi-permissions:
+      - fashion:quote:export
+      responses:
+        '200':
+          description: 成功或业务错误信封；检查code判定。
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    code:
+                      type: integer
+                      const: 200
+                    msg:
+                      type: string
+                    data:
+                      $ref: '#/components/schemas/ProposalDelivery'
+                  required:
+                  - code
+                  - msg
+                  - data
+                - $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalDeliveryCreate'
+      operationId: postFashionProposalDeliveries
+  /fashion/proposal-deliveries/{id}/download:
+    get:
+      summary: 下载已生成提案文件
+      tags:
+      - proposal
+      description: 复核owner、导出权限、私有文件摘要、大小和当前素材许可。冻结文件不被新草稿改写；撤回模特图采用或许可撤销后拒绝再次下载。成功提供PPTX并增加下载计数。
+      x-ruoyi-permissions:
+      - fashion:quote:export
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: PPTX文件或业务错误信封，下载端核对文件格式。
+          content:
+            application/vnd.openxmlformats-officedocument.presentationml.presentation:
+              schema:
+                type: string
+                format: binary
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AjaxError'
+        default:
+          $ref: '#/components/responses/TransportError'
+      operationId: getFashionProposalDeliveriesIdDownload
+  /fashion/provider-media:
+    get:
+      summary: 试衣供应商临时读取已核实私有素材
+      tags:
+      - proposal
+      security: []
+      description: 公网HTTPS入口与32字节以上密钥未配置时关闭；仅材料原图与本账号模特图白名单、HMAC签名、1～30分钟过期校验，不提供列举或长期公开地址。 签名绑定已持久化任务；每次读取按该任务实际所选SKU重查active/allowAi、视觉版本及摘要，拒绝用同图其他SKU许可替代；模特素材需匹配本次任务拥有者及引用。
+      parameters:
+      - name: key
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: expires
+        in: query
+        required: true
+        schema:
+          type: integer
+      - name: signature
+        in: query
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      - name: task
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: 签名绑定的Java试衣任务ID，不能替换或省略
+      responses:
+        '200':
+          description: 已核实图像，no-store
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        default:
+          $ref: '#/components/responses/TransportError'
+      operationId: getFashionProviderMedia
 components:
   securitySchemes:
     RuoYiBearer:
@@ -804,7 +1223,7 @@ components:
             type: string
             minLength: 1
             maxLength: 160
-          minItems: 1
+          minItems: 0
           maxItems: 200
         seasons:
           $ref: '#/components/schemas/TextChoices'
@@ -877,6 +1296,216 @@ components:
           $ref: '#/components/schemas/Money'
         vipPriceMax:
           $ref: '#/components/schemas/Money'
+        sourceCodes:
+          $ref: '#/components/schemas/TextChoices'
+        styleCodes:
+          $ref: '#/components/schemas/TextChoices'
+        skuCodes:
+          $ref: '#/components/schemas/TextChoices'
+        sizeSystems:
+          $ref: '#/components/schemas/TextChoices'
+        tags:
+          $ref: '#/components/schemas/TextChoices'
+        material:
+          type: string
+          maxLength: 255
+        quantity:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          description: 本位置需求数量，默认1；总套数100且每套1件时跟随为100
+        unitsPerSet:
+          type: integer
+          enum:
+          - 1
+          default: 1
+          description: 本期每位置每套固定1件/双，避免数量与套价口径混淆
+        stockAsOfFrom:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        stockAsOfTo:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        attributesConfirmed:
+          type: boolean
+        attributeFilters:
+          type: object
+          additionalProperties: false
+          properties:
+            mainSkuCode:
+              type: string
+              maxLength: 128
+            itemNo:
+              type: string
+              maxLength: 128
+            articleNo:
+              type: string
+              maxLength: 128
+            categoryLeafCode:
+              type: string
+              maxLength: 128
+            categoryLeafPath:
+              type: string
+              maxLength: 255
+            platform:
+              type: string
+              maxLength: 80
+            shopName:
+              type: string
+              maxLength: 120
+            supplierName:
+              type: string
+              maxLength: 120
+            platformProductId:
+              type: string
+              maxLength: 128
+            platformSkuId:
+              type: string
+              maxLength: 128
+            sourceUrl:
+              type: string
+              maxLength: 2048
+            collectedAt:
+              type: string
+              maxLength: 40
+            categoryPath:
+              type: string
+              maxLength: 255
+            listingYear:
+              type: string
+              maxLength: 4
+            barcode:
+              type: string
+              maxLength: 64
+            gender:
+              type: string
+              maxLength: 80
+            audience:
+              type: string
+              maxLength: 120
+            style:
+              type: string
+              maxLength: 120
+            scene:
+              type: string
+              maxLength: 255
+            fabricComposition:
+              type: string
+              maxLength: 1000
+            lining:
+              type: string
+              maxLength: 255
+            thickness:
+              type: string
+              maxLength: 80
+            elasticity:
+              type: string
+              maxLength: 80
+            fit:
+              type: string
+              maxLength: 80
+            collar:
+              type: string
+              maxLength: 80
+            sleeveType:
+              type: string
+              maxLength: 80
+            sleeveLength:
+              type: string
+              maxLength: 80
+            garmentLength:
+              type: string
+              maxLength: 80
+            pattern:
+              type: string
+              maxLength: 255
+            craft:
+              type: string
+              maxLength: 255
+            trouserFit:
+              type: string
+              maxLength: 80
+            trouserLength:
+              type: string
+              maxLength: 80
+            waistType:
+              type: string
+              maxLength: 80
+            sizeName:
+              type: string
+              maxLength: 80
+            sizeMeasurements:
+              type: string
+              maxLength: 4000
+            measurementUnit:
+              type: string
+              maxLength: 16
+            sizeSource:
+              type: string
+              maxLength: 1000
+            sourceMainImageUrl:
+              type: string
+              maxLength: 2048
+            sourceColorImageUrl:
+              type: string
+              maxLength: 2048
+            sourceDetailImageUrls:
+              type: string
+              maxLength: 12000
+            sourceSizeImageUrl:
+              type: string
+              maxLength: 2048
+            observedPrice:
+              type: string
+              maxLength: 20
+            observedCurrency:
+              type: string
+              maxLength: 3
+            observedAt:
+              type: string
+              maxLength: 40
+          description: 44项既有商品属性白名单；与命名条件AND，各字段独立，不加入价格库存业务写入
+        attributeRanges:
+          type: object
+          additionalProperties: false
+          properties:
+            collectedAt:
+              type: object
+              additionalProperties: false
+              properties:
+                from:
+                  type: string
+                to:
+                  type: string
+            observedAt:
+              type: object
+              additionalProperties: false
+              properties:
+                from:
+                  type: string
+                to:
+                  type: string
+            observedPrice:
+              type: object
+              additionalProperties: false
+              properties:
+                from:
+                  type: string
+                to:
+                  type: string
+            listingYear:
+              type: object
+              additionalProperties: false
+              properties:
+                from:
+                  type: string
+                to:
+                  type: string
       required:
       - categoryLeafCodes
       description: 同字段内 OR、字段间 AND；每组直接选三级分类。只有 active 且明确 mainSkuCode 的商品进入候选。库存 freshnessHours 沿用平台配置（默认24小时，允许1～168）。缺失或过期库存为未知，不冒充可售。
@@ -889,8 +1518,8 @@ components:
         groups:
           type: array
           items:
-            $ref: '#/components/schemas/GroupFilter'
-          minItems: 1
+            $ref: '#/components/schemas/ActiveGroupFilter'
+          minItems: 2
           maxItems: 4
         priceBasis:
           type: string
@@ -902,9 +1531,98 @@ components:
           $ref: '#/components/schemas/Money'
         totalMax:
           $ref: '#/components/schemas/Money'
+        activeGroupCount:
+          type: integer
+          enum:
+          - 2
+          - 3
+          - 4
+          description: 默认读取groups数量；旧1组池可回读但不可新建
+        draftGroups:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/GroupFilter'
+          description: 四组原始输入，隐藏组不验证或计算，切回时恢复
+        totalConditions:
+          $ref: '#/components/schemas/TotalConditions'
+        inheritance:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              quantity:
+                type: string
+                enum:
+                - follow
+                - independent
+              warehouseCode:
+                type: string
+                enum:
+                - follow
+                - independent
+              seasons:
+                type: string
+                enum:
+                - follow
+                - independent
+              genders:
+                type: string
+                enum:
+                - follow
+                - independent
+              brands:
+                type: string
+                enum:
+                - follow
+                - independent
+              groupPriceMin:
+                type: string
+                enum:
+                - follow
+                - independent
+              groupPriceMax:
+                type: string
+                enum:
+                - follow
+                - independent
+              vipPriceMin:
+                type: string
+                enum:
+                - follow
+                - independent
+              vipPriceMax:
+                type: string
+                enum:
+                - follow
+                - independent
+              stockFreshness:
+                type: string
+                enum:
+                - follow
+                - independent
+              requireAllSizes:
+                type: string
+                enum:
+                - follow
+                - independent
+              hasMainImage:
+                type: string
+                enum:
+                - follow
+                - independent
+              imagesConfirmed:
+                type: string
+                enum:
+                - follow
+                - independent
       required:
       - groups
-      description: 未给 title 使用新套装方案；未给 priceBasis 按团购价预算验证。创建不可变商品候选快照；返回原始数量和排重、币税与预算验证后的精确数量。
+      description: 新建仅2/3/4组；服务器从draftGroups、totalConditions、inheritance重新解析活动groups。省略新字段的旧2至4组请求兼容。保存四组原始草稿，隐藏组不参加业务校验。全量主SKU笛卡尔积，规模超限拒绝，不截TopN。
     ProductImage:
       type: object
       properties:
@@ -1115,7 +1833,7 @@ components:
         title:
           type: string
         request:
-          $ref: '#/components/schemas/CreatePool'
+          $ref: '#/components/schemas/StoredPoolRequest'
         groups:
           type: array
           items:
@@ -1185,6 +1903,19 @@ components:
           $ref: '#/components/schemas/Money'
         vipPriceMax:
           $ref: '#/components/schemas/Money'
+        availableSets:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          description: 全部位置有效库存的最小floor(qty/unitsPerSet)，未知保持null
+        meetsDemand:
+          type:
+          - boolean
+          - 'null'
+          description: >-
+            需求满足三态：true表示每个位置有效库存至少满足每套1件/双，false表示某位置明确有效库存不足（即使其他位置未知），null表示库存未知而无法判断。
+            未指定quantity仍按每套1件/双判断，不将未知或部分未知库存的局部合计当成满足或不足；显式quantity为硬筛选，库存未知或不足的组合不进入结果。旧快照缺此字段按待核实处理。
       required:
       - id
       - items
@@ -1338,6 +2069,27 @@ components:
           type: array
           items:
             type: string
+        recommendations:
+          $ref: '#/components/schemas/Recommendations'
+        warehouseOptions:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              name:
+                type: string
+              isDefault:
+                type: boolean
+          description: 启用仓库来自fashion_warehouse字典，含未入库空仓
+        defaultWarehouseCode:
+          type: string
+          description: 启用的默认仓库；无可用默认配置时空字符串，新建单采用，历史恢复不覆盖
+        attributeFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAttributeField'
       required:
       - categories
       - brands
@@ -1426,12 +2178,34 @@ components:
         requestKey:
           type: string
           pattern: ^[A-Za-z0-9_-]{8,100}$
+        garmentPositions:
+          type: object
+          additionalProperties:
+            type: string
+            enum:
+            - top
+            - bottom
+            - dress
+            - original
+          description: 主SKU key→服装位置；配件original只保留原图，不送试衣。不能同时dress和top/bottom
+        maxCost:
+          type: number
+          minimum: 0
+          description: 单套本次费用上限，须不低于当前服务端估计费用
+        costConfirmed:
+          type: boolean
+          const: true
+          description: 本次付费明确确认
       required:
       - rowVersion
       - combinationId
       - model
       - requestKey
+      - garmentPositions
+      - maxCost
+      - costConfirmed
       description: 只能针对已选组合。模型必须为当前账号经/models上传的素材。相同owner+requestKey且同输入复用原任务；冲突code409。Provider不可用code503且不创建任务。一次请求对应一套方案，批量由调用方逐套提交。
+        位置显式确认；阿里云仅上装/下装/连衣裙。未知提交且无taskId不自动重提交，需人工对账。 月度预算包含未知实扣任务的估计费用预留；超额不提交。自动恢复最长24小时，超过期限或连续查询失败8次停止自动查询，保留原任务并人工对账。
     TaskVersion:
       type: object
       properties:
@@ -1529,6 +2303,39 @@ components:
           additionalProperties: true
         stale:
           type: boolean
+        providerCode:
+          type:
+          - string
+          - 'null'
+        model:
+          type:
+          - string
+          - 'null'
+        currency:
+          type:
+          - string
+          - 'null'
+        billingStatus:
+          type:
+          - string
+          - 'null'
+        estimatedCost:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+        actualCost:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+        coverage:
+          $ref: '#/components/schemas/TryOnCoverage'
+        finishedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
       required:
       - id
       - status
@@ -1539,6 +2346,7 @@ components:
       - results
       - review
       - stale
+      description: 估计费用与实扣费用分开；未知实扣保持null。采用需复核版本和覆盖范围，未试衣位置保留原图。
     ImageWorkspace:
       type: object
       properties:
@@ -1550,10 +2358,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ImageTask'
+        capabilities:
+          $ref: '#/components/schemas/TryOnCapabilities'
+        monthlyBudget:
+          type: number
+          minimum: 0
       required:
       - providerAvailable
       - blockedReason
       - tasks
+      - capabilities
+      - monthlyBudget
     AjaxError:
       type: object
       properties:
@@ -1574,3 +2389,561 @@ components:
       - code
       - msg
       description: RuoYi业务错误信封。GlobalExceptionHandler/认证入口通常HTTP200，必须检查code，不能仅检查HTTP状态。普通ServiceException为500；Proposal部分冲突为409、Provider不可用503；未认证401/无权限403同样可能HTTP200。
+    ActiveGroupFilter:
+      allOf:
+      - $ref: '#/components/schemas/GroupFilter'
+      - type: object
+        properties:
+          categoryLeafCodes:
+            type: array
+            minItems: 1
+            items:
+              type: string
+        required:
+        - categoryLeafCodes
+    TotalConditions:
+      type: object
+      properties:
+        quantity:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          description: 本位置需求数量，默认1；总套数100且每套1件时跟随为100
+        warehouseCode:
+          type: string
+          maxLength: 100
+        seasons:
+          $ref: '#/components/schemas/TextChoices'
+        genders:
+          $ref: '#/components/schemas/TextChoices'
+        brands:
+          $ref: '#/components/schemas/TextChoices'
+        groupPriceMin:
+          $ref: '#/components/schemas/Money'
+        groupPriceMax:
+          $ref: '#/components/schemas/Money'
+        vipPriceMin:
+          $ref: '#/components/schemas/Money'
+        vipPriceMax:
+          $ref: '#/components/schemas/Money'
+        stockFreshness:
+          type: string
+          enum:
+          - all
+          - fresh
+          - stale
+        requireAllSizes:
+          type: boolean
+          description: 须提供 sizes；至少一种同一颜色的全部指定尺码库存新鲜且大于 0。仅保留齐码颜色。
+        hasMainImage:
+          type: boolean
+        imagesConfirmed:
+          type: boolean
+      description: 总条件只带动标记follow的字段；totalMin/totalMax仍表示整套金额，不复制给每件商品
+    Recommendations:
+      type: object
+      properties:
+        stock:
+          type: object
+          properties:
+            available:
+              type: boolean
+            source:
+              type: string
+        sales:
+          type: object
+          properties:
+            available:
+              type: boolean
+              const: false
+            periodDays:
+              type: integer
+              const: 30
+            reason:
+              type: string
+      description: 销量源未接通，拒绝salesDesc且不虚构0；库存推荐按瓶颈套数
+    StoredPoolRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActiveGroupFilter'
+          minItems: 1
+          maxItems: 4
+        priceBasis:
+          type: string
+          enum:
+          - group
+          - vip
+          default: group
+        totalMin:
+          $ref: '#/components/schemas/Money'
+        totalMax:
+          $ref: '#/components/schemas/Money'
+        activeGroupCount:
+          type: integer
+          enum:
+          - 2
+          - 3
+          - 4
+          description: 默认读取groups数量；旧1组池可回读但不可新建
+        draftGroups:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/GroupFilter'
+          description: 四组原始输入，隐藏组不验证或计算，切回时恢复
+        totalConditions:
+          $ref: '#/components/schemas/TotalConditions'
+        inheritance:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              quantity:
+                type: string
+                enum:
+                - follow
+                - independent
+              warehouseCode:
+                type: string
+                enum:
+                - follow
+                - independent
+              seasons:
+                type: string
+                enum:
+                - follow
+                - independent
+              genders:
+                type: string
+                enum:
+                - follow
+                - independent
+              brands:
+                type: string
+                enum:
+                - follow
+                - independent
+              groupPriceMin:
+                type: string
+                enum:
+                - follow
+                - independent
+              groupPriceMax:
+                type: string
+                enum:
+                - follow
+                - independent
+              vipPriceMin:
+                type: string
+                enum:
+                - follow
+                - independent
+              vipPriceMax:
+                type: string
+                enum:
+                - follow
+                - independent
+              stockFreshness:
+                type: string
+                enum:
+                - follow
+                - independent
+              requireAllSizes:
+                type: string
+                enum:
+                - follow
+                - independent
+              hasMainImage:
+                type: string
+                enum:
+                - follow
+                - independent
+              imagesConfirmed:
+                type: string
+                enum:
+                - follow
+                - independent
+      required:
+      - groups
+      description: 历史快照可含旧单组；新建接口仅2/3/4组
+    ProductAttributeField:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        group:
+          type: string
+        maxLength:
+          type: integer
+          minimum: 1
+        required:
+          type: boolean
+      required:
+      - key
+      - label
+      - group
+      - maxLength
+      - required
+    ProductImportFields:
+      type: object
+      properties:
+        templateVersion:
+          type: string
+        mapping:
+          type: object
+          additionalProperties:
+            type: string
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAttributeField'
+        requiredFields:
+          type: array
+          items:
+            type: string
+        defaultFields:
+          type: array
+          items:
+            type: string
+      required:
+      - templateVersion
+      - mapping
+      - attributes
+      - requiredFields
+      - defaultFields
+    TryOnCapabilities:
+      type: object
+      properties:
+        providerCode:
+          type: string
+        model:
+          type: string
+        supportedPositions:
+          type: array
+          items:
+            type: string
+            enum:
+            - top
+            - bottom
+            - dress
+        requiresPublicUrls:
+          type: boolean
+        supportsCancellation:
+          type: boolean
+        estimatedUnitCost:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+        currency:
+          type: string
+      required:
+      - providerCode
+      - model
+      - supportedPositions
+      - requiresPublicUrls
+      - supportsCancellation
+      - estimatedUnitCost
+      - currency
+    TryOnCoverage:
+      type: object
+      properties:
+        supported:
+          type: array
+          items:
+            type: string
+        original:
+          type: array
+          items:
+            type: string
+        message:
+          type: string
+      required:
+      - supported
+      - original
+      - message
+    WarehouseCode:
+      type: string
+      pattern: ^[A-Z0-9][A-Z0-9_-]{0,63}$
+      maxLength: 64
+    WarehouseInput:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/WarehouseCode'
+        name:
+          type: string
+          maxLength: 100
+        status:
+          type: string
+          enum:
+          - active
+          - inactive
+        sort:
+          type: integer
+          minimum: 0
+        remark:
+          type: string
+          maxLength: 500
+      required:
+      - code
+      - name
+      - status
+    Warehouse:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/WarehouseCode'
+        name:
+          type: string
+          maxLength: 100
+        status:
+          type: string
+          enum:
+          - active
+          - inactive
+        sort:
+          type: integer
+          minimum: 0
+        remark:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+        isDefault:
+          type: boolean
+        stockSkuCount:
+          type: integer
+          minimum: 0
+        lastStockAsOf:
+          type:
+          - string
+          - 'null'
+          format: date-time
+      required:
+      - code
+      - name
+      - status
+      - sort
+      - remark
+      - isDefault
+      - stockSkuCount
+      - lastStockAsOf
+    WarehouseList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warehouse'
+      required:
+      - items
+    BusinessTask:
+      type: object
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+          enum:
+          - ai_run
+          - try_on
+        taskType:
+          type: string
+        relatedName:
+          type: string
+        poolId:
+          type:
+          - string
+          - 'null'
+        combinationId:
+          type:
+          - string
+          - 'null'
+        productId:
+          type:
+          - string
+          - 'null'
+        status:
+          type: string
+        reviewStatus:
+          type:
+          - string
+          - 'null'
+        adopted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        billingStatus:
+          type: string
+        actualCost:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+        currency:
+          type:
+          - string
+          - 'null'
+        errorMessage:
+          type:
+          - string
+          - 'null'
+        detailPath:
+          type: string
+      required:
+      - id
+      - kind
+      - taskType
+      - relatedName
+      - status
+      - adopted
+      - createdAt
+      - billingStatus
+      - detailPath
+    ProposalDelivery:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 200
+        poolId:
+          type: string
+        draftVersion:
+          type: integer
+          minimum: 1
+        status:
+          type: string
+          enum:
+          - generating
+          - success
+          - failed
+        combinationCount:
+          type: integer
+          minimum: 0
+        pageCount:
+          type: integer
+          minimum: 0
+        fileSize:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        downloadCount:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        errorMessage:
+          type:
+          - string
+          - 'null'
+        priceMode:
+          type: string
+          enum:
+          - none
+          - group
+          - vip
+        imageMode:
+          type: string
+          enum:
+          - original
+          - model
+      required:
+      - id
+      - title
+      - poolId
+      - draftVersion
+      - status
+      - combinationCount
+      - pageCount
+      - downloadCount
+      - createdAt
+      - priceMode
+      - imageMode
+    ProposalDeliveryCreate:
+      type: object
+      properties:
+        poolId:
+          type: string
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        requestKey:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{8,100}$
+        export:
+          $ref: '#/components/schemas/ExportRequest'
+      required:
+      - poolId
+      - title
+      - requestKey
+      - export
+    BusinessTaskPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessTask'
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+      required:
+      - items
+      - total
+      - page
+      - pageSize
+    ProposalDeliveryPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProposalDelivery'
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+      required:
+      - items
+      - total
+      - page
+      - pageSize

@@ -52,10 +52,11 @@ public class FashionCustomerService {
         int normalizedSize = Math.min(100, Math.max(1, pageSize));
         long userId = SecurityUtils.getUserId();
         boolean administrator = SecurityUtils.isAdmin();
+        var customers = repository.search(userId, administrator, trim(status), trim(keyword),
+                (normalizedPage - 1) * normalizedSize, normalizedSize);
+        var names = repository.salespersonNames(customers.stream().map(FashionCustomer::salespersonId).collect(java.util.stream.Collectors.toSet()));
         return new CustomerPage(
-                repository.search(userId, administrator, trim(status), trim(keyword),
-                        (normalizedPage - 1) * normalizedSize, normalizedSize).stream()
-                        .map(CustomerView::from).toList(),
+                customers.stream().map(customer -> CustomerView.from(customer,names.get(customer.salespersonId()))).toList(),
                 repository.count(userId, administrator, trim(status), trim(keyword)),
                 normalizedPage, normalizedSize);
     }

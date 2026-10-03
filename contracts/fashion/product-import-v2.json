@@ -1,8 +1,8 @@
 {
   "templateCode": "fashion-product",
   "templateVersion": "2.0",
-  "status": "implementation-in-progress",
-  "description": "兼容旧15列输入；增加主SKU、品号、货号、标准三级分类可选列。编码文本保留前导零。团购/VIP价格走独立正式价格接口，不从销售价复制。",
+  "status": "implemented-local-checks-passed-not-deployed",
+  "description": "默认13列基本商品资料，11项必填；主SKU、品号、货号、三级分类及完整属性可选。旧15列模板兼容。价格、库存和二进制图片各走商品内对应接口。",
   "extensionFields": [
     {
       "key": "mainSkuCode",
@@ -432,11 +432,7 @@
       "尺码",
       "尺码制式",
       "单位",
-      "品牌",
-      "材质",
-      "季节",
-      "京东商品ID",
-      "京东链接"
+      "季节"
     ],
     "optionalColumns": "All 44 extension columns may be absent; retain existing values on missing/blank cells unless explicitly cleared.",
     "unknownRequiredValues": "Keep acquisition draft; require user mapping before import. Never fabricate.",
@@ -477,6 +473,58 @@
       "pattern": "[12][0-9]{3}"
     },
     "images": "Source references only; actual materials require separate reviewed import.",
-    "inventory": "No inventory quantity in product import."
-  }
+    "inventory": "No inventory quantity in product import.",
+    "legacyCompatibleHeaders": [
+      "来源编码",
+      "SKU编码",
+      "款号",
+      "商品名称",
+      "品类编码",
+      "颜色编码",
+      "颜色名称",
+      "尺码",
+      "尺码制式",
+      "单位",
+      "品牌",
+      "材质",
+      "季节",
+      "京东商品ID",
+      "京东链接"
+    ],
+    "selectedFields": "字段选择和列映射使用稳定字段key，必填身份字段不能关闭；未选列及默认空单元格保留原值。显式清空只对白名单可选字段经预览确认。"
+  },
+  "requiredFields": [
+    "sourceCode",
+    "skuCode",
+    "styleCode",
+    "name",
+    "categoryCode",
+    "colorCode",
+    "colorName",
+    "sizeCode",
+    "sizeSystem",
+    "unit",
+    "season"
+  ],
+  "defaultFields": [
+    "sourceCode",
+    "skuCode",
+    "styleCode",
+    "name",
+    "categoryCode",
+    "colorCode",
+    "colorName",
+    "sizeCode",
+    "sizeSystem",
+    "unit",
+    "brand",
+    "material",
+    "season"
+  ],
+  "selectionFields": [
+    "mainSkuCode",
+    "itemNo",
+    "articleNo",
+    "categoryLeafCode"
+  ]
 }

@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const { fashionRequestMock } = vi.hoisted(() => ({ fashionRequestMock: vi.fn() }))
 vi.mock('@/api/fashion/client', () => ({ fashionRequest: fashionRequestMock, FASHION_API_PREFIX: '/fashion' }))
 
-import { previewProductImport, productTemplateUrl, publishProductImport } from '@/api/fashion/importBatch'
-import { confirmMaterials, previewMaterials, type ImageMapping } from '@/api/fashion/material'
+import { previewProductImport, productTemplateUrl, publishProductImport, getProductTemplate } from '@/api/fashion/importBatch'
+import { confirmMaterials, previewMaterials, getProductImageContent, type ImageMapping } from '@/api/fashion/material'
 
 describe('Fashion import and material APIs', () => {
   beforeEach(() => fashionRequestMock.mockReset())
@@ -41,5 +41,20 @@ describe('Fashion import and material APIs', () => {
     expect(fashionRequestMock).toHaveBeenLastCalledWith({
       path: 'materials/92/confirm', method: 'post', body: { rowVersion: 1 }, timeoutMs: 120_000
     })
+  })
+  it('模板和预览使用同一选列范围，未选字段不发送到后台', async () => {
+    fashionRequestMock.mockResolvedValue({ code: 200, data: {} })
+    const selectedFields=['sourceCode','skuCode','name']
+    await getProductTemplate(selectedFields)
+    expect(fashionRequestMock).toHaveBeenLastCalledWith({path:'imports/products/template',params:{selectedFields:'sourceCode,skuCode,name'},responseType:'blob'})
+    await previewProductImport({file:new File(['x'],'products.csv'),sourceCode:'MANUAL',asOf:'2026-10-01T00:00:00Z',selectedFields,mapping:{sourceCode:'来源',skuCode:'SKU',name:'名称'}})
+    const body=fashionRequestMock.mock.calls[1][0].body as FormData
+    expect(body.get('selectedFields')).toBe('sourceCode,skuCode,name')
+    expect(JSON.parse(String(body.get('mapping')))).not.toHaveProperty('salePrice')
+  })
+  it('已审核图片从商品绑定的内容端点读取，不访问来源外链',async()=>{
+    fashionRequestMock.mockResolvedValue(new Blob())
+    await getProductImageContent('000123','img-1')
+    expect(fashionRequestMock).toHaveBeenLastCalledWith({path:'products/000123/images/img-1/content',responseType:'blob'})
   })
 })

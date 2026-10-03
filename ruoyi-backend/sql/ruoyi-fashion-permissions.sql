@@ -1,6 +1,6 @@
 -- FEAT-FASHION-001 权限与设置菜单增量。
 -- 只写 sys_menu；不创建账号、角色，也不写 sys_role_menu。
--- 920000～920035 是当前 Fashion 保留段；ID 冲突时跳过并由管理员先处理冲突。
+-- 920000～920038 是当前 Fashion 保留段；ID 冲突时跳过并由管理员先处理冲突。
 
 insert into sys_menu
     (menu_id, menu_name, parent_id, order_num, path, component, query, route_name,
@@ -150,3 +150,34 @@ update sys_menu set parent_id=920034
  where create_by='migration' and perms='fashion:operations:retention';
 
 -- 管理员必须在 RuoYi 中显式把权限授给具体角色；本脚本不扩大任何人员范围。
+
+-- 设计1.2工作区：只调整本脚本菜单。独立图片/价格/旧报价等保持路由与权限兼容，收进商品或设置入口。
+-- 本次仅提交脚本文本，未对任何数据库执行；不会自动授予角色或取消旧业务数据权限。
+update sys_menu set menu_name='商品资料',order_num=10 where menu_id=920007 and create_by='migration' and perms='fashion:product:list';
+update sys_menu set menu_name='资料导入',order_num=20 where menu_id=920009 and create_by='migration' and perms='fashion:product:import';
+update sys_menu set menu_name='客户需求',order_num=50 where menu_id=920003 and create_by='migration' and perms='fashion:customer:list';
+update sys_menu set menu_name='提案交付',order_num=80 where menu_id=920020 and create_by='migration' and perms='fashion:quote:export';
+update sys_menu set visible='1' where create_by='migration' and parent_id=920000 and (
+ (menu_id=920011 and path='material' and perms='fashion:product:image') or
+ (menu_id=920030 and path='price-import' and perms='fashion:price:import') or
+ (menu_id=920015 and path='quote' and perms='fashion:quote:list') or
+ (menu_id=920024 and path='workbench' and perms='fashion:ai:run:list') or
+ (menu_id=920032 and path='image' and perms='fashion:image:list'));
+update sys_menu set menu_name='库存中心',order_num=40,path='stock',component='fashion/stock/index',route_name='FashionStock'
+ where menu_id=920012 and parent_id=920000 and create_by='migration' and perms='fashion:stock:list' and path in ('stock-import','stock');
+-- 设计1.3：管理入口由若依菜单树保留，取消独立导航后仍可按原权限访问。
+update sys_menu set visible='0',order_num=90 where create_by='migration' and menu_id=920001 and parent_id=920000 and path='settings' and perms='fashion:settings:list';
+update sys_menu set visible='0',order_num=91 where create_by='migration' and menu_id=920021 and parent_id=920000 and path='agent' and perms='fashion:ai:agent:list';
+update sys_menu set visible='0',order_num=92 where create_by='migration' and menu_id=920034 and parent_id=920000 and path='operations' and perms='fashion:operations:query';
+
+insert into sys_menu
+(menu_id,menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,update_by,update_time,remark)
+select v.id,v.title,920000,v.ord,v.path,v.component,'',v.route_name,1,0,'C','0','0',v.perms,v.icon,'migration',now(),'',null,'设计1.2：复用现有业务权限，不自动授权'
+from (
+ select 920036 id,'仓库管理' title,30 ord,'warehouse' path,'fashion/warehouse/index' component,'FashionWarehouse' route_name,'fashion:stock:list' perms,'storage' icon
+ union all select 920037,'选品方案',60,'pool','fashion/pool/index','FashionSelectionWorkspace','fashion:quote:list','list'
+ union all select 920038,'AI任务',70,'tasks','fashion/tasks/index','FashionTasks','fashion:ai:run:list','guide'
+) v
+where exists(select 1 from sys_menu where menu_id=920000 and path='fashion')
+ and not exists(select 1 from sys_menu where menu_id=v.id)
+ and not exists(select 1 from sys_menu where parent_id=920000 and path=v.path);

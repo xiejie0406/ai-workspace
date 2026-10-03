@@ -7,11 +7,13 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.fashion.application.material.port.FashionObjectStoragePort;
 import com.ruoyi.fashion.application.material.port.StoredFashionObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /** 私有本地对象存储适配器；对象键严格受限且不覆盖已有内容。 */
@@ -19,12 +21,30 @@ import org.springframework.stereotype.Component;
 @Component
 public final class LocalFashionObjectStorageAdapter implements FashionObjectStoragePort {
     private final Path root;
+    private final FashionProviderMediaLinks mediaLinks;
 
-    public LocalFashionObjectStorageAdapter(@Value("${ruoyi.profile}") String profile) {
+    @Autowired
+    public LocalFashionObjectStorageAdapter(@Value("${ruoyi.profile}") String profile, FashionProviderMediaLinks mediaLinks) {
         if (profile == null || profile.isBlank()) {
             throw new IllegalArgumentException("ruoyi.profile 不能为空");
         }
         this.root = Path.of(profile).toAbsolutePath().normalize().resolve("fashion-private");
+        this.mediaLinks = mediaLinks;
+    }
+
+    public LocalFashionObjectStorageAdapter(String profile) {
+        this(profile, new FashionProviderMediaLinks("", "", java.time.Clock.systemUTC()));
+    }
+
+    @Override public boolean supportsTemporaryReadUrl() { return mediaLinks.available(); }
+
+    @Override public String temporaryReadUrl(String objectKey, Duration validity) {
+        throw new ServiceException("试衣素材链接必须绑定具体任务");
+    }
+
+    @Override public String temporaryReadUrl(String objectKey, Duration validity, String taskId) {
+        if (!Files.isRegularFile(resolve(objectKey))) throw new ServiceException("私有素材不存在");
+        return mediaLinks.sign(objectKey, validity, taskId);
     }
 
     @Override

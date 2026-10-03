@@ -116,7 +116,8 @@ class FashionProvidedMySqlMigrationTest {
         var config = mock(ISysConfigService.class);
         when(config.selectConfigByKey("fashion.stock.freshnessHours")).thenReturn("24");
         var catalog = new com.ruoyi.fashion.infrastructure.persistence.pool.FashionPoolCatalog(
-                named, products, new FashionCatalogWriteLock(dataSource), config);
+                named, products, new FashionCatalogWriteLock(dataSource), config,
+                mock(com.ruoyi.fashion.application.stock.FashionWarehouseService.class));
         var transaction = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
         Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         jdbc.update("""

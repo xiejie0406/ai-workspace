@@ -29,8 +29,13 @@ class FashionMigrationScriptTest {
             "id", "create_by", "create_time", "update_by", "update_time", "row_version");
 
     @Test
-    void createsExactlyTheSixteenApprovedBusinessTables() throws IOException {
+    void createsExactlyTheTwentyApprovedBusinessTablesThroughV4() throws IOException {
         String sql = migrationSql();
+        Path directory = workspacePath("ruoyi-backend", "ruoyi-fashion", "src", "main", "resources", "db", "fashion-migration");
+        try(var paths=Files.list(directory)) {
+            for(Path path:paths.filter(p->!p.getFileName().toString().startsWith("V1__")).sorted().toList())
+                sql += "\n" + Files.readString(path);
+        }
         Set<String> names = new LinkedHashSet<>();
         Matcher matcher = CREATE_TABLE.matcher(sql);
         while (matcher.find()) {
@@ -51,7 +56,8 @@ class FashionMigrationScriptTest {
     void databaseDesignColumnsMatchMigrationExactly() throws IOException {
         Map<String, List<String>> design = designColumns();
         String sql = migrationSql();
-        assertEquals(FashionDatabasePreconditions.EXPECTED_BUSINESS_TABLES, design.keySet());
+        Set<String> v1Tables=new LinkedHashSet<>();Matcher names=CREATE_TABLE.matcher(sql);while(names.find())v1Tables.add(names.group(1));
+        assertEquals(v1Tables, design.keySet());
 
         for (Map.Entry<String, List<String>> entry : design.entrySet()) {
             String table = entry.getKey();
@@ -76,7 +82,7 @@ class FashionMigrationScriptTest {
 
     private static Map<String, List<String>> designColumns() throws IOException {
         List<String> lines = Files.readAllLines(workspacePath(
-                "文档", "项目", "智能选品项目", "架构", "数据库设计.md"));
+                "文档", "项目", "智能选品项目", "归档", "设计", "2026-10-01-设计归一前", "架构", "数据库设计.md"));
         Map<String, List<String>> result = new LinkedHashMap<>();
         String current = null;
         boolean collecting = false;

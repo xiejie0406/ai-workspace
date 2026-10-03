@@ -15,6 +15,25 @@ export interface ProductImage {
   width: number
   height: number
   originalFilename: string
+  sourceType?: string
+  sourceUrl?: string
+  capturedAt?: string | null
+  allowInternal?: boolean
+  allowAi?: boolean
+  allowProposal?: boolean
+  allowEcommerce?: boolean
+  confirmedBy?: string | number | null
+  confirmedAt?: string | null
+}
+
+export interface ProductImageSummary {
+  totalCount: number
+  activeCount: number
+  proposalAllowedCount: number
+  aiAllowedCount: number
+  reviewStatus: 'none' | 'confirmed' | 'unconfirmed'
+  proposalPermission: 'none' | 'allowed' | 'denied'
+  mainImageStatus: string | null
 }
 
 export interface ProductAttributeField { key: string; label: string; group: string; maxLength: number }
@@ -33,6 +52,9 @@ export interface FashionProduct {
   sizeSystem: string
   unit: string
   salePrice?: number
+  groupPrice?: number | null
+  vipPrice?: number | null
+  priceAsOf?: string | null
   currency: string
   taxMode: string
   brand?: string
@@ -41,6 +63,7 @@ export interface FashionProduct {
   tags: string[]
   mainImageKey?: string
   images: ProductImage[]
+  imageSummary?: ProductImageSummary
   visualVersion: number
   attributesConfirmed: boolean
   jdItemId?: string

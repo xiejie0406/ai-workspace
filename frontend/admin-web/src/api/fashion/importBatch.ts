@@ -7,6 +7,7 @@ export interface ProductImportPreviewOptions {
   asOf: string
   mapping?: Record<string, string>
   clearFields?: string[]
+  selectedFields?: string[]
 }
 
 export function previewProductImport(options: ProductImportPreviewOptions) {
@@ -15,6 +16,7 @@ export function previewProductImport(options: ProductImportPreviewOptions) {
   body.append('sourceCode', options.sourceCode)
   body.append('asOf', options.asOf)
   if (options.mapping) body.append('mapping', JSON.stringify(options.mapping))
+  if (options.selectedFields) body.append('selectedFields', options.selectedFields.join(','))
   if (options.clearFields?.length) body.append('clearFields', options.clearFields.join(','))
   return fashionRequest<RuoYiResult<ImportBatchView>, FormData>({
     path: 'imports/products/preview', method: 'post', body, timeoutMs: 120_000
@@ -37,6 +39,19 @@ export function productTemplateUrl() {
 }
 
 
+export interface ProductImportFields {
+  templateVersion: string
+  mapping: Record<string, string>
+  attributes: import('./types').ProductAttributeField[]
+  requiredFields: string[]
+  defaultFields: string[]
+}
+
 export function getProductFields() {
-  return fashionRequest<RuoYiResult<{ templateVersion: string; mapping: Record<string,string>; attributes: import('./types').ProductAttributeField[] }>>({ path: 'imports/products/fields' })
+  return fashionRequest<RuoYiResult<ProductImportFields>>({ path: 'imports/products/fields' })
+}
+
+/** 基础模板按选中的稳定字段生成，不以复合显示列作为数据字段。 */
+export function getProductTemplate(selectedFields: string[]) {
+  return fashionRequest<Blob>({ path: 'imports/products/template', params: { selectedFields: selectedFields.join(',') }, responseType: 'blob' })
 }

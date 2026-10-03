@@ -24,7 +24,12 @@ public final class PoolCombinations {
    if(p.request().totalMin()!=null&&(max==null||max.compareTo(p.request().totalMin())<0))return;
    if(p.request().totalMax()!=null&&(min==null||min.compareTo(p.request().totalMax())>0))return;
    if((p.request().totalMin()!=null||p.request().totalMax()!=null)&&!budgetExists(items,p.request(),work))return;
-   out.add(new Combination(indices.stream().map(String::valueOf).reduce((a,b)->a+"-"+b).orElseThrow(),List.copyOf(items),gmin,gmax,vmin,vmax,items.stream().anyMatch(MainSku::stockUnknown),first.currency(),first.taxMode()));return;
+   Long available=null;boolean unknown=items.stream().anyMatch(x->x.stockUnknown()||x.availableQty()==null);
+   // 未知库存不能推断成不足；只有某位置的明确有效库存不足时，整套才能确定不满足。
+   Boolean meets=unknown?null:Boolean.TRUE;
+   for(int i=0;i<items.size();i++){GroupFilter f=p.request().groups()!=null&&p.request().groups().size()>i?p.request().groups().get(i):null;int units=f==null||f.unitsPerSet()==null?1:f.unitsPerSet();if(units!=1)throw new ServiceException("本期每个商品位置每套固定1件/双");Long qty=items.get(i).availableQty();if(qty!=null&&!items.get(i).stockUnknown()){if(qty<units)meets=Boolean.FALSE;long sets=qty/units;available=available==null?sets:Math.min(available,sets);}if(f!=null&&f.quantity()!=null&&(qty==null||items.get(i).stockUnknown()||qty<f.quantity()*units))return;}
+   if(unknown)available=null;
+   out.add(new Combination(indices.stream().map(String::valueOf).reduce((a,b)->a+"-"+b).orElseThrow(),List.copyOf(items),gmin,gmax,vmin,vmax,unknown,first.currency(),first.taxMode(),available,meets));return;
   }
   List<MainSku> candidates=p.groups().get(depth).items();
   for(int i=0;i<candidates.size();i++) { MainSku candidate=candidates.get(i);if(items.stream().anyMatch(x->x.key().equals(candidate.key())))continue;items.add(candidate);indices.add(i);walk(p,depth+1,items,indices,out,work);items.remove(items.size()-1);indices.remove(indices.size()-1); }
@@ -45,6 +50,6 @@ public final class PoolCombinations {
  private static void checkWork(long[] work){if(work[0]>2_000_000)throw new ServiceException("颜色尺码价格组合计算超过200万步，请缩小价格、颜色或尺码范围后重试");}
  public static Comparator<Combination> comparator(String sort) {
   Comparator<BigDecimal> asc=Comparator.nullsLast(Comparator.naturalOrder()),desc=Comparator.nullsLast(Comparator.reverseOrder());
-  Comparator<Combination> c=switch(sort){case "identity"->Comparator.comparing(Combination::id);case "groupAsc"->Comparator.comparing(Combination::groupPriceMin,asc);case "groupDesc"->Comparator.comparing(Combination::groupPriceMax,desc);case "vipAsc"->Comparator.comparing(Combination::vipPriceMin,asc);case "vipDesc"->Comparator.comparing(Combination::vipPriceMax,desc);default->throw new ServiceException("不支持的方案排序");};return c.thenComparing(Combination::id);
+  Comparator<Combination> c=switch(sort){case "identity"->Comparator.comparing(Combination::id);case "stockDesc"->Comparator.comparing(Combination::availableSets,Comparator.nullsLast(Comparator.reverseOrder()));case "groupAsc"->Comparator.comparing(Combination::groupPriceMin,asc);case "groupDesc"->Comparator.comparing(Combination::groupPriceMax,desc);case "vipAsc"->Comparator.comparing(Combination::vipPriceMin,asc);case "vipDesc"->Comparator.comparing(Combination::vipPriceMax,desc);default->throw new ServiceException("不支持的方案排序");};return c.thenComparing(Combination::id);
  }
 }

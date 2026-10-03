@@ -30,8 +30,12 @@ public class FashionProposalService {
         catch(ServiceException ex) { return new Preflight(false,List.of(ex.getMessage()),0,100); }
     }
     public byte[] export(String poolId,long owner,ExportRequest request) {
+        return generate(poolId,owner,request).content();
+    }
+    public record Generated(Snapshot snapshot,byte[] content){}
+    public Generated generate(String poolId,long owner,ExportRequest request) {
         var selected=pools.requireExport(poolId,owner,request.rowVersion());
-        return renderer.render(snapshot(selected,owner,request));
+        var snapshot=snapshot(selected,owner,request);return new Generated(snapshot,renderer.render(snapshot));
     }
     private Snapshot snapshot(PoolModels.ExportSelection selected,long owner,ExportRequest request) {
         String mode=request.priceMode()==null?"none":request.priceMode();
@@ -64,7 +68,7 @@ public class FashionProposalService {
                 if(imageBytes>50L*1024*1024) throw new ServiceException("本批图片总量超过 50MB，请减少方案数量后分批导出");
                 var price="group".equals(mode)?variant.groupPrice():"vip".equals(mode)?variant.vipPrice():null;
                 if(!"none".equals(mode) && price==null) throw new ServiceException(main.name()+"缺少所选价格，请补齐或选择不显示价格");
-                items.add(new Item(main.name(),main.mainSkuCode(),main.itemNo(),main.articleNo(),variant.colorName(),price,ref));
+                items.add(new Item(main.name(),main.mainSkuCode(),main.itemNo(),main.articleNo(),variant.colorName(),price,ref,variant.productId()));
             }
             Image model=null;
             if("model".equals(imageMode)) {

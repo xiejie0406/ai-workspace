@@ -12,6 +12,10 @@ import com.ruoyi.fashion.domain.product.FashionProductImage;
 import com.ruoyi.fashion.domain.product.FashionProductStatus;
 
 public interface FashionProductRepository {
+    record CommercialPrices(BigDecimal groupPrice, BigDecimal vipPrice) {}
+
+    /** 一页商品一次读取双价，缺值保持null，主数据仍由fq_product持有。 */
+    default Map<Long, CommercialPrices> commercialPrices(Set<Long> ids) { return Map.of(); }
     List<FashionProduct> search(ProductSearchCriteria criteria);
 
     long count(ProductSearchCriteria criteria);

@@ -40,3 +40,8 @@ export function confirmMaterials(batchId: string, rowVersion: number) {
     path: `materials/${batchId}/confirm`, method: 'post', body: { rowVersion }, timeoutMs: 120_000
   })
 }
+
+/** 只访问已绑定到商品且服务端允许查看的审核图片。 */
+export function getProductImageContent(productId: string, imageId: string) {
+  return fashionRequest<Blob>({ path: `products/${productId}/images/${imageId}/content`, responseType: 'blob' })
+}

@@ -1,6 +1,7 @@
 <template>
   <div class="app-container catalog-import">
     <el-alert :title="notice" type="warning" :closable="false" show-icon class="mb20" />
+    <el-alert v-if="error" :title="error" type="error" :closable="false" class="mb20" />
     <el-card shadow="never">
       <template #header><strong>{{ title }}</strong></template>
       <el-form label-width="120px">
@@ -58,9 +59,10 @@
 import ImportHistory from './ImportHistory.vue'
 import { getCatalogImport } from '@/api/fashion/catalogImport'
 import { downloadTemplate, exportImportErrors } from '@/api/fashion/download'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getDicts } from '@/api/system/dict/data'
+import { listWarehouses, activeWarehouseOptions } from '@/api/fashion/warehouse'
 import { catalogTemplateUrl, previewCatalogImport, publishCatalogImport, restoreCatalogImport } from '@/api/fashion/catalogImport'
 import type { CatalogImportBatchView, CatalogImportKind } from '@/api/fashion/types'
 
@@ -73,19 +75,22 @@ const notice=kind==='price'
   :'范围在预览时冻结，缺行、空值、未知 SKU 或旧时间都会阻断整批；明确的 0 表示缺货，不会把缺行当作 0。'
 const permission=kind==='price'?'fashion:price:import':'fashion:stock:import'
 const sources=ref<Option[]>([]),categories=ref<Option[]>([]),warehouses=ref<Option[]>([])
-const sourceCode=ref(''),categoryCode=ref(''),warehouseCode=ref(''),asOf=ref(new Date()),file=ref<File>(),loading=ref(false),batch=ref<CatalogImportBatchView>()
+const sourceCode=ref(''),categoryCode=ref(''),warehouseCode=ref(''),asOf=ref(new Date()),file=ref<File>(),loading=ref(false),batch=ref<CatalogImportBatchView>(),error=ref('')
 const canPreview=computed(()=>!!file.value&&!!sourceCode.value&&(kind==='price'||!!warehouseCode.value))
+let inputRevision=0
 
 function selectFile(event:Event){file.value=(event.target as HTMLInputElement).files?.[0]}
 function mapOptions(response:any):Option[]{return (response.data??[]).filter((item:any)=>String(item.status)==='0').map((item:any)=>({label:String(item.dictLabel),value:String(item.dictValue)}))}
-async function preview(){if(!file.value)return;loading.value=true;try{const response=await previewCatalogImport({kind,file:file.value,sourceCode:sourceCode.value,categoryCode:categoryCode.value||undefined,warehouseCode:kind==='stock'?warehouseCode.value:undefined,asOf:asOf.value.toISOString()});batch.value=response.data;ElMessage.success(response.data.errorCount?'校验完成，整批尚不可发布':'严格全量校验通过')}finally{loading.value=false}}
-async function publish(){if(!batch.value)return;await ElMessageBox.confirm(`确认原子发布 ${batch.value.expectedCount} 个范围 SKU？`,'发布确认',{type:'warning'});loading.value=true;try{const response=await publishCatalogImport(kind,batch.value.batchId,batch.value.rowVersion);batch.value=response.data;ElMessage.success(kind==='price'?'当前价格已全部生效':'当前库存已全部生效');await history.value?.load()}finally{loading.value=false}}
-async function createRestore(){if(!batch.value)return;const source=batch.value;const response=await restoreCatalogImport(kind,source.batchId,globalThis.crypto?.randomUUID?.()??`${Date.now()}-${source.batchId}`,`从批次 ${source.batchNo} 恢复`);batch.value=response.data;ElMessage.warning('已生成新的恢复预览，请核对前后值后再发布')}
+async function action(fn:()=>Promise<void>){loading.value=true;error.value='';try{await fn()}catch(e){error.value=e instanceof Error?e.message:'导入操作失败，请重试'}finally{loading.value=false}}
+async function preview(){if(!file.value)return;const revision=inputRevision;await action(async()=>{const response=await previewCatalogImport({kind,file:file.value!,sourceCode:sourceCode.value,categoryCode:categoryCode.value||undefined,warehouseCode:kind==='stock'?warehouseCode.value:undefined,asOf:asOf.value.toISOString()});if(revision!==inputRevision){error.value='输入已变化，请重新预览';return}batch.value=response.data;ElMessage.success(response.data.errorCount?'校验完成，整批尚不可发布':'严格全量校验通过')})}
+async function publish(){if(!batch.value)return;const current=batch.value;try{await ElMessageBox.confirm(`确认原子发布 ${current.expectedCount} 个范围 SKU？`,'发布确认',{type:'warning'})}catch{return}if(batch.value!==current)return;await action(async()=>{const response=await publishCatalogImport(kind,current.batchId,current.rowVersion);batch.value=response.data;ElMessage.success(kind==='price'?'当前价格已全部生效':'当前库存已全部生效');await history.value?.load()})}
+async function createRestore(){if(!batch.value)return;const source=batch.value;await action(async()=>{const response=await restoreCatalogImport(kind,source.batchId,globalThis.crypto?.randomUUID?.()??`${Date.now()}-${source.batchId}`,`从批次 ${source.batchNo} 恢复`);batch.value=response.data;ElMessage.warning('已生成新的恢复预览，请核对前后值后再发布')})}
 const history=ref<InstanceType<typeof ImportHistory>>()
-async function openHistory(id:string){batch.value=(await getCatalogImport(kind,id)).data}
+async function openHistory(id:string){await action(async()=>{batch.value=(await getCatalogImport(kind,id)).data})}
 function compact(value?:Record<string,unknown>){if(!value)return '—';const keys=kind==='price'?['salePrice','currency','taxMode','asOf']:['availableQty','asOf'];return keys.filter(key=>value[key]!==undefined).map(key=>`${key}=${String(value[key])}`).join(' · ')||'无当前值'}
 function statusLabel(status:string){return ({validated:'待发布',invalid:'校验未通过',publishing:'发布中',success:'已成功',conflict:'数据冲突'} as Record<string,string>)[status]??status}
-onMounted(async()=>{const [source,category,warehouse]=await Promise.all([getDicts('fashion_product_source'),getDicts('fashion_product_category'),getDicts('fashion_warehouse')]);sources.value=mapOptions(source);categories.value=mapOptions(category);warehouses.value=mapOptions(warehouse);sourceCode.value=sources.value[0]?.value??'';warehouseCode.value=warehouses.value[0]?.value??''})
+watch([sourceCode,categoryCode,warehouseCode,asOf,file],()=>{inputRevision++;batch.value=undefined},{flush:'sync'})
+onMounted(()=>action(async()=>{const [source,category]=await Promise.all([getDicts('fashion_product_source'),getDicts('fashion_product_category')]);sources.value=mapOptions(source);categories.value=mapOptions(category);if(kind==='stock'){const options=activeWarehouseOptions((await listWarehouses()).data.items);warehouses.value=options;warehouseCode.value=options.find(item=>item.isDefault)?.value||options[0]?.value||'';if(!warehouseCode.value)throw new Error('没有启用仓库，请先配置仓库再导入库存')}sourceCode.value=sources.value[0]?.value??''}))
 </script>
 
 <style scoped>.header{display:flex;justify-content:space-between;align-items:center;gap:16px}.mt20{margin-top:20px}.mb20{margin-bottom:20px}.scope-tip{margin-left:12px;color:var(--el-text-color-secondary)}.row-error{color:var(--el-color-danger);line-height:1.5}code{white-space:normal;word-break:break-word}</style>

@@ -23,7 +23,7 @@ const documents = [
   },
   {
     id: 'implementation',
-    title: '交互设计与实施规格',
+    title: '原型历史设计与实施规格',
     source: '项目/智能选品项目/原型/服装工作台原型设计与生产任务转交.md',
   },
   {
