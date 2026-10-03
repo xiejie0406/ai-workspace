@@ -104,6 +104,8 @@ public interface ApsRoutingMapper
             + "row_version=row_version+1 WHERE id=#{id} AND row_version=#{rowVersion}")
     int updateRouteStatus(@Param("id") String id, @Param("rowVersion") long rowVersion,
             @Param("status") String status, @Param("actor") String actor, @Param("approvedAt") Instant approvedAt);
+    @Update("UPDATE aps_route_version SET row_version=row_version+1,updated_by=#{actor} WHERE id=#{id} AND row_version=#{rowVersion} AND status='DRAFT'")
+    int advanceDraftRouteRevision(@Param("id") String id,@Param("rowVersion") long rowVersion,@Param("actor") String actor);
 
     @Delete("DELETE FROM aps_route_edge WHERE route_version_id=#{routeId}")
     void deleteRouteEdges(@Param("routeId") String routeId);

@@ -34,6 +34,14 @@ public final class PlanWorkbenchService
         return detail;
     }
 
+    public List<PlanRepository.PlanRecord> list(ResourceAccessScope access)
+    {
+        List<String> workshopIds = access.allWorkshops() ? List.of()
+                : resources.listWorkshops(access).stream().map(value -> value.id()).toList();
+        if (!access.allWorkshops() && workshopIds.isEmpty()) return List.of();
+        return plans.listVisiblePlans(workshopIds, access.allWorkshops());
+    }
+
     /** 与发布前事实水位使用同一口径，页面只提示，不在读取动作中改变候选状态。 */
     public PlanFreshness freshness(PlanRepository.PlanDetail detail)
     {

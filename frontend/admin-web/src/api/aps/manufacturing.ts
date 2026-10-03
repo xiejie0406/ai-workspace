@@ -19,6 +19,7 @@ export const publishRoute = (id: string, rowVersion: number) => request({ url: `
 
 export const listOrders = () => request({ url: orders, method: 'get' }) as Promise<ApsOrder[]>
 export const saveOrder = (value: object, imported = false) => request({ url: imported ? `${orders}/import` : orders, method: 'post', data: value }) as Promise<ApsOrder>
+export const updateDraftOrder = (id:string,rowVersion:number,order:object) => request({url:`${orders}/${id}`,method:'put',data:{rowVersion,order}}) as Promise<ApsOrder>
 export const getExpansion = (id: string) => request({ url: `${orders}/${id}/expansion`, method: 'get' }) as Promise<ApsExpansion>
 export const expandOrder = (id: string) => request({ url: `${orders}/${id}/expand`, method: 'post' }) as Promise<ApsExpansion>
 export const releaseOrder = (id: string, rowVersion: number) => request({ url: `${orders}/${id}/release`, method: 'post', data: { rowVersion } }) as Promise<ApsOrder>

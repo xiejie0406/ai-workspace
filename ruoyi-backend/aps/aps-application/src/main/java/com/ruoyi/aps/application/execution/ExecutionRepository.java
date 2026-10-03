@@ -15,6 +15,8 @@ import com.ruoyi.aps.solver.contract.SolverInput;
 /** M25/M26 生命周期与真实占用的事务端口。 */
 public interface ExecutionRepository
 {
+    default List<ExecutionCatalog.RunOption> listRuns(ResourceAccessScope scope, String keyword, String status, String resourceId) { return List.of(); }
+    default List<ExecutionCatalog.ReportMember> listReportMembers(String jobId) { return List.of(); }
     Optional<PublishedJob> findPublishedJobForDispatch(ResourceAccessScope scope, String planVersionId,
             String planJobId);
     Optional<ExecutionRun> findRun(String executionRunId);

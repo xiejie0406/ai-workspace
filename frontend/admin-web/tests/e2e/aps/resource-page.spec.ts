@@ -1,3 +1,5 @@
+import {captureDevelopmentPage} from './fixtures/development-capture'
+import {fulfillProductContext} from './fixtures/product-context'
 import { expect, test } from '@playwright/test'
 
 test('资源页按资源去重并展示多技能与绝对日历', async ({ page }) => {
@@ -7,6 +9,7 @@ test('资源页按资源去重并展示多技能与绝对日历', async ({ page 
   page.on('pageerror', error => pageErrors.push(error.message))
 
   await page.route('**/*', async route => {
+    if(await fulfillProductContext(route))return
     if (!route.request().url().includes('/api/aps/v1/resources')) return route.continue()
     const path = new URL(route.request().url()).pathname
     if (path.endsWith('/workshops')) return route.fulfill({ json: [{ id: 'w1', code: 'WS-1', name: '一号车间', status: 'ACTIVE', rowVersion: 0 }] })
@@ -31,7 +34,10 @@ test('资源页按资源去重并展示多技能与绝对日历', async ({ page 
   await page.getByText('张三').click()
   await expect(page.getByText('WELD')).toBeVisible()
   await expect(page.getByText('QC')).toBeVisible()
-  await expect(page.getByText('AVAILABLE')).toBeVisible()
+  await expect(page.getByText('可用',{exact:true})).toBeVisible()
   expect(consoleErrors).toEqual([])
   expect(pageErrors).toEqual([])
 })
+
+// 留图仅在显式开发检查中启用，全部接口由夹具提供。
+test.afterEach(async ({page},info)=>{if(info.status==='passed')await captureDevelopmentPage(page,info.title)})

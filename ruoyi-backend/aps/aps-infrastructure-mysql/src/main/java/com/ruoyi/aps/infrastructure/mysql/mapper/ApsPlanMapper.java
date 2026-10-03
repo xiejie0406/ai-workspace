@@ -12,6 +12,22 @@ import org.apache.ibatis.annotations.Update;
 
 public interface ApsPlanMapper
 {
+    @Select({"<script>",
+            "SELECT p.id,p.base_version_id,p.version_no,p.version_name,p.request_id,",
+            "p.definition_revision,p.execution_revision,p.input_hash,p.status,p.created_at,p.updated_at,p.row_version ",
+            "FROM aps_plan_version p ",
+            "<if test='!allWorkshops'>",
+            "WHERE JSON_LENGTH(JSON_EXTRACT(p.input_snapshot_json,'$.scope.workshopIds')) &gt; 0 ",
+            "AND NOT EXISTS (SELECT 1 FROM JSON_TABLE(p.input_snapshot_json, ",
+            "'$.scope.workshopIds[*]' COLUMNS(workshop_id VARCHAR(36) PATH '$')) scope_workshop ",
+            "WHERE scope_workshop.workshop_id NOT IN ",
+            "<foreach collection='workshopIds' item='id' open='(' separator=',' close=')'>#{id}</foreach>) ",
+            "</if>",
+            "ORDER BY p.version_no DESC,p.id DESC LIMIT 200",
+            "</script>"})
+    List<Map<String, Object>> listVisiblePlans(@Param("workshopIds") List<String> workshopIds,
+            @Param("allWorkshops") boolean allWorkshops);
+
     @Select("SELECT * FROM aps_plan_version WHERE request_id=#{requestId} FOR UPDATE")
     Map<String, Object> findByRequestId(@Param("requestId") String requestId);
 

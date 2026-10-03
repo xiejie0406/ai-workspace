@@ -48,6 +48,12 @@ class ApsManufacturingHttpAuthorizationTest
                     .andExpect(status().isForbidden());
             mockMvc.perform(get("/api/aps/v1/orders").with(user("outsider")))
                     .andExpect(status().isForbidden());
+            for(String path : new String[]{"/api/aps/v1/resources/directory","/api/aps/v1/resources/user-candidates",
+                    "/api/aps/v1/reports/order-candidates","/api/aps/v1/execution-runs",
+                    "/api/aps/v1/execution-runs/dispatch-plans","/api/aps/v1/execution-runs/x/report-members",
+                    "/api/aps/v1/execution-runs/x/resource-candidates?replacedResourceId=y",
+                    "/api/aps/v1/execution-runs/x/output-lots/y/movement-targets"})
+                mockMvc.perform(get(path).with(user("outsider"))).andExpect(status().isForbidden());
         }
     }
 
@@ -55,7 +61,8 @@ class ApsManufacturingHttpAuthorizationTest
     @EnableWebMvc
     @EnableWebSecurity
     @EnableMethodSecurity
-    @Import({ApsRoutingController.class, ApsOrderController.class})
+    @Import({ApsRoutingController.class, ApsOrderController.class,ApsResourceController.class,
+            ApsContextController.class,ApsExecutionDirectoryController.class,ApsReportDirectoryController.class})
     static class TestWebSecurity
     {
         @Bean(name = "ss")
@@ -66,6 +73,9 @@ class ApsManufacturingHttpAuthorizationTest
 
         @Bean RoutingRepository routingRepository() { return failFast(RoutingRepository.class); }
         @Bean OrderRepository orderRepository() { return failFast(OrderRepository.class); }
+        @Bean com.ruoyi.aps.application.resource.ResourceManagementService resourceManagementService(){return org.mockito.Mockito.mock(com.ruoyi.aps.application.resource.ResourceManagementService.class);}
+        @Bean com.ruoyi.aps.application.execution.ExecutionDirectoryService executionDirectoryService(){return org.mockito.Mockito.mock(com.ruoyi.aps.application.execution.ExecutionDirectoryService.class);}
+        @Bean com.ruoyi.system.service.ISysUserService sysUserService(){return org.mockito.Mockito.mock(com.ruoyi.system.service.ISysUserService.class);}
 
         @Bean
         ApsTransactionOperations transactionOperations()

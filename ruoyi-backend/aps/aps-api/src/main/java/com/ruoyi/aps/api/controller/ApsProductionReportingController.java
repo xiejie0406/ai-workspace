@@ -66,7 +66,7 @@ public class ApsProductionReportingController
         var changed = reporting.createReport(scope(actor), new ProductionReportingService.CreateReport(requestId,
                 executionRunId, request.expectedRowVersion(), request.planJobMemberId(), request.taskId(),
                 ReportType.valueOf(request.reportType()), ApsUtcInput.parse(request.reportedAt()), quantity,
-                request.uomCode(), request.defectReason(), request.operatorUserId()), actor.username());
+                request.uomCode(), request.defectReason(), actor.userId()), actor.username());
         return ResponseEntity.status(changed.reused() ? HttpStatus.OK : HttpStatus.CREATED)
                 .body(response(scope(actor), changed.run().id()));
     }

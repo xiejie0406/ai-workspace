@@ -9,7 +9,7 @@
           </div>
           <div class="actions no-print">
             <el-button :loading="loading" type="primary" @click="loadCurrent">刷新</el-button>
-            <el-button :loading="exporting" @click="exportCurrent">导出 CSV</el-button>
+            <el-button v-hasPermi="['aps:report:export']" :loading="exporting" @click="exportCurrent">导出 CSV</el-button>
             <el-button @click="printPage">打印</el-button>
           </div>
         </div>
@@ -25,10 +25,10 @@
           <el-form-item label="技能编码"><el-input v-model.trim="laborQuery.skillCode" clearable placeholder="可选" /></el-form-item>
         </template>
         <template v-else>
-          <el-form-item label="订单 ID"><el-input v-model.trim="orderQuery.orderId" clearable placeholder="留空查询权限范围内全部订单" class="id-input" /></el-form-item>
+          <el-form-item label="订单"><el-select v-model="orderQuery.orderId" filterable clearable placeholder="有权限的订单"><el-option v-for="o in orderOptions" :key="o.id" :label="`${o.orderNo} · ${o.customerName||''}`" :value="o.id"/></el-select></el-form-item>
         </template>
-        <el-form-item v-if="activeTab !== 'orders'" label="车间 ID"><el-input v-model.trim="common.workshopId" clearable placeholder="可选 UUID" class="id-input" /></el-form-item>
-        <el-form-item v-if="activeTab !== 'orders'" label="工作中心 ID"><el-input v-model.trim="common.workCenterId" clearable placeholder="可选 UUID" class="id-input" /></el-form-item>
+        <el-form-item v-if="activeTab !== 'orders'" label="车间"><el-select v-model="common.workshopId" filterable clearable @change="common.workCenterId=''"><el-option v-for="w in directory.workshops" :key="w.id" :label="`${w.code} · ${w.name}`" :value="w.id"/></el-select></el-form-item>
+        <el-form-item v-if="activeTab !== 'orders'" label="工作中心"><el-select v-model="common.workCenterId" filterable clearable><el-option v-for="c in directory.centers.filter(c=>!common.workshopId||c.workshopId===common.workshopId)" :key="c.id" :label="`${c.code} · ${c.name}`" :value="c.id"/></el-select></el-form-item>
       </el-form>
 
       <el-alert v-if="loadError" type="error" show-icon :closable="false" :title="loadError" />
@@ -50,9 +50,9 @@
           <el-table v-else :data="dailyReport.rows" border stripe show-overflow-tooltip>
             <el-table-column prop="workshopName" label="车间" width="120" fixed="left" />
             <el-table-column prop="workCenterName" label="工作中心" width="130" />
-            <el-table-column prop="orderNo" label="订单" width="130" />
+            <el-table-column label="订单" width="130"><template #default="v"><a :href="`/aps/orders?objectId=${v.row.orderId}`">{{v.row.orderNo}}</a></template></el-table-column>
             <el-table-column label="产品/任务" min-width="220">
-              <template #default="scope"><strong>{{ scope.row.itemCode }}</strong> {{ scope.row.taskCode }} · {{ scope.row.taskName }}</template>
+              <template #default="scope"><a :href="`/aps/orders?objectId=${scope.row.taskId}`"><strong>{{ scope.row.itemCode }}</strong> {{ scope.row.taskCode }} · {{ scope.row.taskName }}</a></template>
             </el-table-column>
             <el-table-column label="冻结/当前计划量" width="160" align="right">
               <template #default="scope">{{ numberText(scope.row.baselinePlannedQty) }} / {{ numberText(scope.row.currentPlannedQty) }} {{ scope.row.uomCode }}</template>
@@ -82,7 +82,7 @@
             <el-table :data="laborReport.people" border stripe empty-text="范围内没有人员资源">
               <el-table-column prop="workshopName" label="车间" width="120" />
               <el-table-column prop="workCenterName" label="工作中心" width="130" />
-              <el-table-column prop="resourceName" label="人员" width="120" />
+              <el-table-column label="人员" width="120"><template #default="v"><a :href="`/aps/resources?resourceId=${v.row.resourceId}`">{{v.row.resourceName}}</a></template></el-table-column>
               <el-table-column label="技能" min-width="190"><template #default="scope">{{ scope.row.skillCodes.join('、') || '未配置' }}</template></el-table-column>
               <el-table-column label="可用人时" width="120" align="right"><template #default="scope">{{ hourText(scope.row.availableHours) }}</template></el-table-column>
               <el-table-column label="已排人时" width="120" align="right"><template #default="scope">{{ hourText(scope.row.scheduledHours) }}</template></el-table-column>
@@ -108,7 +108,7 @@
           <el-skeleton v-if="loading && !orderReport" :rows="8" animated />
           <el-empty v-else-if="orderLines.length === 0" description="权限范围内没有可计算的生产订单" />
           <el-table v-else :data="orderLines" border stripe show-overflow-tooltip>
-            <el-table-column prop="orderNo" label="订单" width="130" fixed="left" />
+            <el-table-column label="订单" width="130" fixed="left"><template #default="v"><a :href="`/aps/orders?objectId=${v.row.orderId}`">{{v.row.orderNo}}</a></template></el-table-column>
             <el-table-column prop="orderStatus" label="订单状态" width="130" />
             <el-table-column prop="lineNo" label="产品行" width="80" />
             <el-table-column label="产品" min-width="180"><template #default="scope">{{ scope.row.itemCode }} · {{ scope.row.itemName }}</template></el-table-column>
@@ -128,7 +128,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
-  exportDailyProductionReport,
+  getReportOrderCandidates,exportDailyProductionReport,
   exportLaborCapacityReport,
   exportOrderDeliveryReport,
   getDailyProductionReport,
@@ -145,6 +145,10 @@ import { dailyResultTag, decimalNumber, flattenOrderLines, hourText, localDateTe
 
 type ReportTab = 'daily' | 'labor' | 'orders'
 
+import { getResourceDirectory,type ApsDirectory } from '@/api/aps/resource'
+import { getSiteContext } from '@/api/aps/context'
+import { siteTime } from '@/components/aps/shared/site-time'
+const directory=ref<ApsDirectory>({workshops:[],centers:[],resources:[]}),orderOptions=ref<Awaited<ReturnType<typeof getReportOrderCandidates>>>([])
 const today = localDateText()
 const activeTab = ref<ReportTab>('daily')
 const loading = ref(false)
@@ -189,7 +193,7 @@ const loadCurrent = async () => {
       orderReport.value = await getOrderDeliveryReport({ orderId: optional(orderQuery.orderId) })
     }
   } catch {
-    loadError.value = '报表读取失败。请核对日期、UUID、APS 报表开关、接口连接和车间数据权限后重试。'
+    loadError.value = '报表读取失败。请核对日期、业务对象、APS 报表开关、接口连接和车间数据权限后重试。'
   } finally {
     loading.value = false
   }
@@ -236,7 +240,7 @@ const timeText = (value?: string) => {
   return date.toLocaleString('zh-CN', { timeZone: metadata.value?.zoneId || 'Asia/Shanghai', hour12: false })
 }
 
-onMounted(loadCurrent)
+onMounted(async()=>{try{const [d,o,site]=await Promise.all([getResourceDirectory(),getReportOrderCandidates(),getSiteContext()]);directory.value=d;orderOptions.value=o;const todayAtSite=siteTime(new Date().toISOString(),site.zoneId).slice(0,10);dailyQuery.businessDate=todayAtSite;laborQuery.fromDate=todayAtSite;laborQuery.toDate=todayAtSite;await loadCurrent()}catch{loadError.value='筛选目录或站点配置读取失败，请检查权限与原库通道后重试'}})
 </script>
 
 <style scoped>

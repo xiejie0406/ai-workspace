@@ -1,0 +1,336 @@
+{
+  "version": "1.1",
+  "date": "2026-10-02",
+  "requirementVersion": "1.0.1",
+  "source": "../../../../产品/生产排产产品需求与设计.md",
+  "scope": "用户要求的实际页面只读检查，正式真实角色UAT及写入验收仍暂停；历史事实保留，当前环境已改变，本轮业务沿用通过0项。",
+  "browser": {
+    "tool": "Codex内置浏览器 cua_repl",
+    "visible": true,
+    "engine": "未知",
+    "viewport": "实际截图1279×720",
+    "sharedSession": "观察到已有会话触发getInfo；不读取或输出Cookie/Token，不手工切换账号。API不通使页面会话加载失败；端口不能隔离Cookie。"
+  },
+  "rows": [
+    {
+      "order": 1,
+      "name": "实际入口",
+      "internal": "EV-APS-ENTRY-01",
+      "rule": "第3.3、13.5章",
+      "path": "/",
+      "precondition": "无账号即可检查登录入口；正式业务需原账号。",
+      "steps": "打开15175；先记录不可达，再独立恢复真实Vite后刷新；观察登录入口和验证码加载错误。",
+      "expected": "真实管理端能显示；后端不可达应如实记录，不能把入口加载当成业务可用。",
+      "plannedScreenshot": "首次不可达、恢复后登录入口及错误",
+      "result": "未通过",
+      "screenshotStatus": "恢复后失败画面已保存并逐张回读；首次连接拒绝页无法绑定，截图缺失",
+      "actual": "首次浏览器访问15175连接被拒绝；独立Vite恢复后入口可连接，已有会话调用getInfo和logout代理返回500，登录入口仍白屏/加载条；标题为“AI 面试教练管理后台”。没有得到可使用登录或业务页面。",
+      "images": [
+        "01-恢复后首页加载空白.jpg",
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": true
+    },
+    {
+      "order": 2,
+      "name": "资源、技能与日历",
+      "internal": "LIVE-01;UAT-04",
+      "rule": "第4.2、4.3、4.6章",
+      "path": "/aps/resources",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。",
+      "steps": "进入资源与日历，查看车间/中心及已有人员设备详情、技能等级/有效期、绝对窗口和净窗口；只读回查。",
+      "expected": "关联身份和单位准确；净窗口由可用窗口扣除不可用窗口，同一人员容量不重复。具体数据缺失时不编造计算。",
+      "plannedScreenshot": "资源列表、技能/日历详情与净窗口",
+      "result": "受阻",
+      "screenshotStatus": "共同入口障碍图已回读；本项业务截图缺失",
+      "actual": "已核对前提：原库APS表0张、API/Worker未运行、会话不能完成。未进入该业务页或读到业务数据，不以通用白屏图代替本项业务截图。",
+      "images": [
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": false
+    },
+    {
+      "order": 3,
+      "name": "产品与工艺路线",
+      "internal": "LIVE-02;UAT-01",
+      "rule": "第5.2、5.3、5.6章",
+      "path": "/aps/routes",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。",
+      "steps": "进入产品与工艺路线；查看已有产品编码/名称/单位，工序准备/运行/卸料阶段与人机要求；查看生效路线版本及依赖。",
+      "expected": "产品关联路线；阶段时长、技能席位可追；生效版本只读，旧订单冻结版本不被覆盖。",
+      "plannedScreenshot": "产品/工序与路线详情",
+      "result": "受阻",
+      "screenshotStatus": "共同入口障碍图已回读；本项业务截图缺失",
+      "actual": "已核对前提：原库APS表0张、API/Worker未运行、会话不能完成。未进入该业务页或读到业务数据，不以通用白屏图代替本项业务截图。",
+      "images": [
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": false
+    },
+    {
+      "order": 4,
+      "name": "生产订单与任务",
+      "internal": "LIVE-03;UAT-01",
+      "rule": "第6.2、6.3、6.6章",
+      "path": "/aps/orders",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。",
+      "steps": "查看已有订单号、产品行数量/单位、交期和冻结路线；打开任务网络并对照产品行、节点及依赖来源。",
+      "expected": "数量单位一致，任务可追到订单产品与工艺版本；不重复生成或改写冻结网络。",
+      "plannedScreenshot": "订单列表、产品行与任务网络",
+      "result": "受阻",
+      "screenshotStatus": "共同入口障碍图已回读；本项业务截图缺失",
+      "actual": "已核对前提：原库APS表0张、API/Worker未运行、会话不能完成。未进入该业务页或读到业务数据，不以通用白屏图代替本项业务截图。",
+      "images": [
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": false
+    },
+    {
+      "order": 5,
+      "name": "排程数据就绪",
+      "internal": "UAT-01;UAT-04;UAT-05;UAT-12",
+      "rule": "第7.2～7.6章",
+      "path": "/aps/readiness",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。",
+      "steps": "进入数据检查，查看订单、车间、时间窗选择及已有检查信息；不提交业务写入。若只读预检已具备原数据可核对问题及修正入口。",
+      "expected": "完整预检覆盖工艺、资源、技能、日历、依赖与供给；资源检查不可冒充完整预检；问题定位对象且不改变计划。",
+      "plannedScreenshot": "完整预检选择与问题详情",
+      "result": "受阻",
+      "screenshotStatus": "共同入口障碍图已回读；本项业务截图缺失",
+      "actual": "已核对前提：原库APS表0张、API/Worker未运行、会话不能完成。未进入该业务页或读到业务数据，不以通用白屏图代替本项业务截图。",
+      "images": [
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": false
+    },
+    {
+      "order": 6,
+      "name": "排程工作台与候选方案",
+      "internal": "LIVE-04;UAT-05;UAT-06;UAT-07",
+      "rule": "第8.2、8.3、8.6章",
+      "path": "/aps/workbench",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。另需已有请求与候选。",
+      "steps": "查看近期请求、候选状态、设备/人员/工序视图，核对未排、冲突、过期原因及已有作业；不发起求解、调整或锁定。",
+      "expected": "任务身份跨视图一致，人员设备区间及日历合法；未排与无解/未知状态不混淆；不能凭成功标签判断结果正确。",
+      "plannedScreenshot": "候选、三视图与原因",
+      "result": "受阻",
+      "screenshotStatus": "工作台实际白屏障碍图已回读；候选/甘特业务截图缺失",
+      "actual": "实际直达/aps/workbench，仍白屏/加载条；后端18094未监听，未进入候选/甘特。其他求解/调整/发布未执行。",
+      "images": [
+        "03-排程工作台会话阻塞.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": true
+    },
+    {
+      "order": 7,
+      "name": "正式计划与发布",
+      "internal": "LIVE-05;UAT-07",
+      "rule": "第9.2～9.6章",
+      "path": "/aps/workbench",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。另需已有正式计划及历史。",
+      "steps": "只读查看正式版本、历史、当前标识与候选区别；核对发布确认入口，不点击发布。",
+      "expected": "当前正式版本唯一；发布要求复验新鲜度、权限与独立约束，旧正式计划保留；实际发布结果本轮不验证。",
+      "plannedScreenshot": "正式版本与历史状态",
+      "result": "受阻",
+      "screenshotStatus": "共同入口障碍图已回读；本项业务截图缺失",
+      "actual": "已核对前提：原库APS表0张、API/Worker未运行、会话不能完成。未进入该业务页或读到业务数据，不以通用白屏图代替本项业务截图。",
+      "images": [
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": false
+    },
+    {
+      "order": 8,
+      "name": "派工、执行、报工与质量数量",
+      "internal": "LIVE-06;LIVE-07;LIVE-09;UAT-08;UAT-09",
+      "rule": "第10.2、10.3、10.6章",
+      "path": "/aps/execution",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。另需已有正式作业、执行单和数量事实。",
+      "steps": "查看已有执行目录、来源正式作业、成员余额、实际占用、产出质量状态和只读数量流水；不派工、开停工、报工或处置。",
+      "expected": "来源、单位、余额可追；待检/隔离不作为可转序量；事件历史不任意改写。没有事实不能判数量守恒通过。",
+      "plannedScreenshot": "执行单、成员余额与数量流水",
+      "result": "受阻",
+      "screenshotStatus": "共同入口障碍图已回读；本项业务截图缺失",
+      "actual": "已核对前提：原库APS表0张、API/Worker未运行、会话不能完成。未进入该业务页或读到业务数据，不以通用白屏图代替本项业务截图。",
+      "images": [
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": false
+    },
+    {
+      "order": 9,
+      "name": "生产报表与交期分析",
+      "internal": "LIVE-08;UAT-10;UAT-11",
+      "rule": "第11.2、11.3、11.6章",
+      "path": "/aps/reports",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。另需已有计划、实际与日冻结事实。",
+      "steps": "查看日报、人力和订单交期；按已有名称选择范围，读取已生成数据并下钻；本轮不导出真实人员资料。",
+      "expected": "来源、水位、时区和单位明确；人员工时去重、分母基线可追；未知交期给原因。仅页面能打开不足以证明指标正确。",
+      "plannedScreenshot": "三类报表与来源下钻",
+      "result": "受阻",
+      "screenshotStatus": "共同入口障碍图已回读；本项业务截图缺失",
+      "actual": "已核对前提：原库APS表0张、API/Worker未运行、会话不能完成。未进入该业务页或读到业务数据，不以通用白屏图代替本项业务截图。",
+      "images": [
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。",
+      "executed": false
+    },
+    {
+      "order": 10,
+      "name": "权限与操作审计",
+      "internal": "UAT-12;LIVE-09",
+      "rule": "第12.2～12.6章",
+      "path": "/monitor/operlog",
+      "precondition": "需要已有合法会话、对应查看权限与车间范围、原库中现有业务数据、APS API可访问；本轮不创建数据或账号。需已授权角色与现有审计记录；不切换共享账号。",
+      "steps": "检查当前会话是否存在，检查已有页面拒绝与范围；仅在已有权限下打开平台审计入口；不创建角色或赋权。",
+      "expected": "未登录不得越过认证；不同权限目录/详情/导出由服务端裁决；审计可定位操作来源。仅认证跳转不证明车间数据范围正确。",
+      "plannedScreenshot": "认证拒绝或实际审计画面",
+      "result": "受阻",
+      "screenshotStatus": "共同入口障碍图已回读；本项业务截图缺失",
+      "actual": "已核对前提：原库APS表0张、API/Worker未运行、会话不能完成。未进入该业务页或读到业务数据，不以通用白屏图代替本项业务截图。",
+      "images": [
+        "02-登录入口会话加载空白.jpg"
+      ],
+      "impact": "原库结构及合法APS业务连接未就绪，API/Worker不能安全恢复；当前用户无法查看或使用本模块的真实数据。需先确认原连接用途和批准表结构补齐，再更新已核实运行版本；后续写入验收另需角色、对象及数据授权。本轮未切换角色，跨车间权限与审计业务结果未验证。",
+      "executed": false
+    }
+  ],
+  "completedAt": "2026-10-02 08:29（Asia/Shanghai）",
+  "runtime": {
+    "frontend": {
+      "port": 15175,
+      "pid": 38692,
+      "session": 62128,
+      "vite": "6.4.3",
+      "state": "真实源码Vite已恢复",
+      "proxy": "http://127.0.0.1:18094"
+    },
+    "api": {
+      "port": 18094,
+      "listening": false
+    },
+    "worker": {
+      "liveProcesses": 0
+    },
+    "database": {
+      "target": "localhost:3306/ry-vue",
+      "apsTableCount": 0,
+      "apsFlywayHistoryCount": 0,
+      "metadataQueryExit": 0,
+      "apsUrlRegistered": false,
+      "apsUsernameRegistered": false
+    },
+    "limitations": "只查询已核实原库结构元数据及原配置项存在性；没有读取业务数据、秘密正文、执行DDL或启动API/Worker。platform.aps.db用途缺口本轮未重新查询，仍引用2026-10-01记录。"
+  },
+  "technical": {
+    "current": "本轮只读端口、进程、原库元数据、源码、日志与页面检查；未构建或重跑测试。",
+    "historical": "2026-10-01：Java43项（应用17、API15、MySQL适配模拟11），前端单元34项；19个不同浏览器场景有通过记录，均模拟业务接口；类型检查和独立构建通过。真实原库SQL/API/Worker未联机，实际运行包未更新。",
+    "source": "../../验证记录.md#15-2026-10-01-六批产品设计实施技术检查"
+  },
+  "history": {
+    "reusedCurrentPass": 0,
+    "note": "2026-09-26原通过、失败及2026-10-01合成主流程复验原文保留；本轮原库、运行包和会话条件改变，0项作为当前业务通过沿用；原真实角色UAT保持未执行。"
+  },
+  "userDecision": "待确认；2026-09-13发布语义历史接受不代表本轮整体版本接受。",
+  "modules": [
+    {
+      "name": "资源、产能与日历",
+      "implementation": "维护车间/中心、人员/设备、技能有效期与绝对日历，回查净可用窗口。",
+      "gap": "专属速率、独立产线、循环班制仍待定。",
+      "source": "resources/index.vue；ResourceManagementService",
+      "technical": "资源技能日历和站点时间定向检查",
+      "design": "唯一设计1.0.1第4章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "本轮版本待确认"
+    },
+    {
+      "name": "产品与工艺路线",
+      "implementation": "产品编辑，多阶段工序、多人机/技能席位，版本路线节点与依赖编辑、生效版保护。",
+      "gap": "生效版本隔离需原库核对。",
+      "source": "routes/index.vue、OperationEditor.vue；RoutingManagementService",
+      "technical": "工序/图版本与表单检查",
+      "design": "唯一设计1.0.1第5章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "本轮版本待确认"
+    },
+    {
+      "name": "生产订单与任务",
+      "implementation": "多产品订单、未展开草稿事务更新，保留行标识及冻结任务网络，业务节点依赖选择。",
+      "gap": "实际展开与冻结数据未回读。",
+      "source": "orders/index.vue；OrderManagementService",
+      "technical": "草稿版本/冻结与HTTP授权检查",
+      "design": "唯一设计1.0.1第6章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "本轮版本待确认"
+    },
+    {
+      "name": "排程数据就绪",
+      "implementation": "只读可信完整预检，订单/车间名称选择、问题定位及修正入口，与资源检查分开。",
+      "gap": "现有原库无订单与资源事实供核对。",
+      "source": "readiness/index.vue；PlanReadinessService、SolverInputCompiler",
+      "technical": "不可见订单拒绝且预检无写入检查",
+      "design": "唯一设计1.0.1第7章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "本轮版本待确认"
+    },
+    {
+      "name": "排程工作台与候选方案",
+      "implementation": "名称发起排程、近期目录、候选与正式衔接、三类甘特、调整/锁定/比较和原因解释。",
+      "gap": "独立Worker现未运行，复杂容量性能仍有限基线。",
+      "source": "workbench/index.vue、PlanLauncher.vue；PlanWorkbenchService、aps-worker",
+      "technical": "模拟页面检查；历史求解器/独立校验基线",
+      "design": "唯一设计1.0.1第8章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "本轮版本待确认"
+    },
+    {
+      "name": "正式计划与发布",
+      "implementation": "发布确认，事实新鲜度及硬约束复验，原子切换唯一当前正式版，保留历史。",
+      "gap": "系统内发布，外部MES可靠下达未纳入首版。",
+      "source": "workbench/index.vue；PlanPublishService",
+      "technical": "历史发布回滚/重试技术基线",
+      "design": "唯一设计1.0.1第9章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "历史接受发布语义；本轮版本待确认"
+    },
+    {
+      "name": "派工、执行、报工与质量数量",
+      "implementation": "业务目录选正式作业与成员、剩余可分配/可报余额、合法资源和去向、只读数量流水及异步保护。",
+      "gap": "原库数量账、现场身份与质量闭环未验证。",
+      "source": "execution/index.vue；ExecutionDirectoryService、ProductionReportingService",
+      "technical": "成员余额/认证操作者与异步页面检查",
+      "design": "唯一设计1.0.1第10章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "本轮版本待确认"
+    },
+    {
+      "name": "生产报表与交期分析",
+      "implementation": "按名称查询日报、人力负荷、订单交期；日冻结/当前/实际来源及下钻，CSV/打印。",
+      "gap": "真实汇总与明细、角色导出范围未联机验证。",
+      "source": "reports/index.vue；ReportingService",
+      "technical": "报表口径历史基线和模拟页面检查",
+      "design": "唯一设计1.0.1第11章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "本轮版本待确认"
+    },
+    {
+      "name": "权限与操作审计",
+      "implementation": "复用若依动作权限/车间范围和平台审计；服务端过滤目录及详情，收紧完整计划/目标任务范围。",
+      "gap": "无独立APS审计页面；真实多角色SQL与审计流水未核对。",
+      "source": "APS Controllers、ResourceAccessScope；平台monitor/operlog",
+      "technical": "定向HTTP授权与适配模拟检查",
+      "design": "唯一设计1.0.1第12章；首版范围",
+      "actual": "受阻，原库/服务/会话条件缺失",
+      "acceptance": "本轮版本待确认"
+    }
+  ]
+}

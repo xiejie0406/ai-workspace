@@ -49,6 +49,8 @@ public final class SolverInputCompiler
     private final PlanRepository plans;
     private final ExecutionRepository executions;
     private final QuantityRepository quantities;
+    private final String configuredSiteCode;
+    private final String configuredZoneId;
     private final SolverInputCodec codec = new SolverInputCodec();
     private final IndependentConstraintValidator validator = new IndependentConstraintValidator();
 
@@ -67,12 +69,19 @@ public final class SolverInputCompiler
             RoutingRepository routings, PlanRepository plans, ExecutionRepository executions,
             QuantityRepository quantities)
     {
+        this(resources,orders,routings,plans,executions,quantities,null,null);
+    }
+    public SolverInputCompiler(ResourceManagementService resources, OrderRepository orders,
+            RoutingRepository routings, PlanRepository plans, ExecutionRepository executions,
+            QuantityRepository quantities,String siteCode,String zoneId)
+    {
         this.resources = resources;
         this.orders = orders;
         this.routings = routings;
         this.plans = plans;
         this.executions = executions;
         this.quantities = quantities;
+        this.configuredSiteCode=siteCode;this.configuredZoneId=zoneId;
     }
 
     public Compilation compile(ResourceAccessScope access, CompileRequest request)
@@ -80,6 +89,7 @@ public final class SolverInputCompiler
         validateRequest(request);
         Set<String> requestedOrders = new LinkedHashSet<>(request.orderIds());
         List<ProductionOrder> selected = orders.listOrders().stream().filter(order -> requestedOrders.contains(order.id()))
+                .filter(order -> orders.isOrderInScope(access, order.id()))
                 .sorted(Comparator.comparing(ProductionOrder::id)).toList();
         List<ApsValidationIssue> selectionIssues = new ArrayList<>();
         requestedOrders.stream().filter(id -> selected.stream().noneMatch(order -> order.id().equals(id)))
@@ -426,6 +436,10 @@ public final class SolverInputCompiler
 
     private void validateRequest(CompileRequest request)
     {
+        if(configuredSiteCode!=null && (configuredSiteCode.isBlank() || request==null
+                || !configuredSiteCode.equals(request.siteCode()) || !Objects.equals(configuredZoneId,request.displayTimeZone())))
+            throw new ApsValidationException(ApsErrorCode.INVALID_REQUEST,"排程站点或显示时区与服务端登记不一致",List.of(
+                    new ApsValidationIssue("SITE_MISMATCH","INPUT","","siteCode","请恢复站点配置并重新选择范围")));
         if (request == null || request.orderIds() == null || request.orderIds().isEmpty()
                 || request.workshopIds() == null || request.workshopIds().isEmpty()
                 || request.requestId() == null || !uuid(request.requestId())

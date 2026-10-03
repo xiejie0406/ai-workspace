@@ -23,6 +23,13 @@ public final class MybatisExecutionRepository extends ApsRowMapperSupport implem
     private final ApsExecutionMapper mapper;
 
     public MybatisExecutionRepository(ApsExecutionMapper mapper) { this.mapper = mapper; }
+    @Override public List<ExecutionCatalog.ReportMember> listReportMembers(String id) {
+        return mapper.listReportMembers(id).stream().map(r->new ExecutionCatalog.ReportMember(text(r,"id"),number(r,"member_no").intValue(),text(r,"task_id"),text(r,"task_name"),decimal(r,"planned_qty"),text(r,"uom_code"))).toList();
+    }
+    @Override public List<ExecutionCatalog.RunOption> listRuns(ResourceAccessScope scope,String keyword,String status,String resourceId) {
+        return mapper.listRuns(scope.actorUserId(),scope.allWorkshops(),keyword,status,resourceId).stream()
+                .map(row -> new ExecutionCatalog.RunOption(run(row),text(row,"job_code"),text(row,"order_numbers"),text(row,"task_names"))).toList();
+    }
 
     @Override public Optional<PublishedJob> findPublishedJobForDispatch(ResourceAccessScope scope,
             String planVersionId, String planJobId)

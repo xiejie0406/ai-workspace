@@ -1,0 +1,2814 @@
+openapi: 3.1.0
+info:
+  title: APS Implementation Baseline API
+  version: 1.0.0-draft
+  summary: FEAT-APS-001 APS v1 机器契约
+  description: |
+    本文件冻结健康、能力、资源/绝对日历、产品工艺/订单展开、确定性校验、计划请求，以及计划版本详情/比较边界。
+    IMP-07 已实现基础 CP-SAT、单 Worker、数量/共享批与 M19～M24 候选链路；IMP-08 已接入人工计划详情/比较、候选锁、版本化调整和系统内原子发布；IMP-09 冻结 M25～M29 执行、报工与质量命令边界；IMP-10 增加日冻结基线、累计人力产能与订单交期报表，外部下达不在 P0。
+    当前运行拓扑限定为单 Worker；不提供租约、fencing、Inbox、Outbox 或外部 ACK 契约。
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+tags:
+  - name: system
+    description: 健康、能力和机器契约元数据
+  - name: validation
+    description: 输入或候选的独立确定性校验
+  - name: plan-request
+    description: 计划请求创建、状态恢复、取消与 SSE；人工计划锁、版本化调整和系统内发布由工作台管理
+  - name: plan-workbench
+    description: 计划版本详情、基线差异、候选锁、版本化调整和系统内原子发布
+  - name: resource
+    description: M01～M05 车间、工作中心、资源、技能与绝对日历
+  - name: routing
+    description: M06～M12 产品、工序、阶段资源要求和版本化路线 DAG
+  - name: order
+    description: M13～M18 多产品订单、生产批、任务网络和物料需求
+  - name: execution
+    description: M25～M29 执行 run、实际占用、报工、质量处置和不可变数量事件
+  - name: report
+    description: 基于同一事实源的每日生产、人力累计产能与订单交期报表
+paths:
+  /api/aps/v1/health:
+    get:
+      tags: [system]
+      operationId: getApsHealthV1
+      summary: 查询 APS API 基础健康状态
+      security: []
+      responses:
+        '200':
+          description: 进程可以响应；不表示 Worker、数据库或求解能力已就绪
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: 进程不可提供服务
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/problem-v1.schema.json'
+  /api/aps/v1/capabilities:
+    get:
+      tags: [system]
+      operationId: getApsCapabilitiesV1
+      summary: 查询当前实际启用的 APS 能力
+      description: 需要 `aps:readiness:view`；调用方必须读取每项 `status`，不得仅因路径存在而推断功能可用。
+      responses:
+        '200':
+          description: 能力清单
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CapabilitiesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/aps/v1/resources/workshops:
+    get:
+      tags: [resource]
+      operationId: listApsWorkshopsV1
+      summary: 查询当前用户数据范围内的车间
+      responses:
+        '200': { description: 车间列表, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Workshop' } } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [resource]
+      operationId: createApsWorkshopV1
+      summary: 新增车间
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WorkshopInput' } } } }
+      responses:
+        '200': { description: 已保存车间, content: { application/json: { schema: { $ref: '#/components/schemas/Workshop' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/resources/workshops/{id}:
+    put:
+      tags: [resource]
+      operationId: updateApsWorkshopV1
+      summary: 按乐观版本修改或启停车间
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WorkshopInput' } } } }
+      responses:
+        '200': { description: 已保存车间, content: { application/json: { schema: { $ref: '#/components/schemas/Workshop' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/resources/workshops/{workshopId}/centers:
+    get:
+      tags: [resource]
+      operationId: listApsWorkCentersV1
+      summary: 查询车间工作中心
+      parameters: [{ $ref: '#/components/parameters/WorkshopId' }]
+      responses:
+        '200': { description: 工作中心列表, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/WorkCenter' } } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/resources/centers:
+    post:
+      tags: [resource]
+      operationId: createApsWorkCenterV1
+      summary: 新增工作中心
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WorkCenterInput' } } } }
+      responses:
+        '200': { description: 已保存工作中心, content: { application/json: { schema: { $ref: '#/components/schemas/WorkCenter' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/resources/centers/{id}:
+    put:
+      tags: [resource]
+      operationId: updateApsWorkCenterV1
+      summary: 按乐观版本修改或启停工作中心
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WorkCenterInput' } } } }
+      responses:
+        '200': { description: 已保存工作中心, content: { application/json: { schema: { $ref: '#/components/schemas/WorkCenter' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/resources:
+    get:
+      tags: [resource]
+      operationId: listApsResourcesV1
+      summary: 查询当前车间范围内的具名资源
+      parameters:
+        - { name: workshopId, in: query, required: false, schema: { $ref: '#/components/schemas/Uuid' } }
+        - { name: workCenterId, in: query, required: false, schema: { $ref: '#/components/schemas/Uuid' } }
+      responses:
+        '200': { description: 已按资源 ID 去重的资源列表, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Resource' } } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [resource]
+      operationId: createApsResourceV1
+      summary: 新增人员、设备、工位或工具资源
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResourceInput' } } } }
+      responses:
+        '200': { description: 已保存资源, content: { application/json: { schema: { $ref: '#/components/schemas/Resource' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/resources/{id}:
+    put:
+      tags: [resource]
+      operationId: updateApsResourceV1
+      summary: 按乐观版本修改或启停资源
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResourceInput' } } } }
+      responses:
+        '200': { description: 已保存资源, content: { application/json: { schema: { $ref: '#/components/schemas/Resource' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/resources/{resourceId}/skills:
+    get:
+      tags: [resource]
+      operationId: listApsResourceSkillsV1
+      summary: 查询资源的多项技能
+      parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+      responses:
+        '200': { description: 技能行列表, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ResourceSkill' } } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [resource]
+      operationId: saveApsResourceSkillV1
+      summary: 新增或按乐观版本修改技能
+      parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResourceSkillInput' } } } }
+      responses:
+        '200': { description: 已保存技能, content: { application/json: { schema: { $ref: '#/components/schemas/ResourceSkill' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/resources/{resourceId}/availability:
+    get:
+      tags: [resource]
+      operationId: listApsResourceAvailabilityV1
+      summary: 查询资源绝对时间窗
+      parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+      responses:
+        '200': { description: 原始时间窗列表, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Availability' } } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [resource]
+      operationId: saveApsResourceAvailabilityV1
+      summary: 新增或按乐观版本修改绝对时间窗
+      parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AvailabilityInput' } } } }
+      responses:
+        '200': { description: 已保存时间窗, content: { application/json: { schema: { $ref: '#/components/schemas/Availability' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/resources/{resourceId}/net-availability:
+    get:
+      tags: [resource]
+      operationId: getApsNetAvailabilityV1
+      summary: 编译指定范围的确定性净可用半开区间
+      parameters:
+        - { $ref: '#/components/parameters/ResourceId' }
+        - { name: from, in: query, required: true, schema: { $ref: '#/components/schemas/UtcInstant' } }
+        - { name: to, in: query, required: true, schema: { $ref: '#/components/schemas/UtcInstant' } }
+      responses:
+        '200': { description: 不含请假、维修和不可用覆盖段的净窗口, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/NetWindow' } } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/resources/{resourceId}/availability-import:
+    post:
+      tags: [resource]
+      operationId: importApsResourceAvailabilityV1
+      summary: 原子批量导入资源绝对时间窗
+      description: 要求 `aps:resource:import`；任一行无效时整批回滚，单批最多 10000 行。
+      parameters: [{ $ref: '#/components/parameters/ResourceId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              minItems: 1
+              maxItems: 10000
+              items: { $ref: '#/components/schemas/AvailabilityInput' }
+      responses:
+        '200': { description: 已保存的时间窗, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Availability' } } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/resources/workshops/{workshopId}/readiness:
+    get:
+      tags: [resource]
+      operationId: getApsResourceReadinessV1
+      summary: 查询资源主数据就绪问题
+      parameters:
+        - { $ref: '#/components/parameters/WorkshopId' }
+        - { name: at, in: query, required: true, schema: { $ref: '#/components/schemas/UtcInstant' } }
+      responses:
+        '200': { description: 问题列表；空列表仅表示 IMP-03 资源数据就绪, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ReadinessIssue' } } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/resources/workshops/{workshopId}/candidates:
+    get:
+      tags: [resource]
+      operationId: listApsResourceCandidatesV1
+      summary: 按技能等级和净日历筛选候选资源
+      parameters:
+        - { $ref: '#/components/parameters/WorkshopId' }
+        - { name: skillCode, in: query, required: true, schema: { type: string, minLength: 1, maxLength: 64 } }
+        - { name: minimumLevel, in: query, required: true, schema: { type: integer, minimum: 1, maximum: 10 } }
+        - { name: start, in: query, required: true, schema: { $ref: '#/components/schemas/UtcInstant' } }
+        - { name: end, in: query, required: true, schema: { $ref: '#/components/schemas/UtcInstant' } }
+      responses:
+        '200': { description: 满足技能、状态和净日历的去重候选资源, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Candidate' } } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/resources/personnel-export:
+    get:
+      tags: [resource]
+      operationId: exportApsPersonnelV1
+      summary: 导出人员明细
+      description: 同时要求 `aps:resource:list` 与 `aps:scope:manage`，防止普通车间用户导出超范围人员信息。
+      parameters:
+        - { name: workshopId, in: query, required: false, schema: { $ref: '#/components/schemas/Uuid' } }
+      responses:
+        '200': { description: UTF-8 CSV, content: { text/csv: { schema: { type: string } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/routings/items:
+    get:
+      tags: [routing]
+      operationId: listApsItemsV1
+      responses:
+        '200': { description: 产品、半成品和基础物料, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Item' } } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [routing]
+      operationId: createApsItemV1
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ItemInput' } } } }
+      responses:
+        '200': { description: 已保存主数据, content: { application/json: { schema: { $ref: '#/components/schemas/Item' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/routings/items/{id}:
+    put:
+      tags: [routing]
+      operationId: updateApsItemV1
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ItemInput' } } } }
+      responses:
+        '200': { description: 已按乐观版本保存, content: { application/json: { schema: { $ref: '#/components/schemas/Item' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/routings/operations:
+    get:
+      tags: [routing]
+      operationId: listApsOperationsV1
+      responses:
+        '200': { description: 工序及阶段资源要求, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/OperationSpec' } } } } }
+    post:
+      tags: [routing]
+      operationId: createApsOperationV1
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/OperationInput' } } } }
+      responses:
+        '200': { description: 已保存工序草稿, content: { application/json: { schema: { $ref: '#/components/schemas/OperationSpec' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/aps/v1/routings/operations/{id}:
+    put:
+      tags: [routing]
+      operationId: updateApsOperationV1
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/OperationInput' } } } }
+      responses:
+        '200': { description: 已保存工序草稿, content: { application/json: { schema: { $ref: '#/components/schemas/OperationSpec' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/routings/operations/{id}/activate:
+    post:
+      tags: [routing]
+      operationId: activateApsOperationV1
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/VersionInput' } } } }
+      responses:
+        '200': { description: 已生效且不可原位修改的工序, content: { application/json: { schema: { $ref: '#/components/schemas/OperationSpec' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/routings/routes:
+    get:
+      tags: [routing]
+      operationId: listApsRouteVersionsV1
+      parameters: [{ name: itemId, in: query, required: false, schema: { $ref: '#/components/schemas/Uuid' } }]
+      responses:
+        '200': { description: 路线版本列表, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/RouteVersion' } } } } }
+    post:
+      tags: [routing]
+      operationId: createApsRouteVersionV1
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RouteInput' } } } }
+      responses:
+        '200': { description: 已建立路线草稿, content: { application/json: { schema: { $ref: '#/components/schemas/RouteVersion' } } } }
+  /api/aps/v1/routings/routes/{id}:
+    get:
+      tags: [routing]
+      operationId: getApsRouteGraphV1
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      responses:
+        '200': { description: 路线版本及 DAG, content: { application/json: { schema: { $ref: '#/components/schemas/RouteGraph' } } } }
+  /api/aps/v1/routings/routes/{id}/graph:
+    put:
+      tags: [routing]
+      operationId: replaceApsRouteGraphV1
+      description: 仅草稿可编辑；循环、自依赖、悬空边和重复结构原子拒绝。
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RouteGraphInput' } } } }
+      responses:
+        '200': { description: 已保存路线图, content: { application/json: { schema: { $ref: '#/components/schemas/RouteGraph' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/routings/routes/{id}/copy:
+    post:
+      tags: [routing]
+      operationId: copyApsRouteVersionV1
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RouteCopyInput' } } } }
+      responses:
+        '200': { description: 独立的新路线草稿及复制图, content: { application/json: { schema: { $ref: '#/components/schemas/RouteGraph' } } } }
+  /api/aps/v1/routings/routes/{id}/validation:
+    get:
+      tags: [routing]
+      operationId: validateApsRouteVersionV1
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      responses:
+        '200': { description: 对象级发布问题；含 SAME_START 时 publishable=false, content: { application/json: { schema: { $ref: '#/components/schemas/RouteValidation' } } } }
+  /api/aps/v1/routings/routes/{id}/publish:
+    post:
+      tags: [routing]
+      operationId: publishApsRouteVersionV1
+      description: SAME_START 返回 409/UNSUPPORTED_SYNC_RULE 且保留草稿来源关系。
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/VersionInput' } } } }
+      responses:
+        '200': { description: 已发布路线, content: { application/json: { schema: { $ref: '#/components/schemas/RouteVersion' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/orders:
+    get:
+      tags: [order]
+      operationId: listApsOrdersV1
+      responses:
+        '200': { description: 多产品订单列表, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ProductionOrder' } } } } }
+    post:
+      tags: [order]
+      operationId: createApsOrderV1
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/OrderInput' } } } }
+      responses:
+        '200': { description: 已保存并冻结每行路线版本, content: { application/json: { schema: { $ref: '#/components/schemas/ProductionOrder' } } } }
+  /api/aps/v1/orders/import:
+    post:
+      tags: [order]
+      operationId: importApsOrderV1
+      description: sourceSystem+externalId 是幂等键；相同键不同载荷返回 IDEMPOTENCY_CONFLICT。
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/OrderInput' } } } }
+      responses:
+        '200': { description: 新订单或相同载荷的原订单, content: { application/json: { schema: { $ref: '#/components/schemas/ProductionOrder' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/orders/{id}:
+    get:
+      tags: [order]
+      operationId: getApsOrderV1
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      responses:
+        '200': { description: 订单及所有独立产品行, content: { application/json: { schema: { $ref: '#/components/schemas/ProductionOrder' } } } }
+  /api/aps/v1/orders/{id}/expand:
+    post:
+      tags: [order]
+      operationId: expandApsOrderV1
+      description: 稳定 ID 幂等展开 M15～M18；不会按产品行顺序制造依赖。
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      responses:
+        '200': { description: 首次或复用的冻结任务网络, content: { application/json: { schema: { $ref: '#/components/schemas/ExpansionResult' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/aps/v1/orders/{id}/expansion:
+    get:
+      tags: [order]
+      operationId: getApsOrderExpansionV1
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      responses:
+        '200': { description: 当前冻结任务网络, content: { application/json: { schema: { $ref: '#/components/schemas/ExpansionResult' } } } }
+  /api/aps/v1/orders/{id}/release:
+    post:
+      tags: [order]
+      operationId: releaseApsOrderV1
+      description: 结构释放；未发布路线或 SAME_START 均阻断，完整数据就绪属于 IMP-05。
+      parameters: [{ $ref: '#/components/parameters/ResourceObjectId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/VersionInput' } } } }
+      responses:
+        '200': { description: 已释放订单, content: { application/json: { schema: { $ref: '#/components/schemas/ProductionOrder' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/orders/lots:
+    post:
+      tags: [order]
+      operationId: createApsDerivedLotV1
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DerivedLotInput' } } } }
+      responses:
+        '200': { description: 已建立并展开的拆批、返工或补产批, content: { application/json: { schema: { $ref: '#/components/schemas/ProductionLot' } } } }
+  /api/aps/v1/orders/lines/{lineId}/route-migration:
+    get:
+      tags: [order]
+      operationId: previewApsOrderLineRouteMigrationV1
+      parameters:
+        - { name: lineId, in: path, required: true, schema: { $ref: '#/components/schemas/Uuid' } }
+        - { name: targetRouteVersionId, in: query, required: true, schema: { $ref: '#/components/schemas/Uuid' } }
+      responses:
+        '200': { description: 节点、工序和边的差异；不自动迁移, content: { application/json: { schema: { $ref: '#/components/schemas/RouteMigrationDiff' } } } }
+    post:
+      tags: [order]
+      operationId: confirmApsOrderLineRouteMigrationV1
+      parameters: [{ name: lineId, in: path, required: true, schema: { $ref: '#/components/schemas/Uuid' } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RouteMigrationInput' } } } }
+      responses:
+        '200': { description: 仅未展开订单行完成显式确认迁移, content: { application/json: { schema: { $ref: '#/components/schemas/OrderLine' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/schemas:
+    get:
+      tags: [system]
+      operationId: listApsSchemasV1
+      summary: 查询当前机器契约元数据
+      responses:
+        '200':
+          description: Schema 元数据；URI 指向版本化静态契约，不返回实现状态证明
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaMetadataResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/aps/v1/validations:
+    post:
+      tags: [validation]
+      operationId: validateSolverInputV1
+      summary: 确定性校验一个 SolverInput v1
+      description: |
+        该接口已实现 IMP-05 的无副作用输入校验边界。Schema 合法并不保证业务校验通过。
+        输入含 `SAME_START` 时必须返回 HTTP 200 的 ValidationResult，且结果为
+        `validationStatus=FAIL`、`publishable=false`、`UNSUPPORTED_SYNC_RULE`；不得启动求解。
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/solver-input-v1.schema.json'
+      responses:
+        '200':
+          description: 确定性业务校验已完成；结果可能 PASS 或 FAIL
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/validation-result-v1.schema.json'
+        '400':
+          description: JSON 或基础 HTTP 请求无效
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/problem-v1.schema.json'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: 相同幂等键对应不同请求摘要
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/problem-v1.schema.json'
+        '422':
+          description: 请求不符合 SolverInput v1 的结构契约
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/problem-v1.schema.json'
+  /api/aps/v1/plan-requests:
+    post:
+      tags: [plan-request]
+      operationId: createPlanRequestV1
+      summary: 创建幂等的基础有限产能排程请求
+      description: |
+        `Idempotency-Key` 必须是 UUID，并作为稳定 requestId。服务端据此派生稳定 planVersionId，
+        在事务外编译输入，在短事务内写入 M19 DRAFT；同键同输入返回既有请求，同键不同输入返回 409。
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequestInput'
+      responses:
+        '202':
+          description: 新请求已保存并等待单 Worker 领取
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanRequestStatusResponse'
+        '200':
+          description: 同键同输入复用了既有请求
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanRequestStatusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/aps/v1/plan-requests/{requestId}:
+    get:
+      tags: [plan-request]
+      operationId: getPlanRequestStatusV1
+      summary: 按稳定 requestId 查询计划请求状态
+      description: |
+        返回 M19 的持久化状态；`planStatus`、`solverStatus`、`resultKind` 和 `reasonCodes`
+        必须按各自层级解释。断线后以本接口和 MySQL 为最终事实。
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          description: 已存在请求的当前持久化状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanRequestStatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: requestId 不存在或调用者无权查看
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/problem-v1.schema.json'
+  /api/aps/v1/plan-requests/{requestId}/cancel:
+    post:
+      tags: [plan-request]
+      operationId: cancelPlanRequestV1
+      summary: 取消待求解或求解中的计划请求
+      description: 取消只改变候选请求状态，不改变当前正式计划；Worker 轮询取消并停止 CP-SAT 搜索。
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          description: 已取消，或该请求此前已经取消
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanRequestStatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: requestId 不存在或调用者无权查看
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/problem-v1.schema.json'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/aps/v1/plan-requests/{requestId}/events:
+    get:
+      tags: [plan-request]
+      operationId: streamPlanRequestProgressV1
+      summary: 订阅计划请求状态变化
+      description: |
+        SSE 只推送 MySQL 中可恢复的状态变化，不承载最终一致性。断线或超时后调用普通状态查询恢复；
+        SSE 连接中断不会取消求解。事件名为 `plan-status`，终态发送后服务端结束连接。
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          description: 状态变化事件流
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/PlanRequestProgressEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: requestId 不存在或调用者无权查看
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/problem-v1.schema.json'
+  /api/aps/v1/plan-versions:
+    get:
+      tags: [plan-workbench]
+      operationId: listPlanVersionsV1
+      summary: 查询可见范围内最近的计划版本
+      description: 需要 aps:planning:view；先按冻结输入中的全部车间范围过滤，再按版本号倒序取最近200项。不返回冻结输入或求解快照。旧版本可查看，派工仍由现有正式计划规则裁决。
+      responses:
+        '200':
+          description: 可见计划集合；没有可见车间或计划时为空数组
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items:
+                  type: object
+                  required: [planVersionId, versionNo, versionName, status, requestId, rowVersion, updatedAt]
+                  properties:
+                    planVersionId: {type: string, format: uuid}
+                    versionNo: {type: integer, minimum: 1}
+                    versionName: {type: string}
+                    status: {type: string}
+                    requestId: {type: string, format: uuid}
+                    baseVersionId: {type: [string, 'null'], format: uuid}
+                    rowVersion: {type: integer, minimum: 0}
+                    updatedAt: {type: string, format: date-time}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/aps/v1/plan-versions/{planVersionId}:
+    get:
+      tags: [plan-workbench]
+      operationId: getPlanVersionDetailV1
+      summary: 查询工作台所需的计划版本完整只读详情
+      description: 要求 `aps:planning:view`；返回 M19～M24 的作业、成员、分段、资源分配和锁，不返回可伪造的客户端基线输入。
+      parameters:
+        - $ref: '#/components/parameters/PlanVersionId'
+      responses:
+        '200':
+          description: 计划版本详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanVersionDetailResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: 版本不存在或调用者无权查看, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+  /api/aps/v1/plan-versions/{planVersionId}/comparison:
+    get:
+      tags: [plan-workbench]
+      operationId: comparePlanVersionV1
+      summary: 按稳定任务成员集合比较候选与基线
+      description: 未传 `baseVersionId` 时使用目标版本的 M19 `base_version_id`；不以易变化的数据库作业 ID 作为跨版本身份。
+      parameters:
+        - $ref: '#/components/parameters/PlanVersionId'
+        - name: baseVersionId
+          in: query
+          required: false
+          schema: { $ref: '#/components/schemas/Uuid' }
+      responses:
+        '200':
+          description: 作业级时间、资源、数量、类型和工作中心差异
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanVersionComparisonResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: 任一版本不存在或调用者无权查看, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+  /api/aps/v1/plan-versions/{planVersionId}/locks:
+    post:
+      tags: [plan-workbench]
+      operationId: createPlanLockV1
+      summary: 在可行或冲突候选上创建人工计划锁
+      description: 要求 `aps:planning:lock`。客户端只提交目标和意图；锁定时间与资源由服务端从 M20～M23 推导，正式版本禁止原地修改。
+      parameters:
+        - $ref: '#/components/parameters/PlanVersionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePlanLockRequest' }
+      responses:
+        '200':
+          description: 已递增计划行版本并返回包含新锁的完整计划详情
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanVersionDetailResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: 版本或目标不存在, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/plan-versions/{planVersionId}/adjustments:
+    post:
+      tags: [plan-workbench]
+      operationId: createPlanAdjustmentV1
+      summary: 把甘特调整意图编译成新的求解版本
+      description: 要求 `aps:planning:adjust`。原候选保持不可变；服务端按稳定对象映射生成新 M19 DRAFT、调整锁和影响闭包，同一 Idempotency-Key 可安全重试。
+      parameters:
+        - $ref: '#/components/parameters/PlanVersionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePlanAdjustmentRequest' }
+      responses:
+        '200':
+          description: 同一调整意图的幂等重放
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanAdjustmentAcceptedResponse' }
+        '202':
+          description: 新版本已进入异步求解队列
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanAdjustmentAcceptedResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: 基线候选或调整目标不存在, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/plan-versions/{planVersionId}/structural-adjustments:
+    post:
+      tags: [plan-workbench]
+      operationId: createPlanStructuralAdjustmentV1
+      summary: 基于当前正式计划创建插单、拆批或固定合批草稿
+      description: |
+        要求 `aps:planning:adjust`。只接受版本化意图，不修改 M20～M24 正式历史。插单和合批重新编译当前事实；
+        拆批在同一 SERIALIZABLE 事务内完成 M15/M16 数量转移和新 M19 DRAFT，编译或写入失败时整体回滚。
+        已开始任务禁止拆批或改变共享批成员；同一 Idempotency-Key 仅能绑定同一动作与参数。
+      parameters:
+        - $ref: '#/components/parameters/PlanVersionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePlanStructuralAdjustmentRequest' }
+      responses:
+        '200':
+          description: 同一结构调整意图的幂等重放
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanStructuralAdjustmentAcceptedResponse' }
+        '202':
+          description: 新草稿已进入异步求解队列
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanStructuralAdjustmentAcceptedResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: 正式版本、订单或生产批不存在, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/plan-versions/{planVersionId}/publish:
+    post:
+      tags: [plan-workbench]
+      operationId: publishPlanVersionV1
+      summary: 独立复验并原子发布系统内正式计划
+      description: 要求 `aps:planning:publish`。在 SERIALIZABLE 短事务中锁定候选与当前正式版本，复验输入摘要、事实更新时间、M20～M24 候选和基线链，再先废止旧正式版本并切换唯一当前指针。P0 不外发，因此明确返回 NOT_APPLICABLE。
+      parameters:
+        - $ref: '#/components/parameters/PlanVersionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublishPlanRequest' }
+      responses:
+        '200':
+          description: 系统内正式版本已经生效；重复发布当前版本安全复用
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanPublishedResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: 版本不存在或调用者无权查看, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/plan-versions/{planVersionId}/discard:
+    post:
+      tags: [plan-workbench]
+      operationId: discardPlanCandidateV1
+      summary: 标记废弃可行或冲突候选并保留历史
+      description: 要求 `aps:planning:cancel`。按 M19 rowVersion 并发控制把候选置为 CANCELLED 并记录原因；不删除 M19～M24，也不修改当前正式计划。
+      parameters:
+        - $ref: '#/components/parameters/PlanVersionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DiscardCandidateRequest' }
+      responses:
+        '200':
+          description: 候选已标记废弃，完整历史仍可读取
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanCandidateDiscardedResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: 版本不存在或调用者无权查看, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/plan-versions/{planVersionId}/locks/{lockId}:
+    delete:
+      tags: [plan-workbench]
+      operationId: deletePlanLockV1
+      summary: 按计划与锁的行版本删除人工计划锁
+      description: 要求 `aps:planning:lock`。计划和锁任一版本过期都返回 409，不允许删除正式版本上的历史锁。
+      parameters:
+        - $ref: '#/components/parameters/PlanVersionId'
+        - name: lockId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/Uuid' }
+        - name: expectedPlanRowVersion
+          in: query
+          required: true
+          schema: { $ref: '#/components/schemas/RowVersion' }
+        - name: expectedLockRowVersion
+          in: query
+          required: true
+          schema: { $ref: '#/components/schemas/RowVersion' }
+      responses:
+        '200':
+          description: 已递增计划行版本并返回删除锁后的完整计划详情
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanVersionDetailResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: 版本或锁不存在, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/execution-runs:
+    post:
+      tags: [execution]
+      operationId: createExecutionRunV1
+      summary: 从当时唯一当前正式计划作业创建执行 run
+      description: 要求 `aps:execution:start`。同一作业最多一个非终态 run；旧正式版本不得新建 run。同一 Idempotency-Key 和载荷安全重放。
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateExecutionRunRequest' } } } }
+      responses:
+        '200': { description: 幂等复用已有 run, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '201': { description: 已创建 READY run, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/execution-runs/{executionRunId}:
+    get:
+      tags: [execution]
+      operationId: getExecutionRunV1
+      summary: 查询 run、实际占用、报工和产出批当前投影
+      description: 要求 `aps:execution:view`。M28 数量来自 M29 事件链投影，不表示历史可原地编辑。
+      parameters: [{ $ref: '#/components/parameters/ExecutionRunId' }]
+      responses:
+        '200': { description: 执行详情, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: run 不存在或调用者无权查看, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+  /api/aps/v1/execution-runs/{executionRunId}/transitions:
+    post:
+      tags: [execution]
+      operationId: transitionExecutionRunV1
+      summary: 按乐观版本执行开工、暂停、恢复或受控取消
+      description: START/RESUME 要求 `aps:execution:start`，PAUSE/CANCEL 要求 `aps:execution:pause`。同一目标状态重试返回当前结果；迟到旧版本命令返回 409。
+      parameters: [{ $ref: '#/components/parameters/ExecutionRunId' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionTransitionRequest' } } } }
+      responses:
+        '200': { description: 转换完成或已处于同一目标状态, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: run 不存在, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/execution-runs/{executionRunId}/resource-changes:
+    post:
+      tags: [execution]
+      operationId: changeExecutionResourceV1
+      summary: 关闭当前实际占用并受控切换人员或设备
+      description: 要求 `aps:execution:start`。服务端在同一事务重新校验技能、日历、状态和实际占用，关闭旧 M26 后打开新 M26。
+      parameters:
+        - $ref: '#/components/parameters/ExecutionRunId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionResourceChangeRequest' } } } }
+      responses:
+        '200': { description: 资源切换完成或幂等复用, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/execution-runs/{executionRunId}/phase-advances:
+    post:
+      tags: [execution]
+      operationId: advanceExecutionPhaseV1
+      summary: 原子关闭当前计划段并打开下一个计划段的真实资源占用
+      description: 要求 `aps:execution:start`。仅 RUNNING run 可调用；每次自动推进到下一个 segment_no，run 保持 RUNNING。同一 Idempotency-Key 和载荷安全重放。
+      parameters:
+        - $ref: '#/components/parameters/ExecutionRunId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionPhaseAdvanceRequest' } } } }
+      responses:
+        '200': { description: 阶段推进完成或幂等复用, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: run 不存在, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/execution-runs/{executionRunId}/reports:
+    post:
+      tags: [execution]
+      operationId: createProductionReportV1
+      summary: 提交部分或完工报工并原子生成产出批和数量事件
+      description: 要求 `aps:execution:report`。M27、M28、M29 与 M25 执行水位在同一事务提交；同一 Idempotency-Key 不重复计量。COMPLETE 只允许在最后计划段提交。
+      parameters:
+        - $ref: '#/components/parameters/ExecutionRunId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateProductionReportRequest' } } } }
+      responses:
+        '200': { description: 幂等复用已有报工, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '201': { description: 报工与数量链已原子提交, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/production-reports/{reportId}/corrections:
+    post:
+      tags: [execution]
+      operationId: correctProductionReportV1
+      summary: 追加替代快照、反向原事件并生成新的数量链
+      description: 要求 `aps:execution:report`。原 M27/M28/M29 不修改、不删除；REVERSE 必须精确交换原事件起止桶并保持批、单位和数量一致。
+      parameters:
+        - $ref: '#/components/parameters/ProductionReportId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CorrectProductionReportRequest' } } } }
+      responses:
+        '200': { description: 幂等复用已有更正, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '201': { description: 更正和冲正链已原子提交, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/output-lots/{outputLotId}/quality-decisions:
+    post:
+      tags: [execution]
+      operationId: decideOutputLotQualityV1
+      summary: 对产出批执行隔离、放行、拒收、返工、报废或让步使用
+      description: 要求 `aps:execution:quality`。待检/隔离不进入下游可用量；质量决定与 M29 事件、M28 投影和 M25 水位同事务提交。
+      parameters:
+        - $ref: '#/components/parameters/OutputLotId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/QualityDecisionRequest' } } } }
+      responses:
+        '200': { description: 质量决定已提交或幂等复用, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/output-lots/{outputLotId}/quantity-movements:
+    post:
+      tags: [execution]
+      operationId: moveOutputLotQuantityV1
+      summary: 对已放行产出执行预留、取消预留、投入或转序
+      description: 要求 `aps:execution:report`。M29 是数量真相；M28、M18 与 M25 执行水位在同一事务更新，投入必须绑定执行目标任务的 run。
+      parameters:
+        - $ref: '#/components/parameters/OutputLotId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/QuantityMovementRequest' } } } }
+      responses:
+        '200': { description: 数量流转已提交或幂等复用, content: { application/json: { schema: { $ref: '#/components/schemas/ExecutionRunDetailResponse' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/aps/v1/reports/daily-production:
+    get:
+      tags: [report]
+      operationId: getDailyProductionReportV1
+      summary: 查询车间每日生产表
+      description: 要求 `aps:report:view`；首个当日发布版本作为冻结分母，当前计划与实际事实独立展示，数量不跨 UOM 合计。
+      parameters:
+        - { name: businessDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: workshopId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+        - { name: workCenterId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+      responses:
+        '200': { description: 日报, content: { application/json: { schema: { $ref: '#/components/schemas/DailyProductionReport' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/reports/daily-production.csv:
+    get:
+      tags: [report]
+      operationId: exportDailyProductionReportV1
+      summary: 按相同范围导出车间每日生产 CSV
+      description: 要求 `aps:report:export`；响应受同一数据范围裁剪并记录导出审计。
+      parameters:
+        - { name: businessDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: workshopId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+        - { name: workCenterId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+      responses:
+        '200': { description: UTF-8 BOM CSV, content: { text/csv: { schema: { type: string } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/reports/labor-capacity:
+    get:
+      tags: [report]
+      operationId: getLaborCapacityReportV1
+      summary: 查询人员去重的累计产能和分技能峰值
+      parameters:
+        - { name: fromDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: toDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: workshopId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+        - { name: workCenterId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+        - { name: skillCode, in: query, schema: { type: string, minLength: 1, maxLength: 64, pattern: '^[A-Za-z0-9_.:-]+$' } }
+      responses:
+        '200': { description: 累计人力产能, content: { application/json: { schema: { $ref: '#/components/schemas/LaborCapacityReport' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/reports/labor-capacity.csv:
+    get:
+      tags: [report]
+      operationId: exportLaborCapacityReportV1
+      summary: 按相同范围导出累计人力产能 CSV
+      parameters:
+        - { name: fromDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: toDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: workshopId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+        - { name: workCenterId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+        - { name: skillCode, in: query, schema: { type: string, minLength: 1, maxLength: 64, pattern: '^[A-Za-z0-9_.:-]+$' } }
+      responses:
+        '200': { description: UTF-8 BOM CSV, content: { text/csv: { schema: { type: string } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/reports/order-delivery:
+    get:
+      tags: [report]
+      operationId: getOrderDeliveryReportV1
+      summary: 查询订单与产品行生产完成 ETA
+      description: 要求 `aps:report:view`；任何必需数据缺失或任务未排产时 ETA 返回 `UNKNOWN`，不得使用已知子集伪造时间。
+      parameters:
+        - { name: orderId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+      responses:
+        '200': { description: 订单交期, content: { application/json: { schema: { $ref: '#/components/schemas/OrderDeliveryReport' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/reports/order-delivery.csv:
+    get:
+      tags: [report]
+      operationId: exportOrderDeliveryReportV1
+      summary: 按相同范围导出订单交期 CSV
+      parameters:
+        - { name: orderId, in: query, schema: { $ref: '#/components/schemas/Uuid' } }
+      responses:
+        '200': { description: UTF-8 BOM CSV, content: { text/csv: { schema: { type: string } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: RuoYi access token
+  parameters:
+    WorkshopId:
+      name: workshopId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    ResourceId:
+      name: resourceId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    ResourceObjectId:
+      name: id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    RequestId:
+      name: requestId
+      in: path
+      required: true
+      description: 幂等计划请求的稳定 UUID；不是 Worker attempt 或租约 token
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    PlanVersionId:
+      name: planVersionId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    ExecutionRunId:
+      name: executionRunId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    ProductionReportId:
+      name: reportId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    OutputLotId:
+      name: outputLotId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 同一键和同一请求摘要返回原校验结果；同键不同载荷返回 409
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 64
+        pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+  responses:
+    BadRequest:
+      description: 请求字段、枚举、UTC 时间或半开区间无效
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/problem-v1.schema.json'
+    Conflict:
+      description: 唯一约束冲突或 rowVersion 已过期
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/problem-v1.schema.json'
+    Unauthorized:
+      description: 缺少或无法验证访问令牌
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/problem-v1.schema.json'
+    Forbidden:
+      description: 已认证但不具备所需的 `aps:*` 权限
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/problem-v1.schema.json'
+  schemas:
+    ExecutionRunStatus:
+      enum: [READY, RUNNING, PAUSED, WAIT_QUALITY, COMPLETED, CANCELLED]
+    CreateExecutionRunRequest:
+      type: object
+      additionalProperties: false
+      required: [planVersionId, planJobId, assignedQty, uomCode]
+      properties:
+        planVersionId: { $ref: '#/components/schemas/Uuid' }
+        planJobId: { $ref: '#/components/schemas/Uuid' }
+        assignedQty: { type: number, exclusiveMinimum: 0 }
+        uomCode: { type: string, pattern: '^[A-Z][A-Z0-9_]{0,15}$' }
+    ExecutionTransitionRequest:
+      type: object
+      additionalProperties: false
+      required: [action, expectedRowVersion, occurredAt]
+      properties:
+        action: { enum: [START, PAUSE, RESUME, CANCEL] }
+        expectedRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        occurredAt: { $ref: '#/components/schemas/UtcInstant' }
+        reason: { type: [string, 'null'], maxLength: 500 }
+    ExecutionResourceChangeRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedRowVersion, replacedResourceId, resourceId, activityType, occurredAt]
+      properties:
+        expectedRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        planSegmentId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        replacedResourceId: { $ref: '#/components/schemas/Uuid' }
+        resourceId: { $ref: '#/components/schemas/Uuid' }
+        activityType: { enum: [SETUP, RUN, UNLOAD, WAIT_HOLD, PAUSE_HOLD, TRANSPORT] }
+        occurredAt: { $ref: '#/components/schemas/UtcInstant' }
+        reason: { type: [string, 'null'], maxLength: 500 }
+    ExecutionPhaseAdvanceRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedRowVersion, occurredAt]
+      properties:
+        expectedRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        occurredAt: { $ref: '#/components/schemas/UtcInstant' }
+        reason: { type: [string, 'null'], maxLength: 500 }
+    ProductionReportQuantities:
+      type: object
+      additionalProperties: false
+      required: [processedQty, goodQty, pendingQty, rejectedQty, scrapQty, transferredQty]
+      properties:
+        processedQty: { type: number, minimum: 0 }
+        goodQty: { type: number, minimum: 0 }
+        pendingQty: { type: number, minimum: 0 }
+        rejectedQty: { type: number, minimum: 0 }
+        scrapQty: { type: number, minimum: 0 }
+        transferredQty: { type: number, minimum: 0 }
+      description: processedQty 必须等于 goodQty + pendingQty + rejectedQty；scrapQty 不超过 rejectedQty，transferredQty 不超过 goodQty。
+    CreateProductionReportRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedRowVersion, planJobMemberId, taskId, reportType, reportedAt, quantities, uomCode]
+      properties:
+        expectedRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        planJobMemberId: { $ref: '#/components/schemas/Uuid' }
+        taskId: { $ref: '#/components/schemas/Uuid' }
+        reportType: { enum: [PROGRESS, COMPLETE] }
+        reportedAt: { $ref: '#/components/schemas/UtcInstant' }
+        quantities: { $ref: '#/components/schemas/ProductionReportQuantities' }
+        uomCode: { type: string, pattern: '^[A-Z][A-Z0-9_]{0,15}$' }
+        defectReason: { type: [string, 'null'], maxLength: 500 }
+        operatorUserId: { type: [string, 'null'], maxLength: 64 }
+    CorrectProductionReportRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedRunRowVersion, expectedReportRowVersion, reportedAt, quantities]
+      properties:
+        expectedRunRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        expectedReportRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        reportedAt: { $ref: '#/components/schemas/UtcInstant' }
+        quantities: { $ref: '#/components/schemas/ProductionReportQuantities' }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    QualityDecisionRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedRunRowVersion, expectedOutputLotRowVersion, decision, quantity, occurredAt]
+      properties:
+        expectedRunRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        expectedOutputLotRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        decision: { enum: [HOLD, RELEASE, REJECT, REWORK, SCRAP, USE_AS_IS] }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        occurredAt: { $ref: '#/components/schemas/UtcInstant' }
+        reason: { type: [string, 'null'], maxLength: 500 }
+        createReplenishment: { type: boolean, default: false }
+    QuantityMovementRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedRunRowVersion, expectedOutputLotRowVersion, materialDemandId, targetTaskId, operation, quantity, occurredAt]
+      properties:
+        expectedRunRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        expectedOutputLotRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        materialDemandId: { $ref: '#/components/schemas/Uuid' }
+        targetTaskId: { $ref: '#/components/schemas/Uuid' }
+        targetExecutionRunId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        operation: { enum: [RESERVE, UNRESERVE, CONSUME, TRANSFER] }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        occurredAt: { $ref: '#/components/schemas/UtcInstant' }
+        reason: { type: [string, 'null'], maxLength: 500 }
+    ExecutionRunSummary:
+      type: object
+      additionalProperties: false
+      required: [id, planVersionId, planJobId, runNo, status, assignedQty, uomCode, requestId, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        planVersionId: { $ref: '#/components/schemas/Uuid' }
+        planJobId: { $ref: '#/components/schemas/Uuid' }
+        runNo: { type: integer, minimum: 1 }
+        status: { $ref: '#/components/schemas/ExecutionRunStatus' }
+        assignedQty: { type: number, exclusiveMinimum: 0 }
+        uomCode: { type: string }
+        actualStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        actualEndAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        pauseReason: { type: [string, 'null'] }
+        requestId: { type: string }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    ExecutionRunDetailResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, run, occupancies, reports, outputLots, executionRevision]
+      properties:
+        schemaVersion: { const: '1.0' }
+        contractType: { const: EXECUTION_RUN_DETAIL }
+        run: { $ref: '#/components/schemas/ExecutionRunSummary' }
+        occupancies: { type: array, items: { $ref: '#/components/schemas/ActualOccupancy' } }
+        reports: { type: array, items: { $ref: '#/components/schemas/ProductionReport' } }
+        outputLots: { type: array, items: { $ref: '#/components/schemas/OutputLot' } }
+        executionRevision: { type: integer, minimum: 0 }
+    ActualOccupancy:
+      type: object
+      additionalProperties: false
+      required: [id, planJobId, executionRunId, resourceId, activityType, startAt, status, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        planJobId: { $ref: '#/components/schemas/Uuid' }
+        executionRunId: { $ref: '#/components/schemas/Uuid' }
+        planSegmentId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        sourcePlanAllocationId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        resourceId: { $ref: '#/components/schemas/Uuid' }
+        activityType: { enum: [SETUP, RUN, UNLOAD, WAIT_HOLD, PAUSE_HOLD, TRANSPORT] }
+        startAt: { $ref: '#/components/schemas/UtcInstant' }
+        endAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        status: { enum: [ACTIVE, COMPLETED, CORRECTION, VOID] }
+        correctionOfId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        reason: { type: [string, 'null'] }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    ProductionReport:
+      type: object
+      additionalProperties: false
+      required: [id, planJobId, executionRunId, planJobMemberId, taskId, reportType, reportedAt, quantities, uomCode, requestId, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        planJobId: { $ref: '#/components/schemas/Uuid' }
+        executionRunId: { $ref: '#/components/schemas/Uuid' }
+        planJobMemberId: { $ref: '#/components/schemas/Uuid' }
+        taskId: { $ref: '#/components/schemas/Uuid' }
+        reportType: { enum: [PROGRESS, COMPLETE, CORRECTION] }
+        reportedAt: { $ref: '#/components/schemas/UtcInstant' }
+        quantities: { $ref: '#/components/schemas/ProductionReportQuantities' }
+        uomCode: { type: string }
+        defectReason: { type: [string, 'null'] }
+        correctionOfId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        requestId: { type: string }
+        operatorUserId: { type: [string, 'null'] }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    OutputLot:
+      type: object
+      additionalProperties: false
+      required: [id, productionLotId, sourceTaskId, sourceReportId, itemId, outputLotNo, qualityStatus, totalQty, availableQty, reservedQty, consumedQty, scrappedQty, uomCode, dispositionType, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        productionLotId: { $ref: '#/components/schemas/Uuid' }
+        sourceTaskId: { $ref: '#/components/schemas/Uuid' }
+        sourceReportId: { $ref: '#/components/schemas/Uuid' }
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        sourceOutputLotId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        outputLotNo: { type: string }
+        qualityStatus: { enum: [PENDING, RELEASED, HOLD, REJECTED, CLOSED] }
+        totalQty: { type: number, exclusiveMinimum: 0 }
+        availableQty: { type: number, minimum: 0 }
+        reservedQty: { type: number, minimum: 0 }
+        consumedQty: { type: number, minimum: 0 }
+        scrappedQty: { type: number, minimum: 0 }
+        uomCode: { type: string }
+        dispositionType: { enum: [NONE, REWORK, SCRAP, USE_AS_IS] }
+        dispositionReason: { type: [string, 'null'] }
+        approvedBy: { type: [string, 'null'] }
+        approvedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    Uuid:
+      type: string
+      format: uuid
+      pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+    UtcInstant:
+      type: string
+      format: date-time
+      description: UTC Z 时间；MySQL 持久化按 DATETIME(3) 截断为毫秒
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,9})?Z$'
+    Sha256:
+      type: string
+      pattern: '^[0-9a-f]{64}$'
+    LifecycleStatus:
+      enum: [ACTIVE, INACTIVE]
+    RowVersion:
+      type: integer
+      minimum: 0
+    ReportMetadata:
+      type: object
+      additionalProperties: false
+      required: [siteCode, zoneId, dataCutoffAt, generatedAt]
+      properties:
+        siteCode: { type: string, minLength: 1, maxLength: 64 }
+        zoneId: { type: string, minLength: 1, maxLength: 64 }
+        fromAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        toAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        baselinePlanVersionId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        currentPlanVersionId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        dataCutoffAt: { $ref: '#/components/schemas/UtcInstant' }
+        generatedAt: { $ref: '#/components/schemas/UtcInstant' }
+    DailyProductionReport:
+      type: object
+      additionalProperties: false
+      required: [businessDate, metadata, rows]
+      properties:
+        businessDate: { type: string, format: date }
+        metadata: { $ref: '#/components/schemas/ReportMetadata' }
+        rows: { type: array, items: { $ref: '#/components/schemas/DailyTaskRow' } }
+    DailyTaskRow:
+      type: object
+      description: 按任务和原 UOM 展示冻结计划、当前计划、实际数量与人机时；不得跨 UOM 汇总。
+      required: [orderId, orderNo, orderLineId, itemId, itemCode, itemName, productionLotId, lotNo,
+        taskId, taskCode, taskName, taskStatus, uomCode, baselinePlannedQty, currentPlannedQty,
+        actualProcessedQty, actualGoodQty, scrapQty, achievementRatio, carryoverQty, delayed, reasonCodes]
+      properties:
+        workshopId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        workshopCode: { type: [string, 'null'] }
+        workshopName: { type: [string, 'null'] }
+        workCenterId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        workCenterCode: { type: [string, 'null'] }
+        workCenterName: { type: [string, 'null'] }
+        operationSpecId: { $ref: '#/components/schemas/Uuid' }
+        operationCode: { type: string }
+        operationName: { type: string }
+        orderId: { $ref: '#/components/schemas/Uuid' }
+        orderNo: { type: string }
+        orderLineId: { $ref: '#/components/schemas/Uuid' }
+        lineNo: { type: integer, minimum: 1 }
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        itemCode: { type: string }
+        itemName: { type: string }
+        productionLotId: { $ref: '#/components/schemas/Uuid' }
+        lotNo: { type: string }
+        taskId: { $ref: '#/components/schemas/Uuid' }
+        taskCode: { type: string }
+        taskName: { type: string }
+        taskStatus: { type: string }
+        uomCode: { type: string }
+        promisedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        baselineStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        baselineEndAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        baselinePlannedQty: { type: number }
+        baselinePersonHours: { type: number }
+        baselineMachineHours: { type: number }
+        currentStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        currentEndAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        currentPlannedQty: { type: number }
+        currentPersonHours: { type: number }
+        currentMachineHours: { type: number }
+        actualProcessedQty: { type: number }
+        actualGoodQty: { type: number }
+        rejectedQty: { type: number }
+        scrapQty: { type: number }
+        transferredQty: { type: number }
+        actualPersonHours: { type: number }
+        actualMachineHours: { type: number }
+        achievementRatio: { type: [number, 'null'] }
+        carryoverQty: { type: number }
+        delayed: { type: boolean }
+        plannedPersonResourceIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        plannedMachineResourceIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        actualPersonResourceIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        actualMachineResourceIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        reasonCodes: { type: array, uniqueItems: true, items: { type: string } }
+    LaborCapacityReport:
+      type: object
+      additionalProperties: false
+      required: [metadata, people, skills, aggregationNotice]
+      properties:
+        metadata: { $ref: '#/components/schemas/ReportMetadata' }
+        people: { type: array, items: { $ref: '#/components/schemas/PersonCapacityRow' } }
+        skills: { type: array, items: { $ref: '#/components/schemas/SkillCapacityRow' } }
+        aggregationNotice: { type: string, minLength: 1 }
+    PersonCapacityRow:
+      type: object
+      required: [resourceId, resourceCode, resourceName, workshopId, workshopCode, workshopName,
+        skillCodes, availableHours, scheduledHours, remainingHours, overloaded]
+      properties:
+        resourceId: { $ref: '#/components/schemas/Uuid' }
+        resourceCode: { type: string }
+        resourceName: { type: string }
+        workshopId: { $ref: '#/components/schemas/Uuid' }
+        workshopCode: { type: string }
+        workshopName: { type: string }
+        workCenterId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        workCenterCode: { type: [string, 'null'] }
+        workCenterName: { type: [string, 'null'] }
+        teamName: { type: [string, 'null'] }
+        skillCodes: { type: array, uniqueItems: true, items: { type: string } }
+        availableHours: { type: number }
+        scheduledHours: { type: number }
+        remainingHours: { type: number }
+        overloaded: { type: boolean }
+    SkillCapacityRow:
+      type: object
+      required: [skillCode, availablePotentialHours, scheduledHours, unplannedRequiredHours,
+        peakRequiredPeople, peakQualifiedPeople, peakShortagePeople, reasonCodes]
+      properties:
+        skillCode: { type: string }
+        availablePotentialHours: { type: number }
+        scheduledHours: { type: number }
+        unplannedRequiredHours: { type: number }
+        peakRequiredPeople: { type: integer, minimum: 0 }
+        peakQualifiedPeople: { type: integer, minimum: 0 }
+        peakShortagePeople: { type: integer, minimum: 0 }
+        peakAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        reasonCodes: { type: array, uniqueItems: true, items: { type: string } }
+    OrderDeliveryReport:
+      type: object
+      additionalProperties: false
+      required: [metadata, orders]
+      properties:
+        metadata: { $ref: '#/components/schemas/ReportMetadata' }
+        orders: { type: array, items: { $ref: '#/components/schemas/OrderDeliveryRow' } }
+    OrderDeliveryRow:
+      type: object
+      required: [orderId, orderNo, orderStatus, etaState, productionCompleted, orderClosed, reasons, lines]
+      properties:
+        orderId: { $ref: '#/components/schemas/Uuid' }
+        orderNo: { type: string }
+        orderStatus: { type: string }
+        promisedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        etaState: { enum: [KNOWN, UNKNOWN] }
+        expectedProductionAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        knownLowerBoundAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        delaySeconds: { type: [integer, 'null'], format: int64, minimum: 0 }
+        productionCompleted: { type: boolean }
+        orderClosed: { type: boolean }
+        reasons: { type: array, items: { $ref: '#/components/schemas/DeliveryReason' } }
+        lines: { type: array, items: { $ref: '#/components/schemas/OrderLineDeliveryRow' } }
+    OrderLineDeliveryRow:
+      type: object
+      required: [orderLineId, lineNo, itemId, itemCode, itemName, uomCode, demandQty,
+        releasedTerminalQty, lineStatus, etaState, reasons]
+      properties:
+        orderLineId: { $ref: '#/components/schemas/Uuid' }
+        lineNo: { type: integer, minimum: 1 }
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        itemCode: { type: string }
+        itemName: { type: string }
+        uomCode: { type: string }
+        demandQty: { type: number }
+        releasedTerminalQty: { type: number }
+        lineStatus: { type: string }
+        promisedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        etaState: { enum: [KNOWN, UNKNOWN] }
+        expectedProductionAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        knownLowerBoundAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        reasons: { type: array, items: { $ref: '#/components/schemas/DeliveryReason' } }
+    DeliveryReason:
+      type: object
+      additionalProperties: false
+      required: [code, objectType, objectId, detail]
+      properties:
+        code: { type: string, pattern: '^[A-Z][A-Z0-9_]*$' }
+        objectType: { type: string }
+        objectId: { $ref: '#/components/schemas/Uuid' }
+        detail: { type: string }
+    WorkshopInput:
+      type: object
+      additionalProperties: false
+      required: [code, name, status, rowVersion]
+      properties:
+        code: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 128 }
+        managerUserId: { type: [string, 'null'], maxLength: 64 }
+        status: { $ref: '#/components/schemas/LifecycleStatus' }
+        remark: { type: [string, 'null'], maxLength: 500 }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    Workshop:
+      allOf:
+        - { $ref: '#/components/schemas/WorkshopInput' }
+        - type: object
+          required: [id]
+          properties:
+            id: { $ref: '#/components/schemas/Uuid' }
+    WorkCenterInput:
+      type: object
+      additionalProperties: false
+      required: [workshopId, code, name, centerType, concurrentCapacity, capacityUomCode, status, rowVersion]
+      properties:
+        workshopId: { $ref: '#/components/schemas/Uuid' }
+        code: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 128 }
+        centerType: { enum: [MACHINE, LABOR, MIXED, BATCH] }
+        concurrentCapacity: { type: number, exclusiveMinimum: 0 }
+        capacityUomCode: { type: string, minLength: 1, maxLength: 16 }
+        status: { $ref: '#/components/schemas/LifecycleStatus' }
+        remark: { type: [string, 'null'], maxLength: 500 }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    WorkCenter:
+      allOf:
+        - { $ref: '#/components/schemas/WorkCenterInput' }
+        - type: object
+          required: [id]
+          properties:
+            id: { $ref: '#/components/schemas/Uuid' }
+    ResourceInput:
+      type: object
+      additionalProperties: false
+      required: [workshopId, code, name, type, capacityValue, capacityUomCode, status, rowVersion]
+      properties:
+        workshopId: { $ref: '#/components/schemas/Uuid' }
+        workCenterId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        code: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 128 }
+        type: { enum: [PERSON, MACHINE, WORKSTATION, TOOL] }
+        ruoyiUserId: { type: [string, 'null'], maxLength: 64 }
+        teamName: { type: [string, 'null'], maxLength: 128 }
+        capacityValue: { type: number, exclusiveMinimum: 0 }
+        capacityUomCode: { type: string, minLength: 1, maxLength: 16 }
+        status: { enum: [ACTIVE, INACTIVE, MAINTENANCE] }
+        remark: { type: [string, 'null'], maxLength: 500 }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    Resource:
+      allOf:
+        - { $ref: '#/components/schemas/ResourceInput' }
+        - type: object
+          required: [id]
+          properties:
+            id: { $ref: '#/components/schemas/Uuid' }
+    ResourceSkillInput:
+      type: object
+      additionalProperties: false
+      required: [code, name, level, status, rowVersion]
+      properties:
+        id: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        code: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 128 }
+        level: { type: integer, minimum: 1, maximum: 10 }
+        validFrom: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        validTo: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        certificateRef: { type: [string, 'null'], maxLength: 128 }
+        status: { enum: [ACTIVE, INACTIVE, EXPIRED] }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    ResourceSkill:
+      allOf:
+        - { $ref: '#/components/schemas/ResourceSkillInput' }
+        - type: object
+          required: [id, resourceId]
+          properties:
+            id: { $ref: '#/components/schemas/Uuid' }
+            resourceId: { $ref: '#/components/schemas/Uuid' }
+    AvailabilityInput:
+      type: object
+      additionalProperties: false
+      required: [type, startAt, endAt, capacityRatio, sourceType, rowVersion]
+      properties:
+        id: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        type: { enum: [AVAILABLE, UNAVAILABLE, OVERTIME, LEAVE, MAINTENANCE] }
+        startAt: { $ref: '#/components/schemas/UtcInstant' }
+        endAt: { $ref: '#/components/schemas/UtcInstant' }
+        capacityRatio: { type: number, exclusiveMinimum: 0, maximum: 1 }
+        sourceType: { type: string, minLength: 1, maxLength: 24 }
+        sourceRef: { type: [string, 'null'], maxLength: 128 }
+        reason: { type: [string, 'null'], maxLength: 500 }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    Availability:
+      allOf:
+        - { $ref: '#/components/schemas/AvailabilityInput' }
+        - type: object
+          required: [id, resourceId]
+          properties:
+            id: { $ref: '#/components/schemas/Uuid' }
+            resourceId: { $ref: '#/components/schemas/Uuid' }
+    NetWindow:
+      type: object
+      additionalProperties: false
+      required: [start, end, capacityRatio]
+      properties:
+        start: { $ref: '#/components/schemas/UtcInstant' }
+        end: { $ref: '#/components/schemas/UtcInstant' }
+        capacityRatio: { type: number, exclusiveMinimum: 0, maximum: 1 }
+    ReadinessIssue:
+      type: object
+      additionalProperties: false
+      required: [code, objectType, objectId, message]
+      properties:
+        code: { enum: [WORKSHOP_WITHOUT_CENTER, RESOURCE_WITHOUT_CENTER, RESOURCE_WITHOUT_AVAILABLE_WINDOW, SKILL_EXPIRED, AVAILABILITY_CONFLICT, INACTIVE_RESOURCE_REFERENCED] }
+        objectType: { enum: [WORKSHOP, RESOURCE, SKILL] }
+        objectId: { $ref: '#/components/schemas/Uuid' }
+        message: { type: string, minLength: 1, maxLength: 500 }
+    Candidate:
+      type: object
+      additionalProperties: false
+      required: [resourceId, resourceCode, resourceName]
+      properties:
+        resourceId: { $ref: '#/components/schemas/Uuid' }
+        resourceCode: { type: string, minLength: 1, maxLength: 64 }
+        resourceName: { type: string, minLength: 1, maxLength: 128 }
+    VersionInput:
+      type: object
+      additionalProperties: false
+      required: [rowVersion]
+      properties:
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    ItemInput:
+      type: object
+      additionalProperties: false
+      required: [code, name, type, baseUomCode, rowVersion]
+      properties:
+        code: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 128 }
+        type: { enum: [PRODUCT, SEMI_FINISHED, MATERIAL] }
+        specification: { type: [string, 'null'], maxLength: 255 }
+        baseUomCode: { type: string, pattern: '^[A-Z][A-Z0-9_]{0,15}$' }
+        status: { enum: [ACTIVE, INACTIVE] }
+        remark: { type: [string, 'null'], maxLength: 500 }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    Item:
+      allOf:
+        - { $ref: '#/components/schemas/ItemInput' }
+        - type: object
+          required: [id]
+          properties:
+            id: { $ref: '#/components/schemas/Uuid' }
+    ResourceRequirementInput:
+      type: object
+      additionalProperties: false
+      required: [requirementNo, resourceType, seatCount, optional, holdOnPause]
+      properties:
+        id: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        requirementNo: { type: integer, minimum: 1, maximum: 65535 }
+        resourceType: { enum: [PERSON, MACHINE, WORKSTATION, TOOL] }
+        workCenterId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        fixedResourceId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        seatCount: { type: integer, minimum: 1, maximum: 65535 }
+        requiredSkillCode: { type: [string, 'null'], maxLength: 64 }
+        minimumSkillLevel: { type: [integer, 'null'], minimum: 1, maximum: 10 }
+        capabilityRuleJson: { type: [string, 'null'] }
+        optional: { type: boolean }
+        holdOnPause: { type: boolean }
+    OperationPhaseInput:
+      type: object
+      additionalProperties: false
+      required: [phaseNo, phaseType, name, durationModel, fixedSeconds, secondsPerUnit, resourceHoldPolicy, maxSegments, minSegmentSeconds, resumeSetupSeconds, segmentResourcePolicy, requirements]
+      properties:
+        id: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        phaseNo: { type: integer, minimum: 1, maximum: 65535 }
+        phaseType: { enum: [SETUP, RUN, UNLOAD, WAIT, TRANSPORT] }
+        name: { type: string, minLength: 1, maxLength: 128 }
+        durationModel: { enum: [FIXED, PER_UNIT, FIXED_PLUS_UNIT] }
+        fixedSeconds: { type: integer, minimum: 0 }
+        secondsPerUnit: { type: number, minimum: 0 }
+        resourceHoldPolicy: { enum: [PHASE_ONLY, UNTIL_NEXT_PHASE, WHOLE_JOB] }
+        maxSegments: { type: integer, minimum: 1, maximum: 100 }
+        minSegmentSeconds: { type: integer, minimum: 0 }
+        resumeSetupSeconds: { type: integer, minimum: 0 }
+        segmentResourcePolicy: { enum: [SAME_RESOURCES, RESELECT_ALLOWED] }
+        requirements: { type: array, maxItems: 64, items: { $ref: '#/components/schemas/ResourceRequirementInput' } }
+    OperationInput:
+      type: object
+      additionalProperties: false
+      required: [code, name, mode, interruptible, qualityGateRequired, phases, rowVersion]
+      properties:
+        code: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 128 }
+        mode: { enum: [MANUAL, MAN_MACHINE, AUTO, BATCH, WAIT, TRANSPORT] }
+        outputItemId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        interruptible: { type: boolean }
+        qualityGateRequired: { type: boolean }
+        batchCapacity: { type: [number, 'null'], exclusiveMinimum: 0 }
+        batchUomCode: { type: [string, 'null'], maxLength: 16 }
+        compatibilityRuleJson: { type: [string, 'null'] }
+        remark: { type: [string, 'null'], maxLength: 500 }
+        phases: { type: array, minItems: 1, maxItems: 64, items: { $ref: '#/components/schemas/OperationPhaseInput' } }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    OperationSpec:
+      allOf:
+        - { $ref: '#/components/schemas/OperationInput' }
+        - type: object
+          required: [id, status]
+          properties:
+            id: { $ref: '#/components/schemas/Uuid' }
+            status: { enum: [DRAFT, ACTIVE, INACTIVE] }
+    RouteInput:
+      type: object
+      additionalProperties: false
+      required: [itemId, routeCode, versionNo]
+      properties:
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        routeCode: { type: string, minLength: 1, maxLength: 64 }
+        versionNo: { type: string, minLength: 1, maxLength: 32 }
+        effectiveFrom: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        effectiveTo: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        changeNote: { type: [string, 'null'], maxLength: 500 }
+    RouteVersion:
+      type: object
+      additionalProperties: false
+      required: [id, itemId, routeCode, versionNo, status, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        routeCode: { type: string, minLength: 1, maxLength: 64 }
+        versionNo: { type: string, minLength: 1, maxLength: 32 }
+        status: { enum: [DRAFT, ACTIVE, RETIRED] }
+        effectiveFrom: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        effectiveTo: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        changeNote: { type: [string, 'null'], maxLength: 500 }
+        approvedBy: { type: [string, 'null'], maxLength: 64 }
+        approvedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    RouteNodeInput:
+      type: object
+      additionalProperties: false
+      required: [operationSpecId, nodeCode, nodeName, displayOrder, quantityMultiplier, terminal]
+      properties:
+        id: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        operationSpecId: { $ref: '#/components/schemas/Uuid' }
+        nodeCode: { type: string, minLength: 1, maxLength: 64 }
+        nodeName: { type: string, minLength: 1, maxLength: 128 }
+        displayOrder: { type: integer }
+        quantityMultiplier: { type: number, exclusiveMinimum: 0 }
+        terminal: { type: boolean }
+    RouteEdgeInput:
+      type: object
+      additionalProperties: false
+      required: [predecessorNodeCode, successorNodeCode, dependencyType, lagSeconds, consumesOutput]
+      properties:
+        id: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        predecessorNodeCode: { type: string, minLength: 1, maxLength: 64 }
+        successorNodeCode: { type: string, minLength: 1, maxLength: 64 }
+        dependencyType: { enum: [FINISH, QUANTITY, SAME_START] }
+        thresholdQty: { type: [number, 'null'], exclusiveMinimum: 0 }
+        thresholdRatio: { type: [number, 'null'], exclusiveMinimum: 0, maximum: 1 }
+        transferBatchQty: { type: [number, 'null'], exclusiveMinimum: 0 }
+        lagSeconds: { type: integer, minimum: 0 }
+        consumesOutput: { type: boolean }
+    RouteGraphInput:
+      type: object
+      additionalProperties: false
+      required: [nodes, edges]
+      properties:
+        nodes: { type: array, minItems: 1, maxItems: 500, items: { $ref: '#/components/schemas/RouteNodeInput' } }
+        edges: { type: array, maxItems: 2000, items: { $ref: '#/components/schemas/RouteEdgeInput' } }
+    RouteGraph:
+      type: object
+      required: [route, nodes, edges]
+      properties:
+        route: { $ref: '#/components/schemas/RouteVersion' }
+        nodes: { type: array, items: { type: object } }
+        edges: { type: array, items: { type: object } }
+    RouteCopyInput:
+      type: object
+      additionalProperties: false
+      required: [versionNo]
+      properties:
+        versionNo: { type: string, minLength: 1, maxLength: 32 }
+        changeNote: { type: [string, 'null'], maxLength: 500 }
+    ValidationIssue:
+      type: object
+      additionalProperties: false
+      required: [code, objectType, objectId, message]
+      properties:
+        code: { type: string, pattern: '^[A-Z][A-Z0-9_]*$' }
+        objectType: { enum: [ITEM, OPERATION_SPEC, OPERATION_PHASE, RESOURCE_REQUIREMENT, ROUTE_VERSION, ROUTE_NODE, ROUTE_EDGE, ORDER, ORDER_LINE, LOT, TASK, DEPENDENCY] }
+        objectId: { $ref: '#/components/schemas/Uuid' }
+        field: { type: [string, 'null'], maxLength: 96 }
+        message: { type: string, minLength: 1, maxLength: 500 }
+    RouteValidation:
+      type: object
+      additionalProperties: false
+      required: [routeVersionId, publishable, issues]
+      properties:
+        routeVersionId: { $ref: '#/components/schemas/Uuid' }
+        publishable: { type: boolean }
+        issues: { type: array, maxItems: 2000, items: { $ref: '#/components/schemas/ValidationIssue' } }
+    ComponentInput:
+      type: object
+      additionalProperties: false
+      required: [demandNo, targetNodeCode, itemId, demandType, requiredQtyPerUnit, uomCode]
+      properties:
+        demandNo: { type: integer, minimum: 1 }
+        targetNodeCode: { type: string, minLength: 1, maxLength: 64 }
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        sourceLineNo: { type: [integer, 'null'], minimum: 1 }
+        sourceNodeCode: { type: [string, 'null'], maxLength: 64 }
+        demandType: { enum: [COMPONENT, TRANSFER, EXTERNAL] }
+        requiredQtyPerUnit: { type: number, exclusiveMinimum: 0 }
+        uomCode: { type: string, minLength: 1, maxLength: 16 }
+        transferBatchQty: { type: [number, 'null'], exclusiveMinimum: 0 }
+    LineDependencyInput:
+      type: object
+      additionalProperties: false
+      required: [predecessorLineNo, predecessorNodeCode, successorNodeCode, dependencyType, lagSeconds, consumesOutput]
+      properties:
+        predecessorLineNo: { type: integer, minimum: 1 }
+        predecessorNodeCode: { type: string, minLength: 1, maxLength: 64 }
+        successorNodeCode: { type: string, minLength: 1, maxLength: 64 }
+        dependencyType: { enum: [FINISH, QUANTITY, SAME_START] }
+        thresholdQty: { type: [number, 'null'], exclusiveMinimum: 0 }
+        thresholdRatio: { type: [number, 'null'], exclusiveMinimum: 0, maximum: 1 }
+        transferBatchQty: { type: [number, 'null'], exclusiveMinimum: 0 }
+        lagSeconds: { type: integer, minimum: 0 }
+        consumesOutput: { type: boolean }
+    OrderLineInput:
+      type: object
+      additionalProperties: false
+      required: [lineNo, itemId, routeVersionId, demandQty, uomCode, components, dependencies]
+      properties:
+        lineNo: { type: integer, minimum: 1 }
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        routeVersionId: { $ref: '#/components/schemas/Uuid' }
+        demandQty: { type: number, exclusiveMinimum: 0 }
+        uomCode: { type: string, minLength: 1, maxLength: 16 }
+        promisedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        earliestStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        components: { type: array, maxItems: 200, items: { $ref: '#/components/schemas/ComponentInput' } }
+        dependencies: { type: array, maxItems: 200, items: { $ref: '#/components/schemas/LineDependencyInput' } }
+    OrderInput:
+      type: object
+      additionalProperties: false
+      required: [orderNo, priority, lines]
+      properties:
+        orderNo: { type: string, minLength: 1, maxLength: 64 }
+        sourceSystem: { type: [string, 'null'], maxLength: 32 }
+        externalId: { type: [string, 'null'], maxLength: 128 }
+        customerCode: { type: [string, 'null'], maxLength: 64 }
+        customerName: { type: [string, 'null'], maxLength: 128 }
+        priority: { type: integer, minimum: 1, maximum: 100 }
+        promisedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        earliestStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        remark: { type: [string, 'null'], maxLength: 500 }
+        lines: { type: array, minItems: 1, maxItems: 1000, items: { $ref: '#/components/schemas/OrderLineInput' } }
+    OrderLine:
+      type: object
+      required: [id, orderId, lineNo, itemId, routeVersionId, demandQty, uomCode, status, components, dependencies, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        orderId: { $ref: '#/components/schemas/Uuid' }
+        lineNo: { type: integer, minimum: 1 }
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        routeVersionId: { $ref: '#/components/schemas/Uuid' }
+        demandQty: { type: number, exclusiveMinimum: 0 }
+        uomCode: { type: string }
+        promisedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        earliestStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        status: { enum: [DRAFT, RELEASED, IN_PRODUCTION, COMPLETED, CANCELLED] }
+        components: { type: array, items: { $ref: '#/components/schemas/ComponentInput' } }
+        dependencies: { type: array, items: { $ref: '#/components/schemas/LineDependencyInput' } }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    ProductionOrder:
+      type: object
+      required: [id, orderNo, sourceSystem, priority, status, lines, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        orderNo: { type: string }
+        sourceSystem: { type: string }
+        externalId: { type: [string, 'null'] }
+        customerCode: { type: [string, 'null'] }
+        customerName: { type: [string, 'null'] }
+        priority: { type: integer, minimum: 1, maximum: 100 }
+        promisedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        earliestStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        status: { enum: [DRAFT, RELEASED, IN_PRODUCTION, COMPLETED, CANCELLED] }
+        remark: { type: [string, 'null'] }
+        lines: { type: array, minItems: 1, items: { $ref: '#/components/schemas/OrderLine' } }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    ProductionLot:
+      type: object
+      required: [id, orderLineId, itemId, routeVersionId, lotNo, lotType, plannedQty, uomCode, status, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        orderLineId: { $ref: '#/components/schemas/Uuid' }
+        itemId: { $ref: '#/components/schemas/Uuid' }
+        routeVersionId: { $ref: '#/components/schemas/Uuid' }
+        parentLotId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        lotNo: { type: string }
+        lotType: { enum: [NORMAL, SPLIT, REWORK, REPLENISH] }
+        plannedQty: { type: number, exclusiveMinimum: 0 }
+        uomCode: { type: string }
+        recoveryReason: { type: [string, 'null'] }
+        status: { enum: [PLANNED, RELEASED, IN_PRODUCTION, COMPLETED, CANCELLED] }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    ExpansionResult:
+      type: object
+      required: [order, lots, tasks, dependencies, materialDemands, reused]
+      properties:
+        order: { $ref: '#/components/schemas/ProductionOrder' }
+        lots: { type: array, items: { $ref: '#/components/schemas/ProductionLot' } }
+        tasks: { type: array, items: { type: object } }
+        dependencies: { type: array, items: { type: object } }
+        materialDemands: { type: array, items: { type: object } }
+        reused: { type: boolean }
+    DerivedLotInput:
+      type: object
+      additionalProperties: false
+      required: [parentLotId, lotType, plannedQty, recoveryReason]
+      properties:
+        parentLotId: { $ref: '#/components/schemas/Uuid' }
+        lotType: { enum: [SPLIT, REWORK, REPLENISH] }
+        plannedQty: { type: number, exclusiveMinimum: 0 }
+        recoveryReason: { type: string, minLength: 1, maxLength: 500 }
+    RouteMigrationInput:
+      type: object
+      additionalProperties: false
+      required: [expectedCurrentRouteVersionId, targetRouteVersionId, rowVersion, confirmed]
+      properties:
+        expectedCurrentRouteVersionId: { $ref: '#/components/schemas/Uuid' }
+        targetRouteVersionId: { $ref: '#/components/schemas/Uuid' }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+        confirmed: { const: true }
+    RouteMigrationDiff:
+      type: object
+      required: [orderLineId, currentRouteVersionId, targetRouteVersionId, addedNodes, removedNodes, changedOperations, addedEdges, removedEdges, confirmationRequired]
+      properties:
+        orderLineId: { $ref: '#/components/schemas/Uuid' }
+        currentRouteVersionId: { $ref: '#/components/schemas/Uuid' }
+        targetRouteVersionId: { $ref: '#/components/schemas/Uuid' }
+        addedNodes: { type: array, items: { type: string } }
+        removedNodes: { type: array, items: { type: string } }
+        changedOperations: { type: array, items: { type: string } }
+        addedEdges: { type: array, items: { type: string } }
+        removedEdges: { type: array, items: { type: string } }
+        confirmationRequired: { const: true }
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, service, status, checkedAt]
+      properties:
+        schemaVersion:
+          const: '1.0'
+        contractType:
+          const: APS_HEALTH
+        service:
+          const: aps-api
+        status:
+          enum: [UP, DEGRADED, DOWN]
+        checkedAt:
+          $ref: '#/components/schemas/UtcInstant'
+    CapabilityStatus:
+      enum: [CONTRACT_ONLY, DISABLED, AVAILABLE]
+    Capability:
+      type: object
+      additionalProperties: false
+      required: [name, version, status]
+      properties:
+        name:
+          enum: [RESOURCE_CALENDAR, ROUTING_ORDER, SCHEMA_METADATA, INPUT_VALIDATION, PLAN_REQUEST_STATUS, SOLVER, PUBLISH, EXTERNAL_DISPATCH]
+        version:
+          const: '1.0'
+        status:
+          $ref: '#/components/schemas/CapabilityStatus'
+        reasonCode:
+          type: [string, 'null']
+          minLength: 1
+          maxLength: 96
+          pattern: '^[A-Z][A-Z0-9_]*$'
+    ExecutionTopology:
+      type: object
+      additionalProperties: false
+      required:
+        - workerMode
+        - leaseSupported
+        - fencingSupported
+        - inboxSupported
+        - outboxSupported
+        - externalDispatchSupported
+      properties:
+        workerMode:
+          const: SINGLE_WORKER
+        leaseSupported:
+          const: false
+        fencingSupported:
+          const: false
+        inboxSupported:
+          const: false
+        outboxSupported:
+          const: false
+        externalDispatchSupported:
+          const: false
+    CapabilitiesResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, service, apiVersion, implementationStage, topology, capabilities]
+      properties:
+        schemaVersion:
+          const: '1.0'
+        contractType:
+          const: APS_CAPABILITIES
+        service:
+          const: aps-api
+        apiVersion:
+          const: '1.0'
+        implementationStage:
+          enum: [IMP_01, IMP_02, IMP_03, IMP_04, IMP_05, IMP_06, IMP_07, IMP_08, IMP_09, IMP_10]
+        topology:
+          $ref: '#/components/schemas/ExecutionTopology'
+        capabilities:
+          type: array
+          minItems: 8
+          maxItems: 8
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/Capability'
+          allOf:
+            - contains:
+                type: object
+                properties:
+                  name:
+                    const: RESOURCE_CALENDAR
+                required: [name]
+              minContains: 1
+              maxContains: 1
+            - contains:
+                type: object
+                properties:
+                  name:
+                    const: ROUTING_ORDER
+                required: [name]
+              minContains: 1
+              maxContains: 1
+            - contains:
+                type: object
+                properties:
+                  name:
+                    const: SCHEMA_METADATA
+                required: [name]
+              minContains: 1
+              maxContains: 1
+            - contains:
+                type: object
+                properties:
+                  name:
+                    const: INPUT_VALIDATION
+                required: [name]
+              minContains: 1
+              maxContains: 1
+            - contains:
+                type: object
+                properties:
+                  name:
+                    const: PLAN_REQUEST_STATUS
+                required: [name]
+              minContains: 1
+              maxContains: 1
+            - contains:
+                type: object
+                properties:
+                  name:
+                    const: SOLVER
+                required: [name]
+              minContains: 1
+              maxContains: 1
+            - contains:
+                type: object
+                properties:
+                  name:
+                    const: PUBLISH
+                required: [name]
+              minContains: 1
+              maxContains: 1
+            - contains:
+                type: object
+                properties:
+                  name:
+                    const: EXTERNAL_DISPATCH
+                required: [name]
+              minContains: 1
+              maxContains: 1
+    SchemaMetadata:
+      type: object
+      additionalProperties: false
+      required: [name, schemaVersion, mediaType, uri]
+      properties:
+        name:
+          enum: [SolverInput, SolverResult, ValidationResult, Problem]
+        schemaVersion:
+          const: '1.0'
+        mediaType:
+          const: application/schema+json
+        uri:
+          type: string
+          format: uri
+          maxLength: 512
+    SchemaMetadataResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, apiVersion, schemas]
+      properties:
+        schemaVersion:
+          const: '1.0'
+        contractType:
+          const: APS_SCHEMA_METADATA
+        apiVersion:
+          const: '1.0'
+        schemas:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/SchemaMetadata'
+    HorizonSummary:
+      type: object
+      description: 半开区间 [startAt,endAt)，detailEndAt 以内是必须详细排程范围
+      additionalProperties: false
+      required: [startAt, detailEndAt, endAt, planningAnchorAt, timeUnitSeconds]
+      properties:
+        startAt:
+          $ref: '#/components/schemas/UtcInstant'
+        detailEndAt:
+          $ref: '#/components/schemas/UtcInstant'
+        endAt:
+          $ref: '#/components/schemas/UtcInstant'
+        planningAnchorAt:
+          $ref: '#/components/schemas/UtcInstant'
+        timeUnitSeconds:
+          enum: [1, 60]
+    BaseVersionSummary:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [planVersionId, inputHash]
+          properties:
+            planVersionId:
+              $ref: '#/components/schemas/Uuid'
+            inputHash:
+              $ref: '#/components/schemas/Sha256'
+        - type: 'null'
+    PlanVersionSummary:
+      type: object
+      additionalProperties: false
+      required: [planVersionId, baseVersionId, versionNo, versionName, status, definitionRevision, executionRevision, inputHash, rowVersion, updatedAt]
+      properties:
+        planVersionId: { $ref: '#/components/schemas/Uuid' }
+        baseVersionId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        versionNo: { type: integer, minimum: 1 }
+        versionName: { type: string, minLength: 1, maxLength: 128 }
+        status: { enum: [DRAFT, SOLVING, FEASIBLE, CONFLICT, CANCELLED, PUBLISHING, PUBLISHED, FAILED, SUPERSEDED] }
+        definitionRevision: { type: integer, minimum: 0 }
+        executionRevision: { type: integer, minimum: 0 }
+        inputHash: { $ref: '#/components/schemas/Sha256' }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+        updatedAt: { $ref: '#/components/schemas/UtcInstant' }
+    PlanMember:
+      type: object
+      additionalProperties: false
+      required: [id, taskId, memberNo, plannedQty, uomCode]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        taskId: { $ref: '#/components/schemas/Uuid' }
+        memberNo: { type: integer, minimum: 1 }
+        plannedQty: { type: string, pattern: '^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$' }
+        uomCode: { type: string, minLength: 1, maxLength: 16 }
+    PlanJob:
+      type: object
+      additionalProperties: false
+      required: [jobId, operationSpecId, workCenterId, jobCode, jobType, batchCode, plannedQty, uomCode, capacityValue, capacityUomCode, compatibilityKey, carryRunId, startAt, endAt, members]
+      allOf:
+        - if:
+            properties:
+              jobType: { const: CARRY }
+            required: [jobType]
+          then:
+            properties:
+              carryRunId: { $ref: '#/components/schemas/Uuid' }
+          else:
+            properties:
+              carryRunId: { type: 'null' }
+      properties:
+        jobId: { $ref: '#/components/schemas/Uuid' }
+        operationSpecId: { $ref: '#/components/schemas/Uuid' }
+        workCenterId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        jobCode: { type: string, minLength: 1, maxLength: 64 }
+        jobType: { enum: [NORMAL, SPLIT, SHARED_BATCH, CARRY] }
+        batchCode: { type: [string, 'null'], maxLength: 64 }
+        plannedQty: { type: string, pattern: '^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$' }
+        uomCode: { type: string, minLength: 1, maxLength: 16 }
+        capacityValue:
+          type: [string, 'null']
+          pattern: '^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$'
+        capacityUomCode: { type: [string, 'null'], maxLength: 16 }
+        compatibilityKey: { type: [string, 'null'], maxLength: 128 }
+        carryRunId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        startAt: { $ref: '#/components/schemas/UtcInstant' }
+        endAt: { $ref: '#/components/schemas/UtcInstant' }
+        members:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/PlanMember' }
+    PlanSegment:
+      type: object
+      additionalProperties: false
+      required: [id, jobId, phaseId, segmentNo, phaseType, startAt, endAt, plannedQty, releaseAt, releaseQty, uomCode]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        jobId: { $ref: '#/components/schemas/Uuid' }
+        phaseId: { $ref: '#/components/schemas/Uuid' }
+        segmentNo: { type: integer, minimum: 1 }
+        phaseType: { enum: [SETUP, RUN, UNLOAD, WAIT, TRANSPORT] }
+        startAt: { $ref: '#/components/schemas/UtcInstant' }
+        endAt: { $ref: '#/components/schemas/UtcInstant' }
+        plannedQty:
+          type: [string, 'null']
+          pattern: '^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$'
+        releaseAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        releaseQty:
+          type: [string, 'null']
+          pattern: '^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$'
+        uomCode: { type: string, minLength: 1, maxLength: 16 }
+    PlanAllocation:
+      type: object
+      additionalProperties: false
+      required: [id, segmentId, phaseId, requirementId, resourceId, allocationRole, seatNo, capacityUsed]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        segmentId: { $ref: '#/components/schemas/Uuid' }
+        phaseId: { $ref: '#/components/schemas/Uuid' }
+        requirementId: { $ref: '#/components/schemas/Uuid' }
+        resourceId: { $ref: '#/components/schemas/Uuid' }
+        allocationRole: { enum: [PERSON, MACHINE, WORKSTATION, TOOL] }
+        seatNo: { type: integer, minimum: 1 }
+        capacityUsed: { type: string, pattern: '^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$' }
+    PlanLock:
+      type: object
+      additionalProperties: false
+      required: [id, targetType, jobId, segmentId, allocationId, lockType, lockedStartAt, lockedEndAt, lockedResourceId, reason, rowVersion]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        targetType: { enum: [JOB, SEGMENT, ALLOCATION] }
+        jobId: { $ref: '#/components/schemas/Uuid' }
+        segmentId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        allocationId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        lockType: { enum: [TIME, RESOURCE, FULL] }
+        lockedStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        lockedEndAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        lockedResourceId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        rowVersion: { $ref: '#/components/schemas/RowVersion' }
+    CreatePlanLockRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedPlanRowVersion, targetType, targetId, lockType, reason]
+      properties:
+        expectedPlanRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        targetType: { enum: [JOB, SEGMENT, ALLOCATION] }
+        targetId: { $ref: '#/components/schemas/Uuid' }
+        lockType: { enum: [TIME, RESOURCE, FULL] }
+        requestedResourceId:
+          description: TIME 必须省略；ALLOCATION 由服务端推导；JOB/SEGMENT 的 RESOURCE 或 FULL 必须是目标当前已分配资源。
+          oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }]
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    CreatePlanAdjustmentRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedBaseRowVersion, capturedAt, targetType, targetId, requestedStartAt, requestedEndAt, reason]
+      properties:
+        expectedBaseRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        capturedAt: { $ref: '#/components/schemas/UtcInstant' }
+        targetType: { enum: [JOB, SEGMENT, ALLOCATION] }
+        targetId: { $ref: '#/components/schemas/Uuid' }
+        requestedStartAt: { $ref: '#/components/schemas/UtcInstant' }
+        requestedEndAt: { $ref: '#/components/schemas/UtcInstant' }
+        requestedResourceId:
+          description: 仅具体 ALLOCATION 可换人或换设备；必须是冻结需求中的合格候选资源。
+          oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }]
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    CreatePlanStructuralAdjustmentRequest:
+      oneOf:
+        - $ref: '#/components/schemas/InsertOrderStructuralAdjustmentRequest'
+        - $ref: '#/components/schemas/SplitLotStructuralAdjustmentRequest'
+        - $ref: '#/components/schemas/MergeBatchStructuralAdjustmentRequest'
+    InsertOrderStructuralAdjustmentRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedBaseRowVersion, capturedAt, action, orderId, reason]
+      properties:
+        expectedBaseRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        capturedAt: { $ref: '#/components/schemas/UtcInstant' }
+        action: { const: INSERT_ORDER }
+        orderId: { $ref: '#/components/schemas/Uuid' }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    SplitLotStructuralAdjustmentRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedBaseRowVersion, capturedAt, action, parentLotId, splitQuantity, reason]
+      properties:
+        expectedBaseRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        capturedAt: { $ref: '#/components/schemas/UtcInstant' }
+        action: { const: SPLIT_LOT }
+        parentLotId: { $ref: '#/components/schemas/Uuid' }
+        splitQuantity: { type: number, exclusiveMinimum: 0 }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    MergeBatchStructuralAdjustmentRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedBaseRowVersion, capturedAt, action, compatibilityKey, members, reason]
+      properties:
+        expectedBaseRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        capturedAt: { $ref: '#/components/schemas/UtcInstant' }
+        action: { const: MERGE_BATCH }
+        compatibilityKey: { type: string, minLength: 1, maxLength: 128 }
+        members:
+          type: array
+          minItems: 2
+          maxItems: 100
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/PlanRequestSharedBatchMemberInput' }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    PlanAdjustmentImpact:
+      type: object
+      additionalProperties: false
+      required: [affectedTaskIds, affectedResourceIds, reasons, globalRevalidationRequired]
+      properties:
+        affectedTaskIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        affectedResourceIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        reasons:
+          type: object
+          additionalProperties:
+            type: array
+            uniqueItems: true
+            items: { type: string, minLength: 1, maxLength: 256 }
+        globalRevalidationRequired: { const: true }
+    PlanAdjustmentAcceptedResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, requestId, planVersionId, basePlanVersionId, planStatus, reused, baseCandidateHash, impact]
+      properties:
+        schemaVersion: { const: '1.0' }
+        contractType: { const: PLAN_ADJUSTMENT_ACCEPTED }
+        requestId: { $ref: '#/components/schemas/Uuid' }
+        planVersionId: { $ref: '#/components/schemas/Uuid' }
+        basePlanVersionId: { $ref: '#/components/schemas/Uuid' }
+        planStatus: { enum: [DRAFT, SOLVING, FEASIBLE, CONFLICT, CANCELLED, PUBLISHING, PUBLISHED, FAILED, SUPERSEDED] }
+        reused: { type: boolean }
+        baseCandidateHash: { $ref: '#/components/schemas/Sha256' }
+        impact: { $ref: '#/components/schemas/PlanAdjustmentImpact' }
+    PlanStructuralAdjustmentAcceptedResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, requestId, planVersionId, basePlanVersionId, planStatus, reused, action, derivedLotId, baseCandidateHash, impact]
+      properties:
+        schemaVersion: { const: '1.0' }
+        contractType: { const: PLAN_STRUCTURAL_ADJUSTMENT_ACCEPTED }
+        requestId: { $ref: '#/components/schemas/Uuid' }
+        planVersionId: { $ref: '#/components/schemas/Uuid' }
+        basePlanVersionId: { $ref: '#/components/schemas/Uuid' }
+        planStatus: { enum: [DRAFT, SOLVING, FEASIBLE, CONFLICT, CANCELLED, PUBLISHING, PUBLISHED, FAILED, SUPERSEDED] }
+        reused: { type: boolean }
+        action: { enum: [INSERT_ORDER, SPLIT_LOT, MERGE_BATCH] }
+        derivedLotId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        baseCandidateHash: { $ref: '#/components/schemas/Sha256' }
+        impact: { $ref: '#/components/schemas/PlanAdjustmentImpact' }
+    PublishPlanRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedPlanRowVersion, reason]
+      properties:
+        expectedPlanRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    PlanPublishedResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, plan, reused, supersededVersionId, reason, outboundStatus]
+      properties:
+        schemaVersion: { const: '1.0' }
+        contractType: { const: PLAN_PUBLISHED }
+        plan: { $ref: '#/components/schemas/PlanVersionDetailResponse' }
+        reused: { type: boolean }
+        supersededVersionId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        outboundStatus: { const: NOT_APPLICABLE }
+    DiscardCandidateRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedPlanRowVersion, reason]
+      properties:
+        expectedPlanRowVersion: { $ref: '#/components/schemas/RowVersion' }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    PlanCandidateDiscardedResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, plan, reason, discardedAt]
+      properties:
+        schemaVersion: { const: '1.0' }
+        contractType: { const: PLAN_CANDIDATE_DISCARDED }
+        plan: { $ref: '#/components/schemas/PlanVersionDetailResponse' }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        discardedAt: { $ref: '#/components/schemas/UtcInstant' }
+    PlanVersionDetailResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, version, candidateHash, solverStatus, resultKind, unplannedTaskIds, inputCapturedAt, latestFactUpdatedAt, stale, jobs, segments, allocations, locks, problems]
+      properties:
+        schemaVersion: { const: '1.0' }
+        contractType: { const: PLAN_VERSION_DETAIL }
+        version: { $ref: '#/components/schemas/PlanVersionSummary' }
+        candidateHash: { oneOf: [{ $ref: '#/components/schemas/Sha256' }, { type: 'null' }] }
+        solverStatus:
+          oneOf:
+            - enum: [OPTIMAL, FEASIBLE, INFEASIBLE, UNKNOWN, MODEL_INVALID]
+            - type: 'null'
+        resultKind:
+          oneOf:
+            - enum: [FEASIBLE, TIMEOUT_WITH_SOLUTION, INFEASIBLE_PROVEN, TIMEOUT_NO_SOLUTION, INVALID_INPUT]
+            - type: 'null'
+        unplannedTaskIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        inputCapturedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        latestFactUpdatedAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        stale: { type: boolean }
+        jobs: { type: array, items: { $ref: '#/components/schemas/PlanJob' } }
+        segments: { type: array, items: { $ref: '#/components/schemas/PlanSegment' } }
+        allocations: { type: array, items: { $ref: '#/components/schemas/PlanAllocation' } }
+        locks: { type: array, items: { $ref: '#/components/schemas/PlanLock' } }
+        problems: { type: array, items: { $ref: '../schemas/problem-v1.schema.json' } }
+    PlanVersionChangeSummary:
+      type: object
+      additionalProperties: false
+      required: [added, removed, changed, unchanged]
+      properties:
+        added: { type: integer, minimum: 0 }
+        removed: { type: integer, minimum: 0 }
+        changed: { type: integer, minimum: 0 }
+        unchanged: { type: integer, minimum: 0 }
+    PlanJobChange:
+      type: object
+      additionalProperties: false
+      required: [changeType, memberTaskIds, dimensions, baseJobId, targetJobId, baseStartAt, baseEndAt, targetStartAt, targetEndAt, baseResourceIds, targetResourceIds]
+      properties:
+        changeType: { enum: [ADDED, REMOVED, CHANGED, UNCHANGED] }
+        memberTaskIds: { type: array, minItems: 1, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        dimensions:
+          type: array
+          uniqueItems: true
+          items: { enum: [TIME, RESOURCE, JOB_TYPE, QUANTITY, WORK_CENTER] }
+        baseJobId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        targetJobId: { oneOf: [{ $ref: '#/components/schemas/Uuid' }, { type: 'null' }] }
+        baseStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        baseEndAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        targetStartAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        targetEndAt: { oneOf: [{ $ref: '#/components/schemas/UtcInstant' }, { type: 'null' }] }
+        baseResourceIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+        targetResourceIds: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/Uuid' } }
+    PlanVersionComparisonResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, baseVersionId, targetVersionId, summary, jobs]
+      properties:
+        schemaVersion: { const: '1.0' }
+        contractType: { const: PLAN_VERSION_COMPARISON }
+        baseVersionId: { $ref: '#/components/schemas/Uuid' }
+        targetVersionId: { $ref: '#/components/schemas/Uuid' }
+        summary: { $ref: '#/components/schemas/PlanVersionChangeSummary' }
+        jobs: { type: array, items: { $ref: '#/components/schemas/PlanJobChange' } }
+    PlanRequestInput:
+      type: object
+      additionalProperties: false
+      required: [siteCode, workshopIds, orderIds, capturedAt, definitionRevision, executionRevision, horizon, parameters]
+      properties:
+        siteCode:
+          type: string
+          minLength: 1
+          maxLength: 64
+        workshopIds:
+          type: array
+          minItems: 1
+          maxItems: 100
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Uuid' }
+        orderIds:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Uuid' }
+        capturedAt:
+          $ref: '#/components/schemas/UtcInstant'
+        definitionRevision:
+          type: integer
+          minimum: 0
+        executionRevision:
+          type: integer
+          minimum: 0
+        horizon:
+          $ref: '#/components/schemas/PlanRequestHorizonInput'
+        parameters:
+          $ref: '#/components/schemas/PlanRequestParametersInput'
+        sharedBatches:
+          type: array
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/PlanRequestSharedBatchInput'
+        baseVersion:
+          $ref: '#/components/schemas/PlanRequestBaseVersionInput'
+    PlanRequestBaseVersionInput:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [planVersionId, inputHash, freezeEndAt]
+          properties:
+            planVersionId:
+              $ref: '#/components/schemas/Uuid'
+            inputHash:
+              $ref: '#/components/schemas/Sha256'
+            freezeEndAt:
+              $ref: '#/components/schemas/UtcInstant'
+        - type: 'null'
+    PlanRequestSharedBatchInput:
+      type: object
+      additionalProperties: false
+      required: [compatibilityKey, members]
+      properties:
+        compatibilityKey:
+          type: string
+          minLength: 1
+          maxLength: 128
+        members:
+          type: array
+          minItems: 2
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/PlanRequestSharedBatchMemberInput'
+    PlanRequestSharedBatchMemberInput:
+      type: object
+      additionalProperties: false
+      required: [taskId, quantity]
+      properties:
+        taskId:
+          $ref: '#/components/schemas/Uuid'
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+    PlanRequestHorizonInput:
+      type: object
+      additionalProperties: false
+      required: [startAt, detailEndAt, endAt, planningAnchorAt, timeUnitSeconds, displayTimeZone]
+      properties:
+        startAt: { $ref: '#/components/schemas/UtcInstant' }
+        detailEndAt: { $ref: '#/components/schemas/UtcInstant' }
+        endAt: { $ref: '#/components/schemas/UtcInstant' }
+        planningAnchorAt: { $ref: '#/components/schemas/UtcInstant' }
+        timeUnitSeconds:
+          enum: [1, 60]
+        displayTimeZone:
+          type: string
+          minLength: 1
+          maxLength: 64
+    PlanRequestParametersInput:
+      type: object
+      additionalProperties: false
+      required: [maxSolveSeconds, randomSeed, solverSearchThreads, absoluteGapLimit, relativeGapLimit]
+      properties:
+        maxSolveSeconds:
+          type: integer
+          minimum: 1
+          maximum: 3600
+        randomSeed:
+          type: integer
+        solverSearchThreads:
+          type: integer
+          minimum: 1
+          maximum: 32
+        absoluteGapLimit:
+          type: number
+          minimum: 0
+          maximum: 1000000000
+        relativeGapLimit:
+          type: number
+          minimum: 0
+          maximum: 1
+    PlanRequestStatusResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - contractType
+        - requestId
+        - planVersionId
+        - definitionRevision
+        - executionRevision
+        - inputHash
+        - horizon
+        - baseVersion
+        - planStatus
+        - solverStatus
+        - resultKind
+        - reasonCodes
+        - updatedAt
+      properties:
+        schemaVersion:
+          const: '1.0'
+        contractType:
+          const: PLAN_REQUEST_STATUS
+        requestId:
+          $ref: '#/components/schemas/Uuid'
+        planVersionId:
+          $ref: '#/components/schemas/Uuid'
+        definitionRevision:
+          type: integer
+          minimum: 0
+        executionRevision:
+          type: integer
+          minimum: 0
+        inputHash:
+          $ref: '#/components/schemas/Sha256'
+        horizon:
+          $ref: '#/components/schemas/HorizonSummary'
+        baseVersion:
+          $ref: '#/components/schemas/BaseVersionSummary'
+        planStatus:
+          enum: [DRAFT, SOLVING, FEASIBLE, CONFLICT, CANCELLED, PUBLISHING, PUBLISHED, FAILED, SUPERSEDED]
+        solverStatus:
+          type: [string, 'null']
+          enum: [OPTIMAL, FEASIBLE, INFEASIBLE, UNKNOWN, MODEL_INVALID, null]
+        resultKind:
+          type: [string, 'null']
+          enum: [FEASIBLE, TIMEOUT_WITH_SOLUTION, INFEASIBLE_PROVEN, TIMEOUT_NO_SOLUTION, INVALID_INPUT, null]
+        reasonCodes:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 96
+            pattern: '^[A-Z][A-Z0-9_]*$'
+        updatedAt:
+          $ref: '#/components/schemas/UtcInstant'
+      oneOf:
+        - title: Draft request
+          properties:
+            planStatus:
+              const: DRAFT
+            solverStatus:
+              type: 'null'
+            resultKind:
+              type: 'null'
+        - title: Solving request
+          properties:
+            planStatus:
+              const: SOLVING
+            solverStatus:
+              type: 'null'
+            resultKind:
+              type: 'null'
+        - title: Candidate-bearing request
+          properties:
+            planStatus:
+              enum: [FEASIBLE, PUBLISHING, PUBLISHED, SUPERSEDED]
+          oneOf:
+            - properties:
+                solverStatus:
+                  enum: [OPTIMAL, FEASIBLE]
+                resultKind:
+                  const: FEASIBLE
+            - properties:
+                solverStatus:
+                  const: FEASIBLE
+                resultKind:
+                  const: TIMEOUT_WITH_SOLUTION
+        - title: Conflict request
+          properties:
+            planStatus:
+              const: CONFLICT
+          oneOf:
+            - properties:
+                solverStatus:
+                  const: INFEASIBLE
+                resultKind:
+                  const: INFEASIBLE_PROVEN
+            - properties:
+                solverStatus:
+                  const: UNKNOWN
+                resultKind:
+                  const: TIMEOUT_NO_SOLUTION
+            - properties:
+                solverStatus:
+                  type: 'null'
+                resultKind:
+                  const: INVALID_INPUT
+        - title: Cancelled request
+          properties:
+            planStatus:
+              const: CANCELLED
+            solverStatus:
+              enum: [UNKNOWN, null]
+            resultKind:
+              type: 'null'
+        - title: Failed request
+          properties:
+            planStatus:
+              const: FAILED
+            solverStatus:
+              enum: [MODEL_INVALID, UNKNOWN, null]
+            resultKind:
+              type: 'null'
+    PlanRequestProgressEvent:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, contractType, requestId, planVersionId, planStatus, solverStatus, resultKind, reasonCodes, updatedAt]
+      properties:
+        schemaVersion:
+          const: '1.0'
+        contractType:
+          const: PLAN_REQUEST_PROGRESS
+        requestId:
+          $ref: '#/components/schemas/Uuid'
+        planVersionId:
+          $ref: '#/components/schemas/Uuid'
+        planStatus:
+          enum: [DRAFT, SOLVING, FEASIBLE, CONFLICT, CANCELLED, PUBLISHING, PUBLISHED, FAILED, SUPERSEDED]
+        solverStatus:
+          type: [string, 'null']
+          enum: [OPTIMAL, FEASIBLE, INFEASIBLE, UNKNOWN, MODEL_INVALID, null]
+        resultKind:
+          type: [string, 'null']
+          enum: [FEASIBLE, TIMEOUT_WITH_SOLUTION, INFEASIBLE_PROVEN, TIMEOUT_NO_SOLUTION, INVALID_INPUT, null]
+        reasonCodes:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 96
+            pattern: '^[A-Z][A-Z0-9_]*$'
+        updatedAt:
+          $ref: '#/components/schemas/UtcInstant'
+security:
+  - bearerAuth: []

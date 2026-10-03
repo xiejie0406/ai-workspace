@@ -69,6 +69,18 @@ public class ApsPlanWorkbenchController
         this.actors = actors;
     }
 
+    @GetMapping
+    @PreAuthorize("@ss.hasPermi('aps:planning:view')")
+    public List<PlanListItem> list()
+    {
+        return service.list(scope(actors.currentActor())).stream().map(plan -> new PlanListItem(
+                plan.id(), plan.versionNo(), plan.versionName(), plan.status(), plan.requestId(),
+                plan.baseVersionId(), plan.rowVersion(), plan.updatedAt())).toList();
+    }
+
+    public record PlanListItem(String planVersionId, long versionNo, String versionName, String status,
+            String requestId, String baseVersionId, long rowVersion, Instant updatedAt) { }
+
     @GetMapping("/{planVersionId}")
     @PreAuthorize("@ss.hasPermi('aps:planning:view')")
     public PlanDetailResponse detail(

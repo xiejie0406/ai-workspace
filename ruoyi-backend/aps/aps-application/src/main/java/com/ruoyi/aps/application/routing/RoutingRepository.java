@@ -30,5 +30,6 @@ public interface RoutingRepository
     RouteGraph getRouteGraph(String id);
     void insertRoute(RouteVersion value, String actor);
     int updateRouteStatus(String id, long rowVersion, String status, String actor, Instant approvedAt);
+    default int advanceDraftRouteRevision(String id,long rowVersion,String actor) { throw new UnsupportedOperationException("路线草稿版本更新尚未接入"); }
     void replaceRouteGraph(String routeVersionId, List<RouteNode> nodes, List<RouteEdge> edges, String actor);
 }

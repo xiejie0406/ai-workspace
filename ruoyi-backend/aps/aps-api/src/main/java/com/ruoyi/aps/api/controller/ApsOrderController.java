@@ -32,6 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,38 +57,41 @@ public class ApsOrderController
 
     @PreAuthorize("@ss.hasPermi('aps:order:list')")
     @GetMapping
-    public List<ProductionOrder> orders() { return service.listOrders(); }
+    public List<ProductionOrder> orders() { return service.listOrders(scope()); }
 
     @PreAuthorize("@ss.hasPermi('aps:order:list')")
     @GetMapping("/{id}")
-    public ProductionOrder order(@PathVariable String id) { return service.getOrder(id); }
+    public ProductionOrder order(@PathVariable String id) { service.requireOrderScope(scope(), id); return service.getOrder(id); }
 
     @PreAuthorize("@ss.hasPermi('aps:order:add')")
     @PostMapping
     public ProductionOrder create(@Valid @RequestBody OrderInput input)
     {
-        return service.createOrImport(model(input), actor());
+        ProductionOrder value = model(input); service.requireInputScope(scope(), value);
+        return service.createOrImport(value, actor());
     }
 
     @PreAuthorize("@ss.hasPermi('aps:order:import')")
     @PostMapping("/import")
     public ProductionOrder importOrder(@Valid @RequestBody OrderInput input)
     {
-        return service.createOrImport(model(input), actor());
+        ProductionOrder value = model(input); service.requireInputScope(scope(), value);
+        return service.createOrImport(value, actor());
     }
 
     @PreAuthorize("@ss.hasPermi('aps:order:edit')")
     @PostMapping("/{id}/expand")
-    public ExpansionResult expand(@PathVariable String id) { return service.expandOrder(id, actor()); }
+    public ExpansionResult expand(@PathVariable String id) { service.requireOrderScope(scope(), id); return service.expandOrder(id, actor()); }
 
     @PreAuthorize("@ss.hasPermi('aps:order:list')")
     @GetMapping("/{id}/expansion")
-    public ExpansionResult expansion(@PathVariable String id) { return service.getExpansion(id); }
+    public ExpansionResult expansion(@PathVariable String id) { service.requireOrderScope(scope(), id); return service.getExpansion(id); }
 
     @PreAuthorize("@ss.hasPermi('aps:order:release')")
     @PostMapping("/{id}/release")
     public ProductionOrder release(@PathVariable String id, @Valid @RequestBody VersionInput input)
     {
+        service.requireOrderScope(scope(), id);
         return service.releaseOrder(id, input.rowVersion(), actor());
     }
 
@@ -95,6 +99,7 @@ public class ApsOrderController
     @PostMapping("/lots")
     public ProductionLot createDerivedLot(@Valid @RequestBody DerivedLotInput input)
     {
+        service.requireLotScope(scope(), input.parentLotId());
         return service.createDerivedLot(input.parentLotId(), input.lotType(), input.plannedQty(),
                 input.recoveryReason(), actor());
     }
@@ -103,6 +108,7 @@ public class ApsOrderController
     @GetMapping("/lines/{lineId}/route-migration")
     public MigrationDiff previewMigration(@PathVariable String lineId, @RequestParam String targetRouteVersionId)
     {
+        service.requireLineScope(scope(), lineId); service.requireRouteScope(scope(), targetRouteVersionId);
         return service.previewRouteMigration(lineId, targetRouteVersionId);
     }
 
@@ -110,6 +116,7 @@ public class ApsOrderController
     @PostMapping("/lines/{lineId}/route-migration")
     public OrderLine confirmMigration(@PathVariable String lineId, @Valid @RequestBody MigrationInput input)
     {
+        service.requireLineScope(scope(), lineId); service.requireRouteScope(scope(), input.targetRouteVersionId());
         return service.confirmRouteMigration(lineId, input.expectedCurrentRouteVersionId(),
                 input.targetRouteVersionId(), input.rowVersion(), input.confirmed(), actor());
     }
@@ -125,7 +132,20 @@ public class ApsOrderController
                 "DRAFT", input.remark(), lines, 0);
     }
 
+    @PreAuthorize("@ss.hasPermi('aps:order:edit')")
+    @PutMapping("/{id}")
+    public ProductionOrder update(@PathVariable String id, @Valid @RequestBody DraftOrderInput input)
+    {
+        service.requireOrderScope(scope(), id); service.requireInputScope(scope(), model(input.order()));
+        return service.updateDraft(id, input.rowVersion(), model(input.order()), actor());
+    }
+    public record DraftOrderInput(@PositiveOrZero long rowVersion, @NotNull @Valid OrderInput order) { }
+
     private String actor() { return actors.currentActor().username(); }
+    private com.ruoyi.aps.application.resource.ResourceAccessScope scope() {
+        return new com.ruoyi.aps.application.resource.ResourceAccessScope(actors.currentActor().userId(),
+                com.ruoyi.common.utils.SecurityUtils.isAdmin() || com.ruoyi.common.utils.SecurityUtils.hasPermi("aps:scope:manage"));
+    }
     private Instant optionalUtc(String value) { return value == null || value.isBlank() ? null : ApsUtcInput.parse(value); }
 
     public record ComponentInput(@Positive int demandNo, @NotBlank String targetNodeCode, @NotBlank String itemId,

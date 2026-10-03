@@ -1,0 +1,257 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - alert [ref=e4]:
+    - generic [ref=e6]: 路线以版本发布；已发布工序和已展开任务不会被后续 V2 静默改写。SAME_START 可保存在草稿，但 P0 阻止发布。
+  - generic [ref=e7]:
+    - generic [ref=e9]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: 产品与物料
+        - button "新增" [ref=e13] [cursor=pointer]:
+          - generic [ref=e14] [cursor=pointer]: 新增
+      - generic [ref=e17]:
+        - table [ref=e19]:
+          - rowgroup [ref=e25]:
+            - row "编码 名称 类型 操作" [ref=e26]:
+              - columnheader "编码" [ref=e27]:
+                - generic [ref=e28]: 编码
+              - columnheader "名称" [ref=e29]:
+                - generic [ref=e30]: 名称
+              - columnheader "类型" [ref=e31]:
+                - generic [ref=e32]: 类型
+              - columnheader "操作" [ref=e33]:
+                - generic [ref=e34]: 操作
+        - generic [ref=e38]:
+          - table:
+            - rowgroup
+          - generic [ref=e40]: No Data
+    - generic [ref=e42]:
+      - generic [ref=e44]:
+        - generic [ref=e45]: 可复用工序
+        - button "新增工序" [ref=e46] [cursor=pointer]:
+          - generic [ref=e47] [cursor=pointer]: 新增工序
+      - generic [ref=e50]:
+        - table [ref=e52]:
+          - rowgroup [ref=e60]:
+            - row "编码 名称 模式 状态 阶段 操作" [ref=e61]:
+              - columnheader "编码" [ref=e62]:
+                - generic [ref=e63]: 编码
+              - columnheader "名称" [ref=e64]:
+                - generic [ref=e65]: 名称
+              - columnheader "模式" [ref=e66]:
+                - generic [ref=e67]: 模式
+              - columnheader "状态" [ref=e68]:
+                - generic [ref=e69]: 状态
+              - columnheader "阶段" [ref=e70]:
+                - generic [ref=e71]: 阶段
+              - columnheader "操作" [ref=e72]:
+                - generic [ref=e73]: 操作
+        - generic [ref=e77]:
+          - table:
+            - rowgroup
+          - generic [ref=e79]: No Data
+  - generic [ref=e80]:
+    - generic [ref=e82]:
+      - generic [ref=e83]: 路线版本
+      - button "新建路线" [disabled] [ref=e84]:
+        - generic [ref=e85]: 新建路线
+    - generic [ref=e88]:
+      - table [ref=e90]:
+        - rowgroup [ref=e97]:
+          - row "路线 版本 状态 变更说明 操作" [ref=e98]:
+            - columnheader "路线" [ref=e99]:
+              - generic [ref=e100]: 路线
+            - columnheader "版本" [ref=e101]:
+              - generic [ref=e102]: 版本
+            - columnheader "状态" [ref=e103]:
+              - generic [ref=e104]: 状态
+            - columnheader "变更说明" [ref=e105]:
+              - generic [ref=e106]: 变更说明
+            - columnheader "操作" [ref=e107]:
+              - generic [ref=e108]: 操作
+      - generic [ref=e112]:
+        - table:
+          - rowgroup
+        - generic [ref=e114]: No Data
+  - dialog "工序阶段与资源要求" [ref=e116]:
+    - generic [ref=e117]:
+      - banner [ref=e118]:
+        - heading "工序阶段与资源要求" [level=2] [ref=e119]
+        - button "Close this dialog" [ref=e120] [cursor=pointer]:
+          - img [ref=e122] [cursor=pointer]
+      - generic [ref=e124]:
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e128]:
+              - generic [ref=e129]: "* 工序编码"
+              - textbox "* 工序编码" [ref=e133]: OP-WELD
+            - generic [ref=e135]:
+              - generic [ref=e136]: "* 工序名称"
+              - textbox "* 工序名称" [ref=e140]: 焊接组合
+          - generic [ref=e141]:
+            - generic [ref=e142]: 加工模式
+            - generic [ref=e145] [cursor=pointer]:
+              - generic:
+                - combobox "加工模式" [ref=e147]
+                - generic [ref=e149] [cursor=pointer]: 人机协同
+              - img [ref=e152] [cursor=pointer]
+          - group "中断与质量" [ref=e154]:
+            - generic [ref=e155]: 中断与质量
+            - generic [ref=e156]:
+              - generic [ref=e157] [cursor=pointer]:
+                - generic [ref=e158] [cursor=pointer]:
+                  - checkbox "允许受控中断"
+                - generic [ref=e160] [cursor=pointer]: 允许受控中断
+              - generic [ref=e161] [cursor=pointer]:
+                - generic [ref=e162] [cursor=pointer]:
+                  - checkbox "产出需要质量放行"
+                - generic [ref=e164] [cursor=pointer]: 产出需要质量放行
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - strong [ref=e167]: 第1阶段
+              - button "移除阶段" [ref=e168] [cursor=pointer]:
+                - generic [ref=e169] [cursor=pointer]: 移除阶段
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - generic [ref=e173]:
+                  - generic [ref=e174]: "* 阶段名称"
+                  - textbox "* 阶段名称" [ref=e178]: 加工
+                - generic [ref=e180]:
+                  - generic [ref=e181]: 阶段类型
+                  - generic [ref=e184] [cursor=pointer]:
+                    - generic:
+                      - combobox "阶段类型" [ref=e186]
+                      - generic [ref=e188] [cursor=pointer]: 加工
+                    - img [ref=e191] [cursor=pointer]
+              - generic [ref=e193]:
+                - generic [ref=e194]: 时间模型
+                - generic [ref=e197] [cursor=pointer]:
+                  - generic:
+                    - combobox "时间模型" [ref=e199]
+                    - generic [ref=e201] [cursor=pointer]: 每件时间
+                  - img [ref=e204] [cursor=pointer]
+              - generic [ref=e206]:
+                - generic [ref=e207]: 每件秒数
+                - generic [ref=e209]:
+                  - button "decrease number" [ref=e210] [cursor=pointer]:
+                    - img [ref=e212] [cursor=pointer]
+                  - button "increase number" [ref=e214] [cursor=pointer]:
+                    - img [ref=e216] [cursor=pointer]
+                  - spinbutton "每件秒数" [ref=e220]: "10"
+              - generic [ref=e221]:
+                - generic [ref=e222]: 资源占用
+                - generic [ref=e225] [cursor=pointer]:
+                  - generic:
+                    - combobox "资源占用" [ref=e227]
+                    - generic [ref=e229] [cursor=pointer]: 仅本阶段
+                  - img [ref=e232] [cursor=pointer]
+              - generic [ref=e235]:
+                - generic [ref=e236]:
+                  - generic [ref=e238]:
+                    - generic [ref=e239]: 角色
+                    - generic [ref=e242] [cursor=pointer]:
+                      - generic:
+                        - combobox "角色" [ref=e244]
+                        - generic [ref=e246] [cursor=pointer]: 人员
+                      - img [ref=e249] [cursor=pointer]
+                  - generic [ref=e252]:
+                    - generic [ref=e253]: 席位
+                    - generic [ref=e255]:
+                      - button "decrease number" [ref=e256]:
+                        - img [ref=e258]
+                      - button "increase number" [ref=e260] [cursor=pointer]:
+                        - img [ref=e262] [cursor=pointer]
+                      - spinbutton "席位" [ref=e266]: "1"
+                  - generic [ref=e267]:
+                    - generic [ref=e268] [cursor=pointer]:
+                      - generic [ref=e269] [cursor=pointer]:
+                        - checkbox "可选要求"
+                      - generic [ref=e271] [cursor=pointer]: 可选要求
+                    - button "移除" [ref=e272] [cursor=pointer]:
+                      - generic [ref=e273] [cursor=pointer]: 移除
+                - generic [ref=e274]:
+                  - generic [ref=e275]: 工作中心
+                  - generic [ref=e278]:
+                    - generic [ref=e279]:
+                      - combobox "工作中心" [ref=e281]
+                      - generic [ref=e283]: Select
+                    - img [ref=e286] [cursor=pointer]
+                - generic [ref=e288]:
+                  - generic [ref=e289]: 固定资源
+                  - generic [ref=e292]:
+                    - generic [ref=e293]:
+                      - combobox "固定资源" [ref=e295]
+                      - generic [ref=e297]: 留空由排程选择
+                    - img [ref=e300] [cursor=pointer]
+                - group "技能与等级" [ref=e302]:
+                  - generic [ref=e303]: 技能与等级
+                  - generic [ref=e304]:
+                    - textbox "可选技能编码" [ref=e307]
+                    - generic [ref=e308]:
+                      - button "decrease number" [ref=e309]:
+                        - img [ref=e311]
+                      - button "increase number" [ref=e313] [cursor=pointer]:
+                        - img [ref=e315] [cursor=pointer]
+                      - spinbutton [ref=e319]: "1"
+              - generic [ref=e321]:
+                - generic [ref=e322]:
+                  - generic [ref=e324]:
+                    - generic [ref=e325]: 角色
+                    - generic [ref=e328] [cursor=pointer]:
+                      - generic:
+                        - combobox "角色" [ref=e330]
+                        - generic [ref=e332] [cursor=pointer]: 人员
+                      - img [ref=e335] [cursor=pointer]
+                  - generic [ref=e338]:
+                    - generic [ref=e339]: 席位
+                    - generic [ref=e341]:
+                      - button "decrease number" [ref=e342]:
+                        - img [ref=e344]
+                      - button "increase number" [ref=e346] [cursor=pointer]:
+                        - img [ref=e348] [cursor=pointer]
+                      - spinbutton "席位" [ref=e352]: "1"
+                  - generic [ref=e353]:
+                    - generic [ref=e354] [cursor=pointer]:
+                      - generic [ref=e355] [cursor=pointer]:
+                        - checkbox "可选要求"
+                      - generic [ref=e357] [cursor=pointer]: 可选要求
+                    - button "移除" [ref=e358] [cursor=pointer]:
+                      - generic [ref=e359] [cursor=pointer]: 移除
+                - generic [ref=e360]:
+                  - generic [ref=e361]: 工作中心
+                  - generic [ref=e364]:
+                    - generic [ref=e365]:
+                      - combobox "工作中心" [ref=e367]
+                      - generic [ref=e369]: Select
+                    - img [ref=e372] [cursor=pointer]
+                - generic [ref=e374]:
+                  - generic [ref=e375]: 固定资源
+                  - generic [ref=e378]:
+                    - generic [ref=e379]:
+                      - combobox "固定资源" [ref=e381]
+                      - generic [ref=e383]: 留空由排程选择
+                    - img [ref=e386] [cursor=pointer]
+                - group "技能与等级" [ref=e388]:
+                  - generic [ref=e389]: 技能与等级
+                  - generic [ref=e390]:
+                    - textbox "可选技能编码" [ref=e393]
+                    - generic [ref=e394]:
+                      - button "decrease number" [ref=e395]:
+                        - img [ref=e397]
+                      - button "increase number" [ref=e399] [cursor=pointer]:
+                        - img [ref=e401] [cursor=pointer]
+                      - spinbutton [ref=e405]: "1"
+              - button "添加人员/设备要求" [active] [ref=e406] [cursor=pointer]:
+                - generic [ref=e407] [cursor=pointer]: 添加人员/设备要求
+          - button "添加阶段" [ref=e408] [cursor=pointer]:
+            - generic [ref=e409] [cursor=pointer]: 添加阶段
+          - generic [ref=e410]:
+            - generic [ref=e411]: 备注
+            - textbox "备注" [ref=e414]
+        - generic [ref=e415]:
+          - button "关闭" [ref=e416] [cursor=pointer]:
+            - generic [ref=e417] [cursor=pointer]: 关闭
+          - button "保存草稿" [ref=e418] [cursor=pointer]:
+            - generic [ref=e419] [cursor=pointer]: 保存草稿
+```

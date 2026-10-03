@@ -12,14 +12,42 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Delete;
 
 public interface ApsOrderMapper
 {
+    @Select("SELECT COUNT(*) FROM aps_route_version v WHERE v.id=#{id} AND (#{allScope}=1 OR " +
+            "(EXISTS (SELECT 1 FROM aps_route_node n JOIN aps_operation_phase p ON p.operation_spec_id=n.operation_spec_id " +
+            "JOIN aps_resource_requirement rr ON rr.operation_phase_id=p.id WHERE n.route_version_id=v.id AND rr.optional_flag=0) " +
+            "AND NOT EXISTS (SELECT 1 FROM aps_route_node n JOIN aps_operation_phase p ON p.operation_spec_id=n.operation_spec_id " +
+            "JOIN aps_resource_requirement rr ON rr.operation_phase_id=p.id " +
+            "LEFT JOIN aps_resource r ON r.id=rr.fixed_resource_id LEFT JOIN aps_work_center c ON c.id=COALESCE(rr.work_center_id,r.work_center_id) " +
+            "LEFT JOIN aps_workshop w ON w.id=c.workshop_id WHERE n.route_version_id=v.id " +
+            "AND (w.manager_user_id IS NULL OR w.manager_user_id<>#{userId}))))")
+    int isRouteInScope(@Param("userId") String userId, @Param("allScope") boolean allScope, @Param("id") String id);
+
+    @Select("SELECT COUNT(*) FROM aps_order o WHERE o.id=#{id} AND (#{allScope}=1 OR NOT EXISTS " +
+            "(SELECT 1 FROM aps_order_line l JOIN aps_production_lot b ON b.order_line_id=l.id " +
+            "JOIN aps_task t ON t.production_lot_id=b.id LEFT JOIN aps_work_center c ON c.id=t.work_center_id " +
+            "LEFT JOIN aps_workshop w ON w.id=c.workshop_id WHERE l.order_id=o.id " +
+            "AND t.work_center_id IS NOT NULL AND (w.manager_user_id IS NULL OR w.manager_user_id<>#{userId})))")
+    int isOrderTasksInScope(@Param("userId") String userId, @Param("allScope") boolean allScope, @Param("id") String id);
     @Select("SELECT * FROM aps_order ORDER BY created_at DESC,order_no")
     List<Map<String, Object>> listOrders();
 
     @Select("SELECT * FROM aps_order WHERE id=#{id}")
     Map<String, Object> findOrder(@Param("id") String id);
+
+    @Select("SELECT * FROM aps_order WHERE id=#{id} FOR UPDATE")
+    Map<String, Object> findOrderForUpdate(@Param("id") String id);
+
+    @Update("UPDATE aps_order SET customer_code=#{v.customerCode},customer_name=#{v.customerName},priority=#{v.priority},"
+            + "promised_at=#{v.promisedAt},earliest_start_at=#{v.earliestStartAt},remark=#{v.remark},"
+            + "updated_by=#{actor},row_version=row_version+1 WHERE id=#{v.id} AND status='DRAFT' AND row_version=#{v.rowVersion}")
+    int updateDraftOrder(@Param("v") ProductionOrder value, @Param("actor") String actor);
+
+    @Delete("DELETE FROM aps_order_line WHERE order_id=#{orderId}")
+    void deleteDraftLines(@Param("orderId") String orderId);
 
     @Select("SELECT * FROM aps_order WHERE source_system=#{sourceSystem} AND external_id=#{externalId}")
     Map<String, Object> findByExternalId(@Param("sourceSystem") String sourceSystem, @Param("externalId") String externalId);
@@ -36,8 +64,8 @@ public interface ApsOrderMapper
     void insertOrder(@Param("v") ProductionOrder order, @Param("actor") String actor);
 
     @Insert("INSERT INTO aps_order_line(id,order_id,line_no,item_id,route_version_id,demand_qty,uom_code,promised_at,earliest_start_at,"
-            + "status,component_snapshot_json,created_by,updated_by) VALUES(#{v.id},#{v.orderId},#{v.lineNo},#{v.itemId},#{v.routeVersionId},"
-            + "#{v.demandQty},#{v.uomCode},#{v.promisedAt},#{v.earliestStartAt},#{v.status},#{snapshotJson},#{actor},#{actor})")
+            + "status,component_snapshot_json,created_by,updated_by,row_version) VALUES(#{v.id},#{v.orderId},#{v.lineNo},#{v.itemId},#{v.routeVersionId},"
+            + "#{v.demandQty},#{v.uomCode},#{v.promisedAt},#{v.earliestStartAt},#{v.status},#{snapshotJson},#{actor},#{actor},#{v.rowVersion})")
     void insertOrderLine(@Param("v") OrderLine line, @Param("snapshotJson") String snapshotJson,
             @Param("actor") String actor);
 

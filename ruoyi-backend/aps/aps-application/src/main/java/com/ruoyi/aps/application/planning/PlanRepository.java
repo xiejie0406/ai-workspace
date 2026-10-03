@@ -12,6 +12,8 @@ import com.ruoyi.aps.solver.contract.Problem;
 /** M19～M24 计划请求、单 Worker 领取、候选保存、工作台读取和锁端口。 */
 public interface PlanRepository
 {
+    /** 先按完整车间范围过滤，再取最近版本；不返回冻结输入或求解大对象。 */
+    default List<PlanRecord> listVisiblePlans(List<String> workshopIds, boolean allWorkshops) { return List.of(); }
     Optional<PlanRecord> findByRequestId(String requestId);
     default Optional<String> findRequestFingerprintByRequestId(String requestId) { return Optional.empty(); }
     Optional<PlanRequestSnapshot> findRequestSnapshot(String requestId);

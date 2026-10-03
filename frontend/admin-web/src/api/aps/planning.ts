@@ -1,5 +1,8 @@
 import request from '@/utils/request'
 import type {
+  ApsPlanListItem,
+  ApsPlanRequestStatus,
+  ApsCreatePlanRequestInput,
   ApsCreatePlanLockInput,
   ApsCreateAdjustmentInput,
   ApsAdjustmentAccepted,
@@ -14,6 +17,19 @@ import type {
 } from '@/types/aps/planning'
 
 const planVersions = '/api/aps/v1/plan-versions'
+export interface ApsPlanReadiness { ready:boolean;checkedAt:string;inputHash?:string;issues:{code:string;objectType:string;objectId:string;field?:string;message:string}[] }
+export const checkPlanReadiness = (data:ApsCreatePlanRequestInput) => request({url:'/api/aps/v1/readiness',method:'post',data}) as Promise<ApsPlanReadiness>
+
+export const listPlanVersions = () => request({ url: planVersions, method: 'get' }) as Promise<ApsPlanListItem[]>
+export const createPlanRequest = (idempotencyKey: string, data: ApsCreatePlanRequestInput) => request({
+  url: '/api/aps/v1/plan-requests', method: 'post', headers: { 'Idempotency-Key': idempotencyKey }, data
+}) as Promise<ApsPlanRequestStatus>
+export const getPlanRequestStatus = (requestId: string) => request({
+  url: `/api/aps/v1/plan-requests/${requestId}`, method: 'get'
+}) as Promise<ApsPlanRequestStatus>
+export const cancelPlanRequest = (requestId: string) => request({
+  url: `/api/aps/v1/plan-requests/${requestId}/cancel`, method: 'post'
+}) as Promise<ApsPlanRequestStatus>
 
 export const getPlanVersionDetail = (planVersionId: string) =>
   request({ url: `${planVersions}/${planVersionId}`, method: 'get' }) as Promise<ApsPlanVersionDetail>

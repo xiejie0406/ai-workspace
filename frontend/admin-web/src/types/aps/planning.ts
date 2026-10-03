@@ -7,6 +7,21 @@
 
 export type ApsIsoDateTime = string
 
+export interface ApsPlanListItem {
+  planVersionId: string; versionNo: number; versionName: string; status: string
+  requestId: string; baseVersionId: string | null; rowVersion: number; updatedAt: string
+}
+export interface ApsPlanRequestStatus {
+  requestId: string; planVersionId: string; planStatus: string
+  solverStatus: string | null; resultKind: string | null; reasonCodes: string[]
+}
+export interface ApsCreatePlanRequestInput {
+  siteCode: string; workshopIds: string[]; orderIds: string[]; capturedAt: string
+  definitionRevision: number; executionRevision: number
+  horizon: { startAt: string; detailEndAt: string; endAt: string; planningAnchorAt: string; timeUnitSeconds: number; displayTimeZone: string }
+  parameters: { maxSolveSeconds: number; randomSeed: number; solverSearchThreads: number; absoluteGapLimit: number; relativeGapLimit: number }
+}
+
 export type ApsDependencyKind = 'FINISH' | 'QUANTITY' | 'TRANSFER'
 
 export type ApsResourceKind =

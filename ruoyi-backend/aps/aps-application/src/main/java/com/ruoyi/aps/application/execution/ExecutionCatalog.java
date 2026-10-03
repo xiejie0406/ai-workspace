@@ -31,6 +31,8 @@ public final class ExecutionCatalog
     public record ExecutionRun(String id, String planVersionId, String planJobId, int runNo,
             ExecutionRunStatus status, BigDecimal assignedQty, String uomCode, Instant actualStartAt,
             Instant actualEndAt, String pauseReason, String requestId, long rowVersion) { }
+    public record RunOption(ExecutionRun run, String jobCode, String orderNumbers, String taskNames) { }
+    public record ReportMember(String id,int memberNo,String taskId,String taskName,BigDecimal plannedQty,String uomCode) { }
 
     public record ActualOccupancy(String id, String planJobId, String executionRunId, String planSegmentId,
             String sourcePlanAllocationId, String resourceId, OccupancyActivityType activityType,

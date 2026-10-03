@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+export const getReportOrderCandidates=()=>request({url:'/api/aps/v1/reports/order-candidates',method:'get'}) as Promise<Array<{id:string;orderNo:string;customerName?:string;status:string}>>
 import type {
   ApsDailyProductionReport,
   ApsDailyReportQuery,

@@ -1,0 +1,147 @@
+<template>
+  <el-card class="plan-launcher" shadow="never">
+    <template #header><strong>新建排程与选择计划</strong></template>
+    <el-alert v-if="error" type="error" :closable="false" show-icon :title="error" />
+    <el-form inline label-position="top" @submit.prevent="submit">
+      <el-form-item label="站点"><el-input v-model="form.siteCode" maxlength="64" style="width: 155px" /></el-form-item>
+      <el-form-item label="车间">
+        <el-select v-model="form.workshopIds" multiple filterable placeholder="选择车间" style="width: 260px">
+          <el-option v-for="value in workshops" :key="value.id" :label="`${value.code} · ${value.name}`" :value="value.id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="已释放订单">
+        <el-select v-model="form.orderIds" multiple filterable placeholder="选择已释放订单" style="width: 320px">
+          <el-option v-for="value in orders" :key="value.id" :label="`${value.orderNo} · ${value.lines.reduce((sum, line) => sum + line.demandQty, 0)} 件`" :value="value.id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="排程开始（本机时间）"><el-date-picker v-model="form.start" type="datetime" style="width: 210px" /></el-form-item>
+      <el-form-item label="排程结束（本机时间）"><el-date-picker v-model="form.end" type="datetime" style="width: 210px" /></el-form-item>
+      <el-form-item label="求解上限（秒）"><el-input-number v-model="form.maxSolveSeconds" :min="1" :max="3600" style="width: 140px" /></el-form-item>
+      <el-form-item label="操作">
+        <el-button type="primary" native-type="submit" :loading="saving" :disabled="!canSubmit || pending">发起排程</el-button>
+        <el-button :loading="catalogLoading" @click="refreshCatalog">刷新可选资料</el-button>
+      </el-form-item>
+    </el-form>
+    <el-text v-if="!catalogLoading && (!workshops.length || !orders.length)" type="warning">请先准备有权限的车间和已释放订单，再发起排程。</el-text>
+    <el-form class="plan-picker" inline label-position="top" @submit.prevent="openSelected">
+      <el-form-item label="选择计划（最近200个可见版本）">
+        <el-select v-model="selectedId" filterable placeholder="按计划名称或状态选择" style="width: 480px">
+          <el-option v-for="value in plans" :key="value.planVersionId" :value="value.planVersionId"
+            :label="`${value.versionName} · 版本${value.versionNo} · ${planStatusLabel(value.status)}`" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="操作">
+        <el-button type="primary" :disabled="!selectedId" @click="openSelected">加载所选计划</el-button>
+        <el-button :loading="catalogLoading" @click="refreshCatalog">刷新计划列表</el-button>
+      </el-form-item>
+    </el-form>
+    <el-alert v-if="status" type="info" :closable="false" show-icon :title="`排程状态：${planStatusLabel(status.planStatus)}`"
+      :description="status.reasonCodes.length ? status.reasonCodes.join('、') : status.planStatus === 'PUBLISHED' ? '正式计划已生效，可从下方正式作业进入派工。' : '候选完成后仍需复验并发布，才可派工。'" />
+    <div v-if="requestId" class="status-actions">
+      <el-button :loading="checking" @click="refreshStatus">刷新求解状态</el-button>
+      <el-button v-if="pending" type="warning" :loading="cancelling" @click="cancel">取消求解</el-button>
+    </div>
+  </el-card>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { cancelPlanRequest, createPlanRequest, getPlanRequestStatus, listPlanVersions } from '@/api/aps/planning'
+import { listWorkshops } from '@/api/aps/resource'
+import { listOrders } from '@/api/aps/manufacturing'
+import type { ApsWorkshop } from '@/types/aps/resource'
+import type { ApsOrder } from '@/types/aps/manufacturing'
+import type { ApsPlanListItem, ApsPlanRequestStatus } from '@/types/aps/planning'
+import { planStatusLabel } from './plan-request-model'
+
+const emit = defineEmits<{ open: [planVersionId: string] }>()
+const props = defineProps<{ activePlan?: { planVersionId: string; status: string } }>()
+const start = new Date(); start.setDate(start.getDate() + 1); start.setHours(8, 0, 0, 0)
+const end = new Date(start); end.setHours(17)
+const form = reactive({ siteCode: 'LOCAL-DEV', workshopIds: [] as string[], orderIds: [] as string[], start, end, maxSolveSeconds: 30 })
+const workshops = ref<ApsWorkshop[]>([]), orders = ref<ApsOrder[]>([]), plans = ref<ApsPlanListItem[]>([])
+const selectedId = ref(''), requestId = ref(''), status = ref<ApsPlanRequestStatus>()
+const error = ref(''), catalogLoading = ref(false), saving = ref(false), checking = ref(false), cancelling = ref(false)
+const pending = computed(() => !!status.value && ['DRAFT', 'SOLVING', 'CANCEL_REQUESTED'].includes(status.value.planStatus))
+watch(() => props.activePlan, plan => {
+  if (!plan) return
+  plans.value = plans.value.map(value => value.planVersionId === plan.planVersionId ? { ...value, status: plan.status } : value)
+  if (status.value?.planVersionId === plan.planVersionId) status.value = { ...status.value, planStatus: plan.status }
+})
+const canSubmit = computed(() => !!form.siteCode.trim() && form.workshopIds.length > 0 && form.orderIds.length > 0
+  && form.start instanceof Date && form.end instanceof Date && form.end > form.start && form.end.getTime() > Date.now())
+let timer: ReturnType<typeof setInterval> | undefined
+let disposed = false, deadline = 0, catalogSequence = 0
+function stopPolling() { if (timer) clearInterval(timer); timer = undefined }
+function startPolling() {
+  stopPolling(); deadline = Date.now() + (form.maxSolveSeconds + 60) * 1000
+  timer = setInterval(() => {
+    if (Date.now() > deadline) { stopPolling(); error.value = '自动等待已结束，求解不会因此取消；请刷新状态或取消求解。'; return }
+    void refreshStatus()
+  }, 1500)
+}
+async function refreshCatalog() {
+  const sequence = ++catalogSequence
+  catalogLoading.value = true; error.value = ''
+  try {
+    const [nextWorkshops, nextOrders, nextPlans] = await Promise.all([listWorkshops(), listOrders(), listPlanVersions()])
+    if (disposed || sequence !== catalogSequence) return
+    workshops.value = nextWorkshops.filter(value => value.status === 'ACTIVE')
+    orders.value = nextOrders.filter(value => value.status === 'RELEASED')
+    plans.value = nextPlans
+  } catch { if (!disposed && sequence === catalogSequence) error.value = '未能读取车间、订单或计划列表，请检查权限和接口后刷新。' }
+  finally { if (!disposed && sequence === catalogSequence) catalogLoading.value = false }
+}
+async function submit() {
+  if (!canSubmit.value || saving.value || pending.value) return
+  saving.value = true; error.value = ''
+  const key = crypto.randomUUID()
+  try {
+    const now = new Date().toISOString()
+    const result = await createPlanRequest(key, {
+      siteCode: form.siteCode.trim(), workshopIds: [...form.workshopIds], orderIds: [...form.orderIds],
+      capturedAt: now, definitionRevision: 0, executionRevision: 0,
+      horizon: { startAt: form.start.toISOString(), detailEndAt: form.end.toISOString(), endAt: form.end.toISOString(), planningAnchorAt: now, timeUnitSeconds: 60, displayTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+      parameters: { maxSolveSeconds: form.maxSolveSeconds, randomSeed: 1, solverSearchThreads: 1, absoluteGapLimit: 0, relativeGapLimit: 0 }
+    })
+    if (disposed) return
+    requestId.value = result.requestId; status.value = result; selectedId.value = result.planVersionId
+    await refreshCatalog()
+    if (pending.value) startPolling(); else emit('open', result.planVersionId)
+  } catch { error.value = '排程请求未确认成功，请核对数据就绪提示并刷新计划列表；不会自动重复提交。' }
+  finally { saving.value = false }
+}
+async function refreshStatus() {
+  if (!requestId.value || checking.value) return
+  const key = requestId.value
+  checking.value = true
+  try {
+    const result = await getPlanRequestStatus(key)
+    if (disposed || key !== requestId.value) return
+    status.value = result; error.value = ''
+    if (!pending.value) { stopPolling(); await refreshCatalog(); emit('open', result.planVersionId) }
+    else if (!timer) startPolling()
+  } catch { if (!disposed && key === requestId.value) { stopPolling(); error.value = '求解状态连接中断，请手动刷新恢复；请求仍保留。' } }
+  finally { checking.value = false }
+}
+async function cancel() {
+  if (!requestId.value || cancelling.value) return
+  cancelling.value = true
+  try { status.value = await cancelPlanRequest(requestId.value); await refreshStatus() }
+  finally { cancelling.value = false }
+}
+function openSelected() {
+  if (!selectedId.value) return
+  stopPolling()
+  requestId.value = plans.value.find(value => value.planVersionId === selectedId.value)?.requestId || ''
+  status.value = undefined
+  emit('open', selectedId.value)
+  if (requestId.value) void refreshStatus()
+}
+onMounted(() => void refreshCatalog())
+onUnmounted(() => { disposed = true; catalogSequence++; stopPolling() })
+</script>
+<style scoped>
+.plan-launcher { margin-bottom: 16px; }.plan-picker { margin-top: 16px; }.status-actions { margin-top: 12px; }
+@media (max-width: 640px) { :deep(.el-select), :deep(.el-input), :deep(.el-date-editor) { max-width: 100%; } }
+</style>

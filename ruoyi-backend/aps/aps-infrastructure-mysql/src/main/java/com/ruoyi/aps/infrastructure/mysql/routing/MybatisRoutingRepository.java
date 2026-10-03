@@ -56,6 +56,7 @@ public final class MybatisRoutingRepository extends ApsRowMapperSupport implemen
     @Override public RouteGraph getRouteGraph(String id) { return new RouteGraph(findRoute(id).orElseThrow(), mapper.listRouteNodes(id).stream().map(this::node).toList(), mapper.listRouteEdges(id).stream().map(this::edge).toList()); }
     @Override public void insertRoute(RouteVersion value, String actor) { mapper.insertRoute(value, actor); }
     @Override public int updateRouteStatus(String id, long rowVersion, String status, String actor, Instant approvedAt) { return mapper.updateRouteStatus(id, rowVersion, status, actor, approvedAt); }
+    @Override public int advanceDraftRouteRevision(String id,long rowVersion,String actor) {return mapper.advanceDraftRouteRevision(id,rowVersion,actor);}
 
     @Override
     public void replaceRouteGraph(String routeVersionId, List<RouteNode> nodes, List<RouteEdge> edges, String actor)

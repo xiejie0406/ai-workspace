@@ -31,7 +31,21 @@ public final class MybatisOrderRepository extends ApsRowMapperSupport implements
     public MybatisOrderRepository(ApsOrderMapper mapper) { this.mapper = mapper; }
 
     @Override public List<ProductionOrder> listOrders() { return mapper.listOrders().stream().map(this::order).toList(); }
+    @Override public boolean isRouteInScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String id) {
+        return mapper.isRouteInScope(scope.actorUserId(), scope.allWorkshops(), id) > 0;
+    }
+    @Override public boolean isOrderInScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String id) {
+        if (!scope.allWorkshops()) {
+            var order = findOrder(id);
+            if (order.isEmpty() || order.get().lines().isEmpty()) return false;
+            if (order.get().lines().stream().anyMatch(line -> !isRouteInScope(scope, line.routeVersionId()))) return false;
+        }
+        return mapper.isOrderTasksInScope(scope.actorUserId(), scope.allWorkshops(), id) > 0;
+    }
     @Override public Optional<ProductionOrder> findOrder(String id) { return Optional.ofNullable(mapper.findOrder(id)).map(this::order); }
+    @Override public Optional<ProductionOrder> findOrderForUpdate(String id) { return Optional.ofNullable(mapper.findOrderForUpdate(id)).map(this::order); }
+    @Override public int updateDraftOrder(ProductionOrder order, String actor) { return mapper.updateDraftOrder(order, actor); }
+    @Override public void deleteDraftLines(String orderId) { mapper.deleteDraftLines(orderId); }
     @Override public Optional<ProductionOrder> findByExternalId(String sourceSystem, String externalId) { return Optional.ofNullable(mapper.findByExternalId(sourceSystem, externalId)).map(this::order); }
     @Override public Optional<OrderLine> findOrderLine(String id) { return Optional.ofNullable(mapper.findOrderLine(id)).map(this::line); }
     @Override public void insertOrder(ProductionOrder order, String actor) { mapper.insertOrder(order, actor); }
@@ -45,6 +59,10 @@ public final class MybatisOrderRepository extends ApsRowMapperSupport implements
     @Override public int updateLotQuantity(String id, long rowVersion, java.math.BigDecimal quantity, String actor) { return mapper.updateLotQuantity(id, rowVersion, quantity, actor); }
     @Override public List<Task> listTasks(String orderId) { return mapper.listTasks(orderId).stream().map(this::task).toList(); }
     @Override public Optional<Task> findTask(String id) { return Optional.ofNullable(mapper.findTask(id)).map(this::task); }
+    @Override public boolean isTaskInScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String id) {
+        return findTask(id).flatMap(task -> findLot(task.productionLotId()))
+                .flatMap(lot -> findOrderLine(lot.orderLineId())).map(line -> isOrderInScope(scope, line.orderId())).orElse(false);
+    }
     @Override public List<Task> listTasksByLot(String lotId) { return mapper.listTasksByLot(lotId).stream().map(this::task).toList(); }
     @Override public List<Task> listTasksByLine(String orderLineId) { return mapper.listTasksByLine(orderLineId).stream().map(this::task).toList(); }
     @Override public void insertTask(Task task, String actor) { mapper.insertTask(task, write(task.requirementSnapshot()), actor); }

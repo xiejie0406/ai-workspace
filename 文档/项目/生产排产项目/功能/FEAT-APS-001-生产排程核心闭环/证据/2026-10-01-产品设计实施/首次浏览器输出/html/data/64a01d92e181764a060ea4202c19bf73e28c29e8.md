@@ -1,0 +1,267 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - strong [ref=e6]: 新建排程与选择计划
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - generic [ref=e10]: 站点
+            - textbox "站点" [ref=e14]: SITE-01 · Asia/Shanghai
+          - generic [ref=e15]:
+            - generic [ref=e16]: 车间
+            - generic [ref=e19]:
+              - generic [ref=e20]:
+                - combobox "车间" [ref=e22]
+                - generic [ref=e24]: 选择车间
+              - img [ref=e27] [cursor=pointer]
+          - generic [ref=e29]:
+            - generic [ref=e30]: 已释放订单
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - combobox "已释放订单" [ref=e36]
+                - generic [ref=e38]: 选择已释放订单
+              - img [ref=e41] [cursor=pointer]
+          - generic [ref=e43]:
+            - generic [ref=e44]: 排程开始（站点时间）
+            - generic [ref=e47]:
+              - img [ref=e50]
+              - combobox "排程开始（站点时间）" [ref=e54]: 2026-10-01 21:15:41
+          - generic [ref=e55]:
+            - generic [ref=e56]: 排程结束（站点时间）
+            - generic [ref=e59]:
+              - img [ref=e62]
+              - combobox "排程结束（站点时间）" [ref=e66]: 2026-10-02 05:15:41
+          - generic [ref=e67]:
+            - generic [ref=e68]: 求解上限（秒）
+            - generic [ref=e70]:
+              - button "decrease number" [ref=e71] [cursor=pointer]:
+                - img [ref=e73] [cursor=pointer]
+              - button "increase number" [ref=e75] [cursor=pointer]:
+                - img [ref=e77] [cursor=pointer]
+              - spinbutton "求解上限（秒）" [ref=e81]: "30"
+          - group "操作" [ref=e82]:
+            - generic [ref=e83]: 操作
+            - generic [ref=e84]:
+              - button "发起排程" [disabled] [ref=e85]:
+                - generic [ref=e86]: 发起排程
+              - button "检查完整排程数据" [disabled] [ref=e87]:
+                - generic [ref=e88]: 检查完整排程数据
+              - button "刷新可选资料" [ref=e89] [cursor=pointer]:
+                - generic [ref=e90] [cursor=pointer]: 刷新可选资料
+        - generic [ref=e91]: 请先准备有权限的车间和已释放订单，再发起排程。
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - generic [ref=e94]: 选择计划（最近200个可见版本）
+            - generic [ref=e97]:
+              - generic [ref=e98]:
+                - combobox "选择计划（最近200个可见版本）" [ref=e100]
+                - generic [ref=e102]: 按计划名称或状态选择
+              - img [ref=e105] [cursor=pointer]
+          - group "操作" [ref=e107]:
+            - generic [ref=e108]: 操作
+            - generic [ref=e109]:
+              - button "加载所选计划" [disabled] [ref=e110]:
+                - generic [ref=e111]: 加载所选计划
+              - button "刷新计划列表" [ref=e112] [cursor=pointer]:
+                - generic [ref=e113] [cursor=pointer]: 刷新计划列表
+    - generic [ref=e114]:
+      - generic [ref=e116]:
+        - generic [ref=e117]:
+          - strong [ref=e118]: 生产排程工作台
+          - generic [ref=e119]: 浏览器候选 · PUBLISHED · OPTIMAL / FEASIBLE · r3
+        - generic [ref=e121]: 当前正式计划
+      - generic [ref=e122]:
+        - generic [ref=e124]:
+          - button "高级入口：按已有计划标识打开" [expanded] [ref=e125] [cursor=pointer]:
+            - generic [ref=e126] [cursor=pointer]: 高级入口：按已有计划标识打开
+            - img [ref=e128] [cursor=pointer]
+          - region "高级入口：按已有计划标识打开" [ref=e130]:
+            - generic [ref=e132]:
+              - generic [ref=e133]:
+                - generic [ref=e134]: 计划版本 ID
+                - textbox "计划版本 ID" [ref=e138]: 80000000-0000-4000-8000-000000000001
+              - button "加载计划" [ref=e141] [cursor=pointer]:
+                - generic [ref=e142] [cursor=pointer]: 加载计划
+        - generic [ref=e144]:
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - generic [ref=e147]: 筛选作业
+              - textbox "筛选作业" [ref=e151]
+            - generic [ref=e152]:
+              - generic [ref=e153]: 资源
+              - generic [ref=e156]:
+                - generic [ref=e157]:
+                  - combobox "资源" [ref=e159]
+                  - generic [ref=e161]: 全部资源
+                - img [ref=e164] [cursor=pointer]
+            - generic [ref=e166]:
+              - generic [ref=e167]: 阶段
+              - generic [ref=e170] [cursor=pointer]:
+                - generic:
+                  - combobox "阶段" [ref=e172]
+                  - generic [ref=e174] [cursor=pointer]: 全部阶段
+                - img [ref=e177] [cursor=pointer]
+            - generic [ref=e179]:
+              - generic [ref=e180]: 定位作业
+              - generic [ref=e183]:
+                - generic [ref=e184]:
+                  - combobox "定位作业" [ref=e186]
+                  - generic [ref=e188]: 选择作业
+                - img [ref=e191] [cursor=pointer]
+            - generic [ref=e194]:
+              - button "定位" [disabled] [ref=e195]:
+                - generic [ref=e196]: 定位
+              - button "放大" [ref=e197] [cursor=pointer]:
+                - generic [ref=e198] [cursor=pointer]: 放大
+              - button "缩小" [ref=e199] [cursor=pointer]:
+                - generic [ref=e200] [cursor=pointer]: 缩小
+              - button "重置筛选" [ref=e201] [cursor=pointer]:
+                - generic [ref=e202] [cursor=pointer]: 重置筛选
+          - generic [ref=e203]: 当前显示 2 / 2 个作业；三种甘特共用同一筛选集合。
+        - generic [ref=e204]:
+          - generic [ref=e206]:
+            - generic [ref=e207]: 计划作业
+            - generic [ref=e209]: "2"
+          - generic [ref=e211]:
+            - generic [ref=e212]: 物理分段
+            - generic [ref=e214]: "2"
+          - generic [ref=e216]:
+            - generic [ref=e217]: 资源分配
+            - generic [ref=e219]: "3"
+          - generic [ref=e221]:
+            - generic [ref=e222]: 锁
+            - generic [ref=e224]: "0"
+        - generic [ref=e225]:
+          - strong [ref=e227]: 正式计划作业与派工
+          - generic [ref=e230]:
+            - table [ref=e232]:
+              - rowgroup [ref=e238]:
+                - row "作业编码 计划数量 计划时段 操作" [ref=e239]:
+                  - columnheader "作业编码" [ref=e240]:
+                    - generic [ref=e241]: 作业编码
+                  - columnheader "计划数量" [ref=e242]:
+                    - generic [ref=e243]: 计划数量
+                  - columnheader "计划时段" [ref=e244]:
+                    - generic [ref=e245]: 计划时段
+                  - columnheader "操作" [ref=e246]:
+                    - generic [ref=e247]: 操作
+            - table [ref=e252]:
+              - rowgroup [ref=e258]:
+                - row "JOB-CUT-01 10 PCS 2026-09-15 09:00:00 ～ 2026-09-15 10:00:00 创建派工" [ref=e259]:
+                  - cell "JOB-CUT-01" [ref=e260]:
+                    - generic [ref=e261]: JOB-CUT-01
+                  - cell "10 PCS" [ref=e262]:
+                    - generic [ref=e263]: 10 PCS
+                  - cell "2026-09-15 09:00:00 ～ 2026-09-15 10:00:00" [ref=e264]:
+                    - generic [ref=e265]: 2026-09-15 09:00:00 ～ 2026-09-15 10:00:00
+                  - cell "创建派工" [ref=e266]:
+                    - link "创建派工" [ref=e268] [cursor=pointer]:
+                      - /url: /aps/execution?planVersionId=80000000-0000-4000-8000-000000000001&planJobId=80000000-0000-4000-8000-000000000011
+                - row "JOB-HEAT-02 6 PCS 2026-09-15 10:00:00 ～ 2026-09-15 11:00:00 创建派工" [ref=e269]:
+                  - cell "JOB-HEAT-02" [ref=e270]:
+                    - generic [ref=e271]: JOB-HEAT-02
+                  - cell "6 PCS" [ref=e272]:
+                    - generic [ref=e273]: 6 PCS
+                  - cell "2026-09-15 10:00:00 ～ 2026-09-15 11:00:00" [ref=e274]:
+                    - generic [ref=e275]: 2026-09-15 10:00:00 ～ 2026-09-15 11:00:00
+                  - cell "创建派工" [ref=e276]:
+                    - link "创建派工" [ref=e278] [cursor=pointer]:
+                      - /url: /aps/execution?planVersionId=80000000-0000-4000-8000-000000000001&planJobId=80000000-0000-4000-8000-000000000012
+        - alert [ref=e279]:
+          - img [ref=e281]
+          - generic [ref=e283]:
+            - generic [ref=e284]: 当前版本记录 1 个校验问题，其中 0 个阻断问题
+            - paragraph [ref=e285]: 详见“冲突与原因”。
+        - generic [ref=e286]:
+          - generic [ref=e288]:
+            - strong [ref=e289]: 插单、拆批与固定合批
+            - button "刷新可选对象" [ref=e290] [cursor=pointer]:
+              - generic [ref=e291] [cursor=pointer]: 刷新可选对象
+          - generic [ref=e292]:
+            - alert [ref=e293]:
+              - img [ref=e295]
+              - generic [ref=e298]: 结构调整只基于当前正式计划创建新 DRAFT；拆批数量与草稿同事务提交，已开工任务会被服务端拒绝。
+            - generic [ref=e299]:
+              - generic [ref=e300]:
+                - generic [ref=e301]: 动作
+                - generic [ref=e304] [cursor=pointer]:
+                  - generic:
+                    - combobox "动作" [ref=e306]
+                    - generic [ref=e308] [cursor=pointer]: 插入订单
+                  - img [ref=e311] [cursor=pointer]
+              - generic [ref=e313]:
+                - generic [ref=e314]: 待插订单
+                - generic [ref=e317]:
+                  - generic [ref=e318]:
+                    - combobox "待插订单" [expanded] [active] [ref=e320]
+                    - generic [ref=e322]: 选择已释放且不在当前计划内的订单
+                  - img [ref=e325] [cursor=pointer]
+              - generic [ref=e327]:
+                - generic [ref=e328]: 调整原因
+                - generic [ref=e331]:
+                  - textbox "调整原因" [ref=e332]
+                  - generic [ref=e335]: 0 / 500
+              - button "创建结构调整草稿" [disabled] [ref=e338]:
+                - generic [ref=e339]: 创建结构调整草稿
+        - generic [ref=e340]:
+          - tablist [ref=e344]:
+            - tab "工序甘特" [selected] [ref=e346]
+            - tab "设备甘特" [ref=e347]
+            - tab "人员甘特" [ref=e348]
+            - tab "冲突与原因 (1)" [ref=e349]
+            - tab "版本差异" [ref=e350]
+          - tabpanel "工序甘特" [ref=e352]:
+            - generic [ref=e353]:
+              - generic [ref=e355]:
+                - treegrid [ref=e358]:
+                  - row "Task name Start time Duration New task" [ref=e359]:
+                    - columnheader "Task name" [ref=e360]
+                    - columnheader "Start time" [ref=e361]
+                    - columnheader "Duration" [ref=e362]
+                    - columnheader "New task" [ref=e363] [cursor=pointer]: 
+                    - columnheader [ref=e364]
+                    - columnheader [ref=e366]
+                  - rowgroup [ref=e368]:
+                    - 'row "Task: JOB-CUT-01 · 10 PCS Start date: 2026-09-15 End date: 2026-09-15" [level=1] [ref=e369]':
+                      - gridcell "JOB-CUT-01 · 10 PCS" [ref=e370]:
+                        - generic [ref=e372]: JOB-CUT-01 · 10 PCS
+                      - gridcell "2026-09-15" [ref=e373]:
+                        - generic [ref=e374]: 2026-09-15
+                      - gridcell "0" [ref=e375]:
+                        - generic [ref=e376]: "0"
+                      - gridcell "New task" [ref=e377]:
+                        - button "New task" [ref=e378] [cursor=pointer]: 
+                    - 'row "Task: JOB-HEAT-02 · 6 PCS Start date: 2026-09-15 End date: 2026-09-15" [level=1] [ref=e379]':
+                      - gridcell "JOB-HEAT-02 · 6 PCS" [ref=e380]:
+                        - generic [ref=e382]: JOB-HEAT-02 · 6 PCS
+                      - gridcell "2026-09-15" [ref=e383]:
+                        - generic [ref=e384]: 2026-09-15
+                      - gridcell "0" [ref=e385]:
+                        - generic [ref=e386]: "0"
+                      - gridcell "New task" [ref=e387]:
+                        - button "New task" [ref=e388] [cursor=pointer]: 
+                - generic [ref=e393]:
+                  - generic [ref=e394]:
+                    - generic [ref=e397]: 2026-09-15
+                    - generic [ref=e398]:
+                      - generic [ref=e400]: 08:00
+                      - generic [ref=e402]: 09:00
+                      - generic [ref=e404]: 10:00
+                      - generic [ref=e406]: 11:00
+                      - generic [ref=e408]: 12:00
+                  - generic [ref=e409]:
+                    - generic:
+                      - 'img "Task: JOB-CUT-01 · 10 PCS Start date: 2026-09-15 End date: 2026-09-15" [ref=e423]':
+                        - generic [ref=e425] [cursor=pointer]: JOB-CUT-01 · 10 PCS
+                      - 'img "Task: JOB-HEAT-02 · 6 PCS Start date: 2026-09-15 End date: 2026-09-15" [ref=e426]':
+                        - generic [ref=e428] [cursor=pointer]: JOB-HEAT-02 · 6 PCS
+              - iframe [ref=e429]:
+                
+  - tooltip [ref=e430]:
+    - listbox [ref=e434]:
+      - option "O-INSERT · 80000000-0000-4000-8000-000000000120" [ref=e435] [cursor=pointer]:
+        - generic [ref=e436] [cursor=pointer]: O-INSERT · 80000000-0000-4000-8000-000000000120
+```

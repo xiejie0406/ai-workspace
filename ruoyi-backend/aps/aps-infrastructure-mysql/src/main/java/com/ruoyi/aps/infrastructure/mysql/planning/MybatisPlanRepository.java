@@ -43,6 +43,12 @@ public final class MybatisPlanRepository extends ApsRowMapperSupport implements 
 
     public MybatisPlanRepository(ApsPlanMapper mapper) { this.mapper = mapper; }
 
+    @Override public List<PlanRecord> listVisiblePlans(List<String> workshopIds, boolean allWorkshops)
+    {
+        if (!allWorkshops && workshopIds.isEmpty()) return List.of();
+        return mapper.listVisiblePlans(workshopIds, allWorkshops).stream().map(this::record).toList();
+    }
+
     @Override public Optional<PlanRecord> findByRequestId(String requestId)
     {
         return Optional.ofNullable(mapper.findByRequestId(requestId)).map(this::record);

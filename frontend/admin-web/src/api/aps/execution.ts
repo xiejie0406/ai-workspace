@@ -12,6 +12,18 @@ import type {
 } from '@/types/aps/execution'
 
 const runs = '/api/aps/v1/execution-runs'
+export interface ApsDispatchPlan {planVersionId:string;jobs:Array<{jobId:string;jobCode:string;plannedQty:number;remainingQty:number;uomCode:string}>}
+export const listDispatchPlans=()=>request({url:`${runs}/dispatch-plans`,method:'get'}) as Promise<Array<{planVersionId:string;versionNo:number;versionName:string}>>
+export const getDispatchPlan=(id:string)=>request({url:`${runs}/dispatch-plans/${id}`,method:'get'}) as Promise<ApsDispatchPlan>
+export interface ApsRunOption {run:import('@/types/aps/execution').ApsExecutionRun;jobCode:string;orderNumbers:string;taskNames:string}
+export interface ApsReportMember {id:string;memberNo:number;taskId:string;taskName:string;plannedQty:number;uomCode:string;remainingQty:number}
+export interface ApsMovementTarget {materialDemandId:string;targetTaskId:string;orderNo:string;taskName:string;remainingDemandQty:number;reservedQty:number;uomCode:string;executionRuns:ApsRunOption[]}
+export interface ApsResourceReplacement {resourceId:string;code:string;name:string}
+export const listExecutionRuns=(params: {keyword?:string;status?:string;resourceId?:string}={})=>request({url:runs,method:'get',params}) as Promise<ApsRunOption[]>
+export const getReportMembers=(id:string)=>request({url:`${runs}/${id}/report-members`,method:'get'}) as Promise<ApsReportMember[]>
+export const getResourceReplacements=(id:string,replacedResourceId:string)=>request({url:`${runs}/${id}/resource-candidates`,method:'get',params:{replacedResourceId}}) as Promise<ApsResourceReplacement[]>
+export const getMovementTargets=(id:string,lotId:string)=>request({url:`${runs}/${id}/output-lots/${lotId}/movement-targets`,method:'get'}) as Promise<ApsMovementTarget[]>
+export const getQuantityEvents=(id:string,lotId:string)=>request({url:`${runs}/${id}/output-lots/${lotId}/quantity-events`,method:'get'}) as Promise<Array<{id:string;eventType:string;quantity:number;uomCode:string;occurredAt:string;reversalOfId?:string;reason?:string}>>
 
 export const createExecutionRun = (idempotencyKey: string, data: ApsCreateExecutionRunInput) => request({
   url: runs,

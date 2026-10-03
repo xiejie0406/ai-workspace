@@ -12,7 +12,14 @@ import com.ruoyi.aps.application.order.OrderCatalog.TaskDependency;
 public interface OrderRepository
 {
     List<ProductionOrder> listOrders();
+    /** 无实现的适配器对普通范围关闭，避免空范围退化成全站。 */
+    default boolean isRouteInScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String routeId) { return scope.allWorkshops(); }
+    default boolean isOrderInScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String orderId) { return scope.allWorkshops(); }
+    default boolean isTaskInScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String taskId) { return scope.allWorkshops(); }
     Optional<ProductionOrder> findOrder(String id);
+    default Optional<ProductionOrder> findOrderForUpdate(String id) { return findOrder(id); }
+    default int updateDraftOrder(ProductionOrder order, String actor) { throw new UnsupportedOperationException("草稿更新尚未接入"); }
+    default void deleteDraftLines(String orderId) { throw new UnsupportedOperationException("草稿更新尚未接入"); }
     Optional<ProductionOrder> findByExternalId(String sourceSystem, String externalId);
     Optional<OrderLine> findOrderLine(String id);
     void insertOrder(ProductionOrder order, String actor);

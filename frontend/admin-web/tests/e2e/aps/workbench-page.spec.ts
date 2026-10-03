@@ -1,3 +1,5 @@
+import {captureDevelopmentPage} from './fixtures/development-capture'
+import {fulfillProductContext} from './fixtures/product-context'
 import { expect, test, type Page } from '@playwright/test'
 
 const planId = '80000000-0000-4000-8000-000000000001'
@@ -40,6 +42,7 @@ async function mockWorkbench(page: Page, writes: { action?: string; body?: unkno
   await page.route('**/api/aps/v1/**', async route => {
     const request = route.request()
     const path = new URL(request.url()).pathname
+    if(await fulfillProductContext(route,resources))return
     if (path.endsWith('/api/aps/v1/resources')) return route.fulfill({ json: resources })
     if (path.endsWith(`/api/aps/v1/plan-versions/${planId}`)) return route.fulfill({ json: baseDetail })
     if (path.endsWith('/discard') && request.method() === 'POST') {
@@ -50,6 +53,7 @@ async function mockWorkbench(page: Page, writes: { action?: string; body?: unkno
       writes.action = 'publish'; writes.body = request.postDataJSON()
       return route.fulfill({ json: { schemaVersion: '1.0', contractType: 'PLAN_PUBLISHED', plan: { ...baseDetail, version: { ...baseDetail.version, status: 'PUBLISHED', rowVersion: 4 } }, reused: false, supersededVersionId: null, reason: '浏览器审核通过', outboundStatus: 'NOT_APPLICABLE' } })
     }
+    if (path.endsWith('/api/aps/v1/resources/workshops') || path.endsWith('/api/aps/v1/orders') || path.endsWith('/api/aps/v1/plan-versions')) return route.fulfill({ json: [] })
     return route.fulfill({ status: 404, json: {} })
   })
 }
@@ -60,11 +64,12 @@ test('工作台联动三甘特、筛选定位并解释冲突和未排任务', as
   page.on('pageerror', error => errors.push(error.message))
   await mockWorkbench(page, {})
   await page.goto('/tests/e2e/aps/fixtures/workbench.html')
+  await page.getByRole('button', { name: '高级入口：按已有计划标识打开' }).click()
   await page.getByPlaceholder('输入候选或正式计划版本 UUID').fill(planId)
   await page.getByRole('button', { name: '加载计划' }).click()
 
   await expect(page.getByText('JOB-CUT-01').first()).toBeVisible()
-  await page.getByPlaceholder('作业编码或稳定 ID').fill('HEAT')
+  await page.getByPlaceholder('作业编码或名称').fill('HEAT')
   await expect(page.getByText('当前显示 1 / 2 个作业')).toBeVisible()
   await page.getByRole('button', { name: '重置筛选' }).click()
   await page.getByRole('tab', { name: '设备甘特' }).click()
@@ -81,6 +86,7 @@ test('工作台呈现空态和加载态，并可在接口失败后重试恢复',
   let detailAttempts = 0
   await page.route('**/api/aps/v1/**', async route => {
     const path = new URL(route.request().url()).pathname
+    if(await fulfillProductContext(route,resources))return
     if (path.endsWith('/api/aps/v1/resources')) return route.fulfill({ json: resources })
     if (path.endsWith(`/api/aps/v1/plan-versions/${planId}`)) {
       detailAttempts++
@@ -88,10 +94,12 @@ test('工作台呈现空态和加载态，并可在接口失败后重试恢复',
       await new Promise(resolve => setTimeout(resolve, 500))
       return route.fulfill({ json: baseDetail })
     }
+    if (path.endsWith('/api/aps/v1/resources/workshops') || path.endsWith('/api/aps/v1/orders') || path.endsWith('/api/aps/v1/plan-versions')) return route.fulfill({ json: [] })
     return route.fulfill({ status: 404, json: {} })
   })
   await page.goto('/tests/e2e/aps/fixtures/workbench.html')
-  await expect(page.getByText('输入计划版本 ID 后加载工作台')).toBeVisible()
+  await expect(page.getByText('从上方新建排程或选择已有计划')).toBeVisible()
+  await page.getByRole('button', { name: '高级入口：按已有计划标识打开' }).click()
   await page.getByPlaceholder('输入候选或正式计划版本 UUID').fill(planId)
   await page.getByRole('button', { name: '加载计划' }).click()
   await expect(page.getByText('计划加载失败', { exact: true })).toBeVisible()
@@ -107,6 +115,7 @@ test('窄屏下主控件可用，并可用键盘切换甘特视图', async ({ pa
   await page.setViewportSize({ width: 390, height: 844 })
   await mockWorkbench(page, {})
   await page.goto('/tests/e2e/aps/fixtures/workbench.html')
+  await page.getByRole('button', { name: '高级入口：按已有计划标识打开' }).click()
   await page.getByPlaceholder('输入候选或正式计划版本 UUID').fill(planId)
   const loadButton = page.getByRole('button', { name: '加载计划' })
   await loadButton.focus()
@@ -130,14 +139,17 @@ test('工作台发布和废弃都只提交带行版本和原因的命令', async
   const writes: { action?: string; body?: unknown } = {}
   await mockWorkbench(page, writes)
   await page.goto('/tests/e2e/aps/fixtures/workbench.html')
+  await page.getByRole('button', { name: '高级入口：按已有计划标识打开' }).click()
   await page.getByPlaceholder('输入候选或正式计划版本 UUID').fill(planId)
   await page.getByRole('button', { name: '加载计划' }).click()
   await page.getByPlaceholder('例如：计划员审核通过').fill('浏览器审核通过')
   await page.getByRole('button', { name: '发布为当前正式计划' }).click()
+  await page.getByRole('button',{name:'复验并发布'}).click()
   await expect(page.getByText('系统内正式计划已生效')).toBeVisible()
   expect(writes).toEqual({ action: 'publish', body: { expectedPlanRowVersion: 3, reason: '浏览器审核通过' } })
 
   await page.reload()
+  await page.getByRole('button', { name: '高级入口：按已有计划标识打开' }).click()
   await page.getByPlaceholder('输入候选或正式计划版本 UUID').fill(planId)
   await page.getByRole('button', { name: '加载计划' }).click()
   await page.getByPlaceholder('例如：改用另一候选方案').fill('采用第二套方案')
@@ -185,6 +197,7 @@ test('当前正式计划用版本化命令提交插单、拆批和固定合批',
   await page.route('**/api/aps/v1/**', async route => {
     const request = route.request()
     const path = new URL(request.url()).pathname
+    if(await fulfillProductContext(route,resources))return
     if (path.endsWith('/api/aps/v1/resources')) return route.fulfill({ json: resources })
     if (path.endsWith(`/api/aps/v1/plan-versions/${planId}`)) return route.fulfill({ json: publishedDetail })
     if (path.endsWith('/api/aps/v1/orders')) return route.fulfill({ json: [currentExpansion.order, insertedExpansion.order] })
@@ -201,17 +214,19 @@ test('当前正式计划用版本化命令提交插单、拆批和固定合批',
           affectedResourceIds: [machineId], reasons: {}, globalRevalidationRequired: true }
       } })
     }
+    if (path.endsWith('/api/aps/v1/resources/workshops') || path.endsWith('/api/aps/v1/orders') || path.endsWith('/api/aps/v1/plan-versions')) return route.fulfill({ json: [] })
     return route.fulfill({ status: 404, json: {} })
   })
 
   await page.goto('/tests/e2e/aps/fixtures/workbench.html')
+  await page.getByRole('button', { name: '高级入口：按已有计划标识打开' }).click()
   await page.getByPlaceholder('输入候选或正式计划版本 UUID').fill(planId)
   await page.getByRole('button', { name: '加载计划' }).click()
   await page.getByRole('button', { name: '载入可选对象' }).click()
 
   const panel = page.locator('.structural-panel')
   await panel.locator('.el-select').nth(1).click()
-  await page.getByText(/O-INSERT/).click()
+  await page.getByRole('option', {name:/O-INSERT/}).filter({visible:true}).click()
   await page.getByPlaceholder('说明插单、拆批或合批原因').fill('浏览器插单')
   await page.getByRole('button', { name: '创建结构调整草稿' }).click()
   await expect(page.getByText(/结构调整草稿 .* 已进入 DRAFT/)).toBeVisible()
@@ -243,3 +258,6 @@ test('当前正式计划用版本化命令提交插单、拆批和固定合批',
     { taskId: '80000000-0000-4000-8000-000000000052', quantity: 6 }
   ] })
 })
+
+// 留图仅在显式开发检查中启用，全部接口由夹具提供。
+test.afterEach(async ({page},info)=>{if(info.status==='passed')await captureDevelopmentPage(page,info.title)})

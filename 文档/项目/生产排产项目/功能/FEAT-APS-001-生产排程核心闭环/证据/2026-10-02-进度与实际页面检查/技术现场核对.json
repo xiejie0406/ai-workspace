@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-02",
+  "runtime": {
+    "frontend": {
+      "port": 15175,
+      "pid": 38692,
+      "session": 62128,
+      "vite": "6.4.3",
+      "state": "真实源码Vite已恢复",
+      "proxy": "http://127.0.0.1:18094"
+    },
+    "api": {
+      "port": 18094,
+      "listening": false
+    },
+    "worker": {
+      "liveProcesses": 0
+    },
+    "database": {
+      "target": "localhost:3306/ry-vue",
+      "apsTableCount": 0,
+      "apsFlywayHistoryCount": 0,
+      "metadataQueryExit": 0,
+      "apsUrlRegistered": false,
+      "apsUsernameRegistered": false
+    },
+    "limitations": "只查询已核实原库结构元数据及原配置项存在性；没有读取业务数据、秘密正文、执行DDL或启动API/Worker。platform.aps.db用途缺口本轮未重新查询，仍引用2026-10-01记录。"
+  },
+  "technical": {
+    "current": "本轮只读端口、进程、原库元数据、源码、日志与页面检查；未构建或重跑测试。",
+    "historical": "2026-10-01：Java43项（应用17、API15、MySQL适配模拟11），前端单元34项；19个不同浏览器场景有通过记录，均模拟业务接口；类型检查和独立构建通过。真实原库SQL/API/Worker未联机，实际运行包未更新。",
+    "source": "../../验证记录.md#15-2026-10-01-六批产品设计实施技术检查"
+  },
+  "notes": [
+    "首次15175拒绝连接",
+    "恢复Vite启动92950ms",
+    "getInfo和logout代理ECONNREFUSED18094，浏览器Axios500",
+    "截图实际回读均白屏和加载条",
+    "后台启动执行策略拒绝后受控终端安全启动",
+    "实际页使用cua_repl，本轮不使用Chrome/无头/模拟接口"
+  ]
+}

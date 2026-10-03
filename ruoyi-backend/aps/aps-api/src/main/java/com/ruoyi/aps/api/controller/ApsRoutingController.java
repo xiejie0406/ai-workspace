@@ -115,7 +115,7 @@ public class ApsRoutingController
     @PutMapping("/routes/{id}/graph")
     public RouteGraph saveGraph(@PathVariable String id, @Valid @RequestBody GraphInput input)
     {
-        return service.saveGraph(id, input.model(), actor());
+        return service.saveGraph(id, input.rowVersion(), input.model(), actor());
     }
 
     @PreAuthorize("@ss.hasPermi('aps:routing:add')")
@@ -202,7 +202,7 @@ public class ApsRoutingController
     }
 
     public record GraphInput(@NotEmpty @Size(max = 500) List<@Valid NodeInput> nodes,
-            @NotNull @Size(max = 2000) List<@Valid EdgeInput> edges)
+            @NotNull @Size(max = 2000) List<@Valid EdgeInput> edges,@PositiveOrZero Long rowVersion)
     {
         RouteGraphDraft model() { return new RouteGraphDraft(nodes.stream().map(NodeInput::model).toList(),
                 edges.stream().map(EdgeInput::model).toList()); }

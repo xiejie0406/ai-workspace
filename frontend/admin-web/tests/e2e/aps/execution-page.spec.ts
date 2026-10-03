@@ -1,3 +1,5 @@
+import {captureDevelopmentPage} from './fixtures/development-capture'
+import {fulfillProductContext} from './fixtures/product-context'
 import { expect, test, type Page } from '@playwright/test'
 
 const runId = '90000000-0000-4000-8000-000000000001'
@@ -24,8 +26,7 @@ const detail = (status = 'RUNNING', rowVersion = 1) => ({
 
 async function openRun(page: Page) {
   await page.goto('/tests/e2e/aps/fixtures/execution.html')
-  await page.getByPlaceholder('输入 UUID 或通过深链打开').fill(runId)
-  await page.getByRole('button', { name: '读取执行' }).click()
+  await page.getByText('JOB-001',{exact:true}).click()
   await expect(page.getByText('Run #1 · 执行中')).toBeVisible()
 }
 
@@ -33,14 +34,14 @@ test('现场页从空态读取 Run，并按行版本提交暂停命令', async (
   const writes: unknown[] = []
   await page.route('**/api/aps/v1/**', async route => {
     const request = route.request()
+    if(await fulfillProductContext(route,[],detail()))return
     if (request.method() === 'GET') return route.fulfill({ json: detail() })
     writes.push(request.postDataJSON())
     return route.fulfill({ json: detail('PAUSED', 2) })
   })
   await page.goto('/tests/e2e/aps/fixtures/execution.html')
-  await expect(page.getByText('尚未选择执行 Run')).toBeVisible()
-  await page.getByPlaceholder('输入 UUID 或通过深链打开').fill(runId)
-  await page.getByRole('button', { name: '读取执行' }).click()
+  await expect(page.getByText('尚未选择执行单；可在下方从正式计划作业创建。')).toBeVisible()
+  await page.getByText('JOB-001',{exact:true}).click()
   await page.getByRole('button', { name: '暂停' }).click()
   await page.getByRole('textbox', { name: '请输入本次状态变化的现场原因' }).fill('设备点检')
   await page.getByRole('button', { name: '确定' }).click()
@@ -53,6 +54,7 @@ test('运行中可幂等推进下一计划段', async ({ page }) => {
   let write: { url?: string; headers?: Record<string, string>; body?: Record<string, unknown> } = {}
   await page.route('**/api/aps/v1/**', async route => {
     const request = route.request()
+    if(await fulfillProductContext(route,[],detail()))return
     if (request.method() === 'GET') return route.fulfill({ json: detail() })
     write = { url: request.url(), headers: request.headers(), body: request.postDataJSON() }
     return route.fulfill({ json: detail('RUNNING', 2) })
@@ -71,6 +73,7 @@ test('部分报工以幂等键提交，并显示原子生成的产出批', async
   let reportWrite: { headers?: Record<string, string>; body?: Record<string, unknown> } = {}
   await page.route('**/api/aps/v1/**', async route => {
     const request = route.request()
+    if(await fulfillProductContext(route,[],detail()))return
     if (request.method() === 'GET') return route.fulfill({ json: detail() })
     reportWrite = { headers: request.headers(), body: request.postDataJSON() }
     const next = { ...detail('RUNNING', 2), reports: [{ id: reportId, planJobId: jobId, executionRunId: runId, planJobMemberId: memberId,
@@ -88,8 +91,6 @@ test('部分报工以幂等键提交，并显示原子生成的产出批', async
   await openRun(page)
   await page.getByRole('button', { name: '提交报工' }).click()
   const dialog = page.getByRole('dialog', { name: '提交部分/完工报工' })
-  await dialog.getByLabel('计划作业成员 ID').fill(memberId)
-  await dialog.getByLabel('任务 ID').fill(taskId)
   await dialog.getByLabel('本次加工量').fill('10')
   await dialog.getByLabel('合格量').fill('8')
   await dialog.getByLabel('待检量').fill('2')
@@ -105,6 +106,7 @@ test('并发冲突后刷新事实且保留报工输入供核对重试', async ({
   let current = detail()
   let posts = 0
   await page.route('**/api/aps/v1/**', async route => {
+    if(await fulfillProductContext(route,[],current))return
     if (route.request().method() === 'GET') return route.fulfill({ json: current })
     posts++
     if (posts === 1) {
@@ -116,8 +118,6 @@ test('并发冲突后刷新事实且保留报工输入供核对重试', async ({
   await openRun(page)
   await page.getByRole('button', { name: '提交报工' }).click()
   const dialog = page.getByRole('dialog', { name: '提交部分/完工报工' })
-  await dialog.getByLabel('计划作业成员 ID').fill(memberId)
-  await dialog.getByLabel('任务 ID').fill(taskId)
   await dialog.getByLabel('本次加工量').fill('4')
   await dialog.getByLabel('合格量').fill('4')
   await dialog.getByRole('button', { name: '提交且写入数量账' }).click()
@@ -127,3 +127,6 @@ test('并发冲突后刷新事实且保留报工输入供核对重试', async ({
   await expect(dialog).toBeHidden()
   expect(posts).toBe(2)
 })
+
+// 留图仅在显式开发检查中启用，全部接口由夹具提供。
+test.afterEach(async ({page},info)=>{if(info.status==='passed')await captureDevelopmentPage(page,info.title)})

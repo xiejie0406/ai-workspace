@@ -160,6 +160,8 @@ public final class ExecutionLifecycleService
             }
             ActualOccupancy replaced = executions.findActiveOccupancy(run.id(), command.replacedResourceId())
                     .orElseThrow(() -> error(ApsErrorCode.NOT_FOUND, "待替换资源没有活动实际占用"));
+            if (executions.findActiveOccupancy(run.id(), command.resourceId()).isPresent())
+                throw error(ApsErrorCode.EXECUTION_CONFLICT, "所选资源已占用本执行单的其他席位");
             if (replaced.activityType() == OccupancyActivityType.PAUSE_HOLD
                     || replaced.sourcePlanAllocationId() == null
                     || (command.planSegmentId() != null

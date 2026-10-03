@@ -11,6 +11,12 @@ import type {
 } from '@/types/aps/resource'
 
 const base = '/api/aps/v1/resources'
+export interface ApsDirectory {
+  workshops: ApsWorkshop[]
+  centers: ApsWorkCenter[]
+  resources: Pick<ApsResource, 'id' | 'workshopId' | 'workCenterId' | 'code' | 'name' | 'type' | 'status'>[]
+}
+export const getResourceDirectory = () => request({ url: `${base}/directory`, method: 'get' }) as Promise<ApsDirectory>
 
 export const listWorkshops = () => request({ url: `${base}/workshops`, method: 'get' }) as Promise<ApsWorkshop[]>
 export const saveWorkshop = (value: Omit<ApsWorkshop, 'id'> & { id?: string }) => request({

@@ -272,6 +272,8 @@ public final class ProductionReportingService
                 throw error(ApsErrorCode.STALE_VERSION, "产出批行版本已变化");
             MaterialTarget demand = quantities.findMaterialTargetForUpdate(command.materialDemandId())
                     .orElseThrow(() -> error(ApsErrorCode.NOT_FOUND, "物料需求不存在"));
+            if (!scope.allWorkshops() && (orders == null || !orders.isTaskInScope(scope, demand.targetTaskId())))
+                throw error(ApsErrorCode.FORBIDDEN, "目标需求不在完整车间权限范围内");
             if (!demand.targetTaskId().equals(command.targetTaskId()) || !demand.itemId().equals(lot.itemId())
                     || !demand.uomCode().equals(lot.uomCode())
                     || demand.sourceTaskId() != null && !demand.sourceTaskId().equals(lot.sourceTaskId()))

@@ -24,6 +24,11 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "aps.datasource", name = "enabled", havingValue = "true")
 public class ApsPlanningPersistenceConfiguration
 {
+    @Bean
+    public com.ruoyi.aps.application.planning.PlanReadinessService apsPlanReadinessService(SolverInputCompiler compiler)
+    {
+        return new com.ruoyi.aps.application.planning.PlanReadinessService(compiler);
+    }
     @Bean public PlanRepository apsPlanRepository(ApsPlanMapper mapper) { return new MybatisPlanRepository(mapper); }
     @Bean
     public PlanRequestService apsPlanRequestService(SolverInputCompiler compiler, PlanRepository plans,

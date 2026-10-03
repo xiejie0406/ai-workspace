@@ -1,0 +1,102 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - strong [ref=e6]: 新建排程与选择计划
+      - generic [ref=e7]:
+        - alert [ref=e8]:
+          - img [ref=e10]
+          - generic [ref=e13]: 未能读取车间、订单或计划列表，请检查权限和接口后刷新。
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - generic [ref=e16]: 站点
+            - textbox "站点" [ref=e20]: 站点配置未就绪
+          - generic [ref=e21]:
+            - generic [ref=e22]: 车间
+            - generic [ref=e25]:
+              - generic [ref=e26]:
+                - combobox "车间" [ref=e28]
+                - generic [ref=e30]: 选择车间
+              - img [ref=e33] [cursor=pointer]
+          - generic [ref=e35]:
+            - generic [ref=e36]: 已释放订单
+            - generic [ref=e39]:
+              - generic [ref=e40]:
+                - combobox "已释放订单" [ref=e42]
+                - generic [ref=e44]: 选择已释放订单
+              - img [ref=e47] [cursor=pointer]
+          - generic [ref=e49]:
+            - generic [ref=e50]: 排程开始（站点时间）
+            - generic [ref=e53]:
+              - img [ref=e56]
+              - combobox "排程开始（站点时间）" [ref=e60]
+          - generic [ref=e61]:
+            - generic [ref=e62]: 排程结束（站点时间）
+            - generic [ref=e65]:
+              - img [ref=e68]
+              - combobox "排程结束（站点时间）" [ref=e72]
+          - generic [ref=e73]:
+            - generic [ref=e74]: 求解上限（秒）
+            - generic [ref=e76]:
+              - button "decrease number" [ref=e77] [cursor=pointer]:
+                - img [ref=e79] [cursor=pointer]
+              - button "increase number" [ref=e81] [cursor=pointer]:
+                - img [ref=e83] [cursor=pointer]
+              - spinbutton "求解上限（秒）" [ref=e87]: "30"
+          - group "操作" [ref=e88]:
+            - generic [ref=e89]: 操作
+            - generic [ref=e90]:
+              - button "发起排程" [disabled] [ref=e91]:
+                - generic [ref=e92]: 发起排程
+              - button "检查完整排程数据" [disabled] [ref=e93]:
+                - generic [ref=e94]: 检查完整排程数据
+              - button "刷新可选资料" [ref=e95] [cursor=pointer]:
+                - generic [ref=e96] [cursor=pointer]: 刷新可选资料
+        - generic [ref=e97]: 请先准备有权限的车间和已释放订单，再发起排程。
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - generic [ref=e100]: 选择计划（最近200个可见版本）
+            - generic [ref=e103]:
+              - generic [ref=e104]:
+                - combobox "选择计划（最近200个可见版本）" [ref=e106]
+                - generic [ref=e108]: 按计划名称或状态选择
+              - img [ref=e111] [cursor=pointer]
+          - group "操作" [ref=e113]:
+            - generic [ref=e114]: 操作
+            - generic [ref=e115]:
+              - button "加载所选计划" [disabled] [ref=e116]:
+                - generic [ref=e117]: 加载所选计划
+              - button "刷新计划列表" [ref=e118] [cursor=pointer]:
+                - generic [ref=e119] [cursor=pointer]: 刷新计划列表
+    - generic [ref=e120]:
+      - generic [ref=e122]:
+        - strong [ref=e124]: 生产排程工作台
+        - generic [ref=e126]: 候选与调整草稿
+      - generic [ref=e127]:
+        - button "高级入口：按已有计划标识打开" [ref=e130] [cursor=pointer]:
+          - generic [ref=e131] [cursor=pointer]: 高级入口：按已有计划标识打开
+          - img [ref=e133] [cursor=pointer]
+        - generic [ref=e135]:
+          - img [ref=e137]
+          - paragraph [ref=e154]: 从上方新建排程或选择已有计划
+  - alert [ref=e155]:
+    - img [ref=e157]
+    - paragraph [ref=e159]: 系统接口404异常
+  - alert [ref=e160]:
+    - img [ref=e162]
+    - paragraph [ref=e164]: 系统接口404异常
+  - alert [ref=e165]:
+    - img [ref=e167]
+    - paragraph [ref=e169]: 系统接口404异常
+  - alert [ref=e170]:
+    - img [ref=e172]
+    - paragraph [ref=e174]: 系统接口404异常
+  - alert [ref=e175]:
+    - img [ref=e177]
+    - paragraph [ref=e179]: 系统接口404异常
+  - alert [ref=e180]:
+    - img [ref=e182]
+    - paragraph [ref=e184]: 系统接口404异常
+```

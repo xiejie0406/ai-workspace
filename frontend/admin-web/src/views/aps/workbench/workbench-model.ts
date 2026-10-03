@@ -8,7 +8,7 @@ import type {
   ApsTimelineModel,
   ApsTimelineSegment
 } from '@/types/aps/planning'
-import type { ApsResource } from '@/types/aps/resource'
+import type { ApsResource as FullApsResource } from '@/types/aps/resource'
 
 export interface ApsWorkbenchModels {
   readonly processGantt: ApsGanttModel
@@ -23,6 +23,8 @@ export interface ApsWorkbenchFilter {
 }
 
 /** 纯领域模型筛选；不调用第三方图表的私有过滤 API，三种视图始终使用同一作业集合。 */
+type ApsResource=Pick<FullApsResource,'id'|'code'|'name'|'type'|'workshopId'|'workCenterId'|'status'>
+
 export function filterApsWorkbenchModels(
   models: ApsWorkbenchModels,
   filter: ApsWorkbenchFilter

@@ -12,6 +12,32 @@ import org.apache.ibatis.annotations.Update;
 
 public interface ApsExecutionMapper
 {
+    String COMPLETE_PLAN_SCOPE=" AND (#{allScope}=1 OR (JSON_TYPE(JSON_EXTRACT(v.input_snapshot_json,'$.scope.workshopIds'))='ARRAY' " +
+            "AND JSON_LENGTH(JSON_EXTRACT(v.input_snapshot_json,'$.scope.workshopIds'))>0 " +
+            "AND NOT EXISTS (SELECT 1 FROM JSON_TABLE(v.input_snapshot_json,'$.scope.workshopIds[*]' " +
+            "COLUMNS(workshop_id VARCHAR(36) PATH '$')) sw LEFT JOIN aps_workshop sw_w ON sw_w.id=sw.workshop_id " +
+            "WHERE sw_w.manager_user_id IS NULL OR sw_w.manager_user_id<>#{userId})))";
+    @Select("SELECT m.id,m.member_no,m.task_id,t.task_name,m.planned_qty,m.uom_code FROM aps_plan_job_member m " +
+            "JOIN aps_task t ON t.id=m.task_id WHERE m.plan_job_id=#{id} ORDER BY m.member_no,m.id")
+    List<Map<String,Object>> listReportMembers(@Param("id") String id);
+    @Select("SELECT r.*,j.job_code," +
+            "(SELECT GROUP_CONCAT(DISTINCT po.order_no ORDER BY po.order_no SEPARATOR '、') FROM aps_plan_job_member m " +
+            "JOIN aps_task t ON t.id=m.task_id JOIN aps_production_lot b ON b.id=t.production_lot_id " +
+            "JOIN aps_order_line l ON l.id=b.order_line_id JOIN aps_order po ON po.id=l.order_id WHERE m.plan_job_id=j.id) order_numbers," +
+            "(SELECT GROUP_CONCAT(DISTINCT t.task_name ORDER BY t.task_name SEPARATOR '、') FROM aps_plan_job_member m " +
+            "JOIN aps_task t ON t.id=m.task_id WHERE m.plan_job_id=j.id) task_names " +
+            "FROM aps_execution_run r JOIN aps_plan_job j ON j.id=r.plan_job_id " +
+            "JOIN aps_plan_version v ON v.id=r.plan_version_id " +
+            "WHERE (#{status}='' OR r.status=#{status}) AND (#{resourceId}='' OR EXISTS " +
+            "(SELECT 1 FROM aps_actual_occupancy o WHERE o.execution_run_id=r.id AND o.resource_id=#{resourceId})) " +
+            COMPLETE_PLAN_SCOPE + " " +
+            "AND (#{keyword}='' OR LOCATE(#{keyword},j.job_code)>0 OR EXISTS (SELECT 1 FROM aps_plan_job_member m " +
+            "JOIN aps_task t ON t.id=m.task_id JOIN aps_production_lot b ON b.id=t.production_lot_id " +
+            "JOIN aps_order_line l ON l.id=b.order_line_id JOIN aps_order po ON po.id=l.order_id " +
+            "WHERE m.plan_job_id=j.id AND (LOCATE(#{keyword},po.order_no)>0 OR LOCATE(#{keyword},t.task_name)>0))) " +
+            "ORDER BY r.created_at DESC,r.id DESC LIMIT 200")
+    List<Map<String,Object>> listRuns(@Param("userId") String userId,@Param("allScope") boolean allScope,
+            @Param("keyword") String keyword,@Param("status") String status,@Param("resourceId") String resourceId);
     @Select("SELECT j.plan_version_id,j.id AS plan_job_id,j.planned_qty,j.uom_code," +
             "(v.status='PUBLISHED' AND v.is_current=1) AS current_published,o.quality_gate_required " +
             "FROM aps_plan_job j JOIN aps_plan_version v ON v.id=j.plan_version_id " +
@@ -20,7 +46,7 @@ public interface ApsExecutionMapper
             "LEFT JOIN aps_workshop w ON w.id=c.workshop_id " +
             "WHERE j.plan_version_id=#{planVersionId} AND j.id=#{planJobId} " +
             "AND v.status='PUBLISHED' AND v.is_current=1 " +
-            "AND (#{allScope}=1 OR w.manager_user_id=#{userId}) FOR UPDATE")
+            "AND (#{allScope}=1 OR w.manager_user_id=#{userId})" + COMPLETE_PLAN_SCOPE + " FOR UPDATE")
     Map<String, Object> findPublishedJobForDispatch(@Param("userId") String userId,
             @Param("allScope") boolean allScope, @Param("planVersionId") String planVersionId,
             @Param("planJobId") String planJobId);
@@ -32,8 +58,9 @@ public interface ApsExecutionMapper
     Map<String, Object> findRunForUpdate(@Param("id") String id);
 
     @Select("SELECT COUNT(*) FROM aps_execution_run r JOIN aps_plan_job j ON j.id=r.plan_job_id " +
+            "JOIN aps_plan_version v ON v.id=r.plan_version_id " +
             "LEFT JOIN aps_work_center c ON c.id=j.work_center_id LEFT JOIN aps_workshop w ON w.id=c.workshop_id " +
-            "WHERE r.id=#{id} AND (#{allScope}=1 OR w.manager_user_id=#{userId})")
+            "WHERE r.id=#{id} AND (#{allScope}=1 OR w.manager_user_id=#{userId})" + COMPLETE_PLAN_SCOPE)
     int isRunInScope(@Param("userId") String userId, @Param("allScope") boolean allScope,
             @Param("id") String id);
 

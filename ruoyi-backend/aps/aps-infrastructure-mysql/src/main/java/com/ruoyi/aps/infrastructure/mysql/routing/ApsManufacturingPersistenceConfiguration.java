@@ -29,8 +29,9 @@ public class ApsManufacturingPersistenceConfiguration
     @Bean public OrderManagementService apsOrderManagementService(OrderRepository orders, RoutingRepository routings, ApsTransactionOperations transactions) { return new OrderManagementService(orders, routings, transactions); }
     @Bean public SolverInputCompiler apsSolverInputCompiler(ResourceManagementService resources, OrderRepository orders,
             RoutingRepository routings, PlanRepository plans, ExecutionRepository executions,
-            QuantityRepository quantities)
+            QuantityRepository quantities,@org.springframework.beans.factory.annotation.Value("${aps.site.code:}") String siteCode,
+            @org.springframework.beans.factory.annotation.Value("${aps.site.zone-id:Asia/Shanghai}") String zoneId)
     {
-        return new SolverInputCompiler(resources, orders, routings, plans, executions, quantities);
+        return new SolverInputCompiler(resources, orders, routings, plans, executions, quantities,siteCode,zoneId);
     }
 }

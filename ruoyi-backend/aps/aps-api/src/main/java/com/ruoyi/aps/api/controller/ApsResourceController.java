@@ -65,6 +65,25 @@ public class ApsResourceController
         return service.listWorkshops(scope());
     }
 
+    /** 业务选择目录仍使用车间范围，不要求取得资源维护权限。 */
+    @PreAuthorize("@ss.hasPermi('aps:resource:list') or @ss.hasPermi('aps:routing:list') or @ss.hasPermi('aps:order:list') or @ss.hasPermi('aps:planning:view') or @ss.hasPermi('aps:execution:view') or @ss.hasPermi('aps:report:view') or @ss.hasPermi('aps:report:export')")
+    @GetMapping("/directory")
+    public Directory directory()
+    {
+        ResourceAccessScope access = scope();
+        List<Workshop> workshops = service.listWorkshops(access);
+        List<WorkCenter> centers = workshops.stream().flatMap(workshop ->
+                service.listWorkCenters(access, workshop.id()).stream()).toList();
+        List<ResourceOption> resources = service.listResources(access, null, null).stream()
+                .map(value -> new ResourceOption(value.id(), value.workshopId(), value.workCenterId(),
+                        value.code(), value.name(), value.type(), value.status())).toList();
+        return new Directory(workshops, centers, resources);
+    }
+
+    public record ResourceOption(String id, String workshopId, String workCenterId, String code,
+            String name, ResourceType type, String status) { }
+    public record Directory(List<Workshop> workshops, List<WorkCenter> centers, List<ResourceOption> resources) { }
+
     @PreAuthorize("@ss.hasPermi('aps:resource:add')")
     @PostMapping("/workshops")
     public Workshop createWorkshop(@Valid @RequestBody WorkshopInput input)

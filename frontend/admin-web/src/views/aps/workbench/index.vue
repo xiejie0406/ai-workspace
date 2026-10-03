@@ -1,5 +1,6 @@
 <template>
   <div class="app-container aps-workbench" v-loading="loading">
+    <PlanLauncher :initial-order-id="typeof route?.query.orderId==='string'?route.query.orderId:undefined" :active-plan="detail?.version" @open="openPlan" />
     <el-card shadow="never">
       <template #header>
         <div class="workbench-head">
@@ -11,10 +12,11 @@
               · r{{ detail.version.rowVersion }}
             </span>
           </div>
-          <el-tag type="warning" effect="plain">甘特只提交版本化调整意图；候选锁管理已开放</el-tag>
+          <el-tag type="warning" effect="plain">{{detail?.version.status==='PUBLISHED'?'当前正式计划':'候选与调整草稿'}}</el-tag>
         </div>
       </template>
 
+      <el-collapse><el-collapse-item title="高级入口：按已有计划标识打开" name="advanced">
       <el-form inline @submit.prevent="load">
         <el-form-item label="计划版本 ID">
           <el-input v-model="planVersionId" clearable placeholder="输入候选或正式计划版本 UUID" style="width: 420px" />
@@ -23,16 +25,17 @@
           <el-button type="primary" :disabled="!planVersionId" @click="load">加载计划</el-button>
         </el-form-item>
       </el-form>
+      </el-collapse-item></el-collapse>
 
       <el-alert v-if="loadError" class="load-error" type="error" :closable="false" show-icon
         title="计划加载失败" :description="loadError" />
-      <el-empty v-if="!detail && !loading" description="输入计划版本 ID 后加载工作台" />
+      <el-empty v-if="!detail && !loading" description="从上方新建排程或选择已有计划" />
 
       <template v-else-if="detail && models">
         <el-card class="view-controls" shadow="never">
           <el-form inline @submit.prevent>
             <el-form-item label="筛选作业">
-              <el-input v-model="filterSearch" clearable placeholder="作业编码或稳定 ID" style="width: 230px" />
+              <el-input v-model="filterSearch" clearable placeholder="作业编码或名称" style="width: 230px" />
             </el-form-item>
             <el-form-item label="资源">
               <el-select v-model="filterResourceId" clearable filterable placeholder="全部资源" style="width: 220px">
@@ -48,7 +51,7 @@
             <el-form-item label="定位作业">
               <el-select v-model="locateJobId" clearable filterable placeholder="选择作业" style="width: 260px">
                 <el-option v-for="job in detail.jobs" :key="job.jobId"
-                  :label="`${job.jobCode} · ${job.jobId}`" :value="job.jobId" />
+                  :label="`${job.jobCode} · ${job.plannedQty} ${job.uomCode}`" :value="job.jobId" />
               </el-select>
             </el-form-item>
             <el-form-item>
@@ -67,6 +70,16 @@
           <el-col :xs="12" :sm="6"><el-statistic title="资源分配" :value="detail.allocations.length" /></el-col>
           <el-col :xs="12" :sm="6"><el-statistic title="锁" :value="detail.locks.length" /></el-col>
         </el-row>
+
+        <el-card v-if="detail.version.status === 'PUBLISHED'" class="view-controls" shadow="never">
+          <template #header><strong>正式计划作业与派工</strong></template>
+          <el-table :data="detail.jobs" empty-text="当前正式计划没有作业">
+            <el-table-column prop="jobCode" label="作业编码" min-width="230" />
+            <el-table-column label="计划数量" width="160"><template #default="scope">{{ scope.row.plannedQty }} {{ scope.row.uomCode }}</template></el-table-column>
+            <el-table-column label="计划时段" min-width="290"><template #default="scope">{{ interval(scope.row.startAt, scope.row.endAt) }}</template></el-table-column>
+            <el-table-column label="操作" width="115"><template #default="scope"><a :href="dispatchUrl(scope.row.jobId)">创建派工</a></template></el-table-column>
+          </el-table>
+        </el-card>
 
         <el-alert
           v-if="detail.version.baseVersionId"
@@ -152,7 +165,7 @@
             <el-form-item v-if="structuralAction === 'INSERT_ORDER'" label="待插订单">
               <el-select v-model="structuralOrderId" filterable style="width: 300px" placeholder="选择已释放且不在当前计划内的订单">
                 <el-option v-for="order in insertableOrders" :key="order.id"
-                  :label="`${order.orderNo} · ${order.id}`" :value="order.id" />
+                  :label="`${order.orderNo} · ${order.lines.length}个产品行`" :value="order.id" />
               </el-select>
             </el-form-item>
             <template v-else-if="structuralAction === 'SPLIT_LOT'">
@@ -187,7 +200,7 @@
                 placeholder="说明插单、拆批或合批原因" />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" :loading="structuralSaving" :disabled="!canSubmitStructural"
+              <el-button v-hasPermi="['aps:planning:adjust']" type="primary" :loading="structuralSaving" :disabled="!canSubmitStructural"
                 @click="submitStructuralAdjustment">创建结构调整草稿</el-button>
             </el-form-item>
           </el-form>
@@ -202,7 +215,7 @@
                 placeholder="例如：计划员审核通过" style="width: 360px" />
             </el-form-item>
             <el-form-item>
-              <el-button type="danger" :loading="publishSaving" :disabled="!publishReason.trim()"
+              <el-button v-hasPermi="['aps:planning:publish']" type="danger" :loading="publishSaving" :disabled="!publishReason.trim()"
                 @click="submitPublication">发布为当前正式计划</el-button>
             </el-form-item>
           </el-form>
@@ -217,7 +230,7 @@
                 placeholder="例如：改用另一候选方案" style="width: 360px" />
             </el-form-item>
             <el-form-item>
-              <el-button type="warning" plain :loading="discardSaving" :disabled="!discardReason.trim()"
+              <el-button v-hasPermi="['aps:planning:cancel']" type="warning" plain :loading="discardSaving" :disabled="!discardReason.trim()"
                 @click="submitDiscard">废弃当前候选</el-button>
             </el-form-item>
           </el-form>
@@ -255,20 +268,18 @@
               <el-input v-model="lockReason" maxlength="500" show-word-limit placeholder="例如：班组已确认" style="width: 260px" />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" :loading="lockSaving" :disabled="!canCreateLock" @click="submitLock">创建锁</el-button>
+              <el-button v-hasPermi="['aps:planning:lock']" type="primary" :loading="lockSaving" :disabled="!canCreateLock" @click="submitLock">创建锁</el-button>
             </el-form-item>
           </el-form>
           <el-table :data="detail.locks" empty-text="当前候选没有人工锁">
             <el-table-column prop="targetType" label="层级" width="110" />
             <el-table-column prop="lockType" label="类型" width="110" />
-            <el-table-column label="目标 ID" min-width="260">
-              <template #default="scope">{{ scope.row.allocationId || scope.row.segmentId || scope.row.jobId }}</template>
-            </el-table-column>
-            <el-table-column prop="lockedResourceId" label="资源 ID" min-width="230" />
+            <el-table-column label="锁定对象" min-width="260"><template #default="scope">{{ lockObjectName(scope.row) }}</template></el-table-column>
+            <el-table-column label="锁定资源" min-width="230"><template #default="scope">{{ lockResourceName(scope.row.lockedResourceId) }}</template></el-table-column>
             <el-table-column prop="reason" label="原因" min-width="180" />
             <el-table-column label="操作" width="100" fixed="right">
               <template #default="scope">
-                <el-button link type="danger" :loading="lockSaving" @click="removeLock(scope.row.id, scope.row.rowVersion)">解除</el-button>
+                <el-button v-hasPermi="['aps:planning:lock']" link type="danger" :loading="lockSaving" @click="removeLock(scope.row.id, scope.row.rowVersion)">解除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -340,6 +351,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import ApsGanttHost from '@/components/aps/gantt/ApsGanttHost.vue'
 import ApsTimelineHost from '@/components/aps/timeline/ApsTimelineHost.vue'
+import PlanLauncher from './PlanLauncher.vue'
 import {
   comparePlanVersion,
   createPlanAdjustment,
@@ -351,7 +363,7 @@ import {
   publishPlanVersion
 } from '@/api/aps/planning'
 import { getExpansion, listOrders } from '@/api/aps/manufacturing'
-import { listResources } from '@/api/aps/resource'
+import { getResourceDirectory } from '@/api/aps/resource'
 import type {
   ApsAdjustmentIntent,
   ApsAdjustmentAccepted,
@@ -370,14 +382,24 @@ import type { ApsExpansion, ApsLot, ApsOrder, ApsTask } from '@/types/aps/manufa
 import type { ApsResource } from '@/types/aps/resource'
 import { buildApsWorkbenchModels, filterApsWorkbenchModels } from './workbench-model'
 
+import { getSiteContext,type ApsSiteContext } from '@/api/aps/context'
+import { useRoute } from 'vue-router'
+const route=useRoute()
+import { siteTime,operationError } from '@/components/aps/shared/site-time'
+const site=ref<ApsSiteContext>()
 const planVersionId = ref('')
+
+function openPlan(id: string) { planVersionId.value = id; void load() }
+function dispatchUrl(jobId: string) {
+  return `/aps/execution?${new URLSearchParams({ planVersionId: detail.value!.version.planVersionId, planJobId: jobId })}`
+}
 const loading = ref(false)
 const loadError = ref('')
 const activeView = ref('process')
 const detail = ref<ApsPlanVersionDetail>()
 const comparison = ref<ApsPlanVersionComparison>()
 const models = ref<ReturnType<typeof buildApsWorkbenchModels>>()
-const resourceCatalog = ref<readonly ApsResource[]>([])
+const resourceCatalog = ref<readonly Pick<ApsResource,'id'|'name'|'code'|'type'|'workshopId'|'workCenterId'|'status'>[]>([])
 const lockTargetType = ref<ApsPlanLock['targetType']>('JOB')
 const lockTargetId = ref('')
 const lockType = ref<ApsPlanLock['lockType']>('TIME')
@@ -407,7 +429,7 @@ const insertableOrders = ref<readonly ApsOrder[]>([])
 const splittableLots = ref<readonly ApsLot[]>([])
 const mergeableTasks = ref<readonly ApsTask[]>([])
 const filterSearch = ref('')
-const filterResourceId = ref('')
+const filterResourceId=ref(typeof route?.query.resourceId==='string'?route.query.resourceId:'')
 const filterPhase = ref<ApsPhaseKind | ''>('')
 const locateJobId = ref('')
 const phaseOptions: readonly ApsPhaseKind[] = ['SETUP', 'RUN', 'UNLOAD', 'WAIT', 'TRANSPORT', 'RESUME_SETUP']
@@ -450,10 +472,12 @@ const displayModels = computed(() => filterApsWorkbenchModels(models.value!, {
 const lockTargets = computed(() => {
   const value = detail.value
   if (!value) return []
-  if (lockTargetType.value === 'JOB') return value.jobs.map((job) => ({ value: job.jobId, label: `${job.jobCode} · ${job.jobId}` }))
-  if (lockTargetType.value === 'SEGMENT') return value.segments.map((segment) => ({ value: segment.id, label: `${segment.phaseType} #${segment.segmentNo} · ${segment.id}` }))
-  return value.allocations.map((allocation) => ({ value: allocation.id, label: `${allocation.allocationRole} 席位 ${allocation.seatNo} · ${allocation.id}` }))
+  if (lockTargetType.value === 'JOB') return value.jobs.map((job) => ({ value: job.jobId, label: job.jobCode }))
+  if (lockTargetType.value === 'SEGMENT') return value.segments.map((segment) => ({ value: segment.id, label: `${value.jobs.find(j=>j.jobId===segment.jobId)?.jobCode || '作业'} · ${segment.phaseType} #${segment.segmentNo}` }))
+  return value.allocations.map((allocation) => ({ value: allocation.id, label: `${value.jobs.find(j=>j.jobId===value.segments.find(s=>s.id===allocation.segmentId)?.jobId)?.jobCode || '作业'} · ${allocation.allocationRole} 席位 ${allocation.seatNo}` }))
 })
+function lockResourceName(id?:string) {const r=resourceCatalog.value.find(r=>r.id===id);return r?`${r.code} · ${r.name}`:id?'未知资源':'—'}
+function lockObjectName(lock:any){const value=detail.value;if(!value)return '锁定对象';const allocation=value.allocations.find(a=>a.id===lock.allocationId);const segment=value.segments.find(s=>s.id===(lock.segmentId||allocation?.segmentId));const job=value.jobs.find(j=>j.jobId===(lock.jobId||segment?.jobId));return [job?.jobCode,segment?`${segment.phaseType} #${segment.segmentNo}`:'',allocation?`席位${allocation.seatNo}`:''].filter(Boolean).join(' · ')||'历史锁定对象'}
 const needsResource = computed(() => lockType.value !== 'TIME' && lockTargetType.value !== 'ALLOCATION')
 const lockResources = computed(() => {
   const value = detail.value
@@ -485,25 +509,29 @@ watch(structuralAction, () => {
   structuralMemberTaskIds.value = []
 })
 
+let loadSequence = 0
 async function load() {
   if (!planVersionId.value) return
+  const sequence = ++loadSequence
+  const id = planVersionId.value
   loading.value = true
   loadError.value = ''
   try {
-    const [nextDetail, resources] = await Promise.all([
-      getPlanVersionDetail(planVersionId.value),
-      listResources({})
+    const [nextDetail, resources,context] = await Promise.all([
+      getPlanVersionDetail(id),
+      getResourceDirectory(), getSiteContext()
     ])
     const nextComparison = nextDetail.version.baseVersionId
       ? await comparePlanVersion(nextDetail.version.planVersionId)
       : undefined
-    resourceCatalog.value = resources
+    if (sequence !== loadSequence) return
+    site.value=context;resourceCatalog.value = resources.resources
     applyDetail(nextDetail)
     comparison.value = nextComparison
   } catch {
-    loadError.value = '未能读取该计划版本；请检查版本 ID 或接口连接后重试。'
+    if (sequence === loadSequence) loadError.value = '未能读取该计划版本；请检查版本 ID 或接口连接后重试。'
   } finally {
-    loading.value = false
+    if (sequence === loadSequence) loading.value = false
   }
 }
 
@@ -694,7 +722,9 @@ async function submitAdjustment(intent: ApsAdjustmentIntent) {
 
 async function submitPublication() {
   const value = detail.value
-  if (!value || !adjustmentAllowed.value || !publishReason.value.trim()) return
+  if (!value || !adjustmentAllowed.value || !publishReason.value.trim() || publishSaving.value) return
+  if(value.stale || blockingProblemCount.value){ElMessage.error('输入过期或存在阻断问题，请修正并重新排程');return}
+  try{await ElMessageBox.confirm(`发布“${value.version.versionName}”将切换当前正式计划。作业${value.jobs.length}个，未排任务${value.unplannedTaskIds.length}个；原基线${value.version.baseVersionId?'已关联':'无'}。服务器将重新检查输入、硬约束和版本。`, '确认正式发布',{type:'warning',confirmButtonText:'复验并发布',cancelButtonText:'返回审阅'})}catch{return}
   publishSaving.value = true
   try {
     const result = await publishPlanVersion(value.version.planVersionId, {
@@ -705,7 +735,7 @@ async function submitPublication() {
     publishReason.value = ''
     applyDetail(result.plan)
     ElMessage.success(result.reused ? '当前版本已经是正式计划' : '系统内正式计划已发布')
-  } finally {
+  } catch(e){loadError.value=operationError(e)} finally {
     publishSaving.value = false
   }
 }
@@ -756,11 +786,11 @@ function problemObjects(refs: ApsPlanProblem['objectRefs']) {
 
 function interval(startAt: string | null, endAt: string | null) {
   if (!startAt || !endAt) return '—'
-  return `${new Date(startAt).toLocaleString()} ～ ${new Date(endAt).toLocaleString()}`
+  return `${displayTime(startAt)} ～ ${displayTime(endAt)}`
 }
 
 function displayTime(value: string | null) {
-  return value ? new Date(value).toLocaleString() : '未知时间'
+  return value&&site.value?siteTime(value,site.value.zoneId):'未知时间'
 }
 </script>
 

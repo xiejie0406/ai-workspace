@@ -1,3 +1,5 @@
+import {captureDevelopmentPage} from './fixtures/development-capture'
+import {fulfillProductContext} from './fixtures/product-context'
 import { expect, test } from '@playwright/test'
 
 const metadata = {
@@ -56,8 +58,9 @@ const orders = {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.route('**/api/aps/v1/reports/**', async route => {
+  await page.route('**/api/aps/v1/**', async route => {
     const url = route.request().url()
+    if(await fulfillProductContext(route))return
     if (url.endsWith('.csv') || url.includes('.csv?')) {
       return route.fulfill({ contentType: 'text/csv; charset=utf-8', body: '\ufeff订单,ETA\r\nSO-20260915-01,UNKNOWN\r\n' })
     }
@@ -102,3 +105,6 @@ test('CSV 导出沿用当前报表类型并生成可下载文件', async ({ page
   const download = await downloadPromise
   expect(download.suggestedFilename()).toMatch(/^aps-daily-production-\d{4}-\d{2}-\d{2}\.csv$/)
 })
+
+// 留图仅在显式开发检查中启用，全部接口由夹具提供。
+test.afterEach(async ({page},info)=>{if(info.status==='passed')await captureDevelopmentPage(page,info.title)})

@@ -400,6 +400,39 @@ paths:
         '200': { description: 新订单或相同载荷的原订单, content: { application/json: { schema: { $ref: '#/components/schemas/ProductionOrder' } } } }
         '409': { $ref: '#/components/responses/Conflict' }
   /api/aps/v1/orders/{id}:
+    put:
+      tags:
+      - order
+      operationId: updateApsDraftOrderV1
+      summary: 更新未展开订单草稿
+      description: 需要 aps:order:edit。订单头与产品行在一个事务中更新。校验完整车间范围、状态、父行锁和rowVersion，保留订单号、来源和幂等键；已展开拒绝。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApsDraftOrderInput'
     get:
       tags: [order]
       operationId: getApsOrderV1
@@ -636,6 +669,36 @@ paths:
             application/json:
               schema:
                 $ref: '../schemas/problem-v1.schema.json'
+  /api/aps/v1/plan-versions:
+    get:
+      tags: [plan-workbench]
+      operationId: listPlanVersionsV1
+      summary: 查询可见范围内最近的计划版本
+      description: 需要 aps:planning:view；先按冻结输入中的全部车间范围过滤，再按版本号倒序取最近200项。不返回冻结输入或求解快照。旧版本可查看，派工仍由现有正式计划规则裁决。
+      responses:
+        '200':
+          description: 可见计划集合；没有可见车间或计划时为空数组
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items:
+                  type: object
+                  required: [planVersionId, versionNo, versionName, status, requestId, rowVersion, updatedAt]
+                  properties:
+                    planVersionId: {type: string, format: uuid}
+                    versionNo: {type: integer, minimum: 1}
+                    versionName: {type: string}
+                    status: {type: string}
+                    requestId: {type: string, format: uuid}
+                    baseVersionId: {type: [string, 'null'], format: uuid}
+                    rowVersion: {type: integer, minimum: 0}
+                    updatedAt: {type: string, format: date-time}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /api/aps/v1/plan-versions/{planVersionId}:
     get:
       tags: [plan-workbench]
@@ -844,6 +907,53 @@ paths:
         '404': { description: 版本或锁不存在, content: { application/json: { schema: { $ref: '../schemas/problem-v1.schema.json' } } } }
         '409': { $ref: '#/components/responses/Conflict' }
   /api/aps/v1/execution-runs:
+    get:
+      tags:
+      - execution
+      operationId: listApsExecutionRunsV1
+      summary: 按名称查询执行单
+      description: 需要 aps:execution:view。先过滤完整冻结车间范围，再取最近200个，包含订单及工序名称。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApsRunOption'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      parameters:
+      - name: keyword
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 128
+      - name: status
+        in: query
+        required: false
+        schema:
+          enum:
+          - ''
+          - READY
+          - RUNNING
+          - PAUSED
+          - WAIT_QUALITY
+          - COMPLETED
+          - CANCELLED
+      - name: resourceId
+        in: query
+        required: false
+        schema:
+          type: string
     post:
       tags: [execution]
       operationId: createExecutionRunV1
@@ -1056,6 +1166,325 @@ paths:
         '200': { description: UTF-8 BOM CSV, content: { text/csv: { schema: { type: string } } } }
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
+  /api/aps/v1/site:
+    get:
+      tags:
+      - system
+      operationId: getApsSiteContextV1
+      summary: 读取已登记站点与显示时区
+      description: 需要登录。站点未配置时失败；不创建配置或凭据。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApsSiteContext'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/aps/v1/resources/user-candidates:
+    get:
+      tags:
+      - resource
+      operationId: listApsUserCandidatesV1
+      summary: 查询资源用途的最小用户候选
+      description: 需要 aps:resource:add 或 aps:resource:edit。普通负责人只返回本人；管理员/范围管理员仍受平台用户服务数据范围限制，最多100个候选。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApsUserCandidate'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      parameters:
+      - name: keyword
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 64
+  /api/aps/v1/resources/directory:
+    get:
+      tags:
+      - resource
+      operationId: getApsResourceDirectoryV1
+      summary: 按车间范围读取业务名称目录
+      description: 需要资源、工艺、订单、计划、执行或报表的查看权限。不返回用户映射、技能证书或资源私有备注；空范围为空目录。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApsResourceDirectory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/aps/v1/readiness:
+    post:
+      tags:
+      - validation
+      operationId: checkApsBusinessPlanReadinessV1
+      summary: 按订单、车间和时段检查完整排程输入
+      description: 需要 aps:readiness:view 和 aps:order:list。只读可信编译与独立校验；检查时刻由服务器取得，不创建计划、不启动Worker、不保存候选。通过不承诺存在可行解，创建/发布仍须复验。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApsPlanReadiness'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequestInput'
+  /api/aps/v1/execution-runs/dispatch-plans:
+    get:
+      tags:
+      - execution
+      operationId: listApsDispatchPlansV1
+      summary: 查询可派工的正式计划
+      description: 需要 aps:execution:start。复用完整计划范围与最近200个版本目录，只映射PUBLISHED版本。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApsDispatchPlanOption'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/aps/v1/execution-runs/dispatch-plans/{id}:
+    get:
+      tags:
+      - execution
+      operationId: getApsDispatchPlanV1
+      summary: 读取正式作业及剩余可分配量
+      description: 需要 aps:execution:start。只返回派工所需字段；旧正式版拒绝，创建派工时重新校验并发余额。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApsDispatchPlan'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+  /api/aps/v1/execution-runs/{id}/report-members:
+    get:
+      tags:
+      - execution
+      operationId: getApsRunReportMembersV1
+      summary: 读取报工成员和剩余量
+      description: 需要 aps:execution:report。成员来自计划关系，无成员时不得手填标识绕过。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApsReportMember'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+  /api/aps/v1/execution-runs/{id}/resource-candidates:
+    get:
+      tags:
+      - execution
+      operationId: getApsRunReplacementCandidatesV1
+      summary: 查询合法替换资源
+      description: 需要 aps:execution:start。复用正式换资源资格、日历、实际占用及当前席位规则，写入时再次检查。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApsReplacementResource'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+      - name: replacedResourceId
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+      - name: at
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/UtcInstant'
+  /api/aps/v1/execution-runs/{id}/output-lots/{lotId}/movement-targets:
+    get:
+      tags:
+      - execution
+      operationId: getApsRunMovementTargetsV1
+      summary: 查询合法物料需求和目标执行单
+      description: 需要 aps:execution:report。只返回产出批所属执行单、完整车间范围及来源/物料/单位匹配的目标；最多200项。余额和预留分配仍在原数量事务内复验。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApsMovementTarget'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+      - name: lotId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+  /api/aps/v1/execution-runs/{id}/output-lots/{lotId}/quantity-events:
+    get:
+      tags:
+      - execution
+      operationId: getApsRunQuantityEventsV1
+      summary: 回查产出批数量及冲正流水
+      description: 需要 aps:execution:view。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApsQuantityEvent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+      - name: lotId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+  /api/aps/v1/reports/order-candidates:
+    get:
+      tags:
+      - report
+      operationId: getApsReportOrderCandidatesV1
+      summary: 查询报表用途的最小订单目录
+      description: 需要 aps:report:view 或 aps:report:export。沿用订单完整范围，仅返回名称和状态，不增加订单维护权限。
+      responses:
+        '200':
+          description: 业务回执；不代表业务验收通过
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApsReportOrderCandidate'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
 components:
   securitySchemes:
     bearerAuth:
@@ -1142,6 +1571,360 @@ components:
           schema:
             $ref: '../schemas/problem-v1.schema.json'
   schemas:
+    ApsSiteContext:
+      type: object
+      additionalProperties: false
+      required:
+      - siteCode
+      - zoneId
+      properties:
+        siteCode:
+          type: string
+          minLength: 1
+          maxLength: 64
+        zoneId:
+          type: string
+    ApsUserCandidate:
+      type: object
+      additionalProperties: false
+      required:
+      - userId
+      - userName
+      - displayName
+      properties:
+        userId:
+          type: string
+        userName:
+          type: string
+        displayName:
+          type:
+          - string
+          - 'null'
+    ApsResourceDirectoryEntry:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - workshopId
+      - workCenterId
+      - code
+      - name
+      - type
+      - status
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        workshopId:
+          $ref: '#/components/schemas/Uuid'
+        workCenterId:
+          type:
+          - string
+          - 'null'
+        code:
+          type: string
+        name:
+          type: string
+        type:
+          enum:
+          - PERSON
+          - MACHINE
+          - WORKSTATION
+          - TOOL
+        status:
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - MAINTENANCE
+    ApsResourceDirectory:
+      type: object
+      additionalProperties: false
+      required:
+      - workshops
+      - centers
+      - resources
+      properties:
+        workshops:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workshop'
+        centers:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkCenter'
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApsResourceDirectoryEntry'
+    ApsDraftOrderInput:
+      type: object
+      additionalProperties: false
+      required:
+      - rowVersion
+      - order
+      properties:
+        rowVersion:
+          $ref: '#/components/schemas/RowVersion'
+        order:
+          $ref: '#/components/schemas/OrderInput'
+    ApsPlanReadiness:
+      type: object
+      additionalProperties: false
+      required:
+      - ready
+      - checkedAt
+      - inputHash
+      - issues
+      properties:
+        ready:
+          type: boolean
+        checkedAt:
+          $ref: '#/components/schemas/UtcInstant'
+        inputHash:
+          type:
+          - string
+          - 'null'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+    ApsRunOption:
+      type: object
+      additionalProperties: false
+      required:
+      - run
+      - jobCode
+      - orderNumbers
+      - taskNames
+      properties:
+        run:
+          $ref: '#/components/schemas/ExecutionRunSummary'
+        jobCode:
+          type: string
+        orderNumbers:
+          type:
+          - string
+          - 'null'
+        taskNames:
+          type:
+          - string
+          - 'null'
+    ApsReportMember:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - memberNo
+      - taskId
+      - taskName
+      - plannedQty
+      - remainingQty
+      - uomCode
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        memberNo:
+          type: integer
+          minimum: 1
+        taskId:
+          $ref: '#/components/schemas/Uuid'
+        taskName:
+          type: string
+        plannedQty:
+          type: number
+          minimum: 0
+        remainingQty:
+          type: number
+          minimum: 0
+        uomCode:
+          type: string
+    ApsReplacementResource:
+      type: object
+      additionalProperties: false
+      required:
+      - resourceId
+      - code
+      - name
+      properties:
+        resourceId:
+          $ref: '#/components/schemas/Uuid'
+        code:
+          type: string
+        name:
+          type: string
+    ApsMovementTarget:
+      type: object
+      additionalProperties: false
+      required:
+      - materialDemandId
+      - targetTaskId
+      - orderNo
+      - taskName
+      - remainingDemandQty
+      - reservedQty
+      - uomCode
+      - executionRuns
+      properties:
+        materialDemandId:
+          $ref: '#/components/schemas/Uuid'
+        targetTaskId:
+          $ref: '#/components/schemas/Uuid'
+        orderNo:
+          type: string
+        taskName:
+          type: string
+        remainingDemandQty:
+          type: number
+          minimum: 0
+        reservedQty:
+          type: number
+          minimum: 0
+        uomCode:
+          type: string
+        executionRuns:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApsRunOption'
+    ApsDispatchPlanOption:
+      type: object
+      additionalProperties: false
+      required:
+      - planVersionId
+      - versionNo
+      - versionName
+      properties:
+        planVersionId:
+          $ref: '#/components/schemas/Uuid'
+        versionNo:
+          type: integer
+        versionName:
+          type: string
+    ApsDispatchJob:
+      type: object
+      additionalProperties: false
+      required:
+      - jobId
+      - jobCode
+      - plannedQty
+      - remainingQty
+      - uomCode
+      properties:
+        jobId:
+          $ref: '#/components/schemas/Uuid'
+        jobCode:
+          type: string
+        plannedQty:
+          type: number
+          minimum: 0
+        remainingQty:
+          type: number
+          minimum: 0
+        uomCode:
+          type: string
+    ApsDispatchPlan:
+      type: object
+      additionalProperties: false
+      required:
+      - planVersionId
+      - jobs
+      properties:
+        planVersionId:
+          $ref: '#/components/schemas/Uuid'
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApsDispatchJob'
+    ApsReportOrderCandidate:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - orderNo
+      - customerName
+      - status
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        orderNo:
+          type: string
+        customerName:
+          type:
+          - string
+          - 'null'
+        status:
+          type: string
+    ApsQuantityEvent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - outputLotId
+      - itemId
+      - materialDemandId
+      - executionRunId
+      - productionReportId
+      - targetTaskId
+      - reversalOfId
+      - eventType
+      - fromBucket
+      - toBucket
+      - quantity
+      - uomCode
+      - requestId
+      - occurredAt
+      - actorUserId
+      - reason
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        outputLotId:
+          $ref: '#/components/schemas/Uuid'
+        itemId:
+          $ref: '#/components/schemas/Uuid'
+        materialDemandId:
+          type:
+          - string
+          - 'null'
+        executionRunId:
+          type:
+          - string
+          - 'null'
+        productionReportId:
+          type:
+          - string
+          - 'null'
+        targetTaskId:
+          type:
+          - string
+          - 'null'
+        reversalOfId:
+          type:
+          - string
+          - 'null'
+        eventType:
+          type: string
+        fromBucket:
+          type:
+          - string
+          - 'null'
+        toBucket:
+          type:
+          - string
+          - 'null'
+        quantity:
+          type: number
+          minimum: 0
+        uomCode:
+          type: string
+        requestId:
+          $ref: '#/components/schemas/Uuid'
+        occurredAt:
+          $ref: '#/components/schemas/UtcInstant'
+        actorUserId:
+          type: string
+        reason:
+          type:
+          - string
+          - 'null'
     ExecutionRunStatus:
       enum: [READY, RUNNING, PAUSED, WAIT_QUALITY, COMPLETED, CANCELLED]
     CreateExecutionRunRequest:
@@ -1207,7 +1990,7 @@ components:
         quantities: { $ref: '#/components/schemas/ProductionReportQuantities' }
         uomCode: { type: string, pattern: '^[A-Z][A-Z0-9_]{0,15}$' }
         defectReason: { type: [string, 'null'], maxLength: 500 }
-        operatorUserId: { type: [string, 'null'], maxLength: 64 }
+        operatorUserId: { type: [string, 'null'], maxLength: 64, deprecated: true, description: 兼容旧请求但忽略自由输入，使用当前认证用户写入 }
     CorrectProductionReportRequest:
       type: object
       additionalProperties: false
@@ -1797,6 +2580,7 @@ components:
       additionalProperties: false
       required: [nodes, edges]
       properties:
+        rowVersion: { type: integer, minimum: 0, description: 新消费者必须携带当前草稿版本；旧消费者省略时仍校验保存时状态及并发版本 }
         nodes: { type: array, minItems: 1, maxItems: 500, items: { $ref: '#/components/schemas/RouteNodeInput' } }
         edges: { type: array, maxItems: 2000, items: { $ref: '#/components/schemas/RouteEdgeInput' } }
     RouteGraph:

@@ -1,0 +1,249 @@
+{
+  "createdAt": "2026-10-01T09:27:55.378162+00:00",
+  "items": [
+    {
+      "title": "名称目录与数据就绪",
+      "trace": [
+        "LIVE-01",
+        "LIVE-02",
+        "LIVE-03",
+        "LIVE-10"
+      ],
+      "precondition": "现有接口准备带APS261001前缀的合成样本。",
+      "steps": "核对资源、订单页面；工作台打开车间和已释放订单选择。",
+      "expected": "1车间、4资源、2路线、3订单共90EA，6任务、3依赖；业务名称可选择。",
+      "actual": "数量符合预期。发起前3单均已释放，开工后SO03进入IN_PRODUCTION；订单截图记录开工后状态。",
+      "images": [
+        "01-名称选择与排程窗口.png",
+        "10-合成资源目录.png",
+        "11-订单实际状态.png"
+      ],
+      "data": [
+        "接口回执.json",
+        "候选数据.json"
+      ],
+      "number": 1,
+      "status": "通过",
+      "requirement": "页面与字段设计方案0.2.1第12节、任务清单第25节、主流程验收清单"
+    },
+    {
+      "title": "从订单和车间发起排程",
+      "trace": [
+        "LIVE-04",
+        "LIVE-10"
+      ],
+      "precondition": "选择3单和1车间，明日08:00至17:00；独立Worker运行。",
+      "steps": "点击发起排程，等待页面求解终态自动加载。",
+      "expected": "不输入UUID，生成一个请求及候选，状态可读。",
+      "actual": "请求由独立Worker完成；候选为FEASIBLE，求解返回OPTIMAL；只生成1个计划。",
+      "images": [
+        "01-名称选择与排程窗口.png",
+        "02-候选甘特.png",
+        "03-候选状态与发布前.png"
+      ],
+      "data": [
+        "候选数据.json"
+      ],
+      "number": 2,
+      "status": "通过",
+      "requirement": "页面与字段设计方案0.2.1第12节、任务清单第25节、主流程验收清单"
+    },
+    {
+      "title": "候选可读与复验",
+      "trace": [
+        "LIVE-04",
+        "LIVE-05"
+      ],
+      "precondition": "完成候选，预期时长和日历在操作前定义。",
+      "steps": "查看甘特，按独立时长、工序依赖、资源窗口和容量核对；发布时执行原后台复验。",
+      "expected": "6作业、12阶段、24分配，各工序90EA，符合日历且无资源重叠。",
+      "actual": "89个数据断言符合预期；发布复验成功。该断言数单列，不作为业务通过项数。",
+      "images": [
+        "02-候选甘特.png",
+        "03-候选状态与发布前.png"
+      ],
+      "data": [
+        "独立排程核对.json",
+        "候选数据.json",
+        "发布数据.json"
+      ],
+      "number": 3,
+      "status": "通过",
+      "requirement": "页面与字段设计方案0.2.1第12节、任务清单第25节、主流程验收清单"
+    },
+    {
+      "title": "发布并恢复正式计划",
+      "trace": [
+        "LIVE-05",
+        "LIVE-10"
+      ],
+      "precondition": "可行候选，填写合成验收发布原因。",
+      "steps": "发布，刷新列表，按名称重新选择并加载。",
+      "expected": "唯一当前正式版PUBLISHED，显示正式作业；顶部状态同步。",
+      "actual": "唯一当前正式版已生效；六个作业有派工入口；顶部正式状态已修正并回读。最后一张列表图在开工/暂停后采集，现有事实水位提醒输入已过期，计划仍为PUBLISHED；本轮没有执行重排。",
+      "images": [
+        "04-正式计划选择.png",
+        "13-正式状态与派工入口.png",
+        "14-正式作业派工列表.png"
+      ],
+      "data": [
+        "发布数据.json",
+        "派工与测试结束SQL.log"
+      ],
+      "number": 4,
+      "status": "通过",
+      "requirement": "页面与字段设计方案0.2.1第12节、任务清单第25节、主流程验收清单"
+    },
+    {
+      "title": "从正式作业创建派工",
+      "trace": [
+        "LIVE-06",
+        "LIVE-10"
+      ],
+      "precondition": "当前正式版JOB-6，计划数量20EA。",
+      "steps": "点击该作业创建派工，核对自动带入值，创建执行单。",
+      "expected": "无需复制计划/作业UUID；生成正确关联的READY Run、分配20EA。",
+      "actual": "整数步长缺陷修复后创建成功；接口和数据库关联一致，只有1个执行单。",
+      "images": [
+        "05-派工自动带入.png",
+        "06-派工数量与单位.png",
+        "失败-派工整数被浏览器拦截.png",
+        "07-派工READY.png"
+      ],
+      "data": [
+        "派工数据.json",
+        "派工与测试结束SQL.log"
+      ],
+      "number": 5,
+      "status": "通过",
+      "requirement": "页面与字段设计方案0.2.1第12节、任务清单第25节、主流程验收清单"
+    },
+    {
+      "title": "开始执行与选择报工成员",
+      "trace": [
+        "LIVE-06",
+        "LIVE-10"
+      ],
+      "precondition": "READY Run；首次拒绝后补充当前可用测试窗口，操作前更新清单。",
+      "steps": "开工，核对两条SETUP占用，打开报工并选择成员1；关闭对话框。",
+      "expected": "RUNNING；真实作业成员可选并带EA单位。",
+      "actual": "进入RUNNING并产生2条ACTIVE占用；成员1·20EA可选择。不提交加工数量或虚构完工。测试结束后暂停，2条占用关闭。",
+      "images": [
+        "08-开工实际占用.png",
+        "09-报工成员选择.png",
+        "12-测试暂停与占用关闭.png"
+      ],
+      "data": [
+        "当前开工窗口补充.json",
+        "开工数据.json",
+        "测试结束数据.json",
+        "派工与测试结束SQL.log"
+      ],
+      "number": 6,
+      "status": "通过",
+      "requirement": "页面与字段设计方案0.2.1第12节、任务清单第25节、主流程验收清单"
+    }
+  ],
+  "failuresAndRechecks": [
+    {
+      "point": "顶部正式状态同步",
+      "original": "发布后详情为PUBLISHED，选择区仍显示可行候选。",
+      "resolution": "当前详情状态同步到选择区和提示文字；单元检查与实际页面复验通过。",
+      "evidence": [
+        "04-正式计划选择.png",
+        "13-正式状态与派工入口.png"
+      ],
+      "gap": "原首次错误显示没有单独截图；保留实际观察记录，不将原失败改为受阻。"
+    },
+    {
+      "point": "派工整数校验",
+      "original": "min=0.001与默认step=1组合导致浏览器拒绝20EA，未到后台。",
+      "resolution": "设置step=0.001；同一作业创建READY成功。",
+      "evidence": [
+        "失败-派工整数被浏览器拦截.png",
+        "07-派工READY.png"
+      ],
+      "gap": ""
+    },
+    {
+      "point": "首次开工",
+      "original": "样本只有明日日历，当前开工被拒绝资源不可用，Run保留READY。",
+      "resolution": "按更新清单补充两个当前AVAILABLE窗口，再开工成功；未改变业务规则。",
+      "evidence": [
+        "开工首次拒绝.log",
+        "当前开工窗口补充.json",
+        "08-开工实际占用.png"
+      ],
+      "gap": "首次拒绝没有单独页面截图；服务端错误日志摘要保存。"
+    }
+  ],
+  "technical": {
+    "java": [
+      {
+        "suite": "com.ruoyi.aps.api.controller.ApsPlanCatalogScopeTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "suite": "com.ruoyi.aps.api.controller.ApsPlanProgressStreamTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "suite": "com.ruoyi.aps.api.controller.ApsPlanRequestControllerTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "suite": "com.ruoyi.aps.api.controller.ApsPlanRequestHttpAuthorizationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "suite": "com.ruoyi.aps.api.controller.ApsPlanWorkbenchControllerTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "suite": "com.ruoyi.aps.api.controller.ApsPlanWorkbenchHttpAuthorizationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "suite": "com.ruoyi.aps.infrastructure.mysql.planning.MybatisPlanRepositoryTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0
+      }
+    ],
+    "javaTotal": 12,
+    "frontBaseTests": 27,
+    "frontAddedTests": 2,
+    "notes": [
+      "首次Maven参数引用错误已保留命令失败日志，修正引用后定向构建通过。",
+      "新增组件测试首次错误地从选择控件可见文本读取传送到外层的选项；改用实际选项组件断言后2项通过；原27项通过。",
+      "当前窗口准备首次使用+00:00偏移格式被既有UTC Z规则拒绝，改为Z后成功；未改服务端格式规则。",
+      "旧浏览器fixture同步折叠入口和目录请求；本轮实际页面验收使用内置浏览器，没有运行终端Playwright fixture套件。",
+      "无真实普通角色样本；权限结果来自定向HTTP授权单元测试、空范围服务测试与MySQL范围查询，不宣称真实角色验收完成。"
+    ]
+  },
+  "result": {
+    "businessPassed": 6,
+    "businessFailedAfterRecheck": 0,
+    "businessBlocked": 0,
+    "businessNotRun": 0,
+    "userAcceptance": "待确认"
+  },
+  "historicalBaseline": "20260926联机验收LIVE-10原失败及LIVE-05未复验均保留；本轮只定向复验上述关联步骤；LIVE-07至09以及真实UAT01至12不计为本轮通过。",
+  "limits": [
+    "合成样本与管理员账号；没有真实角色代表性数据。",
+    "未提交部分/完工报工，未复验质量、数量全链和报表。",
+    "上线就绪与生产发布未经本轮验证或授权。"
+  ]
+}

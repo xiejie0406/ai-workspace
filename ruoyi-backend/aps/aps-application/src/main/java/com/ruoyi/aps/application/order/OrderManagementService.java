@@ -65,6 +65,24 @@ public final class OrderManagementService
     }
 
     public List<ProductionOrder> listOrders() { return orders.listOrders(); }
+    public List<ProductionOrder> listOrders(com.ruoyi.aps.application.resource.ResourceAccessScope scope) {
+        return orders.listOrders().stream().filter(value -> orders.isOrderInScope(scope, value.id())).toList();
+    }
+    public void requireOrderScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String id) {
+        if (!orders.isOrderInScope(scope, id)) throw new com.ruoyi.aps.application.foundation.ApsBusinessException(ApsErrorCode.FORBIDDEN, "订单不存在或不在完整车间权限范围内");
+    }
+    public void requireInputScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, ProductionOrder input) {
+        for (OrderLine line : input.lines()) requireRouteScope(scope, line.routeVersionId());
+    }
+    public void requireRouteScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String id) {
+        if (!orders.isRouteInScope(scope, id)) throw new com.ruoyi.aps.application.foundation.ApsBusinessException(ApsErrorCode.FORBIDDEN, "路线不存在或包含未授权/未归属的工作中心");
+    }
+    public void requireLineScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String id) {
+        requireOrderScope(scope, orders.findOrderLine(id).orElseThrow(() -> notFound("订单行不存在")).orderId());
+    }
+    public void requireLotScope(com.ruoyi.aps.application.resource.ResourceAccessScope scope, String id) {
+        requireLineScope(scope, orders.findLot(id).orElseThrow(() -> notFound("生产批不存在")).orderLineId());
+    }
     public ProductionOrder getOrder(String id) { return requireOrder(id); }
     public ExpansionResult getExpansion(String orderId) { return loadExpansion(requireOrder(orderId), true); }
 
@@ -89,13 +107,45 @@ public final class OrderManagementService
         });
     }
 
+    /** 草稿头、产品行与展开串行化；已有冻结任务不得原位改写。 */
+    public ProductionOrder updateDraft(String id, long rowVersion, ProductionOrder input, String actor)
+    {
+        return transactions.required(() -> {
+            ProductionOrder current = orders.findOrderForUpdate(id).orElseThrow(() -> notFound("订单不存在"));
+            if (current.rowVersion() != rowVersion) throw stale("订单已被其他人修改，请回查后再编辑");
+            if (!"DRAFT".equals(current.status()) || !orders.listLots(id).isEmpty() || !orders.listTasks(id).isEmpty())
+                throw new ApsBusinessException(ApsErrorCode.CONFLICT, "仅未展开的草稿订单可以编辑");
+            if (!current.orderNo().equals(normalize(input.orderNo())) || !current.sourceSystem().equals(normalize(input.sourceSystem()))
+                    || !Objects.equals(current.externalId(), trim(input.externalId())))
+                throw invalid("订单号、来源和外部幂等键不能通过草稿编辑改变");
+            ProductionOrder normalized = normalizeAndValidate(new ProductionOrder(id, input.orderNo(), input.sourceSystem(),
+                    input.externalId(), input.customerCode(), input.customerName(), input.priority(), input.promisedAt(),
+                    input.earliestStartAt(), "DRAFT", input.remark(), input.lines(), rowVersion));
+            Map<Integer, OrderLine> existing = current.lines().stream().collect(Collectors.toMap(OrderLine::lineNo, value -> value));
+            List<OrderLine> lines = normalized.lines().stream().map(line -> {
+                OrderLine before = existing.get(line.lineNo());
+                return new OrderLine(before == null ? line.id() : before.id(), id, line.lineNo(), line.itemId(), line.routeVersionId(), line.demandQty(),
+                        line.uomCode(), line.promisedAt(), line.earliestStartAt(), "DRAFT", line.components(), line.dependencies(),
+                        before == null ? 0 : before.rowVersion() + 1);
+            }).toList();
+            ProductionOrder update = new ProductionOrder(id, current.orderNo(), current.sourceSystem(), current.externalId(),
+                    normalized.customerCode(), normalized.customerName(), normalized.priority(), normalized.promisedAt(),
+                    normalized.earliestStartAt(), "DRAFT", normalized.remark(), lines, rowVersion);
+            if (orders.updateDraftOrder(update, actor) != 1) throw stale("订单状态或版本已经变化");
+            orders.deleteDraftLines(id);
+            lines.forEach(line -> orders.insertOrderLine(line, actor));
+            return new ProductionOrder(id, update.orderNo(), update.sourceSystem(), update.externalId(), update.customerCode(),
+                    update.customerName(), update.priority(), update.promisedAt(), update.earliestStartAt(), update.status(),
+                    update.remark(), lines, rowVersion + 1);
+        });
+    }
+
     /** 重复展开直接回读已冻结网络；首次展开在一个事务内完成 M15～M18。 */
     public ExpansionResult expandOrder(String orderId, String actor)
     {
-        ProductionOrder order = requireOrder(orderId);
-        if (!orders.listLots(orderId).isEmpty()) return loadExpansion(order, true);
-
         return transactions.required(() -> {
+            ProductionOrder order = orders.findOrderForUpdate(orderId).orElseThrow(() -> notFound("订单不存在"));
+            if (!orders.listLots(orderId).isEmpty()) return loadExpansion(order, true);
             Map<Integer, ProductionLot> lotsByLine = new LinkedHashMap<>();
             Map<Integer, Map<String, Task>> tasksByLineAndNode = new LinkedHashMap<>();
             List<Task> tasks = new ArrayList<>();

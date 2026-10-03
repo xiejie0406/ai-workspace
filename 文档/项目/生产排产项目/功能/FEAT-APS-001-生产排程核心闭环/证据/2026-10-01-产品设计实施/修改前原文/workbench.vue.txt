@@ -1,0 +1,817 @@
+<template>
+  <div class="app-container aps-workbench" v-loading="loading">
+    <PlanLauncher :active-plan="detail?.version" @open="openPlan" />
+    <el-card shadow="never">
+      <template #header>
+        <div class="workbench-head">
+          <div>
+            <strong>生产排程工作台</strong>
+            <span v-if="detail" class="version-note">
+              {{ detail.version.versionName }} · {{ detail.version.status }}
+              <template v-if="detail.solverStatus"> · {{ detail.solverStatus }} / {{ detail.resultKind }}</template>
+              · r{{ detail.version.rowVersion }}
+            </span>
+          </div>
+          <el-tag type="warning" effect="plain">甘特只提交版本化调整意图；候选锁管理已开放</el-tag>
+        </div>
+      </template>
+
+      <el-collapse><el-collapse-item title="高级入口：按已有计划标识打开" name="advanced">
+      <el-form inline @submit.prevent="load">
+        <el-form-item label="计划版本 ID">
+          <el-input v-model="planVersionId" clearable placeholder="输入候选或正式计划版本 UUID" style="width: 420px" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :disabled="!planVersionId" @click="load">加载计划</el-button>
+        </el-form-item>
+      </el-form>
+      </el-collapse-item></el-collapse>
+
+      <el-alert v-if="loadError" class="load-error" type="error" :closable="false" show-icon
+        title="计划加载失败" :description="loadError" />
+      <el-empty v-if="!detail && !loading" description="从上方新建排程或选择已有计划" />
+
+      <template v-else-if="detail && models">
+        <el-card class="view-controls" shadow="never">
+          <el-form inline @submit.prevent>
+            <el-form-item label="筛选作业">
+              <el-input v-model="filterSearch" clearable placeholder="作业编码或稳定 ID" style="width: 230px" />
+            </el-form-item>
+            <el-form-item label="资源">
+              <el-select v-model="filterResourceId" clearable filterable placeholder="全部资源" style="width: 220px">
+                <el-option v-for="resource in resourceCatalog" :key="resource.id"
+                  :label="`${resource.code} · ${resource.name}`" :value="resource.id" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="阶段">
+              <el-select v-model="filterPhase" clearable placeholder="全部阶段" style="width: 150px">
+                <el-option v-for="phase in phaseOptions" :key="phase" :label="phase" :value="phase" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="定位作业">
+              <el-select v-model="locateJobId" clearable filterable placeholder="选择作业" style="width: 260px">
+                <el-option v-for="job in detail.jobs" :key="job.jobId"
+                  :label="`${job.jobCode} · ${job.jobId}`" :value="job.jobId" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button :disabled="!locateJobId" @click="locateSelected">定位</el-button>
+              <el-button @click="zoomActive('in')">放大</el-button>
+              <el-button @click="zoomActive('out')">缩小</el-button>
+              <el-button @click="resetFilters">重置筛选</el-button>
+            </el-form-item>
+          </el-form>
+          <el-text type="info">当前显示 {{ displayModels.processGantt.tasks.length }} / {{ detail.jobs.length }} 个作业；三种甘特共用同一筛选集合。</el-text>
+        </el-card>
+
+        <el-row :gutter="12" class="summary-row">
+          <el-col :xs="12" :sm="6"><el-statistic title="计划作业" :value="detail.jobs.length" /></el-col>
+          <el-col :xs="12" :sm="6"><el-statistic title="物理分段" :value="detail.segments.length" /></el-col>
+          <el-col :xs="12" :sm="6"><el-statistic title="资源分配" :value="detail.allocations.length" /></el-col>
+          <el-col :xs="12" :sm="6"><el-statistic title="锁" :value="detail.locks.length" /></el-col>
+        </el-row>
+
+        <el-card v-if="detail.version.status === 'PUBLISHED'" class="view-controls" shadow="never">
+          <template #header><strong>正式计划作业与派工</strong></template>
+          <el-table :data="detail.jobs" empty-text="当前正式计划没有作业">
+            <el-table-column prop="jobCode" label="作业编码" min-width="230" />
+            <el-table-column label="计划数量" width="160"><template #default="scope">{{ scope.row.plannedQty }} {{ scope.row.uomCode }}</template></el-table-column>
+            <el-table-column label="计划时段" min-width="290"><template #default="scope">{{ interval(scope.row.startAt, scope.row.endAt) }}</template></el-table-column>
+            <el-table-column label="操作" width="115"><template #default="scope"><a :href="dispatchUrl(scope.row.jobId)">创建派工</a></template></el-table-column>
+          </el-table>
+        </el-card>
+
+        <el-alert
+          v-if="detail.version.baseVersionId"
+          type="info"
+          :closable="false"
+          :title="comparisonTitle"
+          show-icon
+        />
+        <el-alert
+          v-if="lastAdjustment"
+          class="adjustment-result"
+          type="success"
+          :closable="false"
+          :title="`新计划请求 ${lastAdjustment.planVersionId} 已进入 ${lastAdjustment.planStatus}`"
+          :description="`影响任务 ${lastAdjustment.impact.affectedTaskIds.length} 个、资源 ${lastAdjustment.impact.affectedResourceIds.length} 个；完成求解后再加载新版本。`"
+          show-icon
+        />
+        <el-alert
+          v-if="lastStructuralAdjustment"
+          class="adjustment-result"
+          type="success"
+          :closable="false"
+          :title="`结构调整草稿 ${lastStructuralAdjustment.planVersionId} 已进入 ${lastStructuralAdjustment.planStatus}`"
+          :description="`${structuralActionLabel(lastStructuralAdjustment.action)}影响任务 ${lastStructuralAdjustment.impact.affectedTaskIds.length} 个、资源 ${lastStructuralAdjustment.impact.affectedResourceIds.length} 个；原正式计划保持不变。`"
+          show-icon
+        />
+        <el-alert
+          v-if="lastPublication"
+          class="adjustment-result"
+          type="success"
+          :closable="false"
+          title="系统内正式计划已生效"
+          :description="`外发状态：${lastPublication.outboundStatus === 'NOT_APPLICABLE' ? '不适用（P0 未配置外部接收方）' : lastPublication.outboundStatus}`"
+          show-icon
+        />
+        <el-alert
+          v-if="detail.stale"
+          class="adjustment-result"
+          type="error"
+          :closable="false"
+          title="当前计划输入已经过期"
+          :description="`输入冻结于 ${displayTime(detail.inputCapturedAt)}；最新主数据或现场事实更新于 ${displayTime(detail.latestFactUpdatedAt)}。请重新排程，发布也会阻断该版本。`"
+          show-icon
+        />
+        <el-alert
+          v-if="lastDiscard"
+          class="adjustment-result"
+          type="warning"
+          :closable="false"
+          title="候选已废弃，历史数据仍保留"
+          :description="`废弃原因：${lastDiscard.reason}`"
+          show-icon
+        />
+        <el-alert
+          v-if="detail.problems.length"
+          class="adjustment-result"
+          :type="blockingProblemCount ? 'error' : 'warning'"
+          :closable="false"
+          :title="`当前版本记录 ${detail.problems.length} 个校验问题，其中 ${blockingProblemCount} 个阻断问题`"
+          :description="detail.unplannedTaskIds.length ? `另有 ${detail.unplannedTaskIds.length} 个任务未排入候选，详见“冲突与原因”。` : '详见“冲突与原因”。'"
+          show-icon
+        />
+
+        <el-card v-if="structuralAllowed" class="structural-panel" shadow="never">
+          <template #header>
+            <div class="panel-head">
+              <strong>插单、拆批与固定合批</strong>
+              <el-button :loading="structuralOptionsLoading" @click="loadStructuralOptions">
+                {{ structuralOptionsLoaded ? '刷新可选对象' : '载入可选对象' }}
+              </el-button>
+            </div>
+          </template>
+          <el-alert type="info" :closable="false" show-icon
+            title="结构调整只基于当前正式计划创建新 DRAFT；拆批数量与草稿同事务提交，已开工任务会被服务端拒绝。" />
+          <el-form class="structural-form" inline @submit.prevent="submitStructuralAdjustment">
+            <el-form-item label="动作">
+              <el-select v-model="structuralAction" style="width: 150px">
+                <el-option label="插入订单" value="INSERT_ORDER" />
+                <el-option label="拆分生产批" value="SPLIT_LOT" />
+                <el-option label="固定合批" value="MERGE_BATCH" />
+              </el-select>
+            </el-form-item>
+            <el-form-item v-if="structuralAction === 'INSERT_ORDER'" label="待插订单">
+              <el-select v-model="structuralOrderId" filterable style="width: 300px" placeholder="选择已释放且不在当前计划内的订单">
+                <el-option v-for="order in insertableOrders" :key="order.id"
+                  :label="`${order.orderNo} · ${order.id}`" :value="order.id" />
+              </el-select>
+            </el-form-item>
+            <template v-else-if="structuralAction === 'SPLIT_LOT'">
+              <el-form-item label="待拆生产批">
+                <el-select v-model="structuralLotId" filterable style="width: 330px" placeholder="选择当前范围内尚未开工的批次">
+                  <el-option v-for="lot in splittableLots" :key="lot.id"
+                    :label="`${lot.lotNo} · ${lot.plannedQty} ${lot.uomCode}`" :value="lot.id" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="拆出数量">
+                <el-input-number v-model="structuralSplitQuantity" :min="0.000001" :precision="6" />
+                <el-text v-if="selectedSplitLot" class="field-note" type="info">
+                  必须小于 {{ selectedSplitLot.plannedQty }} {{ selectedSplitLot.uomCode }}
+                </el-text>
+              </el-form-item>
+            </template>
+            <template v-else>
+              <el-form-item label="成员任务">
+                <el-select v-model="structuralMemberTaskIds" multiple filterable collapse-tags
+                  style="width: 440px" placeholder="选择同一批处理工序的至少两个完整任务">
+                  <el-option v-for="task in mergeableTasks" :key="task.id"
+                    :label="`${task.taskCode} · ${task.taskQty} ${task.uomCode}`" :value="task.id" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="兼容键">
+                <el-input v-model="structuralCompatibilityKey" maxlength="128" style="width: 260px"
+                  placeholder="例如：TEMP-180-RED" />
+              </el-form-item>
+            </template>
+            <el-form-item label="调整原因">
+              <el-input v-model="structuralReason" maxlength="500" show-word-limit style="width: 320px"
+                placeholder="说明插单、拆批或合批原因" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :loading="structuralSaving" :disabled="!canSubmitStructural"
+                @click="submitStructuralAdjustment">创建结构调整草稿</el-button>
+            </el-form-item>
+          </el-form>
+          <el-empty v-if="structuralOptionsLoaded && !structuralOptionCount" description="没有符合当前动作的可选对象" />
+        </el-card>
+
+        <el-card v-if="adjustmentAllowed" class="publish-panel" shadow="never">
+          <template #header><strong>系统内发布</strong></template>
+          <el-form inline @submit.prevent="submitPublication">
+            <el-form-item label="发布原因">
+              <el-input v-model="publishReason" maxlength="500" show-word-limit
+                placeholder="例如：计划员审核通过" style="width: 360px" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="danger" :loading="publishSaving" :disabled="!publishReason.trim()"
+                @click="submitPublication">发布为当前正式计划</el-button>
+            </el-form-item>
+          </el-form>
+          <el-text type="info">发布会重新复验事实水位和全部硬约束，并原子替换旧正式版本。</el-text>
+        </el-card>
+
+        <el-card v-if="candidateMutable" class="discard-panel" shadow="never">
+          <template #header><strong>放弃候选</strong></template>
+          <el-form inline @submit.prevent="submitDiscard">
+            <el-form-item label="废弃原因">
+              <el-input v-model="discardReason" maxlength="500" show-word-limit
+                placeholder="例如：改用另一候选方案" style="width: 360px" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="warning" plain :loading="discardSaving" :disabled="!discardReason.trim()"
+                @click="submitDiscard">废弃当前候选</el-button>
+            </el-form-item>
+          </el-form>
+          <el-text type="info">废弃只把候选标记为 CANCELLED，不删除 M19～M24 历史，也不会影响当前正式计划。</el-text>
+        </el-card>
+
+        <el-card v-if="candidateMutable" class="lock-panel" shadow="never">
+          <template #header><strong>候选锁管理</strong></template>
+          <el-form inline @submit.prevent="submitLock">
+            <el-form-item label="目标层级">
+              <el-select v-model="lockTargetType" style="width: 130px">
+                <el-option label="作业" value="JOB" />
+                <el-option label="分段" value="SEGMENT" />
+                <el-option label="资源分配" value="ALLOCATION" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="目标">
+              <el-select v-model="lockTargetId" filterable style="width: 280px" placeholder="选择当前版本对象">
+                <el-option v-for="target in lockTargets" :key="target.value" :label="target.label" :value="target.value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="锁类型">
+              <el-select v-model="lockType" style="width: 130px">
+                <el-option label="时间锁" value="TIME" />
+                <el-option label="资源锁" value="RESOURCE" />
+                <el-option label="全锁" value="FULL" />
+              </el-select>
+            </el-form-item>
+            <el-form-item v-if="needsResource" label="已分配资源">
+              <el-select v-model="lockResourceId" filterable style="width: 230px" placeholder="选择目标已有资源">
+                <el-option v-for="resource in lockResources" :key="resource.value" :label="resource.label" :value="resource.value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="原因">
+              <el-input v-model="lockReason" maxlength="500" show-word-limit placeholder="例如：班组已确认" style="width: 260px" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :loading="lockSaving" :disabled="!canCreateLock" @click="submitLock">创建锁</el-button>
+            </el-form-item>
+          </el-form>
+          <el-table :data="detail.locks" empty-text="当前候选没有人工锁">
+            <el-table-column prop="targetType" label="层级" width="110" />
+            <el-table-column prop="lockType" label="类型" width="110" />
+            <el-table-column label="目标 ID" min-width="260">
+              <template #default="scope">{{ scope.row.allocationId || scope.row.segmentId || scope.row.jobId }}</template>
+            </el-table-column>
+            <el-table-column prop="lockedResourceId" label="资源 ID" min-width="230" />
+            <el-table-column prop="reason" label="原因" min-width="180" />
+            <el-table-column label="操作" width="100" fixed="right">
+              <template #default="scope">
+                <el-button link type="danger" :loading="lockSaving" @click="removeLock(scope.row.id, scope.row.rowVersion)">解除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+
+        <el-tabs v-model="activeView" class="workbench-tabs">
+          <el-tab-pane label="工序甘特" name="process">
+            <ApsGanttHost ref="processGanttRef" :model="displayModels.processGantt" @intent="submitAdjustment" />
+          </el-tab-pane>
+          <el-tab-pane label="设备甘特" name="equipment">
+            <ApsTimelineHost ref="equipmentTimelineRef" :model="displayModels.equipmentTimeline" @intent="submitAdjustment" />
+          </el-tab-pane>
+          <el-tab-pane label="人员甘特" name="personnel">
+            <ApsTimelineHost ref="personnelTimelineRef" :model="displayModels.personnelTimeline" @intent="submitAdjustment" />
+          </el-tab-pane>
+          <el-tab-pane :label="`冲突与原因 (${detail.problems.length})`" name="problems">
+            <el-alert v-if="detail.unplannedTaskIds.length" type="warning" :closable="false" show-icon
+              :title="`${detail.unplannedTaskIds.length} 个任务未排入当前候选`"
+              :description="detail.unplannedTaskIds.join('、')" />
+            <el-table :data="detail.problems" empty-text="当前版本没有求解或独立校验问题">
+              <el-table-column label="级别" width="90">
+                <template #default="scope">
+                  <el-tag :type="severityTagType(scope.row.severity)" effect="plain">{{ scope.row.severity }}</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column prop="reasonCode" label="原因码" min-width="210" />
+              <el-table-column prop="constraintCode" label="约束" width="130" />
+              <el-table-column label="原因解释" min-width="360">
+                <template #default="scope">
+                  <strong>{{ scope.row.title }}</strong>
+                  <div class="problem-detail">{{ scope.row.detail }}</div>
+                </template>
+              </el-table-column>
+              <el-table-column label="定位对象" min-width="300">
+                <template #default="scope">{{ problemObjects(scope.row.objectRefs) }}</template>
+              </el-table-column>
+              <el-table-column label="影响时段" min-width="290">
+                <template #default="scope">
+                  {{ scope.row.timeRange ? interval(scope.row.timeRange.startAt, scope.row.timeRange.endAt) : '—' }}
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane label="版本差异" name="comparison">
+            <el-table :data="changedJobs" empty-text="与基线没有作业级变化">
+              <el-table-column prop="changeType" label="变化" width="110" />
+              <el-table-column label="任务成员" min-width="260">
+                <template #default="scope">{{ scope.row.memberTaskIds.join(', ') }}</template>
+              </el-table-column>
+              <el-table-column label="变化维度" min-width="220">
+                <template #default="scope">{{ scope.row.dimensions.join('、') || '—' }}</template>
+              </el-table-column>
+              <el-table-column label="基线时间" min-width="260">
+                <template #default="scope">{{ interval(scope.row.baseStartAt, scope.row.baseEndAt) }}</template>
+              </el-table-column>
+              <el-table-column label="候选时间" min-width="260">
+                <template #default="scope">{{ interval(scope.row.targetStartAt, scope.row.targetEndAt) }}</template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
+      </template>
+    </el-card>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, nextTick, ref, watch } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import ApsGanttHost from '@/components/aps/gantt/ApsGanttHost.vue'
+import ApsTimelineHost from '@/components/aps/timeline/ApsTimelineHost.vue'
+import PlanLauncher from './PlanLauncher.vue'
+import {
+  comparePlanVersion,
+  createPlanAdjustment,
+  createPlanStructuralAdjustment,
+  createPlanLock,
+  deletePlanLock,
+  discardPlanCandidate,
+  getPlanVersionDetail,
+  publishPlanVersion
+} from '@/api/aps/planning'
+import { getExpansion, listOrders } from '@/api/aps/manufacturing'
+import { listResources } from '@/api/aps/resource'
+import type {
+  ApsAdjustmentIntent,
+  ApsAdjustmentAccepted,
+  ApsCreateStructuralAdjustmentInput,
+  ApsPlanLock,
+  ApsPlanCandidateDiscarded,
+  ApsPhaseKind,
+  ApsPlanProblem,
+  ApsPlanPublished,
+  ApsStructuralAction,
+  ApsStructuralAdjustmentAccepted,
+  ApsPlanVersionComparison,
+  ApsPlanVersionDetail
+} from '@/types/aps/planning'
+import type { ApsExpansion, ApsLot, ApsOrder, ApsTask } from '@/types/aps/manufacturing'
+import type { ApsResource } from '@/types/aps/resource'
+import { buildApsWorkbenchModels, filterApsWorkbenchModels } from './workbench-model'
+
+const planVersionId = ref('')
+
+function openPlan(id: string) { planVersionId.value = id; void load() }
+function dispatchUrl(jobId: string) {
+  return `/aps/execution?${new URLSearchParams({ planVersionId: detail.value!.version.planVersionId, planJobId: jobId })}`
+}
+const loading = ref(false)
+const loadError = ref('')
+const activeView = ref('process')
+const detail = ref<ApsPlanVersionDetail>()
+const comparison = ref<ApsPlanVersionComparison>()
+const models = ref<ReturnType<typeof buildApsWorkbenchModels>>()
+const resourceCatalog = ref<readonly ApsResource[]>([])
+const lockTargetType = ref<ApsPlanLock['targetType']>('JOB')
+const lockTargetId = ref('')
+const lockType = ref<ApsPlanLock['lockType']>('TIME')
+const lockResourceId = ref('')
+const lockReason = ref('')
+const lockSaving = ref(false)
+const adjustmentSaving = ref(false)
+const lastAdjustment = ref<ApsAdjustmentAccepted>()
+const lastStructuralAdjustment = ref<ApsStructuralAdjustmentAccepted>()
+const publishReason = ref('')
+const publishSaving = ref(false)
+const lastPublication = ref<ApsPlanPublished>()
+const discardReason = ref('')
+const discardSaving = ref(false)
+const lastDiscard = ref<ApsPlanCandidateDiscarded>()
+const structuralAction = ref<ApsStructuralAction>('INSERT_ORDER')
+const structuralOrderId = ref('')
+const structuralLotId = ref('')
+const structuralSplitQuantity = ref<number>()
+const structuralCompatibilityKey = ref('')
+const structuralMemberTaskIds = ref<string[]>([])
+const structuralReason = ref('')
+const structuralSaving = ref(false)
+const structuralOptionsLoading = ref(false)
+const structuralOptionsLoaded = ref(false)
+const insertableOrders = ref<readonly ApsOrder[]>([])
+const splittableLots = ref<readonly ApsLot[]>([])
+const mergeableTasks = ref<readonly ApsTask[]>([])
+const filterSearch = ref('')
+const filterResourceId = ref('')
+const filterPhase = ref<ApsPhaseKind | ''>('')
+const locateJobId = ref('')
+const phaseOptions: readonly ApsPhaseKind[] = ['SETUP', 'RUN', 'UNLOAD', 'WAIT', 'TRANSPORT', 'RESUME_SETUP']
+type ChartControl = { locate(targetId: string): boolean; zoomIn(): void; zoomOut(): void }
+const processGanttRef = ref<ChartControl>()
+const equipmentTimelineRef = ref<ChartControl>()
+const personnelTimelineRef = ref<ChartControl>()
+
+const changedJobs = computed(() => comparison.value?.jobs.filter((value) => value.changeType !== 'UNCHANGED') ?? [])
+const comparisonTitle = computed(() => {
+  const value = comparison.value?.summary
+  if (!value) return '正在等待基线差异'
+  return `相对基线：新增 ${value.added}，移除 ${value.removed}，变化 ${value.changed}，未变 ${value.unchanged}`
+})
+const candidateMutable = computed(() => detail.value != null && ['FEASIBLE', 'CONFLICT'].includes(detail.value.version.status))
+const adjustmentAllowed = computed(() => detail.value?.version.status === 'FEASIBLE' && !detail.value.stale)
+const structuralAllowed = computed(() => detail.value?.version.status === 'PUBLISHED')
+const selectedSplitLot = computed(() => splittableLots.value.find((lot) => lot.id === structuralLotId.value))
+const structuralOptionCount = computed(() => {
+  if (structuralAction.value === 'INSERT_ORDER') return insertableOrders.value.length
+  if (structuralAction.value === 'SPLIT_LOT') return splittableLots.value.length
+  return mergeableTasks.value.length
+})
+const canSubmitStructural = computed(() => {
+  if (!structuralAllowed.value || !structuralOptionsLoaded.value || !structuralReason.value.trim()) return false
+  if (structuralAction.value === 'INSERT_ORDER') return !!structuralOrderId.value
+  if (structuralAction.value === 'SPLIT_LOT') {
+    const lot = selectedSplitLot.value
+    return !!lot && !!structuralSplitQuantity.value && structuralSplitQuantity.value > 0
+      && structuralSplitQuantity.value < lot.plannedQty
+  }
+  return structuralMemberTaskIds.value.length >= 2 && !!structuralCompatibilityKey.value.trim()
+})
+const blockingProblemCount = computed(() => detail.value?.problems.filter((value) => value.severity === 'ERROR').length ?? 0)
+const displayModels = computed(() => filterApsWorkbenchModels(models.value!, {
+  searchText: filterSearch.value,
+  resourceId: filterResourceId.value || undefined,
+  phase: filterPhase.value || undefined
+}))
+const lockTargets = computed(() => {
+  const value = detail.value
+  if (!value) return []
+  if (lockTargetType.value === 'JOB') return value.jobs.map((job) => ({ value: job.jobId, label: `${job.jobCode} · ${job.jobId}` }))
+  if (lockTargetType.value === 'SEGMENT') return value.segments.map((segment) => ({ value: segment.id, label: `${segment.phaseType} #${segment.segmentNo} · ${segment.id}` }))
+  return value.allocations.map((allocation) => ({ value: allocation.id, label: `${allocation.allocationRole} 席位 ${allocation.seatNo} · ${allocation.id}` }))
+})
+const needsResource = computed(() => lockType.value !== 'TIME' && lockTargetType.value !== 'ALLOCATION')
+const lockResources = computed(() => {
+  const value = detail.value
+  if (!value || !lockTargetId.value) return []
+  const segmentIds = lockTargetType.value === 'JOB'
+    ? new Set(value.segments.filter((segment) => segment.jobId === lockTargetId.value).map((segment) => segment.id))
+    : lockTargetType.value === 'SEGMENT' ? new Set([lockTargetId.value]) : new Set<string>()
+  const ids = [...new Set(value.allocations.filter((allocation) => segmentIds.has(allocation.segmentId)).map((allocation) => allocation.resourceId))]
+  return ids.map((id) => {
+    const resource = resourceCatalog.value.find((candidate) => candidate.id === id)
+    return { value: id, label: resource ? `${resource.code} · ${resource.name}` : id }
+  })
+})
+const canCreateLock = computed(() => candidateMutable.value && !!lockTargetId.value && !!lockReason.value.trim()
+  && (!needsResource.value || !!lockResourceId.value))
+
+watch(lockTargetType, () => {
+  lockTargetId.value = ''
+  lockResourceId.value = ''
+})
+watch([lockType, lockTargetId], () => {
+  lockResourceId.value = ''
+})
+watch(structuralAction, () => {
+  structuralOrderId.value = ''
+  structuralLotId.value = ''
+  structuralSplitQuantity.value = undefined
+  structuralCompatibilityKey.value = ''
+  structuralMemberTaskIds.value = []
+})
+
+let loadSequence = 0
+async function load() {
+  if (!planVersionId.value) return
+  const sequence = ++loadSequence
+  const id = planVersionId.value
+  loading.value = true
+  loadError.value = ''
+  try {
+    const [nextDetail, resources] = await Promise.all([
+      getPlanVersionDetail(id),
+      listResources({})
+    ])
+    const nextComparison = nextDetail.version.baseVersionId
+      ? await comparePlanVersion(nextDetail.version.planVersionId)
+      : undefined
+    if (sequence !== loadSequence) return
+    resourceCatalog.value = resources
+    applyDetail(nextDetail)
+    comparison.value = nextComparison
+  } catch {
+    if (sequence === loadSequence) loadError.value = '未能读取该计划版本；请检查版本 ID 或接口连接后重试。'
+  } finally {
+    if (sequence === loadSequence) loading.value = false
+  }
+}
+
+function applyDetail(nextDetail: ApsPlanVersionDetail) {
+  if (detail.value?.version.planVersionId !== nextDetail.version.planVersionId) resetStructuralOptions()
+  detail.value = nextDetail
+  models.value = buildApsWorkbenchModels(nextDetail, resourceCatalog.value)
+}
+
+function resetStructuralOptions() {
+  structuralOptionsLoaded.value = false
+  insertableOrders.value = []
+  splittableLots.value = []
+  mergeableTasks.value = []
+  structuralOrderId.value = ''
+  structuralLotId.value = ''
+  structuralSplitQuantity.value = undefined
+  structuralCompatibilityKey.value = ''
+  structuralMemberTaskIds.value = []
+}
+
+async function loadStructuralOptions() {
+  const value = detail.value
+  if (!value || !structuralAllowed.value) return
+  structuralOptionsLoading.value = true
+  try {
+    const orders = (await listOrders()).filter((order) => order.status === 'RELEASED')
+    const expansions = await Promise.all(orders.map((order) => getExpansion(order.id)))
+    const scopeTaskIds = new Set([
+      ...value.jobs.flatMap((job) => job.members.map((member) => member.taskId)),
+      ...value.unplannedTaskIds
+    ])
+    const sourceExpansions: ApsExpansion[] = []
+    const outsideOrders: ApsOrder[] = []
+    expansions.forEach((expansion) => {
+      if (expansion.tasks.some((task) => scopeTaskIds.has(task.id))) sourceExpansions.push(expansion)
+      else if (expansion.tasks.length) outsideOrders.push(expansion.order)
+    })
+    const sharedTaskIds = new Set(value.jobs.filter((job) => job.jobType === 'SHARED_BATCH')
+      .flatMap((job) => job.members.map((member) => member.taskId)))
+    const allSourceTasks = sourceExpansions.flatMap((expansion) => expansion.tasks)
+      .filter((task) => scopeTaskIds.has(task.id))
+    const tasksByLot = new Map<string, ApsTask[]>()
+    allSourceTasks.forEach((task) => {
+      const values = tasksByLot.get(task.productionLotId) ?? []
+      values.push(task)
+      tasksByLot.set(task.productionLotId, values)
+    })
+    insertableOrders.value = outsideOrders.sort((left, right) => left.orderNo.localeCompare(right.orderNo))
+    splittableLots.value = sourceExpansions.flatMap((expansion) => expansion.lots)
+      .filter((lot) => ['PLANNED', 'RELEASED'].includes(lot.status)
+        && (tasksByLot.get(lot.id)?.length ?? 0) > 0
+        && !(tasksByLot.get(lot.id) ?? []).some((task) => sharedTaskIds.has(task.id)))
+      .sort((left, right) => left.lotNo.localeCompare(right.lotNo))
+    mergeableTasks.value = allSourceTasks.filter((task) => !sharedTaskIds.has(task.id))
+      .sort((left, right) => left.taskCode.localeCompare(right.taskCode))
+    structuralOptionsLoaded.value = true
+  } finally {
+    structuralOptionsLoading.value = false
+  }
+}
+
+async function submitStructuralAdjustment() {
+  const value = detail.value
+  if (!value || !canSubmitStructural.value || structuralSaving.value) return
+  const common = {
+    expectedBaseRowVersion: value.version.rowVersion,
+    capturedAt: new Date().toISOString(),
+    reason: structuralReason.value.trim()
+  }
+  let input: ApsCreateStructuralAdjustmentInput
+  if (structuralAction.value === 'INSERT_ORDER') {
+    input = { ...common, action: 'INSERT_ORDER', orderId: structuralOrderId.value }
+  } else if (structuralAction.value === 'SPLIT_LOT') {
+    input = { ...common, action: 'SPLIT_LOT', parentLotId: structuralLotId.value,
+      splitQuantity: structuralSplitQuantity.value! }
+  } else {
+    const tasks = new Map(mergeableTasks.value.map((task) => [task.id, task]))
+    input = { ...common, action: 'MERGE_BATCH', compatibilityKey: structuralCompatibilityKey.value.trim(),
+      members: structuralMemberTaskIds.value.map((taskId) => ({ taskId, quantity: tasks.get(taskId)!.taskQty })) }
+  }
+  structuralSaving.value = true
+  try {
+    lastStructuralAdjustment.value = await createPlanStructuralAdjustment(
+      value.version.planVersionId, crypto.randomUUID(), input)
+    structuralReason.value = ''
+    ElMessage.success('结构调整已生成新草稿，原正式计划保持不变')
+    await loadStructuralOptions()
+  } finally {
+    structuralSaving.value = false
+  }
+}
+
+function resetFilters() {
+  filterSearch.value = ''
+  filterResourceId.value = ''
+  filterPhase.value = ''
+}
+
+async function locateSelected() {
+  if (!locateJobId.value) return
+  if (!displayModels.value.processGantt.tasks.some((task) => task.taskId === locateJobId.value)) {
+    resetFilters()
+    await nextTick()
+  }
+  if (!['process', 'equipment', 'personnel'].includes(activeView.value)) {
+    activeView.value = 'process'
+    await nextTick()
+  }
+  const control = activeControl()
+  if (!control?.locate(locateJobId.value)) ElMessage.warning('当前视图没有该作业对应的可见占用，已保留定位目标')
+}
+
+function zoomActive(direction: 'in' | 'out') {
+  const control = activeControl()
+  if (!control) {
+    ElMessage.info('请先切换到工序、设备或人员甘特')
+    return
+  }
+  direction === 'in' ? control.zoomIn() : control.zoomOut()
+}
+
+function activeControl(): ChartControl | undefined {
+  if (activeView.value === 'process') return processGanttRef.value
+  if (activeView.value === 'equipment') return equipmentTimelineRef.value
+  if (activeView.value === 'personnel') return personnelTimelineRef.value
+  return undefined
+}
+
+async function submitLock() {
+  const value = detail.value
+  if (!value || !canCreateLock.value) return
+  lockSaving.value = true
+  try {
+    const next = await createPlanLock(value.version.planVersionId, {
+      expectedPlanRowVersion: value.version.rowVersion,
+      targetType: lockTargetType.value,
+      targetId: lockTargetId.value,
+      lockType: lockType.value,
+      requestedResourceId: needsResource.value ? lockResourceId.value : undefined,
+      reason: lockReason.value.trim()
+    })
+    applyDetail(next)
+    lockReason.value = ''
+    ElMessage.success('候选锁已创建')
+  } finally {
+    lockSaving.value = false
+  }
+}
+
+async function removeLock(lockId: string, expectedLockRowVersion: number) {
+  const value = detail.value
+  if (!value) return
+  lockSaving.value = true
+  try {
+    applyDetail(await deletePlanLock(value.version.planVersionId, lockId,
+      value.version.rowVersion, expectedLockRowVersion))
+    ElMessage.success('候选锁已解除')
+  } finally {
+    lockSaving.value = false
+  }
+}
+
+async function submitAdjustment(intent: ApsAdjustmentIntent) {
+  const value = detail.value
+  if (!value || adjustmentSaving.value) return
+  if (!adjustmentAllowed.value) {
+    ElMessage.warning('只有可行候选可以派生人工计划版本')
+    return
+  }
+  adjustmentSaving.value = true
+  try {
+    lastAdjustment.value = await createPlanAdjustment(value.version.planVersionId, crypto.randomUUID(), {
+      expectedBaseRowVersion: value.version.rowVersion,
+      capturedAt: new Date().toISOString(),
+      targetType: intent.targetType,
+      targetId: intent.targetId,
+      requestedStartAt: intent.requestedStartAt,
+      requestedEndAt: intent.requestedEndAt,
+      requestedResourceId: intent.requestedResourceId,
+      reason: intent.source === 'GANTT' ? '工序甘特人工调整' : '资源甘特人工调整'
+    })
+    ElMessage.success('调整意图已生成新计划请求，原候选保持不变')
+  } finally {
+    adjustmentSaving.value = false
+  }
+}
+
+async function submitPublication() {
+  const value = detail.value
+  if (!value || !adjustmentAllowed.value || !publishReason.value.trim()) return
+  publishSaving.value = true
+  try {
+    const result = await publishPlanVersion(value.version.planVersionId, {
+      expectedPlanRowVersion: value.version.rowVersion,
+      reason: publishReason.value.trim()
+    })
+    lastPublication.value = result
+    publishReason.value = ''
+    applyDetail(result.plan)
+    ElMessage.success(result.reused ? '当前版本已经是正式计划' : '系统内正式计划已发布')
+  } finally {
+    publishSaving.value = false
+  }
+}
+
+async function submitDiscard() {
+  const value = detail.value
+  const reason = discardReason.value.trim()
+  if (!value || !candidateMutable.value || !reason) return
+  try {
+    await ElMessageBox.confirm(
+      '废弃后该候选不能继续调整或发布，但历史数据会保留。是否继续？',
+      '确认废弃候选',
+      { type: 'warning', confirmButtonText: '确认废弃', cancelButtonText: '取消' }
+    )
+  } catch (action) {
+    if (action === 'cancel' || action === 'close') return
+    throw action
+  }
+  discardSaving.value = true
+  try {
+    const result = await discardPlanCandidate(value.version.planVersionId, {
+      expectedPlanRowVersion: value.version.rowVersion,
+      reason
+    })
+    lastDiscard.value = result
+    discardReason.value = ''
+    applyDetail(result.plan)
+    ElMessage.success('候选已废弃，当前正式计划未变化')
+  } finally {
+    discardSaving.value = false
+  }
+}
+
+function severityTagType(severity: ApsPlanProblem['severity']): 'danger' | 'warning' | 'info' {
+  if (severity === 'ERROR') return 'danger'
+  if (severity === 'WARNING') return 'warning'
+  return 'info'
+}
+
+function structuralActionLabel(action: ApsStructuralAction) {
+  return action === 'INSERT_ORDER' ? '插单' : action === 'SPLIT_LOT' ? '拆批' : '合批'
+}
+
+function problemObjects(refs: ApsPlanProblem['objectRefs']) {
+  if (!refs.length) return '—'
+  return refs.map((ref) => `${ref.objectType}:${ref.objectId}${ref.field ? `.${ref.field}` : ''}`).join('；')
+}
+
+function interval(startAt: string | null, endAt: string | null) {
+  if (!startAt || !endAt) return '—'
+  return `${new Date(startAt).toLocaleString()} ～ ${new Date(endAt).toLocaleString()}`
+}
+
+function displayTime(value: string | null) {
+  return value ? new Date(value).toLocaleString() : '未知时间'
+}
+</script>
+
+<style scoped>
+.workbench-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.load-error { margin-bottom: 1rem; }
+.version-note { margin-left: 0.75rem; color: var(--el-text-color-secondary); font-weight: normal; }
+.summary-row { margin: 0.5rem 0 1rem; }
+.view-controls { margin: 0.5rem 0 1rem; }
+.lock-panel { margin: 1rem 0; }
+.structural-panel { margin: 1rem 0; }
+.structural-form { margin-top: 1rem; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.field-note { margin-left: 0.5rem; }
+.publish-panel { margin: 1rem 0; }
+.discard-panel { margin: 1rem 0; }
+.adjustment-result { margin-top: 1rem; }
+.workbench-tabs { margin-top: 1rem; }
+.problem-detail { margin-top: 0.25rem; color: var(--el-text-color-secondary); white-space: normal; }
+
+@media (max-width: 640px) {
+  .workbench-head,
+  .panel-head { align-items: flex-start; flex-direction: column; }
+  .version-note { display: block; margin: 0.4rem 0 0; overflow-wrap: anywhere; }
+  :deep(.el-form--inline .el-form-item) { display: flex; margin-right: 0; width: 100%; }
+  :deep(.el-form--inline .el-form-item__content) { flex: 1; min-width: 0; }
+  :deep(.el-form--inline .el-form-item__content > .el-input),
+  :deep(.el-form--inline .el-form-item__content > .el-select),
+  :deep(.el-form--inline .el-form-item__content > .el-input-number) { max-width: 100%; width: 100% !important; }
+}
+</style>

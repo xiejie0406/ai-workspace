@@ -18,6 +18,12 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "aps.datasource", name = "enabled", havingValue = "true")
 public class ApsExecutionPersistenceConfiguration
 {
+    @Bean public com.ruoyi.aps.application.execution.ExecutionDirectoryService apsExecutionDirectoryService(
+            ExecutionLifecycleService lifecycle,ExecutionRepository executions,QuantityRepository quantities,
+            com.ruoyi.aps.application.resource.ResourceManagementService resources,OrderRepository orders,
+            com.ruoyi.aps.application.planning.PlanWorkbenchService plans) {
+        return new com.ruoyi.aps.application.execution.ExecutionDirectoryService(lifecycle,executions,quantities,resources,orders,plans);
+    }
     @Bean public ExecutionRepository apsExecutionRepository(ApsExecutionMapper mapper)
     {
         return new MybatisExecutionRepository(mapper);

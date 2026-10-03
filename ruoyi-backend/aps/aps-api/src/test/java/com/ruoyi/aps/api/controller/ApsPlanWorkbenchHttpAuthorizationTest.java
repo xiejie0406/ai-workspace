@@ -49,6 +49,8 @@ class ApsPlanWorkbenchHttpAuthorizationTest
             context.refresh();
             MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
+            mockMvc.perform(get("/api/aps/v1/plan-versions").with(user("outsider")))
+                    .andExpect(status().isForbidden());
             mockMvc.perform(get("/api/aps/v1/plan-versions/{id}", PLAN_ID).with(user("outsider")))
                     .andExpect(status().isForbidden());
             mockMvc.perform(get("/api/aps/v1/plan-versions/{id}/comparison", PLAN_ID).with(user("outsider")))

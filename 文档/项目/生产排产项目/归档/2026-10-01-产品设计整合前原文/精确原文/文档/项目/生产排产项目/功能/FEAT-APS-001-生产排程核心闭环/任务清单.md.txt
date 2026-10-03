@@ -1,0 +1,821 @@
+# FEAT-APS-001 生产排程核心闭环十阶段实施计划
+
+> 文档类型：唯一实施任务事实源；版本：0.9.24；文档状态：Draft
+> Feature：FEAT-APS-001；风险：L2  
+> 当前治理阶段：Stage 7 开发；阶段状态：InProgress  
+> 实施里程碑：IMP-01～IMP-09 Done；IMP-10 InProgress  
+> owner：Codex 按实际工程维护；用户维护产品方向、范围批准和验收决定  
+> 创建日期：2026-09-12；更新日期：2026-10-01
+> 输入：[产品需求文档](../../产品/产品需求文档.md)、[APS 引擎设计](../../架构/APS排程引擎需求与技术设计.md)、[数据库设计](../../架构/数据库设计.md)、[DDL 草案](../../架构/生产排程数据库基线草案.sql)、[甘特选型](../../决策/甘特图组件选型决策.md)、[Feature 控制页](README.md)
+
+## 1. 文档目的和使用规则
+
+本文件回答五个问题：十个阶段分别解决哪些需求、实现哪些业务模块、落到哪些目标文件、使用什么技术、做到什么程度才能进入下一阶段。它是 FEAT-APS-001 唯一实施任务事实源；其他文档只维护产品、架构、数据库或实际证据，不另建第二份十阶段计划。
+
+`IMP-01`～`IMP-10` 是交付顺序，不是协作规范中的治理 Stage 1～10。2026-09-12 用户已批准本计划、推荐基线和列明的本地实施影响；当前治理状态为 **Stage 7 / InProgress**，从 IMP-01 开始。
+
+状态定义：
+
+| 状态 | 含义 |
+| --- | --- |
+| `Todo` | 未开始，或虽有设计/原型但生产实现与验证未完成 |
+| `InProgress` | 已在批准范围内实施，尚未满足本阶段出口 |
+| `Blocked` | 存在不能在当前授权或事实条件下安全解决的阻断 |
+| `Done` | 列明产物已经实现，最小验证实际通过，失败和限制已记录 |
+
+文件存在、接口返回 200、页面能打开、求解器返回一组时间、原型已演示，都不能单独把阶段改为 `Done`。每个阶段至少同时满足：实现完成、自审完成、阶段证据通过、阻断问题关闭、限制如实记录。
+
+## 2. P0 目标、结果和非目标
+
+### 2.1 十阶段完成后应具备的能力
+
+P0 最终应形成一个单站点、多车间的生产排程闭环：
+
+1. 维护车间、工作中心、人员/设备/工位/工具、单表多技能和绝对可用时间窗。
+2. 维护产品、工序阶段、资源要求和版本化路线 DAG；把多产品订单稳定展开为生产批、任务、依赖和基础物料需求。
+3. 在求解前发现缺路线、缺工时、缺资源、缺日历、循环、单位和数量关系错误，并返回可定位的业务原因。
+4. 用 OR-Tools CP-SAT 在人员、设备、容量、日历、前置、数量和锁定约束下生成有限产能候选；状态区分可行、最优、超时有解、超时无解和证明无解。
+5. 支持数量门槛、连续转移批、受控拆批、人工共享加工批、人机分阶段占用、不可中断和受控可中断。
+6. 提供设备、人员、车间/工序三类甘特，支持影响分析、人工计划、时间/资源/全锁、版本比较和系统内原子发布。
+7. 支持开工、暂停、恢复、完工、真实资源占用、部分报工、待检/合格/不良、冲正、返工/补产和不可变数量事件。
+8. 形成车间每日生产表、人力累计产能、峰值缺口、产品行/订单预计完成和原因解释。
+9. 通过权限、幂等、并发、故障恢复、容量、安全、浏览器和用户验收门，并保留可审计证据。
+
+### 2.2 本十阶段明确不做
+
+- 不做多工厂/跨厂协同，不恢复 `aps_factory`、`factory_id`；一个 APS 业务库服务一个生产站点。
+- 不做完整 BOM、MRP、采购、库存、工资、QMS/CAPA、维修工单或通用 BI。
+- 不执行 `SAME_START` 同步组；首版必须把来源同步关系持久保留，返回 `UNSUPPORTED_SYNC_RULE` 并阻止数据就绪和发布，不能静默丢失或降级。其他同步类型仍不在 P0 契约中。
+- 不做具名人员/设备速率、人员组合效率、多机看护、顺序相关换型、清洗 campaign 或多维批容量。
+- 不做多 Worker 抢占、续租、自动接管和旧 Worker fencing；29 表不足以支持这些语义。用户已批准将 APS-AC-22 调整为 P1，引擎设计已同步；P0 环境禁止启动第二 Worker。
+- 未确定真实接收方、ACK、重试和补偿责任前，不做 ERP/MES 可靠外发，不用假 Outbox 声称已下达。用户已批准将该能力转为 P1；PRD AC-15 当前只验系统内并发与原子发布。
+- 不让浏览器直接访问 Worker 或数据库，不把 DHTMLX/vis 原生对象写进领域模型、API 或 MySQL。
+- 不直接复用原型的 `localStorage` 与 `javascript-lp-solver` 作为生产实现。
+- 不在本计划中执行真实生产迁移、真实账号联调、费用、Git 写操作或正式发布。
+
+## 3. 开工基线：当前事实与拟采用技术栈
+
+### 3.1 开工时工程快照（历史）
+
+本节保留2026-09-12开工依据，描述实施之前的工程及目录。当前活跃后端为 `ruoyi-backend/`，已实施模块和技术验证以本文件后续里程碑及[控制页](README.md)为准；此处“暂无 APS 模块”等历史描述不作为当前状态。
+
+| 范围 | 当前事实 | 对实施的影响 |
+| --- | --- | --- |
+| 共享后端 | 当时的共享工程（旧目录名 `platform-backend`）为 RuoYi 3.9.2、Spring Boot 4.0.6、Java 17、Maven、MyBatis Spring Boot 4.0.1、Druid；开工时暂无 APS 模块 | 开工时所有 APS Java 目录均为拟新增；HTTP 继续由 `ruoyi-admin` 装配 |
+| 管理端 | `admin-web` 当前为 Vue 3.5.26、Vite 6.4.3、Element Plus 2.13.1、Pinia 3.0.4、Axios 1.20.0；现有源码主要是 JavaScript | TypeScript 和测试能力必须作为 IMP-01 的真实产物接入，不能假设已存在；共享工程并发升级须按当前 lockfile 复验 |
+| 契约 | `contracts/aps/` 已有 APS OpenAPI、四个 Solver Schema、正反例与统一校验器 | 作为 Java、Worker、前端的共同边界；业务消费者按后续 IMP 实现 |
+| 数据库 | 29 表评审 DDL 已冻结为不可变 V001；生产前进迁移当前到 V006，依次覆盖受控可中断、结构调整幂等、数量冲正、活动 run carry 身份和 M26 来源计划分配身份，并在隔离 MySQL 8.0.46 通过迁移、约束、升级和恢复验证 | 真实业务库从未连接或迁移；后续结构变更继续只追加前进 migration |
+| 求解器与甘特 | OR-Tools、DHTMLX Gantt、`vis-timeline` 均未接入 | 先做兼容/许可证/性能 PoC，再锁精确版本 |
+| 原型 | V2 是原生 HTML/CSS/JavaScript、`localStorage` 和演示求解器 | 只提取行为与验收夹具，不迁移实现状态 |
+
+### 3.2 已批准技术基线
+
+| 层 | P0 技术选择 | 采用方式与边界 |
+| --- | --- | --- |
+| Java 运行与编译 | Java 17 | API 与 Worker 统一 target 17，匹配共享父工程；不为 APS 先升级整个仓库。IMP-01 同步修订设计中的 Java 21 口径 |
+| 后端框架 | RuoYi 3.9.2、Spring Boot 4.0.6、Maven | 锁现有版本启动；普通依赖升级不和 APS 功能混做 |
+| 业务分层 | 领域模型 + 应用用例 + Port/Adapter；Jakarta Validation | 领域层不依赖 Spring、MyBatis、OR-Tools或前端组件 |
+| 数据访问 | MyBatis、Mapper XML、Druid、Flyway MySQL | APS 独立 MySQL schema/data source、migration location 和 history table；RuoYi 用户 ID 只逻辑关联 |
+| 数据库 | MySQL 8.0.16+、InnoDB、utf8mb4、UTC `DATETIME(3)` | 29 表为 P0 候选；应用生成 UUID；不在 SQL 内求解排程组合 |
+| API | REST/JSON、OpenAPI、统一错误信封；SSE 仅推送求解进度 | 最终状态以普通查询与 MySQL 为准；SSE 断线不改变业务状态 |
+| 求解器 | OR-Tools CP-SAT `9.15.6755` Java 包 | IMP-01 已通过本地 Windows/JDK 17 原生库 smoke 并锁定精确版本；IMP-06 完成业务模型 Go/No-Go，IMP-10 已在选定的 Windows 目标环境复验 JNI、制品和进程启动 |
+| Worker | 独立 Spring Boot 进程、单实例 | API 创建快照/请求；Worker 通过状态 CAS 领取单实例任务，求解外不持长事务，完整候选短事务写入；不宣称租约/fencing |
+| 前端 | Vue 3、Element Plus、Pinia、Axios；APS 新代码增量 TypeScript | 增加 `typescript`、`vue-tsc` 和类型检查脚本，不迁移既有 JS 页面 |
+| 可视化 | DHTMLX Gantt Community v10+、`vis-timeline`，均经适配层 | IMP-01 完成兼容、许可证和合成数据 PoC 后锁精确版；Community 能力不足时先调整交互，不私自切换商业授权 |
+| 自动化验证 | JUnit 5、Testcontainers MySQL、JSON Schema/OpenAPI 契约测试、黄金排程集、Vitest、Playwright | 求解测试与独立校验器测试分开；浏览器测试不能代替约束验证 |
+| 运行观测 | Spring Boot Actuator、Micrometer、结构化日志 | 先定义指标与日志；Prometheus/OpenTelemetry 等外部设施只在部署环境明确后接入 |
+| 部署 | API 与 Worker 独立进程/容器；MySQL 唯一业务事实源 | 可同主机部署，但 Worker 可单独停止、限流和恢复；P0 禁止启动第二 Worker |
+
+参考依据：[Spring Boot 官方系统要求](https://docs.spring.io/spring-boot/system-requirements.html)说明 Spring Boot 4 最低需要 Java 17；[OR-Tools 官方 Java 安装说明](https://developers.google.com/optimization/install/java)推荐使用 Maven 包；[DHTMLX Gantt 官方安装说明](https://docs.dhtmlx.com/gantt/guides/installation/)说明 v10+ Community 可通过公开 npm 包安装；资源时间线能力以 [vis-timeline 官方文档](https://visjs.github.io/vis-timeline/docs/timeline/)为准。开发依赖精确版本和许可证清单在 IMP-01 留实际证据；用户于 2026-09-13 明确选择 Windows，IMP-10 据此锁定当前 Windows 目标运行时的 JDK、Maven、Node/npm、CPU/内存和 JNI 基线。若未来改用 Windows Server 或 Linux，须以新目标环境重跑而不能沿用本机结论。
+
+## 4. 拟新增文件结构与依赖方向
+
+以下是目标树，不表示目录或代码当前已经存在：
+
+```text
+contracts/aps/
+  README.md
+  openapi/aps-api-v1.yaml
+  schemas/solver-input-v1.schema.json
+  schemas/solver-result-v1.schema.json
+  schemas/validation-result-v1.schema.json
+  schemas/problem-v1.schema.json
+  examples/golden/
+
+ruoyi-backend/
+  pom.xml                                      # 增加 aps 聚合模块
+  aps/
+    pom.xml                                    # APS 子聚合
+    aps-domain/
+      src/main/java/com/ruoyi/aps/domain/
+        resource/ routing/ order/ planning/ execution/ quantity/ reporting/
+    aps-application/
+      src/main/java/com/ruoyi/aps/application/
+        resource/ routing/ order/ planning/ execution/ reporting/ port/
+    aps-infrastructure-mysql/
+      src/main/java/com/ruoyi/aps/infrastructure/mysql/
+      src/main/resources/
+        db/migration/aps/V001__aps_baseline.sql
+        mapper/aps/resource/
+        mapper/aps/routing/
+        mapper/aps/order/
+        mapper/aps/planning/
+        mapper/aps/execution/
+    aps-solver-contract/
+      src/main/java/com/ruoyi/aps/solver/contract/
+    aps-constraint-validator/
+      src/main/java/com/ruoyi/aps/validator/
+      src/test/resources/aps/golden/
+    aps-solver-ortools/
+      src/main/java/com/ruoyi/aps/solver/ortools/
+    aps-api/
+      src/main/java/com/ruoyi/aps/api/
+        controller/ dto/ mapper/ security/ sse/
+    aps-worker/
+      src/main/java/com/ruoyi/aps/worker/
+      src/main/resources/application.yml
+  ruoyi-admin/
+    pom.xml                                     # 组合 aps-api + aps-infrastructure-mysql
+    src/main/resources/application.yml          # 显式 import APS 配置
+    src/main/resources/application-aps.yml      # APS 数据源和功能开关
+  sql/aps-permissions.sql                       # RuoYi 菜单/权限，可重复执行
+
+frontend/admin-web/
+  tsconfig.aps.json
+  src/
+    api/aps/
+      resource.ts routing.ts order.ts planning.ts execution.ts report.ts
+    types/aps/
+      common.ts master-data.ts planning.ts execution.ts reporting.ts
+    store/modules/aps.ts
+    views/aps/
+      readiness/ resources/ routes/ orders/ workbench/ versions/ execution/ reports/
+    components/aps/
+      gantt/ timeline/ conflict/ version/ common/
+  tests/
+    unit/aps/
+    e2e/aps/
+
+scripts/aps/
+  verify-migration.*
+  run-golden-regression.*
+  benchmark.*
+  recovery-drill.*
+```
+
+模块依赖只允许向内：
+
+```text
+aps-domain ← aps-application ← aps-api
+     ↑              ↑
+     └──── aps-infrastructure-mysql（实现 application port）
+
+ruoyi-admin = aps-api + aps-infrastructure-mysql（HTTP 进程装配）
+
+aps-solver-contract ← aps-constraint-validator
+         ↑                    ↑
+         └──────── aps-solver-ortools
+                              ↑
+                  aps-worker（组合 solver + persistence）
+```
+
+`aps-domain` 和 `aps-solver-contract` 不依赖 Spring、MyBatis、OR-Tools、DHTMLX 或 vis。`aps-constraint-validator` 不调用 OR-Tools，避免“求解器自己证明自己”。`ruoyi-admin` 负责组合 HTTP 与 MySQL 两个外层适配器；`aps-worker` 组合应用用例、MySQL 适配器和求解器，但不把 OR-Tools 类型反向暴露给应用层。领域按业务边界组织，不按 29 张表机械生成 29 套 Controller/Service。
+
+## 5. 数据模块与代码模块映射
+
+| 数据模块 | 表 | 主要代码包 | 主要页面 |
+| --- | --- | --- | --- |
+| M01～M05 资源与可用性 | `aps_workshop`、`aps_work_center`、`aps_resource`、`aps_resource_skill`、`aps_resource_availability` | `domain.resource`、`application.resource` | `resources`、`readiness` |
+| M06～M12 产品与工艺路线 | `aps_item`、`aps_operation_spec`、`aps_operation_phase`、`aps_resource_requirement`、`aps_route_version`、`aps_route_node`、`aps_route_edge` | `domain.routing`、`application.routing` | `routes`、`readiness` |
+| M13～M18 订单与任务网络 | `aps_order`、`aps_order_line`、`aps_production_lot`、`aps_task`、`aps_task_dependency`、`aps_material_demand` | `domain.order`、`application.order` | `orders`、`readiness` |
+| M19～M24 计划版本与分配 | `aps_plan_version`、`aps_plan_job`、`aps_plan_job_member`、`aps_plan_segment`、`aps_plan_allocation`、`aps_plan_lock` | `domain.planning`、`application.planning`、solver/validator | `workbench`、`versions` |
+| M25～M29 执行与数量账 | `aps_execution_run`、`aps_actual_occupancy`、`aps_production_report`、`aps_output_lot`、`aps_quantity_event` | `domain.execution`、`domain.quantity`、`application.execution` | `execution`、`reports` |
+
+## 6. 十阶段总览
+
+| 阶段 | 阶段主题 | 需求首次完整闭环 | 核心交付 | 当前状态 |
+| --- | --- | --- | --- | --- |
+| IMP-01 | 实现基线、契约与工程骨架 | REQ-10 的工程前置 | 关闭关键决策、模块骨架、契约骨架、工具链和本地 smoke | Done |
+| IMP-02 | 数据库与平台基座 | REQ-10 的数据/权限前置 | 29 表 V001、持久化基座、统一 ID/时间/错误、RuoYi 权限 | Done |
+| IMP-03 | 组织资源、技能与可用日历 | REQ-04 的主数据前置 | M01～M05 的 API、页面和规则 | Done |
+| IMP-04 | 产品工艺、路线版本与订单展开 | REQ-01 | M06～M18、路线 DAG、订单/任务展开与数据问题 | Done |
+| IMP-05 | 数据就绪、求解契约与独立校验 | REQ-04 的确定性规则、REQ-09 原因前置 | 输入编译、候选资源、硬约束校验和原因码 | Done |
+| IMP-06 | 基础 CP-SAT 有限排程与单 Worker | REQ-04 基础排程能力 | M19～M24 候选、日历/资源/前置约束、取消超时和状态 | Done |
+| IMP-07 | 数量释放、拆分/共享批与动态重排 | REQ-02、REQ-03 | 数量守恒、转移批、共享批、可中断、影响闭包 | Done |
+| IMP-08 | 三甘特、人工计划、锁定与系统内发布 | REQ-05、REQ-06 | 生产工作台、版本比较、锁定、并发复验和原子发布 | Done |
+| IMP-09 | 现场执行、质量处置与数量账 | REQ-07 | M25～M29、实际占用、报工、质量、返工/补产和冲正 | Done |
+| IMP-10 | 报表、交期、生产硬化与试点验收 | REQ-08、REQ-09；REQ-10 收口 | 日报/产能/ETA、容量/安全/恢复、当前 P0 UAT 与上线就绪评估 | InProgress |
+
+REQ-10 贯穿 IMP-01～IMP-10。任何阶段的页面演示都不能越过上一阶段的契约、数据和约束出口。
+
+## 7. IMP-01 实现基线、契约与工程骨架
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 把“准备实现什么、用什么实现、哪些暂不实现”冻结成可构建的空骨架，消除 Java、TypeScript、日历、单 Worker、单站点与可靠外发的互相矛盾口径 |
+| 关联需求 | REQ-10；APS-REQ-01、02、13、14 的基础；关闭 APS-DG-01、03、04、05、06、07、08 的 P0 选择，APS-DG-02 明确延期 |
+| 涉及模块 | `contracts/aps`；八个 APS Maven 模块骨架；`admin-web` APS TypeScript/测试工具链；功能开关、配置与证据约定 |
+| 主要文件 | `ruoyi-backend/pom.xml`、`ruoyi-backend/aps/**/pom.xml`、`contracts/aps/**`、`frontend/admin-web/tsconfig.aps.json`、`frontend/admin-web/package.json`、`scripts/aps/`、现有 APS 技术设计 |
+| 进入条件 | 用户批准本十阶段计划、推荐基线和暂缓范围；29 表仍作为实现候选，不在真实库执行 |
+| 技术重点 | Java 17；Maven reactor；OpenAPI/JSON Schema；OR-Tools Maven/JNI smoke；TypeScript + `vue-tsc`；Feature flag |
+
+实施任务：
+
+1. 把控制页、任务源、PRD、引擎设计、数据库设计和甘特决定之间的状态与链接统一；按用户批准结果修正文档中 Java 21、工厂默认日历、Inbox/Outbox 与 29 表单 Worker 的冲突，并把外部可靠下达与 APS-AC-22 多 Worker 同步调整为 P1。
+2. 明确 P0：单站点部署配置、车间级数据权限、M05 绝对时间窗、标准阶段速率、系统内发布、单 Worker 和受控恢复；同时批准 M12/M17 保留 `SAME_START` 来源关系但在数据就绪与发布时阻断执行的 29 表内方案。
+3. 建立八个 Maven 模块空骨架与依赖守卫；`ruoyi-admin` 组合 `aps-api` 与 `aps-infrastructure-mysql`，Worker 保持独立入口；在现有 `application.yml` 通过 `spring.config.import=optional:classpath:application-aps.yml` 显式加载 APS 配置，不能只创建一个不会自动生效的新文件。
+4. 建立 OpenAPI、Solver 输入/结果/校验/Problem Schema 的版本字段、兼容策略和黄金样例目录。
+5. 为 APS 新代码接入 TypeScript 类型检查、Vitest 与 Playwright 脚本；既有 JS 页面不迁移。
+6. 在 Windows 本地开发环境运行 OR-Tools Java 17 原生库最小 smoke，记录精确版本、许可证、CPU 架构和失败结果；IMP-10 再按用户选定的 Windows 目标环境复验完整制品与启动链。
+7. 为 DHTMLX Community 与 `vis-timeline` 建立隔离适配器 PoC，用合成数据验证 500 资源行/5,000 可见段、事件映射、销毁重建和许可证边界；记录精确版本。此 PoC 只证明组件路线可继续，不代表 IMP-08 生产页面已完成。
+8. 锁定本地开发所用 JDK、Maven、Node、npm 与直接依赖版本；本机当前版本不自动成为生产基线，目标镜像和生产运行时在 IMP-10 冻结。
+
+最小验证与证据：
+
+- Maven 全 reactor 与 APS 定向模块可 clean compile；现有 interview/aden 模块装配回归不被破坏。
+- `npm ci`、APS TypeScript 类型检查和空测试框架可重复运行。
+- OpenAPI/JSON Schema 示例通过格式和版本校验；不兼容变更会失败。
+- OR-Tools smoke 能加载原生库并解一个最小模型；失败时 IMP-06 路线保持 No-Go，不伪造成功。
+- DHTMLX/vis 合成数据 PoC、适配器事件和清理检查有实际结果；失败时 IMP-08 路线保持 No-Go。
+
+阶段出口：工程骨架和共同契约可构建，关键决策无互相矛盾文本，依赖锁定有证据。此阶段不交付 CRUD、真实排程、页面、正式发布或真实外部连接。
+
+当前实施快照（2026-09-12）：
+
+- 已完成：八模块 Maven 骨架与依赖守卫、`ruoyi-admin` 默认关闭装配、独立非 Web Worker 与三重运行门、OR-Tools `9.15.6755` Windows x86_64 JNI smoke、OpenAPI/JSON Schema v1 基线及当前 16 个正反例统一门禁、前端 APS 增量 TypeScript/Vitest/Playwright，以及 DHTMLX `10.0.3` + `vis-timeline` `8.5.4` 的 500 资源/5,000 分段真实浏览器 PoC。
+- 受限 Go：DHTMLX/vis 已证明适配、事件、离线字体、销毁重建路径可用；三次收口复核的首屏双帧 ready 位于 `4906.3～11575.0 ms`，当前 lockfile 重装后的最近一次为 `8982.0 ms`，其中 vis 首次渲染 `6206.0 ms`。同机波动也需要纳入基准。IMP-08 前必须先冻结硬件与交互性能预算，并验证窗口化、筛选、滚动、缩放和增量重绘，不能把本次结果写成性能达标。
+- 当时延后项：IMP-01 尚未决定最终目标操作系统，只完成 Windows/JNI 开发机 smoke。2026-09-13 用户已选择 Windows，IMP-10 已补齐当前目标运行时、制品与 API/Worker 启动证据；Docker/WSL 未安装不再构成缺口。
+- 状态结论：本地 Windows 工程、契约、依赖锁定和组件路线已经满足 IMP-01 的开发出口，IMP-01 标记 `Done`；2026-09-13 进入 IMP-02。实际命令、失败修复与限制见[验证记录](验证记录.md)。
+
+## 8. IMP-02 数据库与平台基座
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 把 29 表设计候选转成应用可重复执行、可验证、可前进升级的数据库基线，并建立公共持久化、身份、权限、错误和审计边界 |
+| 关联需求 | REQ-10；AC-02、AC-15、AC-17、AC-24 的数据与可靠性前置 |
+| 数据范围 | M01～M29 全部表只在 migration 层创建；本阶段不声称任何业务模块已完成 |
+| 主要文件 | `aps-infrastructure-mysql/.../V001__aps_baseline.sql`、公共 ID/时间/枚举 TypeHandler、`ApsDataSourceConfiguration`、`ApsFlywayConfiguration`、`aps-permissions.sql`、Testcontainers 基座 |
+| 进入条件 | IMP-01 Done；数据库字段、约束、29 表数量和单站点边界经批准 |
+| 技术重点 | MySQL 8.0.16+、Flyway、MyBatis、Druid、Testcontainers、RuoYi RBAC、UTC 时间 |
+
+实施任务：
+
+1. 在纳入 IMP-01 已批准的同步关系枚举与状态口径后，从审核 SQL 一次性生成不可变 `V001__aps_baseline.sql`；以后只追加 V002+，不修改已执行 migration。
+2. 配置 APS 独立 MySQL schema/data source、Flyway location 与 history table，并验证 `ruoyi-admin/application.yml` 对 `application-aps.yml` 的显式 import 和功能开关生效；不与面试 PostgreSQL migration 混跑。
+3. 建立 UUID、UTC `DATETIME(3)`、半开区间 `[start,end)`、数量/单位、乐观版本、软删除/状态和统一错误信封约定。
+4. 建立通用 Mapper、事务、分页、审计操作者和 RuoYi 稳定用户 ID 适配；不建立跨库外键、`JOIN` 或事务。
+5. 建立 `aps:*` 权限码和可重复菜单 SQL，默认通过功能开关隐藏未完成入口。
+6. 为 29 表清单、64 类外键关系、唯一约束、CHECK、禁止 `factory_id` 和唯一技能表建立机器核对。
+
+最小验证与证据：
+
+- 隔离空库 `migrate/validate`、重复启动和升级演练通过；精确得到 29 张 InnoDB 业务表。
+- 约束正反例、UTC 毫秒精度、唯一键、外键、并发 `row_version` 和事务回滚测试通过。
+- RuoYi 未授权用户访问 APS API 得到拒绝且不产生业务写入；审计操作者可追。
+- 备份/恢复方案有演练步骤，但不在真实生产库执行。
+
+阶段出口：数据库和平台底座可供业务切片使用；尚无资源、订单或排程功能。若 migration 需要第 30 张表，必须说明业务原因并回到数据库评审，不暗加表。
+
+当前实施快照（2026-09-13）：
+
+- 已完成：评审 DDL 正文一字不漂移地冻结为 `V001__aps_baseline.sql`；独立 Druid 数据源、MyBatis `SqlSessionFactory`、Flyway history、事务管理器与四重默认关闭开关已装配，配置缺少独立 MySQL URL 时失败关闭而不回退到 RuoYi 主库。
+- 已完成：UUID、UTC `DATETIME(3)`、半开区间、数量/单位、分页、审计操作者、枚举/时间/ID TypeHandler、统一 Problem 信封与 RuoYi 稳定用户 ID 适配；历史事实不提供通用物理删除，按状态、废弃、更正或反向事件处理。
+- 已完成：29 个 `aps:*` 权限码及可重复 SQL；健康端点允许匿名，能力端点要求 `aps:readiness:view`，真实 Spring Security HTTP 测试证明已认证但无权限返回 403。
+- 验证通过：本机已安装 MySQL 8.0.46 的临时隔离实例上，Flyway V001 migrate/validate/重复 migrate、测试专用 V002 前进升级、29 表/64 外键、唯一键/CHECK/外键拒绝、UTC 毫秒、`row_version` 过期写、事务回滚、权限 SQL 两次幂等和逻辑备份恢复均通过；系统 `MySQL80` 服务未启动，临时进程和数据目录已清理。
+- 状态结论：IMP-02 标记 `Done`，进入 IMP-03。当前仍没有 M01～M05 业务 CRUD 页面，也没有订单、求解、发布或执行功能。
+
+## 9. IMP-03 组织资源、技能与可用日历
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 形成“车间—工作中心—具体人员/设备—多技能—绝对可用窗口”的第一条端到端主数据切片 |
+| 关联需求 | REQ-04、REQ-10；AC-08、AC-10、AC-11；APS-REQ-04、05 前置；APS-AC-02～04 的数据部分 |
+| 数据范围 | M01～M05 |
+| 主要文件 | `domain/resource`、`application/resource`、resource/calendar Mapper 与 Repository、Resource/Availability Controller、`api/aps/resource.ts`、`views/aps/resources`、`views/aps/readiness` |
+| 进入条件 | IMP-02 Done；时区和 M05 时间窗来源已决定 |
+| 技术重点 | MyBatis CRUD、Jakarta Validation、车间数据范围、Vue/TS 表单、区间与技能有效期规则 |
+
+实施任务：
+
+1. 实现车间、工作中心和资源的新增、编辑、启停、查询；资源类型统一覆盖人员、设备、工位和工具。
+2. 用 `aps_resource_skill` 多行表达一人多技能、等级、证书和有效期；不新增技能字典表。
+3. 实现可用、不可用、请假、维修和加班的绝对时间窗录入/导入、重叠提示与来源追踪。
+4. 实现车间/工作中心范围权限、人员明细导出权限和越权拒绝。
+5. 输出资源数据就绪问题：无中心、无可用窗、技能过期、窗口冲突、停用资源仍被引用。
+
+最小验证与证据：
+
+- 技能三级任务候选淘汰甲二级和请假的乙，保留在岗丙；这里只验证数据/选择规则，不声称已排程。
+- 同一多技能员工在资源汇总中只出现一次，不因技能行数扩大可用工时。
+- 请假/维修窗口覆盖可用窗时，净可用区间计算正确；零长、反向和跨时区错误被拒绝。
+- 非本车间用户不能修改资源或导出超范围人员信息。
+
+阶段出口：资源与日历切片可用并可提供确定性净窗口。首版不实现循环班制模板、长期跨中心资格、具名速率或真实 HR 实时接入。
+
+当前实施快照（2026-09-13）：
+
+- 已完成：M01～M05 的车间、工作中心、人员/设备/工位/工具、单表多技能和绝对时间窗的查询、新增、编辑/启停、乐观锁与审计；批量时间窗导入在任一行冲突时整批回滚。
+- 已完成：资源净日历、技能等级/有效期/状态候选规则，以及无中心、无可用窗、技能过期、窗口冲突、停用资源仍被引用的就绪问题。
+- 已完成：RuoYi `aps:resource:*` 与 `aps:readiness:view` 方法权限；P0 非范围管理员只能访问 `manager_user_id` 为本人的车间及其工作中心/资源，范围管理员可跨车间，人员导出还必须同时具有 `aps:scope:manage`。本阶段未增加数据范围表。
+- 已完成：`api/aps/resource.ts`、资源/日历页、就绪页及隐藏动态路由；权限 SQL 不默认授予角色，APS 总开关/API/持久化开关仍默认关闭。
+- 验证通过：本机隔离 MySQL 8.0.46 实测三级技能候选淘汰二级甲和请假乙、保留丙；同一资源两项技能仍只计一个资源；请假扣减为两个净窗口；越权车间访问被拒绝；UTC 偏移、反向/零长时间窗、过期乐观版本和冲突导入被拒绝。前端 5 个文件/12 个 Vitest、生产构建及 Chrome 页面夹具 1/1 通过。
+- 状态结论：IMP-03 标记 `Done`，进入 IMP-04。当前“资源日历可用”不代表订单、路线展开、求解或计划发布已经实现；工作中心范围继承其所属车间，不提供独立的跨车间中心授权映射。
+
+## 10. IMP-04 产品工艺、路线版本与订单任务展开
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 从版本化工艺和多产品订单稳定生成可追溯任务网络，为校验与求解提供确定输入 |
+| 关联需求 | REQ-01、REQ-02/03 的结构部分、REQ-10；AC-01～07；APS-REQ-02、03、05、06 |
+| 数据范围 | M06～M18 |
+| 主要文件 | `domain/routing`、`domain/order`、route/order application use case、对应 Mapper/Repository/Controller、`views/aps/routes`、`views/aps/orders`、route DAG 与 expansion 测试 |
+| 进入条件 | IMP-02 Done；IMP-03 的资源标识与技能契约稳定。IMP-03/04 可部分并行，但 IMP-05 前必须合并 |
+| 技术重点 | 版本化聚合、DAG 检查、幂等导入、稳定任务 ID、单位和数量精度 |
+
+实施任务：
+
+1. 实现产品/半成品/基础物料、工序、装载/运行/卸载阶段和阶段资源要求。
+2. 实现路线草稿、发布、版本复制、节点/边编辑和循环、自依赖、孤立节点、缺工时/资源要求校验。
+3. 实现订单、多个产品行、路线版本冻结、正常/拆批/返工/补产生产批。
+4. 实现幂等订单导入和任务展开；路线 V2 发布不得静默改变已经按 V1 展开的历史任务。
+5. 实现完成依赖、数量门槛、转移批/消耗标志及基础物料需求的结构保存。
+6. 使用 IMP-01/02 已批准的 M12/M17 `dependency_type` 方案持久保存 `SAME_START` 来源关系，限定其阈值、转移批、消耗和 lag 字段为空或为零，并在任务展开时原样复制。数据就绪和发布一律返回 `UNSUPPORTED_SYNC_RULE`，不得执行、丢失或降级成普通依赖/共享批。若该 29 表内方案未获批准，则 AC-07 阻断 V001 和 IMP-04 出口，不能用一次性错误响应冒充“不丢失”。
+
+最小验证与证据：
+
+- AC-01、AC-02 的多产品订单和路线版本样例可完整展开、重复提交不重复生成。
+- 循环、缺节点、缺工时、单位不一致、门槛超量和未知资源要求给出对象级问题并阻断可发布状态。
+- 已展开 V1 在 V2 发布后保持可解释；迁移未开工订单需生成差异并等待确认。
+- 跨产品依赖没有被页面顺序或数据库自增顺序隐式制造。
+
+阶段出口：订单和任务网络可追溯、可复算，REQ-01 首次形成完整业务切片。此阶段不做完整 BOM/MRP、采购库存、自动排程或真实 ERP 连接。
+
+完成快照（2026-09-13）：
+
+- 已完成：M06～M12 产品/半成品/物料、可复用工序及阶段资源要求、路线草稿/复制/原子图编辑/发布；发布校验覆盖循环、自依赖、悬空边、孤立/断联、终点、工时、资源要求和未知引用。
+- 已完成：M13～M18 多产品订单、来源幂等键、路线版本冻结、正常/拆批/返工/补产生产批，以及任务、显式依赖和物料需求的可复算展开；重复展开回读原网络，不重复写入。
+- 已完成：`FINISH`、`QUANTITY`、转移批和消耗标志结构保存；跨产品关系只接受订单行上的显式定义，不根据页面顺序或数据库顺序推断。`SAME_START` 可持久保存并复制到任务依赖，但发布和订单释放均以 `UNSUPPORTED_SYNC_RULE` 阻断。
+- 已完成：已展开 V1 不受后续 V2 发布影响；未展开订单行迁移先返回节点/边差异，且必须显式确认。门槛超量等展开错误在同一事务回滚，返回对象级问题。
+- 已完成：RuoYi 路线/订单 REST、权限边界、OpenAPI 路径与 `ROUTING_ORDER` 能力；管理端产品工艺、路线 DAG 和订单展开页面及隐藏权限路由。
+- 验证通过：Domain 11 个测试、API 13 个测试；临时 MySQL 8.0.46 上制造纵切片、29 表权限幂等和备份恢复；契约统一门；前端 7 个文件/16 个 Vitest、生产构建及系统 Chrome 页面夹具 2/2。
+- 状态结论：IMP-04 标记 `Done`，进入 IMP-05。当前完成的是订单到冻结任务网络的结构闭环，不代表求解输入已编译、候选资源已完整判定、自动排程或发布已经实现。
+
+## 11. IMP-05 数据就绪、求解契约与独立硬约束校验
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 在没有优化求解器参与的情况下，把数据库事实编译成不可变输入，并确定性回答“能否排、为什么不能排、候选是否违反硬约束” |
+| 关联需求 | REQ-04、REQ-05、REQ-09、REQ-10；AC-02、AC-07～11、AC-22、AC-24；APS-REQ-01～08、12、14；APS-AC-02～06、19 |
+| 数据范围 | 读取 M01～M18；定义 M19 输入快照和校验摘要契约，暂不写候选作业 |
+| 主要文件 | `aps-solver-contract`、`aps-constraint-validator`、application 的 readiness/calendar/candidate/explanation、`contracts/aps/schemas`、黄金样例和故意破坏样例 |
+| 进入条件 | IMP-03、IMP-04 Done；单位、阶段时间、日历和候选资源口径稳定 |
+| 技术重点 | 不可变 DTO/Schema、内容 hash、区间编译、候选淘汰原因、确定性独立校验 |
+
+实施任务：
+
+1. 定义 `SolverInput`、`SolverResult`、`ValidationResult`、`Problem` 版本，包含定义修订、执行修订、内容 hash、horizon、基线、参数和原因码。
+2. 编译净可用窗口、阶段标准时长、候选工作中心、资源席位、技能/有效期及基础依赖；采用相对于 horizon 的非负整数时间。
+3. 建立数据就绪服务，缺路线、工时、单位、候选资源、日历或数量关系时不启动伪求解。
+4. 建立与 OR-Tools 无关的独立校验器，覆盖资源类型/资格、技能、多人席位去重、`NoOverlap`、`Cumulative`、日历、阶段同步、依赖、数量、批次、锁和版本新鲜度。
+5. 为每条 P0 硬约束提供至少一个合法样例和一个故意破坏后必失败的反例。
+6. 固定 20～50 任务的小型黄金集和 PRD O-100 可复算样例，结果包含规则码、对象、资源和时间段。
+
+最小验证与证据：
+
+- 同一输入序列化得到稳定 hash；Schema 版本不兼容时 fail closed。
+- 不可中断任务不能跨午休伪装连续，可中断任务按允许规则产生段和恢复准备。
+- 同一人员不能填两个必需协作席位，容量资源按总量校验。
+- 注入重叠分配后，即使候选自称 `FEASIBLE`，独立校验也必须拒绝。
+
+阶段出口：不依赖求解器即可完成数据就绪和候选复验；未通过校验的任何候选都不具备发布资格。本阶段不生成优化候选、不持久化计划作业、不开放发布。
+
+当前实施快照（2026-09-13）：
+
+- 已实现 `SolverInput`、`SolverResult`、`ValidationResult`、`Problem` 的 Java 17 不可变契约，UTC 毫秒编解码、horizon 相对时间轴以及 RFC 8785 JCS + SHA-256；Java 与 Node 的三份输入摘要和候选摘要一致。
+- 已实现从 M01～M18 真实仓储事实编译资源、净可用窗口、阶段、候选资源、任务、依赖和基础物料的 `SolverInputCompiler`；隔离 MySQL 8.0.46 中多产品订单可编译出 9 个任务且就绪通过。
+- 已实现不依赖 OR-Tools 的输入/候选校验器，覆盖技能和席位、日历、互斥/累计容量、阶段工时与分段、完成/数量依赖、共享批、锁、实际占用、修订水位和 `SAME_START` 阻断。
+- 已实现 `/api/aps/v1/validations` 权限端点，结构不兼容失败关闭；固定 20 任务黄金候选、O-100 人机/50 件门槛/20 件转移批/同炉容量样例和故意破坏用例均通过自动化复验。
+- 验证结论：IMP-05 满足阶段出口并标记 `Done`；当前进入 IMP-06。尚未生成 CP-SAT 候选、写入 M19～M24 或开放求解请求，因此 `SOLVER` 与 `PLAN_REQUEST_STATUS` 仍保持未实现状态。
+
+## 12. IMP-06 基础 CP-SAT 有限排程与单 Worker 候选
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 让单 Worker 在真实日历和有限资源下生成基础可行候选，完整保存后由独立校验器复验，同时保证失败不改变正式计划 |
+| 关联需求 | REQ-04、REQ-05、REQ-09、REQ-10；AC-08～12、AC-22、AC-23；APS-REQ-01、04～06、09、12～14；APS-AC-01～06、10、14～19、23 |
+| 数据范围 | 写 M19～M23 的基础计划版本、普通作业、分段和分配；读取 M01～M18。M24 锁定写入属于 IMP-07 |
+| 主要文件 | `aps-solver-ortools`、`aps-worker`、planning use case/repository/controller、plan run API、SSE 进度、solver/worker 集成测试 |
+| 进入条件 | IMP-05 Done；OR-Tools Java 17/JNI smoke 通过；用户进行 PoC Go/No-Go |
+| 技术重点 | CP-SAT interval/optional interval、`NoOverlap`、`Cumulative`、分层目标、单 Worker 状态 CAS、时限/取消 |
+
+实施任务：
+
+1. API 用短事务创建 M19 计划版本、冻结输入快照/hash 与幂等 `request_id`；同键同输入复用，同键不同输入拒绝。
+2. 单 Worker 通过状态与 `row_version` CAS 领取请求；求解期间不持有数据库事务或业务行锁。
+3. 编译人、设备、工位、工具和容量资源的可选区间、日历、阶段先后和完成依赖。
+4. 先保证硬约束，再按交期、延期、未排、稳定性等分层目标求解；记录目标、bound、种子、线程、耗时和停止原因。
+5. 把完整候选在一个受控短事务中写入 M20～M23；事务失败整体回滚，审查端看不到半套结果。
+6. 独立校验 PASS 后才将候选置为可审查；取消、超时、输入过期或 Worker 异常不改变当前正式计划。
+7. 严格拆分三层语义，不增加未批准的 M19 状态值：`aps_plan_version.status` 只使用 DDL 已有的 `DRAFT/SOLVING/FEASIBLE/CONFLICT/CANCELLED/PUBLISHING/PUBLISHED/FAILED/SUPERSEDED`；`solver_summary_json.solverStatus` 保存 OR-Tools 的 `OPTIMAL/FEASIBLE/INFEASIBLE/UNKNOWN/MODEL_INVALID`；`solver_summary_json.resultKind` 保存 `FEASIBLE/TIMEOUT_WITH_SOLUTION/INFEASIBLE_PROVEN/TIMEOUT_NO_SOLUTION/INVALID_INPUT` 等业务解释。`STALE_INPUT`、资源冲突等属于 validation/problem `reasonCode`，发布复验时使用，不作为新的 plan status。
+
+最小验证与证据：
+
+- 人员/设备不重叠、多人席位不复用、设备自动运行时人员可释放但设备连续占用。
+- 不可能交期返回最早可行候选、延期和瓶颈，不把软交期变成假无解。
+- 取消、超时、Worker 退出、候选事务异常和求解期间新增请假均保持正式计划不变。
+- P0 只验证单 Worker；不运行双 Worker 竞争来伪造租约或 fencing 能力。
+
+阶段出口：基础有限产能候选可重复生成并通过独立复验；求解器 PoC 获得继续结论。此阶段只产生候选，不开放人工发布，不承诺全局最优或多 Worker 恢复。
+
+当前实施快照（2026-09-13）：
+
+- 已实现计划请求创建、同键同输入复用/异输入冲突、范围化状态查询与取消 API；M19 输入快照和 hash 在短事务内保存，单 Worker 以状态和 `row_version` CAS 领取，求解不持有数据库事务。
+- 已实现 OR-Tools CP-SAT 基础模型：阶段顺序、完成依赖、独占/累计资源、绝对净日历、多人席位、人机分阶段占用、可信开放实际占用、详细区/未来 carry，以及硬约束优先、总延期优先于总完成时间的整数目标；溢出时失败关闭。
+- 已实现求解中持续取消、时限/证明无解/非法输入/Worker 异常的三层状态映射；完整候选经独立校验 PASS 后才在一个短事务写入 M20～M23，写入中途外键异常已验证整体回滚。
+- 已实现普通状态恢复查询和只推送状态变化的 SSE；端点分别使用 `aps:planning:solve/view/cancel` 权限。`SOLVER` 能力仍保持 `DISABLED/SERVICE_UNAVAILABLE`，因为默认三开关关闭且没有真实站点 Worker 存活证据，不把本地直接求解测试冒充运行服务。
+- 实测证据：OR-Tools 9 个测试、Validator 13 个测试、Worker 5 个测试、API 19 个测试通过；隔离 MySQL 8.0.46 完成真实求解、M19～M23 持久化、取消、故障回滚、29 权限幂等和 29 表备份恢复；`ruoyi-admin -am` 18 个 reactor 模块编译成功；统一契约门通过。
+- 阶段结论：IMP-06 满足出口并标记 `Done`，OR-Tools 业务 PoC 结论为继续；当前处于 IMP-07。人工计划发布仍未开放；数量释放、共享批、作业级锁、受控可中断、可信基线冻结和非冻结区稳定性目标已形成阶段内实现，完整人工计划重排闭环仍待完成。
+
+## 13. IMP-07 数量释放、拆分/共享批与动态重排
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 把 P0 最难的数量流、转移批、拆分、共享设备周期、可中断和影响闭包纳入求解器与独立校验器同一口径 |
+| 关联需求 | REQ-02、REQ-03、REQ-05；AC-03～07、AC-11～14、AC-23；APS-REQ-03、07、08、10、11；APS-AC-07、08、11～13、18、20、21 |
+| 数据范围 | M17、M18、M20～M24；实际占用只使用契约夹具，M25～M29 的真实写入留到 IMP-09 |
+| 主要文件 | `domain/quantity`、`domain/planning` 的 batch/split/lock、validator quantity/batch/carry、solver quantity/batch constraints、impact/replan use case、批次配置 API/UI |
+| 进入条件 | IMP-06 Done；基础候选和独立校验器结果一致 |
+| 技术重点 | 数量守恒、离散释放、共享 interval、成员数量归属、受控可中断、影响图闭包、稳定性目标 |
+
+实施任务：
+
+1. 实现完成门槛、比例门槛、待检不释放、连续转移批和下序不得消费未来数量。
+2. 实现受约束拆批，保证每个任务数量只属于合法子批且不重复。
+3. 实现人工计划共享加工批：兼容性、总容量、固定运行周期、装卸阶段和成员数量可追；共享设备只占一次。
+4. 实现不可中断与批准可中断规则、跨窗分段、恢复准备和暂停期间设备是否保留。
+5. 实现时间锁、资源锁、全锁和冻结区的求解约束；现实冲突阻止候选发布，不自动解锁。
+6. 以任务依赖、共享批、资源冲突、物料和订单关系计算影响闭包，局部重排也必须全局复验关联资源。
+7. 复算 O-100 完整样例与 50/51 门槛、每 20 件转序、A60+B40 同炉等黄金场景。
+
+2026-09-13 阶段完成快照：
+
+- 已建立数量门槛与有限供给统一口径：PCS 比例门槛向上取整后再按转移批对齐；连续释放包含尾批；消耗型依赖和物料需求按稳定 ID 预约，超过有限产出失败关闭。固定外部供给按质量状态和可用时点累计，`PENDING_QUALITY` 不释放。
+- CP-SAT 已执行数量关系和物料就绪约束并输出连续释放分段；100 件、50% 门槛按每 20 件转移时在累计 60 件后启动，两个消费者分别等待其已预约的累计产出，不能消费未来数量。
+- 受控拆批已改为同事务从父批及其冻结任务扣量、重算标准工时后再创建子批；拆后父批必须保留正数量，带跨批前置或目标物料需求的复杂拆分失败关闭，留待影响闭包重建关系，避免把子批当新增产量。
+- 计划请求已接入人工计划固定共享批：成员必须完整覆盖各自任务量、同批处理工序/中心/单位/兼容键，容量不超限且只允许一个已确认固定 `RUN` 周期。求解器为 A60+B40 建一个共享作业和一套资源预约；M20/M21 分别保存批容量、兼容键及 60/40 成员量。
+- 已执行作业、分段和资源分配三级时间锁、资源锁和全锁；目标不存在、时间不在求解网格或资源不可用均失败关闭，不自动解锁或提升锁粒度。数量释放投影段按同一转移批里程碑算法形成相对时间锚点，可只锁一个释放段而不锁死整个作业。
+- 已实现局部重排影响闭包计算，递归覆盖上下游依赖、物料、共享批、同订单行和同资源竞争，并固定返回“需要全局复验”。尚未接入人工计划草稿 API 与基线差异工作流。
+- 已通过向前迁移 `V002__controlled_interruptible_phase.sql` 增加最大分段数、最小生产段时长、续作准备时长、跨段资源策略及暂停资源保留配置；V001 保持不可变。仅允许可中断工序的 `RUN` 阶段分段，非法参数在 API、应用服务和独立校验器三处失败关闭。
+- CP-SAT 已支持可选前缀物理段、跨净日历窗口分段、后续段续作准备、`SAME_RESOURCES`/`RESELECT_ALLOWED` 两种跨段资源策略，以及独占资源的 `holdOnPause` 全跨度保留；候选输出物理段后由独立校验器复验段数、最小时长、续作准备、资源连续性和暂停占用冲突。
+- 可中断与共享批、连续数量释放/内部物料流同时出现，以及非独占容量资源的暂停保留，目前属于未经批准组合并显式失败关闭，不静默降级成不可中断或普通任务。
+- 计划请求已支持由客户端提交正式基线版本 ID、预期输入 hash 和冻结边界；服务端只从 `PUBLISHED + is_current=1` 的 M19～M24 读取可信基线，拒绝旧 hash、非当前版本及只覆盖共享作业部分成员的请求。新草稿在 M19 记录 `base_version_id`，不接受客户端伪造基线作业或锁内容。
+- 冻结边界前启动的基线作业按稳定成员集合映射，开始、结束和资源集合必须精确保持；冻结边界后的作业以“时间偏移 + 资源增删”作为次级稳定性目标，优先级低于总延期、高于总完成时间。独立校验器再次复验冻结结果，现实资源不可用时失败关闭。
+- O-100 求解级黄金场景已完成：A10 生产 100 件，50% 门槛按每 20 件转移批向上对齐到累计 60 件，B10 在第 144 分钟启动；A60+B40 共用一次 3 小时炉次，A30/B30 最终人工阶段使用同一人员且不重叠。
+- 当前正式基线的 M24 锁按成员集合、工序阶段、分段号、资源需求、席位和原资源稳定映射到新输入；隔离 MySQL 已用 `SEGMENT + TIME` 和 `ALLOCATION + RESOURCE` 两条真实锁完成继承、重排和候选落库复验。动态可中断阶段之后无法稳定映射的分段锁失败关闭，不猜测目标。
+- 阶段边界：固定共享批的 API、确定性校验、求解和持久化已在 IMP-07 完成；可视化配置入口与人工计划草稿、基线差异统一在 IMP-08 生产工作台实现，避免先建一套临时页面再迁移，不缩减最终 UI 范围。
+- 阶段结论：REQ-02、REQ-03 与本阶段约束出口已关闭，IMP-07 标记 `Done`；IMP-08 已开始。
+
+最小验证与证据：
+
+- 下序只消费已分配释放量，尾批与等待段不丢量、不超前；计划量与成员量守恒。
+- 合法 A60+B40 共享批设备占一次；不兼容、超量或成员重复归属被拒绝。
+- 改动上游、人员或共享批时，跨订单/跨车间下游影响对象无遗漏；取消后基线不变。
+- 求解器结果与独立校验器对数量、批次、分段和锁的判定一致。
+- 本阶段用可信/不可信开放占用 fixture 验证 carry 规则；IMP-09 接入 M26 真实记录后必须重跑相同集成场景，fixture 通过不代表执行反馈已完成。
+
+阶段出口：REQ-02、REQ-03 首次完整闭环，复杂候选可解释、可复验。任意同步组、多维容量、任意混批和全局最优合批搜索仍不在 P0。
+
+## 14. IMP-08 三甘特、人工计划、锁定与系统内发布
+
+2026-09-13 开工说明：IMP-08 从计划候选/正式基线的只读详情与差异模型开始，再接版本化调整意图、锁管理、三类甘特和原子发布。Windows 本地 Maven/MySQL 与现有前端工具链是当前开发环境；用户随后明确 Windows 也是本 Feature 的目标运行环境，Linux/Docker 只保留为未来可移植性选项。
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 把候选排程变成计划员可审查、调整、比较和安全发布的生产工作台，并确保 UI 只提交意图、服务端负责所有校验和事务 |
+| 关联需求 | REQ-05、REQ-06、REQ-09、REQ-10；AC-12～16、AC-23、AC-24；APS-REQ-10、11、14；APS-AC-11～13、18、19、21 |
+| 数据范围 | M19～M24；读取 M01～M18 |
+| 主要文件 | adjustment/impact/publish use case、planning REST/SSE、`views/aps/workbench`、`views/aps/versions`、`components/aps/gantt`、`timeline`、`conflict`、前端 store/API/type 与 Playwright 场景 |
+| 进入条件 | IMP-07 Done；IMP-01 的 DHTMLX/vis 合成数据 PoC、许可证和版本锁定证据通过 |
+| 技术重点 | DHTMLX/vis 适配层、服务端校验、版本化命令、SSE 进度、原子正式指针、RBAC |
+
+实施任务：
+
+1. 实现设备、人员、车间/工序三类甘特，同一计划对象保持稳定 ID；设备显示全段，人员只显示到场段，汇总不重复扣资源。
+2. 实现筛选、缩放、定位、冲突列表、原因解释、未排任务、过期提示和求解状态；断线后可用普通查询恢复。
+3. 拖动、换人、换设备、插单、拆分/合批只发送版本化调整意图；服务端返回影响闭包和新候选，前端错误时回滚显示。
+4. 实现时间锁、资源锁、全锁、版本对比、变化原因和放弃候选。
+5. 发布前重新检查输入修订、基线版本、权限、锁、现实占用和全部硬约束；只允许独立校验 PASS 的完整候选。
+6. 通过短事务原子切换唯一当前正式版本；两人基于同一旧基线时，后发布者不能覆盖先发布者。
+7. 系统内发布完成即本阶段完成；未配置外部接收方时明确显示“未外发/不适用”，不显示假成功。
+
+2026-09-13 工作台技术收口：
+
+- 已增加 `GET /api/aps/v1/plan-versions/{planVersionId}` 和 `/comparison`：服务端从 M19～M24 返回计划版本、作业成员、物理分段、资源分配和锁；跨版本按稳定任务成员集合匹配，不依赖可能变化的作业 ID，区分时间、资源、数量、作业类型和工作中心变化。
+- 已增加前端计划详情/比较类型和 API 客户端、`views/aps/workbench` 页面以及三视图纯投影。工序甘特、设备时间线、人员时间线共享稳定计划身份；同一物理段的不同资源分配同时保留可视化项 ID、分段 ID 和分配 ID，细粒度锁只关闭对应项的时间编辑。
+- 已增加候选锁创建/删除 API 与工作台表单，支持 `JOB/SEGMENT/ALLOCATION × TIME/RESOURCE/FULL`。客户端只给目标与意图，锁定时间、现有资源和目标归属均由服务端从 M20～M23 推导；计划行和锁行双重乐观版本控制，`PUBLISHED` 禁止原地改锁。
+- 已增加版本化调整 API：甘特拖动只发送目标、期望基线版本和调整原因，服务端保持原候选不变，按稳定身份生成新的 M19 `DRAFT`、影响闭包和调整锁；`Idempotency-Key` 可安全重试。当前支持作业/分段时间调整及具体分配的合格资源替换，错误时前端恢复服务端已确认位置。
+- 新候选持久化会把求解输入锁复制为本版本 M24，并使用版本级稳定主键，避免继承锁跨版本复用主键；下一次调整以当前 M24 为权威锁集合，不重复叠加冻结输入中的同义锁。
+- 已增加系统内发布 API 与工作台发布入口：服务端在 `SERIALIZABLE` 短事务内锁定候选和当前正式版本，以输入捕获时间复验 M01～M18、M25～M29 的事实更新时间，再复算候选 hash、叠加当前 M24 并运行独立 `PUBLISH_PRECHECK`。通过后先把旧正式版本置为 `SUPERSEDED`，再把候选原子切为唯一 `PUBLISHED + is_current=1`；发布原因写入 M19 `change_note`，P0 明确返回外发 `NOT_APPLICABLE`。
+- 已显示求解/独立校验问题、阻断级别、对象定位、影响时段、未排任务、事实过期提示和普通查询恢复；筛选、缩放、作业定位和三视图共用同一稳定筛选集合。候选可带原因废弃为 `CANCELLED`，M19～M24 历史不删除，当前正式版本不受影响。
+- 已实现插单、拆批、固定合批的结构化版本命令。命令必须基于当前 `PUBLISHED`，在 `SERIALIZABLE` 事务内刷新 M01～M18 事实并生成新 `DRAFT`；拆批真实转移 M15/M16 数量，合批形成固定共享批，已开工任务失败关闭，受影响的旧基线作业/锁不再错误继承。V003 为 M19 增加不可变 `request_fingerprint`，把技术幂等身份与可更新的用户 `change_note` 分离。
+- 隔离 MySQL 已验证真实详情 SQL、候选 hash、基线比较、锁增删、时间/资源调整、插单、拆批、固定合批、幂等重放、新草稿求解、M24 继承、候选废弃、首次发布、正式版本替换及旧基线并发拒绝；生产迁移 V001～V003、测试 V004 前进升级、29 权限和 29 表恢复全部通过。API 23 项、前端类型检查及 8 文件/21 项单测、统一契约门通过。
+- 系统 Chrome 全量 Playwright 9/9 通过，覆盖三甘特、冲突解释、发布/废弃、三类结构调整、空态、加载态、503 后重试、390px 窄屏和键盘切换。500 资源/5,000 可见段实测为 DHTMLX `769.8 ms`、vis `11983.1 ms`、首屏 ready `15232.2 ms`；这是固定工作站基线，不等同于尚未批准阈值下的性能达标。
+- IMP-08 的列明技术实现与自动化证据已经收口；2026-09-13 用户接受系统内发布语义，阶段出口关闭，里程碑标记 `Done`。
+
+最小验证与证据：
+
+- 三类甘特联动选择同一对象，设备、人力和车间汇总口径与数据库可复算。
+- 非法拖动、越权换人、锁撞维修、过期候选、重复发布和旧基线并发发布均被服务端拒绝且无半套变更。
+- 500 资源行/5,000 可见段的交互性能在固定环境记录；键盘、窄屏、加载、空态、错误和断线恢复经过浏览器验证。
+- 正式版本失败可保持旧正式指针；候选可废弃但不删除正式历史。
+
+阶段出口：REQ-05、REQ-06 首次完整闭环，系统内发布语义通过用户复核。外部 MES ACK、重试和 Outbox 不属于本阶段完成条件。
+
+## 15. IMP-09 现场执行、质量处置与数量账
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 让已发布计划进入真实执行语义，并以不可覆盖的实际占用、报工、质量与数量事件驱动订单进度和后续重排 |
+| 关联需求 | REQ-07、REQ-09、REQ-10；AC-17～19、AC-23、AC-24；APS-AC-13、20、21 |
+| 数据范围 | M25～M29；读取正式 M19～M23 和 M13～M18 |
+| 主要文件 | `domain/execution`、`domain/quantity`、execution application transaction、Mapper/Repository/Controller、`views/aps/execution`、报工/质量/返工/冲正集成测试 |
+| 进入条件 | IMP-08 Done；用户复核系统内发布和执行状态机 |
+| 技术重点 | 幂等命令、追加式事实、数量守恒、同事务写入、执行修订号、实际与计划隔离 |
+
+### 15.1 已批准开工方案
+
+以下口径由现有 REQ-07、BR-38～44、AC-17～19 和 M25～M29 共同推导，并已由用户于 2026-09-13 接受。后续按本节实现，不在代码、页面和数据库中各维护一套状态规则。
+
+本轮还用官方制造系统资料做了交叉检查：Odoo 的工作单暂停会结束当前计时记录，恢复时新建计时记录，支持 M26 多实际段而不是覆盖一段；Dynamics 365 支持部分完工量和错误量，进入最终“报告为完工”后不再接收普通数量报告，支持 M27 区分进度报工与最终报工；SAP 将质量检验库存和冻结库存明确排除在非限制使用库存之外，支持待检/隔离量不进入下游可用量；SAP 的完工确认撤销不会自动撤销相关业务状态，支持以反向事件重算聚合状态而不是倒退历史 run。参考：[Odoo 工作单](https://www.odoo.com/documentation/master/applications/inventory_and_mrp/manufacturing/basic_setup/manufacturing_work_orders.html)、[Dynamics 365 完工报告](https://learn.microsoft.com/en-us/dynamics365/supply-chain/production-control/report-production-orders-as-finished)、[SAP 库存状态](https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/91b21005dded4984bcccf4a69ae1300c/fc62bd534f22b44ce10000000a174cb4.html)、[SAP 完工确认撤销](https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/21aead0c98bd4755abdacd91c99e3393/5287bf53f106b44ce10000000a174cb4.html)。这些资料只验证通用边界，最终产品口径仍以本 Feature 经用户确认的规则为准。
+
+执行 run 状态机：
+
+```text
+创建派工
+  ↓
+READY ──开工──→ RUNNING ──暂停──→ PAUSED ──恢复──→ RUNNING
+  │                 │
+  │                 ├─完工报工且需质检──→ WAIT_QUALITY ──全部处置完成──→ COMPLETED
+  │                 └─完工报工且无需质检、数量已放行──────────────→ COMPLETED
+  └─未开工取消──→ CANCELLED
+
+PAUSED ──受控取消──→ CANCELLED
+```
+
+状态规则：
+
+| 当前状态 | 允许动作 | 必须同时满足 | 明确拒绝 |
+| --- | --- | --- | --- |
+| `READY` | 开工、未开工取消 | 作业来自创建 run 时的当前正式计划；开工时再次检查任务前置、物料、技能、日历、设备状态和实际占用 | 候选计划开工、同作业存在另一活动 run、资源已被占用、`SAME_START` 未支持约束 |
+| `RUNNING` | 部分报工、操作人/资源受控切换、阶段推进、暂停、末阶段完工报工 | 所有实际段写 M26；换人换机先关闭原占用，再校验并打开新占用；阶段推进原子关闭当前阶段占用并打开下一计划阶段；报工累计不得超过成员剩余量 | 直接取消、非末阶段完工、跳过阶段、倒填覆盖既有事实、用计划结束时间伪造实际结束 |
+| `PAUSED` | 恢复、受控取消 | 暂停先关闭活动占用；工艺要求保留的设备/工装以 `PAUSE_HOLD` 继续占用；恢复重新校验资源 | 自动释放需保留资源、无处置地取消已有产出 |
+| `WAIT_QUALITY` | 放行、隔离、拒收、返工/报废/让步使用处置 | 所有产出均有最终数量去向；返工或补产在同事务创建有来源血缘的新 M15/M16 | 取消运行、把待检量直接提供给下游 |
+| `COMPLETED`、`CANCELLED` | 只读、合法更正/冲正 | 更正追加新事实，不修改 M25 终态；重新计算任务、批次和订单聚合条件 | 恢复原 run、物理删除、原地改报工数量 |
+
+补充约束：
+
+1. 新 run 只能从当时唯一当前 `PUBLISHED` 作业创建；已开工 run 即使来源计划后来变为 `SUPERSEDED`，其真实执行仍可继续和报工，但旧版本不得再创建新 run。
+2. `READY → CANCELLED` 可直接执行；`PAUSED → CANCELLED` 若已有产出，必须在同一事务保留产出并为未完成量创建补产或明确剩余处置。`RUNNING` 必须先暂停，`WAIT_QUALITY` 必须先完成质量处置，不能用取消掩盖在制品。
+3. 同一计划作业最多存在一个非终态 run，`run_no` 按作业递增。前一 run 受控取消后，只能为“计划量减有效累计加工量减其他非终态分配量”的剩余数量创建下一 run；计划已被替换时，剩余量必须进入基于真实执行事实生成的新正式版本，不能继续从旧版本派工。
+4. M16 任务状态按全部 run 和有效数量账聚合推进为 `DISPATCHED/RUNNING/PAUSED/WAIT_QUALITY/COMPLETED/CANCELLED`；M15、M14、M13 只在全部必需子项满足数量和质量条件后逐级完成，单个产品或单次 run 完成不等于订单完成。终态 run 的报工被冲正后，run 本身不恢复运行，但任务/批次/订单聚合完成条件必须重算，出现的缺口进入待处置、返工或补产。
+5. 生命周期命令携带 `expectedRowVersion`。同一目标状态的响应丢失重试返回当前结果；在后续状态变化后到达的旧命令因行版本过期而拒绝。报工、质量数量事件分别由 M27/M29 的唯一 `request_id` 做持久幂等。
+6. 权限沿用已预置五个稳定码：`execution:view`；`execution:start` 覆盖创建、开工、恢复和受控换人换机；`execution:pause` 覆盖暂停与取消；`execution:report` 覆盖进度/完工报工及报工更正；`execution:quality` 覆盖放行、隔离、拒收和处置。服务端仍叠加车间/工作中心数据范围。
+7. 开工只打开最小 `segment_no` 的资源占用；暂停/恢复只处理当前阶段，换资源保留原 `source_plan_allocation_id`；阶段推进必须携带幂等键和 `expectedRowVersion`，同一活动阶段只能推进到紧邻下一阶段。只有最后计划阶段允许完工报工，避免把中间阶段完成误写为整个 run 完工。
+
+数量和质量账：
+
+| 动作 | M27 报工 | M28 产出批投影 | M29 不可变事件 | 下游可用量 |
+| --- | --- | --- | --- | --- |
+| 进度/完工报工 | `processed = good + pending + rejected`；累计有效加工量不超过成员/run 分配量 | 同一报工按合格、待检、拒收最多拆成三条同质产出批，ID 由报工及桶稳定派生 | 每条产出批先记 `PRODUCE: NULL → PENDING_QUALITY` | 仍为 0，直到满足质量策略 |
+| 无独立质检的合格量 | 保存授权报工事实 | 合格产出批变为 `RELEASED` | 同事务记 `QUALITY_RELEASE: PENDING_QUALITY → AVAILABLE` | 只增加本次合格放行量 |
+| 需要独立质检 | 报工只表达现场分类 | 保持 `PENDING` 或被质量人员置 `HOLD` | 隔离本身不搬数量；放行时才记 `QUALITY_RELEASE` | 待检/隔离均为 0 |
+| 报废 | 不改原报工 | 处置为 `SCRAP`，增加 `scrapped_qty` | `SCRAP: PENDING_QUALITY/AVAILABLE/RESERVED → SCRAPPED` | 对应量扣除；批准补产时创建 `REPLENISH` 批 |
+| 返工 | 不改原报工 | 处置为 `REWORK`，来源量进入不可交付处置桶 | `ADJUST: PENDING_QUALITY → ADJUSTMENT`，原因必填 | 创建带父批和来源理由的 `REWORK` 批；返工合格只按最终末端净放行量计交付 |
+| 让步使用 | 不改原报工 | 处置为 `USE_AS_IS`，记录批准人和时间 | `QUALITY_RELEASE: PENDING_QUALITY → AVAILABLE` | 批准后增加可用量 |
+| 报工更正 | 新增 `CORRECTION`，内容是被更正记录的替代快照并指向当前有效记录 | 原产出批关闭，新产出批由更正记录重新生成 | 先按原事件反向追加 `REVERSE`，再追加更正后的事件；原记录不删不改 | 由完整事件链复算，事务失败整体回滚 |
+
+M28 的 `available/reserved/consumed/scrapped` 是由 M29 事件复算并在同事务维护的当前投影，不是第二套可独立编辑的数量真相。预留、取消预留、投入、转序、报废、调整和冲正均先校验可用余额，任何时点不得出现负桶或下游累计投入超过已分配放行量。
+
+执行水位不新增第 30 张表：每次 M25～M29 业务事务都锁定并递增所属 M25 `row_version`，当前单站点 `executionRevision = SUM(row_version + 1)`。新 run 使水位增加 1，任一后续执行/质量事务也至少增加 1；输入编译在一致性事务中由服务端计算该值，不信任客户端自报。不同 run 可并发提交，聚合水位仍随每笔已提交事实单调增加；旧候选因此变成 `STALE_INPUT`。
+
+执行数量账使用不增加表的生产 V004：当前 V001 的 M29 `REVERSE` 形状要求起止桶都非空，无法严格冲正 `PRODUCE: NULL → PENDING_QUALITY`。V004 只调整该 CHECK，允许反向事件精确交换原事件的起止桶（包括一端为 `NULL`）；服务层锁定原事件、校验同产出批/单位/数量和相反方向，`uk_quantity_event_reversal` 保证每条原事件最多冲正一次。活动 run carry 使用生产 V005，为 M20 `aps_plan_job` 增加可空 `carry_run_id`、唯一约束和指向 M25 的外键，并约束只有 `CARRY` 作业可携带该值。阶段化执行使用生产 V006，为 M26 增加可空 `source_plan_allocation_id` 及 `(plan_segment_id, source_plan_allocation_id)` 复合外键；新记录必须保存来源分配，历史记录只在分段和资源唯一吻合时安全回填，否则保持 `NULL/UNKNOWN`，不得猜测。测试专用前进探针顺延为 V007。V001 保持不可变，表数仍为 29，当前 schema 为 66 个外键。
+
+建议按五个可运行纵切片实施：
+
+1. `IMP09-A`：Execution/Quantity 领域状态机、端口、OpenAPI、错误码、V004 与契约测试。
+2. `IMP09-B`：run 创建、开工/暂停/恢复/取消、M26 实际占用、换人换机、权限和真实 MySQL 回归。
+3. `IMP09-C`：部分/完工报工、同质 M28、M29 事件投影、质量放行/隔离/处置、冲正与故障回滚。
+4. `IMP09-D`：返工/补产血缘、M13～M16 聚合完成、服务端执行水位、真实 M26/M28/M29 编入重排输入及可信/未知 carry。
+5. `IMP09-E`：`views/aps/execution` 现场页面、空/加载/错误/并发恢复、AC-17～19 的 API、MySQL、浏览器纵向验收。
+
+当前子阶段状态（2026-09-13）：`IMP09-A/B/C/D/E = Done（技术纵切片）`。D 已完成返工/补产血缘、M13～M16 聚合、服务端执行水位、M26 实际占用、M28 实际放行供应及可信/未知释放策略；同一 M26 已按物理 `occupancyId` 聚合，共享批成员剩余量随一个物理占用进入输入，不再按成员重复阻塞资源。活动 run 形成唯一固定 `CARRY`：当前阶段保留为从计划锚点到可信预计释放的固定事实段，后续连续或受控可中断阶段进入同一 CP-SAT 作业参加资源、日历、阶段顺序、完成/数量依赖和物料约束，最终阶段统一释放在制剩余量；未分配余量另形成 `SPLIT`。生产 V005 将 carry 作业唯一关联 M25；生产 V006 和阶段推进纵切片使开工、暂停、恢复、换资源、阶段推进与末阶段完工按当前计划阶段运行，换资源后仍以 `source_plan_allocation_id` 保留 requirement/seat/capacity 身份。部分共享 run 因 M25 尚无成员级派工分配而明确降为 `UNKNOWN`，不猜测成员数量。标准多阶段与后续可中断阶段的求解、独立复验和全量隔离 MySQL 回归均通过，IMP-09 标记 `Done`。
+
+实施任务：
+
+1. 从当前正式作业创建执行 run，支持开工、暂停、恢复、完成和受控取消；状态转换非法时拒绝。
+2. 用 `aps_actual_occupancy` 记录人员/设备实际开始、开放占用和结束；不以计划结束时间伪造实际结束。
+3. 实现部分报工、合格/待检/不良、操作人变更、更正和请求幂等；重复请求不重计。
+4. 在一个业务事务中协调 production report、output lot 和 quantity event；失败整体回滚。
+5. 待检不向下游释放，合格、预留、投入、报废和冲正只追加事件，不直接改写历史事实。
+6. 按批准处置创建 6 件返工、4 件报废/补产等新批/任务，保留原工艺和来源血缘，避免交付量重复。
+7. 每次执行事实变化递增 execution revision，使旧候选变成 `STALE_INPUT`；重排不能覆盖实际事实。
+8. 以计划分段为边界推进执行：首阶段开工、当前阶段暂停/恢复、换资源来源追踪、幂等推进下一阶段，以及仅末阶段允许完工。
+
+最小验证与证据：
+
+- AC-17 重放、80 合格+20 待检、换人和错误更正可追且不重复。
+- AC-18 的隔离、返工、报废、补产数量平衡，原任务历史不修改。
+- 开放占用有可信剩余工时与无可信剩余工时两种 carry 策略，均不回写假结束。
+- 多阶段 run 的首阶段开工、换资源、暂停/恢复、幂等阶段推进和末阶段完工门均通过；换资源后的 M26 仍可唯一还原原计划 requirement/seat/capacity。
+- 报工与数量事务故障注入无孤立 output lot 或半条数量链；所有冲正保持前后事件可追。
+
+阶段出口：REQ-07 首次完整闭环，实际事实可驱动重排与完成判断。完整 QMS、CAPA、维修工单、离线同步和真实 MES 不在 P0。
+
+## 16. IMP-10 报表、交期、生产硬化与试点验收
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 在当前 P0 业务闭环上补齐日报、产能、交期和解释，并用固定环境验证权限、并发、故障、容量、安全、恢复与 UAT，形成是否试点/上线就绪的真实判断 |
+| 关联需求 | REQ-08、REQ-09、REQ-10；回归 REQ-01～07；当前 AC-01～24；APS-NFR-01～10 与 P0 APS-AC。外部可靠下达和 APS-AC-22 多 Worker 已转 P1 |
+| 数据范围 | 读取 M01～M29 形成查询投影；原则上不为每张报表新增事实表 |
+| 主要文件 | reporting/metrics/explanation use case、report API、`views/aps/reports`、CSV/打印、Actuator/Micrometer、benchmark/recovery 脚本、全套 Testcontainers/Playwright/UAT 证据 |
+| 进入条件 | 技术实施：IMP-09 Done；固定容量结论与目标环境复验使用用户选定的当前 Windows 环境；UAT 执行前仍须取得真实角色、授权脱敏样本和试点责任人 |
+| 技术重点 | 可复算查询、基线冻结、性能基准、故障注入、权限安全、备份恢复、UAT |
+
+实施任务：
+
+1. 实现车间/工作中心每日生产表：跨日按计划段和实际段归属，产出按释放归属，冻结原日计划分母，重排不改历史基线。
+2. 实现人力资源累计产能和时间桶峰值缺口：一名多技能员工去重，可用、负荷、延期和缺口可下钻。
+3. 实现产品行和订单预计完成、生产完成与订单关闭；任一必需任务未知/未排时 ETA 为 `UNKNOWN` 并给原因。
+4. 实现 CSV/打印导出、范围与页面一致的权限、脱敏和审计；不把跨产品不同单位强行相加。
+5. 在固定 CPU/内存/JDK/线程/种子/horizon 下测 1k、5k、20k 任务，记录数据形态、首个可行解、最终结果、bound、内存、超时和未排原因。
+6. 验证重复请求、并发发布、输入变化、Worker 重启、候选事务失败、API/SSE 断线、数据库恢复和功能开关回退。
+7. 完成角色/车间数据范围、报工/发布/导出权限、输入校验、依赖漏洞、SBOM、甘特许可证和敏感日志检查。
+8. 对当前 PRD AC-01～24 和全部 P0 APS-AC 执行完整回归；P1 的外部可靠下达和 APS-AC-22 单独标记范围外，不混入 P0 完成率。
+9. 由用户或业务负责人执行 P0 UAT 并给出接受、附条件接受或拒绝；形成上线就绪评估，但不自动执行真实发布。
+10. 在选定的 Windows 目标环境锁定 OS/架构、CPU/内存、生产 JDK、Maven、Node/npm 等运行与构建基线，复验 OR-Tools JNI 最小模型、API/Worker 启动和前后端构建产物；API 使用隔离临时 MySQL，不能触碰真实业务库或把本地启动写成正式部署。
+
+当前实施状态（2026-09-13）：
+
+| 子项 | 状态 | 当前事实 |
+| --- | --- | --- |
+| 1～3 报表与 ETA | Done（技术纵切片） | 日冻结基线、跨日人机时、人员去重/多席位峰值、技能资格有效期、产品行/订单 ETA 及 `UNKNOWN` 原因已实现；MySQL 真实 SQL、应用单测和浏览器夹具通过 |
+| 4 CSV/打印、权限与审计 | Done（技术纵切片） | 查询和导出权限分离，SQL 内按车间范围裁剪，CSV 防公式注入并记录导出审计；页面打印样式和 OpenAPI 已接入 |
+| 5 固定容量基准 | Done（本机固定形态）/ 有限 Go | Java 17、8 逻辑处理器、单线程、100 个独占资源、30 天、固定种子和 30 秒求解上限下，加入不放宽约束的完整确定性 hint 后，1k/5k/20k 均返回经独立校验的 `FEASIBLE + COMPLETED`。同 JVM 顺序运行的总耗时为 7.202/4.178/13.922 秒，首解为 2.039/2.901/11.399 秒，heap 增量约 73.8/97.4/578.1 MiB；目标值未优化，有限 Go 只适用于该独立单阶段合成形态，不外推为复杂业务形态或目标硬件 SLA |
+| 6 故障与回退 | Done（本地技术验证） | 重复请求、旧基线并发发布、输入过期、发布切换故障回滚/重试、候选事务失败、遗留 `SOLVING` 回收、求解中优雅停机、SSE 后备状态查询、默认关闭开关及 29 表逻辑恢复已有自动化或隔离 MySQL 证据；不代表生产故障演练 |
+| 7 安全与供应链 | Done（自动化/静态初筛） | 角色权限、车间范围、报工/发布/查询/导出分权、输入失败关闭、CSV 公式注入、导出审计、依赖 high 门、CycloneDX SBOM、甘特精确版本与许可证边界、敏感日志初筛已覆盖；真实角色和 SAST/DAST 留在试点门 |
+| 8 全量技术 AC | Done（技术回归） | 当前 PRD AC-01～24 为 24/24 Pass；21 项 P0 APS-AC 为 21/21 Pass，APS-AC-09/22 两项 P1 明确排除。精确回归覆盖 11:30 并行汇合、车间关闭/批准加班物化，以及 O-100 的 9/15 09:00、F1 3 机时、王工 1 人时和订单关闭门；业务 UAT 仍由第 9 项单独决定 |
+| 9 UAT | Prepared / NotExecuted | [UAT 验收记录](验收记录.md)已覆盖 AC-01～24 与 21 项 P0 APS-AC，并预留角色、环境、数据、证据、缺陷和三选一签署；只能由用户或业务负责人执行并签署结论 |
+| 10 目标 Windows/JNI | Done（目标运行时技术验证） | 用户已选择 Windows。`scripts/aps/verify-windows-runtime.ps1` 在 Windows 11 专业版 `10.0.26200` x64、i5-9300H 4 核/8 线程、31.8 GiB、Microsoft JDK `17.0.18`、Maven `3.9.15`、Node `24.15.0`、npm `11.12.1` 下通过；OR-Tools JNI 1/1、后端/前端打包、两个 jar 清单、默认关闭 Worker 启动，以及启用 APS API 壳的 RuoYi `/v3/api-docs` HTTP 200 均为 Pass。API 使用随机端口和临时 MySQL，系统 `MySQL80` 始终停止；Docker/WSL/Linux 不属于当前完成门 |
+
+最小验证与证据：
+
+- AC-20、AC-21 的跨日、日报分母、多技能人员去重和峰值缺口可复算。
+- O-100 样例得到已定义的预计完成结果；数据不足时 AC-22 返回 `UNKNOWN` 而不是假 ETA。
+- 1k/5k/20k 结果只陈述实测值，不预填 SLA；当前固定独立单阶段形态为有限 Go，复杂业务形态和目标硬件仍需按业务门槛复验，未达时继续记录瓶颈、降级和 No-Go。
+- 备份恢复、迁移恢复、功能开关停止 Worker、隐藏未完成入口和保留正式计划均实际演练。
+- UAT 结论来自用户或业务负责人，Agent 不能代签。
+
+阶段出口：REQ-08、REQ-09 首次完整闭环，REQ-10 在当前 P0 范围收口。只有当前全部 P0 实现、验证和 UAT 均满足门槛时才能评 `ReleaseReady`；P1 能力不计入 P0 完成率。真实生产迁移、账号连接和发布仍需单独授权。
+
+## 17. 需求、验收与阶段追溯
+
+### 17.1 产品需求首次闭环点
+
+| 需求 | 首次完整闭环 | 主要后续回归 |
+| --- | --- | --- |
+| REQ-01 多产品订单、路线版本和展开 | IMP-04 | IMP-05～10 |
+| REQ-02 跨产品依赖、数量门槛和转移批 | IMP-07 | IMP-08～10 |
+| REQ-03 拆批、共享加工批和同步边界 | IMP-07 | IMP-08～10 |
+| REQ-04 具名资源、技能、日历和人机阶段容量 | IMP-06；主数据在 IMP-03，校验在 IMP-05 | IMP-07～10 |
+| REQ-05 有限排程、调整、锁定、重排和发布 | IMP-08；求解在 IMP-06/07 | IMP-09～10 |
+| REQ-06 三类甘特和影响联动 | IMP-08 | IMP-10 |
+| REQ-07 报工、质量、异常、返工和订单闭环 | IMP-09 | IMP-10 |
+| REQ-08 车间日报和人力累计产能 | IMP-10 | IMP-10 UAT |
+| REQ-09 ETA、交期风险和可解释指标 | IMP-10；原因基础在 IMP-05 | IMP-10 UAT |
+| REQ-10 数据源、权限、幂等、恢复和追溯 | IMP-01～10 逐步实现，IMP-10 收口 | 全量 |
+
+### 17.2 产品 AC 主验证阶段
+
+| AC | 主验证阶段 | 重点 |
+| --- | --- | --- |
+| AC-01～02 | IMP-04 | 多产品展开、路线版本、缺项与循环 |
+| AC-03～07 | IMP-07 | 依赖、门槛、转移批、共享批、同步边界 |
+| AC-08～11 | IMP-05～06 | 技能、日历、人机阶段、多席位和可中断 |
+| AC-12～14 | IMP-06～08 | 有限排程、影响闭包和锁 |
+| AC-15 | IMP-08、IMP-10 | 旧基线并发发布、系统内事务失败和幂等重试；外部接收失败/重试已转 P1 |
+| AC-16 | IMP-08 | 三类甘特身份与人机汇总 |
+| AC-17～18 | IMP-09 | 报工幂等、质量、返工、报废和补产 |
+| AC-19～22 | IMP-09～10 | 订单闭环、日报、产能、ETA/UNKNOWN |
+| AC-23 | IMP-06～08、IMP-10 | 取消、超时、输入过期与正式计划保护 |
+| AC-24 | IMP-02～10 | 权限、导出范围、来源幂等与错误追踪 |
+
+## 18. 阶段依赖、并行和报告节奏
+
+主依赖链：
+
+```text
+IMP-01 → IMP-02 ─┬→ IMP-03 ─┐
+                 └→ IMP-04 ─┴→ IMP-05 → IMP-06 → IMP-07 → IMP-08 → IMP-09 → IMP-10
+```
+
+- IMP-03 与 IMP-04 可在共同 ID/时间/契约稳定后并行，但必须在 IMP-05 前统一集成。
+- 甘特组件性能 PoC 可在 IMP-03/04 期间提前做；正式业务接线仍属于 IMP-08。
+- 性能数据生成器、观测指标和安全测试框架可从 IMP-02 开始建设；最终通过门只在 IMP-10。
+- IMP-09 的测试夹具可在 IMP-04 后准备；真实执行必须依赖 IMP-08 的正式计划。
+- 每完成一个 IMP，控制页和本任务源更新真实状态，并在已有真实输出时创建/追加 `验证记录.md`；失败证据不删除。
+- 上一阶段出口未满足时，不用下一阶段页面或 Mock 掩盖。只允许不依赖该出口的 PoC 并行，且明确标注不是生产完成。
+
+## 19. 验证矩阵和最低证据
+
+| 验证层 | 必须证明的内容 |
+| --- | --- |
+| 单元测试 | 区间、工时、DAG 循环、数量守恒、状态迁移、原因码、影响闭包 |
+| MySQL 集成 | Flyway、29 表精确清单、约束、事务、并发正式版本、幂等键、恢复 |
+| 契约测试 | OpenAPI、Solver Schema、版本兼容、错误信封、API/Worker 字段消费 |
+| 求解回归 | 固定黄金数据、模型版本、可行性、目标/bound、超时/无解区分和确定性配置 |
+| 独立复验 | 资源、日历、依赖、数量、共享批、锁、实际占用和输入新鲜度 |
+| 前端单元/组件 | 旧响应覆盖、状态映射、拖动回滚、筛选、分页、适配层转换 |
+| 浏览器 E2E | 三甘特联动、权限、版本发布、错误恢复、窄屏、键盘和性能 |
+| 并发与故障 | 重复请求、旧基线发布、求解中数据变化、Worker 退出、候选事务部分失败 |
+| 安全 | RuoYi 权限、车间数据范围、报工/发布/导出授权、HR 敏感数据与日志脱敏 |
+| 容量与恢复 | 1k/5k/20k 任务、固定环境、内存、取消、备份恢复、migration 演练、开关回退 |
+| UAT | 当前 PRD AC-01～24 与 P0 APS-AC 的真实场景、限制和用户决定；任何仍属 P0 的 NotRun 都阻断 ReleaseReady |
+
+## 20. 失败、停止和恢复原则
+
+1. migration 只前进修复；破坏性变更前需备份和恢复演练，不把反向 SQL 当唯一恢复方案。
+2. API、Worker、菜单和新页面通过功能开关启用；失败时可停止 Worker、隐藏入口，当前正式计划保持不变。
+3. 候选可标废弃；正式计划历史不删除。需要恢复时创建并发布替代版本，保留原版本。
+4. 报工、实际占用、质量和数量只允许更正/冲正，不允许删除或被求解器覆盖。
+5. 外部写入默认关闭；未确定接收方、ACK、幂等和补偿责任前，不声称可靠下达。
+6. OR-Tools、JDK、甘特组件升级必须重跑相同黄金集、性能与许可证检查；不能用升级顺手改变业务口径。
+7. 需要增加第 30 张业务表、第二 Worker、MQ、跨站点或新外部写入时，停止受影响实现并回到设计/授权门。
+8. 需要真实账号、真实业务数据、费用、生产迁移、发布或 Git 写操作时，必须取得相应明确授权。
+
+## 21. 本地实施环境影响与清理边界
+
+批准本计划若同时勾选本节对应审核项，表示允许在当前工作区执行下列可恢复的本地动作；不包含全局软件安装、真实账号、生产数据或外部付费服务：
+
+| 动作 | 可能影响 | 执行与清理边界 |
+| --- | --- | --- |
+| Maven 解析与构建 | 访问 Maven 仓库，写入用户 Maven 缓存和各模块 `target/`；OR-Tools 会下载平台原生包 | 锁定依赖与仓库；只清理本任务生成的 `target/` 或隔离输出，不删除用户全局缓存 |
+| `npm ci` / 前端工具接入 | 访问 npm registry，并按 lockfile 重建 `frontend/admin-web/node_modules`；会占用磁盘 | 执行前确认 lockfile，保留源码和用户配置；只清理可重建的本项目依赖，不动其他工程 |
+| Testcontainers/Docker（可选） | 未来需要跨平台或容器化验证时，可拉取固定 MySQL/浏览器镜像并启动临时容器、网络和 volume | 当前目标为 Windows 本地进程，使用独立 MySQL 数据目录；不安装 Docker/WSL，也不把它们列为 IMP-10 完成条件 |
+| 本地 API、Worker 与浏览器测试 | 临时占用非冲突端口、CPU、内存和日志目录；可能启动后台进程 | 启动前检查端口；命令结束或阶段中止时正常停止本任务进程，不留下第二 Worker |
+| 1k/5k/20k 基准 | 可能短时高 CPU/内存和较大临时数据 | 固定上限、记录环境；出现系统压力、内存临界或用户新指令时停止，保留结果后清理任务临时数据 |
+| 临时 MySQL migration/恢复演练 | 创建隔离 schema/container、备份文件和 migration history | 绝不指向真实业务库；使用明确任务名和路径，验证后只删除已核对的隔离资源 |
+
+若缺少目标 JDK/Node 或必须安装全局软件/系统服务，当前计划批准不自动授权安装；Docker/WSL 在 Windows 目标方案下不是必需项。任何下载失败、运行时不兼容、端口冲突或进程未正常退出都进入真实证据，不改写为通过。
+
+## 22. 用户批准记录
+
+2026-09-12 用户回复“分这 10 个阶段进行开工，进入编码实现”，据此批准本计划整体和下列开工基线；遇到实质范围变化再单独复核：
+
+- [x] 同意十个实施里程碑的顺序、目标和阶段出口。
+- [x] 同意 P0 的 API 与 Worker 统一 Java 17，不先升级整个共享平台到 Java 21。
+- [x] 同意只为 APS 新代码增量接入 TypeScript、Vitest、Playwright，不迁移现有 JS 页面。
+- [x] 同意 `ruoyi-backend/aps/` 下八个 Maven 模块及本文依赖方向，不按 29 表机械拆模块。
+- [x] 同意 29 表作为 P0 migration 基线；若实现发现必须新增表，回到评审而不是暗加。
+- [x] 同意不新增表、只扩展 M12/M17 的依赖类型与对应 CHECK，以持久保留 `SAME_START` 来源关系，并在 P0 阻断执行和发布。
+- [x] 同意一库一站点、无工厂表，时区走部署配置，权限落车间/工作中心。
+- [x] 同意 M05 绝对时间窗作为 P0 日历事实；循环班制模板和 HR 实时同步延期。
+- [x] 同意单 Worker、受控恢复、系统内发布；多 Worker fencing、Inbox/Outbox 与外部 MES 可靠下达从本 Feature 延期，并在 IMP-01 同步修订当前 PRD/引擎设计。
+- [x] 同意 OR-Tools CP-SAT 与 DHTMLX Community + `vis-timeline` 先 PoC、后锁精确版本；PoC No-Go 时重新评审替代方案。
+
+- [x] 同意第 21 节列明的 Maven/npm 网络解析、`npm ci` 重建本项目依赖、Testcontainers/Docker 临时资源、本地端口进程和受控容量测试影响与清理边界。
+- [x] 同意 P1/P2 非目标和本文件的真实账号、生产迁移、发布、费用与 Git 授权边界。
+
+2026-09-13 用户回复“接受 IMP-08 发布语义和 IMP-09 开工方案”，据此确认 IMP-08 阶段出口，并批准第 15.1 节的执行 run 状态机、数量/质量账、生产 V004 和五个纵切片。该批准当时使 IMP-09 进入 `InProgress`；此后列明纵切片已经实现并验证，IMP-09 当前为 `Done`。这项批准及后续技术完成均不等于生产发布或业务 UAT。
+
+2026-09-13 用户进一步明确“目标是 win 环境”。据此将当前本地 Windows 环境确认为本 Feature 的目标运行环境，不安装 Docker/WSL，也不再把 Linux/JNI 列为 IMP-10 完成条件；若未来改变目标操作系统或 Windows 版本，重新执行对应平台验证。
+
+本批准已触发十阶段连续实施。IMP-01～IMP-09 已完成工程契约、数据库平台、资源/工艺/订单、数据就绪、基础 CP-SAT、单 Worker 候选、数量批次、共享批、可中断、动态重排约束、人工计划、三视图、候选管理、系统内原子发布和执行/质量/数量闭环。IMP-10 的报表/ETA、固定独立单阶段容量形态有限 Go、故障恢复、安全初筛、完整 P0 技术 AC 矩阵和 Windows 目标运行时验证均已有证据；复杂业务容量、真实试点 UAT 和上线就绪仍不能因技术结果而提前声称完成。
+
+## 23. 2026-09-26 若依排产菜单补齐
+
+当前排产前端位于共享 `frontend/admin-web/`；用户确认若依左侧目录名称为“生产排产系统”。本次只补齐现有 P0 页面导航，不创建独立前端工程、不增加业务能力或角色授权。
+
+| 验收点 | 范围与预期 |
+| --- | --- |
+| APS-MENU-01 | 若依左侧出现“生产排产系统”，包含产品与工艺路线、订单与任务展开、资源与日历、资源数据就绪、生产排程工作台、现场执行、生产与交期报表 7 个页面入口，路径保持 `/aps/*`。 |
+| APS-MENU-02 | 现有 APS 按钮权限码归属到对应页面；脚本重复执行无重复目录、页面或路径；不写 `sys_role_menu`，普通角色由管理员显式授权。 |
+| APS-MENU-03 | 菜单点击和页面刷新可渲染对应 Vue 页面，面包屑归属“生产排产系统”；移除旧的重复隐藏路由。隔离库没有业务数据时按真实空状态显示。 |
+
+实施范围为 `ruoyi-backend/sql/aps-permissions.sql`、`frontend/admin-web/src/router/index.js` 和本 Feature 任务/验证记录。验证仅在本机隔离若依库 `aps_preview_ruoyi`、APS 库 `aps_preview_business` 和 `4176/18081` 服务进行；不改共享 `8081` 数据库、不自动授权普通角色、不作生产发布。若菜单冲突或页面空白，停止应用菜单脚本并保留已备份的隔离库 `sys_menu`；回退时只处理本次 `910000`～`910007` 菜单与 APS 按钮父级，避免覆盖其他菜单修改。
+
+## 24. 页面与处理设计重构
+
+2026-10-01 用户确认以“模块用途与业务流程 → 列表字段及线框 → 新增字段及线框 → 编辑、详情和其他操作 → 后端接口与数据处理 → 实施顺序与验收例子”组织设计，并要求重构现有文档。
+
+[页面与字段设计方案](页面与字段设计方案.md)已按九个业务模块采用该结构；列表展示、输入表单、派生结果和业务动作分别定义，并提供逐页图像及[切换线框](线框图/页面与字段确认线框.html)。本次完成设计整理；新增产线、资源专属产能、完整输入选择式检查和目录查询仍为待评审的业务扩展。后续具体实施任务在本任务源补入，不能把结构认可记为新增表或生产代码已获批准、已实现。
+
+原实施里程碑、历史验证和用户验收事实保留。第3.1节已注明为开工时工程快照；检查与图像抽查另记在[验证记录第11节](验证记录.md#11-2026-10-01-页面与处理设计重构检查)。重构前实际工作区内容、路径映射和恢复办法见[快照说明](归档/页面设计重构前原文-20261001/README.md)。
+
+## 25. 本轮主流程衔接修复
+
+2026-10-01 本项目对话中，用户明确批准按订单/车间名称发起排程、选择候选或正式计划、从正式作业进入派工的最小修复，不新增业务表，沿用求解、发布与数量规则。方案见[页面与字段设计第12节](页面与字段设计方案.md#12-本轮已批准的主流程衔接)。对应既有页面连续操作缺陷 LIVE-10，并定向复验 LIVE-04～09 的关联步骤；原失败与旧基线保留。
+
+实施范围：APS 计划列表的控制器/应用/仓储/MySQL查询与契约、工作台排程选择组件及现场派工选择；不修改公共管理端页面、ruoyi-admin装配或其他项目源码。新查询必须使用原车间范围且限制结果量；先做定向Java/前端检查，再只更新排产专属运行副本，复验本机合成样本，用户决定另记。新增产线、资源专属产能等候选扩展不在本轮实施范围。
+
+执行状态：已实现并完成本机合成样本的六项主流程定向复验，真实角色/代表性数据UAT和用户接受仍待完成。工作台按名称发起、候选/正式计划选择、正式作业派工、报工成员选择已连通；本轮一并修复发布后顶部状态滞后及派工整数步长校验。结果与原失败保存在[本轮HTML报告](evidence/20261001主流程复验/verification-report.html)、[操作前清单](evidence/20261001主流程复验/主流程验收清单.md)及[逐项记录](evidence/20261001主流程复验/逐项记录.json)。仅更新APS专属API运行副本；旧包保留，Worker继续复用。无Git写操作和生产发布。

@@ -136,7 +136,13 @@ public final class RoutingManagementService
 
     public RouteGraph saveGraph(String routeVersionId, RouteGraphDraft draft, String actor)
     {
+        return saveGraph(routeVersionId,null,draft,actor);
+    }
+    public RouteGraph saveGraph(String routeVersionId,Long expectedRowVersion,RouteGraphDraft draft,String actor)
+    {
+        return transactions.required(() -> {
         RouteVersion route = requireDraftRoute(routeVersionId);
+        if(expectedRowVersion!=null && expectedRowVersion!=route.rowVersion())throw stale("路线图已被其他人修改，请回查后重试");
         List<RouteNode> nodes = normalizeNodes(routeVersionId, draft.nodes());
         Map<String, RouteNode> byCode = new HashMap<>();
         nodes.forEach(node -> byCode.put(node.nodeCode(), node));
@@ -144,9 +150,9 @@ public final class RoutingManagementService
         RouteGraph graph = new RouteGraph(route, nodes, edges);
         List<ApsValidationIssue> structural = validate(graph, false).issues();
         if (!structural.isEmpty()) throw validation(ApsErrorCode.INVALID_REQUEST, "路线图结构无效", structural);
-        return transactions.required(() -> {
+            if(repository.advanceDraftRouteRevision(routeVersionId,route.rowVersion(),actor)!=1)throw stale("路线已生效或版本已变化，不能覆盖");
             repository.replaceRouteGraph(routeVersionId, nodes, edges, actor);
-            return graph;
+            return new RouteGraph(new RouteVersion(route.id(),route.itemId(),route.routeCode(),route.versionNo(),route.status(),route.effectiveFrom(),route.effectiveTo(),route.changeNote(),route.approvedBy(),route.approvedAt(),route.rowVersion()+1),nodes,edges);
         });
     }
 

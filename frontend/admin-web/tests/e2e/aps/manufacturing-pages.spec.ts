@@ -1,11 +1,14 @@
+import {captureDevelopmentPage} from './fixtures/development-capture'
+import {fulfillProductContext} from './fixtures/product-context'
 import { expect, test } from '@playwright/test'
 
 test('路线页展示版本化 DAG 和显式依赖', async ({ page }) => {
   const errors: string[] = []
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   page.on('pageerror', error => errors.push(error.message))
-  await page.route('**/api/aps/v1/routings/**', route => {
+  await page.route('**/api/aps/v1/routings/**', async route => {
     const path = new URL(route.request().url()).pathname
+    if(await fulfillProductContext(route))return
     if (path.endsWith('/items')) return route.fulfill({ json: [{ id: '10000000-0000-4000-8000-000000000001', code: 'PROD-A', name: '产品 A', type: 'PRODUCT', baseUomCode: 'PCS', status: 'ACTIVE', rowVersion: 0 }] })
     if (path.endsWith('/operations')) return route.fulfill({ json: [{ id: '20000000-0000-4000-8000-000000000001', code: 'OP-CUT', name: '切割', mode: 'MAN_MACHINE', interruptible: false, qualityGateRequired: false, status: 'ACTIVE', phases: [{ phaseNo: 1, phaseType: 'RUN', name: '加工', durationModel: 'PER_UNIT', fixedSeconds: 0, secondsPerUnit: 10, resourceHoldPolicy: 'PHASE_ONLY', requirements: [] }], rowVersion: 1 }] })
     if (path.endsWith('/routes')) return route.fulfill({ json: [{ id: '30000000-0000-4000-8000-000000000001', itemId: '10000000-0000-4000-8000-000000000001', routeCode: 'ROUTE-A', versionNo: 'V1', status: 'ACTIVE', rowVersion: 1 }] })
@@ -28,8 +31,9 @@ test('订单页展示多产品行和冻结任务网络', async ({ page }) => {
   const items = [{ id: 'i1', code: 'PROD-A', name: '产品 A', type: 'PRODUCT', baseUomCode: 'PCS', status: 'ACTIVE', rowVersion: 0 }, { id: 'i2', code: 'PROD-B', name: '产品 B', type: 'PRODUCT', baseUomCode: 'PCS', status: 'ACTIVE', rowVersion: 0 }]
   const lines = [{ id: 'l1', orderId: 'o1', lineNo: 1, itemId: 'i1', routeVersionId: 'r1', demandQty: 10, uomCode: 'PCS', status: 'DRAFT', components: [], dependencies: [], rowVersion: 0 }, { id: 'l2', orderId: 'o1', lineNo: 2, itemId: 'i2', routeVersionId: 'r2', demandQty: 5, uomCode: 'PCS', status: 'DRAFT', components: [], dependencies: [{ predecessorLineNo: 1, predecessorNodeCode: 'A-END', successorNodeCode: 'B-START', dependencyType: 'QUANTITY', thresholdQty: 5, lagSeconds: 0, consumesOutput: false }], rowVersion: 0 }]
   const order = { id: 'o1', orderNo: 'ERP-001', sourceSystem: 'ERP', externalId: 'EXT-001', priority: 50, status: 'DRAFT', lines, rowVersion: 0 }
-  await page.route('**/api/aps/v1/**', route => {
+  await page.route('**/api/aps/v1/**', async route => {
     const path = new URL(route.request().url()).pathname
+    if(await fulfillProductContext(route))return
     if (path.endsWith('/routings/items')) return route.fulfill({ json: items })
     if (path.endsWith('/routings/routes')) return route.fulfill({ json: [{ id: 'r1', itemId: 'i1', routeCode: 'RA', versionNo: 'V1', status: 'ACTIVE', rowVersion: 1 }, { id: 'r2', itemId: 'i2', routeCode: 'RB', versionNo: 'V1', status: 'ACTIVE', rowVersion: 1 }] })
     if (path.endsWith('/orders')) return route.fulfill({ json: [order] })
@@ -44,3 +48,6 @@ test('订单页展示多产品行和冻结任务网络', async ({ page }) => {
   await expect(page.getByText('QUANTITY')).toBeVisible()
   expect(errors).toEqual([])
 })
+
+// 留图仅在显式开发检查中启用，全部接口由夹具提供。
+test.afterEach(async ({page},info)=>{if(info.status==='passed')await captureDevelopmentPage(page,info.title)})
