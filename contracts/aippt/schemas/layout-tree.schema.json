@@ -1,0 +1,204 @@
+{
+  "$defs": {
+    "FlexContainer": {
+      "properties": {
+        "type": {
+          "enum": [
+            "row",
+            "column"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "block": "#/$defs/FlexLeaf",
+                "column": "#/$defs/FlexContainer",
+                "row": "#/$defs/FlexContainer"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/FlexContainer"
+              },
+              {
+                "$ref": "#/$defs/FlexLeaf"
+              }
+            ]
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "gap_pt": {
+          "default": 16.0,
+          "title": "Gap Pt",
+          "type": "number"
+        },
+        "ratios": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ratios"
+        },
+        "preset": {
+          "anyOf": [
+            {
+              "enum": [
+                "solid_boxes",
+                "outline_boxes",
+                "side_line",
+                "numbered_steps",
+                "timeline"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preset"
+        },
+        "grow": {
+          "default": 1.0,
+          "title": "Grow",
+          "type": "number"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "children"
+      ],
+      "title": "FlexContainer",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "FlexLeaf": {
+      "properties": {
+        "type": {
+          "const": "block",
+          "default": "block",
+          "title": "Type",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "grow": {
+          "default": 1.0,
+          "title": "Grow",
+          "type": "number"
+        },
+        "text_style": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Style"
+        },
+        "offset_x_pt": {
+          "default": 0.0,
+          "maximum": 960.0,
+          "minimum": -960.0,
+          "title": "Offset X Pt",
+          "type": "number"
+        },
+        "offset_y_pt": {
+          "default": 0.0,
+          "maximum": 960.0,
+          "minimum": -960.0,
+          "title": "Offset Y Pt",
+          "type": "number"
+        },
+        "bleed": {
+          "default": false,
+          "title": "Bleed",
+          "type": "boolean"
+        },
+        "rect_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RectOverride"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "block_id"
+      ],
+      "title": "FlexLeaf",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "RectOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "w": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "exclusiveMinimum": 0
+        },
+        "h": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "description": "固定页解锁的首帧全页归一化矩形；w/h须正，x+w/y+h须<=1。人工树变更清除，正文/样式编辑保留。"
+    }
+  },
+  "$ref": "#/$defs/FlexContainer",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.local/aippt/v1/layout-tree.schema.json"
+}

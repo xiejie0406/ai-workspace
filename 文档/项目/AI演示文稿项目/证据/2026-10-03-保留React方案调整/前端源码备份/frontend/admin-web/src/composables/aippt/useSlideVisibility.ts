@@ -1,0 +1,2 @@
+import { ref,onMounted,onBeforeUnmount } from 'vue'
+export function useSlideVisibility(element:import('vue').Ref<HTMLElement|null>){const visible=ref(false);let observer:IntersectionObserver|undefined;onMounted(()=>{if(!element.value)return;if(!('IntersectionObserver' in window)){visible.value=true;return}observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){visible.value=true;observer?.disconnect()}},{rootMargin:'200px'});observer.observe(element.value)});onBeforeUnmount(()=>observer?.disconnect());return visible}

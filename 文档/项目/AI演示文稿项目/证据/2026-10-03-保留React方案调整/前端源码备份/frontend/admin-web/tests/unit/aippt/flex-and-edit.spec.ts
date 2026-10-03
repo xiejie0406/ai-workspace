@@ -1,0 +1,17 @@
+import {describe,it,expect} from 'vitest'
+import fixtures from '../../../../../contracts/aippt/catalog/flex-fixtures/normalize-grow-cases.json'
+import {reactive} from 'vue'
+import {normalizeGrows} from '@/views/aippt/editor/algorithms/flexNormalize'
+import {solve,type FlexContainer,type FlexNode} from '@/views/aippt/render/flexLayout'
+import {moveLeaf,iterLeaves,ensureResizePair,setLeafOffset} from '@/views/aippt/editor/algorithms/flexTree'
+import {mergeBlockCommit} from '@/views/aippt/editor/algorithms/mergeBlockCommit'
+import {cloneJson} from '@/views/aippt/render/clone'
+import type {Slide} from '@/types/aippt'
+function grows(node:FlexNode,result:Record<string,number>={}){result[node.id]=node.grow??1;if(node.type!=='block')node.children.forEach(n=>grows(n,result));return result}
+describe('原共享布局语料与编辑规则',()=>{
+ for(const c of fixtures.cases)it(c.name,()=>{const normalized=normalizeGrows(c.tree as FlexContainer);for(const [id,value] of Object.entries(c.expected_grows))expect(grows(normalized)[id]).toBeCloseTo(value as number,10);expect(normalizeGrows(normalized)).toEqual(normalized)})
+ it('跨容器移动不丢内容ID，原位留spacer、目标正常求解',()=>{const tree:FlexContainer={type:'row',id:'root',ratios:[50,50],children:[{type:'column',id:'left',children:[{type:'block',id:'a',block_id:'A'},{type:'block',id:'b',block_id:'B'}]},{type:'column',id:'right',children:[{type:'block',id:'c',block_id:'C'}]}]};const moved=moveLeaf(reactive(tree),'B','right',0)!;expect(iterLeaves(moved).map(x=>x.block_id).sort()).toEqual(['A','B','C']);expect(grows(moved)).toHaveProperty('left');expect(solve(moved)).toHaveLength(3);expect(tree.children[0]).toEqual(expect.objectContaining({children:expect.arrayContaining([expect.objectContaining({block_id:'B'})])}))})
+ it('fixed解锁rect_override首帧精确匹配原槽位，首次布局动作清除覆盖',()=>{const original={x:.14,y:.24,w:.32,h:.41};const tree:FlexContainer={type:'column',id:'root',children:[{type:'block',id:'a',block_id:'A',rect_override:original},{type:'block',id:'b',block_id:'B',rect_override:{x:.57,y:.21,w:.2,h:.38}}]};expect(solve(tree)[0].rect).toEqual(original);const changed=setLeafOffset(tree,'A',10,20)!;expect(iterLeaves(changed).every(l=>!l.rect_override)).toBe(true);expect(tree.children[0]).toHaveProperty('rect_override',original)})
+ it('缺侧边缘调整产生占位；树快照不改原对象且保留所有块',()=>{const tree:FlexContainer={type:'column',id:'root',children:[{type:'block',id:'a',block_id:'A'}]};const pair=ensureResizePair(tree,'A','x','before')!;expect(iterLeaves(pair.tree).map(l=>l.block_id)).toEqual(['A']);expect(pair.tree).not.toEqual(tree);expect(cloneJson(reactive(pair.tree))).toEqual(pair.tree)})
+ it('KPI/卡片/表格相邻编辑不覆盖其他字段，空要点保留可编辑位置',()=>{const s={blocks:[{id:'k',type:'kpi',slot_id:'s',locked:false,value:'1',label:'标签',note:'备注'},{id:'t',type:'table',slot_id:'s',locked:false,header:['A','B'],rows:[['1','2']]},{id:'b',type:'bullets',slot_id:'s',locked:false,items:['原要点']}]} as Slide;const k=mergeBlockCommit(s,'k',{type:'kpi',field:'value',text:'5'})!;expect(mergeBlockCommit(s,'k',{type:'kpi',field:'label',text:'新标签'},k)).toMatchObject({value:'5',label:'新标签',note:'备注'});const table=mergeBlockCommit(s,'t',{type:'table',kind:'cell',row:0,col:0,text:'10'})!;expect(mergeBlockCommit(s,'t',{type:'table',kind:'header',index:1,text:'新列'},table)).toMatchObject({header:['A','新列'],rows:[['10','2']]});expect(mergeBlockCommit(s,'b',{type:'bullets',kind:'insert',index:0})).toMatchObject({items:['原要点','']})})
+})

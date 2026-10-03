@@ -1,0 +1,9 @@
+import type {FlexContainer,FlexNode} from '../../render/flexLayout'
+import {ensureResizePair,updateRowRatios,updateChildGrows} from './flexTree'
+type Context={container:FlexContainer;index:number}
+function path(node:FlexNode,blockId:string,ancestors:Context[]=[]):Context[]|null{if(node.type==='block')return node.block_id===blockId?ancestors:null;for(let i=0;i<node.children.length;i++){const found=path(node.children[i],blockId,[...ancestors,{container:node,index:i}]);if(found)return found}return null}
+function context(tree:FlexContainer,blockId:string,axis:'x'|'y'){return path(tree,blockId)?.reverse().find(c=>c.container.type===(axis==='x'?'row':'column')&&c.container.children.length>1)}
+function weights(c:Context,axis:'x'|'y'){return axis==='x'?c.container.ratios||c.container.children.map(()=>1):c.container.children.map(child=>child.grow??1)}
+/** 百分比是该块所在列/行在最近对应容器内的份额。 */
+export function leafDimensionPercent(tree:FlexContainer,blockId:string,axis:'x'|'y'){const c=context(tree,blockId,axis);if(!c)return 100;const values=weights(c,axis),total=values.reduce((a,b)=>a+b,0);return total>0?values[c.index]/total*100:100/values.length}
+export function setLeafDimensionPercent(tree:FlexContainer,blockId:string,axis:'x'|'y',value:number):FlexContainer|null{if(!Number.isFinite(value))return null;let base=tree,c=context(base,blockId,axis);if(!c){const pair=ensureResizePair(base,blockId,axis,'after');if(!pair)return null;base=pair.tree;c=context(base,blockId,axis)}if(!c)return null;const values=weights(c,axis),total=values.reduce((a,b)=>a+b,0)||values.length,share=Math.max(5,Math.min(95,value))/100,others=values.reduce((sum,v,i)=>i===c!.index?sum:sum+v,0),next=values.map((v,i)=>i===c!.index?total*share:others>0?v/others*total*(1-share):total*(1-share)/(values.length-1));return axis==='x'?updateRowRatios(base,c.container.id,next.map(v=>v/total*100)):updateChildGrows(base,c.container.id,next)}

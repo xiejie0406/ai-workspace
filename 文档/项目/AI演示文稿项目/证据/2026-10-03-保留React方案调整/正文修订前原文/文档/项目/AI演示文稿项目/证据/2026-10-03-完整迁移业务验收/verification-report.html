@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light"><title>AI 演示文稿完整迁移 · 验收准备报告</title>
+<style>
+:root{--paper:#f5f4ef;--card:#fff;--ink:#1e2b33;--muted:#596973;--line:#d9dfe0;--accent:#9b5a19;--wash:#fff3dc;--link:#125d79}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:28px}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 "Segoe UI","Microsoft YaHei",sans-serif}a{color:var(--link);text-underline-offset:3px}a:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid #167791;outline-offset:3px}button,input{font:inherit}.wrap{max-width:1550px;padding:38px 46px 70px;margin:auto}.eyebrow{font-size:13px;letter-spacing:.08em;color:var(--muted);margin:0 0 9px}h1{font-size:36px;line-height:1.35;letter-spacing:-.025em;margin:0 0 16px}.lead{max-width:880px;font-size:18px;margin:0 0 10px}.notice{border-left:4px solid var(--accent);background:var(--wash);padding:14px 18px;margin:25px 0 20px;font-size:15px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:22px 0 28px}.metric{background:var(--card);border:1px solid var(--line);padding:19px 22px;border-radius:8px}.metric strong{display:block;font-size:32px;line-height:1.3;font-weight:650}.metric span{font-size:14px;color:var(--muted)}.metric.blocked strong{color:var(--accent)}.source{font-size:14px;color:var(--muted);margin-bottom:24px}.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:20px 0 28px}.toolbar label{font-weight:600}.toolbar input{padding:9px 13px;min-width:220px;width:380px;max-width:100%;border:1px solid #b1bfc4;border-radius:6px;background:#fff}.toolbar button{padding:9px 17px;background:#fff;border:1px solid #b1bfc4;border-radius:6px;cursor:pointer}.hint{font-size:14px;color:var(--muted)}.layout{display:grid;grid-template-columns:248px minmax(0,1fr);gap:26px;align-items:start}.nav{position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;padding-right:8px}.nav h2{font-size:14px;color:var(--muted);margin:0 0 10px}.nav a{display:flex;gap:10px;padding:7px 5px;font-size:13px;text-decoration:none;color:var(--ink);line-height:1.5;border-radius:4px}.nav a:hover{background:#e8eeee}.nav a span{color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 20px}.item{background:var(--card);border:1px solid var(--line);border-radius:9px;margin-bottom:20px;overflow:hidden}.item-heading{display:flex;align-items:center;gap:13px;padding:18px 22px;border-bottom:1px solid var(--line);background:#fbfcfa}.number{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}.item-heading h2{font-size:22px;line-height:1.4;margin:0;flex:1}.status{font-size:12px;color:#7c4c0d;background:var(--wash);border:1px solid #edcd95;border-radius:999px;padding:3px 10px;white-space:nowrap}.item-body{padding:11px 26px 17px;font-size:15px;overflow-wrap:anywhere}.item-body ul{padding-left:22px;margin:10px 0}.item-body li{margin:11px 0}.item-body strong{font-weight:650}.section{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px 26px;margin-bottom:24px;overflow-wrap:anywhere}.section h2{margin:0 0 14px;font-size:23px}.section p{margin:10px 0}.section li{margin:9px 0}.section ul{padding-left:22px}.section code,.item code{font:13px "Cascadia Code",Consolas,monospace;background:#eef1f1;border-radius:3px;padding:1px 4px}.no-match{display:none;padding:25px;border:1px solid var(--line);background:#fff;border-radius:8px}footer{margin-top:30px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}.metadata{font-size:12px;margin-top:9px;overflow-wrap:anywhere}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}[hidden]{display:none!important}@media(max-width:1100px){.wrap{padding:28px 24px 50px}.layout{grid-template-columns:210px minmax(0,1fr);gap:16px}.item-heading{padding:15px}.item-body{padding:8px 18px 13px}.item-heading h2{font-size:20px}}@media(max-width:760px){.wrap{padding:24px 16px 45px}h1{font-size:28px}.lead{font-size:16px}.metrics{grid-template-columns:repeat(2,1fr);gap:9px}.metric{padding:14px}.layout{display:block}.nav{position:static;max-height:220px;margin-bottom:22px;background:#fff;border:1px solid var(--line);border-radius:7px;padding:14px}.item-heading{flex-wrap:wrap}.status{margin-left:28px}.toolbar input{width:100%}.section{padding:19px}.item-body{font-size:14px}}@media print{body{background:white}.wrap{max-width:none;padding:0}.toolbar,.nav{display:none}.layout{display:block}.item,.section{border-color:#bbb;break-inside:auto}.item-heading{break-after:avoid}.item-body li{break-inside:avoid}.metrics{gap:8px}.item[hidden]{display:block!important}a{color:#111}.no-match{display:none!important}}
+</style></head><body><main class="wrap">
+<p class="eyebrow">AI 演示文稿项目 / 要求版本 0.1 / 2026-10-03</p>
+<h1>完整迁移业务验收准备</h1>
+<p class="lead">41 项原有业务要求已展开为可执行清单，当前等待真实环境与操作范围确认。</p>
+<p class="source">业务结论来自 <a href="验收记录.md" target="_blank" rel="noopener">唯一验收记录</a>。此报告为该记录的查看形式。</p>
+<div class="notice"><strong>当前结论：验收受阻。</strong> 真实业务尚未执行，尚未采集真实页面截图，尚未取得用户接受。已有代码、构建、隔离测试与文件回读保留在技术记录中。</div>
+<div class="metrics" aria-label="业务结果统计"><div class="metric"><strong>41</strong><span>原设计业务点</span></div><div class="metric"><strong>0</strong><span>本轮业务执行</span></div><div class="metric"><strong>0</strong><span>业务通过</span></div><div class="metric blocked"><strong>41</strong><span>受阻待执行</span></div></div>
+<section class="section"><h2>验收范围与共同前提</h2><p>现有若依用户从主题、文本或文档整理材料，编辑并确认提纲，生成、修改、检查、放映并下载原生可编辑PPTX；同时验证本人数据权限、异步任务恢复、私有文件和经批准的旧数据导入。本次保留设计原41个名称和阅读顺序，展开每点可执行步骤，不建立另一份实施计划或并行结果表。</p>
+<p>截至本记录创建，真实运行通道、所属既有MySQL连接/版本与表/菜单启用、私有存储、真实Provider及额度、旧数据/owner映射、字体许可和必要故障演练范围尚未得到用户回复。没有执行本记录中的业务操作，没有连接数据库、上传真实材料、调用Provider或启动服务；下面41项均为<strong>受阻、无执行</strong>。执行者尚未取得真实页面截图，截图状态与业务结果分开记录。既有隔离接口、H2、纯算法、构建和语料回读只能证明相应技术范围，不计业务通过，也不作为本轮真实截图基线。</p>
+<p>当前阻塞源于真实通道、业务数据/对象/费用及故障演练范围缺失；这些条件齐备后，已授权范围内的常规本地可逆核对与样本准备连续执行，不增加逐步审批。准备好的本地样本可以安全核对，但不能替代真实上传、生成、导出或办公软件验收。</p>
+<p>共同前提：</p>
+<ul>
+<li>使用用户批准的真实运行通道和该项目原有业务数据库；不得因验收新建/克隆另一数据库，不修改其他四项目数据或运行通道。</li>
+<li>用户甲、乙指待确认的现有若依账号，按每点批准的权限和owner范围操作；数据/截图脱敏，不保存密码、Token、Cookie、Secret或验证码正文。</li>
+<li>下述真实业务文本、文件、边界页数和异常演练输入的运行范围仍待确认，未声称真实项目/材料已存在；第36项的离线40页PPTX、原始快照、输入预期和技术回读材料已实际准备，可安全核对。各点先记录来源、字段目标、哈希、数量及执行后保留/清理方式。允许多解的模型内容按来源、事实、工具边界和人工基准判断，不能由模型输出自证正确。</li>
+<li>受控错误输出、事件乱序、坏制品等仅用于该异常业务分支；真实Provider结果、实际调用数和用量另行记录，不能用fixture成功替代真实模型或真实存储运行。</li>
+<li>真实浏览器通道、内核/版本、视口、可见方式和账号隔离尚未执行/确认。后续默认Codex内置浏览器，实际通道按用户指示记录；首个业务操作前由根执行者向用户展示本文件的全部41项清单。</li>
+<li>每点截图路径是拟采集位置，<strong>文件尚不存在</strong>；保存后必须逐张回读再更新截图状态。数据/状态项还须正式内容回读、日志或独立复算，不仅看页面成功提示。</li>
+</ul>
+</section>
+<div class="toolbar"><label for="search">查找业务点</label><input id="search" type="search" placeholder="名称、操作、预期或数据核对" autocomplete="off"><button type="button" id="reset">显示全部 41 项</button><span class="hint" id="visible-count" role="status" aria-live="polite">显示全部 41 项</span></div>
+<div class="layout"><nav class="nav" aria-label="41项完整业务清单"><h2>完整业务清单 · 41 项</h2><a href="#point-1"><span>01</span>现有账号进入</a>
+<a href="#point-2"><span>02</span>三种导航兼容</a>
+<a href="#point-3"><span>03</span>创建与列表</a>
+<a href="#point-4"><span>04</span>参数边界</a>
+<a href="#point-5"><span>05</span>文本与主题来源</a>
+<a href="#point-6"><span>06</span>四类文档解析</a>
+<a href="#point-7"><span>07</span>上传与扫描件拒绝</a>
+<a href="#point-8"><span>08</span>指纹和确认锁定</a>
+<a href="#point-9"><span>09</span>生成提纲与来源预算</a>
+<a href="#point-10"><span>10</span>提纲字段/增删排序</a>
+<a href="#point-11"><span>11</span>确认并启动幂等</a>
+<a href="#point-12"><span>12</span>并发与即时预览</a>
+<a href="#point-13"><span>13</span>SSE断线恢复</a>
+<a href="#point-14"><span>14</span>单页失败重试/续跑</a>
+<a href="#point-15"><span>15</span>软取消/迟到结果</a>
+<a href="#point-16"><span>16</span>单页质量自修复</a>
+<a href="#point-17"><span>17</span>页面增删复制排序</a>
+<a href="#point-18"><span>18</span>七类文字/数据编辑</a>
+<a href="#point-19"><span>19</span>四类图表</a>
+<a href="#point-20"><span>20</span>块样式</a>
+<a href="#point-21"><span>21</span>保存队列与撤销重做</a>
+<a href="#point-22"><span>22</span>冲突与失败草稿</a>
+<a href="#point-23"><span>23</span>四主题与微调</a>
+<a href="#point-24"><span>24</span>固定切换与解锁</a>
+<a href="#point-25"><span>25</span>灵活树全部操作</a>
+<a href="#point-26"><span>26</span>换排布提案</a>
+<a href="#point-27"><span>27</span>字体与溢出</a>
+<a href="#point-28"><span>28</span>AI改稿全工具</a>
+<a href="#point-29"><span>29</span>锁定与采纳撤回</a>
+<a href="#point-30"><span>30</span>删除与对象补偿</a>
+<a href="#point-31"><span>31</span>旧数据完整导入</a>
+<a href="#point-32"><span>32</span>真实配图与三级降级</a>
+<a href="#point-33"><span>33</span>上传换图</a>
+<a href="#point-34"><span>34</span>私有存储与授权</a>
+<a href="#point-35"><span>35</span>完整质量门禁</a>
+<a href="#point-36"><span>36</span>原生可编辑PPTX</a>
+<a href="#point-37"><span>37</span>快照与回读失败</a>
+<a href="#point-38"><span>38</span>缩略图缩放与性能</a>
+<a href="#point-39"><span>39</span>放映</a>
+<a href="#point-40"><span>40</span>样例与目录</a>
+<a href="#point-41"><span>41</span>停用、故障与恢复</a></nav><div><div class="no-match" id="no-match">没有匹配的业务点。清空搜索可查看完整 41 项。</div><article class="item" id="point-1" data-search="现有账号进入 - **规则出处**：[完整迁移设计v0.1第5节第1项](../../完整迁移设计.md#5-业务验收方法)“现有账号进入”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：已获准的真实若依通道；现有用户甲有演示文稿菜单及本点按钮权限，乙无该菜单；另有已批准的 Worker 服务身份。确认两个账号和所属业务范围，不新增账号。
+- **操作步骤**：甲从平台登录进入“我的演示文稿”，刷新及直接打开详情；乙从菜单及甲项目深链接/API尝试访问；在批准的受控请求中分别用用户身份访问 Worker 领取接口、用 Worker 身份访问用户项目接口，再在模块关闭状态检查内部入口。
+- **独立预期与核对**：以平台既有 userId/权限名单为独立基准；甲进入演示文稿无需再次注册或登录，乙菜单不可见且业务API拒绝；用户身份不能形成 Worker 租约，Worker凭据不能调用任何用户业务API，模块关闭后内部路径默认拒绝。核对拒绝发生前没有新增项目、任务或旧 users/JWT认证记录。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：01-甲授权入口.png、01-乙访问拒绝.png；记录平台身份/权限及安全链拒绝结果（脱敏）。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实通道、现有甲乙权限与服务身份尚未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定现有用户是否免二次认证，以及无菜单用户、用户Token与Worker凭据是否被正确隔离。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认真实通道、甲乙现有角色及受控身份交叉请求范围；允许核对权限日志和任务变化。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">01</span><h2>现有账号进入</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第1项</a>“现有账号进入”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：已获准的真实若依通道；现有用户甲有演示文稿菜单及本点按钮权限，乙无该菜单；另有已批准的 Worker 服务身份。确认两个账号和所属业务范围，不新增账号。</li>
+<li><strong>操作步骤</strong>：甲从平台登录进入“我的演示文稿”，刷新及直接打开详情；乙从菜单及甲项目深链接/API尝试访问；在批准的受控请求中分别用用户身份访问 Worker 领取接口、用 Worker 身份访问用户项目接口，再在模块关闭状态检查内部入口。</li>
+<li><strong>独立预期与核对</strong>：以平台既有 userId/权限名单为独立基准；甲进入演示文稿无需再次注册或登录，乙菜单不可见且业务API拒绝；用户身份不能形成 Worker 租约，Worker凭据不能调用任何用户业务API，模块关闭后内部路径默认拒绝。核对拒绝发生前没有新增项目、任务或旧 users/JWT认证记录。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：01-甲授权入口.png、01-乙访问拒绝.png；记录平台身份/权限及安全链拒绝结果（脱敏）。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实通道、现有甲乙权限与服务身份尚未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定现有用户是否免二次认证，以及无菜单用户、用户Token与Worker凭据是否被正确隔离。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认真实通道、甲乙现有角色及受控身份交叉请求范围；允许核对权限日志和任务变化。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-2" data-search="三种导航兼容 - **规则出处**：[完整迁移设计v0.1第5节第2项](../../完整迁移设计.md#5-业务验收方法)“三种导航兼容”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲已获准的真实项目；平台支持 navType=1/2/3，已有其他业务入口及 TagsView；记录甲原偏好以便恢复。
+- **操作步骤**：依次选择三种导航，打开列表→材料与提纲→编辑工作台；切换其他已授权业务后由 TagsView 返回；分别刷新或直接打开项目链接，完成后恢复原偏好。
+- **独立预期与核对**：将平台getRouters授权菜单清单、路由标题和原偏好作为基准；每种模式核对菜单仍存在、标题正确、页签仍属于平台、画布不占外层导航，偏好与当前模式一致；项目路径不能强制隐藏若依导航。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：02-导航方式1.png、02-导航方式2.png、02-导航方式3.png、02-页签返回.png；保存脱敏菜单对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实平台菜单、其他业务入口及偏好操作范围尚未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定三种平台导航下入口、标题、偏好和页签返回是否可用，是否出现被画布强制隐藏导航。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认甲的真实菜单与允许切换的其他业务，保证不触及他人页签/偏好后执行。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">02</span><h2>三种导航兼容</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第2项</a>“三种导航兼容”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲已获准的真实项目；平台支持 navType=1/2/3，已有其他业务入口及 TagsView；记录甲原偏好以便恢复。</li>
+<li><strong>操作步骤</strong>：依次选择三种导航，打开列表→材料与提纲→编辑工作台；切换其他已授权业务后由 TagsView 返回；分别刷新或直接打开项目链接，完成后恢复原偏好。</li>
+<li><strong>独立预期与核对</strong>：将平台getRouters授权菜单清单、路由标题和原偏好作为基准；每种模式核对菜单仍存在、标题正确、页签仍属于平台、画布不占外层导航，偏好与当前模式一致；项目路径不能强制隐藏若依导航。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：02-导航方式1.png、02-导航方式2.png、02-导航方式3.png、02-页签返回.png；保存脱敏菜单对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实平台菜单、其他业务入口及偏好操作范围尚未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定三种平台导航下入口、标题、偏好和页签返回是否可用，是否出现被画布强制隐藏导航。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认甲的真实菜单与允许切换的其他业务，保证不触及他人页签/偏好后执行。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-3" data-search="创建与列表 - **规则出处**：[完整迁移设计v0.1第5节第3项](../../完整迁移设计.md#5-业务验收方法)“创建与列表”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲具备创建、查询与改名权限；准备主题“节能改造方案”、人工核对的长文本、合法多文档。准备可批准的同一名称前缀项目名单，数量足以翻页，先记创建前数量与字段。
+- **操作步骤**：从“一句主题”“粘贴文字”“文档上传”分别创建“节能验收-主题/文本/文档”，填写受众/语气/页数/排版/文字量/主题；改一个项目名称；按名称和状态筛选，翻到下一页再返回，继续编辑并刷新。
+- **独立预期与核对**：按事先登记的三份输入逐字段回读，刷新后字段保留；独立项目名单的创建前数量加3为期望增量，改名不增行，过滤集合/排序、分页总数及各页无重复漏项；存储 owner 必须为甲。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：03-三入口创建表单.png（各入口分别保存）、03-改名列表.png、03-分页与详情回读.png；保留输入字段与项目名单。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实项目写入范围、基线名单与 owner 核对权限尚未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定用户能否完成三入口建稿并在正确归属、排序和分页中继续编辑。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认既有业务库、甲样本项目命名/数量、保存与清理方式及分页基线。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">03</span><h2>创建与列表</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第3项</a>“创建与列表”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲具备创建、查询与改名权限；准备主题“节能改造方案”、人工核对的长文本、合法多文档。准备可批准的同一名称前缀项目名单，数量足以翻页，先记创建前数量与字段。</li>
+<li><strong>操作步骤</strong>：从“一句主题”“粘贴文字”“文档上传”分别创建“节能验收-主题/文本/文档”，填写受众/语气/页数/排版/文字量/主题；改一个项目名称；按名称和状态筛选，翻到下一页再返回，继续编辑并刷新。</li>
+<li><strong>独立预期与核对</strong>：按事先登记的三份输入逐字段回读，刷新后字段保留；独立项目名单的创建前数量加3为期望增量，改名不增行，过滤集合/排序、分页总数及各页无重复漏项；存储 owner 必须为甲。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：03-三入口创建表单.png（各入口分别保存）、03-改名列表.png、03-分页与详情回读.png；保留输入字段与项目名单。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实项目写入范围、基线名单与 owner 核对权限尚未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定用户能否完成三入口建稿并在正确归属、排序和分页中继续编辑。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认既有业务库、甲样本项目命名/数量、保存与清理方式及分页基线。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-4" data-search="参数边界 - **规则出处**：[完整迁移设计v0.1第5节第4项](../../完整迁移设计.md#5-业务验收方法)“参数边界”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲具备创建权限；准备名称1字/200字/201字、空名称、目标页数4/5/20/21、受众100字/超限、合法及非法枚举；准备精确计数200000字和200001字文本。
+- **操作步骤**：在新建页面提交5页与20页有效项目；通过已批准的真实 API 请求提交UI不能输入的4/21页、空/201字名称、非法语气/主题及超限文本；有效200000字通过文字入口提交，刷新列表核对结果。
+- **独立预期与核对**：先按字符计数工具和设计第1.3节生成合法/非法输入清单；5/20页、有效名称与200000字合法文本须创建成功，4/21页、空名/201字、非法枚举及超限文本须明确拒绝。受众、语气和主题选项必须来自批准规则/目录，拒绝项不形成正式错误项目，不得把接口自述成功当规则。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：04-合法边界创建.png、04-字段错误.png、04-返回项目回读.png；保存脱敏请求与创建前后项目差异。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实业务写入、边界文本样本和API请求授权未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定合法边界能否创建，以及非法参数是否产生不可用或污染列表的正式项目。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认字段边界样本、请求范围及新增项目清理方式，允许核对正式项目增量。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">04</span><h2>参数边界</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第4项</a>“参数边界”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲具备创建权限；准备名称1字/200字/201字、空名称、目标页数4/5/20/21、受众100字/超限、合法及非法枚举；准备精确计数200000字和200001字文本。</li>
+<li><strong>操作步骤</strong>：在新建页面提交5页与20页有效项目；通过已批准的真实 API 请求提交UI不能输入的4/21页、空/201字名称、非法语气/主题及超限文本；有效200000字通过文字入口提交，刷新列表核对结果。</li>
+<li><strong>独立预期与核对</strong>：先按字符计数工具和设计第1.3节生成合法/非法输入清单；5/20页、有效名称与200000字合法文本须创建成功，4/21页、空名/201字、非法枚举及超限文本须明确拒绝。受众、语气和主题选项必须来自批准规则/目录，拒绝项不形成正式错误项目，不得把接口自述成功当规则。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：04-合法边界创建.png、04-字段错误.png、04-返回项目回读.png；保存脱敏请求与创建前后项目差异。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实业务写入、边界文本样本和API请求授权未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定合法边界能否创建，以及非法参数是否产生不可用或污染列表的正式项目。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认字段边界样本、请求范围及新增项目清理方式，允许核对正式项目增量。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-5" data-search="文本与主题来源 - **规则出处**：[完整迁移设计v0.1第5节第5项](../../完整迁移设计.md#5-业务验收方法)“文本与主题来源”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有来源添加、查询、删除权限；同一未确认项目；准备一句主题及含三个人工编号标题、空行和中文段落的长文本，原文逐段留存。
+- **操作步骤**：添加主题与长文本；在“来源材料”展开每份材料的章节，记录稳定小节ID、定位与字数；删除主题来源，刷新再次查看长文本来源及提纲过期提示。
+- **独立预期与核对**：人工段落/标题表是解析基准；逐段核对正文与定位，解释字数统计口径；删除只影响选中来源，剩余长文本不能被重新编号误指；删除前后比较稳定ID映射及来源指纹，材料变化必须更新来源指纹。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：05-来源列表.png、05-章节定位.png、05-删除后回读.png；保存原文、小节映射与指纹前后记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实材料写入和删除范围、原文样本尚未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定用户是否能按原文定位来源、稳定引用小节，并只删除指定材料。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准无隐私文本、可删除的测试来源及指纹/小节核对方式后执行。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">05</span><h2>文本与主题来源</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第5项</a>“文本与主题来源”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有来源添加、查询、删除权限；同一未确认项目；准备一句主题及含三个人工编号标题、空行和中文段落的长文本，原文逐段留存。</li>
+<li><strong>操作步骤</strong>：添加主题与长文本；在“来源材料”展开每份材料的章节，记录稳定小节ID、定位与字数；删除主题来源，刷新再次查看长文本来源及提纲过期提示。</li>
+<li><strong>独立预期与核对</strong>：人工段落/标题表是解析基准；逐段核对正文与定位，解释字数统计口径；删除只影响选中来源，剩余长文本不能被重新编号误指；删除前后比较稳定ID映射及来源指纹，材料变化必须更新来源指纹。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：05-来源列表.png、05-章节定位.png、05-删除后回读.png；保存原文、小节映射与指纹前后记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实材料写入和删除范围、原文样本尚未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定用户是否能按原文定位来源、稳定引用小节，并只删除指定材料。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准无隐私文本、可删除的测试来源及指纹/小节核对方式后执行。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-6" data-search="四类文档解析 - **规则出处**：[完整迁移设计v0.1第5节第6项](../../完整迁移设计.md#5-业务验收方法)“四类文档解析”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有文档上传/查询权限；人工制作并保留 TXT、Markdown、DOCX、可提取文本PDF，逐文件标记标题层级、正文和页码/段落；另准备一份损坏文档。
+- **操作步骤**：在文档入口多选或拖入上述文件；观察逐文件解析状态；打开每份合法材料章节，对照人工标记；损坏文件失败后补传正确版本，再刷新项目。
+- **独立预期与核对**：独立原文件文字/层级/定位表逐项一致；一份失败不能删除项目或成功材料，补传后引用只指正确文件。扫描件不混入此项合法文本PDF。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：06-多文件解析状态.png、06-TXT章节.png、06-Markdown章节.png、06-DOCX章节.png、06-PDF页码.png、06-损坏与补传.png。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实上传通道、私有存储、解析 Worker 及业务文档样本未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定四类文档能否保留标题/层级/正文和定位，单文件损坏后是否仍可继续整理材料。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认四份原文及损坏样本、Worker/存储通道、上传与补传授权，再记录文件哈希和人工基准。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">06</span><h2>四类文档解析</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第6项</a>“四类文档解析”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有文档上传/查询权限；人工制作并保留 TXT、Markdown、DOCX、可提取文本PDF，逐文件标记标题层级、正文和页码/段落；另准备一份损坏文档。</li>
+<li><strong>操作步骤</strong>：在文档入口多选或拖入上述文件；观察逐文件解析状态；打开每份合法材料章节，对照人工标记；损坏文件失败后补传正确版本，再刷新项目。</li>
+<li><strong>独立预期与核对</strong>：独立原文件文字/层级/定位表逐项一致；一份失败不能删除项目或成功材料，补传后引用只指正确文件。扫描件不混入此项合法文本PDF。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：06-多文件解析状态.png、06-TXT章节.png、06-Markdown章节.png、06-DOCX章节.png、06-PDF页码.png、06-损坏与补传.png。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实上传通道、私有存储、解析 Worker 及业务文档样本未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定四类文档能否保留标题/层级/正文和定位，单文件损坏后是否仍可继续整理材料。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认四份原文及损坏样本、Worker/存储通道、上传与补传授权，再记录文件哈希和人工基准。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-7" data-search="上传与扫描件拒绝 - **规则出处**：[完整迁移设计v0.1第5节第7项](../../完整迁移设计.md#5-业务验收方法)“上传与扫描件拒绝”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有上传权限；批准的异常样本：空文件、精确超过10MiB文件、改名ZIP、伪PDF、扫描PDF，以及受控超解压限制DOCX；不得使用不可控恶意文件。
+- **操作步骤**：逐一上传异常样本并打开解析详情；扫描PDF没有可提取文字时尝试生成，再补充一份合法文本；核对资产登记、暂存与清理记录。
+- **独立预期与核对**：按事先登记的大小、魔数、内部结构和人工确认的扫描件性质核对拒绝原因；扫描件警告不得承诺OCR，空正文不能生成；失败对象不成为正式引用。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：07-格式与大小拒绝.png、07-扫描件警告.png、07-补充文本恢复.png；保存脱敏资产/暂存清单。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实存储/解析通道及异常文件演练范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定异常文件是否被安全拒绝，以及扫描件无正文是否错误进入生成或留下孤立对象。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认受控异常文件、上传/清理权限和对象核对范围；批准足够资源的解压限制演练。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">07</span><h2>上传与扫描件拒绝</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第7项</a>“上传与扫描件拒绝”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有上传权限；批准的异常样本：空文件、精确超过10MiB文件、改名ZIP、伪PDF、扫描PDF，以及受控超解压限制DOCX；不得使用不可控恶意文件。</li>
+<li><strong>操作步骤</strong>：逐一上传异常样本并打开解析详情；扫描PDF没有可提取文字时尝试生成，再补充一份合法文本；核对资产登记、暂存与清理记录。</li>
+<li><strong>独立预期与核对</strong>：按事先登记的大小、魔数、内部结构和人工确认的扫描件性质核对拒绝原因；扫描件警告不得承诺OCR，空正文不能生成；失败对象不成为正式引用。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：07-格式与大小拒绝.png、07-扫描件警告.png、07-补充文本恢复.png；保存脱敏资产/暂存清单。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实存储/解析通道及异常文件演练范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定异常文件是否被安全拒绝，以及扫描件无正文是否错误进入生成或留下孤立对象。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认受控异常文件、上传/清理权限和对象核对范围；批准足够资源的解压限制演练。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-8" data-search="指纹和确认锁定 - **规则出处**：[完整迁移设计v0.1第5节第8项](../../完整迁移设计.md#5-业务验收方法)“指纹和确认锁定”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有项目参数、材料、提纲生成/确认/取消确认和主题权限；准备两份相同正文但不同文字量/受众的输入版本，先保留指纹与修订号。
+- **操作步骤**：生成提纲后依次修改受众、材料、文字量并尝试确认旧提纲；重新生成并确认，再尝试加材料、改语气及主题微调；在未确认状态只改变目标页数并检查过期与页数校验。
+- **独立预期与核对**：人工登记实际改变的字段，按含文字量/解析器版本、排除外观与page_count的指纹规则核对；受众/材料/文字量变化后的旧提纲确认必须拒绝。页数仍须单独一致，单独改页数不误报材料过期；重新生成确认后添加材料、修改语气等内容参数拒绝，主题微调允许。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：08-提纲过期.png、08-确认内容锁定.png、08-主题可改.png、08-仅页数变更.png；记录输入/提纲/主题修订和指纹。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实提纲生成、Provider、参数写入与修订核对尚未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定过期提纲能否被误确认，以及确认后内容锁定和主题可调是否按规则生效。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认生成额度、可变更样本项目及真实指纹/修订回读权限后执行。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">08</span><h2>指纹和确认锁定</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第8项</a>“指纹和确认锁定”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有项目参数、材料、提纲生成/确认/取消确认和主题权限；准备两份相同正文但不同文字量/受众的输入版本，先保留指纹与修订号。</li>
+<li><strong>操作步骤</strong>：生成提纲后依次修改受众、材料、文字量并尝试确认旧提纲；重新生成并确认，再尝试加材料、改语气及主题微调；在未确认状态只改变目标页数并检查过期与页数校验。</li>
+<li><strong>独立预期与核对</strong>：人工登记实际改变的字段，按含文字量/解析器版本、排除外观与page_count的指纹规则核对；受众/材料/文字量变化后的旧提纲确认必须拒绝。页数仍须单独一致，单独改页数不误报材料过期；重新生成确认后添加材料、修改语气等内容参数拒绝，主题微调允许。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：08-提纲过期.png、08-确认内容锁定.png、08-主题可改.png、08-仅页数变更.png；记录输入/提纲/主题修订和指纹。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实提纲生成、Provider、参数写入与修订核对尚未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定过期提纲能否被误确认，以及确认后内容锁定和主题可调是否按规则生效。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认生成额度、可变更样本项目及真实指纹/修订回读权限后执行。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-9" data-search="生成提纲与来源预算 - **规则出处**：[完整迁移设计v0.1第5节第9项](../../完整迁移设计.md#5-业务验收方法)“生成提纲与来源预算”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有提纲生成权限；准备8个人工标记、每节2500字的小节，总量20000字，记录稳定source/section映射；目标10页。非法引用用另获批准的受控模型异常输出。
+- **操作步骤**：上传并核对小节后生成10页提纲，观察整理/规划/保存进度与裁剪提示；逐页核对引用；在受控异常轮提交不存在的来源引用，记录拒绝与正式提纲保持情况。
+- **独立预期与核对**：在生成前按总12000/单节2000预算计算保留范围和ref映射；合法提纲页数10、字段符合规则，裁剪不混淆ref且用户能看到裁剪提示；不存在的引用必须拒绝。真实模型内容可多解，但每个引用必须对应原文，不能由返回ref自证正确，真实模型任务与受控异常任务分别记录。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：09-裁剪与生成进度.png、09-十页提纲及来源.png、09-非法引用拒绝.png；保留人工裁剪基准和真实/受控任务区分记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实Provider/预算、原材料与异常输出注入通道未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定长材料裁剪后是否保持正确来源引用、10页提纲和用户可见的裁剪说明。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准真实模型供应商和额度、材料范围及独立的受控坏引用演练；记录实际模型任务而非夹具调用。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">09</span><h2>生成提纲与来源预算</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第9项</a>“生成提纲与来源预算”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有提纲生成权限；准备8个人工标记、每节2500字的小节，总量20000字，记录稳定source/section映射；目标10页。非法引用用另获批准的受控模型异常输出。</li>
+<li><strong>操作步骤</strong>：上传并核对小节后生成10页提纲，观察整理/规划/保存进度与裁剪提示；逐页核对引用；在受控异常轮提交不存在的来源引用，记录拒绝与正式提纲保持情况。</li>
+<li><strong>独立预期与核对</strong>：在生成前按总12000/单节2000预算计算保留范围和ref映射；合法提纲页数10、字段符合规则，裁剪不混淆ref且用户能看到裁剪提示；不存在的引用必须拒绝。真实模型内容可多解，但每个引用必须对应原文，不能由返回ref自证正确，真实模型任务与受控异常任务分别记录。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：09-裁剪与生成进度.png、09-十页提纲及来源.png、09-非法引用拒绝.png；保留人工裁剪基准和真实/受控任务区分记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实Provider/预算、原材料与异常输出注入通道未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定长材料裁剪后是否保持正确来源引用、10页提纲和用户可见的裁剪说明。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准真实模型供应商和额度、材料范围及独立的受控坏引用演练；记录实际模型任务而非夹具调用。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-10" data-search="提纲字段/增删排序 - **规则出处**：[完整迁移设计v0.1第5节第10项](../../完整迁移设计.md#5-业务验收方法)“提纲字段/增删排序”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有提纲编辑权限；一份未确认10页提纲及可选稳定来源，准备每字段目标值，标题/目的/配图意图长度按设计第1.3节。
+- **操作步骤**：编辑标题、目的、2–5要点、来源、角色、visual和兼容布局；新加到11页、删回10页、拖动排序；快速连续修改后刷新；新增空要点时保留草稿，再填好；尝试&lt;2/&gt;5要点、空标题和非法布局。
+- **独立预期与核对**：预先列出页ID与最终顺序/字段值，保存后逐字段核对，内容/顺序/项目目标页数一致；要点少于2条或多于5条、空标题、非法布局须拒绝。无效草稿不误确认旧提纲；旧有效在途回执不能抹掉新无效输入，合法最新稿才保存。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：10-完整字段编辑.png、10-排序及刷新回读.png、10-无效草稿与补齐.png；记录最终页名单和修订。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实提纲读写及具体来源/页名单未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定提纲全字段、增删排序和无效草稿能否被可靠保存并防止确认旧版本。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认未确认样本提纲、字段目标表、异常提交和自动保存回读范围。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">10</span><h2>提纲字段/增删排序</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第10项</a>“提纲字段/增删排序”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有提纲编辑权限；一份未确认10页提纲及可选稳定来源，准备每字段目标值，标题/目的/配图意图长度按设计第1.3节。</li>
+<li><strong>操作步骤</strong>：编辑标题、目的、2–5要点、来源、角色、visual和兼容布局；新加到11页、删回10页、拖动排序；快速连续修改后刷新；新增空要点时保留草稿，再填好；尝试&lt;2/&gt;5要点、空标题和非法布局。</li>
+<li><strong>独立预期与核对</strong>：预先列出页ID与最终顺序/字段值，保存后逐字段核对，内容/顺序/项目目标页数一致；要点少于2条或多于5条、空标题、非法布局须拒绝。无效草稿不误确认旧提纲；旧有效在途回执不能抹掉新无效输入，合法最新稿才保存。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：10-完整字段编辑.png、10-排序及刷新回读.png、10-无效草稿与补齐.png；记录最终页名单和修订。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实提纲读写及具体来源/页名单未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定提纲全字段、增删排序和无效草稿能否被可靠保存并防止确认旧版本。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认未确认样本提纲、字段目标表、异常提交和自动保存回读范围。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-11" data-search="确认并启动幂等 - **规则出处**：[完整迁移设计v0.1第5节第11项](../../完整迁移设计.md#5-业务验收方法)“确认并启动幂等”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有提纲确认、取消确认及生成权限；合法未确认提纲；允许重复同一幂等动作的受控请求，并能核对真实任务/批次清单。
+- **操作步骤**：快速改最后一页后立即点击确认并生成；保存未完时观察等待；同一正文/幂等key重复提交；生成中尝试取消确认；任务结束后取消确认并改材料。
+- **独立预期与核对**：使用准备好的最新页字段为确认版本基准；数据库和任务集合必须只形成一个批次/一套正式页，不能只看按钮变灰；生成期不能取消确认，空闲后可改内容。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：11-保存等待与确认.png、11-唯一批次进度.png、11-生成期取消确认拒绝.png、11-空闲取消确认.png；保留脱敏任务集合。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实确认/任务写入及幂等重放权限、Provider额度未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定快速确认/重复请求是否形成重复批次，以及生成中能否误解除确认。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准该任务链、重复请求和真实批次核账范围，确认保存完成后再生成的预期输入。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">11</span><h2>确认并启动幂等</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第11项</a>“确认并启动幂等”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有提纲确认、取消确认及生成权限；合法未确认提纲；允许重复同一幂等动作的受控请求，并能核对真实任务/批次清单。</li>
+<li><strong>操作步骤</strong>：快速改最后一页后立即点击确认并生成；保存未完时观察等待；同一正文/幂等key重复提交；生成中尝试取消确认；任务结束后取消确认并改材料。</li>
+<li><strong>独立预期与核对</strong>：使用准备好的最新页字段为确认版本基准；数据库和任务集合必须只形成一个批次/一套正式页，不能只看按钮变灰；生成期不能取消确认，空闲后可改内容。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：11-保存等待与确认.png、11-唯一批次进度.png、11-生成期取消确认拒绝.png、11-空闲取消确认.png；保留脱敏任务集合。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实确认/任务写入及幂等重放权限、Provider额度未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定快速确认/重复请求是否形成重复批次，以及生成中能否误解除确认。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准该任务链、重复请求和真实批次核账范围，确认保存完成后再生成的预期输入。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-12" data-search="并发与即时预览 - **规则出处**：[完整迁移设计v0.1第5节第12项](../../完整迁移设计.md#5-业务验收方法)“并发与即时预览”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有生成/查询权限；已确认10页；项目并发设为3且记录批准总限额，实际 Worker 和Provider已启用；允许记录每页开始/结束时间。
+- **操作步骤**：启动生成，持续查看完成/失败/总数与已完成页预览；生成中尝试内容/样式/布局编辑；按正式任务时间线核对同时在途数，生成完刷新。
+- **独立预期与核对**：从每页实际开始/结束时间独立计算重叠区间，项目同时在途≤3且总数不越配置；计数等于正式页集合；完成页可预览，生成期写入不生效。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：12-逐页进度.png、12-完成页即时预览.png、12-生成期编辑拒绝.png；记录时间线和正式页状态。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实 Worker/Provider、总限额与时间线读取范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定真实并发是否超过限额，完成页是否即时可见，以及生成期人工写入是否被阻止。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认真实任务运行通道、并发/额度配置及采样日志权限，避免占用其他项目资源。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">12</span><h2>并发与即时预览</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第12项</a>“并发与即时预览”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有生成/查询权限；已确认10页；项目并发设为3且记录批准总限额，实际 Worker 和Provider已启用；允许记录每页开始/结束时间。</li>
+<li><strong>操作步骤</strong>：启动生成，持续查看完成/失败/总数与已完成页预览；生成中尝试内容/样式/布局编辑；按正式任务时间线核对同时在途数，生成完刷新。</li>
+<li><strong>独立预期与核对</strong>：从每页实际开始/结束时间独立计算重叠区间，项目同时在途≤3且总数不越配置；计数等于正式页集合；完成页可预览，生成期写入不生效。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：12-逐页进度.png、12-完成页即时预览.png、12-生成期编辑拒绝.png；记录时间线和正式页状态。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实 Worker/Provider、总限额与时间线读取范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定真实并发是否超过限额，完成页是否即时可见，以及生成期人工写入是否被阻止。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认真实任务运行通道、并发/额度配置及采样日志权限，避免占用其他项目资源。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-13" data-search="SSE断线恢复 - **规则出处**：[完整迁移设计v0.1第5节第13项](../../完整迁移设计.md#5-业务验收方法)“SSE断线恢复”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有生成/查询权限；真实在途项目及可记录eventSeq/任务快照；批准浏览器断线、过期游标及重复/乱序事件受控演练，不改共享服务器会话。
+- **操作步骤**：生成中断开当前验收浏览器网络后恢复；在受控渠道重发重复/乱序事件和过期游标；另在允许的验收会话过期后观察若依提示并重新进入项目。
+- **独立预期与核对**：先登记真实页状态和事件序号；重连先恢复权威真实快照再处理增量，按快照取得时点与事件时间线核对先后，重复不增加完成数、乱序不回退。终态停止重连，会话失效不无限重试；最终状态与正式记录一致。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：13-断线提示.png、13-恢复快照.png、13-终态及会话提示.png；保存脱敏序号时间线/快照对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实SSE通道、任务、受控网络/游标与会话演练授权未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定断线后进度是否恢复真实状态、重复/乱序是否误计数，以及会话过期是否按平台流程退出。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认仅影响验收会话的故障方式、真实任务及事件/数据库核对权限。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">13</span><h2>SSE断线恢复</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第13项</a>“SSE断线恢复”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有生成/查询权限；真实在途项目及可记录eventSeq/任务快照；批准浏览器断线、过期游标及重复/乱序事件受控演练，不改共享服务器会话。</li>
+<li><strong>操作步骤</strong>：生成中断开当前验收浏览器网络后恢复；在受控渠道重发重复/乱序事件和过期游标；另在允许的验收会话过期后观察若依提示并重新进入项目。</li>
+<li><strong>独立预期与核对</strong>：先登记真实页状态和事件序号；重连先恢复权威真实快照再处理增量，按快照取得时点与事件时间线核对先后，重复不增加完成数、乱序不回退。终态停止重连，会话失效不无限重试；最终状态与正式记录一致。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：13-断线提示.png、13-恢复快照.png、13-终态及会话提示.png；保存脱敏序号时间线/快照对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实SSE通道、任务、受控网络/游标与会话演练授权未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定断线后进度是否恢复真实状态、重复/乱序是否误计数，以及会话过期是否按平台流程退出。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认仅影响验收会话的故障方式、真实任务及事件/数据库核对权限。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-14" data-search="单页失败重试/续跑 - **规则出处**：[完整迁移设计v0.1第5节第14项](../../完整迁移设计.md#5-业务验收方法)“单页失败重试/续跑”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有生成、重试和取消权限；10页中第3页可批准注入一次失败；已就绪页先保存内容哈希、slideId和任务调用基线。
+- **操作步骤**：生成该项目，记录第3页失败；只重试第3页；再对可取消项目执行取消、待终态后默认续跑；等待保存时切到另页再触发旧页重试，核对目标。
+- **独立预期与核对**：失败卡说明可理解的原因；成功页哈希前后一致，单页重试只重做目标页；目标slideId/attempt按真实回执变化，默认续跑仅未就绪页形成任务；收费/调用清单与真正重做的页一致，过期交互不得请求新选页。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：14-失败原因.png、14-目标重试完成.png、14-续跑结果.png；保留slideId/attempt/哈希与实际调用记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实失败注入、模型额度、页哈希与调用账目权限未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定失败页能否独立恢复、续跑是否重复重做成功页，以及实际调用/计费是否只对应目标任务。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准可控第3页失败、取消续跑范围和实际模型/收费核对方式。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">14</span><h2>单页失败重试/续跑</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第14项</a>“单页失败重试/续跑”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有生成、重试和取消权限；10页中第3页可批准注入一次失败；已就绪页先保存内容哈希、slideId和任务调用基线。</li>
+<li><strong>操作步骤</strong>：生成该项目，记录第3页失败；只重试第3页；再对可取消项目执行取消、待终态后默认续跑；等待保存时切到另页再触发旧页重试，核对目标。</li>
+<li><strong>独立预期与核对</strong>：失败卡说明可理解的原因；成功页哈希前后一致，单页重试只重做目标页；目标slideId/attempt按真实回执变化，默认续跑仅未就绪页形成任务；收费/调用清单与真正重做的页一致，过期交互不得请求新选页。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：14-失败原因.png、14-目标重试完成.png、14-续跑结果.png；保留slideId/attempt/哈希与实际调用记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实失败注入、模型额度、页哈希与调用账目权限未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定失败页能否独立恢复、续跑是否重复重做成功页，以及实际调用/计费是否只对应目标任务。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准可控第3页失败、取消续跑范围和实际模型/收费核对方式。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-15" data-search="软取消/迟到结果 - **规则出处**：[完整迁移设计v0.1第5节第15项](../../完整迁移设计.md#5-业务验收方法)“软取消/迟到结果”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有生成/取消/整份重做权限；准备两个独立样本批次，A可使3页在途，B保持未取消；指定Worker停止/崩溃、租约超时和旧回执重放在获准通道演练，先备份原页哈希及任务/租约标识。
+- **操作步骤**：A批次3页在途时软取消，观察未开始页停止、有效在途交付或超时取消；不要求已取消任务重新派发。B批次不取消，实际停止或使指定Worker崩溃，记录最后心跳与租约到期；中心回收后恢复指定Worker取得新attempt/fence，再以受控旧fencingToken提交旧结果。A结束后执行整份重做，核对覆盖提示和旧快照。
+- **独立预期与核对**：按A取消时点登记的已开始页集合判断：未开始不启动、有效在途可成功、部分成功结果保留，已取消且租约过期的任务终结取消；B故障时由真实到期/回收记录证明重领，新attempt/fence替代旧租约，旧结果拒绝且不能改变正式页。重做允许覆盖但必须显式提示且原快照可核账。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：15-取消中的页集合.png、15-部分完成终态.png、15-未取消批次故障重领.png、15-旧回执拒绝.png、15-重做覆盖提示.png；分别记录A/B任务、停止/最后心跳/到期时点、租约/attempt/fence审计及快照哈希。页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实任务故障/重放授权、备份及恢复范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定取消后是否保留已完成页、旧租约是否污染新结果，以及整份重做是否可核账。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准具体 Worker 停止/超时/重放方式、样本资源及旧快照恢复核对范围。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">15</span><h2>软取消/迟到结果</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第15项</a>“软取消/迟到结果”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有生成/取消/整份重做权限；准备两个独立样本批次，A可使3页在途，B保持未取消；指定Worker停止/崩溃、租约超时和旧回执重放在获准通道演练，先备份原页哈希及任务/租约标识。</li>
+<li><strong>操作步骤</strong>：A批次3页在途时软取消，观察未开始页停止、有效在途交付或超时取消；不要求已取消任务重新派发。B批次不取消，实际停止或使指定Worker崩溃，记录最后心跳与租约到期；中心回收后恢复指定Worker取得新attempt/fence，再以受控旧fencingToken提交旧结果。A结束后执行整份重做，核对覆盖提示和旧快照。</li>
+<li><strong>独立预期与核对</strong>：按A取消时点登记的已开始页集合判断：未开始不启动、有效在途可成功、部分成功结果保留，已取消且租约过期的任务终结取消；B故障时由真实到期/回收记录证明重领，新attempt/fence替代旧租约，旧结果拒绝且不能改变正式页。重做允许覆盖但必须显式提示且原快照可核账。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：15-取消中的页集合.png、15-部分完成终态.png、15-未取消批次故障重领.png、15-旧回执拒绝.png、15-重做覆盖提示.png；分别记录A/B任务、停止/最后心跳/到期时点、租约/attempt/fence审计及快照哈希。页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实任务故障/重放授权、备份及恢复范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定取消后是否保留已完成页、旧租约是否污染新结果，以及整份重做是否可核账。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准具体 Worker 停止/超时/重放方式、样本资源及旧快照恢复核对范围。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-16" data-search="单页质量自修复 - **规则出处**：[完整迁移设计v0.1第5节第16项](../../完整迁移设计.md#5-业务验收方法)“单页质量自修复”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有生成/查询权限；fixed/flex各一份项目，concise/medium/detailed各有输入；准备结构错误、偏瘦、空话、仅溢出警告的独立受控草稿基准。
+- **操作步骤**：逐模式/文字量生成或执行获准的受控草稿任务，查看自修复记录和最终页面；将只溢出警告的草稿与生成前内容逐块比较，再打开质量提示。
+- **独立预期与核对**：先按独立草稿基准区分需修复和纯容量警告；修复最多1轮，不能为去警告擅自删块；页面角色、节奏、visual仍对应提纲，剩余问题可定位。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：16-fixed结果.png、16-flex结果.png、16-纯警告与剩余问题.png；记录workflow trace与逐块前后对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实生成/模型额度、受控草稿通道及内容评价基准未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定自修复是否超过一轮、是否为容量警告擅删内容，以及角色/节奏/视觉提示是否保留。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认六种模式/密度组合、异常草稿、允许修复次数的真实任务记录和人工内容判定基准。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">16</span><h2>单页质量自修复</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第16项</a>“单页质量自修复”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有生成/查询权限；fixed/flex各一份项目，concise/medium/detailed各有输入；准备结构错误、偏瘦、空话、仅溢出警告的独立受控草稿基准。</li>
+<li><strong>操作步骤</strong>：逐模式/文字量生成或执行获准的受控草稿任务，查看自修复记录和最终页面；将只溢出警告的草稿与生成前内容逐块比较，再打开质量提示。</li>
+<li><strong>独立预期与核对</strong>：先按独立草稿基准区分需修复和纯容量警告；修复最多1轮，不能为去警告擅自删块；页面角色、节奏、visual仍对应提纲，剩余问题可定位。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：16-fixed结果.png、16-flex结果.png、16-纯警告与剩余问题.png；记录workflow trace与逐块前后对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实生成/模型额度、受控草稿通道及内容评价基准未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定自修复是否超过一轮、是否为容量警告擅删内容，以及角色/节奏/视觉提示是否保留。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认六种模式/密度组合、异常草稿、允许修复次数的真实任务记录和人工内容判定基准。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-17" data-search="页面增删复制排序 - **规则出处**：[完整迁移设计v0.1第5节第17项](../../完整迁移设计.md#5-业务验收方法)“页面增删复制排序”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有页面编辑权限；10页且含树、锁定块及图片的页；先记录提纲/页/position映射和资产引用；准备可合法达到1页及40页的项目。
+- **操作步骤**：插入空白页、复制复杂页、拖动及按钮排序、删除末页并刷新；对1页项目尝试删最后一页，对40页项目尝试第41页。
+- **独立预期与核对**：按操作前名单计算每次增减和顺序，分别核对项目页数、提纲页与正式页position；复制内容/锁定不变但块ID全新；图片仍引用正确私有资产；边界拒绝不改变集合。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：17-插页复制Filmstrip.png、17-排序回读.png、17-1与40页边界.png；记录三集合及引用对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实页写入、边界项目和私有图片引用核对未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定增删复制排序是否保持页数/提纲/页序一致，锁定和图片是否保留，以及1/40页边界是否受控。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准1/10/40页样本及增删清理范围，确认可核对提纲/页面/资产集合。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">17</span><h2>页面增删复制排序</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第17项</a>“页面增删复制排序”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有页面编辑权限；10页且含树、锁定块及图片的页；先记录提纲/页/position映射和资产引用；准备可合法达到1页及40页的项目。</li>
+<li><strong>操作步骤</strong>：插入空白页、复制复杂页、拖动及按钮排序、删除末页并刷新；对1页项目尝试删最后一页，对40页项目尝试第41页。</li>
+<li><strong>独立预期与核对</strong>：按操作前名单计算每次增减和顺序，分别核对项目页数、提纲页与正式页position；复制内容/锁定不变但块ID全新；图片仍引用正确私有资产；边界拒绝不改变集合。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：17-插页复制Filmstrip.png、17-排序回读.png、17-1与40页边界.png；记录三集合及引用对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实页写入、边界项目和私有图片引用核对未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定增删复制排序是否保持页数/提纲/页序一致，锁定和图片是否保留，以及1/40页边界是否受控。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准1/10/40页样本及增删清理范围，确认可核对提纲/页面/资产集合。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-18" data-search="七类文字/数据编辑 - **规则出处**：[完整迁移设计v0.1第5节第18项](../../完整迁移设计.md#5-业务验收方法)“七类文字/数据编辑”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有页面编辑权限；ready页含text/bullets/kpi/table/cards/callout/chart，图片留给第33项；准备中文/英文/换行与数据目标表。
+- **操作步骤**：逐类编辑所有可编辑字段，例如KPI数值“88”、标签“年度节能”、备注“人工核对”，表格两列统一；用中文输入法、粘贴换行、快速切换字段，等待保存后刷新并回读。
+- **独立预期与核对**：按事先填写的目标字段表核对七类完整字段的字、数、换行及空值清空，刷新不丢字；渲染不将粘贴HTML当正文标签，输入法与连续编辑时光标稳定、保存不串到另一字段，手改块锁定，表格每行列数一致。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：18-七类编辑前.png、18-字段编辑后.png、18-刷新及锁定回读.png；保留逐字段准备值与最终数据。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实ready页、人工编辑和完整字段回读范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定七类内容在输入法、换行和连续编辑中是否丢字/串字段/跳光标，正式数据是否完整。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认七类合法样本块、输入法/粘贴样本及正式内容回读权限。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">18</span><h2>七类文字/数据编辑</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第18项</a>“七类文字/数据编辑”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有页面编辑权限；ready页含text/bullets/kpi/table/cards/callout/chart，图片留给第33项；准备中文/英文/换行与数据目标表。</li>
+<li><strong>操作步骤</strong>：逐类编辑所有可编辑字段，例如KPI数值“88”、标签“年度节能”、备注“人工核对”，表格两列统一；用中文输入法、粘贴换行、快速切换字段，等待保存后刷新并回读。</li>
+<li><strong>独立预期与核对</strong>：按事先填写的目标字段表核对七类完整字段的字、数、换行及空值清空，刷新不丢字；渲染不将粘贴HTML当正文标签，输入法与连续编辑时光标稳定、保存不串到另一字段，手改块锁定，表格每行列数一致。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：18-七类编辑前.png、18-字段编辑后.png、18-刷新及锁定回读.png；保留逐字段准备值与最终数据。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实ready页、人工编辑和完整字段回读范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定七类内容在输入法、换行和连续编辑中是否丢字/串字段/跳光标，正式数据是否完整。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认七类合法样本块、输入法/粘贴样本及正式内容回读权限。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-19" data-search="四类图表 - **规则出处**：[完整迁移设计v0.1第5节第19项](../../完整迁移设计.md#5-业务验收方法)“四类图表”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有图表数据编辑与导出权限；bar/column/line/pie各一页；准备categories=[一季度,二季度]、series收入=[10,20]、unit=万元，以及维数错、非数值/超限样本。
+- **操作步骤**：逐类修改名称、分类、系列、数值和单位，保存刷新；提交受控非法数据并观察原图保留；合法图进入质量/导出，办公软件回读数据。
+- **独立预期与核对**：预先建立2×1数据表，与预览/正式JSON/原生图表数据三处比较；图形允许依主题不同但分类和数值不得变；维数不一致、非数/超限等非法输入须明确拒绝，旧图及已保存数据保持。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：19-bar.png、19-column.png、19-line.png、19-pie.png、19-数据错误与原图.png；记录系列/单位及文件数据对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实图表保存/导出链、办公软件和异常请求范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定四类图表的数据是否与原生导出一致，以及非法输入是否破坏已保存图表。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准四图表项目、受控坏数据及原生数据回读方法。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">19</span><h2>四类图表</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第19项</a>“四类图表”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有图表数据编辑与导出权限；bar/column/line/pie各一页；准备categories=[一季度,二季度]、series收入=[10,20]、unit=万元，以及维数错、非数值/超限样本。</li>
+<li><strong>操作步骤</strong>：逐类修改名称、分类、系列、数值和单位，保存刷新；提交受控非法数据并观察原图保留；合法图进入质量/导出，办公软件回读数据。</li>
+<li><strong>独立预期与核对</strong>：预先建立2×1数据表，与预览/正式JSON/原生图表数据三处比较；图形允许依主题不同但分类和数值不得变；维数不一致、非数/超限等非法输入须明确拒绝，旧图及已保存数据保持。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：19-bar.png、19-column.png、19-line.png、19-pie.png、19-数据错误与原图.png；记录系列/单位及文件数据对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实图表保存/导出链、办公软件和异常请求范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定四类图表的数据是否与原生导出一致，以及非法输入是否破坏已保存图表。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准四图表项目、受控坏数据及原生数据回读方法。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-20" data-search="块样式 - **规则出处**：[完整迁移设计v0.1第5节第20项](../../完整迁移设计.md#5-业务验收方法)“块样式”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有页面样式编辑和质量/导出权限；同一ready页的文字/容器块及一个图表块；准备16pt字号、合法主色、600字重、2pt边框、12pt内边距/圆角的目标样式。
+- **操作步骤**：调字号、颜色、加粗/斜体/对齐、填充、边框、圆角和内边距；关闭面板并保存刷新；重置微调；尝试超范围字号/边框/字重、非法颜色和图表元素级样式。
+- **独立预期与核对**：依第1.3节范围判断，预览、style数据、质量与导出表现一致；callout内层底色不能遮自定义填充；重置回当前主题，非法值和图表元素级样式都须明确拒绝，不写入正式样式。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：20-工具栏与样式前后.png、20-重置主题.png、20-非法样式拒绝.png；记录style目标表与PPTX样式回读。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实样式写入、主题字体与导出链未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定块样式与质量/导出表现是否一致，重置和非法样式是否正确处理。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认样式目标表、允许坏请求和真实字体/文件回读方式。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">20</span><h2>块样式</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第20项</a>“块样式”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有页面样式编辑和质量/导出权限；同一ready页的文字/容器块及一个图表块；准备16pt字号、合法主色、600字重、2pt边框、12pt内边距/圆角的目标样式。</li>
+<li><strong>操作步骤</strong>：调字号、颜色、加粗/斜体/对齐、填充、边框、圆角和内边距；关闭面板并保存刷新；重置微调；尝试超范围字号/边框/字重、非法颜色和图表元素级样式。</li>
+<li><strong>独立预期与核对</strong>：依第1.3节范围判断，预览、style数据、质量与导出表现一致；callout内层底色不能遮自定义填充；重置回当前主题，非法值和图表元素级样式都须明确拒绝，不写入正式样式。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：20-工具栏与样式前后.png、20-重置主题.png、20-非法样式拒绝.png；记录style目标表与PPTX样式回读。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实样式写入、主题字体与导出链未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定块样式与质量/导出表现是否一致，重置和非法样式是否正确处理。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认样式目标表、允许坏请求和真实字体/文件回读方式。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-21" data-search="保存队列与撤销重做 - **规则出处**：[完整迁移设计v0.1第5节第21项](../../完整迁移设计.md#5-业务验收方法)“保存队列与撤销重做”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有页面、图片、AI采纳权限；两页ready；准备至少51次可逆操作的顺序表，覆盖两块正文、样式、树、换图和AI采纳，初始页快照已登记。
+- **操作步骤**：同页快速连续执行各类操作，另页同时编辑；连续两次快速撤销、重做；按顺序表撤销/重做至50步上限；观察保存中/成功状态并刷新回读最终稿。
+- **独立预期与核对**：用事先操作表逐步算最终字段/树/图片/样式，结构、样式与内容历史须正确，不以响应自身证明正确；同页写入串行且revision连续、没有无声覆盖，不同页队列独立；两次快速撤销不能重复同一历史，第51条仅保留最近50条内存历史，本地历史不承诺跨刷新保留。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：21-串行保存状态.png、21-快速历史前后.png、21-50步边界.png；保存操作顺序、版本及最终目标快照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实多类型编辑、图片和AI任务授权未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定同页快速修改是否覆盖彼此，以及50步内容/样式/树/图片/AI历史能否正确撤销重做。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准两页样本、操作记录和相应图片/模型额度；明确历史仅当前会话，不承诺跨刷新恢复。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">21</span><h2>保存队列与撤销重做</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第21项</a>“保存队列与撤销重做”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有页面、图片、AI采纳权限；两页ready；准备至少51次可逆操作的顺序表，覆盖两块正文、样式、树、换图和AI采纳，初始页快照已登记。</li>
+<li><strong>操作步骤</strong>：同页快速连续执行各类操作，另页同时编辑；连续两次快速撤销、重做；按顺序表撤销/重做至50步上限；观察保存中/成功状态并刷新回读最终稿。</li>
+<li><strong>独立预期与核对</strong>：用事先操作表逐步算最终字段/树/图片/样式，结构、样式与内容历史须正确，不以响应自身证明正确；同页写入串行且revision连续、没有无声覆盖，不同页队列独立；两次快速撤销不能重复同一历史，第51条仅保留最近50条内存历史，本地历史不承诺跨刷新保留。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：21-串行保存状态.png、21-快速历史前后.png、21-50步边界.png；保存操作顺序、版本及最终目标快照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实多类型编辑、图片和AI任务授权未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定同页快速修改是否覆盖彼此，以及50步内容/样式/树/图片/AI历史能否正确撤销重做。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准两页样本、操作记录和相应图片/模型额度；明确历史仅当前会话，不承诺跨刷新恢复。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-22" data-search="冲突与失败草稿 - **规则出处**：[完整迁移设计v0.1第5节第22项](../../完整迁移设计.md#5-业务验收方法)“冲突与失败草稿”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲在两个获准浏览器会话打开同页；本地与远端分别准备不同字段变化；允许只断当前会话网络，记录初始修订和内容。
+- **操作步骤**：两会话先后保存造成409；断网保存后尝试切页/关TagsView；复制草稿、取消关闭、保留草稿返回；恢复网络明确重试，冲突时读取最新后重新应用，再撤销。
+- **独立预期与核对**：独立记录远端正式值与本地草稿；409暂停后不能无声覆盖正式值，草稿可复制/恢复，离开/关页签必须提示，网络恢复须明确重试；未知网络回执保持原动作。普通重基后的撤销不能恢复旧远端字段，多列部分落库不能被伪称全失败。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：22-冲突与草稿.png、22-关闭保护.png、22-重试重基回读.png；记录本地/远端字段、revision及复制稿（脱敏）。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实双会话、网络演练和草稿保存范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定冲突、断网和关页签时是否丢草稿，重基重试是否覆盖远端修改或误报部分成功。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认仅使用甲批准的会话、样本页与断网方式，允许核对远端值及保留/清理草稿。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">22</span><h2>冲突与失败草稿</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第22项</a>“冲突与失败草稿”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲在两个获准浏览器会话打开同页；本地与远端分别准备不同字段变化；允许只断当前会话网络，记录初始修订和内容。</li>
+<li><strong>操作步骤</strong>：两会话先后保存造成409；断网保存后尝试切页/关TagsView；复制草稿、取消关闭、保留草稿返回；恢复网络明确重试，冲突时读取最新后重新应用，再撤销。</li>
+<li><strong>独立预期与核对</strong>：独立记录远端正式值与本地草稿；409暂停后不能无声覆盖正式值，草稿可复制/恢复，离开/关页签必须提示，网络恢复须明确重试；未知网络回执保持原动作。普通重基后的撤销不能恢复旧远端字段，多列部分落库不能被伪称全失败。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：22-冲突与草稿.png、22-关闭保护.png、22-重试重基回读.png；记录本地/远端字段、revision及复制稿（脱敏）。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实双会话、网络演练和草稿保存范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定冲突、断网和关页签时是否丢草稿，重基重试是否覆盖远端修改或误报部分成功。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认仅使用甲批准的会话、样本页与断网方式，允许核对远端值及保留/清理草稿。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-23" data-search="四主题与微调 - **规则出处**：[完整迁移设计v0.1第5节第23项](../../完整迁移设计.md#5-业务验收方法)“四主题与微调”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有主题编辑/质量/导出权限；ready多页及图表；批准四主题目录和字体资源，记录项目主题版本；另备两个同theme_revision的项目检验身份隔离。
+- **操作步骤**：依次应用ivory/obsidian/midnight/scholar；改主色、字体对、字号、圆角及符号，观察即时预览/320ms保存；快速切页/离开再返回；重置微调并提交非法字体；保存后导出并回读主题样式。
+- **独立预期与核对**：按批准catalog而非页面自述比色/字体；所有页用同一主题修订，图表首色随主色、氛围层保留，重置后回主题默认，预览覆盖与PPTX样式一致；旧回执不清新稿，同revision项目不会误用另一项目主题；非法字体拒绝。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：23-四主题外观.png（逐主题保存）、23-覆盖与即时预览.png、23-重置及非法字体.png；记录catalog/主题修订/PPTX样式。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实字体、主题写入/导出及两项目样本未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定四主题及微调是否跨页一致、即时预览/保存是否防止跨项目串稿，以及导出是否同样式。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准四主题资源与字体许可、真实项目和主题操作范围，再核对目录版本。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">23</span><h2>四主题与微调</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第23项</a>“四主题与微调”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有主题编辑/质量/导出权限；ready多页及图表；批准四主题目录和字体资源，记录项目主题版本；另备两个同theme_revision的项目检验身份隔离。</li>
+<li><strong>操作步骤</strong>：依次应用ivory/obsidian/midnight/scholar；改主色、字体对、字号、圆角及符号，观察即时预览/320ms保存；快速切页/离开再返回；重置微调并提交非法字体；保存后导出并回读主题样式。</li>
+<li><strong>独立预期与核对</strong>：按批准catalog而非页面自述比色/字体；所有页用同一主题修订，图表首色随主色、氛围层保留，重置后回主题默认，预览覆盖与PPTX样式一致；旧回执不清新稿，同revision项目不会误用另一项目主题；非法字体拒绝。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：23-四主题外观.png（逐主题保存）、23-覆盖与即时预览.png、23-重置及非法字体.png；记录catalog/主题修订/PPTX样式。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实字体、主题写入/导出及两项目样本未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定四主题及微调是否跨页一致、即时预览/保存是否防止跨项目串稿，以及导出是否同样式。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准四主题资源与字体许可、真实项目和主题操作范围，再核对目录版本。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-24" data-search="固定切换与解锁 - **规则出处**：[完整迁移设计v0.1第5节第24项](../../完整迁移设计.md#5-业务验收方法)“固定切换与解锁”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有页面布局编辑权限；11种fixed布局各有合法样例，包含锁定块；准备独立槽位坐标/块集合和不兼容组合。
+- **操作步骤**：查看兼容布局，合法切换后刷新；尝试不兼容布局；解锁fixed页并截图首帧；通过批准的人工恢复动作尝试合法/非法flex→fixed树/块组合。
+- **独立预期与核对**：以960×540pt槽位/块清单为基准，兼容切换不丢内容/锁定/ID；不兼容说明原因；解锁首帧几何与原槽位一致；恢复须合法槽位引用和原子状态，非法不改变页。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：24-11布局兼容候选.png、24-不兼容原因.png、24-解锁前后同帧.png、24-恢复拒绝.png；记录ID及归一化/pt坐标。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实11布局页与解锁/人工恢复操作授权未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定固定布局切换是否丢块/锁定，解锁首帧是否跳位，以及恢复fixed是否保持合法结构。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认11份合法样例、不兼容基准及允许人工恢复的项目/页范围。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">24</span><h2>固定切换与解锁</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第24项</a>“固定切换与解锁”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有页面布局编辑权限；11种fixed布局各有合法样例，包含锁定块；准备独立槽位坐标/块集合和不兼容组合。</li>
+<li><strong>操作步骤</strong>：查看兼容布局，合法切换后刷新；尝试不兼容布局；解锁fixed页并截图首帧；通过批准的人工恢复动作尝试合法/非法flex→fixed树/块组合。</li>
+<li><strong>独立预期与核对</strong>：以960×540pt槽位/块清单为基准，兼容切换不丢内容/锁定/ID；不兼容说明原因；解锁首帧几何与原槽位一致；恢复须合法槽位引用和原子状态，非法不改变页。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：24-11布局兼容候选.png、24-不兼容原因.png、24-解锁前后同帧.png、24-恢复拒绝.png；记录ID及归一化/pt坐标。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实11布局页与解锁/人工恢复操作授权未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定固定布局切换是否丢块/锁定，解锁首帧是否跳位，以及恢复fixed是否保持合法结构。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认11份合法样例、不兼容基准及允许人工恢复的项目/页范围。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-25" data-search="灵活树全部操作 - **规则出处**：[完整迁移设计v0.1第5节第25项](../../完整迁移设计.md#5-业务验收方法)“灵活树全部操作”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有flex编辑权限；合法ready树含留白、嵌套row/column及八类块；准备操作前树和独立几何基准，允许受控未知回执/409断点。
+- **操作步骤**：依次拖分隔线、上下左右边缘，同/跨容器移动，填留白，插入两/三列和八类块，删除块；执行pointer取消、尺寸键盘输入及刷新；演练第2POST未知、包列409、包列已提交回执丢失。
+- **独立预期与核对**：按独立树引用与坐标计算核对，操作后刷新仍保留尺寸/位置；至少一块、合法树深度与引用约束不破坏，spacer不误吞其他块，pointer取消不落库。Vue/Python受控几何差≤0.5pt单列为技术核对，不替代真实拖拽业务结果；三类断点保留实际已落库块、固定未确认子命令，不重复新增或再套列组。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：25-分隔边缘操作.png、25-跨容器与留白.png、25-两三列八块.png、25-pointer取消.png、25-断点恢复.png；记录操作前后树/坐标/实际子动作。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实灵活页、几何基准和子动作故障演练未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定完整灵活树操作是否破坏尺寸/位置/引用，取消是否落库，部分新增断点是否重复插入或吞块。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准树/几何样本、故障方式和正式版本/子动作核对范围，明确部分落库恢复方式。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">25</span><h2>灵活树全部操作</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第25项</a>“灵活树全部操作”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有flex编辑权限；合法ready树含留白、嵌套row/column及八类块；准备操作前树和独立几何基准，允许受控未知回执/409断点。</li>
+<li><strong>操作步骤</strong>：依次拖分隔线、上下左右边缘，同/跨容器移动，填留白，插入两/三列和八类块，删除块；执行pointer取消、尺寸键盘输入及刷新；演练第2POST未知、包列409、包列已提交回执丢失。</li>
+<li><strong>独立预期与核对</strong>：按独立树引用与坐标计算核对，操作后刷新仍保留尺寸/位置；至少一块、合法树深度与引用约束不破坏，spacer不误吞其他块，pointer取消不落库。Vue/Python受控几何差≤0.5pt单列为技术核对，不替代真实拖拽业务结果；三类断点保留实际已落库块、固定未确认子命令，不重复新增或再套列组。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：25-分隔边缘操作.png、25-跨容器与留白.png、25-两三列八块.png、25-pointer取消.png、25-断点恢复.png；记录操作前后树/坐标/实际子动作。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实灵活页、几何基准和子动作故障演练未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定完整灵活树操作是否破坏尺寸/位置/引用，取消是否落库，部分新增断点是否重复插入或吞块。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准树/几何样本、故障方式和正式版本/子动作核对范围，明确部分落库恢复方式。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-26" data-search="换排布提案 - **规则出处**：[完整迁移设计v0.1第5节第26项](../../完整迁移设计.md#5-业务验收方法)“换排布提案”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有AI重排与人工采纳权限；ready灵活页含文字/图表/图片及锁定块；记录原块/锁定/树与修订，Provider额度已批准。
+- **操作步骤**：生成并预览布局候选，放弃一轮；新轮逐个应用同轮候选，显示更多、恢复原树；编辑页面后提交旧轮候选并观察拒绝。
+- **独立预期与核对**：候选块ID集合、内容/锁定与原块清单一致且树签名有差异；未采纳正式树不变；同轮成功后按更新修订可继续比较，其他旧轮过期拒绝；恢复走当前CAS人工保存。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：26-原树与布局候选.png、26-应用及更多.png、26-原树恢复.png、26-过期候选拒绝.png；记录提案基准/候选签名/正式块集合。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实AI重排、私有图片和提案/版本核对未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定布局候选是否保持内容/锁定、多样可比，以及应用/恢复/过期检查是否保护正式页面。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准重排Provider额度、合法原树项目及过期候选受控提交范围。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">26</span><h2>换排布提案</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第26项</a>“换排布提案”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有AI重排与人工采纳权限；ready灵活页含文字/图表/图片及锁定块；记录原块/锁定/树与修订，Provider额度已批准。</li>
+<li><strong>操作步骤</strong>：生成并预览布局候选，放弃一轮；新轮逐个应用同轮候选，显示更多、恢复原树；编辑页面后提交旧轮候选并观察拒绝。</li>
+<li><strong>独立预期与核对</strong>：候选块ID集合、内容/锁定与原块清单一致且树签名有差异；未采纳正式树不变；同轮成功后按更新修订可继续比较，其他旧轮过期拒绝；恢复走当前CAS人工保存。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：26-原树与布局候选.png、26-应用及更多.png、26-原树恢复.png、26-过期候选拒绝.png；记录提案基准/候选签名/正式块集合。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实AI重排、私有图片和提案/版本核对未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定布局候选是否保持内容/锁定、多样可比，以及应用/恢复/过期检查是否保护正式页面。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准重排Provider额度、合法原树项目及过期候选受控提交范围。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-27" data-search="字体与溢出 - **规则出处**：[完整迁移设计v0.1第5节第27项](../../完整迁移设计.md#5-业务验收方法)“字体与溢出”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有质量查询权限；取得获准字体及对应manifest，另有缺字体环境；准备中英/长词/emoji/缺字文本、槽位内溢出及越画布坐标的独立样本。
+- **操作步骤**：逐样本查看预览和质量定位；在精确字体与缺字体环境分别计算/查询质量；确认剩余正文与原文本逐字相同，定位槽位或画布外问题。
+- **独立预期与核对**：依独立字形/字体身份及960×540几何基准区分：估算须明示、槽位warning、越画布error；字体缺失不是静默删文字的理由。精确环境与估算环境分别记录。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：27-混排与emoji.png、27-字体估算提示.png、27-槽位与画布定位.png；保存字体许可/manifest身份和独立度量表。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实获许可精确字体及环境未取得；既有技术检查有3项精确字体跳过，不能转为本项通过。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定字体缺失是否被明示、正文是否完整，以及槽位溢出与画布越界是否正确分级。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认字体文件/许可/真实环境与度量基准，允许在独立获准缺字体通道执行对照。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">27</span><h2>字体与溢出</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第27项</a>“字体与溢出”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有质量查询权限；取得获准字体及对应manifest，另有缺字体环境；准备中英/长词/emoji/缺字文本、槽位内溢出及越画布坐标的独立样本。</li>
+<li><strong>操作步骤</strong>：逐样本查看预览和质量定位；在精确字体与缺字体环境分别计算/查询质量；确认剩余正文与原文本逐字相同，定位槽位或画布外问题。</li>
+<li><strong>独立预期与核对</strong>：依独立字形/字体身份及960×540几何基准区分：估算须明示、槽位warning、越画布error；字体缺失不是静默删文字的理由。精确环境与估算环境分别记录。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：27-混排与emoji.png、27-字体估算提示.png、27-槽位与画布定位.png；保存字体许可/manifest身份和独立度量表。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实获许可精确字体及环境未取得；既有技术检查有3项精确字体跳过，不能转为本项通过。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定字体缺失是否被明示、正文是否完整，以及槽位溢出与画布越界是否正确分级。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认字体文件/许可/真实环境与度量基准，允许在独立获准缺字体通道执行对照。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-28" data-search="AI改稿全工具 - **规则出处**：[完整迁移设计v0.1第5节第28项](../../完整迁移设计.md#5-业务验收方法)“AI改稿全工具”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有AI建议权限；fixed与flex各一页，含六种可替换内容，flex另可新增/删除/变类型；准备5轮指令与不合法工具/ID/图表文字请求基准。
+- **操作步骤**：按既定指令覆盖fixed六替换工具、flex三结构工具；逐项看before/after/丢弃理由，保留成功/失败轮次；第6轮核最近5条上下文；在受控轮加入非法工具/ID/图表文字替换。
+- **独立预期与核对**：真实模型文字可多解，必须保留原事实数字与来源并符合工具边界；未采纳正式页逐字段不变；fixed不得结构修改，非法工具拒绝，修复最多一轮，历史上下文按原规则裁剪。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：28-九工具建议对照.png、28-五轮历史与失败原因.png、28-非法工具丢弃.png；记录真实工具调用/正式页前后及受控异常区分。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实改稿Provider、额度、受控非法输出与正式页核对未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定AI九工具是否只修改副本、保留逐项对照/丢弃理由，以及非法工具和上下文裁剪是否正确。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准具体指令/事实评判表、模型额度与非法工具演练方式，记录真实调用链。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">28</span><h2>AI改稿全工具</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第28项</a>“AI改稿全工具”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有AI建议权限；fixed与flex各一页，含六种可替换内容，flex另可新增/删除/变类型；准备5轮指令与不合法工具/ID/图表文字请求基准。</li>
+<li><strong>操作步骤</strong>：按既定指令覆盖fixed六替换工具、flex三结构工具；逐项看before/after/丢弃理由，保留成功/失败轮次；第6轮核最近5条上下文；在受控轮加入非法工具/ID/图表文字替换。</li>
+<li><strong>独立预期与核对</strong>：真实模型文字可多解，必须保留原事实数字与来源并符合工具边界；未采纳正式页逐字段不变；fixed不得结构修改，非法工具拒绝，修复最多一轮，历史上下文按原规则裁剪。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：28-九工具建议对照.png、28-五轮历史与失败原因.png、28-非法工具丢弃.png；记录真实工具调用/正式页前后及受控异常区分。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实改稿Provider、额度、受控非法输出与正式页核对未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定AI九工具是否只修改副本、保留逐项对照/丢弃理由，以及非法工具和上下文裁剪是否正确。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准具体指令/事实评判表、模型额度与非法工具演练方式，记录真实调用链。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-29" data-search="锁定与采纳撤回 - **规则出处**：[完整迁移设计v0.1第5节第29项](../../完整迁移设计.md#5-业务验收方法)“锁定与采纳撤回”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有人工编辑/换图及AI采纳权限；ready页含手改/换图锁定块和未锁块，两个会话可制造过期候选；先记录每块保护状态。
+- **操作步骤**：先手改并换图锁定；请求AI覆盖/删除该块，采纳其他合法项再撤回；另一会话改页后提交旧候选；在受控身份中尝试AI/Worker调用人工flex-state，并人工撤销。
+- **独立预期与核对**：按初始锁定清单逐块核对：AI不能更改/删除锁块，采纳与撤回都CAS检查；人工撤销所改块重新锁定、未改块保护保持；服务身份不可使用人工恢复入口。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：29-锁定保护.png、29-采纳与撤回.png、29-过期拒绝.png；记录正式块、版本与身份/操作审计。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实换图/AI、双会话和服务身份拒绝演练未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定AI是否侵犯锁块，采纳/撤回是否受版本保护，以及人工撤销能否保留保护状态。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准受控保护样本、真实身份测试/模型额度和审计核对权限。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">29</span><h2>锁定与采纳撤回</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第29项</a>“锁定与采纳撤回”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有人工编辑/换图及AI采纳权限；ready页含手改/换图锁定块和未锁块，两个会话可制造过期候选；先记录每块保护状态。</li>
+<li><strong>操作步骤</strong>：先手改并换图锁定；请求AI覆盖/删除该块，采纳其他合法项再撤回；另一会话改页后提交旧候选；在受控身份中尝试AI/Worker调用人工flex-state，并人工撤销。</li>
+<li><strong>独立预期与核对</strong>：按初始锁定清单逐块核对：AI不能更改/删除锁块，采纳与撤回都CAS检查；人工撤销所改块重新锁定、未改块保护保持；服务身份不可使用人工恢复入口。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：29-锁定保护.png、29-采纳与撤回.png、29-过期拒绝.png；记录正式块、版本与身份/操作审计。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实换图/AI、双会话和服务身份拒绝演练未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定AI是否侵犯锁块，采纳/撤回是否受版本保护，以及人工撤销能否保留保护状态。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准受控保护样本、真实身份测试/模型额度和审计核对权限。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-30" data-search="删除与对象补偿 - **规则出处**：[完整迁移设计v0.1第5节第30项](../../完整迁移设计.md#5-业务验收方法)“删除与对象补偿”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对；对象补偿另按[第3.3节数据库/对象非原子规则](../../完整迁移设计.md#33-正式数据设计)核对。
+- **验收前提**：甲有页面编辑、项目删除权限；明确可删除项目含源文档、同项目两份ready页副本共享的图片asset及在途任务；另一个项目只用其独立资产作不误删对照，不建立跨项目共享。批准对象/引用清单、保留期及受控删除失败、staging登记失败和清理恢复方式。
+- **操作步骤**：先删一个副本页或替换一处图片，保留同项目另一ready页并刷新预览，核对共享asset仍可读；在受控上传中使staging后的数据库登记失败，再核对未提交对象补偿；另将已正式提交的引用纳入清理扫描，核对不被误删。然后删除整个样本项目，尝试列表/详情/下载及旧Worker回写；使一次对象删除失败，再恢复清理，检查另一项目独立资产仍可预览。
+- **独立预期与核对**：用删除前资产引用表和对象哈希独立核对：单页删除/换图后同项目仍引用图片保持；数据库登记失败的staging对象进入可重试补偿，已提交引用对象不得被临时清理器误删。整项目删除后本人列表不再显示，不能继续读/下载/生成，旧Worker回写拒绝；清理可重试且不删除另一项目独立资产，补偿保留实际失败位置。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：30-副本删除后共享图正常.png、30-staging登记失败补偿.png、30-已提交引用保护.png、30-项目删除后拒绝.png、30-清理失败与恢复.png、30-另一项目独立资产正常.png；保存脱敏对象/项目内引用/journal阶段/补偿清单及哈希。页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实删除对象、同项目副本引用、staging与正式登记边界、在途任务、保留期及补偿演练范围未确认。既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定共享图片是否在仍有项目内引用时被误删，staging补偿是否安全，以及整项目删除是否泄漏或误删别项目资产。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认指定项目及同项目副本/另一项目独立对照对象，批准删除、stage登记失败/删除失败注入与清理恢复范围，记录预演对象清单和保留期，不触及其他项目。条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">30</span><h2>删除与对象补偿</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第30项</a>“删除与对象补偿”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对；对象补偿另按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#33-%E6%AD%A3%E5%BC%8F%E6%95%B0%E6%8D%AE%E8%AE%BE%E8%AE%A1" target="_blank" rel="noopener">第3.3节数据库/对象非原子规则</a>核对。</li>
+<li><strong>验收前提</strong>：甲有页面编辑、项目删除权限；明确可删除项目含源文档、同项目两份ready页副本共享的图片asset及在途任务；另一个项目只用其独立资产作不误删对照，不建立跨项目共享。批准对象/引用清单、保留期及受控删除失败、staging登记失败和清理恢复方式。</li>
+<li><strong>操作步骤</strong>：先删一个副本页或替换一处图片，保留同项目另一ready页并刷新预览，核对共享asset仍可读；在受控上传中使staging后的数据库登记失败，再核对未提交对象补偿；另将已正式提交的引用纳入清理扫描，核对不被误删。然后删除整个样本项目，尝试列表/详情/下载及旧Worker回写；使一次对象删除失败，再恢复清理，检查另一项目独立资产仍可预览。</li>
+<li><strong>独立预期与核对</strong>：用删除前资产引用表和对象哈希独立核对：单页删除/换图后同项目仍引用图片保持；数据库登记失败的staging对象进入可重试补偿，已提交引用对象不得被临时清理器误删。整项目删除后本人列表不再显示，不能继续读/下载/生成，旧Worker回写拒绝；清理可重试且不删除另一项目独立资产，补偿保留实际失败位置。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：30-副本删除后共享图正常.png、30-staging登记失败补偿.png、30-已提交引用保护.png、30-项目删除后拒绝.png、30-清理失败与恢复.png、30-另一项目独立资产正常.png；保存脱敏对象/项目内引用/journal阶段/补偿清单及哈希。页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实删除对象、同项目副本引用、staging与正式登记边界、在途任务、保留期及补偿演练范围未确认。既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定共享图片是否在仍有项目内引用时被误删，staging补偿是否安全，以及整项目删除是否泄漏或误删别项目资产。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认指定项目及同项目副本/另一项目独立对照对象，批准删除、stage登记失败/删除失败注入与清理恢复范围，记录预演对象清单和保留期，不触及其他项目。条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-31" data-search="旧数据完整导入 - **规则出处**：[完整迁移设计v0.1第5节第31项](../../完整迁移设计.md#5-业务验收方法)“旧数据完整导入”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：已获明确授权的原快照及对象清单、目标既有MySQL、甲乙owner映射、人工核账；源包含四主题、fixed/flex、锁定/备注/失败页/legacy签名，导入/撤回边界已批准。
+- **操作步骤**：先审核同manifest字段与对象哈希并备份；执行批准导入，查询每个项目/页/树/引用；再以相同manifest导入；核对未完成页续跑、旧签名重新确认及批准撤回条件。
+- **独立预期与核对**：以原快照逐字段/对象哈希为独立答案：只允许设计列明的转换，owner映射不猜测，全部字段、页序、灵活树、失败页、备注、锁保护及私有对象一致；第二次同manifest导入无重复；未完成任务可续跑，legacy过期签名须重新确认，不能静默视为当前确认。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：31-导入项目与owner.png、31-页序锁备注回读.png、31-legacy重新确认.png；保存人工核账、manifest/对象哈希与批准导入日志（脱敏）。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实旧快照、owner映射、目标MySQL、备份/导入授权均未确认；虚构夹具核账不计业务完成。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定授权旧数据是否完整迁入正确owner、同manifest是否重复，以及未完成页和过期确认能否安全续用。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：用户明确批准源/目标/owner/对象/备份/保留与撤回步骤后，先独立人工核账，再执行指定导入。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">31</span><h2>旧数据完整导入</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第31项</a>“旧数据完整导入”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：已获明确授权的原快照及对象清单、目标既有MySQL、甲乙owner映射、人工核账；源包含四主题、fixed/flex、锁定/备注/失败页/legacy签名，导入/撤回边界已批准。</li>
+<li><strong>操作步骤</strong>：先审核同manifest字段与对象哈希并备份；执行批准导入，查询每个项目/页/树/引用；再以相同manifest导入；核对未完成页续跑、旧签名重新确认及批准撤回条件。</li>
+<li><strong>独立预期与核对</strong>：以原快照逐字段/对象哈希为独立答案：只允许设计列明的转换，owner映射不猜测，全部字段、页序、灵活树、失败页、备注、锁保护及私有对象一致；第二次同manifest导入无重复；未完成任务可续跑，legacy过期签名须重新确认，不能静默视为当前确认。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：31-导入项目与owner.png、31-页序锁备注回读.png、31-legacy重新确认.png；保存人工核账、manifest/对象哈希与批准导入日志（脱敏）。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实旧快照、owner映射、目标MySQL、备份/导入授权均未确认；虚构夹具核账不计业务完成。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定授权旧数据是否完整迁入正确owner、同manifest是否重复，以及未完成页和过期确认能否安全续用。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：用户明确批准源/目标/owner/对象/备份/保留与撤回步骤后，先独立人工核账，再执行指定导入。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-32" data-search="真实配图与三级降级 - **规则出处**：[完整迁移设计v0.1第5节第32项](../../完整迁移设计.md#5-业务验收方法)“真实配图与三级降级”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：真实OpenAI兼容、百炼及图库配置/许可/额度已批准，甲可生成含配图页；允许主源失败、双源失败、超时与受控恶意URL/坏字节样本。
+- **操作步骤**：分别实际调用两种生图配置与图库，查看署名/来源；模拟主源失败、两源失败及超时，查看生成→图库→占位结果；对受控非法URL/图字节检查拒绝与正式页保留。
+- **独立预期与核对**：先登记每种配置应走的源顺序与资产类型；按生成→图库→占位降级，实际Provider任务/外部调用/资产manifest证明真实配图，占位形状须明示；图失败不能丢整页，来源/署名必须与获准原资产一致，恶意URL与坏图片字节须拒绝。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：32-真实生图.png、32-图库署名.png、32-占位降级.png、32-坏图拒绝.png；保存脱敏Provider调用和资产清单。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。三个真实外部来源、许可/额度和受控失败/URL演练尚未批准。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定真实生图/图库链路与费用是否可核账，三级降级和来源署名是否可靠，非法图源是否被拒绝。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：明确供应商、计费额度、图库使用许可与仅验收通道的异常请求范围，禁止将技术fixture当真实图片调用。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">32</span><h2>真实配图与三级降级</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第32项</a>“真实配图与三级降级”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：真实OpenAI兼容、百炼及图库配置/许可/额度已批准，甲可生成含配图页；允许主源失败、双源失败、超时与受控恶意URL/坏字节样本。</li>
+<li><strong>操作步骤</strong>：分别实际调用两种生图配置与图库，查看署名/来源；模拟主源失败、两源失败及超时，查看生成→图库→占位结果；对受控非法URL/图字节检查拒绝与正式页保留。</li>
+<li><strong>独立预期与核对</strong>：先登记每种配置应走的源顺序与资产类型；按生成→图库→占位降级，实际Provider任务/外部调用/资产manifest证明真实配图，占位形状须明示；图失败不能丢整页，来源/署名必须与获准原资产一致，恶意URL与坏图片字节须拒绝。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：32-真实生图.png、32-图库署名.png、32-占位降级.png、32-坏图拒绝.png；保存脱敏Provider调用和资产清单。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。三个真实外部来源、许可/额度和受控失败/URL演练尚未批准。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定真实生图/图库链路与费用是否可核账，三级降级和来源署名是否可靠，非法图源是否被拒绝。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：明确供应商、计费额度、图库使用许可与仅验收通道的异常请求范围，禁止将技术fixture当真实图片调用。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-33" data-search="上传换图 - **规则出处**：[完整迁移设计v0.1第5节第33项](../../完整迁移设计.md#5-业务验收方法)“上传换图”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有换图权限；ready图块及原图哈希/credit；批准PNG/JPEG/WebP各一份、伪/损坏图、超过8MiB图片；第二会话可制造修订变化。
+- **操作步骤**：合法上传逐格式保存、刷新看cover裁剪、检查锁定与署名，再导出回读；非法样本上传；一次上传在途时另一会话改页，核对冲突和孤立对象清理。
+- **独立预期与核对**：依据原文件魔数/大小/哈希及事先裁剪基准核对；合法图可读且锁定，导出一致；非法/冲突旧图及正式引用保持，新孤立对象最终可清理而不误删。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：33-三格式合法换图.png、33-裁剪与锁定.png、33-错误及冲突保留.png；保存原/新图哈希、引用和清理记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实私有上传/导出、图像样本与并发冲突清理授权未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定三格式换图是否持久保存、锁定和裁剪一致，以及非法/冲突上传是否保护旧图并清理孤立对象。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准图片样本和许可、存储/换图范围、第二会话及孤立对象核对方式。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">33</span><h2>上传换图</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第33项</a>“上传换图”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有换图权限；ready图块及原图哈希/credit；批准PNG/JPEG/WebP各一份、伪/损坏图、超过8MiB图片；第二会话可制造修订变化。</li>
+<li><strong>操作步骤</strong>：合法上传逐格式保存、刷新看cover裁剪、检查锁定与署名，再导出回读；非法样本上传；一次上传在途时另一会话改页，核对冲突和孤立对象清理。</li>
+<li><strong>独立预期与核对</strong>：依据原文件魔数/大小/哈希及事先裁剪基准核对；合法图可读且锁定，导出一致；非法/冲突旧图及正式引用保持，新孤立对象最终可清理而不误删。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：33-三格式合法换图.png、33-裁剪与锁定.png、33-错误及冲突保留.png；保存原/新图哈希、引用和清理记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实私有上传/导出、图像样本与并发冲突清理授权未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定三格式换图是否持久保存、锁定和裁剪一致，以及非法/冲突上传是否保护旧图并清理孤立对象。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准图片样本和许可、存储/换图范围、第二会话及孤立对象核对方式。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-34" data-search="私有存储与授权 - **规则出处**：[完整迁移设计v0.1第5节第34项](../../完整迁移设计.md#5-业务验收方法)“私有存储与授权”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：明确本地与COS真实私有驱动/路径、现有甲乙身份、批准源文件/图片/导出样本；短链期限与路径穿越受控样本已确定，不输出凭据。
+- **操作步骤**：按“本地驱动/COS驱动×来源文件/图片/导出制品”六格清单逐一保存并读取，三类均使用各自同一份基准字节比对两驱动；甲正常预览/下载；乙拿甲assetId、过期短链和受控路径穿越/任意key请求访问；核对授权日志。
+- **独立预期与核对**：以原文件哈希比本地/COS两驱动的来源文件、图片与导出字节，一致才算成功；甲授权读取正常，乙持甲assetId仍拒绝，项目owner/动作权限而非猜路径决定访问；短链有限期且超期拒绝，路径穿越/任意key拒绝，日志不能泄漏凭据或外部公开链接。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：34-甲私有预览.png、34-乙与过期拒绝.png、34-路径拒绝.png；保存脱敏授权结果、驱动及文件哈希对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实本地/COS私有存储、账户与路径/短链演练范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定本地/COS六格资产内容是否一致，以及他人资产、过期短链和任意对象路径是否被正确拒绝。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准真实驱动、样本及权限/期限检查范围，保证不访问无关桶/目录或输出密钥。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">34</span><h2>私有存储与授权</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第34项</a>“私有存储与授权”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：明确本地与COS真实私有驱动/路径、现有甲乙身份、批准源文件/图片/导出样本；短链期限与路径穿越受控样本已确定，不输出凭据。</li>
+<li><strong>操作步骤</strong>：按“本地驱动/COS驱动×来源文件/图片/导出制品”六格清单逐一保存并读取，三类均使用各自同一份基准字节比对两驱动；甲正常预览/下载；乙拿甲assetId、过期短链和受控路径穿越/任意key请求访问；核对授权日志。</li>
+<li><strong>独立预期与核对</strong>：以原文件哈希比本地/COS两驱动的来源文件、图片与导出字节，一致才算成功；甲授权读取正常，乙持甲assetId仍拒绝，项目owner/动作权限而非猜路径决定访问；短链有限期且超期拒绝，路径穿越/任意key拒绝，日志不能泄漏凭据或外部公开链接。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：34-甲私有预览.png、34-乙与过期拒绝.png、34-路径拒绝.png；保存脱敏授权结果、驱动及文件哈希对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实本地/COS私有存储、账户与路径/短链演练范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定本地/COS六格资产内容是否一致，以及他人资产、过期短链和任意对象路径是否被正确拒绝。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准真实驱动、样本及权限/期限检查范围，保证不访问无关桶/目录或输出密钥。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-35" data-search="完整质量门禁 - **规则出处**：[完整迁移设计v0.1第5节第35项](../../完整迁移设计.md#5-业务验收方法)“完整质量门禁”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有质量检查/导出权限；独立人工制作非法结构、丢图、越界、低清、重复页、无来源数字、偏瘦/空话、缺字体样本，提前按规则标记错误/警告；合法对照页存在。
+- **操作步骤**：打开质量抽屉，等待实际异步任务完整报告；逐项定位、修复再检查；错误尝试导出，警告确认后导出；注入获准的新检查失败/未就绪/can_export=false并检查旧报告不放行。
+- **独立预期与核对**：按人工问题清单而非报告本身比级别/定位；错误阻断、警告需明确确认且不等于事实核验；修改后报告版本与当前内容/主题一致，失败清旧状态，旧任务不覆盖新检查。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：35-错误阻断.png、35-警告及定位.png、35-修复后新版本.png、35-失败不能导出.png；保存预先问题级别表与正式质量版本。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实质量/导出任务、独立样本、字体与失败演练未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定质量报告是否定位真实问题并阻止错误导出，旧报告/旧任务是否错误放行新内容。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准问题样本及真实质量链，准备人工级别表、当前版本核对及仅本任务的失败演练。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">35</span><h2>完整质量门禁</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第35项</a>“完整质量门禁”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有质量检查/导出权限；独立人工制作非法结构、丢图、越界、低清、重复页、无来源数字、偏瘦/空话、缺字体样本，提前按规则标记错误/警告；合法对照页存在。</li>
+<li><strong>操作步骤</strong>：打开质量抽屉，等待实际异步任务完整报告；逐项定位、修复再检查；错误尝试导出，警告确认后导出；注入获准的新检查失败/未就绪/can_export=false并检查旧报告不放行。</li>
+<li><strong>独立预期与核对</strong>：按人工问题清单而非报告本身比级别/定位；错误阻断、警告需明确确认且不等于事实核验；修改后报告版本与当前内容/主题一致，失败清旧状态，旧任务不覆盖新检查。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：35-错误阻断.png、35-警告及定位.png、35-修复后新版本.png、35-失败不能导出.png；保存预先问题级别表与正式质量版本。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实质量/导出任务、独立样本、字体与失败演练未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定质量报告是否定位真实问题并阻止错误导出，旧报告/旧任务是否错误放行新内容。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准问题样本及真实质量链，准备人工级别表、当前版本核对及仅本任务的失败演练。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-36" data-search="原生可编辑PPTX - **规则出处**：[完整迁移设计v0.1第5节第36项](../../完整迁移设计.md#5-业务验收方法)“原生可编辑PPTX”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有真实导出/下载权限；40页ready文稿含八块、四图表、emoji、演讲备注和占位形状；提前登记页序、关键文字/数值/备注；具备可用的PowerPoint或用户指定办公软件及字体。
+- **操作步骤**：等待保存、质量门禁和真实导出/回读成功后下载；在可用的PowerPoint或用户指定办公软件逐类选中编辑文字、表格单元格、图表分类/数据并保存重开；逐页检查40页、顺序、备注、图/形状边界。
+- **独立预期与核对**：以预先40页内容表和原对象类型为基准，页数、顺序、关键文字与备注一致；正文必须原生文字/表格/图表等，不能整页截图；改字/单元格/图表数据后保存重开值仍准确，八块/四图表、emoji、占位形状及主题边界可读。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：36-浏览器导出快照.png、36-办公软件改字.png、36-单元格编辑.png、36-图表数据编辑.png、36-备注和40页.png；保留原/编辑后文件哈希及真实verify记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。离线[四十页可编辑核对样本.pptx](验收材料/四十页可编辑核对样本.pptx)、[四十页输入预期.json](验收材料/四十页输入预期.json)、[四十页技术回读.json](验收材料/四十页技术回读.json)及[原始快照](验收材料/四十页原始快照.json)已准备；仅执行renderer保存后verify及独立ZIP/XML核对，含18页fixed/22页flex、八块/四图表、40份备注、3个原生表格/4个原生图表/7个原生占位形状，字体身份为unavailable/estimate。真实中心导出、浏览器下载链与办公软件实际编辑尚未执行，工具能力/字体和真实项目条件仍待确认；此离线材料不转为本点业务通过，既有相关技术结果另见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)。
+- **业务影响**：尚不能判定真实40页下载文件在办公软件中是否原生可编辑，文字/表格/图表/备注和形状是否完整可读。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认真实样本导出范围、可用的PowerPoint或用户指定办公软件及字体，准备40页独立内容核对表后执行；工具能力或环境缺失时明确相应阻塞，不新增软件安装/下载审批流程。条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">36</span><h2>原生可编辑PPTX</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第36项</a>“原生可编辑PPTX”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有真实导出/下载权限；40页ready文稿含八块、四图表、emoji、演讲备注和占位形状；提前登记页序、关键文字/数值/备注；具备可用的PowerPoint或用户指定办公软件及字体。</li>
+<li><strong>操作步骤</strong>：等待保存、质量门禁和真实导出/回读成功后下载；在可用的PowerPoint或用户指定办公软件逐类选中编辑文字、表格单元格、图表分类/数据并保存重开；逐页检查40页、顺序、备注、图/形状边界。</li>
+<li><strong>独立预期与核对</strong>：以预先40页内容表和原对象类型为基准，页数、顺序、关键文字与备注一致；正文必须原生文字/表格/图表等，不能整页截图；改字/单元格/图表数据后保存重开值仍准确，八块/四图表、emoji、占位形状及主题边界可读。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：36-浏览器导出快照.png、36-办公软件改字.png、36-单元格编辑.png、36-图表数据编辑.png、36-备注和40页.png；保留原/编辑后文件哈希及真实verify记录。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。离线<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6/%E9%AA%8C%E6%94%B6%E6%9D%90%E6%96%99/%E5%9B%9B%E5%8D%81%E9%A1%B5%E5%8F%AF%E7%BC%96%E8%BE%91%E6%A0%B8%E5%AF%B9%E6%A0%B7%E6%9C%AC.pptx" target="_blank" rel="noopener">四十页可编辑核对样本.pptx</a>、<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6/%E9%AA%8C%E6%94%B6%E6%9D%90%E6%96%99/%E5%9B%9B%E5%8D%81%E9%A1%B5%E8%BE%93%E5%85%A5%E9%A2%84%E6%9C%9F.json" target="_blank" rel="noopener">四十页输入预期.json</a>、<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6/%E9%AA%8C%E6%94%B6%E6%9D%90%E6%96%99/%E5%9B%9B%E5%8D%81%E9%A1%B5%E6%8A%80%E6%9C%AF%E5%9B%9E%E8%AF%BB.json" target="_blank" rel="noopener">四十页技术回读.json</a>及<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6/%E9%AA%8C%E6%94%B6%E6%9D%90%E6%96%99/%E5%9B%9B%E5%8D%81%E9%A1%B5%E5%8E%9F%E5%A7%8B%E5%BF%AB%E7%85%A7.json" target="_blank" rel="noopener">原始快照</a>已准备；仅执行renderer保存后verify及独立ZIP/XML核对，含18页fixed/22页flex、八块/四图表、40份备注、3个原生表格/4个原生图表/7个原生占位形状，字体身份为unavailable/estimate。真实中心导出、浏览器下载链与办公软件实际编辑尚未执行，工具能力/字体和真实项目条件仍待确认；此离线材料不转为本点业务通过，既有相关技术结果另见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>。</li>
+<li><strong>业务影响</strong>：尚不能判定真实40页下载文件在办公软件中是否原生可编辑，文字/表格/图表/备注和形状是否完整可读。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认真实样本导出范围、可用的PowerPoint或用户指定办公软件及字体，准备40页独立内容核对表后执行；工具能力或环境缺失时明确相应阻塞，不新增软件安装/下载审批流程。条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-37" data-search="快照与回读失败 - **规则出处**：[完整迁移设计v0.1第5节第37项](../../完整迁移设计.md#5-业务验收方法)“快照与回读失败”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有导出权限；记录内容/主题版本A与目标版本B及各自内容哈希；受控缺页、整页图片、丢文本、坏文件样本可在获准真实任务链注入。
+- **操作步骤**：导出A在途时更改正文/主题并新导出B；核对A不可变版本和B新版本；分别触发回读失败，重复下载和同幂等重试。
+- **独立预期与核对**：A/B内容以事先版本表区分：A仍旧快照且明确标记旧版本、B为新版本；缺页/全页图片/丢文字/坏文件回读失败不提供下载，不能只改状态为ready；重复幂等动作只有同一制品，核对snapshot/hash/verify，旧异步回执不改变当前版本提示。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：37-A与B版本提示.png、37-回读失败禁止下载.png、37-重复任务结果.png；记录snapshot/hash/verify和文件集合。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实导出任务、版本变更与坏制品注入范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定在途导出是否保持不可变快照，以及坏文件是否被禁止下载、幂等是否重复产出文件。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：批准A/B样本、回读故障与重复请求范围，并允许核对不可变快照/制品数量。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">37</span><h2>快照与回读失败</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第37项</a>“快照与回读失败”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有导出权限；记录内容/主题版本A与目标版本B及各自内容哈希；受控缺页、整页图片、丢文本、坏文件样本可在获准真实任务链注入。</li>
+<li><strong>操作步骤</strong>：导出A在途时更改正文/主题并新导出B；核对A不可变版本和B新版本；分别触发回读失败，重复下载和同幂等重试。</li>
+<li><strong>独立预期与核对</strong>：A/B内容以事先版本表区分：A仍旧快照且明确标记旧版本、B为新版本；缺页/全页图片/丢文字/坏文件回读失败不提供下载，不能只改状态为ready；重复幂等动作只有同一制品，核对snapshot/hash/verify，旧异步回执不改变当前版本提示。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：37-A与B版本提示.png、37-回读失败禁止下载.png、37-重复任务结果.png；记录snapshot/hash/verify和文件集合。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实导出任务、版本变更与坏制品注入范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定在途导出是否保持不可变快照，以及坏文件是否被禁止下载、幂等是否重复产出文件。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：批准A/B样本、回读故障与重复请求范围，并允许核对不可变快照/制品数量。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-38" data-search="缩略图缩放与性能 - **规则出处**：[完整迁移设计v0.1第5节第38项](../../完整迁移设计.md#5-业务验收方法)“缩略图缩放与性能”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)、第1.4节原行为及[第3.8节拟性能阈值和运行边界](../../完整迁移设计.md#38-配置容量与运行边界)核对。
+- **验收前提**：甲有ready 40页及可编辑页；确定1280/1440/1024视口和独立浏览器文字放大设置200%，与画布缩放区分；先留未保存草稿、计时方法和基准主机/内核版本，核定第3.8节拟性能阈值后再作性能判断。
+- **操作步骤**：滚动全部页列表、切页，对照缩略图与主画布；输入画布125%/160%后再调整；分别在三个视口折叠/展开列表和面板，用键盘改宽/高与正文；文字放大到200%，恢复原设置。
+- **独立预期与核对**：以同一页的原内容/图表表核对预览与缩略图一致，懒渲染、切页和离开返回草稿不丢；1280/1440/1024均外层不横溢、控件可读，1024可折叠；125/160画布缩放可达，200%文字缩放仍可键盘编辑。记录实际交互耗时，与基准主机已核定的第3.8节拟阈值比较；阈值/环境未核定只记测量，不能据此称性能通过，更不能冒充真实模型性能。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：38-1280视口.png、38-1440视口.png、38-1024折叠.png、38-200文字放大.png、38-125与160画布.png；保存40页滚动/切页计时与方法。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实40页、批准的文字放大方法及性能基准环境尚未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定40页在各视口/文字放大时是否可读且不丢草稿，交互耗时是否满足核定的主机阈值。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认真实40页样本、浏览器视口/文字放大方式、基准主机及计时方法，核定拟性能阈值，避免更改共享系统显示设置。条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">38</span><h2>缩略图缩放与性能</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第38项</a>“缩略图缩放与性能”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>、第1.4节原行为及<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#38-%E9%85%8D%E7%BD%AE%E5%AE%B9%E9%87%8F%E4%B8%8E%E8%BF%90%E8%A1%8C%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第3.8节拟性能阈值和运行边界</a>核对。</li>
+<li><strong>验收前提</strong>：甲有ready 40页及可编辑页；确定1280/1440/1024视口和独立浏览器文字放大设置200%，与画布缩放区分；先留未保存草稿、计时方法和基准主机/内核版本，核定第3.8节拟性能阈值后再作性能判断。</li>
+<li><strong>操作步骤</strong>：滚动全部页列表、切页，对照缩略图与主画布；输入画布125%/160%后再调整；分别在三个视口折叠/展开列表和面板，用键盘改宽/高与正文；文字放大到200%，恢复原设置。</li>
+<li><strong>独立预期与核对</strong>：以同一页的原内容/图表表核对预览与缩略图一致，懒渲染、切页和离开返回草稿不丢；1280/1440/1024均外层不横溢、控件可读，1024可折叠；125/160画布缩放可达，200%文字缩放仍可键盘编辑。记录实际交互耗时，与基准主机已核定的第3.8节拟阈值比较；阈值/环境未核定只记测量，不能据此称性能通过，更不能冒充真实模型性能。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：38-1280视口.png、38-1440视口.png、38-1024折叠.png、38-200文字放大.png、38-125与160画布.png；保存40页滚动/切页计时与方法。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实40页、批准的文字放大方法及性能基准环境尚未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定40页在各视口/文字放大时是否可读且不丢草稿，交互耗时是否满足核定的主机阈值。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认真实40页样本、浏览器视口/文字放大方式、基准主机及计时方法，核定拟性能阈值，避免更改共享系统显示设置。条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-39" data-search="放映 - **规则出处**：[完整迁移设计v0.1第5节第39项](../../完整迁移设计.md#5-业务验收方法)“放映”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有查询权限；真实≥3页ready文稿，记第3页标题/顺序；批准可见浏览器全屏尝试及拒绝全屏对照方式。
+- **操作步骤**：从第3页放映；点击左右区域/任意页，使用方向键、空格、PageUp/PageDown、Home/End、F；全屏时按Esc先退出全屏，再Esc关放映；另测试拒绝全屏，退出回编辑页。
+- **独立预期与核对**：用事先页名单核对索引/标题/进度和首末页边界；放映不形成编辑写入；控件可恢复，退出恢复正确选页/焦点和平台导航，全屏拒绝仍能正常退出。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：39-第3页与进度.png、39-全屏和直达页.png、39-拒绝全屏.png、39-退出焦点与导航.png；核对无页面修订增量。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实ready文稿与浏览器全屏/拒绝全屏操作范围未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定完整放映键盘/点击、全屏拒绝和退出是否正确，是否有编辑副作用或丢失原页焦点。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认可放映样本及独立可见浏览器，允许全屏/拒绝测试后恢复原焦点和设置。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">39</span><h2>放映</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第39项</a>“放映”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有查询权限；真实≥3页ready文稿，记第3页标题/顺序；批准可见浏览器全屏尝试及拒绝全屏对照方式。</li>
+<li><strong>操作步骤</strong>：从第3页放映；点击左右区域/任意页，使用方向键、空格、PageUp/PageDown、Home/End、F；全屏时按Esc先退出全屏，再Esc关放映；另测试拒绝全屏，退出回编辑页。</li>
+<li><strong>独立预期与核对</strong>：用事先页名单核对索引/标题/进度和首末页边界；放映不形成编辑写入；控件可恢复，退出恢复正确选页/焦点和平台导航，全屏拒绝仍能正常退出。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：39-第3页与进度.png、39-全屏和直达页.png、39-拒绝全屏.png、39-退出焦点与导航.png；核对无页面修订增量。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实ready文稿与浏览器全屏/拒绝全屏操作范围未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定完整放映键盘/点击、全屏拒绝和退出是否正确，是否有编辑副作用或丢失原页焦点。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认可放映样本及独立可见浏览器，允许全屏/拒绝测试后恢复原焦点和设置。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-40" data-search="样例与目录 - **规则出处**：[完整迁移设计v0.1第5节第40项](../../完整迁移设计.md#5-业务验收方法)“样例与目录”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：甲有设计查询、质量/导出权限；真实目录API及版本manifest；样例与个人项目清单可分别核对，导出链和办公软件已批准。
+- **操作步骤**：打开“样例与主题”，核对4主题/11布局，逐主题查看样例；等待issues实际任务完成；选定主题确认警告后导出样例并回读文件；核对本人项目列表无新增生成项目。
+- **独立预期与核对**：以36目录及批准manifest为基准，版本一致、主题只改外观；样例不能计本人生成。质量错误阻断、警告确认及选定theme_id进入真实导出，文件原生且回读通过。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：40-四主题与11布局.png、40-样例质量和主题.png、40-样例真实导出.png；核对manifest、个人项目增量及PPTX回读。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实目录/样例导出链、办公软件与用户权限尚未确认。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定四主题/11布局目录与样例是否一致，样例导出是否经过真实门禁而被误计本人生成。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：确认真实目录版本、设计样例权限及真实质量/导出运行通道，保持本人项目清单可核对。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">40</span><h2>样例与目录</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第40项</a>“样例与目录”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：甲有设计查询、质量/导出权限；真实目录API及版本manifest；样例与个人项目清单可分别核对，导出链和办公软件已批准。</li>
+<li><strong>操作步骤</strong>：打开“样例与主题”，核对4主题/11布局，逐主题查看样例；等待issues实际任务完成；选定主题确认警告后导出样例并回读文件；核对本人项目列表无新增生成项目。</li>
+<li><strong>独立预期与核对</strong>：以36目录及批准manifest为基准，版本一致、主题只改外观；样例不能计本人生成。质量错误阻断、警告确认及选定theme_id进入真实导出，文件原生且回读通过。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：40-四主题与11布局.png、40-样例质量和主题.png、40-样例真实导出.png；核对manifest、个人项目增量及PPTX回读。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实目录/样例导出链、办公软件与用户权限尚未确认。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定四主题/11布局目录与样例是否一致，样例导出是否经过真实门禁而被误计本人生成。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：确认真实目录版本、设计样例权限及真实质量/导出运行通道，保持本人项目清单可核对。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article>
+<article class="item" id="point-41" data-search="停用、故障与恢复 - **规则出处**：[完整迁移设计v0.1第5节第41项](../../完整迁移设计.md#5-业务验收方法)“停用、故障与恢复”；同时按[第1.3节业务规则与边界](../../完整迁移设计.md#13-业务规则与边界)及该功能在第1.4节的原行为对应核对。
+- **验收前提**：经明确批准的演练通道、受影响服务/项目清单和备份恢复方案；模块/Provider开关、Worker/Redis、catalog版本可读，演练不触及其他项目。
+- **操作步骤**：按获准范围先仅关闭Provider，验证受影响生成停止、旧项目人工编辑与既有内容导出仍可用；再关闭整个模块，验证用户/内部业务入口拒绝且没有外部副作用，随后恢复。分别停止指定Worker、使该通道Redis不可用、注入catalog不匹配，查看业务/健康/任务状态并恢复；执行批准备份恢复步骤并核对旧项目和其他项目对照。
+- **独立预期与核对**：按预先故障和恢复清单区分开关范围：整个模块关闭时用户/内部业务入口拒绝；仅Provider关闭时不触发模型调用、受影响生成停止，旧项目仍可人工编辑/既有内容导出。Worker/Redis/catalog故障可定位、任务有明确终态，恢复后原项目/资产/租约与备份恢复清单一致，其他项目数据与通道不被污染。
+- **截图位置与数据证据**：拟保存在本目录“截图/”下：41-停用与能力提示.png、41-各故障状态.png、41-恢复旧项目.png；保留脱敏健康/租约/备份恢复清单和其他项目对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。
+- **当前实际**：2026-10-03本点无业务执行、无真实页面截图。真实启用/停用、服务故障、备份恢复范围与渠道未批准。 既有相关技术结果仅见[实施记录对应业务行](../../开发记录/完整迁移实施记录.md#完整范围逐项核对)，不转为本点通过。
+- **业务影响**：尚不能判定各开关与故障的能力边界、任务终态和恢复是否可用，或是否影响其他项目/原有数据。
+- **业务结果**：受阻。**截图情况**：截图阻塞（真实页面/操作条件尚未取得）。
+- **恢复条件与后续核对**：用户明确确认模块/Provider/Worker/Redis操作对象、维护窗口、备份及停止/恢复条件后，按已批准步骤执行。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。">
+  <div class="item-heading"><span class="number">41</span><h2>停用、故障与恢复</h2><span class="status">受阻 · 未执行</span></div>
+  <div class="item-body"><ul>
+<li><strong>规则出处</strong>：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#5-%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">完整迁移设计v0.1第5节第41项</a>“停用、故障与恢复”；同时按<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E8%AE%BE%E8%AE%A1.md#13-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%99%E4%B8%8E%E8%BE%B9%E7%95%8C" target="_blank" rel="noopener">第1.3节业务规则与边界</a>及该功能在第1.4节的原行为对应核对。</li>
+<li><strong>验收前提</strong>：经明确批准的演练通道、受影响服务/项目清单和备份恢复方案；模块/Provider开关、Worker/Redis、catalog版本可读，演练不触及其他项目。</li>
+<li><strong>操作步骤</strong>：按获准范围先仅关闭Provider，验证受影响生成停止、旧项目人工编辑与既有内容导出仍可用；再关闭整个模块，验证用户/内部业务入口拒绝且没有外部副作用，随后恢复。分别停止指定Worker、使该通道Redis不可用、注入catalog不匹配，查看业务/健康/任务状态并恢复；执行批准备份恢复步骤并核对旧项目和其他项目对照。</li>
+<li><strong>独立预期与核对</strong>：按预先故障和恢复清单区分开关范围：整个模块关闭时用户/内部业务入口拒绝；仅Provider关闭时不触发模型调用、受影响生成停止，旧项目仍可人工编辑/既有内容导出。Worker/Redis/catalog故障可定位、任务有明确终态，恢复后原项目/资产/租约与备份恢复清单一致，其他项目数据与通道不被污染。</li>
+<li><strong>截图位置与数据证据</strong>：拟保存在本目录“截图/”下：41-停用与能力提示.png、41-各故障状态.png、41-恢复旧项目.png；保留脱敏健康/租约/备份恢复清单和其他项目对照。 页面证据须保存后回读；这些是待采集位置，不是已取得截图。</li>
+<li><strong>当前实际</strong>：2026-10-03本点无业务执行、无真实页面截图。真实启用/停用、服务故障、备份恢复范围与渠道未批准。 既有相关技术结果仅见<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md#%E5%AE%8C%E6%95%B4%E8%8C%83%E5%9B%B4%E9%80%90%E9%A1%B9%E6%A0%B8%E5%AF%B9" target="_blank" rel="noopener">实施记录对应业务行</a>，不转为本点通过。</li>
+<li><strong>业务影响</strong>：尚不能判定各开关与故障的能力边界、任务终态和恢复是否可用，或是否影响其他项目/原有数据。</li>
+<li><strong>业务结果</strong>：受阻。<strong>截图情况</strong>：截图阻塞（真实页面/操作条件尚未取得）。</li>
+<li><strong>恢复条件与后续核对</strong>：用户明确确认模块/Provider/Worker/Redis操作对象、维护窗口、备份及停止/恢复条件后，按已批准步骤执行。 条件齐备后按本点步骤执行并记录真实时间、输入、版本、回读与截图；实际不符标准记未通过，保留原失败和修复后的复验，不降低本点标准。</li>
+</ul>
+</div>
+</article></div></div>
+<section class="section"><h2>结果、证据与用户决定</h2><ul>
+<li>业务清单：41项；本轮实际执行0项；通过0项、未通过0项、受阻41项、无已确认阻塞的未执行0项、不适用0项。</li>
+<li>沿用业务通过基线：0项。既有隔离页面报告和离线文件证据不转成真实业务通过，技术失败与修复仍保留在原技术记录。</li>
+<li>截图：本轮真实业务截图0份；41项截图阻塞；各点已列具体待截图位置。不得用设计图、合成图或隔离fixture画面补作真实业务截图。</li>
+<li>技术检查只链接：<a href="../../../../../%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/AI%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF%E9%A1%B9%E7%9B%AE/%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/%E5%AE%8C%E6%95%B4%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md" target="_blank" rel="noopener">唯一实施记录的实际检查与限制</a>、<a href="../../../../../output/playwright/aippt/history/execution-history.json" target="_blank" rel="noopener">前端执行历史</a>、<a href="../../../../../output/playwright/aippt/history/20261003-regressions-connected-9passed/html/index.html" target="_blank" rel="noopener">新增隔离页面报告</a>。这些证据各有技术覆盖范围，不计入上述41项。</li>
+<li>未完成原因：真实通道与写入/费用/文件/旧数据/故障演练范围未确认，各点最小恢复条件已就地列明；本轮没有启动服务、连接DB、模型调用、对象操作或导入。</li>
+<li>用户决定：待确认；没有用户业务接受、上线就绪或发布事实。用户后续明确决定时在本节记录本人/指定负责人、时间、版本、范围与原始依据，不把接受改写为技术或业务通过。</li>
+</ul>
+</section>
+<footer>所有业务点默认完整展开。搜索只影响当前显示；不会更改业务结果或验收记录。<div class="metadata">记录 SHA256：4d1a82f7c0f73fccd76a26c2f6985602950b77046cf82a4ae56f9c3fa8f3bd4e · 生成依据：验收记录.md · 产品与数据无操作</div></footer>
+</main><script>
+const search=document.querySelector('#search'),items=[...document.querySelectorAll('.item')],count=document.querySelector('#visible-count');
+function filter(){const value=search.value.trim().toLocaleLowerCase();let visible=0;for(const item of items){item.hidden=!item.dataset.search.toLocaleLowerCase().includes(value);if(!item.hidden)visible++;}count.textContent=value?'显示 '+visible+' / 41 项':'显示全部 41 项';document.querySelector('#no-match').style.display=visible?'none':'block';}
+search.addEventListener('input',filter);document.querySelector('#reset').addEventListener('click',()=>{search.value='';filter();search.focus();});
+document.querySelector('.nav').addEventListener('click',event=>{const link=event.target.closest('a');if(link&&search.value){search.value='';filter();}});
+</script></body></html>

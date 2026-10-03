@@ -1,0 +1,5954 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AI演示文稿若依中心协议",
+    "version": "1.0.0",
+    "description": "业务中心MySQL为唯一正式状态；模块默认关闭，DDL/菜单/Provider/旧数据迁移分别授权。"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "共享若依API入口；前端沿用VITE_APP_BASE_API"
+    }
+  ],
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "paths": {
+    "/aippt/projects": {
+      "get": {
+        "operationId": "get_aippt_projects",
+        "summary": "本人演示文稿分页",
+        "description": "权限：project:list。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pageNum",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_aippt_projects",
+        "summary": "创建演示文稿",
+        "description": "权限：project:add。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}": {
+      "get": {
+        "operationId": "get_aippt_projects_p",
+        "summary": "读取本人项目",
+        "description": "权限：project:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_aippt_projects_p",
+        "summary": "更新内容设置",
+        "description": "权限：project:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdate"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_aippt_projects_p",
+        "summary": "标记删除并清理引用",
+        "description": "权限：project:remove。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "input_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/sources": {
+      "get": {
+        "operationId": "get_aippt_projects_p_sources",
+        "summary": "列出材料",
+        "description": "权限：source:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_aippt_projects_p_sources",
+        "summary": "添加主题或文字材料",
+        "description": "权限：source:add。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/sources/{sourceId}": {
+      "delete": {
+        "operationId": "delete_aippt_projects_p_sources_sourceId",
+        "summary": "删除指定材料",
+        "description": "权限：source:remove。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "input_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/sources/{sourceId}/sections": {
+      "get": {
+        "operationId": "get_aippt_projects_p_sources_sourceId_sections",
+        "summary": "读取稳定小节定位",
+        "description": "权限：source:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/theme": {
+      "patch": {
+        "operationId": "patch_aippt_projects_p_theme",
+        "summary": "更换主题与覆盖",
+        "description": "权限：theme:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThemeCommand"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/sources/upload": {
+      "post": {
+        "operationId": "post_aippt_projects_p_sources_upload",
+        "summary": "上传并解析文档",
+        "description": "权限：source:add。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "input_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "file",
+                  "input_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/blocks/{b}/image": {
+      "put": {
+        "operationId": "put_aippt_projects_p_deck_slides_s_blocks_b_image",
+        "summary": "人工替换图片",
+        "description": "权限：slide:edit 且 image:upload。同时执行服务端归属、版本和上传检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "b",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "alt": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file",
+                  "revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/outline": {
+      "get": {
+        "operationId": "get_aippt_projects_p_outline",
+        "summary": "读取提纲",
+        "description": "权限：outline:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_aippt_projects_p_outline",
+        "summary": "保存完整提纲",
+        "description": "权限：outline:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutlineSave"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/outline/generate": {
+      "post": {
+        "operationId": "post_aippt_projects_p_outline_generate",
+        "summary": "生成提纲",
+        "description": "权限：outline:generate。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "input_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/outline/confirm": {
+      "post": {
+        "operationId": "post_aippt_projects_p_outline_confirm",
+        "summary": "确认最新提纲",
+        "description": "权限：outline:confirm。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutlineConfirm"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/outline/unconfirm": {
+      "post": {
+        "operationId": "post_aippt_projects_p_outline_unconfirm",
+        "summary": "空闲时取消确认",
+        "description": "权限：outline:confirm。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/outline/confirm-and-generate": {
+      "post": {
+        "operationId": "post_aippt_projects_p_outline_confirm_and_generate",
+        "summary": "原子确认与启动",
+        "description": "权限：outline:confirm 且 deck:generate。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutlineConfirm"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck": {
+      "get": {
+        "operationId": "get_aippt_projects_p_deck",
+        "summary": "读取页面与进度",
+        "description": "权限：deck:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/generate": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_generate",
+        "summary": "续跑或显式整份重做",
+        "description": "权限：deck:generate。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deck_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "regenerate_all": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "overwrite_acknowledged": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "deck_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/cancel": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_cancel",
+        "summary": "软取消尚未开始页",
+        "description": "权限：deck:cancel。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deck_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "deck_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides",
+        "summary": "插入空白页",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deck_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "after_slide_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "deck_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/order": {
+      "put": {
+        "operationId": "put_aippt_projects_p_deck_slides_order",
+        "summary": "同事务排序正文与提纲",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deck_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "slide_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "maxItems": 40,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "deck_revision",
+                  "slide_ids"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/quality": {
+      "get": {
+        "operationId": "get_aippt_projects_p_deck_quality",
+        "summary": "读取同版本质量报告",
+        "description": "权限：export:check。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/exports": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_exports",
+        "summary": "建立不可变PPTX导出快照",
+        "description": "权限：export:create。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deck_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "theme_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "acknowledge_warnings": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "deck_revision",
+                  "theme_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}": {
+      "delete": {
+        "operationId": "delete_aippt_projects_p_deck_slides_s",
+        "summary": "删除页但至少留一页",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deck_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "deck_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/duplicate": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides_s_duplicate",
+        "summary": "复制页并重建块和树ID",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deck_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "deck_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/retry": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides_s_retry",
+        "summary": "重试单页",
+        "description": "权限：deck:generate。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "deck_revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "revision",
+                  "deck_revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/blocks/{b}": {
+      "patch": {
+        "operationId": "patch_aippt_projects_p_deck_slides_s_blocks_b",
+        "summary": "编辑八类内容块",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "b",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "必须传当前块type及该类型内容字段，禁止改id、槽位和块类型；正文保存后中心锁定该块。",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "revision": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "type": {
+                        "enum": [
+                          "text",
+                          "bullets",
+                          "kpi",
+                          "table",
+                          "chart",
+                          "image",
+                          "callout",
+                          "cards"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "revision",
+                      "type"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_aippt_projects_p_deck_slides_s_blocks_b",
+        "summary": "灵活页删除块",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "b",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/blocks/{b}/style": {
+      "patch": {
+        "operationId": "patch_aippt_projects_p_deck_slides_s_blocks_b_style",
+        "summary": "覆盖或重置块样式",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "b",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "style": {
+                    "anyOf": [
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/BlockStyle"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "revision",
+                  "style"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/blocks": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides_s_blocks",
+        "summary": "灵活页添加块",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "block": {
+                    "oneOf": [
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/TextBlock"
+                      },
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/BulletsBlock"
+                      },
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/KpiBlock"
+                      },
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/TableBlock"
+                      },
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/ChartBlock"
+                      },
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/ImageBlock"
+                      },
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/CalloutBlock"
+                      },
+                      {
+                        "$ref": "./schemas/content.schema.json#/$defs/CardsBlock"
+                      }
+                    ]
+                  },
+                  "parent_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "bullets",
+                      "image",
+                      "chart",
+                      "table",
+                      "kpi",
+                      "cards",
+                      "callout"
+                    ],
+                    "description": "未提供 block 时由服务端生成该类型的完整默认块。"
+                  }
+                },
+                "required": [
+                  "revision"
+                ],
+                "additionalProperties": false,
+                "anyOf": [
+                  {
+                    "required": [
+                      "block"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "type"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/flex-layout": {
+      "put": {
+        "operationId": "put_aippt_projects_p_deck_slides_s_flex_layout",
+        "summary": "提交灵活树几何",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "layout_tree": {
+                    "$ref": "#/components/schemas/LayoutTree"
+                  }
+                },
+                "required": [
+                  "revision",
+                  "layout_tree"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/flex-state": {
+      "put": {
+        "operationId": "put_aippt_projects_p_deck_slides_s_flex_state",
+        "summary": "人工撤销重做",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlexState"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/unlock-flex": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides_s_unlock_flex",
+        "summary": "保留首次几何解锁",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/layouts": {
+      "get": {
+        "operationId": "get_aippt_projects_p_deck_slides_s_layouts",
+        "summary": "读取兼容固定版式",
+        "description": "权限：deck:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/layout": {
+      "put": {
+        "operationId": "put_aippt_projects_p_deck_slides_s_layout",
+        "summary": "兼容版式切换",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "layout_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "revision",
+                  "layout_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/ai-edit": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides_s_ai_edit",
+        "summary": "在副本生成AI提案",
+        "description": "权限：ai:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "instruction": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "history": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "required": [
+                  "revision",
+                  "instruction"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/ai-edit/apply": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides_s_ai_edit_apply",
+        "summary": "采纳或撤回已登记提案",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "proposal_id": {
+                    "type": "string"
+                  },
+                  "op_id": {
+                    "type": "string"
+                  },
+                  "side": {
+                    "enum": [
+                      "before",
+                      "after",
+                      "discard"
+                    ]
+                  }
+                },
+                "required": [
+                  "revision",
+                  "proposal_id",
+                  "op_id",
+                  "side"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/relayout": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides_s_relayout",
+        "summary": "在副本生成排布候选",
+        "description": "权限：ai:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "revision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/slides/{s}/relayout/apply": {
+      "post": {
+        "operationId": "post_aippt_projects_p_deck_slides_s_relayout_apply",
+        "summary": "应用登记的排布候选",
+        "description": "权限：slide:edit。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "proposal_id": {
+                    "type": "string"
+                  },
+                  "candidate_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "revision",
+                  "proposal_id",
+                  "candidate_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/proposals/{proposalId}": {
+      "get": {
+        "operationId": "get_aippt_projects_p_proposals_proposalId",
+        "summary": "读取本项目提案",
+        "description": "权限：deck:query。同时执行服务端归属和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "proposalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/outline/events": {
+      "get": {
+        "operationId": "get_aippt_projects_p_outline_events",
+        "summary": "提纲进度",
+        "description": "权限：outline:query。同时执行项目归属、有效会话与游标检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "afterSeq",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "首帧快照、持久事件序号与15秒心跳；终态停止",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/projects/{p}/deck/events": {
+      "get": {
+        "operationId": "get_aippt_projects_p_deck_events",
+        "summary": "批次进度",
+        "description": "权限：deck:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "p",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "afterSeq",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "首帧快照、持久事件序号与15秒心跳；终态停止",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/tasks/{taskId}/events": {
+      "get": {
+        "operationId": "get_aippt_tasks_taskId_events",
+        "summary": "单任务持久事件",
+        "description": "沿用平台权限并先核本人项目归属：parse_source要求aippt:source:query；generate_outline要求aippt:outline:query；generate_slide要求aippt:deck:query；ai_edit/relayout要求aippt:ai:edit；普通quality要求aippt:export:check，仅已核定status=sample的本人样例quality要求aippt:design:query；export要求aippt:export:download。任一外层权限不能读取全部类型，未知类型403，他人资源404。GET与任务SSE使用同一门禁；内部Worker身份另走原内部服务协议。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "afterSeq",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "首帧快照、持久事件序号与15秒心跳；终态停止",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/tasks/{taskId}": {
+      "get": {
+        "operationId": "get_aippt_tasks_taskId",
+        "summary": "查询真实任务状态",
+        "description": "沿用平台权限并先核本人项目归属：parse_source要求aippt:source:query；generate_outline要求aippt:outline:query；generate_slide要求aippt:deck:query；ai_edit/relayout要求aippt:ai:edit；普通quality要求aippt:export:check，仅已核定status=sample的本人样例quality要求aippt:design:query；export要求aippt:export:download。任一外层权限不能读取全部类型，未知类型403，他人资源404。GET与任务SSE使用同一门禁；内部Worker身份另走原内部服务协议。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/exports/{exportId}": {
+      "get": {
+        "operationId": "get_aippt_exports_exportId",
+        "summary": "查询导出及验证结果",
+        "description": "权限：export:download。同时执行服务端归属和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "exportId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/assets/{assetId}": {
+      "get": {
+        "operationId": "get_aippt_assets_assetId",
+        "summary": "读取私有资产",
+        "description": "权限：project:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "assetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "鉴权后的私有资源；导出必须回读通过",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/exports/{exportId}/download": {
+      "get": {
+        "operationId": "get_aippt_exports_exportId_download",
+        "summary": "下载已通过回读的PPTX",
+        "description": "权限：export:download。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "exportId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "鉴权后的私有资源；导出必须回读通过",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/assets/{assetId}/download-ticket": {
+      "post": {
+        "operationId": "post_aippt_assets_assetId_download_ticket",
+        "summary": "创建5分钟私有许可",
+        "description": "权限：project:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "assetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/design/themes": {
+      "get": {
+        "operationId": "get_aippt_design_themes",
+        "summary": "四套主题目录",
+        "description": "权限：design:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/design/layouts": {
+      "get": {
+        "operationId": "get_aippt_design_layouts",
+        "summary": "11固定布局目录",
+        "description": "权限：design:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/design/sample-deck": {
+      "get": {
+        "operationId": "get_aippt_design_sample_deck",
+        "summary": "共享样例数据",
+        "description": "权限：design:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "theme_id",
+            "schema": {
+              "type": "string",
+              "default": "ivory"
+            },
+            "description": "目录中已登记的主题ID；与Controller显式参数名一致"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/design/sample-deck/issues": {
+      "get": {
+        "operationId": "get_aippt_design_sample_deck_issues",
+        "summary": "样例质量提示",
+        "description": "权限：design:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "theme_id",
+            "schema": {
+              "type": "string",
+              "default": "ivory"
+            },
+            "description": "目录中已登记的主题ID；与Controller显式参数名一致"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SampleQualityResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿；SAMPLE_CATALOG_MISMATCH表示私有样例目录身份缺失/变化，SAMPLE_MAPPING_INVALID表示样例页身份/位置不完整；保留已有内容，不自动删除重建。"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/aippt/design/sample-deck/exports": {
+      "post": {
+        "operationId": "post_aippt_design_sample_deck_exports",
+        "summary": "受权样例导出",
+        "description": "权限：export:create。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "theme_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aippt/operations/health": {
+      "get": {
+        "operationId": "get_aippt_operations_health",
+        "summary": "受权模块状态",
+        "description": "权限：operations:query。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "RuoYiBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        }
+      }
+    },
+    "/internal/aippt/tasks/claim": {
+      "post": {
+        "operationId": "post_internal_aippt_tasks_claim",
+        "summary": "有界领取本模块任务",
+        "description": "权限：worker:claim。同时执行服务端归属、状态和版本检查。waitMillis省略或为0时立即领取，1–10000时仅在事务外有界等待通知并重新查询正式任务；Redis失效仍使用数据库轮询。types省略领取全部支持类型，显式空数组不领取任务。",
+        "security": [
+          {
+            "WorkerKey": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerClaim"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/aippt/tasks/{taskId}/heartbeat": {
+      "post": {
+        "operationId": "post_internal_aippt_tasks_taskId_heartbeat",
+        "summary": "租约绑定的heartbeat",
+        "description": "权限：worker:heartbeat。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "WorkerKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerReceipt"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/aippt/tasks/{taskId}/progress": {
+      "post": {
+        "operationId": "post_internal_aippt_tasks_taskId_progress",
+        "summary": "租约绑定的progress",
+        "description": "权限：worker:progress。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "WorkerKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerReceipt"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/aippt/tasks/{taskId}/complete": {
+      "post": {
+        "operationId": "post_internal_aippt_tasks_taskId_complete",
+        "summary": "租约绑定的complete",
+        "description": "权限：worker:complete。同时执行服务端归属、状态和版本检查。",
+        "security": [
+          {
+            "WorkerKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerReceipt"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/aippt/tasks/{taskId}/fail": {
+      "post": {
+        "operationId": "post_internal_aippt_tasks_taskId_fail",
+        "summary": "租约绑定的fail",
+        "description": "权限：worker:fail。同时执行服务端归属、状态和版本检查。 可选verification_failure仅用于export、code=PPTX_VERIFY_FAILED且retryable=false；中心按本租约快照校验并保留可定位回读报告。报告计数及页号语义在中心校验。",
+        "security": [
+          {
+            "WorkerKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "依赖不可用，无正式副作用"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerReceipt"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/aippt/tasks/{taskId}/assets/{assetId}": {
+      "get": {
+        "operationId": "get_internal_aippt_task_asset",
+        "summary": "读取本租约允许的私有资产",
+        "description": "服务身份+租约+本项目资产清单；不接受外部URL或任意存储key",
+        "security": [
+          {
+            "WorkerKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "leaseToken",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fencingToken",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "attempt",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "assetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "受预算约束的资源字节",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "服务身份/租约无效"
+          },
+          "404": {
+            "description": "无此任务允许的资源"
+          },
+          "409": {
+            "description": "旧attempt或fencingToken"
+          }
+        }
+      }
+    },
+    "/internal/aippt/tasks/{taskId}/assets": {
+      "post": {
+        "operationId": "post_internal_aippt_task_asset",
+        "summary": "暂存租约绑定的候选制品",
+        "security": [
+          {
+            "WorkerKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "leaseToken",
+                  "fencingToken",
+                  "attempt",
+                  "role"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "leaseToken": {
+                    "type": "string"
+                  },
+                  "fencingToken": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "attempt": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "role": {
+                    "enum": [
+                      "image",
+                      "export"
+                    ]
+                  },
+                  "mime": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "暂存uploadId/asset_id；正式引用只在complete校验后提交"
+          },
+          "409": {
+            "description": "过期租约"
+          },
+          "422": {
+            "description": "文件魔数/大小/解码/hash或role不合法"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "RuoYiBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "共享若依Token，不新增登录注册"
+      },
+      "WorkerKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Aippt-Worker-Key",
+        "description": "内网服务凭据，仅Worker任务及租约绑定资源许可，不能访问用户API"
+      }
+    },
+    "schemas": {
+      "ProjectCreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "audience": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 100
+          },
+          "tone": {
+            "enum": [
+              "professional",
+              "plain",
+              "punchy"
+            ]
+          },
+          "page_count": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 20
+          },
+          "layout_mode": {
+            "enum": [
+              "fixed",
+              "flex"
+            ]
+          },
+          "content_density": {
+            "enum": [
+              "concise",
+              "medium",
+              "detailed"
+            ]
+          },
+          "theme_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "CommandVersion": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "outline_revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "deck_revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "theme_revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "Deck": {
+        "$ref": "./schemas/content.schema.json"
+      },
+      "OutlineDraft": {
+        "$ref": "./schemas/outline.schema.json"
+      },
+      "LayoutTree": {
+        "$ref": "./schemas/layout-tree.schema.json"
+      },
+      "ThemeOverrides": {
+        "$ref": "./schemas/theme.schema.json"
+      },
+      "WorkerTask": {
+        "$ref": "./schemas/worker.schema.json"
+      },
+      "TaskEvent": {
+        "$ref": "./events-v1.schema.json"
+      },
+      "WorkerReceipt": {
+        "type": "object",
+        "properties": {
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "leaseToken": {
+            "type": "string",
+            "minLength": 16
+          },
+          "fencingToken": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "output": {
+            "type": "object",
+            "description": "font相关任务（generate_slide/ai_edit/relayout/quality/export）必须回传实际资源身份及验证模式；中心与领取时不可变payload再次核对。其他业务字段按任务类型校验。",
+            "properties": {
+              "font_manifest_hash": {
+                "$ref": "./schemas/font-manifest.schema.json#/$defs/resourceHash"
+              },
+              "font_mode": {
+                "$ref": "./schemas/font-manifest.schema.json#/$defs/fontMode"
+              }
+            }
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssetManifest"
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "progress": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "percent": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "message": {
+                "type": "string",
+                "maxLength": 1000
+              },
+              "stage": {
+                "type": "string",
+                "maxLength": 100
+              }
+            },
+            "required": [
+              "percent"
+            ]
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "workerId": {
+            "type": "string"
+          },
+          "execution": {
+            "$ref": "#/components/schemas/ExecutionSummary"
+          },
+          "verification_failure": {
+            "$ref": "#/components/schemas/ExportVerificationFailure"
+          }
+        },
+        "required": [
+          "attempt",
+          "leaseToken",
+          "fencingToken"
+        ],
+        "additionalProperties": false
+      },
+      "AssetManifest": {
+        "type": "object",
+        "properties": {
+          "uploadId": {
+            "type": "string"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "role": {
+            "enum": [
+              "image",
+              "export"
+            ]
+          }
+        },
+        "required": [
+          "uploadId",
+          "mime",
+          "sha256",
+          "size",
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "WorkerClaim": {
+        "type": "object",
+        "properties": {
+          "workerId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "catalogVersion": {
+            "type": "string"
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "default": 0,
+            "description": "非权威通知的最大等待毫秒数；等待不占用数据库事务，唤醒后仍执行正式领取和租约校验。"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "parse_source",
+                "generate_outline",
+                "generate_slide",
+                "ai_edit",
+                "relayout",
+                "quality",
+                "export"
+              ]
+            }
+          }
+        },
+        "required": [
+          "workerId",
+          "catalogVersion"
+        ],
+        "additionalProperties": false
+      },
+      "ProjectUpdate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "audience": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 100
+          },
+          "tone": {
+            "enum": [
+              "professional",
+              "plain",
+              "punchy"
+            ]
+          },
+          "page_count": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 20
+          },
+          "layout_mode": {
+            "enum": [
+              "fixed",
+              "flex"
+            ]
+          },
+          "content_density": {
+            "enum": [
+              "concise",
+              "medium",
+              "detailed"
+            ]
+          },
+          "theme_id": {
+            "type": "string"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "input_revision"
+        ],
+        "additionalProperties": false
+      },
+      "OutlineSave": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pages": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 20,
+            "items": {
+              "$ref": "./schemas/outline.schema.json#/$defs/OutlinePageDraft"
+            }
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "提交端保留的材料版本；提供时服务端额外检查 input_revision，提纲始终以 revision 做 CAS，确认时再次核对材料版本。"
+          },
+          "page_count": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 20,
+            "description": "客户端草稿页数；服务端以校验后的 pages.length 为准。"
+          }
+        },
+        "required": [
+          "revision",
+          "pages"
+        ],
+        "additionalProperties": false
+      },
+      "OutlineConfirm": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "deck_revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "revision",
+          "input_revision"
+        ],
+        "additionalProperties": false
+      },
+      "SourceCreate": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "topic",
+              "text"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200000
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "kind",
+          "text",
+          "input_revision"
+        ],
+        "additionalProperties": false
+      },
+      "ThemeCommand": {
+        "type": "object",
+        "properties": {
+          "theme_id": {
+            "type": "string"
+          },
+          "theme_revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "theme_overrides": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ThemeOverrides"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "overrides": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ThemeOverrides"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "theme_revision"
+        ],
+        "additionalProperties": false
+      },
+      "FlexState": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "blocks": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 200,
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "./schemas/content.schema.json#/$defs/TextBlock"
+                },
+                {
+                  "$ref": "./schemas/content.schema.json#/$defs/BulletsBlock"
+                },
+                {
+                  "$ref": "./schemas/content.schema.json#/$defs/KpiBlock"
+                },
+                {
+                  "$ref": "./schemas/content.schema.json#/$defs/TableBlock"
+                },
+                {
+                  "$ref": "./schemas/content.schema.json#/$defs/ChartBlock"
+                },
+                {
+                  "$ref": "./schemas/content.schema.json#/$defs/ImageBlock"
+                },
+                {
+                  "$ref": "./schemas/content.schema.json#/$defs/CalloutBlock"
+                },
+                {
+                  "$ref": "./schemas/content.schema.json#/$defs/CardsBlock"
+                }
+              ]
+            }
+          },
+          "layout_tree": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LayoutTree"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "layout_mode": {
+            "enum": [
+              "fixed",
+              "flex"
+            ]
+          },
+          "layout_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "blocks",
+          "layout_tree"
+        ],
+        "additionalProperties": false
+      },
+      "ExecutionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "prompt_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "parameters_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "usage_missing_reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "elapsed_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "input_tokens": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "output_tokens": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "total_tokens": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "model_calls": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "tool_rounds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "usage_status": {
+            "enum": [
+              "available",
+              "partial",
+              "unavailable",
+              "not_applicable"
+            ]
+          }
+        },
+        "description": "实际调用的最小审计摘要；缺失用量省略数字并说明状态，不填假0，不含材料、提示词或机密。"
+      },
+      "ExportVerificationFailure": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "仅导出任务的PPTX_VERIFY_FAILED非重试终态可携带；passed必须false，expected_slide_count与不可变快照一致，报告不进入审计摘要或SSE。",
+        "required": [
+          "passed",
+          "issues",
+          "slide_count",
+          "expected_slide_count",
+          "diagnostics_truncated",
+          "total_issues"
+        ],
+        "properties": {
+          "passed": {
+            "const": false
+          },
+          "issues": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "check",
+                "slide_index",
+                "shape",
+                "message"
+              ],
+              "properties": {
+                "check": {
+                  "enum": [
+                    "bounds",
+                    "canvas_size",
+                    "content_integrity",
+                    "full_page_picture",
+                    "native_chart",
+                    "native_image",
+                    "native_table",
+                    "open",
+                    "page_count",
+                    "speaker_notes",
+                    "text_frame"
+                  ]
+                },
+                "slide_index": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 1,
+                  "maximum": 40
+                },
+                "shape": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 200
+                },
+                "message": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1000
+                }
+              }
+            }
+          },
+          "slide_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "expected_slide_count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40
+          },
+          "diagnostics_truncated": {
+            "type": "boolean"
+          },
+          "total_issues": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          }
+        }
+      },
+      "SampleSlideIds": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 40,
+        "propertyNames": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "additionalProperties": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": "仅样例响应提供正式页UUID到原目录样例页ID的完整映射；目录版本、页数、唯一身份和1起位置关系由中心校验，不猜测或重写质量问题。"
+      },
+      "SampleQualityResponse": {
+        "type": "object",
+        "required": [
+          "catalog_version",
+          "sample_slide_ids"
+        ],
+        "properties": {
+          "catalog_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "sample_slide_ids": {
+            "$ref": "#/components/schemas/SampleSlideIds"
+          },
+          "jobId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "job_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "can_export": {
+            "type": "boolean"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "fonts_available": {
+            "type": "boolean"
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "jobId",
+              "job_id",
+              "state",
+              "status"
+            ]
+          },
+          {
+            "required": [
+              "can_export",
+              "issues"
+            ]
+          }
+        ],
+        "description": "排队/运行接收和当前缓存报告均附两项样例元数据。异步完成后重新GET当前报告；不把任务旧output当当前缓存。辅助字段不写入普通质量、正式报告正文、任务、SSE或审计。"
+      }
+    }
+  }
+}

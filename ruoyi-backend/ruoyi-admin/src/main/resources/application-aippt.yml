@@ -1,0 +1,46 @@
+# AI 演示文稿默认不启用；启用前核定所属业务连接、DDL、私有目录和 Worker 凭据。
+# 数据源复用现有 dynamicDataSource；不新增、克隆或初始化另一套数据库。
+aippt:
+  enabled: ${AIPPT_ENABLED:false}
+  # 启用Redis通知前必须核定运行通道；只允许1–32位字母、数字、下划线或连字符，首字符须为字母或数字。
+  environment: ${AIPPT_ENVIRONMENT:}
+  redis:
+    # 主模块关闭时不连接；可单独关闭通知，任务/SSE继续使用权威DB与轮询。
+    # 此开关不关闭平台Redis；有权限的显式health请求仍执行有界只读PING。
+    enabled: ${AIPPT_REDIS_ENABLED:true}
+  catalog-path: classpath:aippt/catalog
+  catalog-version: aippt-1-90c52568ea7d
+  # 必须位于已批准的私有目录，不能放入 /profile 公开上传目录。
+  storage-path: ${AIPPT_STORAGE_PATH:}
+  # COS补偿日记需要已批准的持久私有目录；为空时只允许沿用已核定storage-path。
+  compensation-path: ${AIPPT_COMPENSATION_PATH:}
+  storage-driver: ${AIPPT_STORAGE_DRIVER:local}
+  font-manifest-hash: ${AIPPT_FONT_MANIFEST_HASH:unavailable}
+  cos:
+    bucket: ${AIPPT_COS_BUCKET:}
+    region: ${AIPPT_COS_REGION:}
+    secret-id: ${AIPPT_COS_SECRET_ID:}
+    secret-key: ${AIPPT_COS_SECRET_KEY:}
+  worker:
+    enabled: ${AIPPT_WORKER_ENABLED:false}
+    key: ${AIPPT_WORKER_KEY:}
+    lease-seconds: 60
+    max-attempts: 2
+    global-concurrency: 6
+    project-concurrency: 3
+  provider:
+    enabled: ${AIPPT_PROVIDER_ENABLED:false}
+  image:
+    # 中心与 Worker 双方显式启用后才调用外部图源，上传私有图仍可读取。
+    enabled: ${AIPPT_IMAGE_ENABLED:false}
+  migration:
+    enabled: false
+  import:
+    enabled: false
+  cleanup:
+    enabled: false
+    # 仅为设计建议值，真实环境启用清理前核定保留策略。
+    orphan-hours: 24
+    deleted-days: 7
+    export-days: 30
+    event-days: 7

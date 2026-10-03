@@ -1,0 +1,475 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.local/aippt/v1/import-manifest.schema.json",
+  "title": "离线旧数据导入清单",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha256",
+    "import_batch",
+    "catalog_version",
+    "projects",
+    "rejected",
+    "object_failures",
+    "totals",
+    "complete"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "aippt-import-1"
+    },
+    "source_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "import_batch": {
+      "type": "string",
+      "format": "uuid",
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "catalog_version": {
+      "const": "aippt-1-90c52568ea7d"
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "projects": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project",
+          "assets",
+          "audit"
+        ],
+        "properties": {
+          "project": {
+            "type": "object",
+            "description": "保留原业务及 legacy 字段；中心另校验完整块、树、引用、状态及凭据禁入。",
+            "required": [
+              "id",
+              "owner_id",
+              "legacy_owner_id",
+              "source_system",
+              "import_batch",
+              "theme_id",
+              "sources",
+              "slides",
+              "outline"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "minLength": 36,
+                "maxLength": 36
+              },
+            "owner_id": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9223372036854775807
+              },
+              "legacy_owner_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_system": {
+                "type": "string",
+                "minLength": 1
+              },
+              "import_batch": {
+                "type": "string",
+                "format": "uuid",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "theme_id": {
+                "enum": [
+                  "ivory",
+                  "midnight",
+                  "obsidian",
+                  "scholar"
+                ]
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "slides": {
+                "type": "array",
+                "maxItems": 40,
+                "items": {
+                  "type": "object"
+                }
+              },
+              "outline": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": true
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "asset_id",
+                "source_key",
+                "path",
+                "sha256",
+                "size",
+                "mime",
+                "url"
+              ],
+              "properties": {
+                "asset_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "minLength": 36,
+                  "maxLength": 36
+                },
+                "source_key": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 104857600
+                },
+                "mime": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "url": {
+                  "type": "string",
+                  "pattern": "^/aippt/assets/[a-f0-9-]{36}$"
+                }
+              }
+            }
+          },
+          "audit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sources",
+              "sections",
+              "slides",
+              "blocks",
+              "slide_order",
+              "locked_blocks",
+              "referenced_assets",
+              "legacy_ref_map"
+            ],
+            "properties": {
+              "sources": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sections": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "slides": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "blocks": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "referenced_assets": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "slide_order": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              },
+              "locked_blocks": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "legacy_ref_map": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "format": "uuid",
+                  "minLength": 36,
+                  "maxLength": 36
+                }
+              },
+              "field_preservation": {
+                "$ref": "#/$defs/FieldPreservation"
+              },
+              "structure_issues": {
+                "type": "array",
+                "description": "保留源页面的容量和溢出警告；非法结构仍阻止完整准备，不改写正文。",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["severity", "slide_id", "slot_id", "message"],
+                  "properties": {
+                    "severity": {"enum": ["warning", "error"]},
+                    "slide_id": {"type": "string"},
+                    "slot_id": {"type": ["string", "null"]},
+                    "message": {"type": "string"},
+                    "code": {"type": ["string", "null"]}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rejected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "reasons"
+        ],
+        "properties": {
+          "project_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reasons": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "field_preservation": {
+            "$ref": "#/$defs/FieldPreservation"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "object_failures": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "totals": {
+      "type": "object",
+      "required": [
+        "projects",
+        "sources",
+        "sections",
+        "slides",
+        "blocks",
+        "assets"
+      ],
+      "properties": {
+        "projects": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sources": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sections": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "slides": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "assets": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "manual_review_required": {
+      "const": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "complete": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "projects": {
+            "minItems": 1
+          },
+          "rejected": {
+            "maxItems": 0
+          },
+          "object_failures": {
+            "maxProperties": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "FieldPreservation": {
+      "type": "object",
+      "required": [
+        "passed",
+        "checked_fields",
+        "checks",
+        "expected_transforms",
+        "asset_checks",
+        "manual_review_required"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "checked_fields": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "source_sha256",
+              "prepared_sha256",
+              "preserved"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "source_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "prepared_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "preserved": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "expected_transforms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "source_sha256",
+              "prepared_sha256",
+              "preserved",
+              "reason"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "source_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "prepared_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "preserved": {
+                "type": "boolean"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "asset_checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "source_key",
+              "field",
+              "preserved"
+            ],
+            "properties": {
+              "source_key": {
+                "type": "string"
+              },
+              "field": {
+                "enum": [
+                  "sha256",
+                  "size",
+                  "mime"
+                ]
+              },
+              "preserved": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "manual_review_required": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

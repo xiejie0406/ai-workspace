@@ -1,0 +1,28 @@
+# 原 React 同源静态目录接入候选，尚未应用到服务器。
+# 放入已有平台 server 内，继承其指向当前 admin dist 的 root。
+# 此正则须在已有通用静态扩展名正则前；合入实际配置后先执行 nginx -t。
+# 保留平台现有 /prod-api、认证、SSE、私有资产代理与其他项目 location。
+
+location = /aippt-web {
+    return 302 /aippt-web/$is_args$args;
+}
+
+location = /aippt-web/ {
+    try_files /aippt-web/index.html =404;
+    add_header Cache-Control "no-cache";
+}
+
+# 只有原业务 HTML 路径返回 React index，未知文件不能返回平台 index。
+location ~ ^/aippt-web/(?:projects(?:/[^/.]+)?|create|login)/?$ {
+    try_files /aippt-web/index.html =404;
+    add_header Cache-Control "no-cache";
+}
+
+location = /aippt-web/index.html {
+    try_files $uri =404;
+    add_header Cache-Control "no-cache";
+}
+
+location /aippt-web/ {
+    try_files $uri =404;
+}

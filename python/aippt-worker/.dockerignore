@@ -1,0 +1,36 @@
+# 默认拒绝整个上下文；只发送构建定义、锁文件、算法 Python 和两份固定语料。
+**
+!Dockerfile
+!.dockerignore
+!requirements.lock
+
+# 先保留 COPY 的根目录，再拒绝内部任意文件，只恢复 Python 源码。
+!app/
+app/**
+!app/**/*.py
+
+!regression/
+regression/**
+!regression/corpus/
+regression/corpus/**
+!regression/corpus/full.json
+!regression/corpus/short.json
+
+# 后置拒绝规则也作用于允许目录内部，不发送私有配置、缓存或资源。
+**/.env*
+**/.venv
+**/__pycache__
+**/*.py[cod]
+**/var
+**/fonts
+**/catalog
+**/secrets
+**/.secrets
+**/credentials
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/_reference
+**/reference
+**/upstream

@@ -1,0 +1,148 @@
+✖ React 深链保留项目、查询和定位，工具不承担页面权限 (4.0522ms)
+✔ 拒绝外站、路径逃逸、反斜线、控制字符和 URL 凭证 (2.4326ms)
+✖ 登录回跳合并非凭证参数，保留原深链 hash 与重复参数 (0.3502ms)
+✖ 实际登录成功分支直接整页返回 React，不进入 VueRouter 或薄页 (18.0523ms)
+✔ 其他实际登录导航保持原 path/query 行为，失败不回跳 (7.6218ms)
+✖ 外链菜单候选须显式核定同源地址，不依赖薄页或改角色授权 (2.7018ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 2
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 190.3399
+
+✖ failing tests:
+
+test at frontend\admin-web\tests\unit\aippt-entry.test.mjs:33:1
+✖ React 深链保留项目、查询和定位，工具不承担页面权限 (4.0522ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///D:/2025Ai/26-05-23/java-workspace/frontend/admin-web/tests/unit/aippt-entry.test.mjs:35:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at frontend\admin-web\tests\unit\aippt-entry.test.mjs:50:1
+✖ 登录回跳合并非凭证参数，保留原深链 hash 与重复参数 (0.3502ms)
+  TypeError: reactReturn.resolveAipptLoginReturnTo is not a function
+      at TestContext.<anonymous> (file:///D:/2025Ai/26-05-23/java-workspace/frontend/admin-web/tests/unit/aippt-entry.test.mjs:51:28)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+
+test at frontend\admin-web\tests\unit\aippt-entry.test.mjs:64:1
+✖ 实际登录成功分支直接整页返回 React，不进入 VueRouter 或薄页 (18.0523ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     path: '/aippt-web/projects/1a33de39-37f9-4482-ae6b-41a4c6c9c22e?panel=export#slide-3',
+  +     query: {
+  +       from: 'login'
+  +     }
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///D:/2025Ai/26-05-23/java-workspace/frontend/admin-web/tests/unit/aippt-entry.test.mjs:67:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { path: '/aippt-web/projects/1a33de39-37f9-4482-ae6b-41a4c6c9c22e?panel=export#slide-3', query: [Object] } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at frontend\admin-web\tests\unit\aippt-entry.test.mjs:85:1
+✖ 外链菜单候选须显式核定同源地址，不依赖薄页或改角色授权 (2.7018ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /SET @aippt_public_origin\s*=\s*NULL;/. Input:
+  
+  '-- AI 演示文稿菜单增量：只生成脚本，不自动执行；不创建/授权账号，不写 sys_role_menu。\r\n' +
+    '\r\n' +
+    '-- sys_menu 自增ID避免碰撞；按路径和权限幂等；执行前审核已有 aippt 路径与角色范围。\r\n' +
+    '\r\n' +
+    'START TRANSACTION;\r\n' +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT 'AI 演示文稿',0,35,'aippt',NULL,'','Aippt',1,0,'M','0','0','','education','migration',NOW(),'AI演示文稿若依入口' WHERE NOT EXISTS(SELECT 1 FROM sys_menu WHERE parent_id=0 AND path='aippt');\r\n" +
+    '\r\n' +
+    "SET @aippt_root=(SELECT menu_id FROM sys_menu WHERE parent_id=0 AND path='aippt' AND menu_type='M' ORDER BY menu_id LIMIT 1);\r\n" +
+    '\r\n' +
+    `INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '我的演示文稿',@aippt_root,1,'projects','aippt-entry/index','{"returnTo":"/aippt-web/projects"}','AipptProjects',1,0,'C','0','0','aippt:project:list','list','migration',NOW(),'原React工作台若依权限入口' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE parent_id=@aippt_root AND path='projects');\r\n` +
+    '\r\n' +
+    `INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '新建演示文稿',@aippt_root,2,'create','aippt-entry/index','{"returnTo":"/aippt-web/create"}','AipptCreate',1,0,'C','1','0','aippt:project:add','list','migration',NOW(),'原React工作台若依权限入口' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE parent_id=@aippt_root AND path='create');\r\n` +
+    '\r\n' +
+    '\r\n' +
+    '\r\n' +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '查看项目',@aippt_root,101,'',NULL,'','',1,0,'F','1','0','aippt:project:query','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:query');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '新增项目',@aippt_root,102,'',NULL,'','',1,0,'F','1','0','aippt:project:add','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:add');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '修改项目',@aippt_root,103,'',NULL,'','',1,0,'F','1','0','aippt:project:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:edit');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '删除项目',@aippt_root,104,'',NULL,'','',1,0,'F','1','0','aippt:project:remove','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:remove');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '管理他人项目',@aippt_root,105,'',NULL,'','',1,0,'F','1','0','aippt:project:manage','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:manage');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '查看材料',@aippt_root,106,'',NULL,'','',1,0,'F','1','0','aippt:source:query','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:source:query');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '添加材料',@aippt_root,107,'',NULL,'','',1,0,'F','1','0','aippt:source:add','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:source:add');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '删除材料',@aippt_root,108,'',NULL,'','',1,0,'F','1','0','aippt:source:remove','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:source:remove');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '查看提纲',@aippt_root,109,'',NULL,'','',1,0,'F','1','0','aippt:outline:query','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:outline:query');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '生成提纲',@aippt_root,110,'',NULL,'','',1,0,'F','1','0','aippt:outline:generate','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:outline:generate');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '编辑提纲',@aippt_root,111,'',NULL,'','',1,0,'F','1','0','aippt:outline:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:outline:edit');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '确认提纲',@aippt_root,112,'',NULL,'','',1,0,'F','1','0','aippt:outline:confirm','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:outline:confirm');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '查看页面',@aippt_root,113,'',NULL,'','',1,0,'F','1','0','aippt:deck:query','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:deck:query');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '生成页面',@aippt_root,114,'',NULL,'','',1,0,'F','1','0','aippt:deck:generate','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:deck:generate');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '取消生成',@aippt_root,115,'',NULL,'','',1,0,'F','1','0','aippt:deck:cancel','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:deck:cancel');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '编辑页面',@aippt_root,116,'',NULL,'','',1,0,'F','1','0','aippt:slide:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:slide:edit');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '编辑主题',@aippt_root,117,'',NULL,'','',1,0,'F','1','0','aippt:theme:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:theme:edit');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT 'AI修改',@aippt_root,118,'',NULL,'','',1,0,'F','1','0','aippt:ai:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:ai:edit');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '上传图片',@aippt_root,119,'',NULL,'','',1,0,'F','1','0','aippt:image:upload','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:image:upload');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '质量检查',@aippt_root,120,'',NULL,'','',1,0,'F','1','0','aippt:export:check','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:export:check');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '创建导出',@aippt_root,121,'',NULL,'','',1,0,'F','1','0','aippt:export:create','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:export:create');\r\n" +
+    '\r\n' +
+    "INSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '下载导出',@aippt_root,122,'',NULL,'','',1,0,'F','1','0','aippt:export:downlo"... 1705 more characters
+  
+      at TestContext.<anonymous> (file:///D:/2025Ai/26-05-23/java-workspace/frontend/admin-web/tests/unit/aippt-entry.test.mjs:87:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `-- AI 演示文稿菜单增量：只生成脚本，不自动执行；不创建/授权账号，不写 sys_role_menu。\r\n\r\n-- sys_menu 自增ID避免碰撞；按路径和权限幂等；执行前审核已有 aippt 路径与角色范围。\r\n\r\nSTART TRANSACTION;\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT 'AI 演示文稿',0,35,'aippt',NULL,'','Aippt',1,0,'M','0','0','','education','migration',NOW(),'AI演示文稿若依入口' WHERE NOT EXISTS(SELECT 1 FROM sys_menu WHERE parent_id=0 AND path='aippt');\r\n\r\nSET @aippt_root=(SELECT menu_id FROM sys_menu WHERE parent_id=0 AND path='aippt' AND menu_type='M' ORDER BY menu_id LIMIT 1);\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '我的演示文稿',@aippt_root,1,'projects','aippt-entry/index','{"returnTo":"/aippt-web/projects"}','AipptProjects',1,0,'C','0','0','aippt:project:list','list','migration',NOW(),'原React工作台若依权限入口' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE parent_id=@aippt_root AND path='projects');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '新建演示文稿',@aippt_root,2,'create','aippt-entry/index','{"returnTo":"/aippt-web/create"}','AipptCreate',1,0,'C','1','0','aippt:project:add','list','migration',NOW(),'原React工作台若依权限入口' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE parent_id=@aippt_root AND path='create');\r\n\r\n\r\n\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '查看项目',@aippt_root,101,'',NULL,'','',1,0,'F','1','0','aippt:project:query','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:query');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '新增项目',@aippt_root,102,'',NULL,'','',1,0,'F','1','0','aippt:project:add','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:add');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '修改项目',@aippt_root,103,'',NULL,'','',1,0,'F','1','0','aippt:project:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:edit');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '删除项目',@aippt_root,104,'',NULL,'','',1,0,'F','1','0','aippt:project:remove','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:remove');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '管理他人项目',@aippt_root,105,'',NULL,'','',1,0,'F','1','0','aippt:project:manage','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:project:manage');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '查看材料',@aippt_root,106,'',NULL,'','',1,0,'F','1','0','aippt:source:query','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:source:query');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '添加材料',@aippt_root,107,'',NULL,'','',1,0,'F','1','0','aippt:source:add','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:source:add');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '删除材料',@aippt_root,108,'',NULL,'','',1,0,'F','1','0','aippt:source:remove','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:source:remove');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '查看提纲',@aippt_root,109,'',NULL,'','',1,0,'F','1','0','aippt:outline:query','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:outline:query');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '生成提纲',@aippt_root,110,'',NULL,'','',1,0,'F','1','0','aippt:outline:generate','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:outline:generate');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '编辑提纲',@aippt_root,111,'',NULL,'','',1,0,'F','1','0','aippt:outline:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:outline:edit');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '确认提纲',@aippt_root,112,'',NULL,'','',1,0,'F','1','0','aippt:outline:confirm','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:outline:confirm');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '查看页面',@aippt_root,113,'',NULL,'','',1,0,'F','1','0','aippt:deck:query','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:deck:query');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '生成页面',@aippt_root,114,'',NULL,'','',1,0,'F','1','0','aippt:deck:generate','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:deck:generate');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '取消生成',@aippt_root,115,'',NULL,'','',1,0,'F','1','0','aippt:deck:cancel','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:deck:cancel');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '编辑页面',@aippt_root,116,'',NULL,'','',1,0,'F','1','0','aippt:slide:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:slide:edit');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '编辑主题',@aippt_root,117,'',NULL,'','',1,0,'F','1','0','aippt:theme:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:theme:edit');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT 'AI修改',@aippt_root,118,'',NULL,'','',1,0,'F','1','0','aippt:ai:edit','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:ai:edit');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '上传图片',@aippt_root,119,'',NULL,'','',1,0,'F','1','0','aippt:image:upload','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:image:upload');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '质量检查',@aippt_root,120,'',NULL,'','',1,0,'F','1','0','aippt:export:check','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:export:check');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '创建导出',@aippt_root,121,'',NULL,'','',1,0,'F','1','0','aippt:export:create','#','migration',NOW(),'AI演示文稿操作权限' WHERE @aippt_root IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys_menu WHERE perms='aippt:export:create');\r\n\r\nINSERT INTO sys_menu(menu_name,parent_id,order_num,path,component,query,route_name,is_frame,is_cache,menu_type,visible,status,perms,icon,create_by,create_time,remark) SELECT '下载导出',@aippt_root,122,'',NULL,'','',1,0,'F','1','0','aippt:export:downlo`... 1705 more characters,
+    expected: /SET @aippt_public_origin\s*=\s*NULL;/,
+    operator: 'match',
+    diff: 'simple'
+  }

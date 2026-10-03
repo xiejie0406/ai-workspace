@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>办公软件兼容性技术检查：部分完成</title>
+<style>body{font-family:system-ui,sans-serif;margin:0;background:#f5f6f8;color:#172033;line-height:1.65}main{max-width:1160px;margin:auto;padding:28px}h1{font-size:28px;line-height:1.35}h2{margin-top:32px}h3{font-size:20px}section,.notice{background:white;padding:18px 22px;border:1px solid #dde2e8;margin:18px 0;border-radius:6px}.notice{border-left:5px solid #bb6200}table{border-collapse:collapse;width:100%;background:white;font-size:14px}th,td{border:1px solid #dbe0e7;padding:10px;text-align:left;vertical-align:top}th{background:#edf0f5}.ok{color:#1b6b3f}.fail{color:#a51e1e;font-weight:600}.pending{color:#805300}pre{white-space:pre-wrap;word-break:break-word;background:#f2f4f7;padding:12px;font-size:13px}a{color:#175bae}.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}figure{margin:0}img{width:100%;height:auto;display:block;border:1px solid #ddd}figcaption{font-size:13px;color:#526075;margin:5px 0}details{margin:12px 0}summary{cursor:pointer}@media(max-width:760px){main{padding:14px}.gallery{grid-template-columns:1fr}table{font-size:12px}}body{overflow-wrap:anywhere}code{word-break:break-all}</style></head>
+<body><main><h1>办公软件兼容性技术检查：部分完成</h1>
+<div class="notice"><p><strong>七项计划中，五项有界面编辑记录，四项新值已进入保存副本。</strong>第16页柱状图的主PPTX缓存和内嵌工作簿仍为 27.25，未达到 127.25 的保存后预期；第27、38页未执行，原值保留。</p><p>WPS Office 12.1.0.28505；合成四十页材料；字体保持 estimate。本报告不是 PowerPoint 兼容性证明，也不是41项真实业务验收通过。没有恢复 ComputerUse、补点保存、改写PPTX或连接中心/Provider。</p></div>
+<p>读取时间（UTC）：2026-10-02T23:57:32.977076+00:00。副本 SHA256：<code>60c4e37cdee2f4f36b170c280d3f2b869cebc885d6f89e926c0a580bf636d769</code>；本次读取期间字节稳定：True。</p>
+<p><a href="操作前独立预期.json">操作前独立预期</a> · <a href="实际操作记录.json">实际界面操作记录</a> · <a href="WPS副本离线语义核对-实际.json">完整技术回读JSON</a> · <a href="WPS副本离线语义核对.py">独立只读核对脚本</a> · <a href="WPS原生编辑检查副本.pptx">WPS实际保存副本</a> · <a href="../四十页可编辑核对样本.pptx">未修改原样本</a> · <a href="../四十页输入预期.json">独立输入预期</a></p>
+<h2>七项计划的实际执行与保存</h2><table><thead><tr><th>顺序</th><th>操作</th><th>实际执行</th><th>保存回读判定</th><th>保存文件中的内容</th></tr></thead><tbody><tr><td>1</td><td>第 1 页文字</td><td>有实际界面编辑记录</td><td class="ok">已编辑，保存副本可回读新值</td><td>原眉题出现 0 次，新眉题出现 1 次</td></tr><tr><td>2</td><td>第 10 页表格</td><td>有实际界面编辑记录</td><td class="ok">已编辑，保存副本可回读新值</td><td>第 2 行第 2 列 = 456.75</td></tr><tr><td>3</td><td>第 5 页图表数据</td><td>有实际界面编辑记录</td><td class="ok">已编辑，保存副本可回读新值</td><td>缓存 116.25；内嵌 Sheet1!B2 = 116.25</td></tr><tr><td>4</td><td>第 16 页图表数据</td><td>有实际界面编辑记录</td><td class="fail">界面编辑有记录；保存副本仍为原值</td><td>缓存 27.25；内嵌 Sheet1!B2 = 27.25</td></tr><tr><td>5</td><td>第 27 页图表数据</td><td>没有执行记录，保持未执行</td><td class="pending">未执行；保存副本原值保留</td><td>缓存 38.25；内嵌 Sheet1!B2 = 38.25</td></tr><tr><td>6</td><td>第 38 页图表数据</td><td>没有执行记录，保持未执行</td><td class="pending">未执行；保存副本原值保留</td><td>缓存 49.25；内嵌 Sheet1!B2 = 49.25</td></tr><tr><td>7</td><td>第 1 页演讲备注</td><td>有实际界面编辑记录</td><td class="ok">已编辑，保存副本可回读新值</td><td>原三段备注保留，第四段为 Office备注核对01</td></tr></tbody></table>
+<h2>四十页内容保留核账</h2><section><p>共 255 个技术断言，253 个符合，2 个不符合；两个不符合均属于第16页新值尚未进入保存副本，不能把它们改记为通过，也不能据此判断最终保存后的WPS编辑能力。</p>
+<ul><li>40页数量、关系页序和40个独立标题保留；121个非空原生文本框按逐页完整段落文本 multiset 比较，仅第1页眉题作计划中的单一替换。</li><li>全部3张原生表格的每一格核对；第10页第2行第2列为 456.75，其他格值保留。</li><li>四张原生图表仍在，类别与全部系列核对；全部缓存与内嵌XLSX范围实值一致。P5 为116.25；P16仍27.25；P27/P38仍38.25/49.25。完整工作表非空格值未见其他变化。</li><li>40页演讲备注原段落精确保留，只有第1页按计划追加第四段。每页原生shape数量与原样本一致：True；共458个原生shape，3表、4图，0个图片shape及0个图像引用。</li><li>原样本、独立输入、原始快照、事前预期和操作记录哈希保持。本脚本只对一次内存快照解析，再核副本读取期间的字节稳定。</li></ul>
+<p>以上证明包内原生内容与保存实值。没有核定字体/样式/精确像素、图表视觉轴线、裁剪或打印表现；WPS可能正规化run、shape名称和part名称，脚本按关系与内容核对，不要求格式字节保持。</p></section>
+<h2>保留的不符合项</h2><ul><li>第 16 页：图表类型类别系列及全部缓存数值。<a href="WPS副本离线语义核对-实际.json">查看实值与独立预期</a></li><li>第 16 页：内嵌工作簿全部非空格值。<a href="WPS副本离线语义核对-实际.json">查看实值与独立预期</a></li></ul>
+<h2>实际截图与逐项记录</h2><p>这些链接只指向已存在的实际截图。截图回读由根执行者完成；本脚本没有重新操作或渲染界面。图表工作簿截图焦点/鼠标可能遮挡目标格，最终判定采用已保存PPTX中的缓存和内嵌工作簿实值。</p><section><h3>1．第 1 页文字</h3><p class="ok">已编辑，保存副本可回读新值。原眉题出现 0 次，新眉题出现 1 次。</p><details><summary>事前预期及保存实值</summary><pre>{
+  &quot;before&quot;: &quot;年度业务复盘&quot;,
+  &quot;after&quot;: &quot;Office复核01&quot;,
+  &quot;actual&quot;: {
+    &quot;before_count&quot;: 0,
+    &quot;after_count&quot;: 1
+  }
+}</pre></details><div class="gallery"><figure><a href="文字编辑前.png"><img src="文字编辑前.png" alt="文字编辑前.png" loading="lazy"></a><figcaption>文字编辑前.png</figcaption></figure><figure><a href="文字编辑后.png"><img src="文字编辑后.png" alt="文字编辑后.png" loading="lazy"></a><figcaption>文字编辑后.png</figcaption></figure></div></section><section><h3>2．第 10 页表格</h3><p class="ok">已编辑，保存副本可回读新值。第 2 行第 2 列 = 456.75。</p><details><summary>事前预期及保存实值</summary><pre>{
+  &quot;before&quot;: &quot;123.50&quot;,
+  &quot;after&quot;: &quot;456.75&quot;,
+  &quot;actual&quot;: {
+    &quot;cell&quot;: &quot;456.75&quot;
+  }
+}</pre></details><div class="gallery"><figure><a href="表格编辑前.jpg"><img src="表格编辑前.jpg" alt="表格编辑前.jpg" loading="lazy"></a><figcaption>表格编辑前.jpg</figcaption></figure><figure><a href="表格编辑后.jpg"><img src="表格编辑后.jpg" alt="表格编辑后.jpg" loading="lazy"></a><figcaption>表格编辑后.jpg</figcaption></figure></div></section><section><h3>3．第 5 页图表数据</h3><p class="ok">已编辑，保存副本可回读新值。缓存 116.25；内嵌 Sheet1!B2 = 116.25。</p><details><summary>事前预期及保存实值</summary><pre>{
+  &quot;before&quot;: 16.25,
+  &quot;after&quot;: 116.25,
+  &quot;actual&quot;: {
+    &quot;cache&quot;: &quot;116.25&quot;,
+    &quot;embedded_cell&quot;: {
+      &quot;kind&quot;: &quot;number&quot;,
+      &quot;value&quot;: &quot;116.25&quot;
+    },
+    &quot;chart_part&quot;: &quot;ppt/charts/chart1.xml&quot;,
+    &quot;workbook_part&quot;: &quot;ppt/embeddings/Workbook1.xlsx&quot;
+  }
+}</pre></details><div class="gallery"><figure><a href="横条图编辑前.jpg"><img src="横条图编辑前.jpg" alt="横条图编辑前.jpg" loading="lazy"></a><figcaption>横条图编辑前.jpg</figcaption></figure><figure><a href="横条图数据编辑前.jpg"><img src="横条图数据编辑前.jpg" alt="横条图数据编辑前.jpg" loading="lazy"></a><figcaption>横条图数据编辑前.jpg</figcaption></figure><figure><a href="横条图数据编辑后.jpg"><img src="横条图数据编辑后.jpg" alt="横条图数据编辑后.jpg" loading="lazy"></a><figcaption>横条图数据编辑后.jpg</figcaption></figure><figure><a href="横条图编辑后.jpg"><img src="横条图编辑后.jpg" alt="横条图编辑后.jpg" loading="lazy"></a><figcaption>横条图编辑后.jpg</figcaption></figure></div></section><section><h3>4．第 16 页图表数据</h3><p class="fail">界面编辑有记录；保存副本仍为原值。缓存 27.25；内嵌 Sheet1!B2 = 27.25。</p><details><summary>事前预期及保存实值</summary><pre>{
+  &quot;before&quot;: 27.25,
+  &quot;after&quot;: 127.25,
+  &quot;actual&quot;: {
+    &quot;cache&quot;: &quot;27.25&quot;,
+    &quot;embedded_cell&quot;: {
+      &quot;kind&quot;: &quot;number&quot;,
+      &quot;value&quot;: &quot;27.25&quot;
+    },
+    &quot;chart_part&quot;: &quot;ppt/charts/chart2.xml&quot;,
+    &quot;workbook_part&quot;: &quot;ppt/embeddings/Workbook2.xlsx&quot;
+  }
+}</pre></details><div class="gallery"><figure><a href="柱状图编辑前.jpg"><img src="柱状图编辑前.jpg" alt="柱状图编辑前.jpg" loading="lazy"></a><figcaption>柱状图编辑前.jpg</figcaption></figure><figure><a href="柱状图数据编辑前.jpg"><img src="柱状图数据编辑前.jpg" alt="柱状图数据编辑前.jpg" loading="lazy"></a><figcaption>柱状图数据编辑前.jpg</figcaption></figure><figure><a href="柱状图数据编辑后.jpg"><img src="柱状图数据编辑后.jpg" alt="柱状图数据编辑后.jpg" loading="lazy"></a><figcaption>柱状图数据编辑后.jpg</figcaption></figure></div></section><section><h3>5．第 27 页图表数据</h3><p class="pending">未执行；保存副本原值保留。缓存 38.25；内嵌 Sheet1!B2 = 38.25。</p><details><summary>事前预期及保存实值</summary><pre>{
+  &quot;before&quot;: 38.25,
+  &quot;after&quot;: 138.25,
+  &quot;actual&quot;: {
+    &quot;cache&quot;: &quot;38.25&quot;,
+    &quot;embedded_cell&quot;: {
+      &quot;kind&quot;: &quot;number&quot;,
+      &quot;value&quot;: &quot;38.25&quot;
+    },
+    &quot;chart_part&quot;: &quot;ppt/charts/chart3.xml&quot;,
+    &quot;workbook_part&quot;: &quot;ppt/embeddings/Workbook3.xlsx&quot;
+  }
+}</pre></details><p>该项未执行，没有编辑后的实际截图，不计通过。</p></section><section><h3>6．第 38 页图表数据</h3><p class="pending">未执行；保存副本原值保留。缓存 49.25；内嵌 Sheet1!B2 = 49.25。</p><details><summary>事前预期及保存实值</summary><pre>{
+  &quot;before&quot;: 49.25,
+  &quot;after&quot;: 149.25,
+  &quot;actual&quot;: {
+    &quot;cache&quot;: &quot;49.25&quot;,
+    &quot;embedded_cell&quot;: {
+      &quot;kind&quot;: &quot;number&quot;,
+      &quot;value&quot;: &quot;49.25&quot;
+    },
+    &quot;chart_part&quot;: &quot;ppt/charts/chart4.xml&quot;,
+    &quot;workbook_part&quot;: &quot;ppt/embeddings/Workbook4.xlsx&quot;
+  }
+}</pre></details><p>该项未执行，没有编辑后的实际截图，不计通过。</p></section><section><h3>7．第 1 页演讲备注</h3><p class="ok">已编辑，保存副本可回读新值。原三段备注保留，第四段为 Office备注核对01。</p><details><summary>事前预期及保存实值</summary><pre>{
+  &quot;before&quot;: &quot;验收第01页独立备注。\nSpeaker note 01: preserve editable objects.\n中文、English、emoji 🙂🚀；仅离线样本，未执行业务验收。&quot;,
+  &quot;after&quot;: &quot;验收第01页独立备注。\nSpeaker note 01: preserve editable objects.\n中文、English、emoji 🙂🚀；仅离线样本，未执行业务验收。\nOffice备注核对01&quot;,
+  &quot;actual&quot;: {
+    &quot;paragraphs&quot;: [
+      &quot;验收第01页独立备注。&quot;,
+      &quot;Speaker note 01: preserve editable objects.&quot;,
+      &quot;中文、English、emoji 🙂🚀；仅离线样本，未执行业务验收。&quot;,
+      &quot;Office备注核对01&quot;
+    ]
+  }
+}</pre></details><div class="gallery"><figure><a href="备注编辑后.jpg"><img src="备注编辑后.jpg" alt="备注编辑后.jpg" loading="lazy"></a><figcaption>备注编辑后.jpg</figcaption></figure></div></section>
+<h2>四图数据的独立回读明细</h2><details><summary>第 5 页 bar：类别、系列、缓存及内嵌格值</summary><pre>{
+  &quot;chart_part&quot;: &quot;ppt/charts/chart1.xml&quot;,
+  &quot;workbook_part&quot;: &quot;ppt/embeddings/Workbook1.xlsx&quot;,
+  &quot;series&quot;: [
+    {
+      &quot;name&quot;: &quot;Series 05 A&quot;,
+      &quot;categories&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;values&quot;: [
+        &quot;116.25&quot;,
+        &quot;27.5&quot;,
+        &quot;38.75&quot;
+      ]
+    },
+    {
+      &quot;name&quot;: &quot;Series 05 B&quot;,
+      &quot;categories&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;values&quot;: [
+        &quot;13&quot;,
+        &quot;20&quot;,
+        &quot;24&quot;
+      ]
+    }
+  ],
+  &quot;workbook&quot;: {
+    &quot;Sheet1&quot;: {
+      &quot;B1&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;Series 05 A&quot;
+      },
+      &quot;C1&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;Series 05 B&quot;
+      },
+      &quot;A2&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;甲A&quot;
+      },
+      &quot;B2&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;116.25&quot;
+      },
+      &quot;C2&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;13&quot;
+      },
+      &quot;A3&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;乙B&quot;
+      },
+      &quot;B3&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;27.5&quot;
+      },
+      &quot;C3&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;20&quot;
+      },
+      &quot;A4&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;丙C&quot;
+      },
+      &quot;B4&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;38.75&quot;
+      },
+      &quot;C4&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;24&quot;
+      }
+    }
+  },
+  &quot;cache_workbook_checks&quot;: [
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;name&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$B$1&quot;,
+      &quot;cache&quot;: [
+        &quot;Series 05 A&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;Series 05 A&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;categories&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$A$2:$A$4&quot;,
+      &quot;cache&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;values&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$B$2:$B$4&quot;,
+      &quot;cache&quot;: [
+        &quot;116.25&quot;,
+        &quot;27.5&quot;,
+        &quot;38.75&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;116.25&quot;,
+        &quot;27.5&quot;,
+        &quot;38.75&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;name&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$C$1&quot;,
+      &quot;cache&quot;: [
+        &quot;Series 05 B&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;Series 05 B&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;categories&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$A$2:$A$4&quot;,
+      &quot;cache&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;values&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$C$2:$C$4&quot;,
+      &quot;cache&quot;: [
+        &quot;13&quot;,
+        &quot;20&quot;,
+        &quot;24&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;13&quot;,
+        &quot;20&quot;,
+        &quot;24&quot;
+      ],
+      &quot;matches&quot;: true
+    }
+  ]
+}</pre></details><details><summary>第 16 页 column：类别、系列、缓存及内嵌格值</summary><pre>{
+  &quot;chart_part&quot;: &quot;ppt/charts/chart2.xml&quot;,
+  &quot;workbook_part&quot;: &quot;ppt/embeddings/Workbook2.xlsx&quot;,
+  &quot;series&quot;: [
+    {
+      &quot;name&quot;: &quot;Series 16 A&quot;,
+      &quot;categories&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;values&quot;: [
+        &quot;27.25&quot;,
+        &quot;38.5&quot;,
+        &quot;49.75&quot;
+      ]
+    },
+    {
+      &quot;name&quot;: &quot;Series 16 B&quot;,
+      &quot;categories&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;values&quot;: [
+        &quot;24&quot;,
+        &quot;31&quot;,
+        &quot;35&quot;
+      ]
+    }
+  ],
+  &quot;workbook&quot;: {
+    &quot;Sheet1&quot;: {
+      &quot;B1&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;Series 16 A&quot;
+      },
+      &quot;C1&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;Series 16 B&quot;
+      },
+      &quot;A2&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;甲A&quot;
+      },
+      &quot;B2&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;27.25&quot;
+      },
+      &quot;C2&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;24&quot;
+      },
+      &quot;A3&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;乙B&quot;
+      },
+      &quot;B3&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;38.5&quot;
+      },
+      &quot;C3&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;31&quot;
+      },
+      &quot;A4&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;丙C&quot;
+      },
+      &quot;B4&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;49.75&quot;
+      },
+      &quot;C4&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;35&quot;
+      }
+    }
+  },
+  &quot;cache_workbook_checks&quot;: [
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;name&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$B$1&quot;,
+      &quot;cache&quot;: [
+        &quot;Series 16 A&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;Series 16 A&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;categories&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$A$2:$A$4&quot;,
+      &quot;cache&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;values&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$B$2:$B$4&quot;,
+      &quot;cache&quot;: [
+        &quot;27.25&quot;,
+        &quot;38.5&quot;,
+        &quot;49.75&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;27.25&quot;,
+        &quot;38.5&quot;,
+        &quot;49.75&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;name&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$C$1&quot;,
+      &quot;cache&quot;: [
+        &quot;Series 16 B&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;Series 16 B&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;categories&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$A$2:$A$4&quot;,
+      &quot;cache&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;values&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$C$2:$C$4&quot;,
+      &quot;cache&quot;: [
+        &quot;24&quot;,
+        &quot;31&quot;,
+        &quot;35&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;24&quot;,
+        &quot;31&quot;,
+        &quot;35&quot;
+      ],
+      &quot;matches&quot;: true
+    }
+  ]
+}</pre></details><details><summary>第 27 页 line：类别、系列、缓存及内嵌格值</summary><pre>{
+  &quot;chart_part&quot;: &quot;ppt/charts/chart3.xml&quot;,
+  &quot;workbook_part&quot;: &quot;ppt/embeddings/Workbook3.xlsx&quot;,
+  &quot;series&quot;: [
+    {
+      &quot;name&quot;: &quot;Series 27 A&quot;,
+      &quot;categories&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;values&quot;: [
+        &quot;38.25&quot;,
+        &quot;49.5&quot;,
+        &quot;60.75&quot;
+      ]
+    },
+    {
+      &quot;name&quot;: &quot;Series 27 B&quot;,
+      &quot;categories&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;values&quot;: [
+        &quot;35&quot;,
+        &quot;42&quot;,
+        &quot;46&quot;
+      ]
+    }
+  ],
+  &quot;workbook&quot;: {
+    &quot;Sheet1&quot;: {
+      &quot;B1&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;Series 27 A&quot;
+      },
+      &quot;C1&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;Series 27 B&quot;
+      },
+      &quot;A2&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;甲A&quot;
+      },
+      &quot;B2&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;38.25&quot;
+      },
+      &quot;C2&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;35&quot;
+      },
+      &quot;A3&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;乙B&quot;
+      },
+      &quot;B3&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;49.5&quot;
+      },
+      &quot;C3&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;42&quot;
+      },
+      &quot;A4&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;丙C&quot;
+      },
+      &quot;B4&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;60.75&quot;
+      },
+      &quot;C4&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;46&quot;
+      }
+    }
+  },
+  &quot;cache_workbook_checks&quot;: [
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;name&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$B$1&quot;,
+      &quot;cache&quot;: [
+        &quot;Series 27 A&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;Series 27 A&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;categories&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$A$2:$A$4&quot;,
+      &quot;cache&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;values&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$B$2:$B$4&quot;,
+      &quot;cache&quot;: [
+        &quot;38.25&quot;,
+        &quot;49.5&quot;,
+        &quot;60.75&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;38.25&quot;,
+        &quot;49.5&quot;,
+        &quot;60.75&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;name&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$C$1&quot;,
+      &quot;cache&quot;: [
+        &quot;Series 27 B&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;Series 27 B&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;categories&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$A$2:$A$4&quot;,
+      &quot;cache&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 1,
+      &quot;field&quot;: &quot;values&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$C$2:$C$4&quot;,
+      &quot;cache&quot;: [
+        &quot;35&quot;,
+        &quot;42&quot;,
+        &quot;46&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;35&quot;,
+        &quot;42&quot;,
+        &quot;46&quot;
+      ],
+      &quot;matches&quot;: true
+    }
+  ]
+}</pre></details><details><summary>第 38 页 pie：类别、系列、缓存及内嵌格值</summary><pre>{
+  &quot;chart_part&quot;: &quot;ppt/charts/chart4.xml&quot;,
+  &quot;workbook_part&quot;: &quot;ppt/embeddings/Workbook4.xlsx&quot;,
+  &quot;series&quot;: [
+    {
+      &quot;name&quot;: &quot;Series 38 A&quot;,
+      &quot;categories&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;values&quot;: [
+        &quot;49.25&quot;,
+        &quot;60.5&quot;,
+        &quot;71.75&quot;
+      ]
+    }
+  ],
+  &quot;workbook&quot;: {
+    &quot;Sheet1&quot;: {
+      &quot;B1&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;Series 38 A&quot;
+      },
+      &quot;A2&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;甲A&quot;
+      },
+      &quot;B2&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;49.25&quot;
+      },
+      &quot;A3&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;乙B&quot;
+      },
+      &quot;B3&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;60.5&quot;
+      },
+      &quot;A4&quot;: {
+        &quot;kind&quot;: &quot;string&quot;,
+        &quot;value&quot;: &quot;丙C&quot;
+      },
+      &quot;B4&quot;: {
+        &quot;kind&quot;: &quot;number&quot;,
+        &quot;value&quot;: &quot;71.75&quot;
+      }
+    }
+  },
+  &quot;cache_workbook_checks&quot;: [
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;name&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$B$1&quot;,
+      &quot;cache&quot;: [
+        &quot;Series 38 A&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;Series 38 A&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;categories&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$A$2:$A$4&quot;,
+      &quot;cache&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;甲A&quot;,
+        &quot;乙B&quot;,
+        &quot;丙C&quot;
+      ],
+      &quot;matches&quot;: true
+    },
+    {
+      &quot;series&quot;: 0,
+      &quot;field&quot;: &quot;values&quot;,
+      &quot;formula&quot;: &quot;Sheet1!$B$2:$B$4&quot;,
+      &quot;cache&quot;: [
+        &quot;49.25&quot;,
+        &quot;60.5&quot;,
+        &quot;71.75&quot;
+      ],
+      &quot;workbook&quot;: [
+        &quot;49.25&quot;,
+        &quot;60.5&quot;,
+        &quot;71.75&quot;
+      ],
+      &quot;matches&quot;: true
+    }
+  ]
+}</pre></details>
+<section><p>业务执行计数：0；业务通过计数：0；PowerPoint验证：未执行。P16需要用户明确恢复操作后再完成主文稿最终保存与定向回读；P27、P38需要实际编辑及保存。未执行步骤保持原状。</p></section>
+</main></body></html>

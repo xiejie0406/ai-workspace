@@ -1,0 +1,94 @@
+{
+  "$defs": {
+    "OutlinePageDraft": {
+      "properties": {
+        "title": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "objective": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "key_points": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "minItems": 2,
+          "title": "Key Points",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "layout_id": {
+          "title": "Layout Id",
+          "type": "string"
+        },
+        "page_role": {
+          "default": "content",
+          "enum": [
+            "cover",
+            "toc",
+            "section",
+            "content",
+            "summary"
+          ],
+          "title": "Page Role",
+          "type": "string"
+        },
+        "visual": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Visual"
+        }
+      },
+      "required": [
+        "title",
+        "objective",
+        "key_points",
+        "layout_id"
+      ],
+      "title": "OutlinePageDraft",
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "pages": {
+      "items": {
+        "$ref": "#/$defs/OutlinePageDraft"
+      },
+      "title": "Pages",
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 20
+    }
+  },
+  "required": [
+    "pages"
+  ],
+  "title": "OutlineDraft",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.local/aippt/v1/outline.schema.json",
+  "additionalProperties": false
+}

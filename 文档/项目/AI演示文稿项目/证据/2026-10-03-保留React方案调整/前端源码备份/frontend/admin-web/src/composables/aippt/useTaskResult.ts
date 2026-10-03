@@ -1,0 +1,5 @@
+import { api } from '@/api/aippt'
+import type { Task } from '@/types/aippt'
+export function pause(ms:number,signal?:AbortSignal){return new Promise<void>((resolve,reject)=>{if(signal?.aborted){reject(new DOMException('已取消','AbortError'));return}const cancel=()=>{clearTimeout(timer);signal?.removeEventListener('abort',cancel);reject(new DOMException('已取消','AbortError'))};const timer=setTimeout(()=>{signal?.removeEventListener('abort',cancel);resolve()},ms);signal?.addEventListener('abort',cancel,{once:true})})}
+export async function waitTask(task:Task,signal?:AbortSignal,onProgress?:(task:Task)=>void){const id=task.job_id||task.jobId||task.id;if(!id)throw new Error('后台未返回任务标识');const start=Date.now();let current=task
+ while(Date.now()-start<15*60*1000){if(signal?.aborted)throw new DOMException('已取消','AbortError');if(['failed','cancelled'].includes(current.status||current.state||''))throw new Error(current.message||'任务未完成，可返回项目后重试');if(['completed','succeeded','ready'].includes(current.status||current.state||''))return current;await pause(1500,signal);current=await api.task(id);onProgress?.(current)}throw new Error('任务仍未完成，请在项目任务状态中继续查看')}

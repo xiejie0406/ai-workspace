@@ -1,0 +1,1032 @@
+{
+  "$defs": {
+    "BlockStyle": {
+      "description": "单个元素相对主题的样式覆盖。",
+      "properties": {
+        "size_pt": {
+          "anyOf": [
+            {
+              "maximum": 72.0,
+              "minimum": 8.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Pt"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "maximum": 900,
+              "minimum": 300,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weight"
+        },
+        "italic": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Italic"
+        },
+        "align": {
+          "anyOf": [
+            {
+              "enum": [
+                "left",
+                "center",
+                "right"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Align"
+        },
+        "fill": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fill"
+        },
+        "radius_pt": {
+          "anyOf": [
+            {
+              "maximum": 48.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Radius Pt"
+        },
+        "border_color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Border Color"
+        },
+        "border_width_pt": {
+          "anyOf": [
+            {
+              "maximum": 6.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Border Width Pt"
+        },
+        "padding_pt": {
+          "anyOf": [
+            {
+              "maximum": 48.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Padding Pt"
+        }
+      },
+      "title": "BlockStyle",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "BulletsBlock": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "const": "bullets",
+          "default": "bullets",
+          "title": "Type",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "slot_id",
+        "items"
+      ],
+      "title": "BulletsBlock",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "CalloutBlock": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "const": "callout",
+          "default": "callout",
+          "title": "Type",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Icon"
+        },
+        "variant": {
+          "default": "note",
+          "enum": [
+            "note",
+            "source"
+          ],
+          "title": "Variant",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "slot_id",
+        "text"
+      ],
+      "title": "CalloutBlock",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "CardItem": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "desc": {
+          "title": "Desc",
+          "type": "string"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Icon"
+        }
+      },
+      "required": [
+        "title",
+        "desc"
+      ],
+      "title": "CardItem",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "CardsBlock": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "const": "cards",
+          "default": "cards",
+          "title": "Type",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/CardItem"
+          },
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "slot_id",
+        "items"
+      ],
+      "title": "CardsBlock",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "ChartBlock": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "const": "chart",
+          "default": "chart",
+          "title": "Type",
+          "type": "string"
+        },
+        "chart_type": {
+          "enum": [
+            "bar",
+            "column",
+            "line",
+            "pie"
+          ],
+          "title": "Chart Type",
+          "type": "string"
+        },
+        "categories": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/ChartSeries"
+          },
+          "title": "Series",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "id",
+        "slot_id",
+        "chart_type",
+        "categories",
+        "series"
+      ],
+      "title": "ChartBlock",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "ChartSeries": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "values"
+      ],
+      "title": "ChartSeries",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "FlexContainer": {
+      "properties": {
+        "type": {
+          "enum": [
+            "row",
+            "column"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "block": "#/$defs/FlexLeaf",
+                "column": "#/$defs/FlexContainer",
+                "row": "#/$defs/FlexContainer"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/FlexContainer"
+              },
+              {
+                "$ref": "#/$defs/FlexLeaf"
+              }
+            ]
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "gap_pt": {
+          "default": 16.0,
+          "title": "Gap Pt",
+          "type": "number"
+        },
+        "ratios": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ratios"
+        },
+        "preset": {
+          "anyOf": [
+            {
+              "enum": [
+                "solid_boxes",
+                "outline_boxes",
+                "side_line",
+                "numbered_steps",
+                "timeline"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preset"
+        },
+        "grow": {
+          "default": 1.0,
+          "title": "Grow",
+          "type": "number"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "children"
+      ],
+      "title": "FlexContainer",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "FlexLeaf": {
+      "properties": {
+        "type": {
+          "const": "block",
+          "default": "block",
+          "title": "Type",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "grow": {
+          "default": 1.0,
+          "title": "Grow",
+          "type": "number"
+        },
+        "text_style": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Style"
+        },
+        "offset_x_pt": {
+          "default": 0.0,
+          "maximum": 960.0,
+          "minimum": -960.0,
+          "title": "Offset X Pt",
+          "type": "number"
+        },
+        "offset_y_pt": {
+          "default": 0.0,
+          "maximum": 960.0,
+          "minimum": -960.0,
+          "title": "Offset Y Pt",
+          "type": "number"
+        },
+        "bleed": {
+          "default": false,
+          "title": "Bleed",
+          "type": "boolean"
+        },
+        "rect_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RectOverride"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "block_id"
+      ],
+      "title": "FlexLeaf",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "ImageBlock": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "const": "image",
+          "default": "image",
+          "title": "Type",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "alt": {
+          "title": "Alt",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "generated",
+            "stock",
+            "upload",
+            "placeholder"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "credit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Credit"
+        }
+      },
+      "required": [
+        "id",
+        "slot_id",
+        "alt",
+        "source"
+      ],
+      "title": "ImageBlock",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "KpiBlock": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "const": "kpi",
+          "default": "kpi",
+          "title": "Type",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "id",
+        "slot_id",
+        "value",
+        "label"
+      ],
+      "title": "KpiBlock",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "Slide": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "layout_id": {
+          "title": "Layout Id",
+          "type": "string"
+        },
+        "blocks": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "bullets": "#/$defs/BulletsBlock",
+                "callout": "#/$defs/CalloutBlock",
+                "cards": "#/$defs/CardsBlock",
+                "chart": "#/$defs/ChartBlock",
+                "image": "#/$defs/ImageBlock",
+                "kpi": "#/$defs/KpiBlock",
+                "table": "#/$defs/TableBlock",
+                "text": "#/$defs/TextBlock"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TextBlock"
+              },
+              {
+                "$ref": "#/$defs/BulletsBlock"
+              },
+              {
+                "$ref": "#/$defs/ImageBlock"
+              },
+              {
+                "$ref": "#/$defs/ChartBlock"
+              },
+              {
+                "$ref": "#/$defs/TableBlock"
+              },
+              {
+                "$ref": "#/$defs/KpiBlock"
+              },
+              {
+                "$ref": "#/$defs/CardsBlock"
+              },
+              {
+                "$ref": "#/$defs/CalloutBlock"
+              }
+            ]
+          },
+          "title": "Blocks",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200
+        },
+        "speaker_notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speaker Notes"
+        },
+        "revision": {
+          "default": 1,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "layout_mode": {
+          "default": "fixed",
+          "enum": [
+            "fixed",
+            "flex"
+          ],
+          "title": "Layout Mode",
+          "type": "string"
+        },
+        "layout_tree": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FlexContainer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "layout_id",
+        "blocks"
+      ],
+      "title": "Slide",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "TableBlock": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "const": "table",
+          "default": "table",
+          "title": "Type",
+          "type": "string"
+        },
+        "header": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Header",
+          "type": "array"
+        },
+        "rows": {
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "slot_id",
+        "header",
+        "rows"
+      ],
+      "title": "TableBlock",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "TextBlock": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "const": "text",
+          "default": "text",
+          "title": "Type",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "slot_id",
+        "text"
+      ],
+      "title": "TextBlock",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "RectOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "w": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "exclusiveMinimum": 0
+        },
+        "h": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "description": "固定页解锁的首帧全页归一化矩形；w/h须正，x+w/y+h须<=1。人工树变更清除，正文/样式编辑保留。"
+    }
+  },
+  "description": "PPT 的统一内容模型。\n\n内容、布局、主题三者分离：这里描述页面块内容；\nfixed 页几何来自布局槽位，flex 页几何来自 layout_tree，视觉表现来自主题。",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "theme_id": {
+      "title": "Theme Id",
+      "type": "string"
+    },
+    "slides": {
+      "items": {
+        "$ref": "#/$defs/Slide"
+      },
+      "title": "Slides",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 40
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "theme_id",
+    "slides"
+  ],
+  "title": "Deck",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.local/aippt/v1/content.schema.json",
+  "additionalProperties": false
+}

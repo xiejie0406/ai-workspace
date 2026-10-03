@@ -1,0 +1,282 @@
+{
+  "$defs": {
+    "FontFamily": {
+      "description": "Web 与 PPTX 分别声明字体名。\n\n浏览器可用 webfont，而 PPTX 只能引用观众机器上已安装的字体，\n两者无法统一，因此显式分开声明，而不是让某一端将就另一端。",
+      "properties": {
+        "web": {
+          "title": "Web",
+          "type": "string"
+        },
+        "pptx_latin": {
+          "title": "Pptx Latin",
+          "type": "string"
+        },
+        "pptx_east_asian": {
+          "title": "Pptx East Asian",
+          "type": "string"
+        }
+      },
+      "required": [
+        "web",
+        "pptx_latin",
+        "pptx_east_asian"
+      ],
+      "title": "FontFamily",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "Fonts": {
+      "properties": {
+        "display": {
+          "$ref": "#/$defs/FontFamily"
+        },
+        "body": {
+          "$ref": "#/$defs/FontFamily"
+        },
+        "emoji": {
+          "$ref": "#/$defs/FontFamily",
+          "default": {
+            "web": "\"Apple Color Emoji\", \"Segoe UI Emoji\", \"Noto Color Emoji\", sans-serif",
+            "pptx_latin": "Segoe UI Emoji",
+            "pptx_east_asian": "Segoe UI Emoji"
+          }
+        }
+      },
+      "required": [
+        "display",
+        "body"
+      ],
+      "title": "Fonts",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "PaletteOverride": {
+      "properties": {
+        "background": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Background"
+        },
+        "surface": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Surface"
+        },
+        "ink": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ink"
+        },
+        "ink_soft": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ink Soft"
+        },
+        "ink_muted": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ink Muted"
+        },
+        "accent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accent"
+        },
+        "accent_soft": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accent Soft"
+        },
+        "line": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Line"
+        },
+        "line_strong": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Line Strong"
+        }
+      },
+      "title": "PaletteOverride",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "ShapeOverride": {
+      "properties": {
+        "radius_pt": {
+          "anyOf": [
+            {
+              "maximum": 48.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Radius Pt"
+        },
+        "bullet_marker": {
+          "anyOf": [
+            {
+              "enum": [
+                "rule",
+                "dot",
+                "index"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bullet Marker"
+        }
+      },
+      "title": "ShapeOverride",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "TextStyleSizeOverride": {
+      "properties": {
+        "size_pt": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Pt"
+        }
+      },
+      "title": "TextStyleSizeOverride",
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  "description": "相对预设主题的安全子集覆盖。",
+  "properties": {
+    "palette": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PaletteOverride"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "fonts": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Fonts"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "text_styles": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/TextStyleSizeOverride"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Text Styles"
+    },
+    "shape": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ShapeOverride"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "title": "ThemeOverrides",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.local/aippt/v1/theme.schema.json",
+  "additionalProperties": false
+}

@@ -1,0 +1,89 @@
+{
+  "name": "ai-interview-coach-admin-web",
+  "version": "3.9.2",
+  "description": "基于若依 Vue3 的 AI 面试教练后台管理端",
+  "author": "若依",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "^20.0.0 || ^22.0.0 || >=24.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build:prod": "vite build",
+    "build:stage": "vite build --mode staging",
+    "preview": "vite preview",
+    "build:aipicture": "npm --prefix ../aipicture-workbench run build && node scripts/sync-aipicture.mjs",
+    "build:prod:aipicture": "npm run build:aipicture && vite build",
+    "test:unit:aipicture": "vitest run --config vitest.aipicture.config.js",
+    "typecheck:aipicture": "vue-tsc --noEmit --project tsconfig.aipicture.json",
+    "typecheck": "vue-tsc --noEmit --project tsconfig.json",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "typecheck:paismart": "vue-tsc --noEmit --project tsconfig.paismart.json",
+    "test:unit:paismart": "vitest run --config vitest.paismart.config.ts",
+    "test:e2e:fashion": "playwright test --config playwright.config.ts",
+    "typecheck:aps": "vue-tsc --noEmit --project tsconfig.aps.json",
+    "test:unit:aps": "vitest run --config vitest.aps.config.js",
+    "test:e2e:aps": "playwright test --config playwright.aps.config.js",
+    "test:aps": "npm run typecheck:aps && npm run test:unit:aps",
+    "typecheck:aippt": "vue-tsc --noEmit --project tsconfig.aippt.json",
+    "test:unit:aippt": "vitest run --config vitest.aippt.config.ts",
+    "test:e2e:aippt": "playwright test --config playwright.aippt.config.ts",
+    "typecheck:paicli": "vue-tsc --noEmit --project tsconfig.paicli.json",
+    "test:unit:paicli": "vitest run --config vitest.paicli.config.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/y_project/RuoYi-Vue.git"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "2.3.2",
+    "@vueup/vue-quill": "1.2.0",
+    "@vueuse/core": "14.1.0",
+    "axios": "1.20.0",
+    "clipboard": "2.0.11",
+    "dhtmlx-gantt": "10.0.3",
+    "dompurify": "3.4.16",
+    "echarts": "5.6.0",
+    "element-plus": "2.13.1",
+    "file-saver": "2.0.5",
+    "fuse.js": "7.1.0",
+    "js-beautify": "1.15.4",
+    "js-cookie": "3.0.8",
+    "jsencrypt": "3.3.2",
+    "katex": "0.19.0",
+    "markdown-it": "14.2.0",
+    "nprogress": "0.2.0",
+    "pdfjs-dist": "6.3.289",
+    "pinia": "3.0.4",
+    "vis-timeline": "8.5.4",
+    "vue": "3.5.26",
+    "vue-cropper": "1.1.1",
+    "vue-router": "4.6.4",
+    "vuedraggable": "4.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.1",
+    "@types/katex": "0.16.8",
+    "@types/markdown-it": "14.2.0",
+    "@types/node": "24.19.1",
+    "@vitejs/plugin-vue": "5.2.4",
+    "@vue/test-utils": "2.4.6",
+    "jsdom": "26.1.0",
+    "sass-embedded": "1.97.2",
+    "typescript": "5.9.3",
+    "unplugin-auto-import": "0.18.6",
+    "unplugin-vue-setup-extend-plus": "1.0.1",
+    "vite": "6.4.3",
+    "vite-plugin-compression": "0.5.1",
+    "vitest": "4.1.11",
+    "vue-tsc": "3.0.8"
+  },
+  "overrides": {
+    "quill": "2.0.2"
+  },
+  "resolutions": {
+    "quill": "2.0.2"
+  }
+}

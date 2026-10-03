@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.local/aippt/v1/font-manifest.schema.json",
+  "title": "AI 演示文稿度量字体资源清单",
+  "description": "只描述资源身份，不证明字体许可或每字精确度。canonical hash按files.role排序，再用UTF-8、对象键排序及紧凑分隔序列化整个JSON后取SHA256。任务内使用已核对的字节快照；unavailable强制估算。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "files"],
+  "properties": {
+    "version": {"const": "aippt-fonts-1"},
+    "files": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"$ref": "#/$defs/fontFile"},
+      "allOf": [
+        {"contains": {"properties": {"role": {"const": "latin"}}, "required": ["role"]}, "minContains": 1, "maxContains": 1},
+        {"contains": {"properties": {"role": {"const": "cjk"}}, "required": ["role"]}, "minContains": 1, "maxContains": 1}
+      ]
+    }
+  },
+  "$defs": {
+    "resourceHash": {"type": "string", "anyOf": [{"const": "unavailable"}, {"pattern": "^[0-9a-f]{64}$"}]},
+    "fontMode": {"enum": ["verified", "estimate"]},
+    "fontFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "size", "sha256"],
+      "properties": {
+        "role": {"enum": ["latin", "cjk"]},
+        "path": {"type": "string"},
+        "size": {"type": "integer", "minimum": 1, "maximum": 67108864},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      },
+      "allOf": [
+        {"if": {"properties": {"role": {"const": "latin"}}}, "then": {"properties": {"path": {"const": "NotoSans-Regular.ttf"}}}},
+        {"if": {"properties": {"role": {"const": "cjk"}}}, "then": {"properties": {"path": {"const": "NotoSansSC-Regular.otf"}}}}
+      ]
+    }
+  }
+}

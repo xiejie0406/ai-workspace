@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.local/aippt/v1/events-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventSeq",
+    "type",
+    "data"
+  ],
+  "properties": {
+    "eventSeq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "taskId": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "queued",
+        "leased",
+        "running",
+        "cancel_requested",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "resync_required",
+        "draft",
+        "outline_ready",
+        "generating",
+        "ready",
+        "partial",
+        "changed",
+        "idle",
+        "empty",
+        "confirmed"
+      ]
+    },
+    "type": {
+      "type": "string"
+    },
+    "completed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object"
+    },
+    "projectId": {
+      "type": "string"
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason"],
+      "properties": {
+        "status": {
+          "enum": ["connected", "degraded", "disabled"]
+        },
+        "reason": {
+          "enum": ["REDIS_CONNECTED", "REDIS_UNAVAILABLE", "REDIS_DISABLED"]
+        }
+      },
+      "oneOf": [
+        {"properties": {"status": {"const": "connected"}, "reason": {"const": "REDIS_CONNECTED"}}},
+        {"properties": {"status": {"const": "degraded"}, "reason": {"const": "REDIS_UNAVAILABLE"}}},
+        {"properties": {"status": {"const": "disabled"}, "reason": {"const": "REDIS_DISABLED"}}}
+      ],
+      "description": "通知通道状态，不是任务业务状态。纯delivery帧沿用当前eventSeq且data为空，不推进业务序号；旧帧可以省略此字段。"
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"type": {"const": "delivery"}}, "required": ["type"]},
+      "then": {
+        "required": ["delivery"],
+        "not": {"required": ["state"]},
+        "properties": {"data": {"maxProperties": 0}}
+      }
+    }
+  ]
+}

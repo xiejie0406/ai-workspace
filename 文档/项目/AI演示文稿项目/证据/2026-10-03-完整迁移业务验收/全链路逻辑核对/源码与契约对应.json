@@ -1,0 +1,3581 @@
+{
+  "checked_at": "2026-10-03T23:20:56.264990+08:00",
+  "design": "0.4",
+  "method": "逐段人工源码审读；脚本仅生成引用行号、SHA及报告，不执行业务测试",
+  "real_business_run": false,
+  "points": [
+    {
+      "number": 1,
+      "chain": [
+        "平台授权外链进入原React；RequireAuth等待现有平台会话恢复，账号页仅引导平台登录。",
+        "Admin-Token只从同源Cookie读取，getInfo提供用户、角色与权限；禁止Token放URL及独立注册/JWT。",
+        "用户API复用@ss权限并通过owned校验本人；internal/aippt独立机器安全链不接受用户Token。",
+        "身份恢复由原Zustand维护，Worker机器身份仅领取已由中心授权的任务，没有用户状态库。",
+        "会话变化清原Query/Zustand及Blob；中心数据owner来自SecurityUtils，不采用请求传来的owner。",
+        "无会话安全回跳平台登录；旧getInfo回执受Token检查。已补旧logout迟到回执及二进制JSON错误的会话保护。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/auth/store.ts",
+          "logout:"
+        ],
+        [
+          "frontend/aippt-web/src/features/auth/token.ts",
+          "platformLoginUrl"
+        ],
+        [
+          "frontend/aippt-web/src/features/auth/session.ts",
+          "startPlatformSession"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/configuration/AipptWorkerSecurityConfiguration.java",
+          "aipptWorkerChain"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject owned"
+        ]
+      ],
+      "fixed": true,
+      "name": "现有账号进入",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/auth/store.ts",
+          "line": 7,
+          "symbol": "logout:",
+          "sha256": "076f18ce07a8f8507b26f4b6b9a5677f464fb0015e3034295c8e986ee50c5270",
+          "bytes": 1828
+        },
+        {
+          "path": "frontend/aippt-web/src/features/auth/token.ts",
+          "line": 10,
+          "symbol": "platformLoginUrl",
+          "sha256": "4ea90ae799fac40b334461ea0a96b0a421aa6cbb9539b3ae7d53d6cbb15afd45",
+          "bytes": 1788
+        },
+        {
+          "path": "frontend/aippt-web/src/features/auth/session.ts",
+          "line": 7,
+          "symbol": "startPlatformSession",
+          "sha256": "d9fc5bbdf5c81b6974a487810a9c408f4112ebaa35eed10c203d98b4d29e3e96",
+          "bytes": 1174
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/configuration/AipptWorkerSecurityConfiguration.java",
+          "line": 11,
+          "symbol": "aipptWorkerChain",
+          "sha256": "3a0827bddb25e70df67d0f3fb9faeab08dbd75143771ad0d955ed2c3e104e3d6",
+          "bytes": 1630
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 29,
+          "symbol": "public JSONObject owned",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "chain": [
+        "平台后台菜单提供同源H5外链；React仍用AppShell及全屏提纲/编辑器，不建立Vue业务入口。",
+        "登录redirect仅接受同源批准React路由并过滤凭据、控制字符和编码穿越。",
+        "平台getRouters/现有三种导航处理菜单；API前缀严格同源，身份沿平台getInfo。",
+        "BrowserRouter basename=/aippt-web，原projects/create/detail路由保留；静态history fallback仅处理HTML。",
+        "Vite管理端插件及Nginx候选指向React index；不存在的静态资源404，不吞API路径。",
+        "原离开守卫等待相关保存，失败留页；未执行三种导航、真实登录或Nginx部署验证。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/App.tsx",
+          "BrowserRouter basename"
+        ],
+        [
+          "frontend/aippt-web/src/hooks/useSaveNavigationGuard.ts",
+          "useSaveNavigationGuard"
+        ],
+        [
+          "frontend/admin-web/vite.config.js",
+          "aipptHistoryFallback"
+        ],
+        [
+          "frontend/admin-web/src/views/login.vue",
+          "aippt"
+        ],
+        [
+          "frontend/admin-web/scripts/aippt-nginx-location.conf.example",
+          "location"
+        ]
+      ],
+      "fixed": false,
+      "name": "平台入口与原H5路由兼容",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/App.tsx",
+          "line": 19,
+          "symbol": "BrowserRouter basename",
+          "sha256": "b03757b3bed647978f1a33d5a6d6b8df25ce4e517a0f6e6e9ade2bbb014faab0",
+          "bytes": 1540
+        },
+        {
+          "path": "frontend/aippt-web/src/hooks/useSaveNavigationGuard.ts",
+          "line": 46,
+          "symbol": "useSaveNavigationGuard",
+          "sha256": "a3b3fc5d7f09993b84b1e6cf61a7a80e23b983501e7fa106054cb13c428e9941",
+          "bytes": 7349
+        },
+        {
+          "path": "frontend/admin-web/vite.config.js",
+          "line": 10,
+          "symbol": "aipptHistoryFallback",
+          "sha256": "bb0bf4bbe18cec51268494e43ce4d62959db95078b411955b6f3bc8f7634a6e1",
+          "bytes": 4093
+        },
+        {
+          "path": "frontend/admin-web/src/views/login.vue",
+          "line": 73,
+          "symbol": "aippt",
+          "sha256": "c7841e2517e603ba750f5a0b63465fce0b07da613f14dec3133b94bdea626acf",
+          "bytes": 7089
+        },
+        {
+          "path": "frontend/admin-web/scripts/aippt-nginx-location.conf.example",
+          "line": 4,
+          "symbol": "location",
+          "sha256": "b8d4aba2485cabf888911be18811bef7e0b1dfe956badbb4db43c2584e774447",
+          "bytes": 921
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "chain": [
+        "原CreatePage推导名称；ProjectsPage搜索、正式状态分页、继续编辑和删除。",
+        "创建需project:add/source:add，最终生成还由服务端outline:generate裁决；参数来自原单栏表单。",
+        "POST /projects与sources建立本人私有项目，GET /projects按owner/状态/名称查询及返回total。",
+        "创建后材料解析和提纲任务分别入队；模型工作不在创建事务中执行。",
+        "项目/材料由MySQL持有；后续失败DraftCreationError保留projectId及成功材料，提供继续入口。",
+        "不删成功项目掩盖后续错误。列表只提交项目正式支持的四状态，deck的partial在工作台显示；未知删除回执重放原版本。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/pages/CreatePage.tsx",
+          "deriveTitle"
+        ],
+        [
+          "frontend/aippt-web/src/pages/ProjectsPage.tsx",
+          "useProjectsPage"
+        ],
+        [
+          "frontend/aippt-web/src/features/projects/api.ts",
+          "useCreateDraft"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject create"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/persistence/AipptMapper.java",
+          "projectCount"
+        ]
+      ],
+      "fixed": true,
+      "name": "创建与列表",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/pages/CreatePage.tsx",
+          "line": 32,
+          "symbol": "deriveTitle",
+          "sha256": "93b0318ed54970de37d571fa78b6fe1fe74e3b123144615016bddc472aa0ffac",
+          "bytes": 12418
+        },
+        {
+          "path": "frontend/aippt-web/src/pages/ProjectsPage.tsx",
+          "line": 7,
+          "symbol": "useProjectsPage",
+          "sha256": "1938808bfe503ac443f0a09843a76a79f9af4a153a2c62a4e245953fa5e9a8ce",
+          "bytes": 9048
+        },
+        {
+          "path": "frontend/aippt-web/src/features/projects/api.ts",
+          "line": 143,
+          "symbol": "useCreateDraft",
+          "sha256": "cce50ea4f2a209df5ad01ad13d13858712417b8af3b2ce4d9401c451a985d8db",
+          "bytes": 9247
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 88,
+          "symbol": "public JSONObject create",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/persistence/AipptMapper.java",
+          "line": 14,
+          "symbol": "projectCount",
+          "sha256": "6d8bf24b4f69745e603b2ec0ac71979123af7d102a3651a1a3eeb104fecc588d",
+          "bytes": 5923
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "chain": [
+        "原新建入口保持主题500字/文字20000字；材料参数弹层区分生成目标与已有正式页数。",
+        "创建5–20，正式1–40；新目标改动5–20，未改页数不提交；名称200、受众100及枚举/严格数字由中心复核。",
+        "project PATCH提交input_revision，中心项目锁、expected及unconfirmed/idle拒绝旧版本与在途修改。",
+        "Java字段校验不借Python模型截断请求；页面编辑不套创建页数上限。",
+        "同事务保存项目并更新input_revision；弹层保原baseline与delta，刷新不借用新revision覆盖草稿。",
+        "409读最新值后明确重新应用或放弃；未知回执保原正文/文件/key。真实边界数据未提交。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "saveSettings"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "public static void project"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject update"
+        ]
+      ],
+      "fixed": false,
+      "name": "参数边界",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "line": 110,
+          "symbol": "saveSettings",
+          "sha256": "b10329f3698cefa94c0af3f20e35177a59cde37bb739766534347fbb4ee05d7f",
+          "bytes": 19263
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "line": 60,
+          "symbol": "public static void project",
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+          "bytes": 23463
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 102,
+          "symbol": "public JSONObject update",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "chain": [
+        "主题/文本可从新建或材料弹层添加、查看章节及删除。",
+        "source:add/query/remove与本人项目归属分别校验，正文API上限200000字。",
+        "sources命令按input_revision登记source、parse_source任务和事件；删除用稳定sourceId。",
+        "Worker PlainTextParser解析并stable_sections派生稳定UUID章节，保层级/定位及字数。",
+        "中心completeOutput写source_section和source.sections、parser_version/warnings并更新input_revision。",
+        "删除保审计但普通读取404，在途解析取消/迟到拒绝；章节面板按选择代数过滤旧回执。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "const view"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject addSource"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "case \"parse_source\""
+        ],
+        [
+          "python/aippt-worker/app/worker/parse.py",
+          "stable_sections"
+        ],
+        [
+          "python/aippt-worker/app/ingest/plain.py",
+          "PlainTextParser"
+        ]
+      ],
+      "fixed": false,
+      "name": "文本与主题来源",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "line": 139,
+          "symbol": "const view",
+          "sha256": "b10329f3698cefa94c0af3f20e35177a59cde37bb739766534347fbb4ee05d7f",
+          "bytes": 19263
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 158,
+          "symbol": "public JSONObject addSource",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 1069,
+          "symbol": "case \"parse_source\"",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "python/aippt-worker/app/worker/parse.py",
+          "line": 42,
+          "symbol": "stable_sections",
+          "sha256": "eb604ae1b484eb95800fbe73dcf0192f2f54d0dcbb09ae7178a497c415f3708f",
+          "bytes": 2381
+        },
+        {
+          "path": "python/aippt-worker/app/ingest/plain.py",
+          "line": 4,
+          "symbol": "PlainTextParser",
+          "sha256": "fc61a7c7dccfabf07677b1dc975480d6ea0d7a5bfa99810703c057fc1d0a455e",
+          "bytes": 1465
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "chain": [
+        "原多文件新建与补传逐文件显示解析状态和失败原因。",
+        "单文档10MiB，source:add权限、项目版本与确认锁定；文件/正文归本项目资产。",
+        "upload先私有暂存和上传幂等，再登记source与parse_source；机器读资产须有效租约。",
+        "Worker注册TXT/Markdown/DOCX/PDF解析器，保heading/level/text/locator，统一稳定section ID。",
+        "成功解析写中心正式小节；源文档由私有storage持有，React查询中心结果。",
+        "部分失败保成功材料及项目，可删/换失败文件并补传；本轮未上传真实四类文档。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/AipptController.java",
+          "uploadSource"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "uploadCommand"
+        ],
+        [
+          "python/aippt-worker/app/worker/parse.py",
+          "parse_document"
+        ],
+        [
+          "python/aippt-worker/app/ingest/registry.py",
+          "PARSERS"
+        ],
+        [
+          "python/aippt-worker/app/ingest/docx.py",
+          "Docx"
+        ],
+        [
+          "python/aippt-worker/app/ingest/pdf.py",
+          "Pdf"
+        ]
+      ],
+      "fixed": false,
+      "name": "四类文档解析",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/AipptController.java",
+          "line": 65,
+          "symbol": "uploadSource",
+          "sha256": "3414b86e8cb210cbf537d604969f86ee20e5308010eec33d5e7f9726659c789e",
+          "bytes": 18903
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "line": 132,
+          "symbol": "uploadCommand",
+          "sha256": "8f714289d5adc79947952108c6e5921de22a38756dc569708ee1c10bdc235672",
+          "bytes": 23523
+        },
+        {
+          "path": "python/aippt-worker/app/worker/parse.py",
+          "line": 22,
+          "symbol": "parse_document",
+          "sha256": "eb604ae1b484eb95800fbe73dcf0192f2f54d0dcbb09ae7178a497c415f3708f",
+          "bytes": 2381
+        },
+        {
+          "path": "python/aippt-worker/app/ingest/registry.py",
+          "line": 9,
+          "symbol": "PARSERS",
+          "sha256": "5ef39d5fb202173d59beb97dd5d666b3753a00a96095a91366a5dee215dbe3a2",
+          "bytes": 918
+        },
+        {
+          "path": "python/aippt-worker/app/ingest/docx.py",
+          "line": 13,
+          "symbol": "Docx",
+          "sha256": "4ebdec7663607ce24af50e17ae64146db99fc2469767110304fca5a86a6d03f9",
+          "bytes": 2693
+        },
+        {
+          "path": "python/aippt-worker/app/ingest/pdf.py",
+          "line": 17,
+          "symbol": "Pdf",
+          "sha256": "125a41d3174e7084c4ec171b7f538e4a0ee379ccff99e642c972affa414f2bf0",
+          "bytes": 5258
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "chain": [
+        "空文件、改名Office、超限及扫描PDF均从同一材料入口处理。",
+        "Java校验后缀/魔数/Office结构、大小及解压数量/总量；Python再校验解析预算。",
+        "失败上传不成为正式source；暂存journal与outbox保留所属补偿信息。",
+        "PDF只提取文字，没有OCR；无可用文字时给警告，提纲生成不能把空材料当证据。",
+        "扫描件警告保存在source，原文可保留；有有效文字的其他材料仍可用。",
+        "失败对象按引用与所属范围清理，默认cleanup关闭；未运行扫描件/压缩炸弹样本。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "public static String validate"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "zipStructure"
+        ],
+        [
+          "python/aippt-worker/app/ingest/pdf.py",
+          "warnings"
+        ],
+        [
+          "python/aippt-worker/app/worker/parse.py",
+          "parse_document"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "请先完成有效材料解析"
+        ]
+      ],
+      "fixed": false,
+      "name": "上传与扫描件拒绝",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "line": 58,
+          "symbol": "public static String validate",
+          "sha256": "8f714289d5adc79947952108c6e5921de22a38756dc569708ee1c10bdc235672",
+          "bytes": 23523
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "line": 89,
+          "symbol": "zipStructure",
+          "sha256": "8f714289d5adc79947952108c6e5921de22a38756dc569708ee1c10bdc235672",
+          "bytes": 23523
+        },
+        {
+          "path": "python/aippt-worker/app/ingest/pdf.py",
+          "line": 36,
+          "symbol": "warnings",
+          "sha256": "125a41d3174e7084c4ec171b7f538e4a0ee379ccff99e642c972affa414f2bf0",
+          "bytes": 5258
+        },
+        {
+          "path": "python/aippt-worker/app/worker/parse.py",
+          "line": 22,
+          "symbol": "parse_document",
+          "sha256": "eb604ae1b484eb95800fbe73dcf0192f2f54d0dcbb09ae7178a497c415f3708f",
+          "bytes": 2381
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 237,
+          "symbol": "请先完成有效材料解析",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "chain": [
+        "提纲确认前可改材料和内容参数，确认后先取消确认；主题外观可继续调。",
+        "指纹包含title/audience/tone/content_density及按sourceId排序的parser_version/sections；页数单独校验。",
+        "confirm校验outline revision、input_revision、来源/布局、目标页数与当前指纹；材料变更走unconfirmed和idle。",
+        "指纹由Java中心计算，Worker只消费不可变输入，不签发正式确认。",
+        "提纲保存status=draft，确认写confirmed；新建正式页后1–40页再次确认保持原内容。",
+        "旧指纹不自动获得新确认；OUTLINE_STALE/CONFIRMED与在途限制明确拒绝，主题不使材料过期。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "public static String fingerprint"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "private JSONObject confirm"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject unconfirm"
+        ],
+        [
+          "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "unconfirm"
+        ]
+      ],
+      "fixed": false,
+      "name": "指纹和确认锁定",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "line": 68,
+          "symbol": "public static String fingerprint",
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+          "bytes": 23463
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 277,
+          "symbol": "private JSONObject confirm",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 302,
+          "symbol": "public JSONObject unconfirm",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "line": 22,
+          "symbol": "unconfirm",
+          "sha256": "b10329f3698cefa94c0af3f20e35177a59cde37bb739766534347fbb4ee05d7f",
+          "bytes": 19263
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "chain": [
+        "原提纲页面显示队列/整理/规划及来源裁剪摘要，允许失败后再生成。",
+        "outline:generate/query与有效来源、input_revision、Provider/Worker开关核对。",
+        "generate_outline任务绑定输入指纹及expected_input_revision；中心拒绝旧任务或旧材料结果。",
+        "原prepare_outline_input预算总12000/单节2000字，生成后按真实页数与允许来源ref校验。",
+        "pages/warnings/source_budget同一正式outline JSON持久化，GET及任务output/result一致；摘要无正文/密钥。",
+        "来源为空/伪ref/页数不符拒绝；提纲再生成未知回执重放原input_revision，未真实调用模型。"
+      ],
+      "refs": [
+        [
+          "python/aippt-worker/app/workflows/outline.py",
+          "prepare_outline_input"
+        ],
+        [
+          "python/aippt-worker/app/worker/handlers.py",
+          "async def generate_outline"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "outlineSourceMetadata"
+        ],
+        [
+          "frontend/aippt-web/src/features/outline/api.ts",
+          "generate-outline"
+        ],
+        [
+          "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "outline.warnings"
+        ]
+      ],
+      "fixed": true,
+      "name": "生成提纲与来源预算",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "python/aippt-worker/app/workflows/outline.py",
+          "line": 22,
+          "symbol": "prepare_outline_input",
+          "sha256": "886894a47c6529b10de8071b09616d90417a28d8be9bd66605eaa35616471305",
+          "bytes": 3464
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "line": 94,
+          "symbol": "async def generate_outline",
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e",
+          "bytes": 17955
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 928,
+          "symbol": "outlineSourceMetadata",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "frontend/aippt-web/src/features/outline/api.ts",
+          "line": 34,
+          "symbol": "generate-outline",
+          "sha256": "7745306dde9c85d76ba5bd566aa05126176f127d92b4bee6332a77436441d306",
+          "bytes": 2710
+        },
+        {
+          "path": "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "line": 251,
+          "symbol": "outline.warnings",
+          "sha256": "22d33e524373dcc3c698c73988331baa7991694143a2e83ee7b65c57a4ace366",
+          "bytes": 28687
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "chain": [
+        "原PageCard编辑标题/目的/要点/稳定来源/版式/角色/visual，并增删拖排。",
+        "5–20页、标题100、目的300、要点2–5、来源≤10、visual≤120，中心按目录和来源再验证。",
+        "PATCH outline提交原revision，增删导致目标数变化时先项目保存再提纲保存；确认与保存权限各自检查。",
+        "React规范化空行与原串行自动保存，Java校验UUID、字段白名单及目标引用，没有再生成算法代替手改。",
+        "中心同事务保存pages及项目page_count；React Query回写正式提纲，未保存本地页保留。",
+        "失败暂停自动保存，明确重试原正文；409先核对最新大纲。字段齐全不表示已真实保存。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "function PageCard"
+        ],
+        [
+          "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "const saveDraft"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject saveOutline"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "public static void outline"
+        ]
+      ],
+      "fixed": false,
+      "name": "提纲字段/增删排序",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "line": 364,
+          "symbol": "function PageCard",
+          "sha256": "22d33e524373dcc3c698c73988331baa7991694143a2e83ee7b65c57a4ace366",
+          "bytes": 28687
+        },
+        {
+          "path": "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "line": 138,
+          "symbol": "const saveDraft",
+          "sha256": "22d33e524373dcc3c698c73988331baa7991694143a2e83ee7b65c57a4ace366",
+          "bytes": 28687
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 257,
+          "symbol": "public JSONObject saveOutline",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "line": 76,
+          "symbol": "public static void outline",
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+          "bytes": 23463
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "chain": [
+        "点生成PPT前先完成提纲与主题保存，再原子确认并建立页面任务。",
+        "outline:confirm与deck:generate同时要求；正式提纲/项目版本、指纹及空闲条件均校验。",
+        "confirm-and-generate通过command幂等缓存、项目锁和同事务确认/建任务；不拆成先确认再异步启动的正式状态。",
+        "本轮原hook保留已完成的保存/主题步骤及已接受启动标识；未知回执重放原版本/key，不重走前置保存。",
+        "响应后回读正式outline与deck；尚未确认时暂停编辑/主题/自动保存并提供重试原确认与生成。",
+        "同请求重复不建第二批；请求已接受但GET失联时仅重新回读。离页保护等待确认，真实重复收费未核账。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/outline/useConfirmAndGenerate.ts",
+          "pendingInput"
+        ],
+        [
+          "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "重试原确认与生成"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject confirmOutline"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "JSONObject cached=db.idempotent"
+        ]
+      ],
+      "fixed": true,
+      "name": "确认并启动幂等",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/outline/useConfirmAndGenerate.ts",
+          "line": 29,
+          "symbol": "pendingInput",
+          "sha256": "c5b8dcd8fa6be58ca9ea7c97587b27e0d901c7142b9775f156b543a817e279c5",
+          "bytes": 3546
+        },
+        {
+          "path": "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "line": 261,
+          "symbol": "重试原确认与生成",
+          "sha256": "22d33e524373dcc3c698c73988331baa7991694143a2e83ee7b65c57a4ace366",
+          "bytes": 28687
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 295,
+          "symbol": "public JSONObject confirmOutline",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 64,
+          "symbol": "JSONObject cached=db.idempotent",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "chain": [
+        "生成进入原编辑器，每页就绪即时可见；Filmstrip、画布及进度读同一中心deck。",
+        "deck:generate/query，生成期间人工写入受idle拒绝；项目总/逐页版本来自中心。",
+        "每outline page创建独立generate_slide任务；dispatch gate串行领取，项目并发与globalConcurrency有界。",
+        "Worker多个slot领取，使用原fixed/flex单页workflow；模型、图片不在中心事务中执行。",
+        "中心completeOutput按active_task_id/expected_slide_revision与租约提交，bump deck_revision并发布事件。",
+        "单页错误不抹成功页；过期任务回收有maxAttempts/deadline，未测真实并发时间或即时预览延迟。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "private JSONObject generate"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+          "claimOnce"
+        ],
+        [
+          "python/aippt-worker/app/worker/runner.py",
+          "async def slot"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/useDeckProgress.ts",
+          "useDeckProgress"
+        ]
+      ],
+      "fixed": false,
+      "name": "并发与即时预览",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 391,
+          "symbol": "private JSONObject generate",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+          "line": 47,
+          "symbol": "claimOnce",
+          "sha256": "748907c59bafcb8016c6245ecae2ad1dcda49f22ef0e7fc1eef012bcb8576539",
+          "bytes": 20829
+        },
+        {
+          "path": "python/aippt-worker/app/worker/runner.py",
+          "line": 125,
+          "symbol": "async def slot",
+          "sha256": "2641e2e06168c80c2ddf6f4e8b209de10828017a9589b3a02ecd7d7295458a54",
+          "bytes": 8747
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/useDeckProgress.ts",
+          "line": 9,
+          "symbol": "useDeckProgress",
+          "sha256": "187d51f49e9813cda206486fe4a2dfa39de8bad926963b5e8803d31d4e2baaec",
+          "bytes": 1003
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "chain": [
+        "提纲/整稿进度沿原SSE hook；连接中断时保已存进度并提示重连/通知降级。",
+        "连接前和每次发送都回读平台会话owner/对应权限，撤权或身份变化终止；游标来自中心序号。",
+        "持久aippt_event重放≤500、快照及resync_required；Redis只唤醒正式DB回读，15秒心跳。",
+        "React每次连接先读快照，去重eventSeq，resync回读后再次核scope；指数退避≤15秒。",
+        "纯delivery提示不推进业务状态或替换task；终态以正式outline/deck/task决定并停重连。",
+        "401/403停止，旧scope不能发新目标旧ID请求；未执行真实长连接、Redis断线或权限撤回。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/EventController.java",
+          "projectSessionValid"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/EventService.java",
+          "public SseEmitter subscribe"
+        ],
+        [
+          "frontend/aippt-web/src/hooks/useEventStream.ts",
+          "resync_required"
+        ],
+        [
+          "contracts/aippt/events-v1.schema.json",
+          "eventSeq"
+        ]
+      ],
+      "fixed": false,
+      "name": "SSE断线恢复",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/EventController.java",
+          "line": 39,
+          "symbol": "projectSessionValid",
+          "sha256": "9eabc78f87b0c5bb71c9115eb5e303fe2b59c6f5ae3cdd5dcfccc3d7891fa1e5",
+          "bytes": 3692
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/EventService.java",
+          "line": 32,
+          "symbol": "public SseEmitter subscribe",
+          "sha256": "8debcda5b746e483ae54b490863d325b68f97c4077245a6bb1c01bf7a7675ad7",
+          "bytes": 10598
+        },
+        {
+          "path": "frontend/aippt-web/src/hooks/useEventStream.ts",
+          "line": 44,
+          "symbol": "resync_required",
+          "sha256": "a948bd75d5fb0d555401ea4a8e69299888fd80ac54e69f24754ba65d37aa8380",
+          "bytes": 5303
+        },
+        {
+          "path": "contracts/aippt/events-v1.schema.json",
+          "line": 7,
+          "symbol": "eventSeq",
+          "sha256": "d2d9eec550059e76105330938b85f6aed4d990f56571cf1178af87d6a70fe908",
+          "bytes": 2348
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "chain": [
+        "失败卡以deck:generate显示单页重试；默认整稿续跑保已ready页。",
+        "单页重试检查slide revision、确认提纲、空闲和Provider；批次生成检查deck_revision。",
+        "retrySlide保存旧快照并登记目标页任务，generate续跑跳过就绪页；复用中心版本和幂等。",
+        "重试与整稿都用同一generate_slide handler/专业workflow，没有第二算法。",
+        "只目标页回写且active_task_id匹配；React更新deck计数和失败提示。",
+        "本轮生成/重试未知回执先重放原请求，避免借新revision自撞409；失败原因与历史保留，未核真实收费次数。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/Filmstrip.tsx",
+          "useRetrySlide"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/api.ts",
+          "function useDeckMutation"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject retrySlide"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "\"ready\".equals(slide.getString(\"status\")))continue"
+        ]
+      ],
+      "fixed": true,
+      "name": "单页失败重试/续跑",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/Filmstrip.tsx",
+          "line": 12,
+          "symbol": "useRetrySlide",
+          "sha256": "9d3ca23c27fdaced3f8faf479f4ce5ec4e15201e80760fd53d192c2f8bd70ca9",
+          "bytes": 9039
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "line": 84,
+          "symbol": "function useDeckMutation",
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+          "bytes": 23438
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 477,
+          "symbol": "public JSONObject retrySlide",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 446,
+          "symbol": "\"ready\".equals(slide.getString(\"status\")))continue",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "chain": [
+        "取消沿原按钮；整份重做明确确认覆盖并保存原内容快照。",
+        "deck:cancel/generate、deck_revision、overwrite_acknowledged；Worker身份还需attempt/leaseToken/fencingToken。",
+        "queued置cancelled不派发，running仅标cancel_requested；重领/回收提升fencing token。",
+        "Worker心跳保软取消语义；租约失效停止操作和迟到提交，中心恢复次数/总900秒截止有界。",
+        "成功在途页可保留；无活跃页任务后中心settle，编辑器显示partial/ready，重做前snapshot不丢。",
+        "旧租约/删除项目拒绝结果；本轮取消未知回执沿原版本恢复，没有崩溃/故障演练。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject cancel"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+          "validateLease"
+        ],
+        [
+          "python/aippt-worker/app/worker/runner.py",
+          "async def execute"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "snapshot(j,\"regenerate\")"
+        ]
+      ],
+      "fixed": true,
+      "name": "软取消/迟到结果",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 497,
+          "symbol": "public JSONObject cancel",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+          "line": 133,
+          "symbol": "validateLease",
+          "sha256": "748907c59bafcb8016c6245ecae2ad1dcda49f22ef0e7fc1eef012bcb8576539",
+          "bytes": 20829
+        },
+        {
+          "path": "python/aippt-worker/app/worker/runner.py",
+          "line": 58,
+          "symbol": "async def execute",
+          "sha256": "2641e2e06168c80c2ddf6f4e8b209de10828017a9589b3a02ecd7d7295458a54",
+          "bytes": 8747
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 401,
+          "symbol": "snapshot(j,\"regenerate\")",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "chain": [
+        "整稿和单页从提纲角色/密度/visual及相邻标题构造相同输入。",
+        "fixed/flex模式、内容密度、来源稳定ref与字体身份在任务快照中固定。",
+        "中心按页派发generate_slide；Worker只返回slide/issues/geometry/assets，正式提交再验证。",
+        "原prepare→generate→check→最多一轮repair，单页来源总6000/单节1500字；仅结构错误/偏瘦空话触发修复。",
+        "确定性先定列宽再定行高，issues随候选回写；纯容量warning不盲目砍块。",
+        "修复仍失败形成任务终态；字体estimate保持提示，未执行真实模型生成/修复。"
+      ],
+      "refs": [
+        [
+          "python/aippt-worker/app/workflows/slide.py",
+          "MAX_REPAIR_ROUNDS"
+        ],
+        [
+          "python/aippt-worker/app/workflows/slide.py",
+          "prepare_slide_input"
+        ],
+        [
+          "python/aippt-worker/app/worker/handlers.py",
+          "async def generate_slide"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "case \"generate_slide\""
+        ]
+      ],
+      "fixed": false,
+      "name": "单页质量自修复",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "python/aippt-worker/app/workflows/slide.py",
+          "line": 20,
+          "symbol": "MAX_REPAIR_ROUNDS",
+          "sha256": "95bc91b9f5dee9027bbaf4abafd1ee0c4e48e7be24b40be276748ef167736a74",
+          "bytes": 6543
+        },
+        {
+          "path": "python/aippt-worker/app/workflows/slide.py",
+          "line": 37,
+          "symbol": "prepare_slide_input",
+          "sha256": "95bc91b9f5dee9027bbaf4abafd1ee0c4e48e7be24b40be276748ef167736a74",
+          "bytes": 6543
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "line": 114,
+          "symbol": "async def generate_slide",
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e",
+          "bytes": 17955
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 1071,
+          "symbol": "case \"generate_slide\"",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "chain": [
+        "原Filmstrip插空白/复制/删除/排序，成功后选中新页或邻页。",
+        "slide:edit、项目空闲与deck_revision；正式1–40页、最后一页不可删。",
+        "中心pages同事务维护slide/outline页序/项目page_count；复制块/树ID重建、内容和locked保留。",
+        "Java确定性空白页与ID映射，不调用Worker；图片通过同项目asset引用及引用计数保留。",
+        "新命令先flush相关保存；整份deck回写保较新正式版本、主题及保存队列草稿，并更新Query/outline/project。",
+        "本轮增删复制排序重放未知原请求而不重读CAS；真实1/40页操作未执行，历史旧Vue页测试不计当前React。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/api.ts",
+          "function useDeckPageMutation"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/api.ts",
+          "useReorderSlides"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject pages"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "private void syncPages"
+        ]
+      ],
+      "fixed": true,
+      "name": "页面增删复制排序",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "line": 212,
+          "symbol": "function useDeckPageMutation",
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+          "bytes": 23438
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "line": 166,
+          "symbol": "useReorderSlides",
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+          "bytes": 23438
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 558,
+          "symbol": "public JSONObject pages",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 642,
+          "symbol": "private void syncPages",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "chain": [
+        "原BlockView/EditableText及ChartDataEditor编辑七类文字/数据，换图单列第33项。",
+        "slide:edit与ready状态，type/字段/数据尺寸/有限数由中心再次校验；不接受自由HTML。",
+        "块PATCH提交同页revision，中心项目锁/页CAS/人工locked与审计。",
+        "原mergeBlockCommit、要点清洗及内容快照驱动原页串行队列，无额外正式状态。",
+        "成功回写新页revision与deck_revision；Query局部替换页，保在途DOM编辑。",
+        "409/网络错误暂停队列并保草稿，刷新后的正式值仍以中心为准；中文输入法和所有块实际操作未执行。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/render/EditableText.tsx",
+          "EditableText"
+        ],
+        [
+          "frontend/aippt-web/src/render/BlockView.tsx",
+          "BlockView"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "const pump"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "case \"content\""
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "public static void block"
+        ]
+      ],
+      "fixed": false,
+      "name": "七类文字/数据编辑",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/render/EditableText.tsx",
+          "line": 13,
+          "symbol": "EditableText",
+          "sha256": "2cebd17697f04974ec3710e55ebdb36f3c264d342fb310015a1f9121ecec0a1b",
+          "bytes": 9267
+        },
+        {
+          "path": "frontend/aippt-web/src/render/BlockView.tsx",
+          "line": 506,
+          "symbol": "BlockView",
+          "sha256": "539e57b9b9e382bf252c47ecb1244ba094176a0eb5bc6147db7296e0331bb8bc",
+          "bytes": 17425
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "line": 229,
+          "symbol": "const pump",
+          "sha256": "5bcc5786365fbbd66d093d085df5919278f3f33ce90023938d0277ed87dd3bf3",
+          "bytes": 20143
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 676,
+          "symbol": "case \"content\"",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "line": 104,
+          "symbol": "public static void block",
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+          "bytes": 23463
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "chain": [
+        "原图表编辑器维护bar/column/line/pie的类别、系列、单位与预览。",
+        "中心校验四类型、200类别/20系列、维度一致与有限数；pie可保多个系列，预览首组。",
+        "同页块PATCH保存完整数据，内部预览key不进入API或正式IR。",
+        "ChartView按系列位置生成dataKey，避免name/同名组覆盖；PPTX原CategoryChartData按原系列写工作簿。",
+        "verify逐图核类型/方向/cache/类别/系列/值/公式及该图内嵌XLSX全量数据，pie可见缓存按首组。",
+        "维数/非数/缺失损坏/外链工作簿/篡改拒绝；本轮只核当前字节与旧修复证据，未重跑四图样本。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/render/ChartView.tsx",
+          "dataKey"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/ChartDataEditor.tsx",
+          "ChartDataEditor"
+        ],
+        [
+          "python/aippt-worker/app/render/chart.py",
+          "render_chart"
+        ],
+        [
+          "python/aippt-worker/app/render/verify.py",
+          "_CHART_NS"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "case \"chart\""
+        ]
+      ],
+      "fixed": false,
+      "name": "四类图表",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/render/ChartView.tsx",
+          "line": 128,
+          "symbol": "dataKey",
+          "sha256": "bda711a50fbcf880c92063e47c08e24b80bb9c973348234f16bbf490c1374a1e",
+          "bytes": 7018
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/ChartDataEditor.tsx",
+          "line": 16,
+          "symbol": "ChartDataEditor",
+          "sha256": "7c40d040d2c6bbaa746476db7a3e7d7fd4b9378f3f87fd48fd6aa7a3cbfc82ab",
+          "bytes": 9767
+        },
+        {
+          "path": "python/aippt-worker/app/render/chart.py",
+          "line": 38,
+          "symbol": "render_chart",
+          "sha256": "7d237cc7f74e755dc24a6ec82070b256bc0814acf2df9091d3951518c1fe5a63",
+          "bytes": 7276
+        },
+        {
+          "path": "python/aippt-worker/app/render/verify.py",
+          "line": 46,
+          "symbol": "_CHART_NS",
+          "sha256": "25501ba2db046802c68468a362f303713535c7f51436a43e884df0d0fa5f7d3d",
+          "bytes": 28346
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "line": 131,
+          "symbol": "case \"chart\"",
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+          "bytes": 23463
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "chain": [
+        "原ElementToolbar改文字/容器样式并重置到主题。",
+        "slide:edit，字号8–72、圆角0–48、边框0–6、padding0–48、字重300–900及合法颜色；图表元素样式仍拒绝。",
+        "style PATCH与内容/树共用页队列和revision，null表示重置，不变更正式块类型。",
+        "React blockStyle、Python block_style及中心style验证在各边界消费统一IR/主题约束。",
+        "style JSON保存在正式blocks，质量/导出从同版本快照读取；reset继承主题。",
+        "非法范围或图表样式拒绝，草稿/冲突仍沿原队列；未验证真实字体视觉及焦点。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/ElementToolbar.tsx",
+          "ElementToolbar"
+        ],
+        [
+          "frontend/aippt-web/src/render/blockStyle.ts",
+          "resolve"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "case \"style\""
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "public static void style"
+        ],
+        [
+          "python/aippt-worker/app/domain/block_style.py",
+          "BlockStyle"
+        ]
+      ],
+      "fixed": false,
+      "name": "块样式",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/ElementToolbar.tsx",
+          "line": 33,
+          "symbol": "ElementToolbar",
+          "sha256": "e7bff137d61458c6959b1b7299fa609516f003ed95371b4776210fd01860394e",
+          "bytes": 23536
+        },
+        {
+          "path": "frontend/aippt-web/src/render/blockStyle.ts",
+          "line": 3,
+          "symbol": "resolve",
+          "sha256": "3d5819932d65d07684969b5a114da8d9d644824c34d4a92317f6d31c72460da3",
+          "bytes": 3524
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 687,
+          "symbol": "case \"style\"",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "line": 184,
+          "symbol": "public static void style",
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+          "bytes": 23463
+        },
+        {
+          "path": "python/aippt-worker/app/domain/block_style.py",
+          "line": 26,
+          "symbol": "BlockStyle",
+          "sha256": "5b192038bf09e827780637bb7a7ec3277889580617e89b54864bb2e173d271ae",
+          "bytes": 4202
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "chain": [
+        "同页文字/样式/树/换图/AI采纳走原保存桥，Undo/Redo为每页50步内存历史。",
+        "所有动作读队列当前formal revision，换页/会话后旧回执不能提交新页缓存。",
+        "内容、style、flex-layout/state及跨组件mutate共一队列，后台每次页CAS增加revision。",
+        "原snapshot/merge及history before/after维护撤销；执行闭包保存原版本，未知回执保留原请求。",
+        "成功局部合并Query页面；每页独立队列，项目级flush还等待主题队列。",
+        "失败暂停、flush拒绝并保留待作业；历史不跨刷新。未真实执行50步组合及多页同时保存。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "MAX_HISTORY"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "job.execute"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/slideSaveBridge.ts",
+          "runSlideMutation"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/slideSaveBridge.ts",
+          "flushProjectSlides"
+        ]
+      ],
+      "fixed": false,
+      "name": "保存队列与撤销重做",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "line": 72,
+          "symbol": "MAX_HISTORY",
+          "sha256": "5bcc5786365fbbd66d093d085df5919278f3f33ce90023938d0277ed87dd3bf3",
+          "bytes": 20143
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "line": 245,
+          "symbol": "job.execute",
+          "sha256": "5bcc5786365fbbd66d093d085df5919278f3f33ce90023938d0277ed87dd3bf3",
+          "bytes": 20143
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/slideSaveBridge.ts",
+          "line": 90,
+          "symbol": "runSlideMutation",
+          "sha256": "158ab19939cafaf581facebfad3e4ccc0540f2f7644c9cb95c1c32848083ad51",
+          "bytes": 3530
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/slideSaveBridge.ts",
+          "line": 82,
+          "symbol": "flushProjectSlides",
+          "sha256": "158ab19939cafaf581facebfad3e4ccc0540f2f7644c9cb95c1c32848083ad51",
+          "bytes": 3530
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "chain": [
+        "页队列与材料/提纲参数原地显示保存失败/冲突，离开先等待或给明确提示。",
+        "页revision、输入/主题版本分别CAS，client未知回执按会话/方法/路径及意图区分。",
+        "409为明确失败，允许核对最新后重基；网络/5xx为未知结果，不能换key或新正文。",
+        "requestPrepared本轮在构造含版本正文前检查未知请求；同一意图重放原body/key，不重复版本准备。",
+        "队列/弹层保本地草稿、文件及baseline；原路由guard/beforeunload守住未提交内容。",
+        "不同意图拒绝混入；未知状态保存在本次浏览器内存，关闭/刷新后的永久恢复并未承诺。未断网/双标签实测。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/api/client.ts",
+          "requestPrepared"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "pausedRef"
+        ],
+        [
+          "frontend/aippt-web/src/hooks/useSaveNavigationGuard.ts",
+          "beforeunload"
+        ],
+        [
+          "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "reapply"
+        ]
+      ],
+      "fixed": true,
+      "name": "冲突与失败草稿",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/api/client.ts",
+          "line": 89,
+          "symbol": "requestPrepared",
+          "sha256": "f95287702f0d11ee9fa446b17d828c39104d807c4463a710791e4604b3a96407",
+          "bytes": 7675
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "line": 104,
+          "symbol": "pausedRef",
+          "sha256": "5bcc5786365fbbd66d093d085df5919278f3f33ce90023938d0277ed87dd3bf3",
+          "bytes": 20143
+        },
+        {
+          "path": "frontend/aippt-web/src/hooks/useSaveNavigationGuard.ts",
+          "line": 118,
+          "symbol": "beforeunload",
+          "sha256": "a3b3fc5d7f09993b84b1e6cf61a7a80e23b983501e7fa106054cb13c428e9941",
+          "bytes": 7349
+        },
+        {
+          "path": "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "line": 152,
+          "symbol": "reapply",
+          "sha256": "b10329f3698cefa94c0af3f20e35177a59cde37bb739766534347fbb4ee05d7f",
+          "bytes": 19263
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "chain": [
+        "原ThemePanel选择ivory/obsidian/midnight/scholar并改颜色/字体对/字号/圆角/要点符号。",
+        "theme:edit、theme_revision与白名单，确认后主题仍可改而不改变材料指纹。",
+        "主题PATCH在项目锁内校验并bump theme_revision；页面质量缓存随后按新版本失效。",
+        "原四theme JSON、React themeOverrides/ambient与Python resolve_theme共同消费唯一catalog。",
+        "原主题队列320ms串行保存、人工新增意图继续等待；预览和导出读取theme_overrides。",
+        "非法字体/颜色明确拒绝，reset回目录，保存未知正文冻结；未真实逐主题视觉/导出对比。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/ThemePanel.tsx",
+          "registerThemeSaveHandlers"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject theme"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "validateTheme"
+        ],
+        [
+          "python/aippt-worker/app/domain/theme.py",
+          "resolve_theme"
+        ],
+        [
+          "contracts/aippt/catalog/themes/ivory.json",
+          "font"
+        ]
+      ],
+      "fixed": false,
+      "name": "四主题与微调",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/ThemePanel.tsx",
+          "line": 10,
+          "symbol": "registerThemeSaveHandlers",
+          "sha256": "f2fe6848975ade849be098a4f667d5ced2e14779c3d81be6a143a2f558c54011",
+          "bytes": 17246
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 317,
+          "symbol": "public JSONObject theme",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 330,
+          "symbol": "validateTheme",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "python/aippt-worker/app/domain/theme.py",
+          "line": 40,
+          "symbol": "resolve_theme",
+          "sha256": "9c3e63d3438766e596961b87fc596977d62b6740649c41d111dc778965c84c35",
+          "bytes": 8828
+        },
+        {
+          "path": "contracts/aippt/catalog/themes/ivory.json",
+          "line": 24,
+          "symbol": "font",
+          "sha256": "b65c5764b6d230201e8d9395aab55185b8a1718e00cc861df923ce87b7ab708c",
+          "bytes": 4154
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "chain": [
+        "原LayoutPanel列11固定布局兼容候选，支持固定切换及解锁flex。",
+        "deck:query读取候选，slide:edit提交，块类型/槽位容量/必需槽位在中心校验。",
+        "layout或unlock-flex按页revision处理；固定树必须为空，兼容分配保块ID/锁定。",
+        "CatalogService.compatible确定槽位分配，FlexEditing.fromFixed保首帧rect_override。",
+        "layout_id/mode/tree保存正式页；React首帧原矩形与后续自然树使用既有renderer。",
+        "不兼容具体拒绝不丢内容；后续结构改动清override；未全量实际切换11布局。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/LayoutPanel.tsx",
+          "LayoutPanel"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/CatalogService.java",
+          "compatible"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+          "fromFixed"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "case \"unlock-flex\""
+        ]
+      ],
+      "fixed": false,
+      "name": "固定切换与解锁",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/LayoutPanel.tsx",
+          "line": 16,
+          "symbol": "LayoutPanel",
+          "sha256": "0028e30dba770a3ab59cb592dae0ce3ef1b3a89ba31a199293c797ec7b528b71",
+          "bytes": 4873
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/CatalogService.java",
+          "line": 146,
+          "symbol": "compatible",
+          "sha256": "8b388cc9e977c4d2f57578fab42c4ae93149a21c008ab287f0f92a74a41cc5d4",
+          "bytes": 10308
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+          "line": 65,
+          "symbol": "fromFixed",
+          "sha256": "42b0770c6143a49b62b1bc85a5fa2ed4be027b26514fa3d0ef744daca1afb484",
+          "bytes": 5423
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 746,
+          "symbol": "case \"unlock-flex\"",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 25,
+      "chain": [
+        "原FlexEditLayer支持分隔/四边resize、同/跨容器移动、两三列和八类块增删、留白/出血。",
+        "仅flex且slide:edit，树深度/节点/ID/块引用/比例/尺寸和至少一块由中心再次校验。",
+        "flex-layout、flex-state及blocks经原同页队列与CAS；用户pointer取消只恢复本地几何。",
+        "原flex目录、geometry/normalize、Python solve/width/fit/skin保留，Java只验证提交树和受影响动作。",
+        "blocks/tree/layout_mode/id同一正式页；spacer/locked/style及rect_override语义按原算法保持。",
+        "非法树/最后一块删除拒绝；未知提交保待作业，未运行跨三端几何或实际拖拽测试。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/FlexEditLayer.tsx",
+          "FlexEditLayer"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/useFlexPointerSession.ts",
+          "useFlexPointerSession"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+          "insertLeaf"
+        ],
+        [
+          "python/aippt-worker/app/domain/flex_solve.py",
+          "solve"
+        ],
+        [
+          "contracts/aippt/schemas/layout-tree.schema.json",
+          "children"
+        ]
+      ],
+      "fixed": false,
+      "name": "灵活树全部操作",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/FlexEditLayer.tsx",
+          "line": 17,
+          "symbol": "FlexEditLayer",
+          "sha256": "895ad80c60d7a7460d85d541b927cb7475fd0df9cb82121e41c2b818a35e5d2b",
+          "bytes": 9341
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/useFlexPointerSession.ts",
+          "line": 76,
+          "symbol": "useFlexPointerSession",
+          "sha256": "29df9beff1e9c2c5286c9da309ab8394f1f18d7c7ca55dc4542f6f421e8decc3",
+          "bytes": 25067
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+          "line": 18,
+          "symbol": "insertLeaf",
+          "sha256": "42b0770c6143a49b62b1bc85a5fa2ed4be027b26514fa3d0ef744daca1afb484",
+          "bytes": 5423
+        },
+        {
+          "path": "python/aippt-worker/app/domain/flex_solve.py",
+          "line": 28,
+          "symbol": "solve",
+          "sha256": "8fc65481767374a45cbf9d2140590327ab85b859676bbffdacbe5f4ab5db4a0b",
+          "bytes": 6429
+        },
+        {
+          "path": "contracts/aippt/schemas/layout-tree.schema.json",
+          "line": 17,
+          "symbol": "children",
+          "sha256": "cd6ac330c8af5a08e8bffc51dbc48cd3813dc5499caad8575eb88237aefd5c82",
+          "bytes": 4801
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "chain": [
+        "原RelayoutDock展示当前/候选/更多，选中候选应用或恢复原树。",
+        "ai:edit生成、slide:edit采纳；只合法flex，候选绑定slide expected revision。",
+        "relayout任务只写proposal；apply验证同项目/同页/类型/版本，不能把模型树直接写正式状态。",
+        "原模型propose及build_relayout_candidates过滤同构与非法树，清rect_override而保内容。",
+        "candidate_id/proposal_id进入正式apply，中心校验树/锁定并bump deck_revision；Undo恢复人工树。",
+        "过期409，面板按project/slide/generation/token拒迟到回执；未真实联机比较候选。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/RelayoutPanel.tsx",
+          "const applyTree"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/api.ts",
+          "resolveProposal"
+        ],
+        [
+          "python/aippt-worker/app/worker/handlers.py",
+          "async def relayout"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject apply"
+        ]
+      ],
+      "fixed": false,
+      "name": "换排布提案",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/RelayoutPanel.tsx",
+          "line": 65,
+          "symbol": "const applyTree",
+          "sha256": "ab2ee2d6cebaa53aecc3f77640428f39625957a759561f479228db4970031c7c",
+          "bytes": 9789
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "line": 374,
+          "symbol": "resolveProposal",
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+          "bytes": 23438
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "line": 196,
+          "symbol": "async def relayout",
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e",
+          "bytes": 17955
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 832,
+          "symbol": "public JSONObject apply",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 27,
+      "chain": [
+        "质量/导出面板显示字体估算、溢出及页/槽位定位；原正文不会为适配而删除。",
+        "字体任务快照必须含unavailable或SHA256，Worker核manifest、两字体大小/hash/解析结果。",
+        "completeOutput用fontManifest将任务资源身份与实际回执再次核对，错版本拒绝。",
+        "原text_metrics中英/emoji估算与字形度量、flex fit和slot/canvas检查保留；槽位溢出warning、画布越界error。",
+        "unavailable强制任务内estimate，不借本机碰巧存在字体冒称精确；report.fonts_precise反馈面板。",
+        "缺真实许可字体的3历史项仍跳过，未下载字体或视觉核对；verified资源身份也不证明每个字形精确。"
+      ],
+      "refs": [
+        [
+          "python/aippt-worker/app/worker/fonts.py",
+          "bind_task_fonts"
+        ],
+        [
+          "python/aippt-worker/app/domain/text_metrics.py",
+          "font"
+        ],
+        [
+          "python/aippt-worker/app/domain/export_check.py",
+          "check_slot_bounds"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "fontManifest"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/ExportDialog.tsx",
+          "fonts_precise"
+        ]
+      ],
+      "fixed": false,
+      "name": "字体与溢出",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "python/aippt-worker/app/worker/fonts.py",
+          "line": 64,
+          "symbol": "bind_task_fonts",
+          "sha256": "f1ba0b10b7a2f351674af5a3908722b6df2bbb3aded42b56144864c4631bbfde",
+          "bytes": 5620
+        },
+        {
+          "path": "python/aippt-worker/app/domain/text_metrics.py",
+          "line": 23,
+          "symbol": "font",
+          "sha256": "75495501e0a57482f43a7e314ad978362eb23e44e789fca9f6509de2b4b3f3a8",
+          "bytes": 11856
+        },
+        {
+          "path": "python/aippt-worker/app/domain/export_check.py",
+          "line": 50,
+          "symbol": "check_slot_bounds",
+          "sha256": "bb056cb38781e6a147980dde4dc9cb4295a4103b933a4cc9d36ab495cf1fad4c",
+          "bytes": 12495
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "line": 26,
+          "symbol": "fontManifest",
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+          "bytes": 23463
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/ExportDialog.tsx",
+          "line": 134,
+          "symbol": "fonts_precise",
+          "sha256": "92ed950f012a6a2f8ef08fc6c119b14d5dcfb9280a99d9bed60ffb3c659f9ec3",
+          "bytes": 13389
+        }
+      ]
+    },
+    {
+      "number": 28,
+      "chain": [
+        "原AiEditPanel最多带最近5轮历史，显示before/after、discarded及重新生成。",
+        "ai:edit提案，instruction≤500；fixed仅六替换，flex另有add/delete/change_type，锁定块过滤。",
+        "ai_edit任务接正式页快照，提案完成只登记proposal；apply为另一用户命令。",
+        "原九工具与slide_edit workflow仅改副本，结构/ID/候选校验和最多一轮修复保持。",
+        "中心校验candidate_slide/protect，给每项操作正式ID；前端逐项展示而不自动采纳。",
+        "非法工具/块/图表文字替换或结构错误拒绝；失败历史保留，未真实Provider核九工具输出。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/AiEditPanel.tsx",
+          "sendInstruction"
+        ],
+        [
+          "python/aippt-worker/app/llm/edit_tools.py",
+          "build_edit_tools"
+        ],
+        [
+          "python/aippt-worker/app/workflows/slide_edit.py",
+          "build_slide_edit_workflow"
+        ],
+        [
+          "python/aippt-worker/app/worker/handlers.py",
+          "async def ai_edit"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject propose"
+        ]
+      ],
+      "fixed": false,
+      "name": "AI改稿全工具",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/AiEditPanel.tsx",
+          "line": 116,
+          "symbol": "sendInstruction",
+          "sha256": "910d76a4228fb5f1c3fa7ce9f65dbcd74e3117bc00e279ac98d0eea30cc62375",
+          "bytes": 22672
+        },
+        {
+          "path": "python/aippt-worker/app/llm/edit_tools.py",
+          "line": 56,
+          "symbol": "build_edit_tools",
+          "sha256": "6588658723cc7bc1839b61d973556c9938ac5ae759f67daddb9f26374deb4d97",
+          "bytes": 9221
+        },
+        {
+          "path": "python/aippt-worker/app/workflows/slide_edit.py",
+          "line": 44,
+          "symbol": "build_slide_edit_workflow",
+          "sha256": "f8ab2f37d8547bf3d5a1a7a6abeeee3363b808e7392d261fdd803f5aa6dd7731",
+          "bytes": 7216
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "line": 170,
+          "symbol": "async def ai_edit",
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e",
+          "bytes": 17955
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 817,
+          "symbol": "public JSONObject propose",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 29,
+      "chain": [
+        "手改/换图写locked；AI逐项采纳、撤回或舍弃，整页重做另有显式覆盖确认。",
+        "提案不持正式写权限，用户apply需slide:edit、页CAS与proposal expected revision。",
+        "apply核同项目/页/类型，ProposalOperations只改该操作涉及块/叶；用户原结构恢复走人工flex-state。",
+        "Worker候选保护锁定，中心protect再次校验；fixed不能通过结构工具扩权。",
+        "采纳/撤回保存正式slide、更新proposal基准、deck_revision及审计，其他未采纳内容保持。",
+        "手改使候选过期409，AI不能覆盖locked；原Undo只保护变化块，不承诺跨刷新历史。未实际并发采纳。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/ProposalOperations.java",
+          "public static void apply"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "public static void protect"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject apply"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/AiEditPanel.tsx",
+          "const applySide"
+        ]
+      ],
+      "fixed": false,
+      "name": "锁定与采纳撤回",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/ProposalOperations.java",
+          "line": 10,
+          "symbol": "public static void apply",
+          "sha256": "e25090a63ba6d38e7c1af138020a744af8f5e86b4435d8ca6c0b7897a207e4f1",
+          "bytes": 6849
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "line": 300,
+          "symbol": "public static void protect",
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+          "bytes": 23463
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 832,
+          "symbol": "public JSONObject apply",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/AiEditPanel.tsx",
+          "line": 172,
+          "symbol": "const applySide",
+          "sha256": "910d76a4228fb5f1c3fa7ce9f65dbcd74e3117bc00e279ac98d0eea30cc62375",
+          "bytes": 22672
+        }
+      ]
+    },
+    {
+      "number": 30,
+      "chain": [
+        "项目卡片和材料弹层删除目标，保成功页/原文证据及正式补偿清单。",
+        "remove权限+owner+输入版本，项目删除后所有普通读/新任务/下载拒绝。",
+        "deleteProject标deleted并取消任务/outbox，不直接删行；同原key可确认删除回执，新key仍404。",
+        "引用计数覆盖source/slide/snapshot/export/proposal；cleanup只清所属UUID对象，外部IO在事务外。",
+        "AssetCompensationJournal在put前刷盘，失败/崩溃留stage_cleanup；引用中的共享页图片不能误删。",
+        "清理失败退避保pending，cleanup默认关闭；本轮项目删除未知回执补齐，未删除真实对象或故障演练。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject deleteProject"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public void reconcileAssets"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetCleanupService.java",
+          "public void sweep"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/AssetCompensationJournal.java",
+          "started"
+        ],
+        [
+          "frontend/aippt-web/src/features/projects/api.ts",
+          "useDeleteProject"
+        ]
+      ],
+      "fixed": true,
+      "name": "删除与对象补偿",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 125,
+          "symbol": "public JSONObject deleteProject",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 1321,
+          "symbol": "public void reconcileAssets",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetCleanupService.java",
+          "line": 23,
+          "symbol": "public void sweep",
+          "sha256": "9c1b4c2187a844dbbae1799cbce596bb7b98102c5c66b8c2e35925086c1871e5",
+          "bytes": 5142
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/AssetCompensationJournal.java",
+          "line": 45,
+          "symbol": "started",
+          "sha256": "38f1a9e322c94f5bad5891994963c1b9aca91926663ac06f189be43b3b8a878a",
+          "bytes": 5296
+        },
+        {
+          "path": "frontend/aippt-web/src/features/projects/api.ts",
+          "line": 109,
+          "symbol": "useDeleteProject",
+          "sha256": "cce50ea4f2a209df5ad01ad13d13858712417b8af3b2ce4d9401c451a985d8db",
+          "bytes": 9247
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "chain": [
+        "原数据导入为显式prepare-import及中心CLI，原React列表/材料/编辑读同一正式结构。",
+        "源快照hash、显式旧owner→sys_user映射、完整对象根/manifest/version及apply门禁；不导入秘密或旧JWT。",
+        "中心Schema已建16表不等于导入授权；CLI默认计划，不启动Spring或连接数据库。",
+        "准备器转稳定ref/资产映射并逐字段核账，中心再核布局/块/时间/签名；1–40正式页不套生成5–20。",
+        "逐项目事务+批次checkpoint，staging对象先journal再正式提交；保原ISO时间、备注、锁定、树、旧指纹。",
+        "旧confirmed转draft需重确认；重放不覆盖新写入，rollback遇新增内容拒绝。真实旧快照/对象/owner未导入，属于本轮未验证范围。"
+      ],
+      "refs": [
+        [
+          "python/aippt-worker/app/worker/migration.py",
+          "def prepare_import"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/migration/AipptLegacyImportCli.java",
+          "public static Plan prepare"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/migration/AipptLegacyImportCli.java",
+          "rollback"
+        ],
+        [
+          "contracts/aippt/schemas/import-manifest.schema.json",
+          "schema_version"
+        ]
+      ],
+      "fixed": false,
+      "name": "旧数据完整导入",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "python/aippt-worker/app/worker/migration.py",
+          "line": 76,
+          "symbol": "def prepare_import",
+          "sha256": "b7cda4096fc5dc57eb1e1354814cd49951126cfff65d81f4d74b6113c8ed9a65",
+          "bytes": 16307
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/migration/AipptLegacyImportCli.java",
+          "line": 56,
+          "symbol": "public static Plan prepare",
+          "sha256": "1dbb8f8292c2c9fad01f6ee4c1aafde4fb8ba3f102ca2d3a0510b84433c6751e",
+          "bytes": 32366
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/migration/AipptLegacyImportCli.java",
+          "line": 40,
+          "symbol": "rollback",
+          "sha256": "1dbb8f8292c2c9fad01f6ee4c1aafde4fb8ba3f102ca2d3a0510b84433c6751e",
+          "bytes": 32366
+        },
+        {
+          "path": "contracts/aippt/schemas/import-manifest.schema.json",
+          "line": 8,
+          "symbol": "schema_version",
+          "sha256": "563c1adb3892a3b7403305f3181fdd0fd33ddb3048e8e0345e84e94cc4d9c2e7",
+          "bytes": 12491
+        }
+      ]
+    },
+    {
+      "number": 32,
+      "chain": [
+        "生成页可自动配图，原图片块保alt、source及credit；失败后继续出页。",
+        "中心任务image_enabled与Worker本机image_enabled同时显式开启，Provider凭据不能充当授权。",
+        "Worker上传必须当前task/attempt/fencing租约，中心资产manifest校验归属/大小/mime/hash。",
+        "原生成→Unsplash→占位顺序，支持兼容生图/百炼；SafeAsyncClient与PublicTransport拒内网/重定向并限制字节/DNS连接。",
+        "返回中心私有图片URL及来源/署名；preview鉴权Blob，导出从受权快照读资产。",
+        "坏图/超时降级，租约失效必须终止；未调用外部图源、付费模型或真实降级演练。"
+      ],
+      "refs": [
+        [
+          "python/aippt-worker/app/images/pipeline.py",
+          "class ImagePipeline"
+        ],
+        [
+          "python/aippt-worker/app/worker/handlers.py",
+          "async def _resolve_images"
+        ],
+        [
+          "python/aippt-worker/app/worker/security.py",
+          "class SafeAsyncClient"
+        ],
+        [
+          "python/aippt-worker/app/worker/transport.py",
+          "PublicTransport"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "private void validateManifest"
+        ]
+      ],
+      "fixed": false,
+      "name": "真实配图与三级降级",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "python/aippt-worker/app/images/pipeline.py",
+          "line": 10,
+          "symbol": "class ImagePipeline",
+          "sha256": "6a3efc2fa5e7c9a108ccf1b6ed36ae60bbc3bbd15cb33e89d3442764f52b7f6f",
+          "bytes": 2554
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "line": 137,
+          "symbol": "async def _resolve_images",
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e",
+          "bytes": 17955
+        },
+        {
+          "path": "python/aippt-worker/app/worker/security.py",
+          "line": 31,
+          "symbol": "class SafeAsyncClient",
+          "sha256": "7680a52a70764e6cae0c3f9f696a374bcc83afc6685e1cf21f79de50092a3040",
+          "bytes": 3995
+        },
+        {
+          "path": "python/aippt-worker/app/worker/transport.py",
+          "line": 44,
+          "symbol": "PublicTransport",
+          "sha256": "dac3bab5740151c08c49ba9c31c0b2cfb8595f0ebee06843c190fa46db4d0082",
+          "bytes": 3157
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 1310,
+          "symbol": "private void validateManifest",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        }
+      ]
+    },
+    {
+      "number": 33,
+      "chain": [
+        "原ImagePanel换PNG/JPEG/WebP，按原图块几何裁剪显示。",
+        "slide:edit+image:upload、image块、页revision及8MiB/40MP解码限额，上传原File保留。",
+        "image PUT暂存上传幂等，再edit命令指向正式资产；冲突立即释放未引用stage。",
+        "Java ImageIO+WebP依赖核真实字节；Python原validate_image与PPTX图像构造保持。",
+        "换图写url/source/credit/locked，串行页队列回读新revision；Blob仅展示不进正式IR。",
+        "伪图片/损坏/超限/旧revision拒绝且保旧图；未上传真实图片或视觉核裁剪。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/ImagePanel.tsx",
+          "ImagePanel"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/api.ts",
+          "useReplaceSlideImage"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/AipptController.java",
+          "public AjaxResult image"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "public static String validate"
+        ],
+        [
+          "frontend/aippt-web/src/render/usePrivateImage.ts",
+          "usePrivateImage"
+        ]
+      ],
+      "fixed": false,
+      "name": "上传换图",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/ImagePanel.tsx",
+          "line": 16,
+          "symbol": "ImagePanel",
+          "sha256": "8c91b2436eec3e5040372158ef576dff986927a2f036e268c5a8bc36c0617890",
+          "bytes": 4141
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "line": 131,
+          "symbol": "useReplaceSlideImage",
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+          "bytes": 23438
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/AipptController.java",
+          "line": 129,
+          "symbol": "public AjaxResult image",
+          "sha256": "3414b86e8cb210cbf537d604969f86ee20e5308010eec33d5e7f9726659c789e",
+          "bytes": 18903
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "line": 58,
+          "symbol": "public static String validate",
+          "sha256": "8f714289d5adc79947952108c6e5921de22a38756dc569708ee1c10bdc235672",
+          "bytes": 23523
+        },
+        {
+          "path": "frontend/aippt-web/src/render/usePrivateImage.ts",
+          "line": 7,
+          "symbol": "usePrivateImage",
+          "sha256": "57e7580d759c6ef84d4b01c008d21f611cb846599db24d397f7f34510957fc2e",
+          "bytes": 1552
+        }
+      ]
+    },
+    {
+      "number": 34,
+      "chain": [
+        "材料/图片/导出统一经中心私有接口读取，客户端不访问任意存储key或直接外链。",
+        "assetId+本人归属+对应材料/导出权限；短ticket仍需会话、有限期且role权限，不能转匿名公开读。",
+        "GET assets、download-ticket和export/download用no-store/nosniff、正规Content-Disposition及hash核对。",
+        "Local UUID路径/符号链接/公开profile边界；COS HTTPS/Private ACL、受控aippt对象key。",
+        "中心asset metadata权威，存储只持字节；React usePrivateImage持会话Blob，换会话释放旧私有图。",
+        "他人资源/过期ticket/路径穿越拒绝；旧文件JSON错误回执本轮再加Token核验，未连接真实COS/对象目录。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "validateTicket"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/AipptController.java",
+          "private ResponseEntity<byte[]> binary"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/LocalAipptStorage.java",
+          "private Path resolve"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/CosAipptStorage.java",
+          "CannedAccessControlList.Private"
+        ],
+        [
+          "frontend/aippt-web/src/api/client.ts",
+          "export async function requestBinary"
+        ]
+      ],
+      "fixed": true,
+      "name": "私有存储与授权",
+      "logic_conclusion": "实现后已静态核对",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "line": 413,
+          "symbol": "validateTicket",
+          "sha256": "8f714289d5adc79947952108c6e5921de22a38756dc569708ee1c10bdc235672",
+          "bytes": 23523
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/AipptController.java",
+          "line": 189,
+          "symbol": "private ResponseEntity<byte[]> binary",
+          "sha256": "3414b86e8cb210cbf537d604969f86ee20e5308010eec33d5e7f9726659c789e",
+          "bytes": 18903
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/LocalAipptStorage.java",
+          "line": 11,
+          "symbol": "private Path resolve",
+          "sha256": "2a4559f7dab9b37ccbe0b0eae97fb8ba30b433931ec4d5fdc4c68d87d1231be7",
+          "bytes": 2057
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/CosAipptStorage.java",
+          "line": 35,
+          "symbol": "CannedAccessControlList.Private",
+          "sha256": "3d6eff7e39b9ad7ca7f635e0b058ad5a1cb173b789088195dcd7d8fb58f870dc",
+          "bytes": 2923
+        },
+        {
+          "path": "frontend/aippt-web/src/api/client.ts",
+          "line": 107,
+          "symbol": "export async function requestBinary",
+          "sha256": "f95287702f0d11ee9fa446b17d828c39104d807c4463a710791e4604b3a96407",
+          "bytes": 7675
+        }
+      ]
+    },
+    {
+      "number": 35,
+      "chain": [
+        "原ExportDialog先等待页/主题保存，显示可定位错误/警告与字体估算。",
+        "export:check读取质量；导出另需create/download，error阻断、warning须显式确认。",
+        "qualityKey绑定deck/theme/input revision+catalog+font hash；quality任务同版本去重，旧结果不写当前缓存。",
+        "Worker原run_export_check核结构/容量/边界/丢图/低清/重复/无来源数字/偏瘦空话及字体。",
+        "issues/can_export/version_key写中心quality，React转换export_allowed/fonts_precise并定位页。",
+        "报告未就绪/过期不能导出；警告不等于事实核验，未执行完整真实样本/质量修复。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/ExportDialog.tsx",
+          "resolveCheckState"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/api.ts",
+          "useDeckQuality"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "private String qualityKey"
+        ],
+        [
+          "python/aippt-worker/app/domain/export_check.py",
+          "run_export_check"
+        ]
+      ],
+      "fixed": false,
+      "name": "完整质量门禁",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/ExportDialog.tsx",
+          "line": 20,
+          "symbol": "resolveCheckState",
+          "sha256": "92ed950f012a6a2f8ef08fc6c119b14d5dcfb9280a99d9bed60ffb3c659f9ec3",
+          "bytes": 13389
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "line": 421,
+          "symbol": "useDeckQuality",
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+          "bytes": 23438
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 886,
+          "symbol": "private String qualityKey",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "python/aippt-worker/app/domain/export_check.py",
+          "line": 297,
+          "symbol": "run_export_check",
+          "sha256": "bb056cb38781e6a147980dde4dc9cb4295a4103b933a4cc9d36ab495cf1fad4c",
+          "bytes": 12495
+        }
+      ]
+    },
+    {
+      "number": 36,
+      "chain": [
+        "原导出一次即下载入口生成原生PPTX，中文文件名通过正规响应头解析。",
+        "全部页ready、deck/theme CAS、当前quality允许及警告确认，下载另核本人export归属。",
+        "中心登记不可变snapshot/export/任务；Worker上传产物后中心validateManifest/verify/页数/hash核对。",
+        "原八块、文本runs、表格、四图表内嵌XLSX、图片/形状与备注构造，verify按源Deck回读。",
+        "回读成功才export.ready/asset_id，React先确认任务/制品状态再Binary→Blob→saveBlob；失败没有部分文件。",
+        "严格数值工作簿修复字节与旧证据保留；无真实授权下载/Office编辑或字体视觉验收，旧WPS第16页失败仍保留。"
+      ],
+      "refs": [
+        [
+          "python/aippt-worker/app/render/pptx.py",
+          "render_deck_to_pptx"
+        ],
+        [
+          "python/aippt-worker/app/render/verify.py",
+          "def verify_pptx"
+        ],
+        [
+          "python/aippt-worker/app/worker/handlers.py",
+          "async def export"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "case \"export\""
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/api.ts",
+          "useExportDeck"
+        ]
+      ],
+      "fixed": false,
+      "name": "原生可编辑PPTX",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "python/aippt-worker/app/render/pptx.py",
+          "line": 783,
+          "symbol": "render_deck_to_pptx",
+          "sha256": "60bdc22b8b109c837663a040ed57b7cb2b517b05bcdbd80b5f6d356887de2a77",
+          "bytes": 31080
+        },
+        {
+          "path": "python/aippt-worker/app/render/verify.py",
+          "line": 73,
+          "symbol": "def verify_pptx",
+          "sha256": "25501ba2db046802c68468a362f303713535c7f51436a43e884df0d0fa5f7d3d",
+          "bytes": 28346
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "line": 250,
+          "symbol": "async def export",
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e",
+          "bytes": 17955
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 1074,
+          "symbol": "case \"export\"",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "line": 435,
+          "symbol": "useExportDeck",
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+          "bytes": 23438
+        }
+      ]
+    },
+    {
+      "number": 37,
+      "chain": [
+        "导出面板显示待确认导出的deck/theme版本及页/检查/shape/截断诊断。",
+        "启动时正式版本和质量Key核对；下载按export快照和原hash，不把后续编辑伪装成旧文件内容。",
+        "中心export保存snapshot_id/版本；complete要求passed、实际/预期页数匹配及正式资产hash。",
+        "verify核画布、原生对象、内容/备注/边界和图表cache/XLSX，失败以有界verification_failure回传。",
+        "失败task/export保存诊断，未产生ready下载资产；前端已接受任务保原id以确认未知下载结果。",
+        "明确失败后可新尝试，失联不重复制品；旧快照制品保留版本。未注入坏PPTX/真实下载。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject getExport"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+          "verificationFailure"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/api.ts",
+          "commandVersion"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/ExportDialog.tsx",
+          "function FailureNote"
+        ],
+        [
+          "python/aippt-worker/app/render/verify.py",
+          "def verify_pptx"
+        ]
+      ],
+      "fixed": false,
+      "name": "快照与回读失败",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 1053,
+          "symbol": "public JSONObject getExport",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+          "line": 222,
+          "symbol": "verificationFailure",
+          "sha256": "748907c59bafcb8016c6245ecae2ad1dcda49f22ef0e7fc1eef012bcb8576539",
+          "bytes": 20829
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "line": 438,
+          "symbol": "commandVersion",
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+          "bytes": 23438
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/ExportDialog.tsx",
+          "line": 300,
+          "symbol": "function FailureNote",
+          "sha256": "92ed950f012a6a2f8ef08fc6c119b14d5dcfb9280a99d9bed60ffb3c659f9ec3",
+          "bytes": 13389
+        },
+        {
+          "path": "python/aippt-worker/app/render/verify.py",
+          "line": 73,
+          "symbol": "def verify_pptx",
+          "sha256": "25501ba2db046802c68468a362f303713535c7f51436a43e884df0d0fa5f7d3d",
+          "bytes": 28346
+        }
+      ]
+    },
+    {
+      "number": 38,
+      "chain": [
+        "原画布/Filmstrip缩略图、ZoomControls保持原比例与160%等缩放入口。",
+        "deck:query读取原IR，选页/项目变化独立；所有SlidePage保持保存注册。",
+        "前端仅懒渲染未进入视口预览，后台页集合不删、不缩小正式页数。",
+        "useSlideVisibility首次访问后持续保DOM，原SlideView/flexLayout共渲染器，几何算法未重写。",
+        "离屏草稿、主题/页prop更新仍到已访问页；原缩略图和画布保持相同内容。",
+        "项目切换及迟到observer拒绝旧缓存；未做当前40页真实性能、200%文字缩放和多视口操作，不能声称达p95阈值。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/useSlideVisibility.ts",
+          "useSlideVisibility"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/SlidePage.tsx",
+          "registerSlideSaveHandlers"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/ZoomControls.tsx",
+          "ZoomControls"
+        ],
+        [
+          "frontend/aippt-web/src/render/SlideView.tsx",
+          "SlideView"
+        ]
+      ],
+      "fixed": false,
+      "name": "缩略图缩放与性能",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/useSlideVisibility.ts",
+          "line": 41,
+          "symbol": "useSlideVisibility",
+          "sha256": "adcd396476f94030ef119370d6559065f3c1accacb9d25c62fa3fdd3398c1d69",
+          "bytes": 4014
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/SlidePage.tsx",
+          "line": 10,
+          "symbol": "registerSlideSaveHandlers",
+          "sha256": "f2f50acabca0ee6d27313b85b8d7938a082a60ea3bfc72fd620dc8a980bd5db7",
+          "bytes": 13692
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/ZoomControls.tsx",
+          "line": 3,
+          "symbol": "ZoomControls",
+          "sha256": "abb81bccd93f94213f82cb764cf227e5b09138a41ea5c4c6f64556ed16abc37a",
+          "bytes": 1109
+        },
+        {
+          "path": "frontend/aippt-web/src/render/SlideView.tsx",
+          "line": 19,
+          "symbol": "SlideView",
+          "sha256": "f7905e6efc59b627c19d0d27d2b4d92eb009d6c716b85cd4876d130c673e4e8b",
+          "bytes": 12619
+        }
+      ]
+    },
+    {
+      "number": 39,
+      "chain": [
+        "原PresentMode从选中页放映，支持点击/箭头/空格/Page/HomeEnd/F/Esc及退出。",
+        "只呈现ready页，无正式写副作用；呈现当前页缓存，持久化仍由原页保存队列完成，未承诺进入放映等待全部保存。",
+        "放映消费原deck缓存，不发第二控制接口或修改正式position。",
+        "原PresentMode边界/全屏失败处理，EditorWorkspace等待fullscreenchange后恢复原入口焦点。",
+        "退出恢复原选页/项目及有效DOM，按project/token核焦点归属。",
+        "拒全屏可继续普通放映，旧会话/已移除入口不强行聚焦；未实际按键或打开浏览器放映。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/deck/PresentMode.tsx",
+          "PresentMode"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/EditorWorkspace.tsx",
+          "const restoreFocus"
+        ],
+        [
+          "frontend/aippt-web/src/features/deck/EditorHeaderActions.tsx",
+          "onPresent"
+        ]
+      ],
+      "fixed": false,
+      "name": "放映",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/PresentMode.tsx",
+          "line": 16,
+          "symbol": "PresentMode",
+          "sha256": "0d165c49db4444a3baa1a1021310d0e3d82d78716722040e07b9224683847b98",
+          "bytes": 9214
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/EditorWorkspace.tsx",
+          "line": 97,
+          "symbol": "const restoreFocus",
+          "sha256": "3cafbad93979a30c3dc47bb7c62db900b6e2aff6dbe130f3923139a89b7f2482",
+          "bytes": 14753
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/EditorHeaderActions.tsx",
+          "line": 14,
+          "symbol": "onPresent",
+          "sha256": "4cab7245357afbb962022474808fc94c313313a75651a37c40db020b6725f5de",
+          "bytes": 2678
+        }
+      ]
+    },
+    {
+      "number": 40,
+      "chain": [
+        "原ThemePanel内SamplePanel查看四主题/11布局及质量/专用导出，不冒充用户生成页。",
+        "design:query读样例，导出另create/download；普通项目命令不能修改sample。",
+        "中心登记私有样例并核catalog版本、完整页序及UUID→目录原页ID映射；专用导出再次校验。",
+        "样例用同quality/export专业算法，候选不是第二catalog；前端版本从唯一manifest导入。",
+        "质量issues映射正确目录页，主题切换只外观；原生导出依旧门禁/回读。",
+        "版本/页关系异常明确拒绝保旧样例，未知导出保原command；未真实执行样例任务。"
+      ],
+      "refs": [
+        [
+          "frontend/aippt-web/src/features/design/SamplePanel.tsx",
+          "SamplePanel"
+        ],
+        [
+          "frontend/aippt-web/src/features/design/api.ts",
+          "sampleCatalogVersion"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "public JSONObject sampleExport"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "sampleSlideIds"
+        ],
+        [
+          "contracts/aippt/catalog-manifest.json",
+          "catalogVersion"
+        ]
+      ],
+      "fixed": false,
+      "name": "样例与目录",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "frontend/aippt-web/src/features/design/SamplePanel.tsx",
+          "line": 17,
+          "symbol": "SamplePanel",
+          "sha256": "fb863d028e1b9e11d05d2f80cf1e1cbb3bc8d626e145222049199feec2729fc6",
+          "bytes": 11453
+        },
+        {
+          "path": "frontend/aippt-web/src/features/design/api.ts",
+          "line": 13,
+          "symbol": "sampleCatalogVersion",
+          "sha256": "546ecbe593e91037fd7722e284e79764d957c79da7be4be832e0e082f6e667b1",
+          "bytes": 4553
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 1008,
+          "symbol": "public JSONObject sampleExport",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "line": 919,
+          "symbol": "sampleSlideIds",
+          "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+          "bytes": 84176
+        },
+        {
+          "path": "contracts/aippt/catalog-manifest.json",
+          "line": 3,
+          "symbol": "catalogVersion",
+          "sha256": "23956f5ec120ff992fbdbbec480ee59c1ad5df1156fd0169e86b1017d0263472",
+          "bytes": 6148
+        }
+      ]
+    },
+    {
+      "number": 41,
+      "chain": [
+        "停用、任务失败与通知降级从原业务提示和受权health查看，不启动第二后台。",
+        "业务/Worker/Provider/image/cleanup及Redis环境各有开关；内部路径关闭时默认拒绝。",
+        "共享dynamicDataSource/RedisConnectionFactory沿用；outbox事务登记、事务外有界发布，通知不持正式状态。",
+        "Worker attempt/deadline/lease/fencing保护结果，目录/字体身份不符失败；Redis通知失败回退DB轮询。",
+        "关闭Provider不影响已授权已有页编辑/质量/导出（仍需Worker）；关闭整个模块则接口不可用。",
+        "16表已建仅证明结构；本轮不启用服务/权限/模型、不做故障演练。源制品/旧失败/恢复条件保留，真实运行仍未验证。"
+      ],
+      "refs": [
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/RedisDeliveryService.java",
+          "RedisConnectionFactory"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptHealthService.java",
+          "snapshot"
+        ],
+        [
+          "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+          "recoverExpired"
+        ],
+        [
+          "python/aippt-worker/app/worker/runner.py",
+          "async def execute"
+        ],
+        [
+          "ruoyi-backend/ruoyi-admin/src/main/resources/application-aippt.yml",
+          "enabled:"
+        ]
+      ],
+      "fixed": false,
+      "name": "停用、故障与恢复",
+      "logic_conclusion": "逻辑成立（源码范围）",
+      "runtime_conclusion": "本轮未执行；按用户要求保留未验证",
+      "source_refs": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/RedisDeliveryService.java",
+          "line": 34,
+          "symbol": "RedisConnectionFactory",
+          "sha256": "f453e4595fe1af3d18eeec858b99415b0cf91c9b6ca75971c0ea50bb5db98aeb",
+          "bytes": 15346
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptHealthService.java",
+          "line": 19,
+          "symbol": "snapshot",
+          "sha256": "d1bf0fdcdc5ca36c86dd4a74c45aec802992f3deba7ff92b1c052357fc666fe7",
+          "bytes": 7876
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+          "line": 125,
+          "symbol": "recoverExpired",
+          "sha256": "748907c59bafcb8016c6245ecae2ad1dcda49f22ef0e7fc1eef012bcb8576539",
+          "bytes": 20829
+        },
+        {
+          "path": "python/aippt-worker/app/worker/runner.py",
+          "line": 58,
+          "symbol": "async def execute",
+          "sha256": "2641e2e06168c80c2ddf6f4e8b209de10828017a9589b3a02ecd7d7295458a54",
+          "bytes": 8747
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-admin/src/main/resources/application-aippt.yml",
+          "line": 4,
+          "symbol": "enabled:",
+          "sha256": "b99b79fa5aa4413f027ce9fcb0335a0e8453b541850c4c0a5f053ca58a59f453",
+          "bytes": 1984
+        }
+      ]
+    }
+  ],
+  "cited_files": [
+    {
+      "path": "contracts/aippt/catalog-manifest.json",
+      "line": 3,
+      "symbol": "catalogVersion",
+      "sha256": "23956f5ec120ff992fbdbbec480ee59c1ad5df1156fd0169e86b1017d0263472",
+      "bytes": 6148
+    },
+    {
+      "path": "contracts/aippt/catalog/themes/ivory.json",
+      "line": 24,
+      "symbol": "font",
+      "sha256": "b65c5764b6d230201e8d9395aab55185b8a1718e00cc861df923ce87b7ab708c",
+      "bytes": 4154
+    },
+    {
+      "path": "contracts/aippt/events-v1.schema.json",
+      "line": 7,
+      "symbol": "eventSeq",
+      "sha256": "d2d9eec550059e76105330938b85f6aed4d990f56571cf1178af87d6a70fe908",
+      "bytes": 2348
+    },
+    {
+      "path": "contracts/aippt/schemas/import-manifest.schema.json",
+      "line": 8,
+      "symbol": "schema_version",
+      "sha256": "563c1adb3892a3b7403305f3181fdd0fd33ddb3048e8e0345e84e94cc4d9c2e7",
+      "bytes": 12491
+    },
+    {
+      "path": "contracts/aippt/schemas/layout-tree.schema.json",
+      "line": 17,
+      "symbol": "children",
+      "sha256": "cd6ac330c8af5a08e8bffc51dbc48cd3813dc5499caad8575eb88237aefd5c82",
+      "bytes": 4801
+    },
+    {
+      "path": "frontend/admin-web/scripts/aippt-nginx-location.conf.example",
+      "line": 4,
+      "symbol": "location",
+      "sha256": "b8d4aba2485cabf888911be18811bef7e0b1dfe956badbb4db43c2584e774447",
+      "bytes": 921
+    },
+    {
+      "path": "frontend/admin-web/src/views/login.vue",
+      "line": 73,
+      "symbol": "aippt",
+      "sha256": "c7841e2517e603ba750f5a0b63465fce0b07da613f14dec3133b94bdea626acf",
+      "bytes": 7089
+    },
+    {
+      "path": "frontend/admin-web/vite.config.js",
+      "line": 10,
+      "symbol": "aipptHistoryFallback",
+      "sha256": "bb0bf4bbe18cec51268494e43ce4d62959db95078b411955b6f3bc8f7634a6e1",
+      "bytes": 4093
+    },
+    {
+      "path": "frontend/aippt-web/src/App.tsx",
+      "line": 19,
+      "symbol": "BrowserRouter basename",
+      "sha256": "b03757b3bed647978f1a33d5a6d6b8df25ce4e517a0f6e6e9ade2bbb014faab0",
+      "bytes": 1540
+    },
+    {
+      "path": "frontend/aippt-web/src/api/client.ts",
+      "line": 107,
+      "symbol": "export async function requestBinary",
+      "sha256": "f95287702f0d11ee9fa446b17d828c39104d807c4463a710791e4604b3a96407",
+      "bytes": 7675
+    },
+    {
+      "path": "frontend/aippt-web/src/features/auth/session.ts",
+      "line": 7,
+      "symbol": "startPlatformSession",
+      "sha256": "d9fc5bbdf5c81b6974a487810a9c408f4112ebaa35eed10c203d98b4d29e3e96",
+      "bytes": 1174
+    },
+    {
+      "path": "frontend/aippt-web/src/features/auth/store.ts",
+      "line": 7,
+      "symbol": "logout:",
+      "sha256": "076f18ce07a8f8507b26f4b6b9a5677f464fb0015e3034295c8e986ee50c5270",
+      "bytes": 1828
+    },
+    {
+      "path": "frontend/aippt-web/src/features/auth/token.ts",
+      "line": 10,
+      "symbol": "platformLoginUrl",
+      "sha256": "4ea90ae799fac40b334461ea0a96b0a421aa6cbb9539b3ae7d53d6cbb15afd45",
+      "bytes": 1788
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/AiEditPanel.tsx",
+      "line": 172,
+      "symbol": "const applySide",
+      "sha256": "910d76a4228fb5f1c3fa7ce9f65dbcd74e3117bc00e279ac98d0eea30cc62375",
+      "bytes": 22672
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/ChartDataEditor.tsx",
+      "line": 16,
+      "symbol": "ChartDataEditor",
+      "sha256": "7c40d040d2c6bbaa746476db7a3e7d7fd4b9378f3f87fd48fd6aa7a3cbfc82ab",
+      "bytes": 9767
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/EditorHeaderActions.tsx",
+      "line": 14,
+      "symbol": "onPresent",
+      "sha256": "4cab7245357afbb962022474808fc94c313313a75651a37c40db020b6725f5de",
+      "bytes": 2678
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/EditorWorkspace.tsx",
+      "line": 97,
+      "symbol": "const restoreFocus",
+      "sha256": "3cafbad93979a30c3dc47bb7c62db900b6e2aff6dbe130f3923139a89b7f2482",
+      "bytes": 14753
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/ElementToolbar.tsx",
+      "line": 33,
+      "symbol": "ElementToolbar",
+      "sha256": "e7bff137d61458c6959b1b7299fa609516f003ed95371b4776210fd01860394e",
+      "bytes": 23536
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/ExportDialog.tsx",
+      "line": 300,
+      "symbol": "function FailureNote",
+      "sha256": "92ed950f012a6a2f8ef08fc6c119b14d5dcfb9280a99d9bed60ffb3c659f9ec3",
+      "bytes": 13389
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/Filmstrip.tsx",
+      "line": 12,
+      "symbol": "useRetrySlide",
+      "sha256": "9d3ca23c27fdaced3f8faf479f4ce5ec4e15201e80760fd53d192c2f8bd70ca9",
+      "bytes": 9039
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/FlexEditLayer.tsx",
+      "line": 17,
+      "symbol": "FlexEditLayer",
+      "sha256": "895ad80c60d7a7460d85d541b927cb7475fd0df9cb82121e41c2b818a35e5d2b",
+      "bytes": 9341
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/ImagePanel.tsx",
+      "line": 16,
+      "symbol": "ImagePanel",
+      "sha256": "8c91b2436eec3e5040372158ef576dff986927a2f036e268c5a8bc36c0617890",
+      "bytes": 4141
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/LayoutPanel.tsx",
+      "line": 16,
+      "symbol": "LayoutPanel",
+      "sha256": "0028e30dba770a3ab59cb592dae0ce3ef1b3a89ba31a199293c797ec7b528b71",
+      "bytes": 4873
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/PresentMode.tsx",
+      "line": 16,
+      "symbol": "PresentMode",
+      "sha256": "0d165c49db4444a3baa1a1021310d0e3d82d78716722040e07b9224683847b98",
+      "bytes": 9214
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/RelayoutPanel.tsx",
+      "line": 65,
+      "symbol": "const applyTree",
+      "sha256": "ab2ee2d6cebaa53aecc3f77640428f39625957a759561f479228db4970031c7c",
+      "bytes": 9789
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/SlidePage.tsx",
+      "line": 10,
+      "symbol": "registerSlideSaveHandlers",
+      "sha256": "f2f50acabca0ee6d27313b85b8d7938a082a60ea3bfc72fd620dc8a980bd5db7",
+      "bytes": 13692
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/ThemePanel.tsx",
+      "line": 10,
+      "symbol": "registerThemeSaveHandlers",
+      "sha256": "f2fe6848975ade849be098a4f667d5ced2e14779c3d81be6a143a2f558c54011",
+      "bytes": 17246
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/ZoomControls.tsx",
+      "line": 3,
+      "symbol": "ZoomControls",
+      "sha256": "abb81bccd93f94213f82cb764cf227e5b09138a41ea5c4c6f64556ed16abc37a",
+      "bytes": 1109
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/api.ts",
+      "line": 438,
+      "symbol": "commandVersion",
+      "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002",
+      "bytes": 23438
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/slideSaveBridge.ts",
+      "line": 82,
+      "symbol": "flushProjectSlides",
+      "sha256": "158ab19939cafaf581facebfad3e4ccc0540f2f7644c9cb95c1c32848083ad51",
+      "bytes": 3530
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/useDeckProgress.ts",
+      "line": 9,
+      "symbol": "useDeckProgress",
+      "sha256": "187d51f49e9813cda206486fe4a2dfa39de8bad926963b5e8803d31d4e2baaec",
+      "bytes": 1003
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/useFlexPointerSession.ts",
+      "line": 76,
+      "symbol": "useFlexPointerSession",
+      "sha256": "29df9beff1e9c2c5286c9da309ab8394f1f18d7c7ca55dc4542f6f421e8decc3",
+      "bytes": 25067
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+      "line": 104,
+      "symbol": "pausedRef",
+      "sha256": "5bcc5786365fbbd66d093d085df5919278f3f33ce90023938d0277ed87dd3bf3",
+      "bytes": 20143
+    },
+    {
+      "path": "frontend/aippt-web/src/features/deck/useSlideVisibility.ts",
+      "line": 41,
+      "symbol": "useSlideVisibility",
+      "sha256": "adcd396476f94030ef119370d6559065f3c1accacb9d25c62fa3fdd3398c1d69",
+      "bytes": 4014
+    },
+    {
+      "path": "frontend/aippt-web/src/features/design/SamplePanel.tsx",
+      "line": 17,
+      "symbol": "SamplePanel",
+      "sha256": "fb863d028e1b9e11d05d2f80cf1e1cbb3bc8d626e145222049199feec2729fc6",
+      "bytes": 11453
+    },
+    {
+      "path": "frontend/aippt-web/src/features/design/api.ts",
+      "line": 13,
+      "symbol": "sampleCatalogVersion",
+      "sha256": "546ecbe593e91037fd7722e284e79764d957c79da7be4be832e0e082f6e667b1",
+      "bytes": 4553
+    },
+    {
+      "path": "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+      "line": 261,
+      "symbol": "重试原确认与生成",
+      "sha256": "22d33e524373dcc3c698c73988331baa7991694143a2e83ee7b65c57a4ace366",
+      "bytes": 28687
+    },
+    {
+      "path": "frontend/aippt-web/src/features/outline/api.ts",
+      "line": 34,
+      "symbol": "generate-outline",
+      "sha256": "7745306dde9c85d76ba5bd566aa05126176f127d92b4bee6332a77436441d306",
+      "bytes": 2710
+    },
+    {
+      "path": "frontend/aippt-web/src/features/outline/useConfirmAndGenerate.ts",
+      "line": 29,
+      "symbol": "pendingInput",
+      "sha256": "c5b8dcd8fa6be58ca9ea7c97587b27e0d901c7142b9775f156b543a817e279c5",
+      "bytes": 3546
+    },
+    {
+      "path": "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+      "line": 152,
+      "symbol": "reapply",
+      "sha256": "b10329f3698cefa94c0af3f20e35177a59cde37bb739766534347fbb4ee05d7f",
+      "bytes": 19263
+    },
+    {
+      "path": "frontend/aippt-web/src/features/projects/api.ts",
+      "line": 109,
+      "symbol": "useDeleteProject",
+      "sha256": "cce50ea4f2a209df5ad01ad13d13858712417b8af3b2ce4d9401c451a985d8db",
+      "bytes": 9247
+    },
+    {
+      "path": "frontend/aippt-web/src/hooks/useEventStream.ts",
+      "line": 44,
+      "symbol": "resync_required",
+      "sha256": "a948bd75d5fb0d555401ea4a8e69299888fd80ac54e69f24754ba65d37aa8380",
+      "bytes": 5303
+    },
+    {
+      "path": "frontend/aippt-web/src/hooks/useSaveNavigationGuard.ts",
+      "line": 118,
+      "symbol": "beforeunload",
+      "sha256": "a3b3fc5d7f09993b84b1e6cf61a7a80e23b983501e7fa106054cb13c428e9941",
+      "bytes": 7349
+    },
+    {
+      "path": "frontend/aippt-web/src/pages/CreatePage.tsx",
+      "line": 32,
+      "symbol": "deriveTitle",
+      "sha256": "93b0318ed54970de37d571fa78b6fe1fe74e3b123144615016bddc472aa0ffac",
+      "bytes": 12418
+    },
+    {
+      "path": "frontend/aippt-web/src/pages/ProjectsPage.tsx",
+      "line": 7,
+      "symbol": "useProjectsPage",
+      "sha256": "1938808bfe503ac443f0a09843a76a79f9af4a153a2c62a4e245953fa5e9a8ce",
+      "bytes": 9048
+    },
+    {
+      "path": "frontend/aippt-web/src/render/BlockView.tsx",
+      "line": 506,
+      "symbol": "BlockView",
+      "sha256": "539e57b9b9e382bf252c47ecb1244ba094176a0eb5bc6147db7296e0331bb8bc",
+      "bytes": 17425
+    },
+    {
+      "path": "frontend/aippt-web/src/render/ChartView.tsx",
+      "line": 128,
+      "symbol": "dataKey",
+      "sha256": "bda711a50fbcf880c92063e47c08e24b80bb9c973348234f16bbf490c1374a1e",
+      "bytes": 7018
+    },
+    {
+      "path": "frontend/aippt-web/src/render/EditableText.tsx",
+      "line": 13,
+      "symbol": "EditableText",
+      "sha256": "2cebd17697f04974ec3710e55ebdb36f3c264d342fb310015a1f9121ecec0a1b",
+      "bytes": 9267
+    },
+    {
+      "path": "frontend/aippt-web/src/render/SlideView.tsx",
+      "line": 19,
+      "symbol": "SlideView",
+      "sha256": "f7905e6efc59b627c19d0d27d2b4d92eb009d6c716b85cd4876d130c673e4e8b",
+      "bytes": 12619
+    },
+    {
+      "path": "frontend/aippt-web/src/render/blockStyle.ts",
+      "line": 3,
+      "symbol": "resolve",
+      "sha256": "3d5819932d65d07684969b5a114da8d9d644824c34d4a92317f6d31c72460da3",
+      "bytes": 3524
+    },
+    {
+      "path": "frontend/aippt-web/src/render/usePrivateImage.ts",
+      "line": 7,
+      "symbol": "usePrivateImage",
+      "sha256": "57e7580d759c6ef84d4b01c008d21f611cb846599db24d397f7f34510957fc2e",
+      "bytes": 1552
+    },
+    {
+      "path": "python/aippt-worker/app/domain/block_style.py",
+      "line": 26,
+      "symbol": "BlockStyle",
+      "sha256": "5b192038bf09e827780637bb7a7ec3277889580617e89b54864bb2e173d271ae",
+      "bytes": 4202
+    },
+    {
+      "path": "python/aippt-worker/app/domain/export_check.py",
+      "line": 297,
+      "symbol": "run_export_check",
+      "sha256": "bb056cb38781e6a147980dde4dc9cb4295a4103b933a4cc9d36ab495cf1fad4c",
+      "bytes": 12495
+    },
+    {
+      "path": "python/aippt-worker/app/domain/flex_solve.py",
+      "line": 28,
+      "symbol": "solve",
+      "sha256": "8fc65481767374a45cbf9d2140590327ab85b859676bbffdacbe5f4ab5db4a0b",
+      "bytes": 6429
+    },
+    {
+      "path": "python/aippt-worker/app/domain/text_metrics.py",
+      "line": 23,
+      "symbol": "font",
+      "sha256": "75495501e0a57482f43a7e314ad978362eb23e44e789fca9f6509de2b4b3f3a8",
+      "bytes": 11856
+    },
+    {
+      "path": "python/aippt-worker/app/domain/theme.py",
+      "line": 40,
+      "symbol": "resolve_theme",
+      "sha256": "9c3e63d3438766e596961b87fc596977d62b6740649c41d111dc778965c84c35",
+      "bytes": 8828
+    },
+    {
+      "path": "python/aippt-worker/app/images/pipeline.py",
+      "line": 10,
+      "symbol": "class ImagePipeline",
+      "sha256": "6a3efc2fa5e7c9a108ccf1b6ed36ae60bbc3bbd15cb33e89d3442764f52b7f6f",
+      "bytes": 2554
+    },
+    {
+      "path": "python/aippt-worker/app/ingest/docx.py",
+      "line": 13,
+      "symbol": "Docx",
+      "sha256": "4ebdec7663607ce24af50e17ae64146db99fc2469767110304fca5a86a6d03f9",
+      "bytes": 2693
+    },
+    {
+      "path": "python/aippt-worker/app/ingest/pdf.py",
+      "line": 36,
+      "symbol": "warnings",
+      "sha256": "125a41d3174e7084c4ec171b7f538e4a0ee379ccff99e642c972affa414f2bf0",
+      "bytes": 5258
+    },
+    {
+      "path": "python/aippt-worker/app/ingest/plain.py",
+      "line": 4,
+      "symbol": "PlainTextParser",
+      "sha256": "fc61a7c7dccfabf07677b1dc975480d6ea0d7a5bfa99810703c057fc1d0a455e",
+      "bytes": 1465
+    },
+    {
+      "path": "python/aippt-worker/app/ingest/registry.py",
+      "line": 9,
+      "symbol": "PARSERS",
+      "sha256": "5ef39d5fb202173d59beb97dd5d666b3753a00a96095a91366a5dee215dbe3a2",
+      "bytes": 918
+    },
+    {
+      "path": "python/aippt-worker/app/llm/edit_tools.py",
+      "line": 56,
+      "symbol": "build_edit_tools",
+      "sha256": "6588658723cc7bc1839b61d973556c9938ac5ae759f67daddb9f26374deb4d97",
+      "bytes": 9221
+    },
+    {
+      "path": "python/aippt-worker/app/render/chart.py",
+      "line": 38,
+      "symbol": "render_chart",
+      "sha256": "7d237cc7f74e755dc24a6ec82070b256bc0814acf2df9091d3951518c1fe5a63",
+      "bytes": 7276
+    },
+    {
+      "path": "python/aippt-worker/app/render/pptx.py",
+      "line": 783,
+      "symbol": "render_deck_to_pptx",
+      "sha256": "60bdc22b8b109c837663a040ed57b7cb2b517b05bcdbd80b5f6d356887de2a77",
+      "bytes": 31080
+    },
+    {
+      "path": "python/aippt-worker/app/render/verify.py",
+      "line": 73,
+      "symbol": "def verify_pptx",
+      "sha256": "25501ba2db046802c68468a362f303713535c7f51436a43e884df0d0fa5f7d3d",
+      "bytes": 28346
+    },
+    {
+      "path": "python/aippt-worker/app/worker/fonts.py",
+      "line": 64,
+      "symbol": "bind_task_fonts",
+      "sha256": "f1ba0b10b7a2f351674af5a3908722b6df2bbb3aded42b56144864c4631bbfde",
+      "bytes": 5620
+    },
+    {
+      "path": "python/aippt-worker/app/worker/handlers.py",
+      "line": 250,
+      "symbol": "async def export",
+      "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e",
+      "bytes": 17955
+    },
+    {
+      "path": "python/aippt-worker/app/worker/migration.py",
+      "line": 76,
+      "symbol": "def prepare_import",
+      "sha256": "b7cda4096fc5dc57eb1e1354814cd49951126cfff65d81f4d74b6113c8ed9a65",
+      "bytes": 16307
+    },
+    {
+      "path": "python/aippt-worker/app/worker/parse.py",
+      "line": 22,
+      "symbol": "parse_document",
+      "sha256": "eb604ae1b484eb95800fbe73dcf0192f2f54d0dcbb09ae7178a497c415f3708f",
+      "bytes": 2381
+    },
+    {
+      "path": "python/aippt-worker/app/worker/runner.py",
+      "line": 58,
+      "symbol": "async def execute",
+      "sha256": "2641e2e06168c80c2ddf6f4e8b209de10828017a9589b3a02ecd7d7295458a54",
+      "bytes": 8747
+    },
+    {
+      "path": "python/aippt-worker/app/worker/security.py",
+      "line": 31,
+      "symbol": "class SafeAsyncClient",
+      "sha256": "7680a52a70764e6cae0c3f9f696a374bcc83afc6685e1cf21f79de50092a3040",
+      "bytes": 3995
+    },
+    {
+      "path": "python/aippt-worker/app/worker/transport.py",
+      "line": 44,
+      "symbol": "PublicTransport",
+      "sha256": "dac3bab5740151c08c49ba9c31c0b2cfb8595f0ebee06843c190fa46db4d0082",
+      "bytes": 3157
+    },
+    {
+      "path": "python/aippt-worker/app/workflows/outline.py",
+      "line": 22,
+      "symbol": "prepare_outline_input",
+      "sha256": "886894a47c6529b10de8071b09616d90417a28d8be9bd66605eaa35616471305",
+      "bytes": 3464
+    },
+    {
+      "path": "python/aippt-worker/app/workflows/slide.py",
+      "line": 37,
+      "symbol": "prepare_slide_input",
+      "sha256": "95bc91b9f5dee9027bbaf4abafd1ee0c4e48e7be24b40be276748ef167736a74",
+      "bytes": 6543
+    },
+    {
+      "path": "python/aippt-worker/app/workflows/slide_edit.py",
+      "line": 44,
+      "symbol": "build_slide_edit_workflow",
+      "sha256": "f8ab2f37d8547bf3d5a1a7a6abeeee3363b808e7392d261fdd803f5aa6dd7731",
+      "bytes": 7216
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-admin/src/main/resources/application-aippt.yml",
+      "line": 4,
+      "symbol": "enabled:",
+      "sha256": "b99b79fa5aa4413f027ce9fcb0335a0e8453b541850c4c0a5f053ca58a59f453",
+      "bytes": 1984
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptHealthService.java",
+      "line": 19,
+      "symbol": "snapshot",
+      "sha256": "d1bf0fdcdc5ca36c86dd4a74c45aec802992f3deba7ff92b1c052357fc666fe7",
+      "bytes": 7876
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+      "line": 919,
+      "symbol": "sampleSlideIds",
+      "sha256": "592fa86ff388a794bd1fdba9c8cb4181f5d2572d370ba3473783f40a1bd2e6e0",
+      "bytes": 84176
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetCleanupService.java",
+      "line": 23,
+      "symbol": "public void sweep",
+      "sha256": "9c1b4c2187a844dbbae1799cbce596bb7b98102c5c66b8c2e35925086c1871e5",
+      "bytes": 5142
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+      "line": 413,
+      "symbol": "validateTicket",
+      "sha256": "8f714289d5adc79947952108c6e5921de22a38756dc569708ee1c10bdc235672",
+      "bytes": 23523
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/CatalogService.java",
+      "line": 146,
+      "symbol": "compatible",
+      "sha256": "8b388cc9e977c4d2f57578fab42c4ae93149a21c008ab287f0f92a74a41cc5d4",
+      "bytes": 10308
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/EventService.java",
+      "line": 32,
+      "symbol": "public SseEmitter subscribe",
+      "sha256": "8debcda5b746e483ae54b490863d325b68f97c4077245a6bb1c01bf7a7675ad7",
+      "bytes": 10598
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/RedisDeliveryService.java",
+      "line": 34,
+      "symbol": "RedisConnectionFactory",
+      "sha256": "f453e4595fe1af3d18eeec858b99415b0cf91c9b6ca75971c0ea50bb5db98aeb",
+      "bytes": 15346
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/TaskLeaseService.java",
+      "line": 125,
+      "symbol": "recoverExpired",
+      "sha256": "748907c59bafcb8016c6245ecae2ad1dcda49f22ef0e7fc1eef012bcb8576539",
+      "bytes": 20829
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/configuration/AipptWorkerSecurityConfiguration.java",
+      "line": 11,
+      "symbol": "aipptWorkerChain",
+      "sha256": "3a0827bddb25e70df67d0f3fb9faeab08dbd75143771ad0d955ed2c3e104e3d6",
+      "bytes": 1630
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/AipptController.java",
+      "line": 189,
+      "symbol": "private ResponseEntity<byte[]> binary",
+      "sha256": "3414b86e8cb210cbf537d604969f86ee20e5308010eec33d5e7f9726659c789e",
+      "bytes": 18903
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/controller/EventController.java",
+      "line": 39,
+      "symbol": "projectSessionValid",
+      "sha256": "9eabc78f87b0c5bb71c9115eb5e303fe2b59c6f5ae3cdd5dcfccc3d7891fa1e5",
+      "bytes": 3692
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+      "line": 300,
+      "symbol": "public static void protect",
+      "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6",
+      "bytes": 23463
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+      "line": 18,
+      "symbol": "insertLeaf",
+      "sha256": "42b0770c6143a49b62b1bc85a5fa2ed4be027b26514fa3d0ef744daca1afb484",
+      "bytes": 5423
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/ProposalOperations.java",
+      "line": 10,
+      "symbol": "public static void apply",
+      "sha256": "e25090a63ba6d38e7c1af138020a744af8f5e86b4435d8ca6c0b7897a207e4f1",
+      "bytes": 6849
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/persistence/AipptMapper.java",
+      "line": 14,
+      "symbol": "projectCount",
+      "sha256": "6d8bf24b4f69745e603b2ec0ac71979123af7d102a3651a1a3eeb104fecc588d",
+      "bytes": 5923
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/AssetCompensationJournal.java",
+      "line": 45,
+      "symbol": "started",
+      "sha256": "38f1a9e322c94f5bad5891994963c1b9aca91926663ac06f189be43b3b8a878a",
+      "bytes": 5296
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/CosAipptStorage.java",
+      "line": 35,
+      "symbol": "CannedAccessControlList.Private",
+      "sha256": "3d6eff7e39b9ad7ca7f635e0b058ad5a1cb173b789088195dcd7d8fb58f870dc",
+      "bytes": 2923
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/LocalAipptStorage.java",
+      "line": 11,
+      "symbol": "private Path resolve",
+      "sha256": "2a4559f7dab9b37ccbe0b0eae97fb8ba30b433931ec4d5fdc4c68d87d1231be7",
+      "bytes": 2057
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/migration/AipptLegacyImportCli.java",
+      "line": 40,
+      "symbol": "rollback",
+      "sha256": "1dbb8f8292c2c9fad01f6ee4c1aafde4fb8ba3f102ca2d3a0510b84433c6751e",
+      "bytes": 32366
+    }
+  ],
+  "python_syntax_only_files": [
+    "python/aippt-worker/app/__init__.py",
+    "python/aippt-worker/app/__main__.py",
+    "python/aippt-worker/app/core/__init__.py",
+    "python/aippt-worker/app/core/config.py",
+    "python/aippt-worker/app/core/paths.py",
+    "python/aippt-worker/app/domain/__init__.py",
+    "python/aippt-worker/app/domain/ambient.py",
+    "python/aippt-worker/app/domain/block_style.py",
+    "python/aippt-worker/app/domain/color.py",
+    "python/aippt-worker/app/domain/content.py",
+    "python/aippt-worker/app/domain/content_density.py",
+    "python/aippt-worker/app/domain/edit_ops.py",
+    "python/aippt-worker/app/domain/export_check.py",
+    "python/aippt-worker/app/domain/flex_edit.py",
+    "python/aippt-worker/app/domain/flex_fit.py",
+    "python/aippt-worker/app/domain/flex_layout.py",
+    "python/aippt-worker/app/domain/flex_normalize.py",
+    "python/aippt-worker/app/domain/flex_presets.py",
+    "python/aippt-worker/app/domain/flex_skin.py",
+    "python/aippt-worker/app/domain/flex_solve.py",
+    "python/aippt-worker/app/domain/flex_width.py",
+    "python/aippt-worker/app/domain/geometry.py",
+    "python/aippt-worker/app/domain/layout.py",
+    "python/aippt-worker/app/domain/layout_switch.py",
+    "python/aippt-worker/app/domain/outline.py",
+    "python/aippt-worker/app/domain/page_rhythm.py",
+    "python/aippt-worker/app/domain/quality.py",
+    "python/aippt-worker/app/domain/sample.py",
+    "python/aippt-worker/app/domain/slide_draft.py",
+    "python/aippt-worker/app/domain/slide_geometry.py",
+    "python/aippt-worker/app/domain/slide_pages.py",
+    "python/aippt-worker/app/domain/slide_patch.py",
+    "python/aippt-worker/app/domain/text_metrics.py",
+    "python/aippt-worker/app/domain/theme.py",
+    "python/aippt-worker/app/domain/validation.py",
+    "python/aippt-worker/app/images/__init__.py",
+    "python/aippt-worker/app/images/bailian.py",
+    "python/aippt-worker/app/images/base.py",
+    "python/aippt-worker/app/images/generated.py",
+    "python/aippt-worker/app/images/pipeline.py",
+    "python/aippt-worker/app/images/unsplash.py",
+    "python/aippt-worker/app/images/validate.py",
+    "python/aippt-worker/app/ingest/__init__.py",
+    "python/aippt-worker/app/ingest/base.py",
+    "python/aippt-worker/app/ingest/docx.py",
+    "python/aippt-worker/app/ingest/markdown.py",
+    "python/aippt-worker/app/ingest/models.py",
+    "python/aippt-worker/app/ingest/pdf.py",
+    "python/aippt-worker/app/ingest/plain.py",
+    "python/aippt-worker/app/ingest/registry.py",
+    "python/aippt-worker/app/ingest/upload.py",
+    "python/aippt-worker/app/llm/__init__.py",
+    "python/aippt-worker/app/llm/base.py",
+    "python/aippt-worker/app/llm/client.py",
+    "python/aippt-worker/app/llm/deepseek.py",
+    "python/aippt-worker/app/llm/edit_tools.py",
+    "python/aippt-worker/app/llm/errors.py",
+    "python/aippt-worker/app/llm/relayout.py",
+    "python/aippt-worker/app/llm/slide.py",
+    "python/aippt-worker/app/llm/slide_edit.py",
+    "python/aippt-worker/app/regression/__init__.py",
+    "python/aippt-worker/app/regression/corpus.py",
+    "python/aippt-worker/app/regression/runner.py",
+    "python/aippt-worker/app/render/__init__.py",
+    "python/aippt-worker/app/render/chart.py",
+    "python/aippt-worker/app/render/color.py",
+    "python/aippt-worker/app/render/pptx.py",
+    "python/aippt-worker/app/render/table.py",
+    "python/aippt-worker/app/render/text.py",
+    "python/aippt-worker/app/render/verify.py",
+    "python/aippt-worker/app/schemas/__init__.py",
+    "python/aippt-worker/app/schemas/project.py",
+    "python/aippt-worker/app/services/__init__.py",
+    "python/aippt-worker/app/services/media.py",
+    "python/aippt-worker/app/worker/__init__.py",
+    "python/aippt-worker/app/worker/catalog.py",
+    "python/aippt-worker/app/worker/cli.py",
+    "python/aippt-worker/app/worker/execution.py",
+    "python/aippt-worker/app/worker/fonts.py",
+    "python/aippt-worker/app/worker/handlers.py",
+    "python/aippt-worker/app/worker/migration.py",
+    "python/aippt-worker/app/worker/parse.py",
+    "python/aippt-worker/app/worker/protocol.py",
+    "python/aippt-worker/app/worker/runner.py",
+    "python/aippt-worker/app/worker/security.py",
+    "python/aippt-worker/app/worker/transport.py",
+    "python/aippt-worker/app/workflows/__init__.py",
+    "python/aippt-worker/app/workflows/outline.py",
+    "python/aippt-worker/app/workflows/slide.py",
+    "python/aippt-worker/app/workflows/slide_edit.py"
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.local/aippt/v1/worker.schema.json",
+  "title": "中心任务领取协议",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "taskId",
+    "type",
+    "attempt",
+    "leaseToken",
+    "fencingToken",
+    "payload",
+    "catalogVersion"
+  ],
+  "properties": {
+    "taskId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "type": {
+      "enum": [
+        "parse_source",
+        "generate_outline",
+        "generate_slide",
+        "ai_edit",
+        "relayout",
+        "quality",
+        "export"
+      ]
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "leaseToken": {
+      "type": "string",
+      "minLength": 16
+    },
+    "fencingToken": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "deadline": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "catalogVersion": {
+      "const": "aippt-1-90c52568ea7d"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "font_manifest_hash": {
+          "$ref": "./font-manifest.schema.json#/$defs/resourceHash"
+        }
+      }
+    },
+    "cancelRequested": {
+      "type": "boolean"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "enum": [
+              "generate_slide",
+              "ai_edit",
+              "relayout",
+              "quality",
+              "export"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "font_manifest_hash"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
