@@ -44,7 +44,7 @@ public final class NativeControlExecutor implements AutoCloseable {
         default void close() { }
     }
     private static final java.util.Set<String> OPERATIONS = java.util.Set.of("INDEX_BUILD", "REPOSITORY_SEARCH", "AST_GRAPH",
-            "CONTEXT_COMPRESS", "SNAPSHOT_PREVIEW", "SNAPSHOT_RESTORE", "PROVIDER_REFRESH", "MCP_START", "MCP_STOP", "MCP_RESTART",
+            "CONTEXT_COMPRESS", "SNAPSHOT_PREVIEW", "SNAPSHOT_RESTORE", "PROVIDER_REFRESH", "PROVIDER_VERIFY", "MCP_START", "MCP_STOP", "MCP_RESTART",
             "MCP_READ_RESOURCE", "MCP_READ_PROMPT", "SKILLS_RELOAD", "BROWSER_PROBE", "HARNESS_QUICK", "HARNESS_NORMAL", "HARNESS_INLINE",
             "MEMORY_VERIFY", "MEMORY_DELETE", "MEMORY_CLEAR", "WECHAT_SETUP", "WECHAT_START", "WECHAT_PAUSE", "WECHAT_RESUME", "WECHAT_STOP", "WECHAT_RESTART",
             "INIT_PROJECT_MEMORY", "SNAPSHOT_CLEAN", "SNAPSHOT_CLEAN_PREVIEW", "BROWSER_TABS", "BROWSER_DISCONNECT", "BROWSER_CONNECT", "REPOSITORY_LIST");
@@ -194,6 +194,21 @@ public final class NativeControlExecutor implements AutoCloseable {
                 List<String> models = new ModelDiscovery().discover(provider(lease, context));
                 ObjectNode payload = metadata(args); payload.put("kind", "PROVIDER"); payload.set("models", CanonicalJson.MAPPER.valueToTree(models));
                 event(lease, "CONNECTION_RESULT", payload); return ToolOutput.text("中心供应商模型刷新完成: " + models.size());
+            }
+            case "PROVIDER_VERIFY" -> {
+                approvedConfiguration(args,context,"providerConfig");
+                if(!"sub2api".equals(context.path("provider").asText()))throw new IOException("兼容验证供应商不符");
+                ObjectNode bounded=context.deepCopy();((ObjectNode)bounded.path("policy")).put("maxOutputTokens",256);
+                LlmClient client=NativeTaskExecutor.budgeted(center,lease,bounded,provider(lease,context));
+                try {
+                    var verification=com.paicli.llm.Sub2ApiVerifier.verify(client);
+                    lease.ensureActive();ObjectNode payload=metadata(args);payload.put("kind","PROVIDER");
+                    payload.set("verification",CanonicalJson.MAPPER.valueToTree(verification));
+                    payload.put("wireApi",context.path("providerConfig").path("wireApi").asText());
+                    payload.set("modelId",args.path("modelId"));payload.set("modelVersion",args.path("modelVersion"));
+                    payload.set("secretVersion",context.path("managedSecret").path("secretVersion"));
+                    event(lease,"CONNECTION_RESULT",payload);return ToolOutput.text("Sub2API文本、流式、工具回灌和用量兼容验证完成");
+                } finally { client.cancelInFlightCalls(); }
             }
             case "SNAPSHOT_PREVIEW", "SNAPSHOT_RESTORE" -> {
                 SideGitManager snapshots = snapshots(tools);

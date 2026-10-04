@@ -22,6 +22,12 @@ public class PcSessionService {
     }
     public PcRecord model(long id,long workspace,long user,boolean images){
         PcRecord m=store.require(PcTable.MODEL_CONFIG,id,false);if(!Objects.equals(m.getWorkspaceId(),workspace)||!Boolean.TRUE.equals(store.data(m).get("enabled")))throw PcException.deny("模型未在当前工作区启用");
+        Map<String,Object> model=store.data(m);PcRecord provider=store.require(PcTable.PROVIDER_CONFIG,PcJson.number(model,"providerId"),false);
+        Map<String,Object> config=store.data(provider);if(PcSub2ApiPolicy.applies(config)){
+            Map<String,Object> proof=PcJson.object(model,"verification");long definition=config.get("configurationVersion") instanceof Number n?n.longValue():provider.getVersion();
+            if(!proof.containsKey("secretVersion")||!PcSub2ApiPolicy.verified(model,m.getVersion(),config,definition,(int)PcJson.number(proof,"secretVersion")))
+                throw new PcException(422,"PC_MODEL_UNVERIFIED","Sub2API模型或当前配置尚未通过兼容验证");
+        }
         if(images&&!Boolean.TRUE.equals(store.data(m).get("supportsImages")))throw new PcException(422,"PC_MODEL_CAPABILITY","文本模型不支持附件图片，请换模型或删除图片");return m;
     }
     public Map<String,Object> detail(long id,long user){return detail(access.resource(PcTable.SESSION,id,user,true,false),user);}
@@ -104,7 +110,7 @@ public class PcSessionService {
         access.workspace(workspace,user,true);if(operation.equals("INIT_PROJECT_MEMORY"))arguments=PcProjectRuleService.initArguments(store,workspace,arguments);PcRecord runner=store.require(PcTable.RUNNER,runnerId,false);if(!Objects.equals(runner.getWorkspaceId(),workspace)||!runner.getState().equals("ONLINE"))throw new PcException(503,"PC_RUNNER_OFFLINE","工作区没有指定的在线Runner");
         if(sessionId==null){PcRecord s=store.insert(PcTable.SESSION,workspace,user,null,null,runnerId,"CONTROL","ACTIVE",null,Map.of("title",operation,"mode","REACT","approvalMode","ASK","modelId","0"));sessionId=s.getId();}
         PcRecord w=store.require(PcTable.WORKSPACE,workspace,false);Map<String,Object> payload=new LinkedHashMap<>();payload.put("operation",operation);payload.put("arguments",arguments);payload.put("mode","CONTROL");payload.put("policyVersion",store.data(w).get("policyVersion"));payload.put("planVersion",0);payload.put("rootFingerprint",store.data(w).get("rootFingerprint"));payload.put("title",operation);payload.put("source","CONTROL");payload.put("requesterName",requester(user));if(sessionId!=null){Object model=store.data(store.require(PcTable.SESSION,sessionId,false)).get("modelId");if(model!=null&&!model.toString().equals("0")){payload.put("modelId",model);PcRecord selected=store.require(PcTable.MODEL_CONFIG,Long.parseLong(model.toString()),false);payload.put("modelVersion",selected.getVersion());if(store.data(selected).containsKey("providerId")){PcRecord provider=store.require(PcTable.PROVIDER_CONFIG,PcJson.number(store.data(selected),"providerId"),false);payload.put("providerVersion",store.data(provider).getOrDefault("configurationVersion",provider.getVersion()));}}}
-        PcRecord task=store.insert(PcTable.TASK,workspace,user,null,sessionId,runnerId,"CONTROL","ENQUEUED",null,payload);store.insert(PcTable.DISPATCH_OUTBOX,workspace,user,task.getId(),sessionId,runnerId,"DISPATCH","PENDING","task:"+task.getId(),Map.of("taskId",String.valueOf(task.getId()),"attempts",0));return store.view(task);
+        if(operation.equals("PROVIDER_VERIFY")){payload.put("modelId",arguments.get("modelId"));payload.put("modelVersion",arguments.get("modelVersion"));payload.put("providerVersion",arguments.get("configVersion"));}PcRecord task=store.insert(PcTable.TASK,workspace,user,null,sessionId,runnerId,"CONTROL","ENQUEUED",null,payload);store.insert(PcTable.DISPATCH_OUTBOX,workspace,user,task.getId(),sessionId,runnerId,"DISPATCH","PENDING","task:"+task.getId(),Map.of("taskId",String.valueOf(task.getId()),"attempts",0));return store.view(task);
     }
     public static boolean terminal(String state){return Set.of("COMPLETED","FAILED","CANCELLED").contains(state);}
     public static void validateMode(String mode){if(!Set.of("REACT","PLAN","TEAM").contains(mode))throw PcException.invalid("模式应为REACT、PLAN或TEAM");}
