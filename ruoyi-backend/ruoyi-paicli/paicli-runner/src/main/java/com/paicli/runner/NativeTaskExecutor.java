@@ -430,12 +430,15 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
         };
         config.setDefaultProvider(provider);
         PaiCliConfig.ProviderConfig selected = new PaiCliConfig.ProviderConfig(key, secret.path("baseUrl").asText(null), model);
+        selected.setWireApi(context.path("providerConfig").path("wireApi").asText(null));
         if (context.path("modelConfig").isObject()) {
             try { selected.getModels().put(model, CanonicalJson.MAPPER.convertValue(context.path("modelConfig"), com.paicli.llm.ModelProfile.class)); }
             catch (IllegalArgumentException invalid) { throw new IOException("中心模型能力配置无效", invalid); }
         }
         config.getProviders().put(provider, selected);
-        LlmClient client = LlmClientFactory.create(provider, model, config);
+        LlmClient client;
+        try { client = LlmClientFactory.create(provider, model, config); }
+        catch (IllegalArgumentException invalid) { throw new IOException("中心供应商模型或调用 API 配置非法", invalid); }
         if (client == null) throw new IOException("中心供应商配置不受支持");
         return client;
     }

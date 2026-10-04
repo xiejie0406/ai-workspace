@@ -775,7 +775,7 @@ public class PlanExecuteAgent {
                         "plan",
                         actor,
                         "llm_response",
-                        LlmClient.Message.assistant(response.reasoningContent(), response.content()));
+                        LlmClient.Message.assistant(response));
                 memoryManager.recordTokenUsage(
                         budget.totalInputTokens(),
                         budget.totalOutputTokens(),
@@ -795,11 +795,7 @@ public class PlanExecuteAgent {
             // 有工具调用：执行工具并将结果回灌到消息历史
             budget.recordToolCalls(response.toolCalls());
             printToolCalls(out, taskToolPolicy.visibleToolCalls(response.toolCalls(), toolExposure));
-            appendTaskMessage(messages, actor, "llm_response", LlmClient.Message.assistant(
-                    response.reasoningContent(),
-                    response.content(),
-                    response.toolCalls()
-            ));
+            appendTaskMessage(messages, actor, "llm_response", LlmClient.Message.assistant(response));
 
             // 在工具执行前 flush 并重置流式渲染器：避免 Markdown renderer pending 文本
             // 被 HITL 提示"跨过"导致 🧠 / 🤖 标题与内容错位
@@ -865,7 +861,7 @@ public class PlanExecuteAgent {
                     messages,
                     actor,
                     "budget_finalization_response",
-                    LlmClient.Message.assistant(response.reasoningContent(), response.content()));
+                    LlmClient.Message.assistant(response));
         } catch (IOException e) {
             log.error("Plan task {} finalization call failed after budget exhaustion", task.getId(), e);
             content = "收尾调用失败：" + e.getMessage();

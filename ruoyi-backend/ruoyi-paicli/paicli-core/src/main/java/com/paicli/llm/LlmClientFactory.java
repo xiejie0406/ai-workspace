@@ -4,8 +4,9 @@ import com.paicli.config.PaiCliConfig;
 
 public class LlmClientFactory {
     public static LlmClient attachManagedKey(LlmClient client, AbstractOpenAiCompatibleClient.ApiKeyProvider provider) {
-        AbstractOpenAiCompatibleClient transport = client instanceof ProfiledLlmClient profiled ? profiled.transport() : (AbstractOpenAiCompatibleClient) client;
-        transport.setApiKeyProvider(provider); return client;
+        LlmClient transport = client instanceof ProfiledLlmClient profiled ? profiled.transport() : client;
+        if (!(transport instanceof ManagedKeyAware managed)) throw new IllegalArgumentException("客户端不支持托管凭据");
+        managed.setApiKeyProvider(provider); return client;
     }
 
     private LlmClientFactory() {}
@@ -35,6 +36,7 @@ public class LlmClientFactory {
 
         String normalized = normalizeProvider(provider);
         String configuredProvider = provider.trim().toLowerCase();
+        if (normalized.equals("sub2api")) return createSub2Api(selectedModel, config);
         String apiKey = config.getApiKey(normalized);
         if ((apiKey == null || apiKey.isBlank()) && !configuredProvider.equals(normalized)) {
             apiKey = config.getApiKey(configuredProvider);
@@ -81,6 +83,7 @@ public class LlmClientFactory {
         if (client != null) {
             return client;
         }
+        if ("sub2api".equals(normalizeProvider(config.getDefaultProvider()))) return null;
 
         for (String provider : new String[]{"deepseek", "glm", "hunyuan", "step", "kimi", "freellmapi", "xfyun", "agnes"}) {
             client = create(provider, config.getStartupModel(provider), config);
@@ -90,6 +93,28 @@ public class LlmClientFactory {
         }
 
         return null;
+    }
+
+    private static LlmClient createSub2Api(String selectedModel, PaiCliConfig config) {
+        PaiCliConfig.ProviderConfig settings = config.getProviders().get("sub2api");
+        if (settings == null) throw new IllegalArgumentException("Sub2API 缺少供应商配置");
+        String wireApi = Sub2ApiEndpoint.wireApi(settings.getWireApi());
+        String model = firstConfigured(selectedModel, settings.getModel());
+        if (!ModelCatalog.validModelId(model)) throw new IllegalArgumentException("Sub2API 缺少精确模型 ID");
+        String root = settings.getBaseUrl();
+        Sub2ApiEndpoint.root(root);
+        if (settings.getApiKey() == null || settings.getApiKey().isBlank()) return null;
+        AbstractOpenAiCompatibleClient client = wireApi.equals("responses")
+                ? new Sub2ApiResponsesClient(settings.getApiKey(), model, root)
+                : new Sub2ApiChatClient(settings.getApiKey(), model, root);
+        ModelProfile profile = settings.getModels().get(model);
+        if (profile == null) return client;
+        if (Boolean.TRUE.equals(profile.imageInput()) || Boolean.TRUE.equals(profile.dsml())
+                || Boolean.TRUE.equals(profile.reasoningHistory()) || profile.template() != null)
+            throw new IllegalArgumentException("Sub2API 只接受本期文本能力，不支持图片、DSML或厂商模板/推理历史");
+        if (wireApi.equals("chat_completions") && profile.reasoningEffort() != null)
+            throw new IllegalArgumentException("Sub2API Chat Completions 本期未核实 reasoning_effort");
+        return client.withModelProfile(model, profile);
     }
 
     private static String normalizeProvider(String provider) {

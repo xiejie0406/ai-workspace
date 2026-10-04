@@ -20,6 +20,7 @@ public final class ModelCatalog {
         models.put("freellmapi", List.of("auto"));
         models.put("xfyun", List.of("Qwen3.6-35B-A3B"));
         models.put("agnes", List.of("agnes-2.0-flash"));
+        models.put("sub2api", List.of()); // 实例精确ID来自登记/发现，不预置猜测型号。
         BUILTINS = Collections.unmodifiableMap(models);
     }
     private ModelCatalog() {}
@@ -64,7 +65,7 @@ public final class ModelCatalog {
         PaiCliConfig preview = new PaiCliConfig();
         PaiCliConfig.ProviderConfig settings = new PaiCliConfig.ProviderConfig("catalog-preview", config.getBaseUrl(provider), model);
         PaiCliConfig.ProviderConfig actual = config.getProviders().get(provider);
-        if (actual != null) settings.setModels(actual.getModels());
+        if (actual != null) { settings.setModels(actual.getModels()); settings.setWireApi(actual.getWireApi()); }
         preview.getProviders().put(provider, settings);
         return LlmClientFactory.create(provider, preview);
     }

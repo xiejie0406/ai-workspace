@@ -108,7 +108,7 @@ public class Planner {
                 "plan",
                 "planner",
                 "llm_response",
-                LlmClient.Message.assistant(response.reasoningContent(), response.content()));
+                LlmClient.Message.assistant(response));
         LlmTraceLogger.logReasoning(log, "planner", llmClient, response.reasoningContent());
         streamRenderer.finish();
         String planJson = response.content();

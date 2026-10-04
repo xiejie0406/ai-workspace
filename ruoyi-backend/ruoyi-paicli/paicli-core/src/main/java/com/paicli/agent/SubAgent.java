@@ -341,11 +341,7 @@ public class SubAgent {
                     budget.recordToolCalls(response.toolCalls());
                     printToolCalls(out,
                             activeToolPolicy.visibleToolCalls(response.toolCalls(), toolExposure));
-                    appendConversationMessage(LlmClient.Message.assistant(
-                            response.reasoningContent(),
-                            response.content(),
-                            response.toolCalls()
-                    ), "llm_response");
+                    appendConversationMessage(LlmClient.Message.assistant(response), "llm_response");
 
                     // 在工具执行前 flush 并重置流式渲染器：TerminalMarkdownRenderer 按换行 flush，
                     // 没有换行的 pending 内容会被 HITL 提示"跨过"导致标题错位。
@@ -369,14 +365,12 @@ public class SubAgent {
                 }
 
                 // 没有工具调用，返回最终结果
-                conversationHistory.add(LlmClient.Message.assistant(response.content()));
+                conversationHistory.add(response.responseItems() == null ? LlmClient.Message.assistant(response.content()) : LlmClient.Message.assistant(response));
                 conversationLedger.appendMessage(
                         "team",
                         name,
                         "llm_response",
-                        LlmClient.Message.assistant(
-                                response.reasoningContent(),
-                                response.content()));
+                        LlmClient.Message.assistant(response));
 
                 streamRenderer.finish();
                 if (llmClient.looksLikeUnexecutedToolCall(response.content())) {

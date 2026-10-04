@@ -34,7 +34,7 @@ public final class ManagedProviderGrant {
     private static JsonNode definition(JsonNode value) {
         if (!value.isObject()) return value;
         var result = CanonicalJson.MAPPER.createObjectNode();
-        for (String field : List.of("id", "version", "provider", "modelId", "model", "baseUrl", "secretRef", "supportsImages", "supportsThinking", "supportsTools", "contextWindow", "providerId", "searchEngine", "transport", "configHash", "loraId", "thinking", "maxOutputTokens", "reasoningEffort"))
+        for (String field : List.of("id", "version", "provider", "modelId", "model", "baseUrl", "wireApi", "secretRef", "supportsImages", "supportsThinking", "supportsTools", "contextWindow", "providerId", "searchEngine", "transport", "configHash", "loraId", "thinking", "maxOutputTokens", "reasoningEffort"))
             if (value.has(field)) result.set(field, value.get(field));
         return result;
     }

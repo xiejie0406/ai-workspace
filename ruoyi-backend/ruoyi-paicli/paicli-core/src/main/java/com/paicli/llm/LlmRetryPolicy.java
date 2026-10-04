@@ -80,6 +80,12 @@ final class LlmRetryPolicy {
         );
     }
 
+    /** 中转受理状态不明时禁止自动重放，仍沿用原取消与限次设施。 */
+    static LlmRetryPolicy singleAttempt() {
+        return new LlmRetryPolicy(1, 0, 0, ThreadLocalRandom.current()::nextDouble,
+                Thread::sleep, Clock.systemUTC(), CancellationContext::isCancelled);
+    }
+
     static LlmRetryPolicy forTest(int maxAttempts,
                                   long baseDelayMillis,
                                   long maxDelayMillis,

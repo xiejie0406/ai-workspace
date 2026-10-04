@@ -20,7 +20,7 @@ public final class ModelDiscovery {
         AbstractOpenAiCompatibleClient transport = client instanceof ProfiledLlmClient profiled
                 ? profiled.transport() : (AbstractOpenAiCompatibleClient) client;
         HttpUrl chat = HttpUrl.get(transport.getApiUrl());
-        String suffix = "/chat/completions";
+        String suffix = transport instanceof Sub2ApiResponsesClient ? "/responses" : "/chat/completions";
         if (!chat.encodedPath().endsWith(suffix)) throw new IOException("该供应商暂不支持发现模型，请用 /model add 手动添加");
         HttpUrl url = chat.newBuilder().encodedPath(chat.encodedPath().substring(0,
                 chat.encodedPath().length() - suffix.length()) + "/models").query(null).fragment(null).build();

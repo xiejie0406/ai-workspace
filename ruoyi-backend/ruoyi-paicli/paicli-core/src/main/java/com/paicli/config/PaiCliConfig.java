@@ -31,6 +31,7 @@ public class PaiCliConfig {
     public static class ProviderConfig {
         private String apiKey;
         private String baseUrl;
+        private String wireApi;
         private String model;
         private String loraId;
         private Map<String, ModelProfile> models = new LinkedHashMap<>();
@@ -54,6 +55,8 @@ public class PaiCliConfig {
         public void setApiKey(String apiKey) { this.apiKey = apiKey; }
         public String getBaseUrl() { return baseUrl; }
         public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
+        public String getWireApi() { return wireApi; }
+        public void setWireApi(String wireApi) { this.wireApi = wireApi; }
         public String getModel() { return model; }
         public void setModel(String model) { this.model = model; }
         public String getLoraId() { return loraId; }

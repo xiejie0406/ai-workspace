@@ -296,11 +296,7 @@ public class Agent {
                     log.info("LLM requested {} tool call(s) in iteration {}", response.toolCalls().size(), iteration);
                     budget.recordToolCalls(response.toolCalls());
                     // 添加助手消息（包含工具调用）
-                    appendConversationMessage(LlmClient.Message.assistant(
-                            response.reasoningContent(),
-                            response.content(),
-                            response.toolCalls()
-                    ), "llm_response");
+                    appendConversationMessage(LlmClient.Message.assistant(response), "llm_response");
 
                     // 在工具执行前就 flush 本轮流式渲染器，避免 TerminalMarkdownRenderer
                     // 内部 pending 缓冲区（仅按换行 flush）里的文本被 HITL 提示"跨过"
@@ -329,14 +325,12 @@ public class Agent {
                 appendReasoning(reasoningTranscript, response.reasoningContent());
                 // Keep the delivery view compatible with providers that do not require
                 // final-turn reasoning replay, while the raw ledger preserves the complete response.
-                conversationHistory.add(LlmClient.Message.assistant(response.content()));
+                conversationHistory.add(response.responseItems() == null ? LlmClient.Message.assistant(response.content()) : LlmClient.Message.assistant(response));
                 conversationLedger.appendMessage(
                         "react",
                         "agent",
                         "llm_response",
-                        LlmClient.Message.assistant(
-                                response.reasoningContent(),
-                                response.content()));
+                        LlmClient.Message.assistant(response));
 
                 // 记录 token 使用
                 memoryManager.recordTokenUsage(budget.totalInputTokens(), budget.totalOutputTokens(), budget.totalCachedInputTokens());

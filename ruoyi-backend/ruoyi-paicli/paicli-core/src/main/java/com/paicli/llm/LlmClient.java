@@ -81,7 +81,13 @@ public interface LlmClient {
     }
 
     record Message(String role, String content, String reasoningContent, List<ToolCall> toolCalls,
-                   String toolCallId, List<ContentPart> contentParts) {
+                   String toolCallId, List<ContentPart> contentParts,
+                   @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
+                   List<JsonNode> responseItems) {
+        public Message(String role, String content, String reasoningContent, List<ToolCall> toolCalls,
+                       String toolCallId, List<ContentPart> contentParts) {
+            this(role, content, reasoningContent, toolCalls, toolCallId, contentParts, null);
+        }
         public Message(String role, String content, String reasoningContent, List<ToolCall> toolCalls,
                        String toolCallId) {
             this(role, content, reasoningContent, toolCalls, toolCallId, null);
@@ -106,6 +112,12 @@ public interface LlmClient {
 
         public static Message assistant(String content) {
             return new Message("assistant", content);
+        }
+
+        /** Responses 的加密推理/输出项随原消息账本保存，工具回合不能只回灌正文。 */
+        public static Message assistant(ChatResponse response) {
+            return new Message("assistant", response.content(), response.reasoningContent(), response.toolCalls(),
+                    null, null, response.responseItems());
         }
 
         public static Message assistant(String reasoningContent, String content) {
@@ -169,14 +181,14 @@ public interface LlmClient {
                     ? "图片附件已省略 {count} 张。"
                     : noticeTemplate;
             stripped.add(ContentPart.text("[" + notice.replace("{count}", String.valueOf(omitted)) + "]"));
-            return new Message(role, plainText(stripped), reasoningContent, toolCalls, toolCallId, List.copyOf(stripped));
+            return new Message(role, plainText(stripped), reasoningContent, toolCalls, toolCallId, List.copyOf(stripped), responseItems);
         }
 
         public Message withoutReasoningContent() {
             if (reasoningContent == null || reasoningContent.isBlank()) {
                 return this;
             }
-            return new Message(role, content, null, toolCalls, toolCallId, contentParts);
+            return new Message(role, content, null, toolCalls, toolCallId, contentParts, responseItems);
         }
 
         private static String plainText(List<ContentPart> parts) {
@@ -224,7 +236,13 @@ public interface LlmClient {
 
     record ChatResponse(String role, String content, String reasoningContent, List<ToolCall> toolCalls,
                         int inputTokens, int outputTokens, int cachedInputTokens,
-                        String resolvedModel, boolean usagePresent) {
+                        String resolvedModel, boolean usagePresent, List<JsonNode> responseItems) {
+        public ChatResponse(String role, String content, String reasoningContent, List<ToolCall> toolCalls,
+                            int inputTokens, int outputTokens, int cachedInputTokens,
+                            String resolvedModel, boolean usagePresent) {
+            this(role, content, reasoningContent, toolCalls, inputTokens, outputTokens, cachedInputTokens,
+                    resolvedModel, usagePresent, null);
+        }
         public ChatResponse(String role, String content, List<ToolCall> toolCalls,
                             int inputTokens, int outputTokens) {
             this(role, content, null, toolCalls, inputTokens, outputTokens, 0, null, false);

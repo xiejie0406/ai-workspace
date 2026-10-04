@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class AbstractOpenAiCompatibleClient implements LlmClient {
+public abstract class AbstractOpenAiCompatibleClient implements LlmClient, ManagedKeyAware {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractOpenAiCompatibleClient.class);
     protected static final ObjectMapper mapper = new ObjectMapper();
@@ -39,9 +39,11 @@ public abstract class AbstractOpenAiCompatibleClient implements LlmClient {
     private ModelProfile modelProfile;
     @FunctionalInterface public interface ApiKeyProvider { String currentKey() throws IOException; }
     private ApiKeyProvider apiKeyProvider;
-    final void setApiKeyProvider(ApiKeyProvider provider) { apiKeyProvider = java.util.Objects.requireNonNull(provider); }
+    public final void setApiKeyProvider(ApiKeyProvider provider) { apiKeyProvider = java.util.Objects.requireNonNull(provider); }
     final String effectiveApiKey() throws IOException { return apiKeyProvider == null ? getApiKey() : apiKeyProvider.currentKey(); }
     private String configuredModel;
+
+    protected final ModelProfile modelProfile() { return modelProfile; }
 
     final LlmClient withModelProfile(String model, ModelProfile profile) {
         if (profile.maxOutputTokens() != null && profile.maxOutputTokens() >
@@ -233,6 +235,7 @@ public abstract class AbstractOpenAiCompatibleClient implements LlmClient {
                 }
 
                 JsonNode root = mapper.readTree(payload);
+                validateResponseFrame(root);
                 String eventModel = normalizedResolvedModel(root.path("model"));
                 if (eventModel != null) {
                     if (resolvedModel == null) {
@@ -478,10 +481,18 @@ public abstract class AbstractOpenAiCompatibleClient implements LlmClient {
         applyModelProfile(requestBody);
         Integer centralLimit = LlmRequestLimit.current();
         if (centralLimit != null) requestBody.put("max_tokens", Math.min(centralLimit, requestBody.path("max_tokens").asInt(centralLimit)));
+        finalizeRequestBody(requestBody);
         return requestBody;
     }
 
     protected void customizeRequestBody(ObjectNode requestBody) {
+    }
+
+    /** 参数预算与模型配置应用后的协议专用处理；既有供应商默认行为不变。 */
+    protected void finalizeRequestBody(ObjectNode requestBody) {
+    }
+
+    protected void validateResponseFrame(JsonNode frame) throws IOException {
     }
 
     protected void customizeRequest(Request.Builder request) {
