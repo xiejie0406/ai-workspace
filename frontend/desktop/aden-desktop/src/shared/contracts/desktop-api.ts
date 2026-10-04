@@ -1,4 +1,5 @@
 import type { EventBatch, EpochContext } from './operator-events'
+import type { CollectionApi } from './collection'
 import type {
   CreateTaskRequest,
   OperatorTaskCommandRequest,
@@ -97,6 +98,7 @@ export interface TaskMutationResult {
 }
 
 export interface AdenDesktopApi {
+  readonly collection: CollectionApi
   readonly getRuntimeInfo: () => AdenRuntimeInfo
   readonly auth: {
     readonly captcha: () => Promise<IpcResult<CaptchaChallenge>>

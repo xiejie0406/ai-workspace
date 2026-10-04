@@ -4,6 +4,7 @@ import TaskCenterView from '../features/task-center/TaskCenterView.vue'
 import TaskDetailView from '../features/task-center/TaskDetailView.vue'
 import CapabilityOverviewView from '../features/capability-overview/CapabilityOverviewView.vue'
 import AboutView from '../features/about/AboutView.vue'
+import CollectionView from '../features/collection/CollectionView.vue'
 import { useSessionStore } from '../stores/session'
 
 export const router = createRouter({
@@ -14,7 +15,8 @@ export const router = createRouter({
     { path: '/tasks', name: 'tasks', component: TaskCenterView },
     { path: '/tasks/:taskId', name: 'task-detail', component: TaskDetailView },
     { path: '/capabilities', name: 'capabilities', component: CapabilityOverviewView },
-    { path: '/about', name: 'about', component: AboutView }
+    { path: '/about', name: 'about', component: AboutView },
+    { path: '/collection', name: 'collection', component: CollectionView }
   ]
 })
 

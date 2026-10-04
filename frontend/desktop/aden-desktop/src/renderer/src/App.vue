@@ -26,6 +26,7 @@ async function logout(): Promise<void> {
       <div class="brand"><span class="brand-mark">A</span><div><strong>Aden</strong><small>桌面智能执行平台</small></div></div>
       <nav class="nav-list">
         <RouterLink class="nav-item" active-class="nav-item-active" to="/tasks">⌘ 任务中心</RouterLink>
+        <RouterLink class="nav-item" active-class="nav-item-active" to="/collection">▤ 商品采集</RouterLink>
         <RouterLink class="nav-item" active-class="nav-item-active" to="/capabilities">◇ 能力总览</RouterLink>
         <RouterLink class="nav-item" active-class="nav-item-active" to="/about">ⓘ 关于</RouterLink>
       </nav>

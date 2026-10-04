@@ -10,6 +10,7 @@ import { AdenAuthService } from '../auth/auth-service'
 import { AdenSseCoordinator } from '../transport/sse-client'
 import { DESKTOP_IPC as IPC } from '../../shared/contracts/desktop-api'
 import { registerDesktopIpcHandlers } from '../ipc/register-handlers'
+import { registerCollection } from '../collection/register-collection'
 
 declare const __ADEN_PACKAGE_CHANNEL__: 'local-test' | 'release'
 
@@ -56,7 +57,7 @@ export class AdenAppHost {
         ...context, state: 'DEGRADED', reason
       })
     })
-    this.#disposeIpc = registerDesktopIpcHandlers({
+    const disposeDesktop = registerDesktopIpcHandlers({
       ipcMain,
       trust,
       webContents: window.webContents,
@@ -65,6 +66,8 @@ export class AdenAppHost {
       auth,
       sse
     })
+    const disposeCollection = registerCollection({ ipcMain, window, trust, session, api, auth })
+    this.#disposeIpc = () => { disposeCollection(); disposeDesktop() }
 
     window.on('closed', () => {
       this.#disposeIpc?.()

@@ -18,6 +18,7 @@ import {
 } from '../shared/contracts/desktop-api'
 import type { EventBatch } from '../shared/contracts/operator-events'
 import type { WorkspaceListResponse } from '../shared/generated/operator-contracts'
+import { COLLECTION_IPC, type CollectionRequest, type CollectionSnapshot, type CollectionFileResult } from '../shared/contracts/collection'
 
 export interface DesktopErrorShape {
   readonly code: string
@@ -36,6 +37,16 @@ interface IpcEnvelope<T> {
 
 export function createPreloadApi(runtime: AdenRuntimeInfo): AdenDesktopApi {
   return Object.freeze({
+    collection: Object.freeze({
+      start: (v: CollectionRequest) => invoke<CollectionSnapshot>(COLLECTION_IPC.start, v),
+      snapshot: (v: CollectionRequest) => invoke<CollectionSnapshot>(COLLECTION_IPC.snapshot, v),
+      cancel: (v: CollectionRequest) => invoke<CollectionSnapshot>(COLLECTION_IPC.cancel, v),
+      retry: (v: CollectionRequest) => invoke<CollectionSnapshot>(COLLECTION_IPC.retry, v),
+      update: (v: CollectionRequest) => invoke<CollectionSnapshot>(COLLECTION_IPC.update, v),
+      save: (v: CollectionRequest) => invoke<CollectionFileResult>(COLLECTION_IPC.save, v),
+      load: (v: CollectionRequest) => invoke<CollectionFileResult>(COLLECTION_IPC.load, v),
+      export: (v: CollectionRequest) => invoke<CollectionFileResult>(COLLECTION_IPC.export, v)
+    }),
     getRuntimeInfo: () => runtime,
     auth: Object.freeze({
       captcha: () => invoke<CaptchaChallenge>(IPC.captcha, null),
