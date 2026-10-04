@@ -58,7 +58,7 @@
 | AI 演示文稿 | `app/llm/client.py` 用 ChatOpenAI、JSON mode 和 Pydantic；Worker `Settings` 持有 LLM key/base URL，设置 SDK 重试；`execution.py` 已有调用数和真实 usage 摘要 | 保留 LangChain/LangGraph 和业务校验，接入任务作用域中心文本适配；取消本地长期文本密钥来源，防止 SDK 与中心重复重试 |
 | PaiSmart | `ProviderService` 分 LLM/EMBEDDING/RERANK；`IntelligenceSettings` 核对项目托管用途与 provider/capability；`ModelGateway` 有 Chat Completions、流式工具、模型调用账本、Embedding/Rerank | 仅改 LLM 的出口解析与文本输送；保留正式业务账本、配额和索引边界；保留 Embedding/Rerank 的现有配置 |
 | PaiFlow | `ModelRuntimeCatalog` 要求批准的 `ProfilePort`，固定模型权限/版本，仅允许 openai/chat，运行地址要求 HTTPS/443；Python 有中心模型帧桥及受控 producer；Java Worker 有模型出站授权 | 必须复用现有授权、租约、预算、帧提交及终态，不绕过 ProfilePort；用户 HTTP 示例不满足这一运行限制；不能直接替换原帧格式 |
-| PaiCLI | 中心 `PcConnectionService` 管工作区、模型与托管用途；`secretGrant` 当前会向 Runner 交付 Provider key；Factory 只有 deepseek/glm/hunyuan/kimi/step/freellmapi/xfyun/agnes 等具体实现，并有供应商回退扫描 | 需要显式通用中心文本 client 与 `sub2api` 路由类型；模型执行、审批分类器及 LLM 搜索用途一起登记；不伪装成 DeepSeek，不保留切换后直连回退 |
+| PaiCLI | 中心 `PcConnectionService` 管工作区、模型与托管用途；`secretGrant` 当前会向 Runner 交付 Provider key；Factory 只有 deepseek/glm/hunyuan/kimi/step/freellmapi/xfyun/agnes 等具体实现，并有供应商回退扫描 | 首期新增 `sub2api` 供应商及选定 API 的 client，沿用中心配置与受控 Runner；主模型及沿用该模型的辅助分类/压缩一起适配，独立搜索不迁移；不伪装成 DeepSeek，显式选择失败不自动回退 |
 
 关键差异是现有各消费者持有的协议、参数和出站权限不同，不是把九份 `base_url` 改成同一个值就结束。完整源码定位见[调查与文档检查记录](证据/2026-10-03-Sub2API文本模型设计/调查与文档检查记录.md)。
 
