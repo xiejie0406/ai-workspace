@@ -1,0 +1,195 @@
+{
+  "source": ".runtime/paiflow-agent-link-check/actual-tool-consumer-current.json original Factory capture",
+  "dsl": {
+    "nodes": [
+      {
+        "id": "node-start::s",
+        "data": {
+          "nodeMeta": {
+            "nodeType": "node-start",
+            "aliasName": "node-start::s"
+          },
+          "inputs": [],
+          "outputs": [
+            {
+              "name": "question",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            },
+            {
+              "name": "bundle",
+              "schema": {
+                "type": "object"
+              },
+              "required": true
+            }
+          ],
+          "nodeParam": {}
+        }
+      },
+      {
+        "id": "plugin::cap",
+        "data": {
+          "nodeMeta": {
+            "nodeType": "plugin",
+            "aliasName": "plugin::cap"
+          },
+          "inputs": [
+            {
+              "id": "",
+              "name": "question",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "type": "ref",
+                  "content": {
+                    "nodeId": "node-start::s",
+                    "name": "question"
+                  }
+                }
+              }
+            },
+            {
+              "id": "",
+              "name": "bundle",
+              "schema": {
+                "type": "object",
+                "value": {
+                  "type": "ref",
+                  "content": {
+                    "nodeId": "node-start::s",
+                    "name": "bundle"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "name": "answer",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            },
+            {
+              "name": "count",
+              "schema": {
+                "type": "integer"
+              },
+              "required": true
+            }
+          ],
+          "nodeParam": {
+            "toolResourceId": "tool:7:version:77:operation:bG9va3Vw",
+            "pluginId": "legacy-tool",
+            "operationId": "lookup",
+            "appId": "legacy-label",
+            "businessInput": [
+              "business"
+            ]
+          }
+        }
+      },
+      {
+        "id": "node-end::e",
+        "data": {
+          "nodeMeta": {
+            "nodeType": "node-end",
+            "aliasName": "node-end::e"
+          },
+          "inputs": [
+            {
+              "id": "",
+              "name": "answer",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "type": "ref",
+                  "content": {
+                    "nodeId": "plugin::cap",
+                    "name": "answer"
+                  }
+                }
+              }
+            },
+            {
+              "id": "",
+              "name": "count",
+              "schema": {
+                "type": "integer",
+                "value": {
+                  "type": "ref",
+                  "content": {
+                    "nodeId": "plugin::cap",
+                    "name": "count"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [],
+          "nodeParam": {
+            "outputMode": 0
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "sourceNodeId": "node-start::s",
+        "targetNodeId": "plugin::cap",
+        "sourceHandle": ""
+      },
+      {
+        "sourceNodeId": "plugin::cap",
+        "targetNodeId": "node-end::e",
+        "sourceHandle": ""
+      }
+    ]
+  },
+  "input": {
+    "question": "原查询",
+    "bundle": {
+      "nested": [
+        {
+          "business": "原透传"
+        }
+      ]
+    }
+  },
+  "originalRequest": {
+    "leaseId": "lease-1",
+    "attempt": 1,
+    "nodeId": "plugin::cap",
+    "operation": "tools.read",
+    "parameters": {
+      "resourceId": "tool:7:version:77:operation:bG9va3Vw",
+      "resourceVersion": "77",
+      "kind": "tool",
+      "provider": "spark-link",
+      "legacyPayload": {
+        "header": {
+          "app_id": "legacy-label"
+        },
+        "parameter": {
+          "tool_id": "legacy-tool",
+          "operation_id": "lookup",
+          "version": "V1.0"
+        },
+        "payload": {
+          "message": {
+            "query": "eyJxdWVzdGlvbiI6ICJcdTUzOWZcdTY3ZTVcdThiZTIifQ==",
+            "body": "eyJkZWZhdWx0ZWQiOiAiXHU0ZmRkXHU3NTU5XHU5ZWQ4XHU4YmE0In0=",
+            "path": "eyJidXNpbmVzcyI6ICJcdTUzOWZcdTkwMGZcdTRmMjAifQ=="
+          }
+        }
+      },
+      "resourceBindings": {}
+    },
+    "idempotencyKey": "operation_d58e8c1a78b74ad27378918fce7e2a035530e2e083a29302ef174eb6c915a46a",
+    "iterationId": null
+  }
+}

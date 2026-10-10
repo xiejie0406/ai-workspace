@@ -16,13 +16,13 @@ import java.util.TreeMap;
 
 /** 转换执行边与节点，同时独立保全原画布；不处理身份、密钥绑定或派发。 */
 public final class DslCodec {
-    public static final String V1="paiflow.execution.v1",V2="paiflow.execution.v2",V3="paiflow.execution.v3";
+    public static final String V1="paiflow.execution.v1",V2="paiflow.execution.v2",V3="paiflow.execution.v3",V4="paiflow.execution.v4";
     public record Normalized(String sourceFormat, JSONObject original, JSONObject execution, String executionHash) {}
     public Normalized normalize(JSONObject source) { return normalize(source,V2); }
     /** 旧不可变版本与已固定execution只做原结构转换，不能被当前编译算法重新解释。 */
     public Normalized normalizeV1(JSONObject source) { return normalize(source,V1); }
     public Normalized normalize(JSONObject source,String version) {
-        boolean current=V2.equals(version) || V3.equals(version);
+        boolean current=V2.equals(version) || V3.equals(version) || V4.equals(version);
         if(version!=null && !V1.equals(version) && !current)throw new IllegalArgumentException("未知执行编译格式");
         if (source == null) throw new IllegalArgumentException("工作流不能为空");
         JSONObject original = JSON.parseObject(current?source.toJSONString(JSONWriter.Feature.WriteMapNullValue):source.toJSONString());
@@ -89,8 +89,8 @@ public final class DslCodec {
         }
     }
     private static byte[] canonicalBytes(JSONObject execution,String version) {
-        if(version!=null && !V1.equals(version) && !V2.equals(version) && !V3.equals(version))throw new IllegalArgumentException("未知执行编译格式");
-        String encoded=V2.equals(version) || V3.equals(version)?JSON.toJSONString(canonical(execution),JSONWriter.Feature.WriteMapNullValue):JSON.toJSONString(canonical(execution));
+        if(version!=null && !V1.equals(version) && !V2.equals(version) && !V3.equals(version) && !V4.equals(version))throw new IllegalArgumentException("未知执行编译格式");
+        String encoded=V2.equals(version) || V3.equals(version) || V4.equals(version)?JSON.toJSONString(canonical(execution),JSONWriter.Feature.WriteMapNullValue):JSON.toJSONString(canonical(execution));
         return encoded.getBytes(StandardCharsets.UTF_8);
     }
     /** Worker校验这些原始字节，禁止按另一种JSON浮点/Unicode序列化重新计算哈希。 */

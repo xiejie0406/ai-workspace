@@ -5,12 +5,21 @@ import { renderType } from '@/components/workflow/utils/reactflowUtils';
 import { cloneDeep } from 'lodash';
 import useFlowsManager from '@/components/workflow/store/use-flows-manager';
 import { useTranslation } from 'react-i18next';
+import type { InputsProps } from '@/components/workflow/types';
 
 import arrowUp from '@/assets/imgs/chat/arrow_up.png';
 import arrowDown from '@/assets/imgs/chat/arrow_down.png';
 import questionMark from '@/assets/imgs/common/questionmark.png';
 
-function index({ id, data }): React.ReactElement {
+interface HistoryTreeField {
+  key: string;
+  label: string;
+  schema?: { type: string };
+  type?: string;
+  children?: HistoryTreeField[];
+}
+
+function index({ id, data }: Pick<InputsProps, 'id' | 'data'>): React.ReactElement {
   const { t } = useTranslation();
   const getCurrentStore = useFlowsManager(state => state.getCurrentStore);
   const currentStore = getCurrentStore();
@@ -21,7 +30,7 @@ function index({ id, data }): React.ReactElement {
   const setNode = currentStore(state => state.setNode);
 
   const handleChangeNodeParam = useCallback(
-    value => {
+    (value: number | null) => {
       setNode(id, old => {
         if (old?.data?.nodeParam?.enableChatHistoryV2) {
           old.data.nodeParam.enableChatHistoryV2.rounds = value;
@@ -41,7 +50,7 @@ function index({ id, data }): React.ReactElement {
     [id, autoSaveCurrentFlow]
   );
 
-  const titleRender = useCallback(nodeData => {
+  const titleRender = useCallback((nodeData: HistoryTreeField) => {
     return (
       <div className="flex items-center gap-2">
         <span>{nodeData.label}</span>
@@ -52,7 +61,7 @@ function index({ id, data }): React.ReactElement {
     );
   }, []);
 
-  const treeData = [
+  const treeData: HistoryTreeField[] = [
     {
       key: '1',
       label: 'history',
@@ -100,7 +109,7 @@ function index({ id, data }): React.ReactElement {
         >
           <img src={questionMark} width={16} className="ml-1" alt="" />
         </Tooltip>
-        <InputNumber
+        <InputNumber<number>
           value={data?.nodeParam?.enableChatHistoryV2?.rounds || 1}
           onChange={handleChangeNodeParam}
           min={1}

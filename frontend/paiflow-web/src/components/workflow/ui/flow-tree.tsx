@@ -1,18 +1,19 @@
 import React, { memo } from 'react';
 import { Tree } from 'antd';
+import type { TreeProps } from 'antd';
+import type { BasicDataNode, DataNode, AntTreeNodeProps } from 'antd/es/tree';
 
 import flowArrowDown from '@/assets/imgs/workflow/flow-arrow-down.png';
 
-function FLowTree({
+function FLowTree<Node extends object = DataNode>({
   treeData = [],
   showLine = true,
   ...reset
-}): React.ReactElement {
+}: TreeProps<Node & BasicDataNode>): React.ReactElement {
   return (
-    <Tree
+    <Tree<Node & BasicDataNode>
       showLine={showLine}
-      //@ts-ignore
-      switcherIcon={({ expanded }) => (
+      switcherIcon={({ expanded }: Pick<AntTreeNodeProps, 'expanded'>) => (
         <img
           src={flowArrowDown}
           className="w-[8px] h-[7px]"
@@ -29,4 +30,5 @@ function FLowTree({
   );
 }
 
-export default memo(FLowTree);
+// memo 保留原运行包装，并恢复 TreeProps 的泛型调用契约。
+export default memo(FLowTree) as typeof FLowTree;

@@ -9,62 +9,145 @@ export type NodeType = {
   selected?: boolean;
 };
 
-export type NodeDataType = {
-  nodeMeta: {
-    nodeType: string;
+export type NodeParameters = {
+  [key: string]: unknown;
+  model?: string;
+  domain?: string;
+  appId?: string;
+  uid?: string;
+  flowId?: string;
+  mode?: number;
+  llmId?: string | number;
+  isThink?: boolean;
+  enableChatHistoryV2?: {
+    isEnabled?: boolean;
+    rounds?: number | null;
+  };
+  IterationStartNodeId?: string;
+  toolDescription?: string;
+  rpaDescription?: string;
+  handlingEdge?: string;
+  exceptionHandlingEdge?: string;
+};
+
+export type NodeDataType<Parameters extends object = NodeParameters> = {
+  label?: string;
+  labelEdit?: boolean;
+  shrink?: boolean;
+  parentId?: string;
+  nodeType?: string;
+  retryConfig?: {
+    shouldRetry?: boolean;
+    errorStrategy?: number;
+    customOutput?: string;
+  };
+  nodeMeta?: {
+    nodeType?: string;
     aliasName: string;
   };
   inputs?: Array<InputType>;
   outputs?: Array<OutputType>;
-  nodeParam: {
-    model: string;
-    domain: string;
-    appId: string;
-    apiKey: string;
-    apiSecret: string;
-    maxTokens: string;
-    uid: string;
-    template: string;
-  };
+  nodeParam: Parameters & Record<string, unknown>;
   references?: Array<ReferenceType>;
+};
+
+export type ReferenceContent = {
+  id?: string;
+  nodeId?: string;
+  name?: string;
+};
+
+export type InputValue = {
+  type: string;
+  content: string | ReferenceContent;
+  contentErrMsg?: string;
+};
+
+// 原画布的对象属性同时使用直接 type/properties 与 schema 包装两种结构。
+export type WorkflowProperty = {
+  id?: string;
+  name: string;
+  type?: string;
+  schema?: WorkflowSchema;
+  properties?: WorkflowProperty[];
+  default?: unknown;
+  required?: boolean;
+  nameErrMsg?: string;
+  allowedFileType?: string[];
+  fileType?: string;
+  deleteDisabled?: boolean;
+  customParameterType?: string;
+  key?: string;
+  isChild?: boolean;
+  title?: React.ReactElement;
+};
+
+export type WorkflowSchema = {
+  type: string;
+  description?: string;
+  descriptionErrMsg?: string;
+  default?: unknown;
+  properties?: WorkflowProperty[];
+  value?: InputValue;
 };
 
 export type InputType = {
   id: string;
   name: string;
-  schema: {
-    type: string;
-    value: {
-      type: string;
-      content:
-        | string
-        | {
-            id: string;
-            nodeId: string;
-            name: string;
-          };
-    };
-  };
+  schema: WorkflowSchema & { value: InputValue };
+  type?: string;
+  required?: boolean;
+  description?: string;
+  default?: unknown;
+  disabled?: boolean;
+  fileType?: string;
+  customParameterType?: string;
+  nameErrMsg?: string;
 };
 
-export type OutputType = {
+export type OutputType = WorkflowProperty & {
   id: string;
-  name: string;
-  schema: {
-    type: string;
-    value: {
-      type: string;
-      content: string;
-    };
-  };
+  schema: WorkflowSchema;
+  fileType?: string;
+  deleteDisabled?: boolean;
+  customParameterType?: string;
+  isChild?: boolean;
 };
 
 export type ReferenceType = {
   id?: string;
   label: string;
   value: string;
-  children: ReferenceType;
+  originId?: string;
+  type?: string;
+  parentType?: string;
+  parentNode?: boolean;
+  fileType?: string;
+  children?: ReferenceType[];
+  references?: ReferenceType[];
 };
+
+// 模板输入的字面值只有 id/label；引用输入继续保留原递归变量信息。
+export type TemplateVariableOption = Omit<ReferenceType, 'value' | 'children' | 'references'> & {
+  value?: string;
+  children?: TemplateVariableOption[];
+  references?: TemplateVariableOption[];
+};
+
+export type TemplateReplaceOffset = { offsetLeft: number; offsetRight: number };
+
+export interface UseFlowTemplateEditorProps {
+  currentSelection: React.MutableRefObject<Range | null>;
+  willInertInfo: React.MutableRefObject<{ cursorPosition: number; offset: TemplateReplaceOffset }>;
+  setShowDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  setDropdownPosition: React.Dispatch<React.SetStateAction<{ top: number; left: number }>>;
+  setMatchingInformation: React.Dispatch<React.SetStateAction<{ keyWord: string; matchingKeyWord: string }>>;
+  zoom: number;
+  references: ReferenceType[];
+  inputs: InputType[];
+  treeData: TemplateVariableOption[];
+  parentRef: React.RefObject<HTMLDivElement>;
+}
 
 export type sourceHandleType = {
   dataType: string;
@@ -137,19 +220,19 @@ export type UseFlowTemplateEditorReturn = {
   insertOption: (option: string, isLeaf: boolean) => void;
   getCursorPosition: () => void;
   filterArr: (
-    arr: string[],
+    arr: TemplateVariableOption[],
     value: string,
-    offset: number,
+    offset: TemplateReplaceOffset,
     content: string
-  ) => string[];
+  ) => TemplateVariableOption[];
   noProperties: boolean;
   hasData: boolean;
-  inputsOption: string[];
+  inputsOption: TemplateVariableOption[];
 };
 
 export type UseFlowTemplateInputReturn = {
   handleClick: () => void;
-  handleInput: () => void;
+  handleInput: (event?: React.FormEvent<HTMLDivElement>) => void;
   handleTreeSelect: (selectedKeys: string[]) => void;
 };
 

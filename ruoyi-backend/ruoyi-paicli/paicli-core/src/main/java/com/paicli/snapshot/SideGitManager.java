@@ -145,7 +145,7 @@ public class SideGitManager {
         requireSnapshot(commitId);
         try (Git git = openGit()) {
             Map<String, ObjectId> target = treeEntries(git.getRepository(), ObjectId.fromString(commitId));
-            com.paicli.policy.PathGuard guard = new com.paicli.policy.PathGuard(projectRoot.toString());
+            SnapshotPathSafety safety = new SnapshotPathSafety(projectRoot);
             var paths = new java.util.TreeSet<>(target.keySet());
             ObjectId head = git.getRepository().resolve("HEAD"); if (head != null) paths.addAll(treeEntries(git.getRepository(), head).keySet());
             try (TreeWalk current = new TreeWalk(git.getRepository())) {
@@ -155,17 +155,31 @@ public class SideGitManager {
             }
             Map<String,String> modes = treeModes(git.getRepository(), ObjectId.fromString(commitId));
             List<PreviewFile> files = new ArrayList<>(); List<String> conflicts = new ArrayList<>();
+            Map<String,String> projectedModes = new LinkedHashMap<>();
+            for(String path:paths)projectedModes.put(path,modes.get(path));
+            Map<String,byte[]> targetLinks = new LinkedHashMap<>();
+            for(var entry:modes.entrySet())if("120000".equals(entry.getValue())) {
+                try {targetLinks.put(entry.getKey(),git.getRepository().open(target.get(entry.getKey()),org.eclipse.jgit.lib.Constants.OBJ_BLOB).getBytes(SnapshotPathSafety.MAX_LINK_TARGET_BYTES));}
+                catch(IOException|org.eclipse.jgit.errors.LargeObjectException invalid) {conflicts.add(entry.getKey()+": 无法读取有界链接目标");}
+            }
+            SnapshotPathSafety.Projection projection=safety.projection(targetLinks,projectedModes);
             for (String path : paths) {
-                if (hasLinkedAncestor(path)) { conflicts.add(path + ": 路径含链接或重定向目录"); continue; }
-                Path node = guard.resolveSafe(path);
+                Path node;
+                try { node=safety.resolveLeaf(path); }
+                catch(IOException unsafe) { conflicts.add(path + ": " + unsafe.getMessage()); continue; }
                 boolean exists = Files.exists(node, java.nio.file.LinkOption.NOFOLLOW_LINKS);
-                if (exists && (!Files.isRegularFile(node, java.nio.file.LinkOption.NOFOLLOW_LINKS) || Files.isSymbolicLink(node))) { conflicts.add(path + ": 非普通文件"); continue; }
+                if(!exists&&!Files.notExists(node,java.nio.file.LinkOption.NOFOLLOW_LINKS)) {conflicts.add(path+": 无法核实当前节点");continue;}
+                if (exists && !Files.isRegularFile(node, java.nio.file.LinkOption.NOFOLLOW_LINKS) && !Files.isSymbolicLink(node)) { conflicts.add(path + ": 非普通文件或安全叶链接"); continue; }
                 String targetMode = modes.get(path);
-                if (target.containsKey(path) && (!List.of("100644", "100755").contains(targetMode) || isWindows() && "100755".equals(targetMode))) { conflicts.add(path + ": 不支持的快照节点模式"); continue; }
-                byte[] before = exists ? boundedFile(node) : null;
-                byte[] after = target.containsKey(path) ? git.getRepository().open(target.get(path), org.eclipse.jgit.lib.Constants.OBJ_BLOB).getBytes(64 * 1024 * 1024) : null;
+                if (target.containsKey(path) && (!List.of("100644", "100755", "120000").contains(targetMode) || isWindows() && "100755".equals(targetMode))) { conflicts.add(path + ": 不支持的快照节点模式"); continue; }
+                byte[] before;
+                byte[] after = "120000".equals(targetMode) ? targetLinks.get(path) : target.containsKey(path) ? git.getRepository().open(target.get(path), org.eclipse.jgit.lib.Constants.OBJ_BLOB).getBytes(64 * 1024 * 1024) : null;
+                try {
+                    before = exists ? Files.isSymbolicLink(node) ? safety.readLinkTarget(node) : boundedFile(node) : null;
+                    if("120000".equals(targetMode))safety.validateLinkTarget(node,after,projection);
+                } catch(IOException unsafe) { conflicts.add(path + ": " + unsafe.getMessage()); continue; }
                 String currentHash = before == null ? null : digest(before), targetHash = after == null ? null : digest(after);
-                String currentMode = exists ? Files.isExecutable(node) && !isWindows() ? "100755" : "100644" : null;
+                String currentMode = exists ? Files.isSymbolicLink(node) ? "120000" : Files.isExecutable(node) && !isWindows() ? "100755" : "100644" : null;
                 String status = before == null ? "ADD" : after == null ? "DELETE" : currentHash.equals(targetHash) && java.util.Objects.equals(currentMode, targetMode) ? "UNCHANGED" : "MODIFY";
                 if (before != null || after != null) files.add(new PreviewFile(path,status,currentHash,targetHash,
                         currentMode==null?null:Integer.parseInt(currentMode,8),targetMode==null?null:Integer.parseInt(targetMode,8),previewDiff(path,before,after)));
@@ -176,22 +190,18 @@ public class SideGitManager {
     }
 
     public record PreviewFile(String path,String status,String currentHash,String targetHash,Integer currentMode,Integer targetMode,String diff) { }
-    private boolean hasLinkedAncestor(String relative) throws IOException {
-        Path requested = projectRoot.resolve(relative).normalize();
-        if (!requested.startsWith(projectRoot)) return true;
-        Path current = projectRoot;
-        for (Path segment : projectRoot.relativize(requested)) {
-            current = current.resolve(segment);
-            if (Files.isSymbolicLink(current)) return true;
-            if (Files.exists(current, java.nio.file.LinkOption.NOFOLLOW_LINKS) && !current.toRealPath().equals(current.toAbsolutePath().normalize())) return true;
-        }
-        return false;
-    }
     private static void requireRestorable(Map<String,Object> preview) throws IOException {
         if (!Boolean.TRUE.equals(preview.get("canRestore"))) throw new IOException("快照存在不可恢复的节点或文件模式，请先处理冲突");
     }
     private static boolean isWindows() { return System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("win"); }
-    private static byte[] boundedFile(Path path) throws IOException { if(Files.size(path)>64L*1024*1024)throw new IOException("预览文件超过64MiB支持范围");return Files.readAllBytes(path); }
+    private static byte[] boundedFile(Path path) throws IOException {
+        var before=Files.readAttributes(path,java.nio.file.attribute.BasicFileAttributes.class,java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        if(!before.isRegularFile()||before.size()>64L*1024*1024)throw new IOException("预览节点不是普通文件或超过64MiB支持范围");
+        byte[] bytes;try(var input=Files.newInputStream(path,java.nio.file.StandardOpenOption.READ,java.nio.file.LinkOption.NOFOLLOW_LINKS)){bytes=input.readNBytes(64*1024*1024+1);}
+        var after=Files.readAttributes(path,java.nio.file.attribute.BasicFileAttributes.class,java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        if(bytes.length>64*1024*1024||!after.isRegularFile()||before.size()!=bytes.length||after.size()!=bytes.length||!before.lastModifiedTime().equals(after.lastModifiedTime())||!java.util.Objects.equals(before.fileKey(),after.fileKey()))throw new IOException("预览读取期间文件已改变");
+        return bytes;
+    }
     private static String digest(byte[] bytes) {try{return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));}catch(NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);} }
     private static String previewDiff(String path,byte[] before,byte[] after) throws IOException {
         byte[] current=before==null?new byte[0]:before,target=after==null?new byte[0]:after;
@@ -386,15 +396,17 @@ public class SideGitManager {
             Map<String,ObjectId> current,Map<String,ObjectId> target,Map<String,String> currentModes,Map<String,String> targetModes)throws IOException {
         List<RestoreChange> attempted=new ArrayList<>();List<String> restored=new ArrayList<>(),removed=new ArrayList<>();
         var paths=new java.util.TreeSet<String>();paths.addAll(current.keySet());paths.addAll(target.keySet());
+        List<String> ordered=restoreOrder(repository,paths,target,targetModes);
         try {
-            for(String path:paths) {
+            for(String path:ordered) {
                 ObjectId previous=current.get(path),next=target.get(path);String previousMode=currentModes.get(path),nextMode=targetModes.get(path);
                 if(java.util.Objects.equals(previous,next)&&java.util.Objects.equals(previousMode,nextMode))continue;
                 byte[] previousBytes=blob(repository,previous),nextBytes=blob(repository,next);
                 Path file=restorePath(path);requireCurrentValue(file,previousBytes,previousMode);
                 RestoreChange change=new RestoreChange(path,previous,previousMode,next,nextMode);attempted.add(change);
                 beforeRestoreWrite(path,false);
-                if(next==null){Files.delete(file);removed.add(path);}else{writeRestoreFile(file,nextBytes,nextMode);restored.add(path);}
+                file=restorePath(path);requireCurrentValue(file,previousBytes,previousMode);
+                if(next==null){Files.delete(file);removed.add(path);}else{writeRestoreFile(file,nextBytes,nextMode,previousBytes,previousMode);restored.add(path);}
             }
             return RestoreResult.success(targetCommit,restored,removed);
         } catch(IOException | RuntimeException error) {
@@ -408,42 +420,80 @@ public class SideGitManager {
                     // 后续外部修改不被补偿覆盖；与本次目标不同的内容留给人工核对。
                     if(!matches(file,nextBytes,change.nextMode()))throw new IOException("文件在恢复后再次改变");
                     beforeRestoreWrite(change.path(),true);
+                    file=restorePath(change.path());requireCurrentValue(file,nextBytes,change.nextMode());
                     if(previousBytes==null){Files.delete(file);pruneEmptyParents(file.getParent());}
-                    else writeRestoreFile(file,previousBytes,change.previousMode());
+                    else writeRestoreFile(file,previousBytes,change.previousMode(),nextBytes,change.nextMode());
                     compensated.add(change.path());
                 }catch(IOException compensationFailure){unrestored.add(change.path());failure.addSuppressed(compensationFailure);}
             }
             throw new SnapshotRestoreException(targetCommit,backupCommit,attempted.stream().map(RestoreChange::path).toList(),compensated,unrestored,failure);
         }
     }
+    private List<String> restoreOrder(Repository repository,java.util.Set<String> paths,
+            Map<String,ObjectId> target,Map<String,String> targetModes)throws IOException {
+        Map<String,String> projectedModes=new LinkedHashMap<>();Map<String,byte[]> links=new LinkedHashMap<>();
+        for(String path:paths) {
+            projectedModes.put(path,targetModes.get(path));
+            if("120000".equals(targetModes.get(path)))links.put(path,blob(repository,target.get(path)));
+        }
+        SnapshotPathSafety safety=new SnapshotPathSafety(projectRoot);
+        SnapshotPathSafety.Projection projection=safety.projection(links,projectedModes);
+        Map<String,java.util.Set<String>> dependencies=new LinkedHashMap<>();
+        for(String path:paths) {
+            if(links.containsKey(path))dependencies.put(path,safety.linkDependencies(safety.resolveLeaf(path),links.get(path),projection));
+            else dependencies.put(path,java.util.Set.of());
+        }
+        List<String> ordered=new ArrayList<>();java.util.Set<String> completed=new java.util.HashSet<>(),visiting=new java.util.HashSet<>();
+        for(String path:paths)orderRestore(path,dependencies,visiting,completed,ordered);
+        return ordered;
+    }
+    private static void orderRestore(String path,Map<String,java.util.Set<String>> dependencies,
+            java.util.Set<String> visiting,java.util.Set<String> completed,List<String> ordered)throws IOException {
+        if(completed.contains(path))return;
+        if(!visiting.add(path))throw new IOException("冻结快照链接依赖存在循环");
+        for(String dependency:new java.util.TreeSet<>(dependencies.getOrDefault(path,java.util.Set.of())))
+            orderRestore(dependency,dependencies,visiting,completed,ordered);
+        visiting.remove(path);completed.add(path);ordered.add(path);
+    }
     private record RestoreChange(String path,ObjectId previous,String previousMode,ObjectId next,String nextMode) { }
     /** 故障注入点位于文件变更之前，不改变实际原子写入和补偿逻辑。 */
     protected void beforeRestoreWrite(String relativePath,boolean compensation)throws IOException { }
     private Path restorePath(String relative)throws IOException {
-        if(hasLinkedAncestor(relative))throw new IOException("恢复路径含链接或重定向目录");
-        Path file=new com.paicli.policy.PathGuard(projectRoot.toString()).resolveSafe(relative);
-        if(Files.exists(file,java.nio.file.LinkOption.NOFOLLOW_LINKS)&&!Files.isRegularFile(file,java.nio.file.LinkOption.NOFOLLOW_LINKS))throw new IOException("恢复目标不是普通文件");
+        SnapshotPathSafety safety=new SnapshotPathSafety(projectRoot);
+        Path file=safety.resolveLeaf(relative);
+        if(!Files.exists(file,java.nio.file.LinkOption.NOFOLLOW_LINKS)&&!Files.notExists(file,java.nio.file.LinkOption.NOFOLLOW_LINKS))throw new IOException("无法核实恢复叶节点");
+        if(Files.exists(file,java.nio.file.LinkOption.NOFOLLOW_LINKS)&&!Files.isRegularFile(file,java.nio.file.LinkOption.NOFOLLOW_LINKS)&&!Files.isSymbolicLink(file))throw new IOException("恢复目标不是普通文件或安全叶链接");
+        if(Files.isSymbolicLink(file))safety.readLinkTarget(file);
         return file;
     }
     private static byte[] blob(Repository repository,ObjectId id)throws IOException {return id==null?null:repository.open(id,org.eclipse.jgit.lib.Constants.OBJ_BLOB).getBytes(64*1024*1024);}
-    private static boolean matches(Path file,byte[] expected,String mode)throws IOException {
-        if(expected==null)return !Files.exists(file,java.nio.file.LinkOption.NOFOLLOW_LINKS);
+    private boolean matches(Path file,byte[] expected,String mode)throws IOException {
+        if(expected==null)return Files.notExists(file,java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        if("120000".equals(mode))return Files.isSymbolicLink(file)&&digest(expected).equals(digest(new SnapshotPathSafety(projectRoot).readLinkTarget(file)));
         if(!Files.isRegularFile(file,java.nio.file.LinkOption.NOFOLLOW_LINKS)||Files.isSymbolicLink(file))return false;
         String actualMode=Files.isExecutable(file)&&!isWindows()?"100755":"100644";
         return java.util.Objects.equals(mode,actualMode)&&digest(expected).equals(digest(boundedFile(file)));
     }
-    private static void requireCurrentValue(Path file,byte[] expected,String mode)throws IOException {if(!matches(file,expected,mode))throw new IOException("恢复执行前文件已改变");}
-    private void writeRestoreFile(Path file,byte[] bytes,String mode)throws IOException {
-        Files.createDirectories(file.getParent());Path stage=Files.createTempFile(file.getParent(),".paicli-restore-",".tmp");
+    private void requireCurrentValue(Path file,byte[] expected,String mode)throws IOException {if(!matches(file,expected,mode))throw new IOException("恢复执行前文件已改变");}
+    private void writeRestoreFile(Path file,byte[] bytes,String mode,byte[] expected,String expectedMode)throws IOException {
+        if(!List.of("100644","100755","120000").contains(mode))throw new IOException("不支持的快照节点模式");
+        SnapshotPathSafety safety=new SnapshotPathSafety(projectRoot);
+        restorePath(projectRoot.relativize(file).toString());
+        Path linkTarget="120000".equals(mode)?safety.validateLinkTarget(file,bytes):null;
+        Files.createDirectories(file.getParent());restorePath(projectRoot.relativize(file).toString());
+        Path stage=Files.createTempFile(file.getParent(),".paicli-restore-",".tmp");
         try {
-            Files.write(stage,bytes);
-            if(!isWindows()) {
-                var permissions=Files.exists(file)?Files.getPosixFilePermissions(file):Files.getPosixFilePermissions(stage);
+            if(linkTarget!=null) {Files.delete(stage);Files.createSymbolicLink(stage,linkTarget);}
+            else Files.write(stage,bytes);
+            if(linkTarget==null&&!isWindows()) {
+                var permissions=Files.isRegularFile(file,java.nio.file.LinkOption.NOFOLLOW_LINKS)?Files.getPosixFilePermissions(file,java.nio.file.LinkOption.NOFOLLOW_LINKS):Files.getPosixFilePermissions(stage);
                 if("100755".equals(mode))permissions.add(java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE);
                 else permissions.removeIf(permission->permission==java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE||permission==java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE||permission==java.nio.file.attribute.PosixFilePermission.OTHERS_EXECUTE);
                 Files.setPosixFilePermissions(stage,permissions);
             }
             restorePath(projectRoot.relativize(file).toString());
+            if(linkTarget!=null)safety.validateLinkTarget(file,bytes);
+            requireCurrentValue(file,expected,expectedMode);
             Files.move(stage,file,java.nio.file.StandardCopyOption.ATOMIC_MOVE,java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         }finally{Files.deleteIfExists(stage);}
     }

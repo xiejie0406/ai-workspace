@@ -1,0 +1,60 @@
+from pathlib import Path
+import json, html, datetime
+
+here=Path(__file__).resolve().parent
+root=here.parents[4]
+runtime=root/'.runtime/paismart'
+def load(path): return json.loads(Path(path).read_text(encoding='utf-8-sig'))
+def esc(value): return html.escape(str(value))
+modules=[
+ ('知识文档','文件/文字上传、分片续传、合并、预览下载、版本、重建、软删除与恢复。原文件进MinIO，摘要、权限、版本和状态在MySQL。','例如上传制度PDF后经历上传→解析→向量→可检索；失败保留任务原因。','存储连接与TXT解析技术通过；正式上传未执行。'),
+ ('知识空间','个人/组织空间、父子层级、主空间和成员读写/上传/管理资格，由后端统一裁决可见范围。','部门成员可读指定空间；兄弟或未授权下级空间不自动开放。','源码已核对；真实成员与空间边界未验收。'),
+ ('知识问答','冻结模型及知识范围，流式生成、检索/摘要/统计/反馈工具、停止与断线恢复，保存消息及引用。','问归档规定时先找可读文档，再回答并给来源；停止后不继续重送请求。','真实文字/向量模型和索引缺失，完整问答受阻。'),
+ ('会话历史','按标题/日期查询历史、继续会话、归档恢复；生成事件持久化，引用绑定内容版本并重新核权限。','断线后接续原生成；打开旧引用仍检查文档现在是否可读。','源码已核对；实际历史和断线接续未验收。'),
+ ('用量余额','LLM/Embedding额度、冻结/消耗、趋势、请求账本；余额/每日政策预留→结算→释放，未知用量进入核对。','请求前冻结预算，成功按实际用量结算，供应商结果不明时保留核对状态。','账本实现已核对；额度政策/账户均0，首次调用前需配置测试账号额度；没有真实消费结算。'),
+ ('充值订单','套餐/自定义金额、订单状态及历史；固定订单价格权益，验证支付回调商户/金额/唯一流水后幂等入账。','重复支付通知只能增加一次额度。','源码已有；真实支付未接入，当前关闭。'),
+ ('成员资格','复用若依账户与数据范围，维护知识库资格、主空间、管理上传权限、额度政策和追加额度。','平台用户存在后，业务资格决定能否使用知识库；管理额度还要核对用户数据范围。','原root资格沿用；其他成员和额度操作未验收。'),
+ ('邀请资格','单个/批量邀请码，空间、有效期、次数、初始额度及启停；事务与幂等消费，不替代平台角色体系。','限一次邀请使用成功后不能再次领取额度。','源码已核对；实际领取与并发未验收。'),
+ ('知识冲突','新文档与可读候选进行向量和关键值比较，可保留新/旧或忽略；淘汰文档退出检索，支持恢复。','两份制度的归档时间不同，管理员确认采用哪一份。','确定性逻辑已有；真实候选/处置未验收，可选LLM确认关闭。'),
+ ('索引版本与回滚','冻结向量模型/维度，重建、续跑、追平、校验、切换、回滚与恢复；检查点、水位、租约和收据保留。','更换向量模型先建新版本，校验后切换；失败保留旧活动索引。','ES接通；活动索引0，正式版本与切换未验证。'),
+ ('检索评测与诊断','受控JSONL样本，冻结索引/空间/TopK/模型，计算召回、MRR、覆盖和NDCG，生成/裁判错误分别记录。','用一批已知正确资料检查是否被检索到；没有标注时不把缺失当零分。','源码已核对；真实样本评测未执行。'),
+ ('评测人工复核','逐样本人工答案及裁判一致性、历史和一致性统计，受最少样本约束。','人工检查自动评测是否误判，并留下修订记录。','源码已有；无真实评测/人工样本。'),
+ ('模型供应商','管理LLM/Embedding/Rerank地址、模型、维度、托管用途、版本及启停；Sub2API兼容验证后才能激活。','保存模型配置不发请求；文字、流式和工具三项通过后才供业务使用。','安全录入/托管/出口已准备；真实密钥和Provider未配置。'),
+ ('限流政策','上传/问答次数、请求/token时间窗、每日及文件预算；Redis原子计数和MySQL用量预算，依赖异常拒绝放行。','连续请求超过政策时提示限流，不能因为Redis故障绕过。','原Redis已连接；真实超限及故障场景未验收。'),
+ ('充值套餐','价格、文字/向量额度权益、说明、排序及启停；版本并发控制，已创建订单沿冻结权益结算。','套餐今天调价不改变昨天订单已约定的额度。','源码已有；支付及套餐操作未验收。'),
+ ('运行状态与受控作业','依赖状态、任务重试/取消、审计、未知费用核对；清理/迁移/导入使用批准、冻结摘要、租约和逐项收据。','解析失败可查任务原因后重试；有风险的清理不会自动执行。','中心/Kafka消费真实运行；业务作业未验证，运维执行与旧数据导入关闭。'),
+]
+checks=[
+ dict(name='本机配套与安全',result='技术通过',detail='原目录/身份复用；MinIO项目范围、ES严格TLS和认证/权限、Kafka项目主题实际检查通过。无业务页面，截图不适用。'),
+ dict(name='菜单与项目连接',result='部分完成，页面受阻',detail='原库33项菜单与3个平台用途已写入回读；生产Java连接真实通过。页面当前未登录，无菜单/供应商/索引/任务页截图，不能记业务通过。'),
+ dict(name='文字和向量模型',result='受阻',detail='尚无两份真实密钥及有效Provider；阿里云实际地域/API根地址待提供。未调用模型、未跳过兼容或维度门禁。'),
+ dict(name='上传、解析和正式索引',result='部分技术通过，业务受阻',detail='生产解析适配器实际一页TXT保留三事实，中心取得Kafka分区。尚未上传正式文档、运行正式任务或建立活动索引；缺业务页面截图。'),
+ dict(name='回答及可打开引用',result='受阻',detail='依赖真实模型、正式文档和索引；本轮未执行，未生成回答或引用截图。'),
+ dict(name='统一日常入口',result='技术部分通过',detail='真实配置恢复、运行归属、HTTP、重复执行复用及仅检查模式已核对；基础服务PID保持。未人为停止健康服务做断进程演练；模型/索引未就绪时整体明确未就绪。'),
+]
+daily=load(runtime/'daily-readiness.json')
+db=load(here/'原库安全就绪回读.json')
+manifest=load(runtime/'processes.json')
+record=dict(date=datetime.datetime.now().astimezone().isoformat(),project='PaiSmart知识库',factsSource='../../完整迁移设计.md#610-继续完成本机连接日常入口与模块核对',
+            userAccepted=False,published=False,gitWrites=False,businessPassed=0,original31Baseline='历史31项真实业务验收保持原状态；本轮不重置或冒充新执行。',
+            database=db,daily=daily,productionConnections=load(runtime/'production-connections-readiness.json'),parser=load(here/'独立解析实际结果.json'),
+            processes=dict(backendPid=manifest['backend']['pid'],frontendPid=manifest['frontend']['pid']),modules=[dict(name=a,logic=b,example=c,status=d) for a,b,c,d in modules],checks=checks)
+(here/'实际记录.json').write_text(json.dumps(record,ensure_ascii=False,indent=2),encoding='utf-8')
+table=''.join(f'<tr><td>{i}</td><td><strong>{esc(m[0])}</strong></td><td>{esc(m[1])}<small>{esc(m[2])}</small></td><td>{esc(m[3])}</td></tr>' for i,m in enumerate(modules,1))
+items=''.join(f'<tr><td>{i}. {esc(c["name"])}</td><td>{esc(c["result"])}</td><td>{esc(c["detail"])}</td></tr>' for i,c in enumerate(checks,1))
+ready=''.join(f'<tr><td>{esc(r["name"])}</td><td>{esc(r["state"])}</td><td>{esc(r["detail"])}</td></tr>' for r in daily['items'])
+doc=f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PaiSmart 项目进度与核验报告</title>
+<style>body{{margin:0;background:#f3f6fa;color:#17283f;font:16px/1.7 "Microsoft YaHei",sans-serif}}main{{max-width:1250px;margin:36px auto;padding:0 26px}}header,section{{background:white;border:1px solid #dce4ee;border-radius:14px;padding:26px;margin-bottom:24px}}h1{{font-size:30px;margin:0 0 12px}}h2{{font-size:22px;margin:0 0 16px}}p{{margin:10px 0}}.note{{background:#fff6df;border-left:4px solid #e3ac30;padding:16px}}.stats{{display:flex;flex-wrap:wrap;gap:14px;margin:20px 0}}.stat{{flex:1;min-width:130px;background:#edf4ff;border-radius:10px;padding:16px}}.stat b{{font-size:27px;display:block;color:#225796}}table{{width:100%;border-collapse:collapse;font-size:14px}}th,td{{padding:13px 12px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}}th{{background:#eaf0f8}}small{{display:block;color:#61718a;margin-top:8px}}code,pre{{background:#edf2f8;border-radius:5px;padding:4px 6px}}pre{{overflow:auto;padding:15px}}a{{color:#225796}}.scroll{{overflow-x:auto}}.flow{{background:#edf4ff;border-radius:10px;padding:18px}}@media(max-width:800px){{main{{padding:0 12px}}header,section{{padding:18px}}table{{min-width:700px}}}}</style>
+<main><header><p>PaiSmart知识库 · 本机实施记录 · {esc(record['date'])}</p><h1>基础服务已接通，真实模型与完整问答仍待完成</h1><p>统一入口检查和复用本机服务，缺少已登记的项目进程时恢复。当前已有16个业务页面及对应Java逻辑；源码核对、技术运行、业务验收和用户接受分开记录。</p>
+<div class="stats"><div class="stat"><b>16</b>业务模块</div><div class="stat"><b>{db['menus']}</b>原库菜单/按钮</div><div class="stat"><b>{len(db['providers'])}</b>真实模型Provider</div><div class="stat"><b>{db['activeIndexes']}</b>活动索引</div><div class="stat"><b>{db['documents']}</b>正式文档</div></div>
+<p class="note">本轮业务通过数为0。存储、HTTPS、消费组和TXT解析的技术结果已取得；登录后的菜单、真实模型、上传到问答及引用均未通过业务验收。缺密钥及实际Provider，不用模拟响应补齐。用户接受、发布和Git写入均未发生。</p></header>
+<section><h2>现在可以怎样启动</h2><pre>&amp; '.\\scripts\\paismart\\启动知识库本机环境.ps1'
+&amp; '.\\scripts\\paismart\\启动知识库本机环境.ps1' -CheckOnly</pre><p>原MySQL/Redis → MinIO、原Kafka/ZK、ES → 原库用途/队列/解析/生产连接 → 本项目中心/Vite → HTTP与模型、索引结果。基础服务继续共用，停止项目只停登记的中心/Vite。</p><p>管理端：<a href="http://127.0.0.1:15177/">http://127.0.0.1:15177/</a>。本机配置和原库账户不输出秘密；日常启动不主动发付费模型探测，恢复的消费者可能接续原任务。</p></section>
+<section><h2>逐项实际就绪结果</h2><p>检查时间：{esc(daily['checkedAt'])}；模式：{esc(daily['mode'])}。整体配置就绪：{str(daily['configurationReady']).lower()}，完整业务验证：false。</p><div class="scroll"><table><tr><th>项目</th><th>结果</th><th>证明范围</th></tr>{ready}</table></div></section>
+<section><h2>从上传到回答，业务怎样串起来</h2><p class="flow">若依登录/资格和空间 → 上传预算与权限 → MinIO原文件 + MySQL摘要/版本 → Job/Outbox + Kafka通知 → 中心领取租约 → 独立Java解析与分块 → 阿里云向量 → ES正式索引 → 权限过滤的关键词/向量检索 → Sub2API文字回答 → 会话和引用持久化 → 打开引用重新核权限 → 用量结算</p><p>例如上传本轮验证文字后，问题“每周什么时候归档、谁负责、超期如何处理”应得到“每周五17:30、林知、下周一09:00补交”，并能点击原文。这里只预先定义正确结果；当前仅实际解析保留了三事实，正式上传和问答尚未执行。</p></section>
+<section><h2>16个模块及其具体业务逻辑</h2><p>以下“源码已核对”沿用原目标代码对应记录，表示存在实际处理链路，不等于页面或真实数据已通过。父子持久分块仍属规划，现有邻居上下文实现不扩大为该能力已交付。</p><div class="scroll"><table><tr><th>序号</th><th>模块</th><th>业务逻辑与例子</th><th>当前进度</th></tr>{table}</table></div></section>
+<section><h2>本轮六项清单的结果</h2><p>清单在操作前保存；技术证据与业务结果分开。{esc(record['original31Baseline'])}</p><div class="scroll"><table><tr><th>业务点</th><th>结果</th><th>实际范围与缺口</th></tr>{items}</table></div></section>
+<section><h2>AI接入剩余的具体条件</h2><ol><li>在终端运行 <code>&amp; '.\\scripts\\paismart\\录入模型密钥.ps1' -Provider Both</code>，不回显输入两份本项目密钥，或告知现有安全文件来源。</li><li>提供阿里云实际地域/工作空间API根地址，以及Sub2API当前可用模型与实际API根地址。候选Sub2API方向已批准，不重新选择部署位置。</li><li>完成管理员验证码登录；随后原Provider页面保存配置，Sub2API文字/流式/工具三项验证后激活，阿里云向量按实际长度登记维度。原库额度政策{db['quotaPolicies']}项、账户{db['tokenAccounts']}项、可用额度{db['availableTokens']}，按现有成员额度入口准备已批准的小样本预算后才可调用。</li><li>按既有索引治理和上传流程提交已批准的非隐私样本，验证正式任务、索引、回答三事实、可打开引用与用量账本，并补实际页面截图。</li></ol><p>没有新账号、数据库、角色、费用充值、真实支付/OCR、旧资料迁移或发布。当前未执行健康服务断进程演练；Kafka2.6在Java21已运行，不据此宣称长期兼容通过。</p></section>
+<section><h2>证据与唯一实施记录</h2><p><a href="实际记录.json">本轮实际记录</a> · <a href="验收清单.md">操作前六项清单</a> · <a href="独立解析实际结果.json">生产解析结果</a> · <a href="生产Java连接就绪.json">生产Java连接</a> · <a href="最终运行清单.json">当前运行清单</a> · <a href="日常复用对比.json">复用核对</a> · <a href="../../完整迁移设计.md">唯一迁移设计与实施状态</a></p><p>报告是上述记录的本轮展示，不替代唯一项目状态。实际页面尚未登录，无正式业务截图，不能计通过；报告预览截图只证明报告已渲染。</p></section></main></html>'''
+(here/'verification-report.html').write_text(doc,encoding='utf-8')
+print(json.dumps({'report':str(here/'verification-report.html'),'modules':len(modules),'businessPassed':0,'configurationReady':daily['configurationReady']},ensure_ascii=False))

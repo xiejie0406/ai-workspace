@@ -1,0 +1,906 @@
+{
+  "cases": [
+    {
+      "name": "search-omitted-limit",
+      "assignment": {
+        "attempt": 1,
+        "dataEnvironment": 2,
+        "deadline": "2026-10-04T21:58:10.191292+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "database::cap"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "database::cap",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "bundle",
+                    "required": true,
+                    "schema": {
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "bundle",
+                    "schema": {
+                      "type": "object",
+                      "value": {
+                        "content": {
+                          "name": "bundle",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "database::cap",
+                  "nodeType": "database"
+                },
+                "nodeParam": {
+                  "assignmentList": [
+                    "name",
+                    "count"
+                  ],
+                  "dataResourceId": "data:7:revision:2",
+                  "dbId": 7,
+                  "mode": 3,
+                  "spaceId": null,
+                  "tableName": "items"
+                },
+                "outputs": [
+                  {
+                    "name": "isSuccess",
+                    "required": true,
+                    "schema": {
+                      "type": "boolean"
+                    }
+                  },
+                  {
+                    "name": "message",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "outputList",
+                    "required": true,
+                    "schema": {
+                      "items": {
+                        "properties": {
+                          "count": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "count"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  }
+                ]
+              },
+              "id": "database::cap"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "isSuccess",
+                    "schema": {
+                      "type": "boolean",
+                      "value": {
+                        "content": {
+                          "name": "isSuccess",
+                          "nodeId": "database::cap"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "message",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "message",
+                          "nodeId": "database::cap"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "outputList",
+                    "schema": {
+                      "type": "array",
+                      "value": {
+                        "content": {
+                          "name": "outputList",
+                          "nodeId": "database::cap"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRhdGFiYXNlOjpjYXAifSx7InNvdXJjZUhhbmRsZSI6IiIsInNvdXJjZU5vZGVJZCI6ImRhdGFiYXNlOjpjYXAiLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX0seyJuYW1lIjoiYnVuZGxlIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0In19XX0sImlkIjoibm9kZS1zdGFydDo6cyJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6InF1ZXN0aW9uIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJxdWVzdGlvbiIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OnMifSwidHlwZSI6InJlZiJ9fX0seyJpZCI6IiIsIm5hbWUiOiJidW5kbGUiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImJ1bmRsZSIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OnMifSwidHlwZSI6InJlZiJ9fX1dLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJkYXRhYmFzZTo6Y2FwIiwibm9kZVR5cGUiOiJkYXRhYmFzZSJ9LCJub2RlUGFyYW0iOnsiYXNzaWdubWVudExpc3QiOlsibmFtZSIsImNvdW50Il0sImRhdGFSZXNvdXJjZUlkIjoiZGF0YTo3OnJldmlzaW9uOjIiLCJkYklkIjo3LCJtb2RlIjozLCJzcGFjZUlkIjpudWxsLCJ0YWJsZU5hbWUiOiJpdGVtcyJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoiaXNTdWNjZXNzIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoiYm9vbGVhbiJ9fSx7Im5hbWUiOiJtZXNzYWdlIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19LHsibmFtZSI6Im91dHB1dExpc3QiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7Iml0ZW1zIjp7InByb3BlcnRpZXMiOnsiY291bnQiOnsidHlwZSI6ImludGVnZXIifSwibmFtZSI6eyJ0eXBlIjoic3RyaW5nIn19LCJyZXF1aXJlZCI6WyJuYW1lIiwiY291bnQiXSwidHlwZSI6Im9iamVjdCJ9LCJ0eXBlIjoiYXJyYXkifX1dfSwiaWQiOiJkYXRhYmFzZTo6Y2FwIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoiaXNTdWNjZXNzIiwic2NoZW1hIjp7InR5cGUiOiJib29sZWFuIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoiaXNTdWNjZXNzIiwibm9kZUlkIjoiZGF0YWJhc2U6OmNhcCJ9LCJ0eXBlIjoicmVmIn19fSx7ImlkIjoiIiwibmFtZSI6Im1lc3NhZ2UiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6Im1lc3NhZ2UiLCJub2RlSWQiOiJkYXRhYmFzZTo6Y2FwIn0sInR5cGUiOiJyZWYifX19LHsiaWQiOiIiLCJuYW1lIjoib3V0cHV0TGlzdCIsInNjaGVtYSI6eyJ0eXBlIjoiYXJyYXkiLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJvdXRwdXRMaXN0Iiwibm9kZUlkIjoiZGF0YWJhc2U6OmNhcCJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6Im5vZGUtZW5kOjplIiwibm9kZVR5cGUiOiJub2RlLWVuZCJ9LCJub2RlUGFyYW0iOnsib3V0cHV0TW9kZSI6MH0sIm91dHB1dHMiOltdfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "a021c47757e1bd12c67f9ea74f228bbf3dd444f73b7223483ec6fdeadc9266d3",
+        "effectPolicy": {
+          "allowedOperations": [
+            "tools.read",
+            "tools.invoke",
+            "knowledge.answer",
+            "agent.invoke",
+            "data.query",
+            "data.mutate",
+            "rpa.execute"
+          ],
+          "approvalRef": "center-approved-fixture",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "input": {
+          "bundle": {
+            "nested": [
+              {
+                "business": "原透传"
+              }
+            ]
+          },
+          "question": "原查询"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "data:7:revision:2": {
+            "enabled": true,
+            "kind": "database",
+            "legacyDbId": 7,
+            "legacySpaceId": null,
+            "provider": "center-data",
+            "tables": {
+              "items": {
+                "allowedModes": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4
+                ],
+                "columns": [
+                  "name",
+                  "count",
+                  "question",
+                  "bundle"
+                ],
+                "execEnvs": [
+                  1,
+                  2
+                ],
+                "revision": 2,
+                "schemaHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "tableId": 9
+              }
+            },
+            "version": "2"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "nodeJson": {
+        "data": {
+          "inputs": [
+            {
+              "id": "",
+              "name": "question",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "content": {
+                    "name": "question",
+                    "nodeId": "node-start::s"
+                  },
+                  "type": "ref"
+                }
+              }
+            },
+            {
+              "id": "",
+              "name": "bundle",
+              "schema": {
+                "type": "object",
+                "value": {
+                  "content": {
+                    "name": "bundle",
+                    "nodeId": "node-start::s"
+                  },
+                  "type": "ref"
+                }
+              }
+            }
+          ],
+          "nodeMeta": {
+            "aliasName": "database::cap",
+            "nodeType": "database"
+          },
+          "nodeParam": {
+            "assignmentList": [
+              "name",
+              "count"
+            ],
+            "dataResourceId": "data:7:revision:2",
+            "dbId": 7,
+            "mode": 3,
+            "spaceId": null,
+            "tableName": "items"
+          },
+          "outputs": [
+            {
+              "name": "isSuccess",
+              "required": true,
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "message",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "outputList",
+              "required": true,
+              "schema": {
+                "items": {
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "count"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            }
+          ]
+        },
+        "id": "database::cap"
+      },
+      "actualRunInput": {
+        "bundle": {
+          "nested": [
+            {
+              "business": "原透传"
+            }
+          ]
+        },
+        "question": "原查询"
+      },
+      "acceptedFrames": [
+        {
+          "schemaVersion": "paiflow.events.v1",
+          "runId": "run-1",
+          "leaseId": "lease-1",
+          "attempt": 1,
+          "seq": 5,
+          "eventType": "node.completed",
+          "timestamp": "2026-10-04T21:53:10.462521Z",
+          "payload": {
+            "legacyFrame": {
+              "code": 0,
+              "message": "Success",
+              "id": "run-1",
+              "created": 1791150790,
+              "workflow_step": {
+                "node": {
+                  "id": "node-start::s",
+                  "alias_name": "node-start::s",
+                  "finish_reason": "stop",
+                  "inputs": {
+                    "question": "原查询",
+                    "bundle": {
+                      "nested": [
+                        {
+                          "business": "原透传"
+                        }
+                      ]
+                    }
+                  },
+                  "outputs": {},
+                  "error_outputs": {},
+                  "ext": {},
+                  "executed_time": 0.001,
+                  "usage": null
+                },
+                "seq": 0,
+                "progress": 0.0
+              },
+              "choices": [
+                {
+                  "delta": {
+                    "role": "assistant",
+                    "content": "",
+                    "reasoning_content": ""
+                  },
+                  "index": null,
+                  "finish_reason": null
+                }
+              ],
+              "usage": null,
+              "event_data": null
+            },
+            "progress": 0.0
+          },
+          "nodeId": "node-start::s"
+        }
+      ],
+      "actualParameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 3,
+          "table": "items",
+          "values": {},
+          "where": {
+            "logicalOperator": "and",
+            "conditions": []
+          },
+          "columns": [
+            "name",
+            "count"
+          ],
+          "order": [],
+          "limit": 0,
+          "returning": "exec_success",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      },
+      "expectedLegacyPayload": {
+        "mode": 3,
+        "table": "items",
+        "values": {},
+        "where": {
+          "logicalOperator": "and",
+          "conditions": []
+        },
+        "columns": [
+          "name",
+          "count"
+        ],
+        "order": [],
+        "limit": 0,
+        "returning": "exec_success",
+        "execDev": 2
+      }
+    },
+    {
+      "name": "search-omitted-optional-defaults",
+      "assignment": {
+        "attempt": 1,
+        "dataEnvironment": 2,
+        "deadline": "2026-10-04T21:58:10.467519+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "database::cap"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "database::cap",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "bundle",
+                    "required": true,
+                    "schema": {
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "bundle",
+                    "schema": {
+                      "type": "object",
+                      "value": {
+                        "content": {
+                          "name": "bundle",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "database::cap",
+                  "nodeType": "database"
+                },
+                "nodeParam": {
+                  "dataResourceId": "data:7:revision:2",
+                  "dbId": 7,
+                  "mode": 3,
+                  "spaceId": null,
+                  "tableName": "items"
+                },
+                "outputs": [
+                  {
+                    "name": "isSuccess",
+                    "required": true,
+                    "schema": {
+                      "type": "boolean"
+                    }
+                  },
+                  {
+                    "name": "message",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "outputList",
+                    "required": true,
+                    "schema": {
+                      "items": {
+                        "properties": {
+                          "count": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "count"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  }
+                ]
+              },
+              "id": "database::cap"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "isSuccess",
+                    "schema": {
+                      "type": "boolean",
+                      "value": {
+                        "content": {
+                          "name": "isSuccess",
+                          "nodeId": "database::cap"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "message",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "message",
+                          "nodeId": "database::cap"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "outputList",
+                    "schema": {
+                      "type": "array",
+                      "value": {
+                        "content": {
+                          "name": "outputList",
+                          "nodeId": "database::cap"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRhdGFiYXNlOjpjYXAifSx7InNvdXJjZUhhbmRsZSI6IiIsInNvdXJjZU5vZGVJZCI6ImRhdGFiYXNlOjpjYXAiLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX0seyJuYW1lIjoiYnVuZGxlIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0In19XX0sImlkIjoibm9kZS1zdGFydDo6cyJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6InF1ZXN0aW9uIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJxdWVzdGlvbiIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OnMifSwidHlwZSI6InJlZiJ9fX0seyJpZCI6IiIsIm5hbWUiOiJidW5kbGUiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImJ1bmRsZSIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OnMifSwidHlwZSI6InJlZiJ9fX1dLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJkYXRhYmFzZTo6Y2FwIiwibm9kZVR5cGUiOiJkYXRhYmFzZSJ9LCJub2RlUGFyYW0iOnsiZGF0YVJlc291cmNlSWQiOiJkYXRhOjc6cmV2aXNpb246MiIsImRiSWQiOjcsIm1vZGUiOjMsInNwYWNlSWQiOm51bGwsInRhYmxlTmFtZSI6Iml0ZW1zIn0sIm91dHB1dHMiOlt7Im5hbWUiOiJpc1N1Y2Nlc3MiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJib29sZWFuIn19LHsibmFtZSI6Im1lc3NhZ2UiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX0seyJuYW1lIjoib3V0cHV0TGlzdCIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsiaXRlbXMiOnsicHJvcGVydGllcyI6eyJjb3VudCI6eyJ0eXBlIjoiaW50ZWdlciJ9LCJuYW1lIjp7InR5cGUiOiJzdHJpbmcifX0sInJlcXVpcmVkIjpbIm5hbWUiLCJjb3VudCJdLCJ0eXBlIjoib2JqZWN0In0sInR5cGUiOiJhcnJheSJ9fV19LCJpZCI6ImRhdGFiYXNlOjpjYXAifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJpc1N1Y2Nlc3MiLCJzY2hlbWEiOnsidHlwZSI6ImJvb2xlYW4iLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJpc1N1Y2Nlc3MiLCJub2RlSWQiOiJkYXRhYmFzZTo6Y2FwIn0sInR5cGUiOiJyZWYifX19LHsiaWQiOiIiLCJuYW1lIjoibWVzc2FnZSIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoibWVzc2FnZSIsIm5vZGVJZCI6ImRhdGFiYXNlOjpjYXAifSwidHlwZSI6InJlZiJ9fX0seyJpZCI6IiIsIm5hbWUiOiJvdXRwdXRMaXN0Iiwic2NoZW1hIjp7InR5cGUiOiJhcnJheSIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6Im91dHB1dExpc3QiLCJub2RlSWQiOiJkYXRhYmFzZTo6Y2FwIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W119LCJpZCI6Im5vZGUtZW5kOjplIn1dfQ==",
+        "dslHash": "c391115038aa6884e23e954f211c35c904570a50d4cca43c697effa31789321a",
+        "effectPolicy": {
+          "allowedOperations": [
+            "tools.read",
+            "tools.invoke",
+            "knowledge.answer",
+            "agent.invoke",
+            "data.query",
+            "data.mutate",
+            "rpa.execute"
+          ],
+          "approvalRef": "center-approved-fixture",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "input": {
+          "bundle": {
+            "nested": [
+              {
+                "business": "原透传"
+              }
+            ]
+          },
+          "question": "原查询"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "data:7:revision:2": {
+            "enabled": true,
+            "kind": "database",
+            "legacyDbId": 7,
+            "legacySpaceId": null,
+            "provider": "center-data",
+            "tables": {
+              "items": {
+                "allowedModes": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4
+                ],
+                "columns": [
+                  "name",
+                  "count",
+                  "question",
+                  "bundle"
+                ],
+                "execEnvs": [
+                  1,
+                  2
+                ],
+                "revision": 2,
+                "schemaHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "tableId": 9
+              }
+            },
+            "version": "2"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "nodeJson": {
+        "data": {
+          "inputs": [
+            {
+              "id": "",
+              "name": "question",
+              "schema": {
+                "type": "string",
+                "value": {
+                  "content": {
+                    "name": "question",
+                    "nodeId": "node-start::s"
+                  },
+                  "type": "ref"
+                }
+              }
+            },
+            {
+              "id": "",
+              "name": "bundle",
+              "schema": {
+                "type": "object",
+                "value": {
+                  "content": {
+                    "name": "bundle",
+                    "nodeId": "node-start::s"
+                  },
+                  "type": "ref"
+                }
+              }
+            }
+          ],
+          "nodeMeta": {
+            "aliasName": "database::cap",
+            "nodeType": "database"
+          },
+          "nodeParam": {
+            "dataResourceId": "data:7:revision:2",
+            "dbId": 7,
+            "mode": 3,
+            "spaceId": null,
+            "tableName": "items"
+          },
+          "outputs": [
+            {
+              "name": "isSuccess",
+              "required": true,
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "message",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "outputList",
+              "required": true,
+              "schema": {
+                "items": {
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "count"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            }
+          ]
+        },
+        "id": "database::cap"
+      },
+      "actualRunInput": {
+        "bundle": {
+          "nested": [
+            {
+              "business": "原透传"
+            }
+          ]
+        },
+        "question": "原查询"
+      },
+      "acceptedFrames": [
+        {
+          "schemaVersion": "paiflow.events.v1",
+          "runId": "run-1",
+          "leaseId": "lease-1",
+          "attempt": 1,
+          "seq": 5,
+          "eventType": "node.completed",
+          "timestamp": "2026-10-04T21:53:10.471523Z",
+          "payload": {
+            "legacyFrame": {
+              "code": 0,
+              "message": "Success",
+              "id": "run-1",
+              "created": 1791150790,
+              "workflow_step": {
+                "node": {
+                  "id": "node-start::s",
+                  "alias_name": "node-start::s",
+                  "finish_reason": "stop",
+                  "inputs": {
+                    "question": "原查询",
+                    "bundle": {
+                      "nested": [
+                        {
+                          "business": "原透传"
+                        }
+                      ]
+                    }
+                  },
+                  "outputs": {},
+                  "error_outputs": {},
+                  "ext": {},
+                  "executed_time": 0.0,
+                  "usage": null
+                },
+                "seq": 0,
+                "progress": 0.0
+              },
+              "choices": [
+                {
+                  "delta": {
+                    "role": "assistant",
+                    "content": "",
+                    "reasoning_content": ""
+                  },
+                  "index": null,
+                  "finish_reason": null
+                }
+              ],
+              "usage": null,
+              "event_data": null
+            },
+            "progress": 0.0
+          },
+          "nodeId": "node-start::s"
+        }
+      ],
+      "actualParameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 3,
+          "table": "items",
+          "values": {},
+          "where": {
+            "logicalOperator": "and",
+            "conditions": []
+          },
+          "columns": [],
+          "order": [],
+          "limit": 0,
+          "returning": "exec_success",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      },
+      "expectedLegacyPayload": {
+        "mode": 3,
+        "table": "items",
+        "values": {},
+        "where": {
+          "logicalOperator": "and",
+          "conditions": []
+        },
+        "columns": [],
+        "order": [],
+        "limit": 0,
+        "returning": "exec_success",
+        "execDev": 2
+      }
+    }
+  ]
+}

@@ -38,6 +38,19 @@ public class Link {
     private List<HashMap> openApiSchemaList;
     private List<Tool> tools;
 
+    /** 使用中心已绑定版本的原 schema；保留原参数解析，不查询旧工具控制面。 */
+    public Link(String appId, List<String> toolIds, String version, List<HashMap> schemas) {
+        this.appId = appId;
+        this.toolIds = toolIds;
+        this.getUrl = "";
+        this.runUrl = "";
+        this.version = version;
+        this.httpClient = null;
+        this.openApiSchemaList = schemas;
+        this.tools = new ArrayList<>();
+        parseReactSchemaList();
+    }
+
     public Link(String appId, List<String> toolIds, String getUrl, String runUrl, String version) {
         this.appId = appId;
         this.toolIds = toolIds;

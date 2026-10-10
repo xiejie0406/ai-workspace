@@ -13,9 +13,10 @@ import java.util.*;
 @RestController @RequestMapping("/paicli/runner/v1")
 @ConditionalOnProperty(prefix="paicli",name="enabled",havingValue="true")
 public class PcRunnerController {
-    private final PcDeviceService devices;private final PcRunnerService runner;private final PcToolService tools;private final PcRunnerContextService context;
-    public PcRunnerController(PcDeviceService d,PcRunnerService r,PcToolService t,PcRunnerContextService c){devices=d;runner=r;tools=t;context=c;}
+    private final PcDeviceService devices;private final PcRunnerService runner;private final PcToolService tools;private final PcRunnerContextService context;private final PcPersonalService personal;
+    public PcRunnerController(PcDeviceService d,PcRunnerService r,PcToolService t,PcRunnerContextService c,PcPersonalService personal){devices=d;runner=r;tools=t;context=c;this.personal=personal;}
     @PostMapping("/sessions") public ResponseEntity<AjaxResult> exchange(@AuthenticationPrincipal PcRunnerPrincipal p,@RequestHeader("Idempotency-Key") String key,@RequestBody Map<String,Object> input){return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(AjaxResult.success(devices.exchange(p,key,input)));}
+    @PostMapping("/personal-directory-proof") public AjaxResult proof(@AuthenticationPrincipal PcRunnerPrincipal p,@RequestHeader("Idempotency-Key") String key,@RequestBody Map<String,Object> input){return AjaxResult.success(personal.prove(p,key,input));}
     @PostMapping("/claims") public AjaxResult claim(@AuthenticationPrincipal PcRunnerPrincipal p,@RequestHeader("Idempotency-Key") String key,@RequestBody Map<String,Object> input){return AjaxResult.success(runner.claim(p,key,input));}
     @PostMapping("/heartbeats") public AjaxResult heartbeat(@AuthenticationPrincipal PcRunnerPrincipal p,@RequestHeader("Idempotency-Key") String key,@RequestBody Map<String,Object> input){return AjaxResult.success(runner.heartbeat(p,key,input));}
     @PostMapping("/proposals") public AjaxResult proposal(@AuthenticationPrincipal PcRunnerPrincipal p,@RequestHeader("Idempotency-Key") String key,@RequestBody Map<String,Object> input){return AjaxResult.success(tools.propose(p,key,input));}

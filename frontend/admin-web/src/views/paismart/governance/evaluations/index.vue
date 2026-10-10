@@ -22,9 +22,9 @@
     </el-form>
     <el-alert v-if="formError" :title="formError" type="error" :closable="false"/>
     <template #footer><el-button @click="open=false">取消</el-button><el-button type="primary" :loading="saving" :disabled="uploading" @click="submit">提交评测</el-button></template>
-  </el-dialog><JobDialog v-model="jobOpen" :initial="job" @done="load()"/></div></template>
+  </el-dialog><JobDialog v-model="jobOpen" :initial="job" :evaluation-id="jobEvaluationId" @done="load()"/></div></template>
 <script setup lang="ts">
-import { computed,onMounted,ref,shallowRef } from 'vue'
+import { computed,onBeforeUnmount,onMounted,ref,shallowRef,watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { createEvaluation,listEvaluations,listEvaluationDatasets,uploadEvaluationDataset } from '@/api/paismart/governance'
 import { newKey } from '@/api/paismart/client'
@@ -38,14 +38,42 @@ const router=useRouter(),{rows,total,query,loading,error,load}=usePage(listEvalu
 const {rows:datasets,total:datasetTotal,query:datasetQuery,loading:datasetLoading,error:datasetError,load:loadDatasets}=usePage(listEvaluationDatasets)
 const source=ref<'INLINE'|'FILE'|'DATASET'>('INLINE'),datasetId=ref<string>(),file=shallowRef<File>(),uploaded=shallowRef<EvaluationDataset>(),uploading=ref(false)
 const selectedDataset=computed(()=>source.value==='FILE'?uploaded.value:source.value==='DATASET'?datasets.value.find(dataset=>dataset.id===datasetId.value):undefined)
-let uploadKey=newKey(),uploadLabel='',submissionKey=newKey(),submissionBody=''
+const jobEvaluationId=ref<Id>()
+let uploadKey=newKey(),uploadLabel='',submissionKey=newKey(),submissionBody='',active=true,dialogSerial=0,uploadRevision=0,draftRevision=0
+// 来源往返或关闭重开，即使输入恢复原值，也不能接受上一轮操作的回执。
+watch(open,()=>{dialogSerial++;uploadRevision++;draftRevision++},{flush:'sync'})
+watch(source,()=>{uploadRevision++},{flush:'sync'})
+watch([file,()=>form.value.label],()=>{uploadRevision++;uploaded.value=undefined},{flush:'sync'})
+watch(form,()=>{draftRevision++},{deep:true,flush:'sync'})
+watch([source,datasetId,file,uploaded],()=>{draftRevision++},{flush:'sync'})
 function openEvaluation(){open.value=true;formError.value='';void loadDatasets()}
 function chooseFile(event:Event){file.value=(event.target as HTMLInputElement).files?.[0];uploaded.value=undefined;uploadKey=newKey();uploadLabel='';formError.value='';if(file.value&&!file.value.name.toLowerCase().endsWith('.jsonl')){formError.value='仅支持 .jsonl 评测集文件';file.value=undefined;return}if(file.value&&file.value.size>900000){formError.value='评测集文件不能超过 900000 字节';file.value=undefined}}
-async function uploadFile(){if(!file.value||uploading.value)return;uploading.value=true;formError.value='';try{const label=form.value.label.trim();if(!label)throw new Error('请先填写评测名称，作为上传标签');if(label!==uploadLabel){uploadLabel=label;uploadKey=newKey()}uploaded.value=(await uploadEvaluationDataset(file.value,uploadKey,label)).data;await loadDatasets(true)}catch(e){formError.value=errorText(e)}finally{uploading.value=false}}
-async function submit(){if(saving.value||uploading.value)return;formError.value='';try{if(!form.value.label.trim())throw new Error('请填写评测名称');const seed=validateEvaluationSeed(form.value.seed);if(!Number.isInteger(form.value.topK)||form.value.topK<1||form.value.topK>20)throw new Error('Top K 必须为 1 至 20 的整数');const config={label:form.value.label,spaceId:form.value.spaceId,topK:form.value.topK,seed};let data:EvaluationRequest;if(source.value==='INLINE'){validateDataset(form.value.inlineJsonl);data={...config,inlineJsonl:form.value.inlineJsonl}}else{const id=source.value==='FILE'?uploaded.value?.id:datasetId.value;if(!id)throw new Error(source.value==='FILE'?'请先上传评测集文件':'请选择受控评测集');data={...config,datasetId:id}}const signature=JSON.stringify(data);if(signature!==submissionBody){submissionBody=signature;submissionKey=newKey()}saving.value=true;job.value=(await createEvaluation(data,submissionKey)).data;submissionBody='';open.value=false;jobOpen.value=true;await load()}catch(e){formError.value=errorText(e)}finally{saving.value=false}}
+async function uploadFile(){
+  if(!active||!open.value||source.value!=='FILE'||!file.value||uploading.value)return
+  const target=file.value,label=form.value.label.trim(),dialog=dialogSerial,revision=uploadRevision
+  const current=()=>active&&open.value&&source.value==='FILE'&&dialog===dialogSerial&&revision===uploadRevision&&target===file.value&&label===form.value.label.trim()
+  uploading.value=true;formError.value=''
+  try{if(!label)throw new Error('请先填写评测名称，作为上传标签');if(label!==uploadLabel){uploadLabel=label;uploadKey=newKey()}const response=await uploadEvaluationDataset(target,uploadKey,label);if(!active)return;if(current())uploaded.value=response.data;await loadDatasets(true)}
+  catch(e){if(current())formError.value=errorText(e)}finally{if(active)uploading.value=false}
+}
+async function submit(){
+  if(!active||!open.value||saving.value||uploading.value)return
+  const dialog=dialogSerial,revision=draftRevision,current=()=>active&&open.value&&dialog===dialogSerial&&revision===draftRevision
+  formError.value=''
+  try{
+    if(!form.value.label.trim())throw new Error('请填写评测名称');const seed=validateEvaluationSeed(form.value.seed);if(!Number.isInteger(form.value.topK)||form.value.topK<1||form.value.topK>20)throw new Error('Top K 必须为 1 至 20 的整数')
+    const config={label:form.value.label,spaceId:form.value.spaceId,topK:form.value.topK,seed};let data:EvaluationRequest
+    if(source.value==='INLINE'){validateDataset(form.value.inlineJsonl);data={...config,inlineJsonl:form.value.inlineJsonl}}else{const id=source.value==='FILE'?uploaded.value?.id:datasetId.value;if(!id)throw new Error(source.value==='FILE'?'请先上传评测集文件':'请选择受控评测集');data={...config,datasetId:id}}
+    const signature=JSON.stringify(data);if(signature!==submissionBody){submissionBody=signature;submissionKey=newKey()}const key=submissionKey
+    saving.value=true;const response=await createEvaluation(data,key);if(!active)return
+    if(signature===submissionBody&&key===submissionKey)submissionBody=''
+    if(current()){jobEvaluationId.value=undefined;job.value=response.data;open.value=false;jobOpen.value=true}await load()
+  }catch(e){if(current())formError.value=errorText(e)}finally{if(active)saving.value=false}
+}
 function report(id:Id){void router.push({path:'/paismart/review',query:{evaluationId:String(id)}})}
-function showJob(row:Evaluation){job.value={jobId:row.jobId!,state:row.jobState||row.state};jobOpen.value=true}
-onMounted(async()=>{void load();try{spaces.value=(await listSpaces()).rows}catch(e){pageError.value=errorText(e)}})
+function showJob(row:Evaluation){jobEvaluationId.value=row.id;job.value={jobId:row.jobId!,kind:'EVALUATION_RUN',state:row.jobState||row.state};jobOpen.value=true}
+onMounted(async()=>{void load();try{const response=await listSpaces();if(active)spaces.value=response.rows}catch(e){if(active)pageError.value=errorText(e)}})
+onBeforeUnmount(()=>{active=false;dialogSerial++;uploadRevision++;draftRevision++})
 </script>
 
 

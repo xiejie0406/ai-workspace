@@ -8,18 +8,16 @@ import httpx
 from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 
-from api.schemas.bot_config import BotConfig
-from common_imports import Span
-from domain.models.base import BaseLLMModel
-from engine.nodes.chat.chat_runner import ChatRunner
-from engine.nodes.cot.cot_runner import CotRunner
-from engine.nodes.cot_process.cot_process_runner import CotProcessRunner
-from infra.app_auth import MaasAuth
-from repository.bot_config_client import BotConfigClient
-from service.plugin.base import BasePlugin
-from service.plugin.link import LinkPlugin, LinkPluginFactory
-from service.plugin.mcp import McpPlugin, McpPluginFactory
-from service.plugin.workflow import WorkflowPlugin, WorkflowPluginFactory
+from agent.api.schemas.bot_config import BotConfig
+from agent.common_imports import Span
+from agent.domain.models.base import BaseLLMModel
+from agent.engine.nodes.chat.chat_runner import ChatRunner
+from agent.engine.nodes.cot.cot_runner import CotRunner
+from agent.engine.nodes.cot_process.cot_process_runner import CotProcessRunner
+from agent.service.plugin.base import BasePlugin
+from agent.service.plugin.link import LinkPlugin, LinkPluginFactory
+from agent.service.plugin.mcp import McpPlugin, McpPluginFactory
+from agent.service.plugin.workflow import WorkflowPlugin, WorkflowPluginFactory
 
 
 @dataclass
@@ -50,7 +48,7 @@ class BaseApiBuilder(BaseModel):
     span: Span
 
     async def build_bot_config(self, bot_id: str) -> BotConfig:
-
+        from agent.repository.bot_config_client import BotConfigClient
         with self.span.start("BuildBotConfig") as sp:
             bot_config_result = await BotConfigClient(
                 app_id=self.app_id, bot_id=bot_id, span=self.span
@@ -222,7 +220,7 @@ class BaseApiBuilder(BaseModel):
             return cot_runner
 
     async def query_maas_sk(self, app_id: str, model_name: str) -> str:
-
+        from agent.infra.app_auth import MaasAuth
         with self.span.start("BuildSk") as sp:
             app_id = app_id or self.app_id
 

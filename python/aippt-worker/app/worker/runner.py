@@ -7,7 +7,7 @@ from app.core.config import Settings
 from app.llm.errors import LLMNotConfiguredError
 from app.worker.catalog import catalog_version, initialize_catalog
 from app.worker.handlers import TaskHandlers
-from app.worker.protocol import CenterClient, ClaimedTask, LeaseLost, ExportVerificationFailed
+from app.worker.protocol import CenterClient, CenterTextError, ClaimedTask, LeaseLost, ExportVerificationFailed
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,14 @@ def public_error(error: Exception) -> tuple[str, str, bool]:
     if isinstance(error, FontManifestInvalid): return "FONT_MANIFEST_INVALID", "Worker字体manifest或实际文件校验失败", False
     if isinstance(error, ImageRejected): return "INVALID_CONTENT", "图片字节或尺寸校验失败，请替换引用图片", False
     if isinstance(error, LLMNotConfiguredError): return "PROVIDER_NOT_CONFIGURED", "未配置文本模型，任务未调用模型", False
-    # LCEL/生成器会包装Provider异常；必须保留瞬时错误的可重试语义。
+    # 生成器可能包装中心异常，先完整追溯中心错误，不能被其httpx cause改为收费重试。
+    cause = error; seen = set()
+    while cause is not None and id(cause) not in seen:
+        seen.add(id(cause))
+        if isinstance(cause, CenterTextError):
+            return cause.code, "中心文本请求未完成，请核查通道和该次调用记录", False
+        cause = cause.__cause__
+    # 旧离线注入生成器保留既有异常分类。
     from openai import APIConnectionError, APIStatusError
     cause = error; seen = set()
     while cause is not None and id(cause) not in seen:
@@ -77,8 +84,11 @@ class Worker:
                 try:
                     result = await self.center.heartbeat(task)
                     if isinstance(result, dict) and result.get("leaseValid") is False: raise LeaseLost("租约已失效")
+                    if isinstance(result, dict) and result.get("cancelRequested") is True:
+                        task._cancel_requested = True
                     # cancelRequested 为软取消，已领取页面可完成；中心不再派未开始页。
                 except Exception:
+                    task._lease_lost = True
                     lost.set(); return
         beat = asyncio.create_task(heartbeat())
         operation = None
@@ -96,10 +106,14 @@ class Worker:
             if operation not in done: raise TimeoutError("任务截止时间已到")
             output, assets = await operation
             if lost.is_set(): raise LeaseLost("租约失效")
-            await self.center.heartbeat(task)  # 最后一次确认中心仍接受此 fencingToken
+            final_lease = await self.center.heartbeat(task)  # 最后一次确认中心仍接受此 fencingToken
+            if isinstance(final_lease, dict) and final_lease.get("leaseValid") is False:
+                task._lease_lost = True
+                raise LeaseLost("最终租约检查未通过")
             await self.center.complete(task, output, assets)
             logger.info("任务完成 task=%s type=%s attempt=%d", task.taskId, task.type, task.attempt)
         except LeaseLost:
+            task._lease_lost = True
             logger.warning("租约失效，候选丢弃 task=%s", task.taskId)
         except asyncio.CancelledError:
             raise
@@ -111,11 +125,17 @@ class Worker:
                     if not operation.done():operation.cancel()
                     await asyncio.gather(operation,return_exceptions=True)
                 try:
+                    code, message, retryable = public_error(error)
+                    # 任意中心文本请求发出后，不因任务失败自动重做已有收费回合。
+                    if task._text_attempted:
+                        retryable = False
+                    if task._text_unknown:
+                        code, message = "TEXT_RESULT_UNKNOWN", "文本调用结果未知，请核查原调用记录，禁止自动重发"
                     if isinstance(error, ExportVerificationFailed):
-                        await self.center.fail(task, *public_error(error), task._execution,
+                        await self.center.fail(task, code, message, retryable, task._execution,
                             verification_failure=error.verification_failure)
                     else:
-                        await self.center.fail(task, *public_error(error),task._execution)
+                        await self.center.fail(task, code, message, retryable, task._execution)
                 except (LeaseLost, httpx.HTTPError): logger.warning("中心未接受失败终态 task=%s", task.taskId)
         finally:
             for future in [beat, lease_wait, operation]:
@@ -125,7 +145,7 @@ class Worker:
     async def slot(self):
         while not self.stop.is_set():
             try:
-                task = await self.center.claim(self.version)
+                task = await self.center.claim(self.version, types=self.settings.claim_types)
                 if task:
                     await self.execute(task)
                     continue
@@ -137,7 +157,7 @@ class Worker:
     async def run(self, *, once=False):
         try:
             if once:
-                task = await self.center.claim(self.version, wait_millis=0)
+                task = await self.center.claim(self.version, wait_millis=0, types=self.settings.claim_types)
                 if task: await self.execute(task)
             else:
                 await asyncio.gather(*(self.slot() for _ in range(self.settings.concurrency)))

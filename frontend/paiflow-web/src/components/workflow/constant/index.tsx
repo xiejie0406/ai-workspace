@@ -17,7 +17,7 @@ import { VariableMemoryDetail } from '@/components/workflow/nodes/variable-memor
 import { FlowDetail } from '@/components/workflow/nodes/flow';
 import { AgentDetail } from '@/components/workflow/nodes/agent';
 import { QuestionAnswerDetail } from '@/components/workflow/nodes/question-answer';
-import { NodeCommonProps } from '@/components/workflow/types/hooks';
+import type { InputsProps } from '@/components/workflow/types';
 import { RpaDetail } from '@/components/workflow/nodes/rpa';
 
 // 定义输出类型选项的接口（支持嵌套结构）
@@ -29,7 +29,7 @@ interface OriginOutputType {
 
 export const nodeTypeComponentMap: Record<
   string,
-  React.ComponentType<NodeCommonProps>
+  React.ComponentType<Pick<InputsProps, 'id' | 'data'>>
 > = {
   'node-start': StartDetail,
   'iteration-node-start': StartDetail,

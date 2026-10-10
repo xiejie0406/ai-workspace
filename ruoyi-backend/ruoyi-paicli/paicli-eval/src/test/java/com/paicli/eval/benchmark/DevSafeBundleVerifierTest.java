@@ -30,6 +30,66 @@ class DevSafeBundleVerifierTest {
         verify(temp, true, 1);
     }
 
+    @Test
+    void permissionProofRejectsReadableFirstFile(@TempDir Path temp) throws Exception {
+        assertEquals(1, permissionProof(temp, "", "").exit());
+    }
+
+    @Test
+    void permissionProofChecksSecondFileAfterFirstDenied(@TempDir Path temp) throws Exception {
+        String prelude = "import os\nreal_open=os.open\ncalls=0\n"
+                + "def probe_open(path, flags):\n"
+                + "    global calls\n    calls += 1\n"
+                + "    if calls == 1: raise PermissionError('fixture denial')\n"
+                + "    return real_open(path, flags)\n"
+                + "os.open=probe_open\n";
+        assertEquals(1, permissionProof(temp, prelude, "").exit());
+    }
+
+    @Test
+    void permissionProofRejectsUnexpectedOpenError(@TempDir Path temp) throws Exception {
+        String prelude = "import os\ndef probe_open(path, flags):\n"
+                + "    raise FileNotFoundError('fixture missing')\nos.open=probe_open\n";
+        assertEquals(1, permissionProof(temp, prelude, "").exit());
+    }
+
+    @Test
+    void permissionProofRequiresBothActualOpenAttemptsToBeDenied(@TempDir Path temp) throws Exception {
+        String prelude = "import os\ncalls=0\ndef probe_open(path, flags):\n"
+                + "    global calls\n    calls += 1\n"
+                + "    assert flags == os.O_RDONLY\n"
+                + "    raise PermissionError('fixture denial')\nos.open=probe_open\n";
+        ProofResult result = permissionProof(temp, prelude, "print(calls)");
+        assertEquals(0, result.exit(), result.output());
+        assertEquals("2", result.output().strip());
+    }
+
+    /** 直接执行生产脚本里的预检；错误注入只替换测试子进程的 os.open，不改宿主 ACL。 */
+    private static ProofResult permissionProof(Path temp, String prelude, String suffix) throws Exception {
+        String script = Files.readString(SUITE.resolve("validators/dev/dev-secret-safe-bundle.sh"))
+                .replace("\r\n", "\n");
+        String marker = "<<'PY_PERMISSION_PROOF'\n";
+        int start = script.indexOf(marker);
+        assertTrue(start >= 0, "production permission proof is missing");
+        int end = script.indexOf("\nPY_PERMISSION_PROOF\n", start + marker.length());
+        assertTrue(end > start, "production permission proof is incomplete");
+        String proof = script.substring(start + marker.length(), end);
+        Path first = Files.writeString(temp.resolve("first.txt"), "fixture");
+        Path second = Files.writeString(temp.resolve("second.txt"), "fixture");
+        Process process = BenchmarkTestRuntime.processBuilder("python3", "-c",
+                prelude + "\n" + proof + "\n" + suffix, first.toString(), second.toString())
+                .redirectErrorStream(true).start();
+        try {
+            assertTrue(process.waitFor(20, TimeUnit.SECONDS), "permission proof timed out");
+            return new ProofResult(process.exitValue(), new String(process.getInputStream().readAllBytes(),
+                    java.nio.charset.StandardCharsets.UTF_8));
+        } finally {
+            if (process.isAlive()) process.destroyForcibly();
+        }
+    }
+
+    private record ProofResult(int exit, String output) { }
+
     private static void verify(Path temp, boolean forbiddenRead, int expectedExit)
             throws Exception {
         Path workspace = com.paicli.eval.benchmark.SecureFiles.createDirectory(temp.resolve("workspace"));

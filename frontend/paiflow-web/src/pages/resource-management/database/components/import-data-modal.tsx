@@ -155,15 +155,6 @@ const useTemplateDownload = (
         return;
       }
       const res = await serviceFunction({ tbId: info?.id ?? 0 });
-      if (type === ImportType.FIELD_TEMPLATE) {
-        // 处理模板下载链接
-        if (typeof res === 'string') {
-          window.open(res, '_blank');
-        } else if (res && typeof res === 'object' && 'value' in res) {
-          window.open((res as { value: string }).value, '_blank');
-        }
-        return;
-      }
       // 处理文件下载
       if (res && typeof res === 'object' && 'data' in res) {
         const response = res as {

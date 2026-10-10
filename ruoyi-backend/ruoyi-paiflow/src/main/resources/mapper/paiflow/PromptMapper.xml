@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.PromptMapper">
+  <sql id="columns">id,space_id AS spaceId,owner_user_id AS ownerUserId,group_id AS groupId,revision,name,prompt_key AS promptKey,payload_json AS payloadJson,kind,official,deleted,create_by AS createBy,update_by AS updateBy,create_time AS createTime,update_time AS updateTime</sql>
+  <sql id="scope">deleted=0 AND official=#{official} <choose><when test="official">AND space_id IS NULL</when><otherwise>AND space_id=#{space}</otherwise></choose></sql>
+  <sql id="filter"><include refid="scope"/><if test="search != null and search != ''">AND name LIKE CONCAT('%',#{search},'%')</if><if test="group != null">AND group_id=#{group}</if></sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.PromptRecord">SELECT <include refid="columns"/> FROM paiflow_prompt WHERE id=#{id} AND deleted=0</select>
+  <select id="lock" resultType="com.ruoyi.paiflow.domain.PromptRecord">SELECT <include refid="columns"/> FROM paiflow_prompt WHERE id=#{id} AND deleted=0 FOR UPDATE</select>
+  <select id="list" resultType="com.ruoyi.paiflow.domain.PromptRecord">SELECT <include refid="columns"/> FROM paiflow_prompt WHERE <include refid="filter"/> ORDER BY update_time DESC,id DESC LIMIT #{size} OFFSET #{offset}</select>
+  <select id="count" resultType="long">SELECT COUNT(*) FROM paiflow_prompt WHERE <include refid="filter"/></select>
+  <select id="children" resultType="long">SELECT COUNT(*) FROM paiflow_prompt WHERE group_id=#{id} AND deleted=0</select>
+  <select id="sameName" resultType="long">SELECT COUNT(*) FROM paiflow_prompt WHERE <include refid="scope"/> AND group_id &lt;=&gt; #{group} AND name=#{name}<if test="exclude != null"> AND id&lt;&gt;#{exclude}</if></select>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_prompt(space_id,owner_user_id,group_id,revision,name,prompt_key,payload_json,kind,official,deleted,create_by,update_by,create_time,update_time) VALUES(#{spaceId},#{ownerUserId},#{groupId},0,#{name},#{promptKey},#{payloadJson},#{kind},#{official},0,#{createBy},#{updateBy},UTC_TIMESTAMP(),UTC_TIMESTAMP())</insert>
+  <update id="update">UPDATE paiflow_prompt SET name=#{name},group_id=#{groupId},payload_json=#{payloadJson},revision=revision+1,update_by=#{updateBy},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision} AND deleted=0</update>
+  <update id="remove">UPDATE paiflow_prompt SET deleted=1,revision=revision+1,update_by=#{updateBy},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision} AND deleted=0</update>
+  <insert id="insertVersion">INSERT INTO paiflow_prompt_version(prompt_id,version_num,payload_json,description,actor_user_id,create_time) VALUES(#{prompt},#{version},#{payload},#{description},#{actor},UTC_TIMESTAMP())</insert>
+  <select id="latest" resultType="long">SELECT COALESCE(MAX(version_num),0) FROM paiflow_prompt_version WHERE prompt_id=#{prompt}</select>
+  <select id="versions" resultType="map">SELECT version_num AS version,description AS versionDesc,actor_user_id AS commitUser,create_time AS commitTime FROM paiflow_prompt_version WHERE prompt_id=#{prompt} ORDER BY version_num DESC</select>
+  <select id="version" resultType="map">SELECT payload_json AS payloadJson,version_num AS version FROM paiflow_prompt_version WHERE prompt_id=#{prompt} AND version_num=#{version}</select>
+</mapper>

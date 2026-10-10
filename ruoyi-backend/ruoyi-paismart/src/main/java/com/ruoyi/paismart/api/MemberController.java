@@ -39,6 +39,9 @@ public class MemberController {
         long id=PaismartIdentity.userId();
         boolean eligible=membership.isEligible(id);
         Map<String,Object> r=new LinkedHashMap<>();r.put("id",id);r.put("userId",id);r.put("eligible",eligible);r.put("enabled",eligible);r.put("status",eligible?"ACTIVE":"INELIGIBLE");r.put("rowVersion",spaces.membershipVersion(id));memberSpaces(r,spaces.memberships(id));
+        // 聊天用户读取本人可见空间名称，不依赖空间管理菜单权限；数据范围仍由原空间服务裁决。
+        r.put("visibleSpaces",eligible?spaces.list(new SpaceService.Scope(id,PaismartIdentity.current().administrator())).stream()
+            .map(space->Map.of("id",space.id(),"name",space.name())).toList():List.of());
         return AjaxResult.success(r);
     }
     @PostMapping("/members/me/eligibility")
@@ -102,6 +105,7 @@ public class MemberController {
     @Log(title="知识库追加额度",businessType=BusinessType.UPDATE)
     @org.springframework.transaction.annotation.Transactional("paismartTransactionManager")
     public AjaxResult credit(@PathVariable long id,@RequestBody Map<String,Object> b,@RequestHeader("Idempotency-Key") String key) {
+        manager();users.checkUserDataScope(id);
         String reason=Objects.toString(b.get("reason"),"");QuotaService.text(reason,500);
         if(jdbc.queryForObject("SELECT COUNT(*) FROM sys_user WHERE user_id=? AND del_flag='0'",Integer.class,id)!=1) throw new IllegalArgumentException("平台账户不存在");
         long llm=number(b,"llmTokens",number(b,"chatTokens",0)),emb=number(b,"embeddingTokens",0);
@@ -113,9 +117,9 @@ public class MemberController {
     @PutMapping("/members/{id}/quota-policy")
     @PreAuthorize("@ss.hasPermi('paismart:usage:adjust')")
     @Log(title="知识库额度策略",businessType=BusinessType.UPDATE)
-    public AjaxResult quota(@PathVariable long id,@RequestBody Map<String,Object>b,@RequestHeader("If-Match") long version) {quotas.savePolicy(id,Objects.toString(b.get("mode"),"BALANCE"),number(b,"dailyLlmTokens",0),number(b,"dailyEmbeddingTokens",0),version);return AjaxResult.success(quotas.policy(id));}
+    public AjaxResult quota(@PathVariable long id,@RequestBody Map<String,Object>b,@RequestHeader("If-Match") long version) {manager();users.checkUserDataScope(id);quotas.savePolicy(id,Objects.toString(b.get("mode"),"BALANCE"),number(b,"dailyLlmTokens",0),number(b,"dailyEmbeddingTokens",0),version);return AjaxResult.success(quotas.policy(id));}
     @GetMapping("/members/{id}/quota-policy") @PreAuthorize("@ss.hasPermi('paismart:usage:adjust')")
-    public AjaxResult quota(@PathVariable long id){return AjaxResult.success(quotas.policy(id));}
+    public AjaxResult quota(@PathVariable long id){manager();users.checkUserDataScope(id);return AjaxResult.success(quotas.policy(id));}
     private void memberSpaces(Map<String,Object> result,List<SpaceService.Member> list){result.put("spaces",list);result.put("spaceIds",list.stream().map(SpaceService.Member::spaceId).toList());result.put("assignments",list);result.put("primarySpaceId",list.stream().filter(SpaceService.Member::primary).map(SpaceService.Member::spaceId).findFirst().orElse(null));}
     private static long number(Map<String,Object>b,String k,long fallback) {Object v=b.get(k);return v==null?fallback:com.ruoyi.paismart.infrastructure.Numbers.integer(v);}
 }

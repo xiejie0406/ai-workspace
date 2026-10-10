@@ -1,6 +1,7 @@
 package com.iflytek.astron.workflow.engine.util;
 
 import com.ruoyi.paiflow.worker.service.ExecutionScope;
+import com.ruoyi.paiflow.worker.service.WorkerException;
 
 import cn.hutool.core.thread.ExecutorBuilder;
 import com.alibaba.ttl.threadpool.TtlExecutors;
@@ -86,6 +87,10 @@ public class AsyncUtil {
         executorService.execute(ExecutionScope.wrap(call));
     }
 
+    public static void execute(Runnable call, Runnable onExit) {
+        executorService.execute(ExecutionScope.wrap(call, onExit));
+    }
+
     public static <T> Future<T> submit(Callable<T> t) {
         return executorService.submit(ExecutionScope.wrap(t));
     }
@@ -95,8 +100,8 @@ public class AsyncUtil {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            log.error("线程被中断", e);
             Thread.currentThread().interrupt();
+            throw new WorkerException("RUN_CANCELLED", "等待已被中断，停止当前任务", e);
         }
     }
 }

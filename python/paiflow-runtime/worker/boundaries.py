@@ -13,7 +13,7 @@ from .errors import WorkerError
 BLOCKED_PREFIXES = (
     "workflow.repository", "workflow.domain.models", "workflow.extensions.middleware.database",
     "workflow.extensions.middleware.masdk", "workflow.cache",
-    "agent.repository", "agent.domain.models", "agent.cache",
+    "agent.repository", "agent.domain.models.bot_config_table", "agent.cache",
     "repository",  # 原 Agent 使用的无包名前缀入口
     "plugin.link.domain.models", "plugin.link.infra.tool_crud",
     "common.service.db", "common.metrology_auth", "common.initialize",

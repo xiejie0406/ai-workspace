@@ -16,6 +16,18 @@ public final class RunnerLease {
         this.claim = claim.deepCopy();
         for (String field : new String[]{"taskId", "leaseId", "fencingToken", "version", "policyVersion", "rootFingerprint"})
             if (claim.path(field).asText().isBlank()) throw new IOException("中心租约缺少 " + field);
+        if(PersonalDirectoryContext.textOnly(claim)){
+            PersonalDirectoryContext.id(claim.path("ownerUserId").asText());PersonalDirectoryContext.id(claim.path("runnerId").asText());
+            if(claim.hasNonNull("directoryContextId")||claim.hasNonNull("directoryContext"))throw new IOException("纯问答租约不能声明文件目录");
+        }else if(claim.hasNonNull("directoryContext")){
+            for(String field:new String[]{"directoryContextId","ownerUserId","runnerId"})PersonalDirectoryContext.id(claim.path(field).asText());
+            JsonNode context=claim.path("directoryContext");
+            if(!context.isObject()||context.path("version").asLong()<1
+                ||!claim.path("directoryContextId").asText().equals(context.path("id").asText())
+                ||!claim.path("ownerUserId").asText().equals(context.path("ownerUserId").asText())
+                ||!claim.path("runnerId").asText().equals(context.path("runnerId").asText())
+                ||!claim.path("rootFingerprint").asText().equals(context.path("rootFingerprint").asText()))throw new IOException("个人租约目录身份或冻结摘要不符");
+        }
         expiresAt = expiry(claim.path("expiresAt"));
         ensureActive();
     }
@@ -28,6 +40,7 @@ public final class RunnerLease {
         ObjectNode body = CanonicalJson.MAPPER.createObjectNode();
         for (String name : new String[]{"taskId", "leaseId", "fencingToken", "version", "policyVersion", "rootFingerprint"})
             body.set(name, claim.get(name));
+        for(String field:new String[]{"directoryContextId","ownerUserId"})if(claim.has(field))body.set(field,claim.get(field));
         return body;
     }
     public void heartbeat(JsonNode response) throws IOException {

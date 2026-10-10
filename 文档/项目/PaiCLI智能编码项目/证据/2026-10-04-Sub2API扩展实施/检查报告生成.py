@@ -1,0 +1,26 @@
+from pathlib import Path
+import json,html,re
+here=Path(__file__).resolve().parent
+root=here.parents[4]
+data=json.loads((here/'交付核对.json').read_text(encoding='utf-8'))
+rows=[]
+names={'paicli-core':'文本协议与工具回合','paicli-runner':'受控 Runner 与租约','paicli-cli':'CLI 模型显示与选择','paicli-api':'中心权限、版本与证据'}
+for name,v in data['tests'].items():rows.append(f'<tr><td>{names[name]}</td><td>{v["tests"]}</td><td>通过，失败/错误/跳过均为 0</td></tr>')
+rows.append('<tr><td>管理端表单、权限及请求</td><td>11</td><td>通过；PaiCLI vue-tsc 同时通过</td></tr>')
+photos=[('实际组件-协议配置-复验.png','选择 Responses，显示精确请求路径，只保存当前工作区托管引用'),('实际组件-文本模型限制-复验.png','图片、工具与已核验能力由验证证据决定，不能手工伪造'),('实际组件-验证费用确认.png','验证前明确最多两次合成请求和输出上限；取消不提交')]
+figures=''.join(f'<figure><img src="{file}" alt="{caption}"><figcaption>{caption}</figcaption></figure>' for file,caption in photos)
+page=f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PaiCLI Sub2API 本地实现检查</title><style>body{{margin:0;background:#f4f7fb;color:#18304a;font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}}main{{max-width:1060px;margin:30px auto;padding:32px;background:white;border-radius:12px}}h1{{font-size:30px}}h2{{margin-top:34px;font-size:22px}}.notice{{padding:16px;background:#fff3d7;border-left:4px solid #c18420}}table{{width:100%;border-collapse:collapse}}td,th{{padding:12px;border-bottom:1px solid #dae3ed;text-align:left}}th{{background:#edf4fa}}img{{max-width:100%;border:1px solid #dae3ed}}figure{{margin:24px 0}}figcaption{{color:#52667c}}a{{color:#1968b5}}code{{overflow-wrap:anywhere}}@media(max-width:700px){{main{{margin:0;padding:18px}}}}</style></head><body><main><h1>PaiCLI Sub2API 本地实现检查</h1><p>2026-10-04 · 对应项目实现设计 v1.1 · 执行者 Codex</p><p class="notice">本次完成 PaiCLI 文本模型扩展的本地编码与技术检查。真实 Sub2API 实例兼容、原业务验收及运行包切换尚未执行。图片编辑的 DashScope 链路与其他项目保持原配置。</p><h2>已实现的行为</h2><ul><li>Sub2API 供应商显式选择 Responses 或 Chat Completions，使用精确模型 ID。</li><li>完整工具回灌、Responses 加密协议项保留、严格终态与用量、取消阻塞连接，不自动重放或改用其他供应商。</li><li>中心沿用若依权限、工作区托管密钥、许可和预算；兼容验证绑定定义、协议、模型和密钥版本，版本变化后重新验证。</li><li>管理端新增协议配置及验证入口，确认费用后才提交控制任务。</li></ul><h2>实际技术检查</h2><table><thead><tr><th>检查范围</th><th>测试项</th><th>结果</th></tr></thead><tbody>{''.join(rows)}</tbody></table><p>总计 {data['totalTests']} 项，重跑不重复计数。Core/Runner/CLI、Center API 和前端独立构建成功；四模块快照源码差异 0，jar 自有 class 逐字节差异 0，前端最终目录 {data['frontendArtifact']['files']} 个文件。契约检查对应 97 个操作者操作、78 条路径和 30 个 Runner 操作。</p><h2>实际组件浏览器检查</h2><p>使用真实连接页组件及 Element Plus，本地内存接口和空子功能组件。截图已逐张回读。取消时模拟 verify 请求为 0；确认请求包含供应商 If-Match 与 modelVersion。它们不代表真实服务或业务数据验证。</p>{figures}<h2>交付与限制</h2><p>制品位于工作区 <code>.runtime/paicli/sub2api-20261004</code>，当前运行包没有替换。独立安全/契约复核尚未执行，不宣称上线就绪或用户接受。真实启用需核实实例 HTTPS 地址、协议、模型、工作区托管用途、费用预算以及运行版本切换范围。</p><p><a href="本地实现检查记录.md">完整检查记录与原失败证据</a> · <a href="交付核对.json">制品位置与哈希</a> · <a href="../../Sub2API扩展实现文档.md">项目实现文档</a> · <a href="../../开发记录/2026-10-03-完整迁移实施记录.md">唯一开发记录</a></p></main></body></html>'''
+(here/'本地实现检查报告.html').write_text(page,encoding='utf-8')
+files=[root/'文档/README.md',root/'文档/项目/PaiCLI智能编码项目/完整迁移设计.md',root/'文档/项目/PaiCLI智能编码项目/Sub2API扩展实现文档.md',root/'文档/项目/PaiCLI智能编码项目/开发记录/2026-10-03-完整迁移实施记录.md',here/'本地实现检查记录.md',here/'本地实现检查报告.html']
+errors=[];checked=0
+for file in files:
+    text=file.read_text(encoding='utf-8-sig')
+    pattern=r'!?\[[^\]]*\]\(([^\n)]+)\)' if file.suffix=='.md' else r'(?:href|src)=["\x27]([^"\x27]+)'
+    for match in re.finditer(pattern,text):
+        target=match[1].strip('<>').split('#')[0].split('?')[0]
+        if not target or re.match(r'^(?:https?:|data:|mailto:|/|[A-Za-z]:)',target):continue
+        checked+=1
+        if not (file.parent/target).exists():errors.append({'file':str(file.relative_to(root)),'target':target})
+result={'files':len(files),'localLinks':checked,'errors':errors,'scope':'只检查本次文档本地文件引用，不判断业务通过'}
+(here/'文档链接核对.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(result,ensure_ascii=False));assert not errors

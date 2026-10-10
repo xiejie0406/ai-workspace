@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from api.schemas.base_inputs import BaseInputs
+from agent.api.schemas.base_inputs import BaseInputs
 
 
 class CompletionInputs(BaseInputs):

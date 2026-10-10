@@ -1,0 +1,1166 @@
+{
+  "scope": "original scalar and object text representations, isolated no provider",
+  "cases": [
+    {
+      "name": "pe-prompt-small-exponent",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:57:05.549994+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "number"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "number",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6Im51bWJlciJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImFuc3dlciIsIm5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "47e1c409316f5c706cd0ca027b13ea504acccdb1feee392415b97d3b63fd6f30",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "input": {
+          "question": 1e-07
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "input": {
+        "question": 1e-07
+      },
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "number",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n1e-07\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-prompt-large-exponent",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:57:06.868262+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "number"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "number",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6Im51bWJlciJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImFuc3dlciIsIm5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "47e1c409316f5c706cd0ca027b13ea504acccdb1feee392415b97d3b63fd6f30",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "input": {
+          "question": 1e+20
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "input": {
+        "question": 1e+20
+      },
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "number",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n1e+20\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-prompt-negative-zero",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:57:06.878034+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "number"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "number",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6Im51bWJlciJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImFuc3dlciIsIm5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "47e1c409316f5c706cd0ca027b13ea504acccdb1feee392415b97d3b63fd6f30",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "input": {
+          "question": -0.0
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "input": {
+        "question": -0.0
+      },
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "number",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n-0.0\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-prompt-decimal-boundary",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:57:06.889037+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "number"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "number",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6Im51bWJlciJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImFuc3dlciIsIm5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "47e1c409316f5c706cd0ca027b13ea504acccdb1feee392415b97d3b63fd6f30",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "input": {
+          "question": 1e-06
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "input": {
+        "question": 1e-06
+      },
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "number",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n1e-06\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-prompt-object-control",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:57:06.900809+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "object",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImFuc3dlciIsIm5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "0ca85e3270c2ae209416a886bce5adeaa55ba59d1db2573991835daeddd3a9f7",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "input": {
+          "question": {
+            "a": 1e-07,
+            "z": "\b\f\u0000 "
+          }
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "input": {
+        "question": {
+          "a": 1e-07,
+          "z": "\b\f\u0000 "
+        }
+      },
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "object",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n{'a': 1e-07, 'z': '\\x08\\x0c\\x00\\u2028'}\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    }
+  ]
+}

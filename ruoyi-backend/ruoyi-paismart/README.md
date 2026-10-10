@@ -1,10 +1,12 @@
 # PaiSmart 知识库模块运行说明
 
-> 类型：工程使用说明；维护日期：2026-10-03；维护者：项目执行者。
+> 类型：工程使用说明；维护日期：2026-10-05；维护者：项目执行者。
 > 适用范围：`ruoyi-paismart` 的构建、配置核对、独立解析及迁移准备。
 > 业务方案、实施进展、检查结果和验收状态唯一维护在[完整迁移设计及实施记录](../../文档/项目/PaiSmart知识库项目/完整迁移设计.md)。本文件只说明实际源码的使用方式。
 
 模块由 `ruoyi-admin` 装配，复用若依身份、权限、托管密钥和既有 `dynamicDataSource`，不提供另一套账户、数据源或独立 HTTP 启动器。业务数据使用显式 `ps_*` 表，文档对象使用 `paismart/` 命名空间。默认不启用模块、消费任务、解析进程、对象操作、外部模型、OCR、支付或运维执行。
+
+本机验收登录恢复统一见[共用操作说明](../../文档/若依框架/多项目并行开发启动指南.md#本机验收登录恢复)。全部本机验收通道启用辅助能力；先复用有效会话，失效时仅用已授权账号凭据辅助填写当前验证码并正常登录。浏览器无法控制或账号凭据未获授权时单独报告所需条件；恢复登录后回到待验步骤，既有业务结果与证据保持原判定。
 
 ## 构建与离线检查
 
@@ -56,6 +58,10 @@ Kafka 使用 `paismart.jobs.bootstrap-servers`；源码主题为 `paismart.jobs`
 
 模型及 ES 地址先纳入 `paismart.intelligence.allowed-hosts`，默认为空；默认仅 HTTPS，HTTP 还需显式 `allow-http`。Provider 的模型、能力、维度、启用状态及 `secret_ref` 保存在业务表；托管密钥须属于项目 `paismart` 且能力/供应商匹配。ES 配置为 `intelligence.elasticsearch.endpoint/secret-ref/analyzer`，默认端点为空、分析器 `standard`。更换 Embedding 配置须经过索引重建和切换流程。
 
+Sub2API 仅用于 `LLM` 对话用途，在原 Provider 页面设置 `config.providerCode=sub2api`、显式 `config.apiProtocol=responses|chat_completions`、`config.maxOutputTokens`；Chat Completions 还须选择 `config.outputTokenParameter=max_tokens|max_completion_tokens`。地址填写基础 URL，适配器追加所选协议路径；一次调用不自动切换协议。密钥只提交已托管的 `ai.paismart.*` 用途引用。保存不会执行兼容性外呼；显式兼容性验证至多三次合成文字/工具调用，每次最多 128 输出 token，仍需外部调用开关、允许主机、权限和额度。只有当前配置及密钥版本具有有效验证记录，才可显式激活。Embedding、Rerank、OCR、图片及索引不随文字 Provider 改动。
+
+本次实施限定为离线源码、逻辑核对、类型检查和私有编译；不编写或运行单元、组件、集成测试，也不调用真实实例或切换运行包。上面的历史测试命令只说明工程已有设施，不表示本轮获准执行。后续真实接入前，按[Sub2API实现文档](../../文档/项目/PaiSmart知识库项目/Sub2API文字模型接入实现文档.md)核对实例、模型、传输条件和就绪环境。
+
 云 OCR 的密钥默认引用 `ai.paismart.aliyun.ocr`。健康 GET 如实返回配置状态，不发送示例图片；真实图片测试走显式授权的 POST。LiteParse OCR 回调地址 `parse.ocr-callback-base` 仅允许本机中心地址，票据绑定任务、内容版本、租约、使用次数及有效期。
 
 支付商户、应用、序列号、回调地址及私钥/APIv3密钥引用均须配置到批准环境。关闭或缺配置时明确拒绝真实支付，不生成假支付成功。历史迁入订单不能再次充值入账。
@@ -98,13 +104,17 @@ PDF 样例配置使用 `parse.pdf-engine=pdfbox`，不启用 OCR；扫描 PDF �
 
 ## 结构检查与显式 SQL
 
-SQL 位于 [db/paismart](src/main/resources/db/paismart)，需要在已确认的现有目标 MySQL schema 按 `V001 → V002 → V003 → V004 → V005` 审核执行。每个脚本仅在该版本末尾写入 `paismart_schema_history` 标记。没有 Flyway/Liquibase 自动执行、JPA `ddl-auto` 或启动建表入口，SQL 文件存在不表示已应用。菜单增量另见 [菜单增量预演.sql](src/main/resources/db/paismart-menu/菜单增量预演.sql)，应复用平台权限、菜单与 `navType` 机制。
+SQL 位于 [db/paismart](src/main/resources/db/paismart)，需要在已确认的现有目标 MySQL schema 按 `V001 → V002 → V003 → V004 → V005 → V006` 审核执行。每个脚本仅在该版本末尾写入 `paismart_schema_history` 标记。没有 Flyway/Liquibase 自动执行、JPA `ddl-auto` 或启动建表入口，SQL 文件存在不表示已应用。菜单增量另见 [菜单增量预演.sql](src/main/resources/db/paismart-menu/菜单增量预演.sql)，应复用平台权限、菜单与 `navType` 机制。
 
 已完整应用当前 `V001—V004` 的目标结构，升级受控评测样本时只审核执行 [V005__evaluation_datasets.sql](src/main/resources/db/paismart/V005__evaluation_datasets.sql)，不重跑旧版建表脚本。`V005` 新增 `ps_evaluation_dataset`，保存样本 owner、服务端对象键、SHA-256、字节数和用例数；样本文件与知识文档、解析任务和知识索引分离。结构升级不上传样本、不初始化对象桶，也不启用外部调用。若旧四版结构已有字段差异，先按差异审核精确增量，不能用 history 标记掩盖缺列。
 
+消息级评价升级使用 [V006__message_feedback.sql](src/main/resources/db/paismart/V006__message_feedback.sql)，仅对已完整应用1—5版的结构新增消息生成关联、反馈消息/生成关联、当前值版本及更新时间，并增加用户与消息唯一索引。旧消息和旧反馈的未知关联保持NULL，不按时间猜测、不删除或合并旧反馈。新回答与重试回答保存生成编号，按钮由后台校验目标；工具在新回答创建前冻结最近已有答案，无法可靠关联则拒绝。一个用户对一条回答只保留一个当前评价，改变评价或原因时记录版本与安全审计；相同幂等请求重放返回原回执，同键不同输入拒绝。
+
+V006须在确认原库、备份及停止恢复条件后显式执行；当前运行版本和实际应用状态以[唯一验收记录](../../文档/项目/PaiSmart知识库项目/设计附录/2026-10-04-主模块验收准备/证据/验收执行记录.json)为准，文件存在或内存测试通过不表示原库已升级。MySQL DDL可能逐句提交，任一句失败立即停止，不整份重跑、不补记版本掩盖半完成结构；按真实元数据核对后仅接续明确未完成的语句。回退代码时保留新增列、当前值、审计及回执，不能通过删列丢弃升级后的评价数据。
+
 当前审核结构还包含 `ps_space.description/system_key`、`ps_upload_request`、`ps_recharge_package.benefit`、`ps_reference.metadata_json`、`ps_document_chunk.embedding_input_hash`、`ps_index_revision.validation_json`、`ps_evaluation.job_id` 和 `ps_bootstrap_document`。其中默认组织标识防止误删；上传请求别名保留每个幂等请求的摘要；内置知识逻辑绑定区分重复导入、版本替换和修复。若已有早先审核版的表结构，不可重跑含 `CREATE TABLE` 的整份脚本覆盖它；应在批准演练环境核对版本差异并审核精确的增量 DDL。版本标记齐全但字段缺失仍为 `NOT_READY`，本模块不会补表或降级运行。
 
-`SchemaReadiness` 只检查当前连接的表、全部必需字段和 history 的 1 至 5 版本标记，缺表返回表名、缺列返回 `table.column`、缺版本返回 `paismart_schema_history.version:N`。它不执行 DDL，不自动修复半途失败的脚本；就绪检查也不代替字段类型、唯一约束、索引、账务数据、权限矩阵或外部服务验证。
+`SchemaReadiness` 只检查当前连接的表、全部必需字段和 history 的 1 至 6 版本标记和用户与消息完整唯一索引，缺表返回表名、缺列返回 `table.column`、缺版本返回 `paismart_schema_history.version:N`。它不执行 DDL，不自动修复半途失败的脚本；消息反馈唯一约束按完整两列核对，MySQL另查SUB_PART，前缀索引不能冒充完整ID唯一性；其他字段类型、约束、索引、账务数据、权限矩阵及外部服务仍需对应检查。
 
 成员管理列表复用平台用户 `DataScope`，非平台 root 只看到自己管理组织内的关系，本人资格入口保留完整关系。批量空间保存按目标平台用户行串行化，并以 `ps_member.membership_version` 做真实乐观版本检查，初值为 0；`If-Match` 优先于正文 `rowVersion/expectedVersion`。版本失效整批拒绝。为记录版本创建的 `INELIGIBLE` 行不能授予业务资格，只有 `ACTIVE` 状态表示已启用；组织分配保留范围外组织关系和个人空间。
 

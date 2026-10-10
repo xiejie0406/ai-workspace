@@ -21,6 +21,15 @@ public class Tool {
     private final String getUrl;
     private final String runUrl;
     private final String version;
+    private String centerNodeId;
+    private String centerResourceId;
+    private Map<String, Object> centerResource;
+
+    public void bindCenter(String nodeId, String resourceId, Map<String, Object> resource) {
+        this.centerNodeId = nodeId;
+        this.centerResourceId = resourceId;
+        this.centerResource = new HashMap<>(resource);
+    }
     
     private final OkHttpClient httpClient;
     
@@ -167,7 +176,7 @@ public class Tool {
      */
     private String dumps(Map<String, Object> payload) {
         if (payload != null && !payload.isEmpty()) {
-            return Base64.getEncoder().encodeToString(JSON.toJSONString(payload).getBytes());
+            return Base64.getEncoder().encodeToString(JSON.toJSONString(payload).getBytes(java.nio.charset.StandardCharsets.UTF_8));
         }
         return null;
     }
@@ -231,6 +240,10 @@ public class Tool {
         runLinkPayload.put("header", runHeader);
         runLinkPayload.put("parameter", runParameter);
         runLinkPayload.put("payload", runPayload);
+
+        if (centerResource != null) {
+            return centerRun(runLinkPayload);
+        }
         
         log.info("Calling link service: toolId={}, operationId={}", toolId, operationId);
         
@@ -296,6 +309,35 @@ public class Tool {
                 throw new IOException("Failed to parse response: " + e.getMessage(), e);
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> centerRun(Map<String, Object> payload) throws IOException {
+        ExecutionScope scope = ExecutionScope.current();
+        String operation = "read".equals(centerResource.get("effectClass")) ? "tools.read" : "tools.invoke";
+        Map<String, Object> parameters = Map.of("resourceId", centerResourceId,
+                "resourceVersion", centerResource.get("version"), "kind", "tool",
+                "provider", "spark-link", "legacyPayload", payload, "resourceBindings", Map.of());
+        Map<String, Object> result = scope.centerOperation(centerNodeId, operation, parameters);
+        if ("FAILED".equals(result.get("state")) && "provider".equals(result.get("failureKind"))
+                && result.get("legacyResponse") instanceof Map<?, ?> original
+                && original.get("header") instanceof Map<?, ?> error) {
+            throw new IOException("原工具返回失败，code=" + error.get("code") + ", message=" + error.get("message") + ", sid=" + error.get("sid"));
+        }
+        if (!"COMPLETED".equals(result.get("state")) || result.get("failureKind") != null
+                || !(result.get("legacyResponse") instanceof Map<?, ?> response)) {
+            throw new IOException("中心未确认原工具执行完成");
+        }
+        Map<?, ?> header = response.get("header") instanceof Map<?, ?> item ? item : Map.of();
+        if (!(header.get("code") instanceof Number code) || code.intValue() != 0) {
+            throw new IOException("原工具返回失败或缺少错误码");
+        }
+        Map<?, ?> body = response.get("payload") instanceof Map<?, ?> item ? item : Map.of();
+        Map<?, ?> text = body.get("text") instanceof Map<?, ?> item ? item : Map.of();
+        if (!(text.get("text") instanceof String value)) throw new IOException("原工具缺少 JSON 结果");
+        Object decoded = JSON.parse(value);
+        if (!(decoded instanceof Map<?, ?>)) throw new IOException("原工具结果必须是 JSON 对象");
+        return (Map<String, Object>) decoded;
     }
     
     /**

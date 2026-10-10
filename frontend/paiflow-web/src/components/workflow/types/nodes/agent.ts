@@ -1,5 +1,6 @@
 // Agent Node 相关类型定义
 import React from 'react';
+import type { NodeDataType } from '..';
 export interface AgentProps {
   data: AgentNodeData;
 }
@@ -10,9 +11,7 @@ export interface AgentDetailProps {
   nodeParam: AgentNodeParam;
 }
 
-export interface AgentNodeData {
-  nodeParam: AgentNodeParam;
-}
+export type AgentNodeData = NodeDataType<AgentNodeParam>;
 
 export interface AgentNodeParam {
   modelConfig?: {

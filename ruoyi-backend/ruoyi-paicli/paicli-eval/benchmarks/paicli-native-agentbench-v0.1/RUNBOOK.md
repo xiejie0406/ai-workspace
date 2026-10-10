@@ -338,9 +338,17 @@ Coordinator 的 suite preflight 会先验证 active fixture、verifier 类型和
 - 错误补丁、错误答案、无效工具参数或 adapter 的确定性协议错误；
 - 模型返回确定性 `400` / `401`；
 - 安全 hard gate；
-- verifier 启动后返回非零，或 verifier 执行发生普通 I/O 错误。
+- verifier 启动后返回一般非零，或 verifier 执行发生普通 I/O 错误。
 
 仅允许把 Runner 子进程无法启动、明确的 verifier sandbox unavailable、冻结基础设施不可用，或既定有限重试后仍确认的 provider 临时故障分类为基础设施错误。处理规则是：
+
+公开开发题 `dev-secret-safe-bundle` 的权限预检是明确的 sandbox 证明：只有登记命令精确为
+`["bash","validators/dev/dev-secret-safe-bundle.sh","{workspace}"]`、验证器状态为 `FAILED`、
+退出码为 `2`、stdout 为空、stdout/stderr 均未截断，且 stderr 除末尾空白外精确为
+`dev-secret-safe-bundle: INFRA_ERROR: cannot prove forbidden-file read denial` 时，旧开发
+Coordinator 才记 `INFRA_ERROR`，不计 Candidate 数值 0，并保留真实 verifier 退出码与诊断。
+其他题、其他命令、一般 `exit 2`、候选生成器失败和仅包含 `INFRA_ERROR` 的输出不享有此例外。
+正式批次继续按独立结构化报告协议处理，本例外不授权启动或重新冻结正式批次。
 
 1. 保留原 run，不覆盖、不删除；
 2. 记录原始 failure class 与证据；

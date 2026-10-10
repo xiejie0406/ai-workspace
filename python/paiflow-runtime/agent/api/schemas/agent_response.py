@@ -4,7 +4,7 @@ from typing import Any, Literal, Optional
 from openai.types.completion_usage import CompletionUsage
 from pydantic import BaseModel, Field
 
-from service.plugin.base import BasePlugin
+from agent.service.plugin.base import BasePlugin
 
 
 def cur_timestamp() -> int:

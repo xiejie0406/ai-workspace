@@ -94,7 +94,7 @@ def _output(nodes, identifier, name):
     return matches[0]
 
 
-def _check_data(data):
+def _check_data(data, *, controlled=False):
     pending = [data]
     while pending:
         value = pending.pop()
@@ -107,7 +107,7 @@ def _check_data(data):
             pending.extend(child for child in value.values() if isinstance(child, (dict, list)))
         elif isinstance(value, list):
             pending.extend(child for child in value if isinstance(child, (dict, list)))
-    if "retryConfig" in data:
+    if "retryConfig" in data and not controlled:
         config = _object(data["retryConfig"])
         if _boolean(config.get("shouldRetry", False)):
             _unavailable()
@@ -224,7 +224,7 @@ def _batch(owner, inner_start, main_start, nodes, run_input):
     return len(actual)
 
 
-def _read_graph(dsl, allowed_types, extra_outputs=None):
+def _read_graph(dsl, allowed_types, extra_outputs=None, *, controlled=False):
     """迭代与静态问答共用原地址、DAG和节点数预检，不枚举 Chains。"""
     raw_nodes = _array(_object(dsl).get("nodes"))
     if not raw_nodes or len(raw_nodes) > MAX_GRAPH_NODES:
@@ -240,7 +240,7 @@ def _read_graph(dsl, allowed_types, extra_outputs=None):
         if kind not in allowed_types:
             _unavailable()
         data = _object(node.get("data"))
-        _check_data(data)
+        _check_data(data, controlled=controlled)
         nodes[identifier], next_nodes[identifier] = node, set()
         if kind == "node-start":
             starts.append(identifier)
@@ -282,10 +282,10 @@ def _references(nodes, next_nodes, owners):
                 _invalid("迭代输入值须为原 literal/ref")
 
 
-def validate_top_level(dsl: dict, run_input: dict, allowed_types: frozenset[str], *, extra_outputs=None) -> IterationBudget:
+def validate_top_level(dsl: dict, run_input: dict, allowed_types: frozenset[str], *, extra_outputs=None, controlled=False) -> IterationBudget:
     """供已选顶层静态 profile 复用同一预算/地址/引用算法。"""
     _object(run_input)
-    nodes, next_nodes, order, starts, ends, _ = _read_graph(dsl, allowed_types, extra_outputs)
+    nodes, next_nodes, order, starts, ends, _ = _read_graph(dsl, allowed_types, extra_outputs, controlled=controlled)
     if len(starts) != 1 or len(ends) != 1:
         _invalid("顶层静态图须有唯一主开始与结束")
     members = _scope(starts[0], ends[0], next_nodes)

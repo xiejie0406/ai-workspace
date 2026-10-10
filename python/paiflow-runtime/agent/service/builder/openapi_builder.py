@@ -1,13 +1,13 @@
 import json
 from typing import cast
 
-from api.schemas.openapi_inputs import CompletionInputs
-from common_imports import Span
-from repository.bot_config_client import BotConfig
-from service.builder.base_builder import BaseApiBuilder, CotRunnerParams, RunnerParams
-from service.plugin.base import BasePlugin
-from service.plugin.knowledge import KnowledgePluginFactory
-from service.runner.openapi_runner import OpenAPIRunner
+from agent.api.schemas.openapi_inputs import CompletionInputs
+from agent.common_imports import Span
+from agent.repository.bot_config_client import BotConfig
+from agent.service.builder.base_builder import BaseApiBuilder, CotRunnerParams, RunnerParams
+from agent.service.plugin.base import BasePlugin
+from agent.service.plugin.knowledge import KnowledgePluginFactory
+from agent.service.runner.openapi_runner import OpenAPIRunner
 
 
 class OpenAPIRunnerBuilder(BaseApiBuilder):

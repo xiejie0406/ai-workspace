@@ -11,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController @RequestMapping("/internal/aippt/tasks") @AipptEnabled @PreAuthorize("hasAuthority('AIPPT_WORKER')") public class WorkerTaskController  {
     private final TaskLeaseService tasks;
     private final AssetService assets;
+    private AipptTextCallService textCalls;
+    @org.springframework.beans.factory.annotation.Autowired
+    public void setTextCalls(AipptTextCallService value) { textCalls=value; }
     public WorkerTaskController(TaskLeaseService t,AssetService a)  {
         tasks=t;
         assets=a;
@@ -32,6 +35,10 @@ import org.springframework.web.multipart.MultipartFile;
     }
     @PostMapping("/{id}/fail") public AjaxResult fail(@PathVariable String id,@RequestBody Map<String,Object> input)  {
         return AjaxResult.success(tasks.fail(id,json(input)));
+    }
+    @PostMapping("/{id}/text") public AjaxResult text(@PathVariable String id,@RequestBody Map<String,Object> input) {
+        if(textCalls==null)throw AipptTextRouteService.unavailable();
+        return AjaxResult.success(textCalls.text(id,json(input)));
     }
     @PostMapping(value="/{id}/assets",consumes=MediaType.MULTIPART_FORM_DATA_VALUE) public AjaxResult upload(@PathVariable String id,@RequestParam MultipartFile file,@RequestParam String role,@RequestParam String leaseToken,@RequestParam long fencingToken,@RequestParam int attempt)  {
         return AjaxResult.success(assets.workerUpload(id,JSONObject.of("leaseToken",leaseToken,"fencingToken",fencingToken,"attempt",attempt),file,role));

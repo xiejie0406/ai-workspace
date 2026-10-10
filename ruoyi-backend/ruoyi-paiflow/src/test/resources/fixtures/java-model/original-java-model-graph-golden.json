@@ -1,0 +1,426 @@
+{
+  "assignment" : {
+    "schemaVersion" : "paiflow.worker.v1",
+    "runId" : "java-model-run",
+    "workflowVersionId" : "java-model-version",
+    "dslHash" : "c92ea967be346a9aebd310cc224ccc7247d941025b041b0d64926fb77c1d9dda",
+    "dslCanonicalBase64" : "eyJmbG93SWQiOiJvcmlnaW5hbC1tb2RlbC1mbG93IiwidXVpZCI6ImphdmEtbW9kZWwtY2hhdCIsIm5vZGVzIjpbeyJpZCI6Im5vZGUtc3RhcnQ6OjEiLCJkYXRhIjp7Im5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6IuW8gOWniyJ9LCJub2RlUGFyYW0iOnt9LCJpbnB1dHMiOltdLCJvdXRwdXRzIjpbXX19LHsiaWQiOiJzcGFyay1sbG06OjIiLCJkYXRhIjp7Im5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6IuaooeWeiyJ9LCJub2RlUGFyYW0iOnsibW9kZWxJZCI6MSwiZG9tYWluIjoib3JpZ2luYWwtbW9kZWwiLCJtb2RlbFJlc291cmNlSWQiOiJtb2RlbDoxOnZlcnNpb246MiIsIm1heFRva2VucyI6MzIsInRlbXBsYXRlIjoi6Zeu6aKY77yae3t4fX0ve3ttaXNzaW5nfX0iLCJzeXN0ZW1UZW1wbGF0ZSI6Iuezu+e7n++8mnt7eH19In0sImlucHV0cyI6W3sibmFtZSI6IngiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5vZGVJZCI6Im5vZGUtc3RhcnQ6OjEiLCJuYW1lIjoieCJ9fX19XSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0In19LHsibmFtZSI6InJlYXNvbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19LHsibmFtZSI6InVudXNlZCIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX19LHsiaWQiOiJub2RlLWVuZDo6MyIsImRhdGEiOnsibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoi57uT5p2fIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjoxLCJ0ZW1wbGF0ZSI6Iue7k+aenO+8mnt7YW5zd2VyfX0ifSwiaW5wdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJub2RlSWQiOiJzcGFyay1sbG06OjIiLCJuYW1lIjoiYW5zd2VyIn19fX1dLCJvdXRwdXRzIjpbXX19XSwiZWRnZXMiOlt7InNvdXJjZU5vZGVJZCI6Im5vZGUtc3RhcnQ6OjEiLCJ0YXJnZXROb2RlSWQiOiJzcGFyay1sbG06OjIifSx7InNvdXJjZU5vZGVJZCI6InNwYXJrLWxsbTo6MiIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjozIn1dfQ==",
+    "engineProfile" : "java",
+    "input" : {
+      "x" : "值"
+    },
+    "resourceSnapshots" : {
+      "model:1:version:2" : {
+        "modelName" : "original-model",
+        "provider" : "openai",
+        "capabilities" : [ "chat" ],
+        "enabled" : true,
+        "version" : "2",
+        "kind" : "model"
+      }
+    },
+    "attempt" : 1,
+    "leaseId" : "java-model-lease",
+    "deadline" : "2026-10-05T00:01:00Z",
+    "effectPolicy" : {
+      "mode" : "approved_write",
+      "allowedOperations" : [ "model.invoke" ],
+      "approvalRef" : "fixture-only"
+    },
+    "dsl" : {
+      "flowId" : "original-model-flow",
+      "uuid" : "java-model-chat",
+      "nodes" : [ {
+        "id" : "node-start::1",
+        "data" : {
+          "nodeMeta" : {
+            "aliasName" : "开始"
+          },
+          "nodeParam" : { },
+          "inputs" : [ ],
+          "outputs" : [ ]
+        }
+      }, {
+        "id" : "spark-llm::2",
+        "data" : {
+          "nodeMeta" : {
+            "aliasName" : "模型"
+          },
+          "nodeParam" : {
+            "modelId" : 1,
+            "domain" : "original-model",
+            "modelResourceId" : "model:1:version:2",
+            "maxTokens" : 32,
+            "template" : "问题：{{x}}/{{missing}}",
+            "systemTemplate" : "系统：{{x}}"
+          },
+          "inputs" : [ {
+            "name" : "x",
+            "schema" : {
+              "type" : "string",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "nodeId" : "node-start::1",
+                  "name" : "x"
+                }
+              }
+            }
+          } ],
+          "outputs" : [ {
+            "name" : "answer",
+            "schema" : {
+              "type" : "object"
+            }
+          }, {
+            "name" : "reason",
+            "schema" : {
+              "type" : "string"
+            }
+          }, {
+            "name" : "unused",
+            "schema" : {
+              "type" : "string"
+            }
+          } ]
+        }
+      }, {
+        "id" : "node-end::3",
+        "data" : {
+          "nodeMeta" : {
+            "aliasName" : "结束"
+          },
+          "nodeParam" : {
+            "outputMode" : 1,
+            "template" : "结果：{{answer}}"
+          },
+          "inputs" : [ {
+            "name" : "answer",
+            "schema" : {
+              "type" : "string",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "nodeId" : "spark-llm::2",
+                  "name" : "answer"
+                }
+              }
+            }
+          } ],
+          "outputs" : [ ]
+        }
+      } ],
+      "edges" : [ {
+        "sourceNodeId" : "node-start::1",
+        "targetNodeId" : "spark-llm::2"
+      }, {
+        "sourceNodeId" : "spark-llm::2",
+        "targetNodeId" : "node-end::3"
+      } ]
+    },
+    "lastEventSeq" : 0
+  },
+  "actualRequest" : {
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "nodeId" : "spark-llm::2",
+    "iterationId" : null,
+    "operation" : "model.invoke",
+    "idempotencyKey" : "java-model-run:1:spark-llm::2:model.invoke:e1529b4c1bad880b9ed2a61bef5a2f0bef7e99945676332446479eac3a16926a",
+    "parameters" : {
+      "resourceId" : "model:1:version:2",
+      "resourceVersion" : "2",
+      "provider" : "openai",
+      "modelName" : "original-model",
+      "mode" : "chat",
+      "messages" : [ {
+        "content" : "系统：值",
+        "role" : "system"
+      }, {
+        "content" : "问题：值/{{missing}}",
+        "role" : "user"
+      } ],
+      "options" : {
+        "maxTokens" : 32,
+        "temperature" : null,
+        "topP" : null,
+        "presencePenalty" : null,
+        "frequencyPenalty" : null,
+        "n" : null,
+        "streamUsage" : true,
+        "enableThinking" : true
+      }
+    }
+  },
+  "actualEvents" : [ {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 1,
+    "nodeId" : "node-start::1",
+    "eventType" : "node.started",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "nodeId" : "node-start::1",
+      "aliasName" : "开始"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 2,
+    "nodeId" : "node-start::1",
+    "eventType" : "node.completed",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "nodeId" : "node-start::1",
+      "result" : {
+        "inputs" : {
+          "x" : "值"
+        },
+        "outputs" : { },
+        "errorOutputs" : { },
+        "rawOutput" : "",
+        "nodeAnswerContent" : "",
+        "nodeAnswerReasoningContent" : "",
+        "tokenCost" : {
+          "completion_tokens" : 0,
+          "prompt_tokens" : 0,
+          "total_tokens" : 0
+        },
+        "error" : null,
+        "status" : "SUCCESS"
+      }
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 3,
+    "nodeId" : "spark-llm::2",
+    "eventType" : "node.started",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "nodeId" : "spark-llm::2",
+      "aliasName" : "模型"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 4,
+    "nodeId" : "spark-llm::2",
+    "eventType" : "text.delta",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "code" : 0,
+      "message" : "Success",
+      "id" : "workflow#original-model-flow-1791166745265",
+      "created" : 1791166745,
+      "choices" : [ {
+        "delta" : {
+          "role" : "assistant",
+          "content" : " ",
+          "reasoning_content" : "思"
+        },
+        "index" : 0,
+        "finish_reason" : null
+      } ],
+      "usage" : null,
+      "workflow_step" : {
+        "node" : {
+          "id" : "spark-llm::2",
+          "inputs" : { },
+          "outputs" : { },
+          "ext" : null,
+          "usage" : null,
+          "alias_name" : "Node:模型",
+          "finish_reason" : null,
+          "error_outputs" : { },
+          "executed_time" : 0.175
+        },
+        "seq" : 0,
+        "progress" : 0.0
+      },
+      "event_data" : null
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 5,
+    "nodeId" : "spark-llm::2",
+    "eventType" : "text.delta",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "code" : 0,
+      "message" : "Success",
+      "id" : "workflow#original-model-flow-1791166745265",
+      "created" : 1791166745,
+      "choices" : [ {
+        "delta" : {
+          "role" : "assistant",
+          "content" : "原文本",
+          "reasoning_content" : "考"
+        },
+        "index" : 0,
+        "finish_reason" : null
+      } ],
+      "usage" : null,
+      "workflow_step" : {
+        "node" : {
+          "id" : "spark-llm::2",
+          "inputs" : { },
+          "outputs" : { },
+          "ext" : null,
+          "usage" : null,
+          "alias_name" : "Node:模型",
+          "finish_reason" : null,
+          "error_outputs" : { },
+          "executed_time" : 0.193
+        },
+        "seq" : 0,
+        "progress" : 0.0
+      },
+      "event_data" : null
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 6,
+    "nodeId" : "spark-llm::2",
+    "eventType" : "node.completed",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "nodeId" : "spark-llm::2",
+      "result" : {
+        "inputs" : {
+          "x" : "值"
+        },
+        "outputs" : {
+          "reason" : "思考",
+          "answer" : "原文本"
+        },
+        "errorOutputs" : { },
+        "rawOutput" : "原文本",
+        "nodeAnswerContent" : "",
+        "nodeAnswerReasoningContent" : "",
+        "tokenCost" : {
+          "completion_tokens" : 3,
+          "prompt_tokens" : 4,
+          "total_tokens" : 7
+        },
+        "error" : null,
+        "status" : "SUCCESS"
+      }
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 7,
+    "nodeId" : "node-end::3",
+    "eventType" : "node.started",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "nodeId" : "node-end::3",
+      "aliasName" : "结束"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 8,
+    "nodeId" : "node-end::3",
+    "eventType" : "node.completed",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "nodeId" : "node-end::3",
+      "result" : {
+        "inputs" : { },
+        "outputs" : {
+          "answer" : "原文本"
+        },
+        "errorOutputs" : { },
+        "rawOutput" : "",
+        "nodeAnswerContent" : "结果：原文本",
+        "nodeAnswerReasoningContent" : "",
+        "tokenCost" : {
+          "completion_tokens" : 0,
+          "prompt_tokens" : 0,
+          "total_tokens" : 0
+        },
+        "error" : null,
+        "status" : "SUCCESS"
+      }
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-model-run",
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "seq" : 9,
+    "nodeId" : "node-end::3",
+    "eventType" : "text.delta",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "code" : 0,
+      "message" : "Success",
+      "id" : "workflow#original-model-flow-1791166745265",
+      "created" : 1791166745,
+      "choices" : [ {
+        "delta" : {
+          "role" : "assistant",
+          "content" : "结果：原文本",
+          "reasoning_content" : ""
+        },
+        "index" : null,
+        "finish_reason" : null
+      } ],
+      "usage" : null,
+      "workflow_step" : {
+        "node" : {
+          "id" : "node-end::3",
+          "inputs" : { },
+          "outputs" : {
+            "answer" : "原文本"
+          },
+          "ext" : { },
+          "usage" : {
+            "completion_tokens" : 0,
+            "prompt_tokens" : 0,
+            "total_tokens" : 0
+          },
+          "alias_name" : "Node:结束",
+          "finish_reason" : "stop",
+          "error_outputs" : { },
+          "executed_time" : 0.001
+        },
+        "seq" : 0,
+        "progress" : 0.0
+      },
+      "event_data" : null
+    }
+  } ],
+  "actualResult" : {
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "state" : "COMPLETED",
+    "output" : {
+      "node-end::3" : {
+        "content" : "结果：原文本",
+        "reasoning_content" : ""
+      }
+    },
+    "error" : null
+  }
+}

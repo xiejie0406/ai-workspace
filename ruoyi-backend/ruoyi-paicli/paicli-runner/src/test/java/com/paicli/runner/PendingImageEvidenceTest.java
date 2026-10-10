@@ -47,6 +47,27 @@ class PendingImageEvidenceTest {
         PendingImageEvidence pending=new PendingImageEvidence(temp);var execution=pending.reserve();execution.close();execution.close();assertThrows(IOException.class,()->execution.preserveOutput(binding("closed"),ToolOutput.text("禁止释放后的写入")));
         try(var one=pending.reserve();var two=pending.reserve();var three=pending.reserve();var four=pending.reserve()){assertThrows(IOException.class,pending::reserve);}
     }
+    @Test void modificationEvidenceKeepsTheCompleteActualResultAndItsIndependentOriginal()throws Exception{
+        PendingImageEvidence pending=new PendingImageEvidence(temp);
+        ObjectNode identity=binding("edit").put("ownerUserId","7").put("directoryContextId","11").put("sessionId","13");
+        ToolOutput actual=ToolOutput.text("真实工具结果\n"+"原正文".repeat(20000));
+        ObjectNode modification=CanonicalJson.MAPPER.createObjectNode().put("path","actual.txt").put("diff","--- a/actual.txt\n+++ b/actual.txt\n-原文\n+实文\n");
+        Path original,combined;
+        try(var execution=pending.reserve()){
+            original=execution.preserveOutput(identity,actual);
+            byte[] originalBytes=Files.readAllBytes(original);
+            combined=execution.preserveModification(identity,actual,modification);
+            assertNotEquals(original,combined);assertArrayEquals(originalBytes,Files.readAllBytes(original));
+        }
+        for(Path path:List.of(original,combined)){
+            var saved=CanonicalJson.MAPPER.readTree(Files.readAllBytes(path));
+            assertEquals(actual.text(),saved.path("result").path("text").asText());
+            assertEquals("7",saved.path("ownerUserId").asText());assertEquals("13",saved.path("sessionId").asText());
+            assertFalse(saved.toString().contains("fixture-private-permit"));
+        }
+        assertEquals(modification,CanonicalJson.MAPPER.readTree(Files.readAllBytes(combined)).path("fileModification"));
+        pending.acknowledged(combined);assertTrue(Files.exists(original));
+    }
     @Test void broadAncestorIsRejectedForConstructionWritingAndAcknowledgementWithoutPermissionRepair()throws Exception{
         Path ancestor=RunnerPrivateDirectory.createDirectories(temp.resolve("broad-parent"));PendingImageEvidence pending=new PendingImageEvidence(ancestor);Path saved=pending.preserveOutput(binding("saved"),ToolOutput.text("已有完整证据"));byte[] original=Files.readAllBytes(saved);
         PosixFileAttributeView posix=Files.getFileAttributeView(ancestor,PosixFileAttributeView.class,LinkOption.NOFOLLOW_LINKS);

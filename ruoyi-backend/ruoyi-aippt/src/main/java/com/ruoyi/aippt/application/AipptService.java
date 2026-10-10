@@ -755,6 +755,11 @@ import org.springframework.transaction.support.TransactionTemplate;
             }
             AipptRules.protect(before,slide,false);
             AipptRules.slide(slide);
+            if("flex".equals(slide.getString("layout_mode"))&&Set.of("flex-layout","flex-state","add-block","remove-block","unlock-flex").contains(action)) {
+                // 原编辑 API 在持久化前归一；先验证输入，防止非法树被修正后绕过边界。
+                slide.put("layout_tree",FlexEditing.normalize(slide.getJSONObject("layout_tree")));
+                AipptRules.slide(slide);
+            }
             if("fixed".equals(slide.getString("layout_mode")))validateFixed(slide);
             validateAssets(p,slide);
             db.save("slide",slide,slide.getLongValue("revision"));
@@ -860,6 +865,10 @@ import org.springframework.transaction.support.TransactionTemplate;
             }
             AipptRules.protect(slide,next,true);
             AipptRules.slide(next);
+            if("flex".equals(next.getString("layout_mode"))&&("relayout".equals(type)||!Objects.equals(slide.get("layout_tree"),next.get("layout_tree")))) {
+                next.put("layout_tree",FlexEditing.normalize(next.getJSONObject("layout_tree")));
+                AipptRules.slide(next);
+            }
             validateAssets(p,next);
             db.save("slide",next,slide.getLongValue("revision"));
             proposal.put("expected_slide_revision",next.getLongValue("revision"));

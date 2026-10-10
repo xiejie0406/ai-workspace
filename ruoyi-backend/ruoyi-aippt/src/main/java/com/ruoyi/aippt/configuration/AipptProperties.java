@@ -147,6 +147,34 @@ import org.springframework.stereotype.Component;
     }
     public static class Provider  {
         private boolean enabled;
+        private boolean textEnabled;
+        public boolean isTextEnabled() { return textEnabled; }
+        public void setTextEnabled(boolean value) { textEnabled=value; }
+        // 只保存中心控制的非秘密文本路由；机器请求不能覆盖这些值。
+        private String baseUrl="",wireApi="",model="",secretRef="ai.aippt.sub2api.text";
+        private String outputTokenParameter="max_completion_tokens";
+        private java.util.List<String> allowedHosts=new java.util.ArrayList<>();
+        private int maxCalls=8,maxOutputTokens=8192,timeoutSeconds=60,maxResponseBytes=4*1024*1024;
+        public String getBaseUrl() { return baseUrl; }
+        public void setBaseUrl(String value) { baseUrl=value; }
+        public String getWireApi() { return wireApi; }
+        public void setWireApi(String value) { wireApi=value; }
+        public String getModel() { return model; }
+        public void setModel(String value) { model=value; }
+        public String getSecretRef() { return secretRef; }
+        public void setSecretRef(String value) { secretRef=value; }
+        public String getOutputTokenParameter() { return outputTokenParameter; }
+        public void setOutputTokenParameter(String value) { outputTokenParameter=value; }
+        public java.util.List<String> getAllowedHosts() { return allowedHosts; }
+        public void setAllowedHosts(java.util.List<String> value) { allowedHosts=value; }
+        public int getMaxCalls() { return maxCalls; }
+        public void setMaxCalls(int value) { maxCalls=value; }
+        public int getMaxOutputTokens() { return maxOutputTokens; }
+        public void setMaxOutputTokens(int value) { maxOutputTokens=value; }
+        public int getTimeoutSeconds() { return timeoutSeconds; }
+        public void setTimeoutSeconds(int value) { timeoutSeconds=value; }
+        public int getMaxResponseBytes() { return maxResponseBytes; }
+        public void setMaxResponseBytes(int value) { maxResponseBytes=value; }
         public boolean isEnabled()  {
             return enabled;
         }

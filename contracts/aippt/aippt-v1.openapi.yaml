@@ -5218,6 +5218,93 @@
           }
         }
       }
+    },
+    "/internal/aippt/tasks/{taskId}/text": {
+      "post": {
+        "operationId": "post_internal_aippt_tasks_taskId_text",
+        "summary": "租约绑定的中心文本调用",
+        "description": "仅generate_outline/generate_slide/ai_edit/relayout。最多8次逻辑调用；完成的相同callId与正文可回读，在途/未知/正文变化拒绝重发。外部HTTP在业务事务外执行；文本任务发生调用后禁止自动重排。无真实配置时不外呼。",
+        "security": [
+          {
+            "WorkerKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正式业务结果；任务接收不表示算法已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ],
+                  "properties": {
+                    "code": {
+                      "const": 200
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/WorkerTextResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "身份无效或会话过期"
+          },
+          "403": {
+            "description": "无动作权限或服务scope"
+          },
+          "404": {
+            "description": "未知或他人资源"
+          },
+          "409": {
+            "description": "版本/状态/幂等正文冲突，保留currentRevision及草稿"
+          },
+          "422": {
+            "description": "字段或结构非法"
+          },
+          "503": {
+            "description": "本项目文本通道/托管用途未就绪或出口暂忙；Worker不自动重发文本调用"
+          },
+          "429": {
+            "description": "任务文本逻辑调用预算耗尽"
+          },
+          "502": {
+            "description": "远端结果未知或协议不完整，禁止自动重送，须核对远端结果与用量"
+          },
+          "413": {
+            "description": "文本返回结果或任务累计文本账本超过预算；已发送调用不会自动重发"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerTextRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6115,6 +6202,119 @@
         "type": "object",
         "additionalProperties": false,
         "description": "沿原草稿字段兼容可选稳定UUID；Worker生成、React正式提纲保存及中心都使用。旧无ID页由中心分配，不改变原模型草稿Schema。"
+      },
+      "WorkerTextRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "attempt",
+          "leaseToken",
+          "fencingToken",
+          "callId",
+          "system",
+          "user",
+          "purpose"
+        ],
+        "description": "完整请求UTF-8编码最多2MiB；中心进一步核有效租约、四类文本任务、取消及冻结路由。Worker不能指定地址、模型或凭据。",
+        "properties": {
+          "attempt": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "leaseToken": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "fencingToken": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9223372036854775807
+          },
+          "callId": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36,
+            "pattern": "^[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "system": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2097152
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      },
+      "WorkerTextResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "content",
+          "model",
+          "wireApi",
+          "routeVersion",
+          "usage_status",
+          "usage"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "完整JSON对象字符串；业务结构仍由原算法校验。"
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "wireApi": {
+            "enum": [
+              "chat_completions",
+              "responses"
+            ]
+          },
+          "routeVersion": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "usage_status": {
+            "enum": [
+              "available",
+              "partial",
+              "unavailable"
+            ]
+          },
+          "usage": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "input_tokens": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000000
+              },
+              "output_tokens": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000000
+              },
+              "total_tokens": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000000
+              }
+            }
+          }
+        }
       }
     }
   }

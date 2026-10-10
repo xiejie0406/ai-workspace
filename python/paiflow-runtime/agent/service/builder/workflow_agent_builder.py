@@ -3,14 +3,14 @@ import json
 from dataclasses import dataclass
 from typing import Any, cast
 
-from api.schemas.workflow_agent_inputs import (
+from agent.api.schemas.workflow_agent_inputs import (
     CustomCompletionInputs,
     CustomCompletionPluginKnowledgeInputs,
 )
-from common_imports import Span
-from engine.workflow_agent_runner import WorkflowAgentRunner
-from service.builder.base_builder import BaseApiBuilder, CotRunnerParams, RunnerParams
-from service.plugin.knowledge import KnowledgePluginFactory
+from agent.common_imports import Span
+from agent.engine.workflow_agent_runner import WorkflowAgentRunner
+from agent.service.builder.base_builder import BaseApiBuilder, CotRunnerParams, RunnerParams
+from agent.service.plugin.knowledge import KnowledgePluginFactory
 
 
 @dataclass

@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { FlowNodeInput, FlowSelect } from '@/components/workflow/ui';
 import useFlowsManager from '@/components/workflow/store/use-flows-manager';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
+import type { ExtractorParameterDetailProps } from '@/components/workflow/types/nodes/components';
 
 import inputAddIcon from '@/assets/imgs/workflow/input-add-icon.png';
 import remove from '@/assets/imgs/workflow/input-remove-icon.png';
 
-function index({ id, data }): React.ReactElement {
+function index({ id, data }: ExtractorParameterDetailProps): React.ReactElement {
   const {
     handleChangeOutputParam,
     handleAddOutputLine,
@@ -40,7 +41,7 @@ function index({ id, data }): React.ReactElement {
                   maxLength={30}
                   className="w-full"
                   value={item.name}
-                  onChange={value =>
+                  onChange={(value: string) =>
                     handleChangeOutputParam(
                       item?.id,
                       (data, value) => (data.name = value),
@@ -87,11 +88,11 @@ function index({ id, data }): React.ReactElement {
                       value: 'array-number',
                     },
                   ]}
-                  onChange={value =>
+                  onChange={(value: string) =>
                     handleChangeOutputParam(
                       item?.id,
                       (data, value) => {
-                        data.schema.type = value;
+                        data.schema = { ...data.schema, type: value };
                       },
                       value
                     )

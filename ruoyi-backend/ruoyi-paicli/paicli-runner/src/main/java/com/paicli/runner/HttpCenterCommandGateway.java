@@ -14,35 +14,87 @@ import java.util.UUID;
 public final class HttpCenterCommandGateway implements CenterCommandGateway {
     private final CenterHttpClient center;
     private final String fixedModelId;
+    private final TerminalCapability terminal;
+    private java.util.function.BooleanSupplier cancelled=()->false;
+    private record Initial(CenterHttpClient client,TerminalCapability capability){}
     public HttpCenterCommandGateway() {
-        this(new CenterHttpClient(requiredEnv("PAICLI_CENTER_URL"), requiredEnv("PAICLI_USER_TOKEN"), false));
+        this(initial(),null);
     }
-    public HttpCenterCommandGateway(String fixedModelId){this(new CenterHttpClient(requiredEnv("PAICLI_CENTER_URL"),requiredEnv("PAICLI_USER_TOKEN"),false),fixedModelId);}
+    public HttpCenterCommandGateway(String fixedModelId){this(initial(),fixedModelId);}
+    private HttpCenterCommandGateway(Initial init,String fixedModelId){this.center=init.client();this.terminal=init.capability();this.fixedModelId=fixedModelId;}
+    private static Initial initial(){
+        try{TerminalCapability capability=TerminalCapability.fromEnvironment();
+            return capability==null?new Initial(new CenterHttpClient(requiredEnv("PAICLI_CENTER_URL"),requiredEnv("PAICLI_USER_TOKEN"),false),null)
+                    :new Initial(CenterHttpClient.terminal(capability.centerUrl,capability.token()),capability);
+        }catch(IOException invalid){throw new IllegalArgumentException("网页CLI能力加载失败",invalid);}
+    }
     public HttpCenterCommandGateway(CenterHttpClient center) { this(center,null); }
-    public HttpCenterCommandGateway(CenterHttpClient center,String fixedModelId) { this.center = center; this.fixedModelId=fixedModelId; }
+    public HttpCenterCommandGateway(CenterHttpClient center,String fixedModelId) { this.center = center; this.fixedModelId=fixedModelId;this.terminal=null; }
+    public boolean isBrowserHosted(){return terminal!=null;}
+    @Override public boolean browserHosted(){return isBrowserHosted();}
+    @Override public void cancellationSignal(java.util.function.BooleanSupplier signal){cancelled=java.util.Objects.requireNonNull(signal);}
+    @Override public List<Attachment> browserAttachments(String sessionId,java.util.function.BooleanSupplier cancelled)throws IOException{
+        ObjectNode params=parameters(sessionId);
+        String requestId=terminalRpc("attachmentRequest",params).path("requestId").asText();
+        if(requestId.isBlank())throw new IOException("中心未创建浏览器附件请求");
+        params.put("requestId",requestId);boolean ready=false;
+        long deadline=System.nanoTime()+java.time.Duration.ofMinutes(5).toNanos();
+        try{
+            while(System.nanoTime()<deadline){
+                if(Thread.currentThread().isInterrupted()||cancelled.getAsBoolean())throw new IOException("图片输入已取消，原任务未提交");
+                JsonNode response=terminalRpc("attachmentPoll",params);
+                String status=response.path("status").asText(response.path("state").asText());
+                if("READY".equals(status)){
+                    List<Attachment> result=new ArrayList<>();
+                    for(JsonNode attachment:response.path("attachments")){
+                        String artifact=id(attachment.path("artifactId").asText());
+                        result.add(new Attachment(attachment.path("name").asText("clipboard-image"),attachment.path("mimeType").asText(),"",artifact));
+                    }
+                    if(result.isEmpty())for(JsonNode artifact:response.path("artifactIds"))result.add(new Attachment("clipboard-image","image/png","",id(artifact.asText())));
+                    if(result.isEmpty()||result.size()>8)throw new IOException("图片附件引用为空或超过上限");
+                    ready=true;return List.copyOf(result);
+                }
+                if(!"PENDING".equals(status))throw new IOException("图片未就绪："+status+"；原任务未提交");
+                try{Thread.sleep(200);}catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IOException("图片输入已中断",interrupted);}
+            }
+            throw new IOException("等待图片超时，请重新输入；原任务未提交");
+        }finally{if(!ready)try{terminalRpc("attachmentCancel",params);}catch(IOException ignored){ /* 原请求仍有中心有限有效期，不提交任务。 */ }}
+    }
+    /** 图片桥复用这个唯一SPI中的有限RPC，不提供任意URL代理。 */
+    public JsonNode terminalRpc(String op,ObjectNode params)throws IOException{
+        if(terminal==null)throw new IOException("本机CLI不使用网页终端RPC");
+        center.replaceToken(terminal.token());ObjectNode body=CanonicalJson.MAPPER.createObjectNode();
+        body.put("op",op);body.set("params",params);return center.post("/paicli/terminal-client/v1/gateway",body,UUID.randomUUID().toString());
+    }
+    private ObjectNode parameters(String sessionId)throws IOException{
+        if(terminal!=null&&!terminal.sessionId.equals(sessionId))throw new IOException("短期能力不能访问其他会话");
+        ObjectNode params=CanonicalJson.MAPPER.createObjectNode();params.put("sessionId",id(sessionId));return params;
+    }
     static String requiredEnv(String name) {
         String value = System.getenv(name);
         if (value == null || value.isBlank()) throw new IllegalArgumentException("缺少环境变量 " + name);
         return value;
     }
     @Override public Session open(OpenSession request) throws IOException {
+        if(terminal!=null){ObjectNode params=parameters(terminal.sessionId);params.set("request",CanonicalJson.MAPPER.valueToTree(request));return CanonicalJson.MAPPER.treeToValue(terminalRpc("open",params),Session.class);}
         JsonNode value;
         if (request.sessionId() != null && !request.sessionId().isBlank()) value = center.get("/paicli/v1/sessions/" + id(request.sessionId()));
         else {
-            ObjectNode body = CanonicalJson.MAPPER.createObjectNode(); body.put("workspaceId", id(request.workspaceId()));
-            if (request.runnerId() == null || request.runnerId().isBlank()) throw new IOException("新会话必须指定 --runner 或 PAICLI_RUNNER_ID");
-            body.put("runnerId", id(request.runnerId()));
-            body.put("modelId", id(fixedModelId==null?requiredEnv("PAICLI_MODEL_ID"):fixedModelId));
+            ObjectNode body = CanonicalJson.MAPPER.createObjectNode();
+            if(request.directoryContextId()!=null&&!request.directoryContextId().isBlank())body.put("directoryContextId",id(request.directoryContextId()));
+            String modelId=fixedModelId==null?System.getenv("PAICLI_MODEL_ID"):fixedModelId;
+            if(modelId!=null&&!modelId.isBlank())body.put("modelId",id(modelId));
             body.put("title", "PaiCLI 终端会话"); body.put("mode", "REACT"); body.put("approvalMode", "ASK");
             value = center.post("/paicli/v1/sessions", body, UUID.randomUUID().toString());
         }
-        if (!request.workspaceId().equals(value.path("workspaceId").asText())) throw new IOException("会话不属于指定工作区");
+        if (request.directoryContextId()!=null&&!request.directoryContextId().isBlank()&&!request.directoryContextId().equals(value.path("directoryContextId").asText())) throw new IOException("会话不属于指定文件目录");
         if(request.runnerId()!=null&&!request.runnerId().isBlank()&&!request.runnerId().equals(value.path("runnerId").asText()))throw new IOException("会话不属于指定Runner");
         checkModel(value);
-        return new Session(value.path("id").asText(), value.path("workspaceId").asText(), value.path("runnerId").asText(),
+        return new Session(value.path("id").asText(), value.path("directoryContextId").asText(), value.path("runnerId").asText(),
             presentationMode(value), value.path("provider").asText(), value.path("model").asText(),value.path("modelId").asText(), value.path("eventCursor").asLong());
     }
     @Override public Turn submit(String sessionId, String text, String mode, List<Attachment> attachments) throws IOException {
+        if(terminal!=null){ObjectNode params=parameters(sessionId);params.put("text",text);params.put("mode",mode);params.set("attachments",CanonicalJson.MAPPER.valueToTree(attachments==null?List.of():attachments));return CanonicalJson.MAPPER.treeToValue(terminalRpc("submit",params),Turn.class);}
         if (text == null || text.isBlank()) throw new IOException("消息不能为空");
         JsonNode session = center.get("/paicli/v1/sessions/" + id(sessionId));
         checkModel(session);
@@ -58,7 +110,7 @@ public final class HttpCenterCommandGateway implements CenterCommandGateway {
         for (Attachment image : attachments == null ? List.<Attachment>of() : attachments) {
             byte[] bytes;
             try { bytes = java.util.Base64.getDecoder().decode(image.base64Data()); } catch (IllegalArgumentException e) { throw new IOException("图片base64无效", e); }
-            JsonNode artifact = center.uploadImage(id(session.path("workspaceId").asText()), image.name(), image.mimeType(), bytes, UUID.randomUUID().toString());
+            JsonNode artifact = center.uploadImage(id(session.path("directoryContextId").asText()), image.name(), image.mimeType(), bytes, UUID.randomUUID().toString());
             artifactIds.add(id(artifact.path("id").asText()));
         }
         JsonNode value = center.mutate("POST", "/paicli/v1/sessions/" + id(sessionId) + "/turns", body, UUID.randomUUID().toString(), session.path("version").asText());
@@ -73,12 +125,32 @@ public final class HttpCenterCommandGateway implements CenterCommandGateway {
         return session.path("approvalMode").asText("ASK").toLowerCase(java.util.Locale.ROOT);
     }
     @Override public CommandResult command(String sessionId, String name, String arguments) throws IOException {
+        if(terminal!=null){
+            ObjectNode params=parameters(sessionId);params.put("name",name);params.put("arguments",arguments);
+            CommandResult result=CanonicalJson.MAPPER.treeToValue(terminalRpc("command",params),CommandResult.class);
+            Object pending=result.data()==null?null:result.data().get("authorizationRequestId");
+            if(pending==null)return result;
+            ObjectNode poll=parameters(sessionId);poll.put("requestId",String.valueOf(pending));
+            boolean resolved=false;long deadline=System.nanoTime()+java.time.Duration.ofMinutes(5).toNanos();
+            try{
+                while(System.nanoTime()<deadline){
+                    if(Thread.currentThread().isInterrupted()||cancelled.getAsBoolean())throw new IOException("网页授权等待已中断，命令未由CLI重试");
+                    JsonNode authorization=terminalRpc("authorizationPoll",poll);
+                    String status=authorization.path("status").asText();
+                    if("APPROVED".equals(status)){resolved=true;return CanonicalJson.MAPPER.treeToValue(authorization.path("result"),CommandResult.class);}
+                    if(!"PENDING".equals(status)){resolved=true;return new CommandResult(false,"网页授权未完成："+status,Map.of());}
+                    try{Thread.sleep(200);}catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IOException("网页授权等待已中断",interrupted);}
+                }
+                throw new IOException("网页授权等待超时；请核对中心状态后重新发起");
+            }finally{if(!resolved)try{terminalRpc("authorizationCancel",poll);}catch(IOException ignored){ /* 不自动重试原命令。 */ }}
+        }
         JsonNode session = center.get("/paicli/v1/sessions/" + id(sessionId));
         ObjectNode body = CanonicalJson.MAPPER.createObjectNode(); body.put("name", name); body.put("arguments", arguments == null ? "" : arguments); body.put("version", session.path("version").asLong());
         JsonNode value = center.mutate("POST", "/paicli/v1/sessions/" + id(sessionId) + "/commands", body, UUID.randomUUID().toString(), session.path("version").asText());
         return new CommandResult(value.path("successful").asBoolean(), value.path("message").asText(), map(value.path("data")));
     }
     @Override public List<Event> events(String sessionId, long afterSequence, int limit) throws IOException {
+        if(terminal!=null){ObjectNode params=parameters(sessionId);params.put("afterSequence",afterSequence);params.put("limit",limit);return CanonicalJson.MAPPER.convertValue(terminalRpc("events",params),new TypeReference<List<Event>>(){});}
         if (afterSequence < 0 || limit < 1 || limit > 500) throw new IOException("事件游标或批量大小非法");
         JsonNode data = center.get("/paicli/v1/sessions/" + id(sessionId) + "/events?after=" + afterSequence + "&limit=" + limit + "&waitSeconds=20");
         List<Event> events = new ArrayList<>();
@@ -90,6 +162,7 @@ public final class HttpCenterCommandGateway implements CenterCommandGateway {
         return List.copyOf(events);
     }
     @Override public List<Event> taskEvents(String taskId,long afterSequence,int limit)throws IOException{
+        if(terminal!=null){ObjectNode params=parameters(terminal.sessionId);params.put("taskId",id(taskId));params.put("afterSequence",afterSequence);params.put("limit",limit);return CanonicalJson.MAPPER.convertValue(terminalRpc("taskEvents",params),new TypeReference<List<Event>>(){});}
         if(afterSequence<0||limit<1||limit>200)throw new IOException("任务事件游标或批量大小非法");
         JsonNode data=center.get("/paicli/v1/tasks/"+id(taskId)+"/events?after="+afterSequence+"&limit="+limit);
         if(!data.isObject()||!data.path("events").isArray()||!data.path("hasMore").isBoolean()
@@ -117,13 +190,35 @@ public final class HttpCenterCommandGateway implements CenterCommandGateway {
             throw new IOException("中心任务事件游标未对应实际完整批次");
         return List.copyOf(result);
     }
+    @Override public CommandResult readTaskLog(String taskId,long afterSequence,long endSequence,int limit)throws IOException{
+        if(afterSequence<0||endSequence<afterSequence||limit<1||limit>200)throw new IOException("任务日志分页范围非法");
+        if(terminal!=null){ObjectNode params=parameters(terminal.sessionId);params.put("taskId",id(taskId));params.put("afterSequence",afterSequence);params.put("endSequence",endSequence);params.put("limit",limit);return CanonicalJson.MAPPER.treeToValue(terminalRpc("taskLog",params),CommandResult.class);}
+        JsonNode data=center.get("/paicli/v1/tasks/"+id(taskId)+"/events?after="+afterSequence+"&endSequence="+endSequence+"&limit="+limit);
+        return new CommandResult(true,"任务日志分页已读取",map(data));
+    }
+    @Override public CommandResult readTaskArtifactText(String taskId,String artifactId,long offset,int limit)throws IOException{
+        if(terminal!=null){ObjectNode params=parameters(terminal.sessionId);params.put("taskId",id(taskId));params.put("artifactId",id(artifactId));params.put("offset",offset);params.put("limit",limit);return CanonicalJson.MAPPER.treeToValue(terminalRpc("readTaskArtifactText",params),CommandResult.class);}
+        JsonNode task=center.get("/paicli/v1/tasks/"+id(taskId));return readArtifactText(id(task.path("sessionId").asText()),artifactId,offset,limit);
+    }
+    @Override public CommandResult publishExport(String sessionId,List<Map<String,Object>> files)throws IOException{
+        ObjectNode params=parameters(sessionId);params.set("files",CanonicalJson.MAPPER.valueToTree(files));
+        return CanonicalJson.MAPPER.treeToValue(terminalRpc("exportPublish",params),CommandResult.class);
+    }
+    @Override public CommandResult readExportSection(String sessionId,String section,long afterId,long endId,int limit)throws IOException{
+        if(!List.of("events","plans","summaries","artifacts","toolCalls","approvals").contains(section)||afterId<0||endId<afterId||limit<1||limit>200)throw new IOException("导出集合分页范围非法");
+        if(terminal!=null){ObjectNode params=parameters(sessionId);params.put("section",section);params.put("afterId",afterId);params.put("endId",endId);params.put("limit",limit);return CanonicalJson.MAPPER.treeToValue(terminalRpc("readExportSection",params),CommandResult.class);}
+        JsonNode data=center.get("/paicli/v1/sessions/"+id(sessionId)+"/export-sections/"+section+"?afterId="+afterId+"&endId="+endId+"&limit="+limit);
+        return new CommandResult(true,"导出集合分页已读取",map(data));
+    }
     @Override public CommandResult readLedger(String sessionId,long afterSequence,long endSequence,int limit)throws IOException{
+        if(terminal!=null){ObjectNode params=parameters(sessionId);params.put("afterSequence",afterSequence);params.put("endSequence",endSequence);params.put("limit",limit);return CanonicalJson.MAPPER.treeToValue(terminalRpc("readLedger",params),CommandResult.class);}
         if(afterSequence<0||endSequence<afterSequence||limit<1||limit>200)throw new IOException("原始账本游标、截止序列或批量大小非法");
         JsonNode data=center.get("/paicli/v1/sessions/"+id(sessionId)+"/ledger?afterSequence="+afterSequence+"&endSequence="+endSequence+"&limit="+limit);
         if(!data.isObject()||!data.path("entries").isArray()||data.path("endSequence").asLong(-1)!=endSequence)throw new IOException("中心账本分页响应与固定截止序列不符");
         return new CommandResult(true,"账本分页已读取",map(data));
     }
     @Override public CommandResult readArtifactText(String sessionId,String artifactId,long offset,int limit)throws IOException{
+        if(terminal!=null){ObjectNode params=parameters(sessionId);params.put("artifactId",id(artifactId));params.put("offset",offset);params.put("limit",limit);return CanonicalJson.MAPPER.treeToValue(terminalRpc("readArtifactText",params),CommandResult.class);}
         if(offset<0||limit<4||limit>1024*1024)throw new IOException("产物字节游标或分段上限非法");
         JsonNode data=center.get("/paicli/v1/artifacts/"+id(artifactId)+"/text?sessionId="+id(sessionId)+"&offset="+offset+"&limit="+limit);
         long size=data.path("size").asLong(-1),next=data.path("nextOffset").asLong(-1);
@@ -138,6 +233,7 @@ public final class HttpCenterCommandGateway implements CenterCommandGateway {
         return new CommandResult(true,"产物分段已读取",map(data));
     }
     @Override public void cancel(String sessionId, String turnId) throws IOException {
+        if(terminal!=null){ObjectNode params=parameters(terminal.sessionId);params.put("turnId",id(turnId));terminalRpc("cancel",params);return;}
         JsonNode task = center.get("/paicli/v1/tasks/" + id(turnId));
         if (!id(sessionId).equals(task.path("sessionId").asText())) throw new IOException("任务不属于当前会话");
         ObjectNode body = CanonicalJson.MAPPER.createObjectNode(); body.put("version", task.path("version").asLong());

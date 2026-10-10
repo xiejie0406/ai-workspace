@@ -34,6 +34,7 @@ async function openDirectory(prompts: PcMcpPrompt[]) {
   mocks.server = server(prompts)
   const wrapper = shallowMount(Connections, { global })
   await flushPromises()
+  await wrapper.findAll('button').find(button => button.text() === '高级能力')!.trigger('click'); await flushPromises();
   await wrapper.findAll('button').find(button => button.text() === '工具 / 资源 / 提示')!.trigger('click')
   await flushPromises()
   return wrapper
@@ -46,12 +47,12 @@ describe('连接页MCP结构化与历史展示目录', () => {
     mocks.permissions = ['paicli:workspace:list', 'paicli:connection:read', 'paicli:connection:manage']
     mocks.request.mockReset()
     mocks.request.mockImplementation((config: { url: string; method?: string }) => {
-      if (config.url === '/paicli/v1/workspaces') return Promise.resolve({ rows: [{ id: '42', version: 7, name: '协议检查工作区', rootPath: 'D:/fixture', rootFingerprint: 'fixed', commandSandbox: 'required', status: 'ACTIVE' }], total: 1 })
+      if (config.url === '/paicli/v1/personal/context') return Promise.resolve({data:{ownerUserId:'42',directoryContext:{id:'42',label:'个人默认目录',path:'D:/fixture',state:'VERIFIED',version:1},models:[],runtime:{ready:false,message:'未联机'},canChat:false,canOpenTerminal:false}}); if(config.url === '/paicli/v1/personal/directories')return Promise.resolve({data:[{id:'42',label:'个人默认目录',path:'D:/fixture',state:'VERIFIED',version:1}]})
       if (config.url === '/paicli/v1/mcp') return Promise.resolve({ data: [mocks.server] })
-      if (config.url === '/paicli/v1/browser') return Promise.resolve({ data: { workspaceId: '42', version: 0, mode: 'DISCONNECTED', connected: false } })
+      if (config.url === '/paicli/v1/browser') return Promise.resolve({ data: { directoryContextId: '42', version: 0, mode: 'DISCONNECTED', connected: false } })
       if (config.url === '/paicli/v1/wechat') return Promise.resolve({ data: null })
       if (config.url === '/paicli/v1/policies') return Promise.resolve({ data: undefined })
-      if (config.url.endsWith('/contents')) return Promise.resolve({ data: { id: '31', workspaceId: '42', mode: 'CONTROL', status: 'QUEUED' } })
+      if (config.url.endsWith('/contents')) return Promise.resolve({ data: { id: '31', directoryContextId: '42', mode: 'CONTROL', status: 'QUEUED' } })
       if (config.url.endsWith('/prompt')) return Promise.resolve({ data: { messages: [{ content: { type: 'text', text: '最近正式回执' } }] } })
       return Promise.resolve({ data: [] })
     })

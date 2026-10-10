@@ -6,7 +6,7 @@ from typing import Any, Generic, TypeVar
 from pydantic import ConfigDict, Field
 
 # Use unified common package import module
-from common_imports import NodeLog, NodeTraceLog
+from agent.common_imports import NodeLog, NodeTraceLog
 
 T = TypeVar("T", bound=NodeLog)
 

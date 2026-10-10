@@ -32,6 +32,57 @@ public final class HttpCenterClient implements CenterClient {
     private final ObjectMapper mapper;
     private final Exchange exchange;
 
+    @SuppressWarnings("unchecked")
+    @Override public Map<String, Object> openJavaHistory(Lease lease, String nodeId) {
+        return post(lease, "history/java/open", Map.of("leaseId", lease.leaseId(), "attempt", lease.attempt(), "nodeId", nodeId), Map.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override public Map<String, Object> resource(Lease lease, String resourceId) {
+        if (resourceId == null || resourceId.isBlank() || resourceId.equals(".") || resourceId.equals("..")) {
+            throw new WorkerException("RESOURCE_UNAVAILABLE", "中心资源标识无效");
+        }
+        String identifier = URLEncoder.encode(resourceId, StandardCharsets.UTF_8).replace("+", "%20");
+        return post(lease, "resources/" + identifier, leaseBody(lease), Map.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override public Map<String, Object> operation(Lease lease, String nodeId, String operation,
+            Map<String, Object> parameters, String idempotencyKey) {
+        ObjectNode request = mapper.createObjectNode().put("leaseId", lease.leaseId()).put("attempt", lease.attempt())
+                .put("nodeId", nodeId).putNull("iterationId").put("operation", operation)
+                .put("idempotencyKey", idempotencyKey);
+        request.set("parameters", mapper.valueToTree(parameters));
+        // 正式逐次操作必填iterationId，顶层节点须显式null；旧effects/artifacts仍沿用省略规则。
+        return post(lease, "operations", request, Map.class, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override public Map<String, Object> operationFrames(Lease lease, String operationId, long afterCursor, int limit) {
+        if (afterCursor < 0 || afterCursor > 10000 || limit < 1 || limit > 64) {
+            throw new WorkerException("OPERATION_PROTOCOL_INVALID", "模型原帧游标或批量超出公开契约");
+        }
+        return post(lease, operationPath(operationId, "frames"), Map.of("leaseId", lease.leaseId(),
+                "attempt", lease.attempt(), "afterCursor", afterCursor, "limit", limit), Map.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override public Map<String, Object> operationStatus(Lease lease, String operationId) {
+        return post(lease, operationPath(operationId, "status"), leaseBody(lease), Map.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override public Map<String, Object> cancelOperation(Lease lease, String operationId) {
+        return post(lease, operationPath(operationId, "cancel"), leaseBody(lease), Map.class);
+    }
+
+    private static String operationPath(String operationId, String action) {
+        if (operationId == null || operationId.isBlank() || operationId.equals(".") || operationId.equals("..")) {
+            throw new WorkerException("OPERATION_PROTOCOL_INVALID", "中心操作标识无效");
+        }
+        return "operations/" + URLEncoder.encode(operationId, StandardCharsets.UTF_8).replace("+", "%20") + "/" + action;
+    }
+
     public HttpCenterClient(URI endpoint, String serviceToken, ObjectMapper mapper) {
         this(endpoint, serviceToken, mapper, defaultExchange());
     }
@@ -75,7 +126,17 @@ public final class HttpCenterClient implements CenterClient {
         if (data.path("cancelRequested").asBoolean()) throw new WorkerException("RUN_CANCELLED", "中心已经请求取消运行");
         try {
             requireAssignmentFields(data.get("assignment"));
-            Assignment assignment = mapper.treeToValue(data.get("assignment"), Assignment.class);
+            ObjectNode internal = ((ObjectNode)data.get("assignment")).deepCopy();
+            if (data.has("executionContext")) {
+                JsonNode context = data.get("executionContext");
+                if (!context.isNull()) requireExecutionContext(context);
+                JsonNode embedded = internal.get("executionContext");
+                if (embedded != null && !embedded.isNull() && !embedded.equals(context))
+                    throw new WorkerException("LEASE_LOST", "中心顶层执行上下文与任务内上下文不一致");
+                // 正式verify在顶层提供上下文。仅装配内部授权对象，原DSL/固定hash不修改。
+                internal.set("executionContext", context.deepCopy());
+            }
+            Assignment assignment = mapper.treeToValue(internal, Assignment.class);
             if (!data.path("dslHash").isTextual() || !data.path("dslHash").asText().equals(assignment.dslHash())
                     || !data.path("workflowVersionId").isTextual() || !data.path("workflowVersionId").asText().equals(assignment.workflowVersionId())
                     || !data.path("lastEventSeq").isIntegralNumber() || data.path("lastEventSeq").asLong(-1) != assignment.lastEventSeq()) {
@@ -152,6 +213,9 @@ public final class HttpCenterClient implements CenterClient {
     }
 
     private static void requireAssignmentFields(JsonNode assignment) {
+        if (assignment.has("executionContext") && !assignment.get("executionContext").isNull()) {
+            requireExecutionContext(assignment.get("executionContext"));
+        }
         for (String field : java.util.List.of("schemaVersion", "runId", "workflowVersionId", "dslHash", "dslCanonicalBase64",
                 "engineProfile", "input", "resourceSnapshots", "attempt", "leaseId", "deadline", "effectPolicy", "dsl", "lastEventSeq")) {
             if (!assignment.hasNonNull(field)) throw new WorkerException("LEASE_LOST", "中心任务缺少必填字段：" + field);
@@ -169,19 +233,39 @@ public final class HttpCenterClient implements CenterClient {
         }
     }
 
+    private static void requireExecutionContext(JsonNode context) {
+        if (!context.isObject() || context.size() != 4) throw new WorkerException("LEASE_LOST", "中心执行历史上下文形状无效");
+        for (String field : java.util.List.of("flowId", "userId", "appId", "chatId")) {
+            if (!context.path(field).isTextual() || context.path(field).asText().length() > 255)
+                throw new WorkerException("LEASE_LOST", "中心执行历史上下文字段无效");
+        }
+        if (!context.path("userId").asText().matches("ruoyi:[1-9][0-9]{0,18}"))
+            throw new WorkerException("LEASE_LOST", "中心执行历史主体无效");
+    }
+
     private <T> T post(Lease lease, String suffix, Object body, Class<T> type) {
+        return post(lease, suffix, body, type, false);
+    }
+
+    private <T> T post(Lease lease, String suffix, Object body, Class<T> type, boolean preserveNulls) {
         String runId = URLEncoder.encode(lease.runId(), StandardCharsets.UTF_8).replace("+", "%20");
-        return postPath("internal/paiflow/v1/runs/" + runId + "/" + suffix, body, type);
+        return postPath("internal/paiflow/v1/runs/" + runId + "/" + suffix, body, type, preserveNulls);
     }
 
     private <T> T postPath(String path, Object body, Class<T> type) {
+        return postPath(path, body, type, false);
+    }
+
+    private <T> T postPath(String path, Object body, Class<T> type, boolean preserveNulls) {
         try {
             URI uri = endpoint.resolve(path);
             ObjectNode message = mapper.valueToTree(body);
             // 机器事件时间固定ISO-8601字符串，不能依赖调用者Jackson的日期序列化开关。
             if (body instanceof Event event && event.timestamp() != null) message.put("timestamp", event.timestamp().toString());
-            message.properties().stream().filter(entry -> entry.getValue().isNull()).map(Map.Entry::getKey).toList()
-                    .forEach(message::remove);
+            if (!preserveNulls) {
+                message.properties().stream().filter(entry -> entry.getValue().isNull()).map(Map.Entry::getKey).toList()
+                        .forEach(message::remove);
+            }
             HttpRequest request = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(10))
                     .header("Authorization", "Bearer " + serviceToken).header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofByteArray(mapper.writeValueAsBytes(message))).build();

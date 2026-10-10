@@ -5,10 +5,10 @@ from typing import Any, Dict, List
 import aiohttp
 from openai import BaseModel
 
-from common_imports import Span
-from exceptions.plugin_exc import KnowledgeQueryExc
-from infra import agent_config
-from service.plugin.base import BasePlugin
+from agent.common_imports import Span
+from agent.exceptions.plugin_exc import KnowledgeQueryExc
+from agent.infra import agent_config
+from agent.service.plugin.base import BasePlugin
 
 
 class KnowledgePlugin(BasePlugin):

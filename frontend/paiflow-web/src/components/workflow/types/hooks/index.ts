@@ -7,6 +7,15 @@ import {
   NewNodeType,
 } from '../drawer/chat-debugger';
 import React from 'react';
+import type {
+  NodeDataType as WorkflowNodeData,
+  InputType,
+  OutputType,
+  WorkflowProperty,
+  WorkflowSchema,
+  ReferenceType,
+  NodeParameters,
+} from '..';
 
 // Hook 相关类型定义
 
@@ -42,17 +51,17 @@ export interface UseNodeInfoReturn {
   isDecisionMakingNode: boolean;
   isIfElseNode: boolean;
   isIteratorNode: boolean;
-  isIteratorChildNode: boolean;
+  isIteratorChildNode: boolean | string | undefined;
   isAgentNode: boolean;
   isStartOrEndNode: boolean;
   isCodeNode: boolean;
   isDataBaseNode: boolean;
   showInputs: boolean;
   showOutputs: boolean;
-  showExceptionFlow: boolean;
+  showExceptionFlow: boolean | undefined;
   references: ReferenceItem[];
   inputs: InputItem[];
-  outputs: OutputItem[];
+  outputs: OutputType[];
   showNodeOperation: boolean;
   currentNode?: {
     id: string;
@@ -60,28 +69,29 @@ export interface UseNodeInfoReturn {
     data?: NodeDataType;
     [key: string]: unknown;
   };
-  nodeParam: Record<string, unknown>;
-  nodeIcon: string;
-  nodeDesciption: string;
-  isThinkModel: boolean;
+  nodeParam: NodeParameters;
+  nodeIcon?: string;
+  nodeDesciption?: string;
+  isFixedInputsNode: boolean;
+  isRpaNode: boolean;
 }
 
 export interface UseNodeFuncReturn {
   handleNodeClick: () => void;
-  handleChangeNodeParam: (
-    fn: (data: NodeDataType, value: unknown) => void,
-    value: unknown
+  handleChangeNodeParam: <T>(
+    fn: (data: NodeDataType, value: T) => void,
+    value: T
   ) => void;
-  handleChangeOutputParam: (
+  handleChangeOutputParam: <T>(
     outputId: string,
-    fn: (data: OutputItem, value: unknown) => void,
-    value: unknown
+    fn: (data: OutputItem, value: T, nodeData: NodeDataType) => void,
+    value: T
   ) => void;
   handleIteratorEndChange: (
     type: 'add' | 'remove' | 'replace',
     outputId: string,
     value?: unknown,
-    currentNode?: NodeDataType
+    currentNode?: { data: NodeDataType }
   ) => void;
   handleAddOutputLine: () => void;
   handleRemoveOutputLine: (outputId: string) => void;
@@ -90,17 +100,7 @@ export interface UseNodeFuncReturn {
 
 export interface UseNodeOutputRenderReturn {
   handleCustomOutputGenerate: () => void;
-  renderOutputComponent: (
-    output: OutputItem,
-    outputs: OutputItem[],
-    reset: {
-      disabled?: boolean;
-      typeStringOnly?: boolean;
-      hasDescription?: boolean;
-      hasRef?: boolean;
-      allowRemove?: boolean;
-    }
-  ) => React.ReactElement;
+  renderOutputComponent: (output: OutputItem) => React.ReactElement;
   outputTypeList: Array<{
     label: string;
     value: string;
@@ -111,100 +111,43 @@ export interface UseNodeOutputRenderReturn {
   }>;
 }
 
+export interface WorkflowModelSummary {
+  llmId?: string | number;
+  [key: string]: unknown;
+}
+
 export interface UseNodeModelsReturn {
-  models: Array<{
-    llmId?: string;
-    [key: string]: unknown;
-  }>;
-  model: {
-    llmId?: string;
-    [key: string]: unknown;
-  };
-  isThinkModel: boolean;
+  models: WorkflowModelSummary[];
+  model?: WorkflowModelSummary;
+  isThinkModel: boolean | undefined;
 }
 
-export interface NodeDataType {
-  nodeParam?: Record<string, unknown>;
-  inputs?: InputItem[];
-  outputs?: OutputItem[];
-  references?: ReferenceItem[];
-  retryConfig?: RetryConfig;
-  parentId?: string;
-}
-
-export interface InputItem {
-  id: string;
-  name: string;
-  schema?: SchemaType;
-  type?: string;
-  required?: boolean;
-}
-
-export interface OutputItem {
-  id: string;
-  name: string;
-  schema?: SchemaType;
-  type?: string;
-  required?: boolean;
-  fileType?: string;
-  allowedFileType?: string[];
-  deleteDisabled?: boolean;
-  customParameterType?: string;
-  isChild?: boolean;
-  nameErrMsg?: string;
-  properties?: PropertyItem[];
-}
-
-export interface PropertyItem {
-  id: string;
-  name: string;
-  type: string;
-  default?: string;
-  required?: boolean;
-  key?: string;
-  isChild?: boolean;
-  title?: React.ReactElement;
-  properties?: PropertyItem[];
-}
-
-export interface ReferenceItem {
-  id?: string;
-  label: string;
-  value: string;
-}
-
-export interface SchemaType {
-  type?: string;
-  default?: string;
-  properties?: PropertyItem[];
-  value?: {
-    type?: string;
-    content?: Record<string, unknown>;
-    contentErrMsg?: string;
-  };
-}
-
-export interface RetryConfig {
-  shouldRetry?: boolean;
-  errorStrategy?: number;
-  customOutput?: string;
-}
+export type NodeDataType = WorkflowNodeData;
+export type InputItem = InputType;
+// 对象叶子沿用原直接 type/default 形状，不强制具备顶层输出的 schema/id。
+export type OutputItem = WorkflowProperty;
+export type PropertyItem = WorkflowProperty;
+export type ReferenceItem = ReferenceType;
+export type SchemaType = WorkflowSchema;
+export type RetryConfig = NonNullable<WorkflowNodeData['retryConfig']>;
 
 export interface UseNodeCommonReturn {
+  isFixedInputsNode: boolean;
+  allowNoInputParams: boolean;
   handleNodeClick: () => void;
-  handleChangeNodeParam: (
-    fn: (data: NodeDataType, value: unknown) => void,
-    value: unknown
+  handleChangeNodeParam: <T>(
+    fn: (data: NodeDataType, value: T) => void,
+    value: T
   ) => void;
-  handleChangeInputParam: (
+  handleChangeInputParam: <T>(
     inputId: string,
-    fn: (data: InputItem, value: unknown) => void,
-    value: unknown
+    fn: (data: InputItem, value: T) => void,
+    value: T
   ) => void;
-  handleChangeOutputParam: (
+  handleChangeOutputParam: <T>(
     outputId: string,
-    fn: (data: OutputItem, value: unknown) => void,
-    value: unknown
+    fn: (data: OutputItem, value: T, nodeData: NodeDataType) => void,
+    value: T
   ) => void;
   handleAddOutputLine: () => void;
   handleRemoveOutputLine: (outputId: string) => void;
@@ -215,25 +158,23 @@ export interface UseNodeCommonReturn {
     type?: string;
   }) => React.ReactElement;
   renderTypeInput: (output: OutputItem) => React.ReactElement;
-  addUniqueComponentToProperties: (schemasArray: OutputItem[]) => OutputItem[];
+  addUniqueComponentToProperties: (schemasArray: OutputType[]) => OutputType[];
   renderTypeOneClickUpdate: () => React.ReactElement | null;
   handleAddInputLine: () => void;
   handleRemoveInputLine: (inputId: string) => void;
   nodeType: string;
   isConnectable: boolean;
-  nodeParam: Record<string, unknown>;
+  nodeParam: NodeParameters;
   canvasesDisabled: boolean;
   isStartNode: boolean;
+  isEndNode: boolean;
   hasTargetHandle: boolean;
   hasSourceHandle: boolean;
   sourceHandleId?: string;
   exceptionHandleId?: string;
-  model?: {
-    llmId?: string;
-    [key: string]: unknown;
-  };
+  model?: WorkflowModelSummary;
   nodeIcon?: string;
-  nodeDesciption: string;
+  nodeDesciption?: string;
   isIteratorStart: boolean;
   isIteratorEnd: boolean;
   isKnowledgeNode: boolean;
@@ -241,17 +182,17 @@ export interface UseNodeCommonReturn {
   isDecisionMakingNode: boolean;
   isIfElseNode: boolean;
   isIteratorNode: boolean;
-  isIteratorChildNode: boolean;
+  isIteratorChildNode: boolean | string | undefined;
   isAgentNode: boolean;
   isStartOrEndNode: boolean;
   isRpaNode?: boolean;
   isCodeNode: boolean;
   showInputs: boolean;
   showOutputs: boolean;
-  showExceptionFlow: boolean;
+  showExceptionFlow: boolean | undefined;
   references: ReferenceItem[];
   inputs: InputItem[];
-  outputs: OutputItem[];
+  outputs: OutputType[];
   showNodeOperation: boolean;
   currentNode?: {
     id: string;
@@ -259,10 +200,7 @@ export interface UseNodeCommonReturn {
     data?: NodeDataType;
     [key: string]: unknown;
   };
-  models: Array<{
-    llmId?: string;
-    [key: string]: unknown;
-  }>;
+  models: WorkflowModelSummary[];
   outputTypeList: Array<{
     label: string;
     value: string;
@@ -271,7 +209,7 @@ export interface UseNodeCommonReturn {
       value: string;
     }>;
   }>;
-  isThinkModel: boolean;
+  isThinkModel: boolean | undefined;
 }
 
 export interface UseFlowCommonReturn {
@@ -304,10 +242,10 @@ export interface UseNodeHandleReturn {
 export interface UseNodeInputRenderReturn {
   allowNoInputParams: boolean;
   renderTypeInput: (output: OutputItem) => React.ReactElement;
-  handleChangeInputParam: (
+  handleChangeInputParam: <T>(
     inputId: string,
-    fn: (data: InputItem, value: unknown) => void,
-    value: unknown
+    fn: (data: InputItem, value: T) => void,
+    value: T
   ) => void;
   handleAddInputLine: () => void;
   handleRemoveInputLine: (inputId: string) => void;

@@ -14,7 +14,7 @@ public final class PcEvidence {
     public Map<String,Object> event(PcRecord session,Long task,String key,String type,Map<String,Object> payload){
         PcRecord previous=key==null?null:store.mapper.findKey(PcTable.EVENT,key,false);if(previous!=null)return eventView(previous);
         PcRecord locked=store.require(PcTable.SESSION,session.getId(),true);locked.setSequenceNumber(locked.getSequenceNumber()+1);store.save(PcTable.SESSION,locked,store.data(locked));
-        PcRecord row=store.insert(PcTable.EVENT,session.getWorkspaceId(),session.getOwnerId(),task,session.getId(),null,type,"APPENDED",key,Map.of("type",type,"payload",payload));
+        PcRecord row=store.insert(PcTable.EVENT,session.getDirectoryContextId(),session.getOwnerId(),task,session.getId(),null,type,"APPENDED",key,Map.of("type",type,"payload",payload));
         row.setSequenceNumber(locked.getSequenceNumber());row.setExpiresAt(store.clock.instant().plusSeconds(86400L*retentionDays));store.save(PcTable.EVENT,row,store.data(row));return eventView(row);
     }
     public Map<String,Object> eventView(PcRecord r){Map<String,Object> payload=new LinkedHashMap<>(PcJson.object(store.data(r),"payload"));if(r.getParentId()!=null)payload.put("taskId",String.valueOf(r.getParentId()));Map<String,Object> view=new LinkedHashMap<>();view.put("eventId",String.valueOf(r.getId()));view.put("sequence",r.getSequenceNumber());view.put("type",r.getKind());view.put("payload",payload);view.put("occurredAt",r.getCreatedAt().toString());if(r.getParentId()!=null)view.put("taskId",String.valueOf(r.getParentId()));return view;}

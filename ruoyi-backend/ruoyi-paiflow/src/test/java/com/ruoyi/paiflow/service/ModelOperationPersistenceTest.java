@@ -56,6 +56,7 @@ public class ModelOperationPersistenceTest {
     private JdbcDataSource db;private java.sql.Connection schema;private SqlSessionTemplate session;private ModelMapper models;private ModelOperationMapper operations;private RunMapper runMapper;private SpaceMapper spaces;private SysPermissionService permissions;
     private ModelOperationService service;private RunService runService;private RunLeaseService leases;private ModelRuntimeCatalog catalog;private WorkflowService workflows;
     private long space,modelId,modelVersionId;private ModelRuntimeCatalog.FixedModel fixed;private JSONObject execution,resources;
+    private JSONObject runResourcesExpectation;
     private final WorkerIdentityService.Principal worker=new WorkerIdentityService.Principal("isolated-python","python");
     private final MutableClock clock=new MutableClock();
     private final AtomicReference<InvocationPolicy> policy=new AtomicReference<>();
@@ -95,7 +96,7 @@ public class ModelOperationPersistenceTest {
         var config=new Configuration(new Environment("model-operation-isolated",new SpringManagedTransactionFactory(),db));
         config.getTypeAliasRegistry().registerAlias("SysMenu",SysMenu.class);
         for(String name:List.of("SpaceMapper","ModelMapper","RunMapper","ModelOperationMapper","IdentityMapper"))try(var xml=getClass().getResourceAsStream("/mapper/paiflow/"+name+".xml")){assertNotNull(xml);new XMLMapperBuilder(xml,config,name,config.getSqlFragments()).parse();}
-        try(var xml=Files.newInputStream(Path.of("../ruoyi-system/src/main/resources/mapper/system/SysMenuMapper.xml"))){new XMLMapperBuilder(xml,config,"SysMenuMapper",config.getSqlFragments()).parse();}
+        try(var xml=Files.newInputStream(Path.of(System.getProperty("paiflow.systemSource","../ruoyi-system")).resolve("src/main/resources/mapper/system/SysMenuMapper.xml"))){new XMLMapperBuilder(xml,config,"SysMenuMapper",config.getSqlFragments()).parse();}
         session=new SqlSessionTemplate(new SqlSessionFactoryBuilder().build(config));spaces=session.getMapper(SpaceMapper.class);models=session.getMapper(ModelMapper.class);runMapper=session.getMapper(RunMapper.class);operations=session.getMapper(ModelOperationMapper.class);
         var s=new SpaceRecord();s.setName("operation source fixture");s.setKind("personal");s.setOwnerUserId(42L);s.setCreateBy("fixture");s.setUpdateBy("fixture");assertEquals(1,spaces.insert(s));space=s.getId();assertEquals(1,spaces.insertOwner(space,42,"fixture"));
         var users=mock(ISysUserService.class);var user=new SysUser();user.setUserId(42L);user.setUserName("fixture");user.setStatus("0");user.setDelFlag("0");when(users.selectUserById(42L)).thenReturn(user);
@@ -107,20 +108,44 @@ public class ModelOperationPersistenceTest {
         var canvas=JSON.parseObject("{\"nodes\":[{\"id\":\"node-start::s\",\"data\":{}},{\"id\":\"spark-llm::m\",\"data\":{\"inputs\":[{\"name\":\"q\",\"type\":\"string\"}],\"outputs\":[{\"name\":\"answer\",\"type\":\"string\"}],\"nodeParam\":{\"modelId\":"+modelId+",\"source\":\"openai\",\"domain\":\"actual-domain\",\"template\":\"{{q}}\"}}},{\"id\":\"node-end::e\",\"data\":{}}],\"edges\":[{\"source\":\"node-start::s\",\"target\":\"spark-llm::m\"},{\"source\":\"spark-llm::m\",\"target\":\"node-end::e\"}]}");
         execution=WorkflowModelCompiler.compile(canvas,(id,source,domain)->fixed).execution();var normalized=new DslCodec().normalize(execution);
         workflows=mock(WorkflowService.class);when(workflows.runtimeSnapshot(2)).thenReturn(new WorkflowService.RuntimeSnapshot(1,2,space,42,"actual-flow","python",normalized.executionHash(),DslCodec.canonicalDslBase64(normalized.execution()),normalized.execution(),canvas,new JSONObject(),new JSONObject(),resources));
-        var leaseTarget=new RunLeaseService(runMapper,spaces,users,permissions,clock);leaseTarget.useCurrentSession(session);leases=proxy(leaseTarget);var target=new ModelOperationService(operations,runMapper,spaces,leases,catalog,clock);target.useCurrentSession(session);service=proxy(target);target.usePorts(provider(policy::get),provider(credentials::get),provider(bridge::get),provider(()->service));
+        var leaseTarget=new RunLeaseService(runMapper,spaces,users,permissions,clock);leaseTarget.useCurrentSession(session);leases=proxy(leaseTarget);var target=new ModelOperationService(operations,runMapper,spaces,leases,catalog,clock);target.useCurrentSession(session);target.useCompletedSources(new CompletedOutputSources(null,operations,null));service=proxy(target);target.usePorts(provider(policy::get),provider(credentials::get),provider(bridge::get),provider(()->service));
         var runTarget=new RunService(workflows,runMapper,access,identities);runService=proxy(runTarget);runTarget.useModelOperations(provider(()->service));ports();
     }
     @AfterEach void close() throws Exception {SecurityContextHolder.clearContext();org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();if(schema!=null)schema.close();}
     private void seedModel(){var m=new ModelRecord();m.setSpaceId(space);m.setOwnerUserId(42L);m.setName("model fixture");m.setType(1);m.setState("VALIDATED");m.setEnabled(1);m.setRevision(0L);m.setConfigurationJson(JSONObject.of("domain","actual-domain","provider","source-provider-label","endpoint","https://private-provider.invalid/v1/chat/completions","credentialRef","env:ISOLATED_PRIVATE_REFERENCE").toJSONString());m.setCandidateHash("a".repeat(64));m.setCredentialVersion("isolated-ref-v1");m.setReceiptJson("{\"testFixture\":true}");m.setCreateBy("fixture");m.setUpdateBy("fixture");assertEquals(1,models.insert(m));modelId=m.getId();var v=new ModelVersionRecord();v.setModelId(modelId);v.setSpaceId(space);v.setOwnerUserId(42L);v.setRevision(0L);v.setType(1);v.setState("VALIDATED");v.setEnabled(1);v.setConfigurationJson(m.getConfigurationJson());v.setCandidateHash(m.getCandidateHash());v.setCredentialVersion(m.getCredentialVersion());v.setReceiptJson(m.getReceiptJson());v.setCreateBy("fixture");assertEquals(1,models.insertVersion(v));modelVersionId=v.getId();assertEquals(1,models.selectVersion(modelId,0,modelVersionId));}
     private void ports(){
         policy.set(new InvocationPolicy(){
-            public RunPermit approveRun(RunCandidate c){assertEquals(42,c.ownerUserId());assertEquals(space,c.spaceId());assertEquals("实际中心输入",JSON.parseObject(c.inputJson()).getString("q"));assertEquals(resources,JSON.parseObject(c.resourcesJson()));Runnable hook=approveRunHook.getAndSet(null);if(hook!=null)hook.run();return new RunPermit(c.fingerprint(),"isolated-run-approval",clock.instant().plusSeconds(120));}
+            public RunPermit approveRun(RunCandidate c){assertEquals(42,c.ownerUserId());assertEquals(space,c.spaceId());assertEquals("实际中心输入",JSON.parseObject(c.inputJson()).getString("q"));assertEquals(runResourcesExpectation==null?resources:runResourcesExpectation,JSON.parseObject(c.resourcesJson()));Runnable hook=approveRunHook.getAndSet(null);if(hook!=null)hook.run();return new RunPermit(c.fingerprint(),"isolated-run-approval",clock.instant().plusSeconds(120));}
             public boolean currentRun(RunCandidate c,RunPermit p){Runnable hook=currentRunHook.getAndSet(null);if(hook!=null)hook.run();return Objects.equals(c.fingerprint(),p.fingerprint());}
             public CallPermit approveCall(CallCandidate c){assertEquals("spark-llm::m",c.nodeId());assertEquals(fixed.resourceId(),c.resourceId());assertEquals(String.valueOf(modelVersionId),c.resourceVersion());assertEquals("{{q}}",JSON.parseObject(c.nodeJson()).getJSONObject("data").getJSONObject("nodeParam").getString("template"));JSONObject params=JSON.parseObject(c.parametersJson());String input=JSON.parseObject(c.inputJson()).getString("q");if(!params.getJSONArray("messages").equals(new JSONArray(List.of(JSONObject.of("role","user","content",input)))))throw new ServiceException("isolated policy: messages来源与中心输入不匹配",403);return new CallPermit(c.fingerprint(),"isolated-call-approval",clock.instant().plusSeconds(callSeconds.get()));}
             public boolean currentCall(CallCandidate c,CallPermit p){Runnable hook=currentCallHook.getAndSet(null);if(hook!=null)hook.run();return Objects.equals(c.fingerprint(),p.fingerprint());}
         });
         credentials.set(new CredentialMaterialPort(){public boolean available(ModelRuntimeCatalog.FixedModel f){return f.modelVersionId()==modelVersionId;}public PrivateMaterial resolve(ModelRuntimeCatalog.FixedModel f){assertFalse(TransactionSynchronizationManager.isActualTransactionActive());resolves.incrementAndGet();return new PrivateMaterial(f.credentialRef(),f.credentialVersion(),f.privateBaseUrl(),fixtureKey);}});
         bridge.set(new ProducerBridge(){public boolean available(ModelRuntimeCatalog.FixedModel f){return "openai".equals(f.provider());}public DispatchAck submit(PrivateGrant g,ProducerCallbacks callbacks){assertFalse(TransactionSynchronizationManager.isActualTransactionActive());submits.incrementAndGet();lastGrant.set(g);assertTrue(callbacks.assertActive(g).getBooleanValue("active"));return new DispatchAck(g.operationId(),g.grantId(),true);}public StopEvidence stop(String operation,String grant,String reason){assertFalse(TransactionSynchronizationManager.isActualTransactionActive());assertEquals("worker_cancel",reason);stops.incrementAndGet();return stopEvidence.get();}});
+    }
+    @Test void modelAdmissionSeparatesPluginFromModelResourcesWithoutGrantingToolEffects() throws Exception {
+        var mixed=JSON.parseObject(execution.toJSONString());
+        mixed.getJSONArray("nodes").add(JSONObject.of("id","plugin::tool","data",JSONObject.of("nodeParam",
+            JSONObject.of("toolResourceId","tool:8:version:9:operation:bG9va3Vw"))));
+        var bindings=JSON.parseObject(resources.toJSONString());
+        bindings.put("tool:8:version:9:operation:bG9va3Vw",JSONObject.of("kind","tool","provider","spark-link","version","9"));
+        runResourcesExpectation=bindings;
+        var permit=service.admit(UUID.randomUUID().toString(),42,space,2,"a".repeat(64),
+            JSONObject.of("q","实际中心输入"),bindings,mixed,clock.instant().plusSeconds(300));
+        assertNotNull(permit.get("approvalRef"));
+        assertEquals(0,submits.get());assertEquals(0,resolves.get());assertEquals(0,rows("paiflow_model_operation"));
+        // 此方法只签模型运行许可；RunService还须独立调用真实ToolOperationService.admit。
+        mixed.getJSONArray("nodes").getJSONObject(mixed.getJSONArray("nodes").size()-1).put("id","agent::unconnected");
+        assertEquals(503,assertThrows(ServiceException.class,()->service.admit(UUID.randomUUID().toString(),42,space,2,
+            "a".repeat(64),JSONObject.of("q","实际中心输入"),bindings,mixed,clock.instant().plusSeconds(60))).getCode());
+    }
+    @Test void pluginWithoutAnyModelCannotAcquireModelRunPermit() {
+        var mixed=JSON.parseObject(execution.toJSONString());
+        mixed.getJSONArray("nodes").removeIf(raw->((JSONObject)raw).getString("id").startsWith("spark-llm::"));
+        mixed.getJSONArray("nodes").add(JSONObject.of("id","plugin::tool","data",JSONObject.of("nodeParam",new JSONObject())));
+        assertThrows(ServiceException.class,()->service.admit(UUID.randomUUID().toString(),42,space,2,"a".repeat(64),
+            new JSONObject(),new JSONObject(),mixed,clock.instant().plusSeconds(60)));
+        assertEquals(0,submits.get());assertEquals(0,resolves.get());
     }
     private JSONObject claim(){var run=runService.create(2,"python",JSONObject.of("q","实际中心输入"),"fixture_"+UUID.randomUUID().toString().replace("-",""),300);var task=leases.claim(worker);assertEquals(run.runId(),task.getString("runId"));leases.beginExecution(run.runId(),worker,task.getString("leaseId"),task.getIntValue("attempt"));return task;}
     private static JSONObject node(JSONObject execution){return execution.getJSONArray("nodes").getJSONObject(1);}
@@ -133,6 +158,8 @@ public class ModelOperationPersistenceTest {
     private void sql(String statement) throws Exception {try(var c=db.getConnection();var s=c.createStatement()){s.execute(statement);}}
     private int fixtureUpdate(String statement) throws Exception {try(var c=db.getConnection();var s=c.createStatement()){return s.executeUpdate(statement);}}
     private void menuStatus(String permission,String status){try{assertEquals(1,fixtureUpdate("UPDATE sys_menu SET status='"+status+"' WHERE perms='"+permission+"'"));}catch(Exception ex){throw new IllegalStateException(ex);}}
+    @Test void oldCandidateFingerprintWithoutPrivateInputFieldStillReadsAndReplays() throws Exception {var task=claim();var request=request(task,"legacy_candidate");var ack=service.start(task.getString("runId"),worker,request);var row=operations.find(ack.getString("operationId"));var approval=JSON.parseObject(row.getApprovalJson());var facts=approval.getJSONObject("candidate");assertNotNull(facts.remove("verifiedInputsJson"));String fingerprint=ModelOperationJson.sha(ModelOperationJson.canonical(facts,ModelOperationJson.REQUEST_BYTES));approval.put("fingerprint",fingerprint);try(var connection=db.getConnection();var statement=connection.prepareStatement("UPDATE paiflow_model_operation SET approval_json=? WHERE id=?")){statement.setString(1,ModelOperationJson.canonical(approval,ModelOperationJson.REQUEST_BYTES));statement.setString(2,row.getId());assertEquals(1,statement.executeUpdate());}session.clearCache();assertEquals(ack,service.start(task.getString("runId"),worker,request));assertEquals(1,submits.get());assertEquals(1,resolves.get());}
+
     @Test void actualRunAdmissionPersistsBoundApprovalAndNeverPublicPrivateMaterial() throws Exception {
         var task=claim();var stored=runMapper.find(task.getString("runId"));assertNotNull(stored.getModelPermitJson());assertEquals("approved_write",task.getJSONObject("effectPolicy").getString("mode"));assertEquals(resources,task.getJSONObject("resourceSnapshots"));assertFalse(stored.getAssignmentJson().contains("private-provider.invalid"));assertFalse(stored.getAssignmentJson().contains("ISOLATED_PRIVATE_REFERENCE"));assertFalse(stored.getAssignmentJson().contains(fixtureKey));assertEquals(0,rows("paiflow_model_operation"));assertEquals(0,submits.get());assertEquals(0,resolves.get());
     }

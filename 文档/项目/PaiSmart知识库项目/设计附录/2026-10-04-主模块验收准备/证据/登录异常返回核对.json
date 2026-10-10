@@ -1,0 +1,67 @@
+{
+  "checkedAt": "2026-10-04T22:42:52.4455973+08:00",
+  "scope": "现有若依登录拒绝异常的隔离MVC机制核对，不改变验证码、认证或共享异常处理",
+  "conclusion": "原处理器能够返回HTTP200和业务code500及准确中文拒绝消息；当前验证码日志不能独立证明真实HTTP500传输缺陷，未修改共享处理器",
+  "handlerMatchesSavedRuoYiReference": true,
+  "productionSourceChanges": 0,
+  "cases": [
+    {
+      "passed": true,
+      "httpStatus": 200,
+      "message": "验证码已失效",
+      "exception": "CaptchaExpireException",
+      "businessCode": 500
+    },
+    {
+      "passed": true,
+      "httpStatus": 200,
+      "message": "验证码错误",
+      "exception": "CaptchaException",
+      "businessCode": 500
+    },
+    {
+      "passed": true,
+      "httpStatus": 200,
+      "message": "用户不存在/密码错误",
+      "exception": "UserPasswordNotMatchException",
+      "businessCode": 500
+    }
+  ],
+  "backendFacts": [
+    "CaptchaExpireException、CaptchaException、UserPasswordNotMatchException均继承UserException→BaseException→RuntimeException，现有handler按原若依机制分类为运行时异常并返回AjaxResult.error(message)",
+    "SysLoginService继续检查验证码启用配置，检查原Redis captcha键，验证码消费后删除，失效/不符仍拒绝；本次未关闭或绕过验证码",
+    "当前消息资源保留正确中文提示，现有log堆栈含验证码错误/失效消息而非消息解析失败"
+  ],
+  "frontendFacts": {
+    "business500": "HTTP成功时读取res.data.code及msg，code500显示原msg",
+    "source": "frontend/admin-web/src/utils/request.js:89-137",
+    "transport500": "axiosHTTP失败才进入“系统接口500异常”的分支",
+    "distinction": "前端真实HTTP500提示和HTTP200业务code500为两个不同事实，不仅凭异常日志混同"
+  },
+  "maven": {
+    "command": "mvn -o -pl ruoyi-paismart -am -Dtest=GlobalLoginFailureProbeTest -Dsurefire.failIfNoSpecifiedTests=false -DskipTests=false test",
+    "errors": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "method": "Spring MockMvc standalone使用实际GlobalExceptionHandler和实际UserException子类；StaticMessageSource只为隔离运行提供原中文资源，未连接真实登录、Redis或DB",
+    "failures": 0,
+    "privateFixture": ".runtime/paismart/model-integration-implementation/backend-check/backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/api/GlobalLoginFailureProbeTest.java",
+    "log": ".runtime/paismart/model-integration-implementation/backend-check/login-exception-probe.log",
+    "tests": 3
+  },
+  "parentReportedCurrentState": {
+    "userManualLoginSucceeded": true,
+    "priorProxy500OccurredDuringCenterRestart": true,
+    "source": "主对话提供的最新核实结果，本代理未重新访问真实接口",
+    "directAndProxyCaptcha200": true
+  },
+  "limits": [
+    "隔离测试不证明实际账户密码、验证码Redis全链路或真实浏览器登录成功",
+    "验证的是当前处理器的消息和HTTP契约，不改变原业务拒绝code500",
+    "未访问真实登录/API、密钥、数据库；未部署或重启服务"
+  ],
+  "realApiCalls": 0,
+  "fullRealKeysRead": false,
+  "databaseWrites": 0,
+  "serviceOperations": 0
+}

@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:application:v1",
+  "title": "PaiFlow中心私有应用登记与固定版本调用",
+  "description": "应用登记与平台登录调用契约；READY不表示外部渠道发布或API key已接通。If-Match为先前读取的应用revision，运行另需Idempotency-Key。",
+  "$defs": {
+    "CreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "appName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        },
+        "appDescribe": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "appName"
+          ]
+        }
+      ]
+    },
+    "BindingRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agentId",
+        "workflowVersionId"
+      ],
+      "properties": {
+        "agentId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "workflowVersionId": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "InvocationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "input": {
+          "type": "object"
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600,
+          "default": 600
+        }
+      }
+    },
+    "Application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "appId",
+        "spaceId",
+        "ownerUserId",
+        "name",
+        "appName",
+        "state",
+        "revision",
+        "workflowVersionId",
+        "publicationStatus",
+        "credentialStatus",
+        "appKey",
+        "appSecret"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "appId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "spaceId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "ownerUserId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "appName": {
+          "type": "string"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "appDescribe": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "enum": [
+            "UNBOUND",
+            "READY",
+            "DISABLED"
+          ]
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "botId": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "workflowId": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "workflowVersionId": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "dslHash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "engineProfile": {
+          "enum": [
+            "java",
+            "python",
+            null
+          ]
+        },
+        "applicationBindingStatus": {
+          "enum": [
+            "unconfigured",
+            "bound"
+          ]
+        },
+        "publicationStatus": {
+          "const": "unpublished"
+        },
+        "credentialStatus": {
+          "const": "unconfigured"
+        },
+        "appKey": {
+          "type": "null"
+        },
+        "appSecret": {
+          "type": "null"
+        },
+        "createTime": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ]
+        },
+        "updateTime": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/Application"
+}

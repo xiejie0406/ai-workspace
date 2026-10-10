@@ -1,0 +1,1649 @@
+[ {
+  "variant" : 0,
+  "scope" : "原Java SDK实际本机SSE与中心Exchange技术夹具，非真实Provider/非中心准入",
+  "originalWire" : {
+    "messages" : [ {
+      "content" : "系统",
+      "role" : "system"
+    }, {
+      "content" : "问题",
+      "role" : "user"
+    } ],
+    "model" : "original-model",
+    "stream" : true,
+    "stream_options" : {
+      "include_usage" : true
+    },
+    "enable_thinking" : true
+  },
+  "rawFrames" : [ {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : " ",
+        "reasoning_content" : "思"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : "原文本",
+        "reasoning_content" : "考"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : ""
+      },
+      "finish_reason" : "stop"
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ ],
+    "usage" : {
+      "prompt_tokens" : 4,
+      "completion_tokens" : 3,
+      "total_tokens" : 7
+    }
+  } ],
+  "actualRequest" : {
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "nodeId" : "spark-llm::2",
+    "iterationId" : null,
+    "operation" : "model.invoke",
+    "idempotencyKey" : "java-model-run:1:spark-llm::2:model.invoke:8a81eb66d3835c021eb617ae0478f9e2047e686bc97da3241e76120160085cdf",
+    "parameters" : {
+      "resourceId" : "model:1:version:2",
+      "resourceVersion" : "2",
+      "provider" : "openai",
+      "modelName" : "original-model",
+      "mode" : "chat",
+      "messages" : [ {
+        "content" : "系统",
+        "role" : "system"
+      }, {
+        "content" : "问题",
+        "role" : "user"
+      } ],
+      "options" : {
+        "maxTokens" : null,
+        "temperature" : null,
+        "topP" : null,
+        "presencePenalty" : null,
+        "frequencyPenalty" : null,
+        "n" : null,
+        "streamUsage" : true,
+        "enableThinking" : true
+      }
+    }
+  },
+  "actualCallbacks" : [ {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "STOP",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "STOP",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "STOP",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "STOP",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 4,
+        "completionTokens" : 3,
+        "totalTokens" : 7,
+        "nativeUsage" : {
+          "completion_tokens" : 3,
+          "prompt_tokens" : 4,
+          "total_tokens" : 7
+        }
+      },
+      "promptMetadata" : [ ],
+      "empty" : true
+    }
+  } ],
+  "actualOutput" : {
+    "usage" : {
+      "promptTokens" : 4,
+      "completionTokens" : 3,
+      "totalTokens" : 7,
+      "nativeUsage" : {
+        "completion_tokens" : 3,
+        "prompt_tokens" : 4,
+        "total_tokens" : 7
+      }
+    },
+    "content" : "原文本",
+    "thinkContent" : "思考"
+  }
+}, {
+  "variant" : 1,
+  "scope" : "原Java SDK实际本机SSE与中心Exchange技术夹具，非真实Provider/非中心准入",
+  "originalWire" : {
+    "messages" : [ {
+      "content" : "系统",
+      "role" : "system"
+    }, {
+      "content" : "问题",
+      "role" : "user"
+    } ],
+    "model" : "original-model",
+    "frequency_penalty" : 0.0,
+    "max_tokens" : 12,
+    "n" : 1,
+    "presence_penalty" : 0.0,
+    "stream" : true,
+    "stream_options" : {
+      "include_usage" : true
+    },
+    "temperature" : 0.0,
+    "top_p" : 0.0,
+    "enable_thinking" : true
+  },
+  "rawFrames" : [ {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : " ",
+        "reasoning_content" : "思"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : "原文本",
+        "reasoning_content" : "考"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : ""
+      },
+      "finish_reason" : "stop"
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ ],
+    "usage" : {
+      "prompt_tokens" : 4,
+      "completion_tokens" : 3,
+      "total_tokens" : 7
+    }
+  } ],
+  "actualRequest" : {
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "nodeId" : "spark-llm::2",
+    "iterationId" : null,
+    "operation" : "model.invoke",
+    "idempotencyKey" : "java-model-run:1:spark-llm::2:model.invoke:d7e641f44937a9ee94a4297f536b6e1ed82e6b74fa35dceea7129a4e40532c1d",
+    "parameters" : {
+      "resourceId" : "model:1:version:2",
+      "resourceVersion" : "2",
+      "provider" : "openai",
+      "modelName" : "original-model",
+      "mode" : "chat",
+      "messages" : [ {
+        "content" : "系统",
+        "role" : "system"
+      }, {
+        "content" : "问题",
+        "role" : "user"
+      } ],
+      "options" : {
+        "maxTokens" : 12,
+        "temperature" : 0.0,
+        "topP" : 0.0,
+        "presencePenalty" : 0.0,
+        "frequencyPenalty" : 0.0,
+        "n" : 1,
+        "streamUsage" : true,
+        "enableThinking" : true
+      }
+    }
+  },
+  "actualCallbacks" : [ {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "STOP",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "STOP",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "STOP",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "STOP",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 4,
+        "completionTokens" : 3,
+        "totalTokens" : 7,
+        "nativeUsage" : {
+          "completion_tokens" : 3,
+          "prompt_tokens" : 4,
+          "total_tokens" : 7
+        }
+      },
+      "promptMetadata" : [ ],
+      "empty" : true
+    }
+  } ],
+  "actualOutput" : {
+    "usage" : {
+      "promptTokens" : 4,
+      "completionTokens" : 3,
+      "totalTokens" : 7,
+      "nativeUsage" : {
+        "completion_tokens" : 3,
+        "prompt_tokens" : 4,
+        "total_tokens" : 7
+      }
+    },
+    "content" : "原文本",
+    "thinkContent" : "思考"
+  }
+}, {
+  "variant" : 2,
+  "scope" : "原Java SDK实际本机SSE与中心Exchange技术夹具，非真实Provider/非中心准入",
+  "originalWire" : {
+    "messages" : [ {
+      "content" : "系统",
+      "role" : "system"
+    }, {
+      "content" : "问题",
+      "role" : "user"
+    } ],
+    "model" : "original-model",
+    "max_tokens" : 32,
+    "stream" : true,
+    "stream_options" : {
+      "include_usage" : true
+    },
+    "enable_thinking" : true
+  },
+  "rawFrames" : [ {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : " ",
+        "reasoning_content" : "思"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : "原文本",
+        "reasoning_content" : "考"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : ""
+      },
+      "finish_reason" : "stop"
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ ],
+    "usage" : {
+      "prompt_tokens" : 4,
+      "completion_tokens" : 3,
+      "total_tokens" : 7
+    }
+  } ],
+  "actualRequest" : {
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "nodeId" : "spark-llm::2",
+    "iterationId" : null,
+    "operation" : "model.invoke",
+    "idempotencyKey" : "java-model-run:1:spark-llm::2:model.invoke:f2512dc38aadf92a4b23b2ac1115d5397f7e4f3370e850dd31759e96fd550300",
+    "parameters" : {
+      "resourceId" : "model:1:version:2",
+      "resourceVersion" : "2",
+      "provider" : "openai",
+      "modelName" : "original-model",
+      "mode" : "chat",
+      "messages" : [ {
+        "content" : "系统",
+        "role" : "system"
+      }, {
+        "content" : "问题",
+        "role" : "user"
+      } ],
+      "options" : {
+        "maxTokens" : 32,
+        "temperature" : null,
+        "topP" : null,
+        "presencePenalty" : null,
+        "frequencyPenalty" : null,
+        "n" : null,
+        "streamUsage" : true,
+        "enableThinking" : true
+      }
+    }
+  },
+  "actualCallbacks" : [ {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "STOP",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "STOP",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "STOP",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "STOP",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 4,
+        "completionTokens" : 3,
+        "totalTokens" : 7,
+        "nativeUsage" : {
+          "completion_tokens" : 3,
+          "prompt_tokens" : 4,
+          "total_tokens" : 7
+        }
+      },
+      "promptMetadata" : [ ],
+      "empty" : true
+    }
+  } ],
+  "actualOutput" : {
+    "usage" : {
+      "promptTokens" : 4,
+      "completionTokens" : 3,
+      "totalTokens" : 7,
+      "nativeUsage" : {
+        "completion_tokens" : 3,
+        "prompt_tokens" : 4,
+        "total_tokens" : 7
+      }
+    },
+    "content" : "原文本",
+    "thinkContent" : "思考"
+  }
+}, {
+  "variant" : 3,
+  "scope" : "原Java SDK实际本机SSE与中心Exchange技术夹具，非真实Provider/非中心准入",
+  "originalWire" : {
+    "messages" : [ {
+      "content" : "系统",
+      "role" : "system"
+    }, {
+      "content" : "问题",
+      "role" : "user"
+    } ],
+    "model" : "original-model",
+    "max_tokens" : 32,
+    "n" : 2,
+    "stream" : true,
+    "stream_options" : {
+      "include_usage" : true
+    },
+    "enable_thinking" : true
+  },
+  "rawFrames" : [ {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : " ",
+        "reasoning_content" : "思"
+      },
+      "finish_reason" : null
+    }, {
+      "index" : 1,
+      "delta" : {
+        "role" : "assistant",
+        "content" : "第二choice",
+        "reasoning_content" : "思"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : "原文本",
+        "reasoning_content" : "考"
+      },
+      "finish_reason" : null
+    }, {
+      "index" : 1,
+      "delta" : {
+        "role" : "assistant",
+        "content" : "第二choice",
+        "reasoning_content" : "考"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : ""
+      },
+      "finish_reason" : "stop"
+    }, {
+      "index" : 1,
+      "delta" : {
+        "role" : "assistant",
+        "content" : ""
+      },
+      "finish_reason" : "stop"
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ ],
+    "usage" : {
+      "prompt_tokens" : 4,
+      "completion_tokens" : 3,
+      "total_tokens" : 7
+    }
+  } ],
+  "actualRequest" : {
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "nodeId" : "spark-llm::2",
+    "iterationId" : null,
+    "operation" : "model.invoke",
+    "idempotencyKey" : "java-model-run:1:spark-llm::2:model.invoke:5e6cccf5b567d6624325d6e50b5795898682ba6253994167edddfbf36a3e724d",
+    "parameters" : {
+      "resourceId" : "model:1:version:2",
+      "resourceVersion" : "2",
+      "provider" : "openai",
+      "modelName" : "original-model",
+      "mode" : "chat",
+      "messages" : [ {
+        "content" : "系统",
+        "role" : "system"
+      }, {
+        "content" : "问题",
+        "role" : "user"
+      } ],
+      "options" : {
+        "maxTokens" : 32,
+        "temperature" : null,
+        "topP" : null,
+        "presencePenalty" : null,
+        "frequencyPenalty" : null,
+        "n" : 2,
+        "streamUsage" : true,
+        "enableThinking" : true
+      }
+    }
+  },
+  "actualCallbacks" : [ {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "STOP",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "STOP",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "STOP",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "STOP",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 4,
+        "completionTokens" : 3,
+        "totalTokens" : 7,
+        "nativeUsage" : {
+          "completion_tokens" : 3,
+          "prompt_tokens" : 4,
+          "total_tokens" : 7
+        }
+      },
+      "promptMetadata" : [ ],
+      "empty" : true
+    }
+  } ],
+  "actualOutput" : {
+    "usage" : {
+      "promptTokens" : 4,
+      "completionTokens" : 3,
+      "totalTokens" : 7,
+      "nativeUsage" : {
+        "completion_tokens" : 3,
+        "prompt_tokens" : 4,
+        "total_tokens" : 7
+      }
+    },
+    "content" : "原文本",
+    "thinkContent" : "思考"
+  }
+}, {
+  "variant" : 4,
+  "scope" : "原Java SDK实际本机SSE与中心Exchange技术夹具，非真实Provider/非中心准入",
+  "originalWire" : {
+    "messages" : [ {
+      "content" : "系统",
+      "role" : "system"
+    }, {
+      "content" : "问题",
+      "role" : "user"
+    } ],
+    "model" : "original-model",
+    "max_tokens" : 32,
+    "stream" : true,
+    "stream_options" : {
+      "include_usage" : true
+    },
+    "enable_thinking" : true
+  },
+  "rawFrames" : [ {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : " ",
+        "reasoning_content" : "思"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : "原文本",
+        "reasoning_content" : "考"
+      },
+      "finish_reason" : null
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ {
+      "index" : 0,
+      "delta" : {
+        "role" : "assistant",
+        "content" : ""
+      },
+      "finish_reason" : "length"
+    } ]
+  }, {
+    "id" : "fixture-id",
+    "object" : "chat.completion.chunk",
+    "created" : 1,
+    "model" : "original-model",
+    "choices" : [ ],
+    "usage" : {
+      "prompt_tokens" : 4,
+      "completion_tokens" : 3,
+      "total_tokens" : 7
+    }
+  } ],
+  "actualRequest" : {
+    "leaseId" : "java-model-lease",
+    "attempt" : 1,
+    "nodeId" : "spark-llm::2",
+    "iterationId" : null,
+    "operation" : "model.invoke",
+    "idempotencyKey" : "java-model-run:1:spark-llm::2:model.invoke:f2512dc38aadf92a4b23b2ac1115d5397f7e4f3370e850dd31759e96fd550300",
+    "parameters" : {
+      "resourceId" : "model:1:version:2",
+      "resourceVersion" : "2",
+      "provider" : "openai",
+      "modelName" : "original-model",
+      "mode" : "chat",
+      "messages" : [ {
+        "content" : "系统",
+        "role" : "system"
+      }, {
+        "content" : "问题",
+        "role" : "user"
+      } ],
+      "options" : {
+        "maxTokens" : 32,
+        "temperature" : null,
+        "topP" : null,
+        "presencePenalty" : null,
+        "frequencyPenalty" : null,
+        "n" : null,
+        "streamUsage" : true,
+        "enableThinking" : true
+      }
+    }
+  },
+  "actualCallbacks" : [ {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "思"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : " "
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : "考"
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : "原文本"
+      },
+      "metadata" : {
+        "finishReason" : "",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 0,
+        "completionTokens" : 0,
+        "nativeUsage" : { },
+        "totalTokens" : 0
+      },
+      "promptMetadata" : [ ],
+      "empty" : false
+    }
+  }, {
+    "result" : {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "LENGTH",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "LENGTH",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    },
+    "results" : [ {
+      "output" : {
+        "messageType" : "ASSISTANT",
+        "metadata" : {
+          "role" : "ASSISTANT",
+          "messageType" : "ASSISTANT",
+          "finishReason" : "LENGTH",
+          "refusal" : "",
+          "annotations" : [ ],
+          "index" : 0,
+          "id" : "fixture-id",
+          "reasoningContent" : ""
+        },
+        "toolCalls" : [ ],
+        "media" : [ ],
+        "text" : ""
+      },
+      "metadata" : {
+        "finishReason" : "LENGTH",
+        "contentFilters" : [ ],
+        "empty" : true
+      }
+    } ],
+    "metadata" : {
+      "id" : "fixture-id",
+      "model" : "original-model",
+      "rateLimit" : {
+        "requestsRemaining" : 0,
+        "requestsLimit" : 0,
+        "tokensLimit" : 0,
+        "requestsReset" : 0,
+        "tokensReset" : 0,
+        "tokensRemaining" : 0
+      },
+      "usage" : {
+        "promptTokens" : 4,
+        "completionTokens" : 3,
+        "totalTokens" : 7,
+        "nativeUsage" : {
+          "completion_tokens" : 3,
+          "prompt_tokens" : 4,
+          "total_tokens" : 7
+        }
+      },
+      "promptMetadata" : [ ],
+      "empty" : true
+    }
+  } ],
+  "actualOutput" : {
+    "usage" : {
+      "promptTokens" : 4,
+      "completionTokens" : 3,
+      "totalTokens" : 7,
+      "nativeUsage" : {
+        "completion_tokens" : 3,
+        "prompt_tokens" : 4,
+        "total_tokens" : 7
+      }
+    },
+    "content" : "原文本",
+    "thinkContent" : "思考"
+  }
+} ]

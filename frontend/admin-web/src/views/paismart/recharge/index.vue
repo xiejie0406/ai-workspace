@@ -83,23 +83,23 @@ async function showQr(current:number){
 }
 function schedule(){clearTimeout(timer);if(!disposed&&order.value&&payable(order.value.state)&&!expired(order.value))timer=setTimeout(()=>void refreshOrder(),5000)}
 async function submit(data:{packageId?:Id;customAmountFen?:number}){
-  if(saving.value||uncertain.value)return;saving.value=true;error.value='';clearTimeout(timer);const current=++serial
-  try{const response=await createOrder(data,key);if(disposed||current!==serial)return;order.value=response.data;key=newKey();await showQr(current);schedule();await loadHistory()}
-  catch(e){if(current===serial)error.value=errorText(e)}finally{saving.value=false}
+  if(disposed||saving.value||uncertain.value)return;saving.value=true;error.value='';clearTimeout(timer);const current=++serial
+  try{const response=await createOrder(data,key);if(disposed||current!==serial)return;order.value=response.data;key=newKey();await showQr(current);if(disposed||current!==serial)return;schedule();await loadHistory()}
+  catch(e){if(!disposed&&current===serial)error.value=errorText(e)}finally{if(!disposed)saving.value=false}
 }
 function orderPackage(id:Id){void submit({packageId:id})}
 function customOrder(){void submit({customAmountFen:Math.round(amount.value*100)})}
 async function readOrder(tradeNo:string,updateHistory=false){
-  if(polling.value||saving.value)return;polling.value=true;error.value='';clearTimeout(timer);const current=++serial
-  try{const response=await getOrder(tradeNo);if(disposed||current!==serial)return;order.value=response.data;await showQr(current);schedule();if(updateHistory)await loadHistory()}
-  catch(e){if(current===serial)error.value=errorText(e)}finally{polling.value=false}
+  if(disposed||polling.value||saving.value)return;polling.value=true;error.value='';clearTimeout(timer);const current=++serial
+  try{const response=await getOrder(tradeNo);if(disposed||current!==serial)return;order.value=response.data;await showQr(current);if(disposed||current!==serial)return;schedule();if(updateHistory)await loadHistory()}
+  catch(e){if(!disposed&&current===serial)error.value=errorText(e)}finally{if(!disposed)polling.value=false}
 }
 async function refreshOrder(updateHistory=false){if(order.value)await readOrder(order.value.tradeNo,updateHistory)}
 async function selectOrder(row:Order){await readOrder(row.tradeNo)}
 onMounted(async()=>{
   loading.value=true;const historyLoad=loadHistory()
-  try{packages.value=(await listPackages()).rows.filter(p=>p.enabled);if(typeof route.query.tradeNo==='string')await readOrder(route.query.tradeNo)}
-  catch(e){error.value=errorText(e)}finally{loading.value=false}
+  try{const response=await listPackages();if(disposed)return;packages.value=response.rows.filter(p=>p.enabled);if(typeof route.query.tradeNo==='string')await readOrder(route.query.tradeNo)}
+  catch(e){if(!disposed)error.value=errorText(e)}finally{if(!disposed)loading.value=false}
   await historyLoad
 })
 onBeforeUnmount(()=>{disposed=true;serial++;clearTimeout(timer);clearQr()})

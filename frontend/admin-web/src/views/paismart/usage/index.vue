@@ -1,6 +1,6 @@
 <template><div class="app-container ps-page"><h2>用量与余额</h2><el-alert v-if="error||pageError" :title="error||pageError" type="error" :closable="false"/><el-card v-if="eligible===false" shadow="never" class="ps-section"><template #header>领取知识库资格</template><el-form inline><el-form-item label="邀请码"><el-input v-model="inviteCode" maxlength="64" autocomplete="off"/></el-form-item><el-button type="primary" :loading="claiming" :disabled="!inviteCode.trim()" @click="claim">领取资格</el-button></el-form></el-card><div class="ps-toolbar"><el-button :loading="loading" @click="refresh">刷新用量</el-button><el-button v-hasPermi="['paismart:usage:audit']" @click="loadOverview">查看管理范围汇总</el-button></div><template v-if="snapshot"><p>额度政策：{{snapshot.policy?.mode==='DAILY'?'每日限额':snapshot.policy?.mode==='BALANCE'?'余额扣减':'未返回'}} · 业务日期 {{snapshot.businessDay||'未返回'}} · 今日聊天请求 {{number(snapshot.chatRequestCount)}} · 累计聊天请求 {{number(snapshot.totalChatRequestCount)}}</p><div class="ps-grid"><el-card v-for="scope in quotaScopes" :key="scope.label" shadow="never"><template #header>{{scope.label}}</template><strong class="ps-card-value">{{number(scope.quota?.remainingTokens)}} Token</strong><QuotaScopeSummary :quota="scope.quota"/><p>累计消耗 {{number(scope.quota?.consumed)}} · 欠额 {{number(scope.quota?.debt)}}</p></el-card></div></template><UsageOverview v-if="overviewOpen" :overview="overview" :days="overviewDays" :loading="overviewLoading" :error="overviewError" @change="loadOverview"/><el-card v-if="snapshot?.daily?.length" shadow="never" class="ps-section"><template #header>每日用量与请求</template><el-table :data="snapshot.daily"><el-table-column prop="businessDay" label="日期"/><el-table-column prop="scope" label="用途"/><el-table-column prop="usedTokens" label="实际用量"/><el-table-column prop="reservedTokens" label="预占用量"/><el-table-column prop="requestCount" label="请求次数"/></el-table></el-card><el-form inline><el-form-item label="用量类型"><el-select v-model="query.kind" clearable><el-option label="对话" value="LLM"/><el-option label="向量" value="EMBEDDING"/><el-option label="充值与追加" value="CREDIT"/></el-select></el-form-item><el-form-item label="起止日期"><el-date-picker v-model="dates" type="daterange" value-format="YYYY-MM-DD" start-placeholder="开始日期" end-placeholder="结束日期"/></el-form-item><el-form-item label="用户 ID"><el-input v-model="query.userId" placeholder="管理审计权限由服务端判定"/></el-form-item><el-button @click="search">查询流水</el-button></el-form><el-table :data="rows" v-loading="loading"><el-table-column prop="createdAt" label="发生时间" min-width="180"/><el-table-column prop="userName" label="用户" min-width="130"/><el-table-column prop="scope" label="用途" width="110"/><el-table-column prop="action" label="变动类型" width="120"/><el-table-column prop="tokens" label="Token 变化" width="130"/><el-table-column prop="availableAfter" label="变动后可用" width="120"/><el-table-column prop="frozenAfter" label="变动后冻结" width="120"/><el-table-column prop="debtAfter" label="未结算欠额" width="120"/><el-table-column prop="reason" label="原因" min-width="240"/><el-table-column prop="correlationId" label="关联记录" min-width="220" show-overflow-tooltip/></el-table><el-pagination v-model:current-page="query.pageNum" :page-size="query.pageSize" :total="total" layout="total,prev,pager,next" @current-change="load()"/><el-empty v-if="!snapshot&&!loading&&!pageError" description="尚未读取用量，请刷新"/></div></template>
 <script setup lang="ts">
-import { computed,onMounted,ref,shallowRef } from 'vue'
+import { computed,onBeforeUnmount,onMounted,ref,shallowRef } from 'vue'
 import {claimEligibility,myMembership} from '@/api/paismart/spaces'
 import { myUsage,usageOverview,usageRecords } from '@/api/paismart/usage'
 import type { Usage,UsageOverview as Overview } from '@/types/paismart'
@@ -9,12 +9,26 @@ import QuotaScopeSummary from '../components/QuotaScopeSummary.vue'
 import UsageOverview from './components/UsageOverview.vue'
 import '../common.css'
 const {rows,total,query,loading,error,load}=usePage(usageRecords),snapshot=shallowRef<Usage>(),pageError=ref(''),dates=ref<string[]>([]),eligible=ref<boolean>(),inviteCode=ref(''),claiming=ref(false)
-async function refresh(){pageError.value='';try{const member=(await myMembership()).data;eligible.value=member.eligible??member.enabled;if(!eligible.value){snapshot.value=undefined;return}snapshot.value=(await myUsage()).data;await load()}catch(e){pageError.value=errorText(e)}}
+let refreshSerial=0,active=true
+async function refresh(){
+  if(!active)return
+  const current=++refreshSerial;pageError.value=''
+  try{
+    const member=(await myMembership()).data
+    if(!active||current!==refreshSerial)return
+    eligible.value=member.eligible??member.enabled
+    if(!eligible.value){snapshot.value=undefined;return}
+    const response=await myUsage()
+    if(!active||current!==refreshSerial)return
+    snapshot.value=response.data;await load()
+  }catch(e){if(active&&current===refreshSerial)pageError.value=errorText(e)}
+}
 async function claim(){claiming.value=true;pageError.value='';try{await claimEligibility(inviteCode.value.trim());inviteCode.value='';await refresh()}catch(e){pageError.value=errorText(e)}finally{claiming.value=false}}
 const overview=shallowRef<Overview>(),overviewOpen=ref(false),overviewDays=ref(7),overviewLoading=ref(false),overviewError=ref('')
 const number=(value:number|null|undefined)=>value==null?'未返回':value.toLocaleString(),quotaScopes=computed(()=>[{label:'对话额度',quota:snapshot.value?.llm},{label:'向量额度',quota:snapshot.value?.embedding}])
 let overviewSerial=0
-async function loadOverview(days?:number|MouseEvent){overviewDays.value=typeof days==='number'?days:overviewDays.value;overviewOpen.value=true;overviewLoading.value=true;overviewError.value='';const current=++overviewSerial;try{const response=await usageOverview({days:overviewDays.value});if(current===overviewSerial)overview.value=response.data}catch(e){if(current===overviewSerial)overviewError.value=errorText(e)}finally{if(current===overviewSerial)overviewLoading.value=false}}
+async function loadOverview(days?:number|MouseEvent){if(!active)return;overviewDays.value=typeof days==='number'?days:overviewDays.value;overviewOpen.value=true;overviewLoading.value=true;overviewError.value='';const current=++overviewSerial;try{const response=await usageOverview({days:overviewDays.value});if(active&&current===overviewSerial)overview.value=response.data}catch(e){if(active&&current===overviewSerial)overviewError.value=errorText(e)}finally{if(active&&current===overviewSerial)overviewLoading.value=false}}
 function search(){query.value.startTime=dates.value?.[0];query.value.endTime=dates.value?.[1];void load(true)}
+onBeforeUnmount(()=>{active=false;refreshSerial++;overviewSerial++})
 onMounted(()=>void refresh())
 </script>

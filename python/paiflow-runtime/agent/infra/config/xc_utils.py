@@ -2,7 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 # Use unified common package import module
-from common_imports import ip
+from agent.common_imports import ip
 
 
 class XChenUtilsConfig(BaseSettings):

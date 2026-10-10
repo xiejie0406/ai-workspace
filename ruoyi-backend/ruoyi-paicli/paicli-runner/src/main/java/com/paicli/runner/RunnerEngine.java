@@ -16,6 +16,9 @@ public final class RunnerEngine implements AutoCloseable {
     @FunctionalInterface public interface TaskExecutor { String execute(RunnerLease lease, CenterToolRegistry tools) throws Exception; }
     private final CenterHttpClient center;
     private final ResourceFingerprint resources;
+    private final PersonalDirectoryContext personalDirectories;
+    private final Path lockHome;
+    private final Path state;
     private final ReceiptSpool spool;
     private final TaskExecutor executor;
     private final ScheduledExecutorService heartbeats = Executors.newSingleThreadScheduledExecutor(r -> { Thread t = new Thread(r, "paicli-runner-heartbeat"); t.setDaemon(true); return t; });
@@ -23,6 +26,7 @@ public final class RunnerEngine implements AutoCloseable {
     private final FileLock rootLock;
     private final WorkspaceLockDirectory.Held stateLock;
     private final DeviceCredentialCache credentials;
+    private final RunnerTerminalHost terminalHost;
     private String deviceToken;
     private volatile java.time.Instant sessionExpiry=java.time.Instant.MIN;
     private volatile boolean closed;
@@ -34,15 +38,26 @@ public final class RunnerEngine implements AutoCloseable {
         this(center, root, stateDirectory, executor, deviceToken, credentials, Path.of(System.getProperty("user.home")));
     }
     RunnerEngine(CenterHttpClient center,Path root,Path stateDirectory,TaskExecutor executor,String deviceToken,DeviceCredentialCache credentials,Path lockHome)throws IOException{
+        this(center,root,stateDirectory,executor,deviceToken,credentials,lockHome,null);
+    }
+    public RunnerEngine(CenterHttpClient center,Path stateDirectory,TaskExecutor executor,String deviceToken,DeviceCredentialCache credentials,PersonalDirectoryContext directories)throws IOException{
+        this(center,directories.runtime(),stateDirectory,executor,deviceToken,credentials,Path.of(System.getProperty("user.home")),directories);
+    }
+    RunnerEngine(CenterHttpClient center,Path stateDirectory,TaskExecutor executor,String deviceToken,DeviceCredentialCache credentials,PersonalDirectoryContext directories,Path lockHome)throws IOException{
+        this(center,directories.runtime(),stateDirectory,executor,deviceToken,credentials,lockHome,directories);
+    }
+    private RunnerEngine(CenterHttpClient center,Path root,Path stateDirectory,TaskExecutor executor,String deviceToken,DeviceCredentialCache credentials,Path lockHome,PersonalDirectoryContext directories)throws IOException{
+        this.personalDirectories=directories;this.lockHome=lockHome;
         this.deviceToken=deviceToken;this.credentials=credentials;
         this.center = center; resources = new ResourceFingerprint(root); this.executor = executor;
         Path requestedState = stateDirectory.toAbsolutePath().normalize();
+        if(directories!=null&&requestedState.startsWith(directories.home()))throw new IOException("Runner私有派生状态不能放在本人文件目录内");
         if (requestedState.startsWith(resources.root())) throw new IOException("Runner 证据缓存必须位于工作区外，避免改变资源摘要");
-        Path state = RunnerPrivateDirectory.createDirectories(requestedState).toRealPath();
+        state = RunnerPrivateDirectory.createDirectories(requestedState).toRealPath();
         RunnerPrivateDirectory.requireDirectory(state);
         if (state.startsWith(resources.root())) throw new IOException("Runner 证据缓存必须位于工作区外，避免改变资源摘要");
         Path locks = WorkspaceLockDirectory.prepare(lockHome);
-        WorkspaceLockDirectory.Held rootHeld=WorkspaceLockDirectory.acquire(locks,resources.rootFingerprint()+".lock");
+        WorkspaceLockDirectory.Held rootHeld=WorkspaceLockDirectory.acquire(locks,(directories==null?"":"host-")+resources.rootFingerprint()+".lock");
         WorkspaceLockDirectory.Held stateHeld=null;
         try {
             stateHeld=WorkspaceLockDirectory.acquire(locks,"state-"+CanonicalJson.sha256(state.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8))+".lock");
@@ -50,25 +65,59 @@ public final class RunnerEngine implements AutoCloseable {
         } catch(IOException|RuntimeException failure){try {if(stateHeld!=null)stateHeld.close();}finally{rootHeld.close();}throw failure;}
         stateLock=stateHeld;
         rootLockChannel=rootHeld.channel();rootLock=rootHeld.lock();
+        RunnerTerminalHost requestedHost=null;
+        try{
+            if("true".equalsIgnoreCase(System.getenv("PAICLI_WEB_TERMINAL_ENABLED")))requestedHost=new RunnerTerminalHost(center,resources.root(),state,directories);
+        }catch(IOException failure){try{stateLock.close();}finally{try{rootLock.release();}finally{rootLockChannel.close();}}throw failure;}
+        terminalHost=requestedHost;
     }
     public JsonNode connect() throws IOException {
-        JsonNode response=exchangeSession();replayReceipts();return response;
+        JsonNode response=exchangeSession();replayReceipts();if(terminalHost!=null)terminalHost.start();return response;
+    }
+    /** 运营宿主核验已经存在的本人子目录；浏览器或模型传入任意外部路径不能扩展边界。 */
+    public JsonNode proveDirectory(Path directory)throws IOException{
+        if(personalDirectories==null)throw new IOException("旧固定根宿主不支持个人目录证明");
+        renewSession();ObjectNode proof=personalDirectories.proof(directory);
+        JsonNode result=center.post("/paicli/runner/v1/personal-directory-proof",proof,UUID.randomUUID().toString());
+        ObjectNode envelope=CanonicalJson.MAPPER.createObjectNode().put("ownerUserId",personalDirectories.ownerUserId())
+            .put("directoryContextId",result.path("id").asText()).put("runnerId",result.path("runnerId").asText())
+            .put("rootFingerprint",proof.path("rootFingerprint").asText());envelope.set("directoryContext",result);
+        if(!directory.toRealPath().equals(personalDirectories.resolve(envelope)))throw new IOException("个人目录证明响应改变了已核验路径");
+        return result;
     }
     private synchronized JsonNode exchangeSession()throws IOException{
         ObjectNode request = CanonicalJson.MAPPER.createObjectNode(); request.put("rootFingerprint", resources.rootFingerprint()); request.put("capacity", 1);
+        if(personalDirectories!=null){
+            request.put("ownerUserId",personalDirectories.ownerUserId());
+            request.put("runtimeCanonicalPath",personalDirectories.runtime().toString()).put("runtimeFingerprint",resources.rootFingerprint());
+            if(personalDirectories.filesReady())request.put("canonicalRootPath",personalDirectories.home().toString())
+                .put("rootFingerprint",new ResourceFingerprint(personalDirectories.home()).rootFingerprint());
+            else request.remove("rootFingerprint");
+        }
         request.put("platform",System.getProperty("os.name","UNKNOWN"));request.put("distributionVersion",distributionVersion());
         var capabilities = request.putArray("capabilities");
-        for (String capability : new String[]{"files", "command", "memory", "rag", "web", "mcp", "browser", "skills", "snapshot", "images", "wechat"}) capabilities.add(capability);
+        for (String capability : new String[]{"files", "command", "memory", "rag", "web", "mcp", "browser", "skills", "snapshot", "images", "wechat", "sub2api.responses.v1", "sub2api.chat_completions.v1", "sub2api.responses.images.v1", "embedding.identity.v1", "embedding.release.v1"}) capabilities.add(capability);
+        if(terminalHost!=null){capabilities.add("terminal");request.put("ptyMode",terminalHost.candidateMode());request.put("ptyVersion",PtyProcessManager.VERSION);}
         // capability只表示支持协议，实际命令仍要求中心核验记录及本机REQUIRED检测同时通过。
         JsonNode response;
         if(deviceToken==null)response=center.post("/paicli/runner/v1/sessions",request,UUID.randomUUID().toString());
         else try(CenterHttpClient bootstrap=center.withRunnerToken(deviceToken)){response=bootstrap.post("/paicli/runner/v1/sessions",request,credentials==null?UUID.randomUUID().toString():credentials.exchangeKey(deviceToken));}
         java.time.Instant expiry=RunnerLease.expiry(response.path("expiresAt"));
         if (!expiry.isAfter(java.time.Instant.now())) throw new IOException("设备会话已过期");
+        if(personalDirectories!=null){
+            if(!personalDirectories.ownerUserId().equals(response.path("ownerUserId").asText())
+                ||!personalDirectories.runtime().equals(Path.of(response.path("runtimeCanonicalPath").asText()).toRealPath())
+                ||!resources.rootFingerprint().equals(response.path("runtimeFingerprint").asText()))throw new IOException("宿主运行目录与中心设备身份不符");
+            if(response.hasNonNull("directoryContext")){
+                ObjectNode proof=response.deepCopy();proof.put("rootFingerprint",response.path("directoryContext").path("rootFingerprint").asText());proof.put("runnerId",response.path("directoryContext").path("runnerId").asText());
+                if(!personalDirectories.home().equals(personalDirectories.resolve(proof)))throw new IOException("宿主默认个人目录与中心设备身份不符");
+            }
+        }
         if(response.hasNonNull("deviceToken")){
             String bound=response.path("deviceToken").asText();if(credentials!=null)credentials.store(bound,deviceToken);deviceToken=bound;
         }
         center.replaceToken(response.path("sessionToken").asText());
+        if(terminalHost!=null)terminalHost.refreshDeviceConnection();
         sessionExpiry=expiry;
         return response;
     }
@@ -108,10 +157,14 @@ public final class RunnerEngine implements AutoCloseable {
             catch (Exception failure) { lease.invalidate(); cancellation.cancel(); }
         }, 15, 15, TimeUnit.SECONDS);
         try {
-            CenterToolRegistry tools = new CenterToolRegistry(center, lease, spool, resources.root());
+            Path project=personalDirectories==null?resources.root():PersonalDirectoryContext.textOnly(claim)?personalDirectories.resolveRuntime(claim):personalDirectories.resolve(claim);
+            Path cache=personalDirectories==null?state:RunnerPrivateDirectory.createDirectories(state.resolve("directories").resolve(personalDirectories.ownerUserId()).resolve(new ResourceFingerprint(project).rootFingerprint()));
+            try(PhysicalDirectoryLease held=personalDirectories==null||PersonalDirectoryContext.textOnly(claim)?null:PhysicalDirectoryLease.acquire(project,lockHome)){
+            CenterToolRegistry tools = new CenterToolRegistry(center, lease, spool, project,cache);
             String result = executor.execute(lease, tools);
             if (cancellation.isCancelled()) lease.ensureEvidenceAllowed(); else lease.ensureActive();
             event(lease, cancellation.isCancelled() ? "TASK_CANCELLED" : "TASK_COMPLETED", result);
+            }
         } catch (Exception failure) {
             // 租约失效时不尝试写终态，中心保留RECONCILE_REQUIRED。
             try { lease.ensureEvidenceAllowed(); event(lease, cancellation.isCancelled() ? "TASK_CANCELLED" : "TASK_FAILED", failure.getMessage()); }
@@ -130,6 +183,7 @@ public final class RunnerEngine implements AutoCloseable {
     }
     @Override public synchronized void close() throws IOException {
         if(closed)return;closed=true;heartbeats.shutdownNow();IOException failure=null;
+        if(terminalHost!=null)terminalHost.close();
         try {
             if(executor instanceof AutoCloseable resource)resource.close();
         }catch(Exception closeFailure){failure=new IOException("Runner执行资源关闭失败",closeFailure);}

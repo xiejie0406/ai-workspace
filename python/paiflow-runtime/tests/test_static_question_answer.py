@@ -113,6 +113,8 @@ class StaticQuestionAdmissionTest(unittest.IsolatedAsyncioTestCase):
     async def test_unsupported_whole_graph_and_schema_reference_before_factory(self):
         for kind in ['spark-llm','iteration','node-variable','flow','ifly-code','database','plugin']:
             raw = fixed(); raw['dsl']['nodes'][1]['id'] = kind+'::qa'
+            if kind == 'database':
+                raw['dataEnvironment'] = 2
             # 保留另一个 QA，以选择严格 wholegraph profile。
             raw['dsl']['nodes'].append(copy.deepcopy(FIXTURE['execution']['nodes'][1]))
             await self.reject(raw, 'RESOURCE_UNAVAILABLE')

@@ -27,8 +27,8 @@ public final class CenterRuntimeApiServer implements AutoCloseable {
 
     public CenterRuntimeApiServer(CenterCommandGateway gateway, CenterCommandGateway.OpenSession binding,
                                  String expectedModelId, int port, String apiKey) throws IOException {
-        if (gateway == null || binding == null || !validId(binding.workspaceId()) || !validId(binding.runnerId()) || !validId(expectedModelId))
-            throw new IllegalArgumentException("Runtime 必须固定中心工作区、Runner 和模型");
+        if (gateway == null || binding == null || !validId(binding.directoryContextId()) || !validId(binding.runnerId()) || !validId(expectedModelId))
+            throw new IllegalArgumentException("Runtime 必须固定中心文件目录、Runner 和模型");
         if (apiKey == null || apiKey.isBlank() || apiKey.length() < 16 || apiKey.length() > 512 || apiKey.contains("\r") || apiKey.contains("\n"))
             throw new IllegalArgumentException("Runtime API 必须配置至少16位独立本机密钥");
         if (port < 0 || port > 65535) throw new IllegalArgumentException("Runtime 端口非法");
@@ -56,13 +56,13 @@ public final class CenterRuntimeApiServer implements AutoCloseable {
             if ("GET".equals(method) && "/health".equals(path)) { json(exchange,200,Map.of("status","ready","authority","ruoyi-center")); return; }
             if ("POST".equals(method) && "/v1/threads".equals(path)) {
                 readBody(exchange); // 即使旧协议不使用body，也必须限制读取容量。
-                CenterCommandGateway.Session session = gateway.open(new CenterCommandGateway.OpenSession(binding.workspaceId(),binding.runnerId(),null));
+                CenterCommandGateway.Session session = gateway.open(new CenterCommandGateway.OpenSession(binding.directoryContextId(),binding.runnerId(),null));
                 checkSession(session); json(exchange,200,Map.of("id","thread_"+session.id(),"object","thread")); return;
             }
             String[] parts = path.split("/");
             if (parts.length < 5 || !"v1".equals(parts[1]) || !"threads".equals(parts[2])) { json(exchange,404,Map.of("error","not_found")); return; }
             String sessionId = decodeId(parts[3],"thread_");
-            CenterCommandGateway.Session session = gateway.open(new CenterCommandGateway.OpenSession(binding.workspaceId(),binding.runnerId(),sessionId));
+            CenterCommandGateway.Session session = gateway.open(new CenterCommandGateway.OpenSession(binding.directoryContextId(),binding.runnerId(),sessionId));
             checkSession(session);
             if (parts.length == 5 && "turns".equals(parts[4]) && "POST".equals(method)) { turn(exchange,sessionId); return; }
             if (parts.length == 5 && "events".equals(parts[4]) && "GET".equals(method)) { events(exchange,sessionId,query); return; }
@@ -83,7 +83,7 @@ public final class CenterRuntimeApiServer implements AutoCloseable {
         try { input = CanonicalJson.MAPPER.readTree(body); }
         catch (IOException failure) { throw new Boundary(400,"invalid_json"); }
         if (input == null || !input.isObject() || !input.path("input").isTextual() || input.path("input").asText().isBlank()) throw new Boundary(400,"input_required");
-        // 兼容本机Key不能改变中心身份、工作区、Runner、模型或批准模式。
+        // 兼容本机Key不能改变中心身份、文件目录、Runner、模型或批准模式。
         Set<String> fields = new HashSet<>(); input.fieldNames().forEachRemaining(fields::add);
         if (!fields.equals(Set.of("input"))) throw new Boundary(400,"unsupported_field");
         CenterCommandGateway.Turn turn = gateway.submit(sessionId,input.path("input").asText(),"ask",List.of());
@@ -127,7 +127,7 @@ public final class CenterRuntimeApiServer implements AutoCloseable {
         write(exchange,200,"text/event-stream; charset=utf-8",stream.toString().getBytes(StandardCharsets.UTF_8));
     }
     private void checkSession(CenterCommandGateway.Session session) {
-        if (session == null || !validId(session.id()) || !binding.workspaceId().equals(session.workspaceId()) || !binding.runnerId().equals(session.runnerId()) || !expectedModelId.equals(session.modelId())) throw new Boundary(403,"thread_scope_mismatch");
+        if (session == null || !validId(session.id()) || !binding.directoryContextId().equals(session.directoryContextId()) || !binding.runnerId().equals(session.runnerId()) || !expectedModelId.equals(session.modelId())) throw new Boundary(403,"thread_scope_mismatch");
     }
     private boolean authorized(HttpExchange exchange) {
         String bearer = exchange.getRequestHeaders().getFirst("Authorization"), direct = exchange.getRequestHeaders().getFirst("X-PaiCLI-API-Key");
@@ -170,13 +170,10 @@ public final class CenterRuntimeApiServer implements AutoCloseable {
 
     /** serve为显式启动，默认保持关闭；中心JWT和model从现有Gateway受控配置取得。 */
     public static int run(String[] args) {
-        int port = 8080;
         try {
-            for(int i = args.length > 0 && "serve".equals(args[0]) ? 1 : 0; i < args.length; i++) {
-                if (!"--port".equals(args[i]) || ++i >= args.length) throw new IllegalArgumentException("用法：paicli serve [--port 端口]"); port = Integer.parseInt(args[i]);
-            }
+            int port = parsePort(args);
             String key = System.getProperty("paicli.runtime.api.key"); if (key == null || key.isBlank()) key = HttpCenterCommandGateway.requiredEnv("PAICLI_RUNTIME_API_KEY");
-            CenterCommandGateway.OpenSession binding = new CenterCommandGateway.OpenSession(HttpCenterCommandGateway.requiredEnv("PAICLI_WORKSPACE_ID"),HttpCenterCommandGateway.requiredEnv("PAICLI_RUNNER_ID"),null);
+            CenterCommandGateway.OpenSession binding = new CenterCommandGateway.OpenSession(HttpCenterCommandGateway.requiredEnv("PAICLI_DIRECTORY_CONTEXT_ID"),HttpCenterCommandGateway.requiredEnv("PAICLI_RUNNER_ID"),null);
             String modelId = HttpCenterCommandGateway.requiredEnv("PAICLI_MODEL_ID");
             try(CenterRuntimeApiServer server = new CenterRuntimeApiServer(new HttpCenterCommandGateway(modelId),binding,modelId,port,key)) {
                 server.start(); System.out.println("PaiCLI Runtime兼容接口：http://127.0.0.1:"+server.port()+"；正式状态由若依中心持有");
@@ -184,6 +181,15 @@ public final class CenterRuntimeApiServer implements AutoCloseable {
             }
             return 0;
         } catch(InterruptedException stopped) { Thread.currentThread().interrupt(); return 0; }
-        catch(Exception failure) { System.err.println("Runtime启动失败，请核对固定工作区、Runner、模型、中心JWT和本机API Key配置。"); return 2; }
+        catch(Exception failure) { System.err.println("Runtime启动失败，请核对固定文件目录、Runner、模型、中心JWT和本机API Key配置。"); return 2; }
+    }
+
+    static int parsePort(String[] args) {
+        int port = 8080;
+        for(int i = args.length > 0 && "serve".equals(args[0]) ? 1 : 0; i < args.length; i++) {
+            if ("--http".equalsIgnoreCase(args[i])) continue;
+            if (!"--port".equals(args[i]) || ++i >= args.length) throw new IllegalArgumentException("用法：paicli serve [--http] [--port 端口]"); port = Integer.parseInt(args[i]);
+        }
+        return port;
     }
 }

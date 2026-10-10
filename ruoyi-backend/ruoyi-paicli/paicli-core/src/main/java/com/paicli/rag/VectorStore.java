@@ -74,6 +74,7 @@ public class VectorStore implements AutoCloseable {
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(createChunks);
             stmt.execute(createRelations);
+            stmt.execute("CREATE TABLE IF NOT EXISTS code_index_metadata (project_path TEXT PRIMARY KEY, identity_json TEXT NOT NULL, fingerprint TEXT NOT NULL, actual_dimensions INTEGER NOT NULL)");
             stmt.execute(createIdxProject);
             stmt.execute(createIdxFile);
             stmt.execute(createIdxType);
@@ -96,13 +97,66 @@ public class VectorStore implements AutoCloseable {
             ps1.executeUpdate();
             ps2.executeUpdate();
         }
+        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM code_index_metadata WHERE project_path = ?")) {
+            ps.setString(1, projectPath); ps.executeUpdate();
+        }
     }
     /** 派生索引替换必须整体成功；失败保留上一个可读索引。 */
     public void replaceProject(List<CodeChunkEntry> chunks, List<CodeRelation> relations) throws SQLException {
+        replaceProject(chunks, relations, null, 0);
+    }
+
+    public void replaceProject(List<CodeChunkEntry> chunks, List<CodeRelation> relations,
+                               EmbeddingIdentity identity, int actualDimensions) throws SQLException {
+        replaceProject(chunks, relations, identity, actualDimensions, () -> {});
+    }
+    @FunctionalInterface public interface CommitGuard { void check() throws java.io.IOException; }
+    public void replaceProject(List<CodeChunkEntry> chunks, List<CodeRelation> relations,
+                               EmbeddingIdentity identity, int actualDimensions, CommitGuard guard) throws SQLException {
+        if (identity != null) {
+            if (actualDimensions < 0 || (identity.expectedDimensions() > 0 && actualDimensions != identity.expectedDimensions()))
+                throw new SQLException("索引身份维度与实际向量不符");
+            for (CodeChunkEntry entry : chunks) {
+                try { EmbeddingClient.validateVector(entry.embedding(), actualDimensions); }
+                catch (java.io.IOException failure) { throw new SQLException("索引向量不合法，原索引未替换", failure); }
+            }
+        }
         boolean original = connection.getAutoCommit(); connection.setAutoCommit(false);
-        try { clearProject(); insertChunks(chunks); insertRelations(relations); connection.commit(); }
-        catch (SQLException failure) { connection.rollback(); throw failure; }
+        try {
+            clearProject(); insertChunks(chunks); insertRelations(relations);
+            if (identity != null) {
+                try (PreparedStatement ps = connection.prepareStatement("INSERT INTO code_index_metadata(project_path,identity_json,fingerprint,actual_dimensions) VALUES(?,?,?,?)")) {
+                    ps.setString(1, projectPath); ps.setString(2, mapper.writeValueAsString(identity));
+                    ps.setString(3, identity.fingerprint()); ps.setInt(4, actualDimensions); ps.executeUpdate();
+                }
+            }
+            guard.check();
+            connection.commit();
+        }
+        catch (SQLException | RuntimeException | java.io.IOException failure) { connection.rollback(); throw new SQLException("索引替换失败，原索引已保留", failure); }
         finally { connection.setAutoCommit(original); }
+    }
+
+    public IndexMetadata getIndexMetadata() throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT identity_json,fingerprint,actual_dimensions FROM code_index_metadata WHERE project_path=?")) {
+            ps.setString(1, projectPath);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                try { return new IndexMetadata(mapper.readValue(rs.getString(1), EmbeddingIdentity.class), rs.getString(2), rs.getInt(3)); }
+                catch (JsonProcessingException failure) { throw new SQLException("索引身份损坏，需要重建", failure); }
+            }
+        }
+    }
+
+    /** 在外呼前检查，避免为不可用旧索引支付查询费用。 */
+    public IndexMetadata requireIdentity(EmbeddingIdentity current) throws SQLException {
+        IndexMetadata metadata = getIndexMetadata();
+        if (metadata == null) throw new SQLException("语义索引缺少模型身份，需要重建索引");
+        if (!metadata.fingerprint().equals(current.fingerprint()) || !metadata.identity().fingerprint().equals(metadata.fingerprint()))
+            throw new SQLException("向量模型或分块规则已变化，需要重建索引");
+        if (metadata.actualDimensions() < 0 || (current.expectedDimensions() > 0 && metadata.actualDimensions() != current.expectedDimensions()))
+            throw new SQLException("索引维度身份损坏，需要重建索引");
+        return metadata;
     }
 
     /**
@@ -169,6 +223,8 @@ public class VectorStore implements AutoCloseable {
      * 语义检索：根据查询向量返回最相似的 TopK 代码块
      */
     public List<SearchResult> search(float[] queryEmbedding, int topK) throws SQLException {
+        try { EmbeddingClient.validateVector(queryEmbedding, 0); }
+        catch (java.io.IOException failure) { throw new SQLException("查询向量不合法", failure); }
         String sql = "SELECT file_path, chunk_type, name, content, embedding_json FROM code_chunks WHERE project_path = ?";
         List<SearchResult> candidates = new ArrayList<>();
 
@@ -181,6 +237,8 @@ public class VectorStore implements AutoCloseable {
                         continue;
                     }
                     float[] embedding = jsonToEmbedding(embeddingJson);
+                    try { EmbeddingClient.validateVector(embedding, queryEmbedding.length); }
+                    catch (java.io.IOException failure) { throw new SQLException("索引向量失效，需要重建索引", failure); }
                     double similarity = cosineSimilarity(queryEmbedding, embedding);
                     candidates.add(new SearchResult(
                             rs.getString("file_path"),
@@ -317,9 +375,9 @@ public class VectorStore implements AutoCloseable {
         double normA = 0.0;
         double normB = 0.0;
         for (int i = 0; i < a.length; i++) {
-            dot += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
+            dot += (double) a[i] * b[i];
+            normA += (double) a[i] * a[i];
+            normB += (double) b[i] * b[i];
         }
         if (normA == 0.0 || normB == 0.0) {
             return 0.0;
@@ -365,4 +423,5 @@ public class VectorStore implements AutoCloseable {
      * 索引统计
      */
     public record IndexStats(int chunkCount, int relationCount) {}
+    public record IndexMetadata(EmbeddingIdentity identity, String fingerprint, int actualDimensions) {}
 }

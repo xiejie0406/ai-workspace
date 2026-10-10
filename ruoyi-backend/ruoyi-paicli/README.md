@@ -10,6 +10,8 @@
 | paicli-cli | 原终端渲染与联机命令入口 | 与Web共享中心会话 |
 | paicli-eval | 原评测代码、fixtures、validators、容器配方 | 隔离评测，不自动运行真实外部任务 |
 
+本机验收登录恢复统一见[共用操作说明](../../文档/若依框架/多项目并行开发启动指南.md#本机验收登录恢复)。全部本机验收通道启用辅助能力；先复用有效会话，失效时仅用已授权账号凭据辅助填写当前验证码并正常登录。浏览器无法控制或账号凭据未获授权时单独报告所需条件；恢复登录后回到待验步骤，既有业务结果与证据保持原判定。
+
 ## 构建与检查
 
 在仓库根目录使用已配置的 JDK 和 Maven；目标字节码为 Java 17。中心 API 继承若依依赖，原生模块独立管理 Jackson 2、OkHttp、JLine、Lanterna 等原依赖。
@@ -33,25 +35,26 @@ java -jar paicli-eval/target/paicli-eval-3.9.2.jar --help
 
 ## 受控运行
 
-中心默认 `paicli.enabled=false`。真实启用前须确认现有业务数据库名称、中心控制密钥、若依私密产物存储、平台菜单权限与工作区成员，并审核 `paicli-api/src/main/resources/db/paicli-migration/` 中的业务表和菜单脚本；脚本不在启动时自动执行，不创建或克隆数据库。供应商 Key 复用受控 secretRef，不把原 config.json 的密钥复制为普通业务JSON。
+中心默认 `paicli.enabled=false`。真实启用前须确认现有业务数据库名称、中心控制密钥、若依私密产物存储、平台菜单权限、个人执行宿主及可用模型，并审核 `paicli-api/src/main/resources/db/paicli-migration/` 中的业务表和菜单脚本；脚本不在启动时自动执行，不创建或克隆数据库。新版不再创建工作区或成员，所有权来自若依稳定用户ID。供应商 Key 复用受控 secretRef，不把原 config.json 的密钥复制为普通业务JSON。个人入口的实际检查及运行版本唯一见[本功能实施记录](../../文档/项目/PaiCLI智能编码项目/功能/FEAT-PAICLI-003-个人目录与简化使用/实施记录.md)。
 
-终端使用 `PAICLI_CENTER_URL`（HTTPS或明确的本机回环HTTP）、`PAICLI_USER_TOKEN`（若依用户JWT）、`PAICLI_WORKSPACE_ID`、`PAICLI_RUNNER_ID`、`PAICLI_MODEL_ID`。凭证从安全输入提供，不写入脚本、命令参数或版本库。
+终端使用 `PAICLI_CENTER_URL`（HTTPS或明确的本机回环HTTP）、`PAICLI_USER_TOKEN`（若依用户JWT），可选 `PAICLI_DIRECTORY_CONTEXT_ID`、`PAICLI_MODEL_ID`。未指定目录或模型时由中心选择本人默认值，并路由对应受信宿主；用户不必登记Runner。凭证从安全输入提供，不写入脚本、命令参数或版本库。旧工作区客户端须升级，不能用旧workspace参数静默执行。
 
 ```powershell
 java -jar paicli-cli/target/paicli-cli-3.9.2.jar --help
-java -jar paicli-cli/target/paicli-cli-3.9.2.jar --workspace <中心工作区ID> --runner <中心RunnerID>
+java -jar paicli-cli/target/paicli-cli-3.9.2.jar
+java -jar paicli-cli/target/paicli-cli-3.9.2.jar --directory <本人已核实目录ID>
 ```
 
 `PAICLI_RENDERER=inline|lanterna|plain` 选择原终端渲染器；斜杠命令交中心裁决，未知命令不会转发模型。中心不可用时不回退到原本地可写控制面。
 
-独立设备进程另需 `PAICLI_WORKSPACE_ROOT` 和位于工作根外的专用 `PAICLI_RUNNER_STATE`。首次从安全输入提供 `PAICLI_RUNNER_TOKEN` 单次绑定码；码五分钟有效，成功后保存受限设备凭证到当前本机用户独占的 `device-credentials/` 子目录，后续可由该缓存续期。新的绑定码可替换已撤销设备的缓存；缓存按中心地址及实际工作根指纹分开。
+独立设备进程由部署者配置 `PAICLI_PERSONAL_ROOT`、`PAICLI_OWNER_USER_ID` 与个人文件目录外的专用 `PAICLI_RUNNER_STATE`。运行身份在 `<个人根>/users/<稳定用户ID>/runtime`，文件在同一用户的 `files`；新对话使用 `files/conversations/<sessionId>`。宿主运行身份和任务实际cwd分别核对，不把浏览器任意路径当作授权。首次从安全输入提供 `PAICLI_RUNNER_TOKEN` 单次绑定码；码五分钟有效，成功后保存受限设备凭证到当前本机用户独占的 `device-credentials/` 子目录，后续可由该缓存续期。新的绑定码可替换已撤销设备的缓存；缓存按中心地址与固定宿主身份分开。普通用户页面不显示这些部署表单。
 
 ```powershell
 java -jar paicli-cli/target/paicli-cli-3.9.2.jar runner
 java -jar paicli-cli/target/paicli-cli-3.9.2.jar runner --once
 ```
 
-Runner默认单工作根一个进程，读工具允许受控并行，写操作串行且核对资源摘要。缓存只保存派生索引、快照、设备凭证和待确认回执；重启不会把未知副作用改回可执行队列。命令执行要求中心核验与本机 `REQUIRED` 隔离同时成立；Windows没有有效隔离时拒绝执行命令。
+Runner按可信宿主运行，执行时核对任务冻结的本人真实目录；相同或重叠物理目录的锁不因另一个会话而放行。读工具允许受控并行，写操作串行且核对资源摘要。纯文字任务没有文件目录时禁用全部工具、MCP和快照。缓存只保存派生索引、快照、设备凭证和待确认回执；重启不会把未知副作用改回可执行队列。命令执行要求中心核验与本机 `REQUIRED` 隔离同时成立；Windows没有有效隔离时拒绝执行命令。
 
 工作根锁检查真实home/`.cache`的可写边界及PaiCLI私有容器、锁目录和锁文件权限；状态目录另由进程排他锁保护，不能让不同工作根共用同一实际状态目录。状态、凭证、回执和完整结果目录核对实际owner、权限及完整父链；既有不安全目录会拒绝启动，不自动修改共享目录权限。新目录和暂存文件在创建时即具有私有权限，正文写入前完成核对。完整工具结果按每次执行两份证据合计512MB、累计2GB及256文件限定，目录内所有实例共享剩余容量预留并核对实际磁盘空间，最多4个受控读工具共同预留；JSON最坏转义空间不等于允许无界MCP响应。缓存或磁盘不足时不消费许可、不执行新副作用，旧证据须先对账。
 
@@ -81,9 +84,9 @@ java -jar paicli-cli/target/paicli-cli-3.9.2.jar export-legacy --source <原资�
 
 机器契约分别为[操作者接口](../../contracts/paicli/operator-v1.openapi.json)、[设备与微信通道接口](../../contracts/paicli/runner-v1.openapi.yaml)和[中心事件/原始账本](../../contracts/paicli/events-v1.schema.json)。`python contracts/paicli/verify-contracts.py`从仓库根目录只读核对实际Controller路由、权限、HTTP字段、注册事件、OpenAPI结构及本地引用；明确更新协议时才使用`--write`。需要现有Python的`jsonschema`、`openapi-spec-validator`和`PyYAML`，不由该脚本安装依赖。结构检查不能代替服务端成员、owner、许可/CAS或真实业务验证。
 
-正式启用必须显式配置 `paicli.expected-database`，启动仅检查MySQL目录与独立 `pc_flyway_schema_history` 最新版本5，不自动迁移。迁移工具 `com.ruoyi.paicli.migration.PcMigrationCli` 支持 `info/validate/migrate <已批准库名>`，使用 `PAICLI_DB_URL/USER/PASSWORD`，禁止clean和自动baseline。既有若依库首次登记须另行明确执行 `baseline-existing <库名>` 并提供 `PAICLI_BASELINE_CONFIRM=BASELINE0:<库名>`；这不会创建另一数据库。迁移按V1业务表、V2菜单、V3导入批次及读取权限、V4业务字段/索引/约束、V5幂等权限核对顺序执行，回撤需先核对已有数据和批准范围。真实执行与备份摘要统一见实施记录。
+正式启用必须显式配置 `paicli.expected-database`，启动仅检查MySQL目录与独立 `pc_flyway_schema_history` 最新版本7，不自动迁移。迁移工具 `com.ruoyi.paicli.migration.PcMigrationCli` 支持 `info/validate/migrate <已批准库名>`，使用 `PAICLI_DB_URL/USER/PASSWORD`，禁止clean和自动baseline。既有若依库首次登记须另行明确执行 `baseline-existing <库名>` 并提供 `PAICLI_BASELINE_CONFIRM=BASELINE0:<库名>`；这不会创建另一数据库。迁移按V1业务表、V2菜单、V3导入批次及读取权限、V4业务字段/索引/约束、V5幂等权限核对、V6原网页终端、V7个人所有权与历史冻结顺序执行，回撤需先核对已有数据和批准范围。真实执行与备份摘要统一见实施记录。
 
-控制凭证响应在MySQL中以AES-GCM保存，复用平台固定用途 `platform.paicli.control-key` 的32字节Base64密钥。供应商、搜索和Embedding只接受当前工作区 `ai.paicli.<workspaceId>.*` 的AI密钥引用，微信账号使用 `platform.paicli.wechat.<bindingId>`。短期使用值仅在有效租约或微信通道下发，响应禁止缓存；`/provider-context` 续期保持任务原模型、供应商定义及密钥版本，版本变化要求停止并重新核对。控制密钥目前按固定用途读取，轮换该值前须保留原值并处理尚在保留期内的加密幂等响应。
+控制凭证响应在MySQL中以AES-GCM保存，复用平台固定用途 `platform.paicli.control-key` 的32字节Base64密钥。供应商、搜索和Embedding只接受本人 `ai.paicli.user.<ownerUserId>.*` 的AI密钥引用，微信账号使用 `platform.paicli.wechat.<bindingId>`。短期使用值仅在有效租约或微信通道下发，响应禁止缓存；`/provider-context` 续期保持任务原模型、供应商定义及密钥版本，版本变化要求停止并重新核对。控制密钥目前按固定用途读取，轮换该值前须保留原值并处理尚在保留期内的加密幂等响应。
 
 MCP配置使用 `envSecretRefs`（STDIO环境名到固定用途引用）或 `headerSecretRefs`（HTTP请求头名到固定用途引用）；引用也属于需重新批准的配置哈希。非空环境值及凭证请求头不能直接保存，普通HTTP头仅接受 `Accept`、`Content-Type`、`MCP-Protocol-Version`；HTTP端点不接受query或fragment，启动参数拒绝认证开关及其明文值，包含托管请求头的HTTP连接仅允许HTTPS。执行器身份、路径、动态加载和代理环境不能被引用覆盖。`POST /paicli/runner/v1/mcp-context` 必须携带当前有效租约、已消费的工具许可及冻结配置ID/版本/哈希，才能获得不超过60秒且不超过租约截止的内存使用值。该接口不把明文响应保存到幂等表、配置、审计或事件；每次RPC重新核对引用、用途密钥版本和信任。Authorization的托管用途为bearer时由中心构造Bearer头，其他头按用途值派发。HTTP连接及STDIO子进程在短期授权过期时关闭；后台能力变更通知没有当前消费许可时拒绝，未知RPC结果停止该租约。密钥轮换、配置修改或信任撤销后旧任务不能静默切换到新定义。中心已通过H2/MyBatis事务及Mock托管服务边界检查；Runner本机HTTP fixture由原生模块定向执行并另报结果。尚未执行真实托管写入或外部MCP调用。
 

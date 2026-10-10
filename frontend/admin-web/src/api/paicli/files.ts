@@ -1,0 +1,5 @@
+import request from '@/utils/request'
+import type { PcEnvelope, PcPage, PcPersonalFile, PcPersonalFilePreview } from '@/types/paicli'
+export const listPersonalFiles = (pageNum=1,pageSize=20,directoryContextId?:string) => request({url:'/paicli/v1/artifacts',method:'get',params:{pageNum,pageSize,directoryContextId}}) as unknown as Promise<PcPage<PcPersonalFile>>
+export const getPersonalFilePreview = (artifactId:string,offset=0,signal?:AbortSignal) => request({url:`/paicli/v1/artifacts/${encodeURIComponent(artifactId)}/preview-text`,method:'get',params:{offset,limit:65536},signal}) as unknown as Promise<PcEnvelope<PcPersonalFilePreview>>
+export const uploadPersonalFile = (file:File,directoryContextId:string,key:string) => { const data=new FormData(); data.append('file',file); if(directoryContextId)data.append('directoryContextId',directoryContextId); data.append('purpose','USER_FILE'); return request({url:'/paicli/v1/artifacts',method:'post',data,headers:{'Content-Type':'multipart/form-data','Idempotency-Key':key,repeatSubmit:false}}) as unknown as Promise<PcEnvelope<PcPersonalFile>> }

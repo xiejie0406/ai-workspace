@@ -46,7 +46,11 @@ public class WorkflowService {
     @Autowired public void useAgentBindings(ObjectProvider<AgentBinding> provider) { agentBindings=provider; }
     private AgentBinding bindings() { return agentBindings==null?null:agentBindings.getIfAvailable(); }
     private ObjectProvider<ModelRuntimeCatalog> modelCatalogs;
+    private ObjectProvider<ToolRuntimeCatalog> toolCatalogs;
+    @Autowired public void useToolCatalogs(ObjectProvider<ToolRuntimeCatalog> provider){toolCatalogs=provider;}
     @Autowired public void useModelCatalogs(ObjectProvider<ModelRuntimeCatalog> provider) { modelCatalogs=provider; }
+    private ObjectProvider<DataRuntimeCatalog> dataCatalogs;
+    @Autowired public void useDataCatalogs(ObjectProvider<DataRuntimeCatalog> provider) { dataCatalogs=provider; }
     private static final Set<String> CONTROLLED = Set.of("id","flowId","spaceId","uid","ownerUserId","revision","latestVersionId","createBy","updateBy","createTime","updateTime","deleted","isPublic","status","canPublish","data","advancedConfig","flowConfig","name","description","engineProfile","botId","agentRevision","agentBindingStatus");
     public WorkflowService(WorkflowMapper mapper,ResourceAccessService access,IdentityMappingService identities) { this.mapper=mapper;this.access=access;this.identities=identities; }
     public record RuntimeSnapshot(long workflowId,long workflowVersionId,long spaceId,long ownerUserId,String flowId,String engineProfile,String dslHash,String canonicalDslBase64,JSONObject execution,JSONObject canvas,JSONObject advancedConfig,JSONObject flowConfig,JSONObject resourceSnapshots,String executionCodec) {
@@ -95,7 +99,7 @@ public class WorkflowService {
         checkName(row);row.setEngineProfile(engine(body.getString("engineProfile")));
         row.setCanvasJson(body.containsKey("data")?canvas(body.get("data")):initialCanvas());
         row.setAdvancedConfigJson(objectJson(body.get("advancedConfig")));row.setFlowConfigJson(objectJson(body.get("flowConfig")));
-        row.setMetadataJson(metadata(new JSONObject(),body).toJSONString());row.setCreateBy(actor.getUsername());row.setUpdateBy(actor.getUsername());
+        row.setMetadataJson(metadata(new JSONObject(),body).toJSONString(JSONWriter.Feature.WriteMapNullValue));row.setCreateBy(actor.getUsername());row.setUpdateBy(actor.getUsername());
         if(mapper.insert(row)!=1 || row.getId()==null) throw new ServiceException("工作流保存失败",500);
         return legacy(mapper.find(row.getId()));
     }
@@ -126,7 +130,7 @@ public class WorkflowService {
         if(body.get("advancedConfig")!=null)row.setAdvancedConfigJson(mergeAdvanced(row.getAdvancedConfigJson(),body.get("advancedConfig")));
         if(body.get("flowConfig")!=null)row.setFlowConfigJson(objectJson(body.get("flowConfig")));
         if(body.containsKey("engineProfile"))row.setEngineProfile(engine(body.getString("engineProfile")));
-        row.setMetadataJson(metadata(json(row.getMetadataJson()),body).toJSONString());row.setUpdateBy(identities.current().getUsername());if(requireUniqueName)checkName(row);
+        row.setMetadataJson(metadata(json(row.getMetadataJson()),body).toJSONString(JSONWriter.Feature.WriteMapNullValue));row.setUpdateBy(identities.current().getUsername());if(requireUniqueName)checkName(row);
     }
     @Transactional(rollbackFor=Exception.class,isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public void delete(long id,Long spaceId,Long expectedRevision) {
@@ -204,16 +208,17 @@ public class WorkflowService {
         WorkflowJsonBoundary.check(json(row.getFlowConfigJson()),"flowConfig",16*1024*1024);
         var graph=json(row.getCanvasJson());var report=validator.validate(graph,row.getEngineProfile());
         if(!report.valid())throw new ServiceException("工作流结构预检未通过："+report.issues().get(0).message(),422);
-        if(!"python".equals(row.getEngineProfile()) && WorkflowModelCompiler.hasResources(graph))throw new ServiceException("Java资源执行桥尚未接通",503);
-        String executionCodec=WorkflowModelCompiler.executionCodecFor(graph);
+        String executionCodec=WorkflowModelCompiler.executionCodecFor(graph,row.getEngineProfile());
         if(DslCodec.V3.equals(executionCodec) && !"python".equals(row.getEngineProfile()))throw new ServiceException("静态问答只接Python原执行器",503);
-        var compiled=WorkflowModelCompiler.compile(graph,(modelId,source,domain)->{var catalog=modelCatalogs==null?null:modelCatalogs.getIfAvailable();if(catalog==null)throw new ServiceException("固定模型运行目录尚未接通",503);return catalog.bindCurrent(row.getSpaceId(),modelId,source,domain);});
+        if(DslCodec.V4.equals(executionCodec) && !"python".equals(row.getEngineProfile()))throw new ServiceException("V4动态资源图只接Python原执行器",503);
+        var compiled=WorkflowModelCompiler.compile(graph,(modelId,source,domain)->{var catalog=modelCatalogs==null?null:modelCatalogs.getIfAvailable();if(catalog==null)throw new ServiceException("固定模型运行目录尚未接通",503);return catalog.bindCurrent(row.getSpaceId(),modelId,source,domain);},dbId->{var catalog=dataCatalogs==null?null:dataCatalogs.getIfAvailable();if(catalog==null)throw new ServiceException("固定数据资源目录尚未启用，请先完成026迁移及配置",503);return catalog.bindCurrent(row.getSpaceId(),dbId);},(plugin,version,op,app)->{var catalog=toolCatalogs==null?null:toolCatalogs.getIfAvailable();if(catalog==null)throw new ServiceException("工具固定目录尚未启用，请完成030及配置",503);return catalog.bindCurrent(row.getSpaceId(),plugin,version,op,app);},row.getEngineProfile());
         if(DslCodec.V3.equals(executionCodec))StaticQuestionAnswerPolicy.validate(compiled.execution());
+        if(DslCodec.V4.equals(executionCodec))DynamicModelGraphPolicy.validate(compiled.execution());
         var normalized=codec.normalize(compiled.execution(),executionCodec);
         var version=new WorkflowVersionRecord();version.setWorkflowId(row.getId());version.setSpaceId(row.getSpaceId());version.setOwnerUserId(row.getOwnerUserId());version.setSnapshotRevision(row.getRevision());
         version.setFlowId(row.getFlowId());version.setVersionNum(UUID.randomUUID().toString());version.setName(name);version.setDescription(description);
         version.setCanvasJson(row.getCanvasJson());version.setExecutionJson(normalized.execution().toJSONString(JSONWriter.Feature.WriteMapNullValue));version.setDslHash(normalized.executionHash());version.setCanonicalDslBase64(DslCodec.canonicalDslBase64(normalized.execution(),executionCodec));
-        version.setResourceSnapshotsJson(compiled.resourceSnapshots().toJSONString());
+        version.setResourceSnapshotsJson(compiled.resourceSnapshots().toJSONString(com.alibaba.fastjson2.JSONWriter.Feature.WriteMapNullValue));
         version.setExecutionCodec(executionCodec);
         version.setMetadataJson(row.getMetadataJson());version.setAdvancedConfigJson(row.getAdvancedConfigJson());version.setFlowConfigJson(row.getFlowConfigJson());version.setEngineProfile(row.getEngineProfile());version.setCreateBy(identities.current().getUsername());
         return version;
@@ -335,7 +340,7 @@ public class WorkflowService {
     private void verifyStoredHash(WorkflowVersionRecord version) {
         try {
             byte[] bytes=Base64.getDecoder().decode(version.getCanonicalDslBase64());String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
-            var expected=version.getResourceSnapshotsJson()==null?codec.normalize(json(version.getCanvasJson()),version.getExecutionCodec()).execution():WorkflowModelCompiler.reconstruct(json(version.getCanvasJson()),json(version.getResourceSnapshotsJson()),version.getExecutionCodec());
+            var expected=version.getResourceSnapshotsJson()==null?codec.normalize(json(version.getCanvasJson()),version.getExecutionCodec()).execution():WorkflowModelCompiler.reconstruct(json(version.getCanvasJson()),json(version.getResourceSnapshotsJson()),version.getExecutionCodec(),version.getEngineProfile());
             if(!Objects.equals(hash,version.getDslHash()) || !JSON.parseObject(new String(bytes,StandardCharsets.UTF_8)).equals(json(version.getExecutionJson())) || !Objects.equals(DslCodec.fixedExecutionHash(expected,version.getExecutionCodec()),hash) || !Objects.equals(DslCodec.canonicalDslBase64(expected,version.getExecutionCodec()),version.getCanonicalDslBase64())) throw new ServiceException("版本快照完整性校验失败",409);
         }catch(RuntimeException|NoSuchAlgorithmException ex){throw new ServiceException("版本快照完整性校验失败",409);}
     }
@@ -383,10 +388,10 @@ public class WorkflowService {
     private static void mergeObjects(JSONObject target,JSONObject patch) {
         patch.forEach((key,value)->{if(target.get(key) instanceof JSONObject old && value instanceof JSONObject child)mergeObjects(old,child);else target.put(key,value);});
     }
-    private static JSONObject metadata(JSONObject old,JSONObject body) { JSONObject value=JSON.parseObject(old.toJSONString());body.forEach((key,item)->{if(!CONTROLLED.contains(key))value.put(key,item);});return value; }
+    private static JSONObject metadata(JSONObject old,JSONObject body) { JSONObject value=JSON.parseObject(old.toJSONString(JSONWriter.Feature.WriteMapNullValue));body.forEach((key,item)->{if(!CONTROLLED.contains(key))value.put(key,item);});return value; }
     private static JSONObject extObject(Object value) {
         if(value==null)return null;
-        try { if(value instanceof JSONObject object)return JSON.parseObject(object.toJSONString());if(value instanceof java.util.Map<?,?>)return JSON.parseObject(JSON.toJSONString(value));if(value instanceof String text)return JSON.parseObject(text); }catch(RuntimeException ignored) { /* 非对象扩展仍为未知metadata，不能生成Agent引用。 */ }
+        try { if(value instanceof JSONObject object)return JSON.parseObject(object.toJSONString(JSONWriter.Feature.WriteMapNullValue));if(value instanceof java.util.Map<?,?>)return JSON.parseObject(JSON.toJSONString(value,JSONWriter.Feature.WriteMapNullValue));if(value instanceof String text)return JSON.parseObject(text); }catch(RuntimeException ignored) { /* 非对象扩展仍为未知metadata，不能生成Agent引用。 */ }
         return null;
     }
     private static void clearBindingFields(JSONObject body) {

@@ -1,0 +1,36 @@
+-------------------------------------------------------------------------------
+Test set: com.paicli.eval.benchmark.DevSafeBundleVerifierTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 36.77 s <<< FAILURE! -- in com.paicli.eval.benchmark.DevSafeBundleVerifierTest
+com.paicli.eval.benchmark.DevSafeBundleVerifierTest.forbiddenReadStillFailsAfterWritableScratchPreparation(Path) -- Time elapsed: 30.99 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+dev-secret-safe-bundle: generator did not enforce the allowlist
+ ==> expected: <true> but was: <false>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:214)
+	at com.paicli.eval.benchmark.DevSafeBundleVerifierTest.verify(DevSafeBundleVerifierTest.java:58)
+	at com.paicli.eval.benchmark.DevSafeBundleVerifierTest.forbiddenReadStillFailsAfterWritableScratchPreparation(DevSafeBundleVerifierTest.java:30)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at com.paicli.eval.benchmark.SecureFilesTempDirExtension.interceptTestMethod(SecureFilesTempDirExtension.java:17)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.paicli.eval.benchmark.DevSafeBundleVerifierTest.validGeneratorWorksWithReadOnlySnapshot(Path) -- Time elapsed: 5.702 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+dev-secret-safe-bundle: generator did not enforce the allowlist
+ ==> expected: <0> but was: <1>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:563)
+	at com.paicli.eval.benchmark.DevSafeBundleVerifierTest.verify(DevSafeBundleVerifierTest.java:57)
+	at com.paicli.eval.benchmark.DevSafeBundleVerifierTest.validGeneratorWorksWithReadOnlySnapshot(DevSafeBundleVerifierTest.java:24)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at com.paicli.eval.benchmark.SecureFilesTempDirExtension.interceptTestMethod(SecureFilesTempDirExtension.java:17)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

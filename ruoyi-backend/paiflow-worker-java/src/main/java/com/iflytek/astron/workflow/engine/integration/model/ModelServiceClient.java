@@ -28,6 +28,6 @@ public class ModelServiceClient {
      * @param req model ID from database
      */
     public LlmResVo chatCompletion(LlmReqBo req, LlmCallback callback) {
-        return llmIntergration.call(req, callback);
+        return com.ruoyi.paiflow.worker.service.ExecutionScope.current().modelCompletion(req, callback);
     }
 }

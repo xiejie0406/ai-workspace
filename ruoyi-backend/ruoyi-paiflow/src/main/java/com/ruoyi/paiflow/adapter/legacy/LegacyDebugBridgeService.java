@@ -30,6 +30,8 @@ public class LegacyDebugBridgeService {
     private final RunMapper mapper;
     private final CheckpointService checkpoints;
     private final CheckpointMapper checkpointMapper;
+    private org.springframework.beans.factory.ObjectProvider<RunHistoryService> histories;
+    @org.springframework.beans.factory.annotation.Autowired public void useHistories(org.springframework.beans.factory.ObjectProvider<RunHistoryService> provider){histories=provider;}
 
     public LegacyDebugBridgeService(WorkflowService workflows,DefaultPersonalSpaceService defaults,ResourceAccessService access,
             RunService runs,RunMapper mapper,CheckpointService checkpoints,CheckpointMapper checkpointMapper) {
@@ -73,10 +75,12 @@ public class LegacyDebugBridgeService {
         if(!(body.get("inputs") instanceof Map<?,?>) || !(body.get("regen") instanceof Boolean))throw bad("原调试输入和重新生成标识无效");
         // MVC的Map/List是同一JSON输入；深转换真实数组并保全显式null，禁止浅getter留下List。
         JSONObject input=JSON.parseObject(JSON.toJSONString(body.get("inputs"),JSONWriter.Feature.WriteMapNullValue));
-        LegacyWorkflowStreamCodec.requireSupportedExecution(debug.snapshot().execution(),debug.snapshot().resourceSnapshots(),input);
+        LegacyWorkflowStreamCodec.requireSupportedExecution(debug.snapshot().execution(),debug.snapshot().resourceSnapshots(),input,debug.snapshot().engineProfile());
         text(body,"chatId",128);String key=key(body,"requestKey");
         if(access.requirePermission("paiflow:run:create")!=actor)throw new ServiceException("调试创建主体已变化",403);
-        var run=runs.create(debug.snapshot().workflowVersionId(),debug.snapshot().engineProfile(),input,key,900);
+        var run=runs.createDebug(debug.snapshot().workflowVersionId(),debug.snapshot().engineProfile(),input,key,900);
+        var history=histories==null?null:histories.getIfAvailable();
+        if(history!=null)history.bindDebug(run.runId(),debug.snapshot().flowId(),body.getString("chatId"));
         long after=cursor(lastEventId,run.runId(),run.lastEventSeq());
         return new Attachment(run.runId(),run.workflowVersionId(),spaceId,body.getJSONObject("debugReceipt"),after);
     }
@@ -116,6 +120,9 @@ public class LegacyDebugBridgeService {
         try { assignment=JSON.parseObject(run.getAssignmentJson()); }
         catch(RuntimeException ex) { throw new ServiceException("调试运行固定执行副本无效",409); }
         var fixed=debug.snapshot();
+        if(DslCodec.V4.equals(fixed.executionCodec()) && !DslCodec.V4.equals(assignment==null?null:assignment.get("executionCodec"))
+                || assignment!=null && assignment.containsKey("executionCodec") && !Objects.equals(fixed.executionCodec(),assignment.get("executionCodec")))
+            throw new ServiceException("调试运行执行格式与固定回执不一致",409);
         if(assignment==null || !Objects.equals(Long.toString(fixed.workflowVersionId()),assignment.get("workflowVersionId"))
                 || !Objects.equals(fixed.dslHash(),assignment.get("dslHash"))
                 || !Objects.equals(fixed.canonicalDslBase64(),assignment.get("dslCanonicalBase64"))
@@ -124,7 +131,7 @@ public class LegacyDebugBridgeService {
                 || !(assignment.get("resourceSnapshots") instanceof JSONObject resources) || !Objects.equals(fixed.resourceSnapshots(),resources)
                 || !(assignment.get("input") instanceof JSONObject input))
             throw new ServiceException("调试运行执行副本与本次回执不一致",409);
-        LegacyWorkflowStreamCodec.requireSupportedExecution(execution,resources,input);
+        LegacyWorkflowStreamCodec.requireSupportedExecution(execution,resources,input,fixed.engineProfile());
     }
     @Transactional(rollbackFor=Exception.class,isolation=Isolation.READ_COMMITTED)
     public Reply resume(JSONObject body,String header,String lastEventId) {

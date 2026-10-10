@@ -3,8 +3,8 @@ from typing import Any, AsyncGenerator, Sequence
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from api.schemas.agent_response import AgentResponse, CotStep
-from api.schemas.completion_chunk import (
+from agent.api.schemas.agent_response import AgentResponse, CotStep
+from agent.api.schemas.completion_chunk import (
     ReasonChatCompletionChunk,
     ReasonChoice,
     ReasonChoiceDelta,
@@ -13,10 +13,10 @@ from api.schemas.completion_chunk import (
 )
 
 # Use unified common package import module
-from common_imports import Node, NodeData, NodeTrace, Span
-from engine.nodes.chat.chat_runner import ChatRunner
-from engine.nodes.cot.cot_runner import CotRunner
-from service.plugin.base import BasePlugin
+from agent.common_imports import Node, NodeData, NodeTrace, Span
+from agent.engine.nodes.chat.chat_runner import ChatRunner
+from agent.engine.nodes.cot.cot_runner import CotRunner
+from agent.service.plugin.base import BasePlugin
 
 
 class UpdatedNode(Node):

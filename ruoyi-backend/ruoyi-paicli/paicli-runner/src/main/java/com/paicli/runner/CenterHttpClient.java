@@ -30,7 +30,18 @@ public final class CenterHttpClient implements AutoCloseable {
             .connectTimeout(Duration.ofSeconds(10)).readTimeout(Duration.ofSeconds(25))
             .callTimeout(Duration.ofSeconds(30)).build());
     }
+    public static CenterHttpClient terminal(String baseUrl,String token) {
+        return new CenterHttpClient(baseUrl,token,false,"X-PaiCLI-Terminal-Capability");
+    }
+    private CenterHttpClient(String baseUrl,String token,boolean runner,String customHeader) {
+        this(baseUrl,token,runner,new OkHttpClient.Builder().followRedirects(false).followSslRedirects(false)
+                .retryOnConnectionFailure(false).connectTimeout(Duration.ofSeconds(10)).readTimeout(Duration.ofSeconds(25))
+                .callTimeout(Duration.ofSeconds(30)).build(),customHeader);
+    }
     CenterHttpClient(String baseUrl, String token, boolean runner, OkHttpClient client) {
+        this(baseUrl,token,runner,client,null);
+    }
+    private CenterHttpClient(String baseUrl,String token,boolean runner,OkHttpClient client,String customHeader) {
         URI uri = URI.create(Objects.requireNonNull(baseUrl));
         boolean loopback = "localhost".equalsIgnoreCase(uri.getHost()) || "127.0.0.1".equals(uri.getHost())
                 || "[::1]".equals(uri.getHost()) || "::1".equals(uri.getHost());
@@ -38,7 +49,7 @@ public final class CenterHttpClient implements AutoCloseable {
                 || !("https".equalsIgnoreCase(uri.getScheme()) || (loopback && "http".equalsIgnoreCase(uri.getScheme()))))
             throw new IllegalArgumentException("中心地址必须是 HTTPS 或明确的本机回环地址");
         this.baseUrl = baseUrl.replaceAll("/+$", "");
-        this.header = runner ? "X-PaiCLI-Runner-Token" : "Authorization";
+        this.header = customHeader==null?(runner ? "X-PaiCLI-Runner-Token" : "Authorization"):customHeader;
         this.client = client;
         replaceToken(token);
     }
@@ -51,6 +62,13 @@ public final class CenterHttpClient implements AutoCloseable {
     public CenterHttpClient withRunnerToken(String scopedToken) {
         return new CenterHttpClient(baseUrl, scopedToken, true);
     }
+    /** 设备终端连接独立于任务HTTP连接，URL/日志中不出现凭证。 */
+    WebSocket terminalSocket(WebSocketListener listener) {
+        if(!"X-PaiCLI-Runner-Token".equals(header))throw new IllegalStateException("终端托管必须使用设备身份");
+        String url=baseUrl.replaceFirst("^http","ws")+"/paicli/runner/v1/terminal-stream";
+        return client.newWebSocket(new Request.Builder().url(url).header(header,token).build(),listener);
+    }
+    String baseUrl(){return baseUrl;}
     public JsonNode get(String path) throws IOException { return exchange("GET", path, null, null, null); }
     public JsonNode post(String path, JsonNode value, String idempotencyKey) throws IOException {
         return exchange("POST", path, value, idempotencyKey, null);
@@ -58,14 +76,14 @@ public final class CenterHttpClient implements AutoCloseable {
     public JsonNode mutate(String method, String path, JsonNode value, String key, String version) throws IOException {
         return exchange(method, path, value, key, version);
     }
-    public JsonNode uploadImage(String workspaceId, String name, String mimeType, byte[] image, String key) throws IOException {
+    public JsonNode uploadImage(String directoryContextId, String name, String mimeType, byte[] image, String key) throws IOException {
         if (key == null || key.isBlank() || key.length() > 128) throw new IllegalArgumentException("写请求必须有幂等键");
         if (image == null || image.length == 0 || image.length > 5 * 1024 * 1024) throw new IOException("API图片附件上限为5MB");
-        if (!workspaceId.matches("[1-9][0-9]{0,18}") || name == null || name.contains("\r") || name.contains("\n") || name.length() > 255) throw new IOException("附件标识非法");
+        if (!directoryContextId.matches("[1-9][0-9]{0,18}") || name == null || name.contains("\r") || name.contains("\n") || name.length() > 255) throw new IOException("附件标识非法");
         MediaType media = MediaType.parse(mimeType == null ? "image/png" : mimeType);
         if (media == null || !"image".equals(media.type())) throw new IOException("附件必须声明图片MIME");
         MultipartBody form = new MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("workspaceId", workspaceId).addFormDataPart("purpose", "TURN_IMAGE")
+            .addFormDataPart("directoryContextId", directoryContextId).addFormDataPart("purpose", "TURN_IMAGE")
             .addFormDataPart("file", name, RequestBody.create(image, media)).build();
         Request request = new Request.Builder().url(baseUrl + "/paicli/v1/artifacts")
             .header(header, "Authorization".equals(header) ? "Bearer " + token : token)

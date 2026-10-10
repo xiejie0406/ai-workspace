@@ -45,11 +45,11 @@ import java.util.function.Function;
 
 /** 三条原生路径复用完整算法，仅凭中心租约、上下文、供应商配置和批准执行。 */
 public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, AutoCloseable {
-    @Override public void close() { controls.close(); }
+    @Override public synchronized void close() { directoryControls.values().forEach(NativeControlExecutor::close); directoryControls.clear(); }
     @FunctionalInterface public interface LlmClientProvider { LlmClient create(JsonNode context) throws Exception; }
     private final CenterHttpClient center;
     private final LlmClientProvider providers;
-    private final NativeControlExecutor controls;
+    private final Map<Path,NativeControlExecutor> directoryControls = new java.util.LinkedHashMap<>();
     private final Path state;
 
     public NativeTaskExecutor(CenterHttpClient center) { this(center, defaultState(), null); }
@@ -58,7 +58,7 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
         this(center, defaultState(), providers);
     }
     public NativeTaskExecutor(CenterHttpClient center, Path state, LlmClientProvider providers) {
-        this.center = center; this.providers = providers; this.state = state.toAbsolutePath().normalize(); this.controls = new NativeControlExecutor(center, this.state, providers);
+        this.center = center; this.providers = providers; this.state = state.toAbsolutePath().normalize();
     }
     private static Path defaultState() { return Path.of(System.getProperty("user.home"), ".paicli-runner-test-state").toAbsolutePath().normalize(); }
 
@@ -67,14 +67,31 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
         Path project = Path.of(tools.getProjectPath()).toRealPath();
         RunnerPrivateDirectory.createDirectories(state);
         if (!state.toRealPath().equals(state) || state.startsWith(project)) throw new IOException("Runner派生状态必须在工作区外的真实私有目录");
+        Path derived=derivedState(lease,project);
+        NativeControlExecutor controls=controls(derived);
         JsonNode context = hydrateImages(NativeContextAssembler.load(center, lease, center.post("/paicli/runner/v1/context", lease.identity(), UUID.randomUUID().toString())), lease);
         try (var prompts = com.paicli.prompt.PromptRepository.bindCentral(approvedPrompts(context))) {
-            return executeBound(lease, tools, context);
+            return executeBound(lease, tools, context,controls,derived);
         }
     }
-    private String executeBound(RunnerLease lease, CenterToolRegistry tools, JsonNode context) throws Exception {
+    Path derivedState(RunnerLease lease,Path project)throws IOException{
+        if(!lease.claim().has("ownerUserId"))return state;
+        String owner=PersonalDirectoryContext.id(lease.claim().path("ownerUserId").asText());
+        return RunnerPrivateDirectory.createDirectories(state.resolve("directories").resolve(owner).resolve(new ResourceFingerprint(project).rootFingerprint()));
+    }
+    private synchronized NativeControlExecutor controls(Path directory)throws IOException{
+        NativeControlExecutor found=directoryControls.get(directory);
+        if(found!=null)return found;
+        if(directoryControls.size()>=32)throw new IOException("本宿主已达到活动目录派生连接上限，请结束连接并重新启动宿主");
+        NativeControlExecutor result=new NativeControlExecutor(center,directory,providers);directoryControls.put(directory,result);return result;
+    }
+    private String executeBound(RunnerLease lease, CenterToolRegistry tools, JsonNode context,NativeControlExecutor controls,Path derivedState) throws Exception {
         tools.setCentralStateMode(true); tools.setCentralProjectContext(context.path("projectMemoryContext").asText(""));
-        HttpToolResultOffloader offloader = new HttpToolResultOffloader(center, lease, tools, state.resolve("tool-outputs"));
+        if(PersonalDirectoryContext.textOnly(lease.claim())){
+            if(!context.path("textOnly").asBoolean())throw new IOException("纯问答上下文未保持无工具限制");
+            return runCoding(lease,tools,context,controls);
+        }
+        HttpToolResultOffloader offloader = new HttpToolResultOffloader(center, lease, tools, derivedState.resolve("tool-outputs"));
         tools.setToolResultOffloader(offloader); tools.setVirtualFileReader(offloader::read);
         controls.configureDerivedState(tools, context, lease);
         if ("CONTROL".equalsIgnoreCase(context.path("mode").asText(context.path("taskPayload").path("mode").asText())))
@@ -84,7 +101,7 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
             new NativeSnapshotAdapter(center,lease,tools,snapshots.manager()).install();
             String turn = "task-" + lease.taskId(); String summary = context.path("text").asText(context.path("input").asText());
             lease.ensureActive(); recordSnapshot(lease, snapshots.manager().preTurnSnapshot(turn, summary));
-            try { return runCoding(lease, tools, context); }
+            try { return runCoding(lease, tools, context,controls); }
             finally {
                 boolean evidence = true; try { lease.ensureEvidenceAllowed(); } catch (IOException lost) { evidence = false; }
                 if (evidence) recordSnapshot(lease, snapshots.manager().postTurnSnapshot(turn, summary));
@@ -97,7 +114,7 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
         payload.put("hashKind", "CANONICAL_MANIFEST"); String hash = CanonicalJson.hash(payload); payload.put("manifestHash", hash); payload.put("sha256", hash);
         sendEvent(lease, "SNAPSHOT", payload);
     }
-    private String runCoding(RunnerLease lease, CenterToolRegistry tools, JsonNode context) throws Exception {
+    private String runCoding(RunnerLease lease, CenterToolRegistry tools, JsonNode context,NativeControlExecutor controls) throws Exception {
         String input = context.path("text").asText(context.path("input").asText());
         if (input.isBlank()) throw new IOException("中心未提供任务输入");
         LlmClient client = budgeted(center, lease, context, providers == null ? managedProvider(center, lease, context) : providers.create(context));
@@ -112,7 +129,7 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
         };
         HttpCentralMemoryStore storage = new HttpCentralMemoryStore(center, lease, input, tools.getProjectPath(), tools::currentExecutionBinding);
         MemoryManager memory = new MemoryManager(client, 0, context.path("contextWindow").asInt(client.maxContextWindow()), new LongTermMemory(storage));
-        memory.setAutoFactExtractionEnabled(context.path("autoFactExtractionEnabled").asBoolean(false));
+        memory.setAutoFactExtractionEnabled(!PersonalDirectoryContext.textOnly(lease.claim())&&context.path("autoFactExtractionEnabled").asBoolean(false));
         ConversationLedger ledger = ConversationLedger.central(lease.sessionId(), context.path("lastMessageSequence").asLong(), ledgerEntries(context), entry -> {
             // 原用户输入已经由中心持久化；模型任务包装文本不能冒充用户原话。
             if (entry.message() != null && "user".equals(entry.message().role())) return;
@@ -126,8 +143,8 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
         });
         SkillRegistry skills = approvedSkills(context);
         tools.setCentralSkillBindings(context.path("skillsConfigs"));
-        tools.setSkillRegistry(skills); controls.attachConnections(lease, tools, context);
-        String effectiveInput = NativeMentionExpander.expand(input, tools);
+        tools.setSkillRegistry(skills); if(!PersonalDirectoryContext.textOnly(lease.claim()))controls.attachConnections(lease, tools, context);
+        String effectiveInput = PersonalDirectoryContext.textOnly(lease.claim())?input:NativeMentionExpander.expand(input, tools);
         lease.ensureActive();
         List<LlmClient.Message> history = new ArrayList<>(history(context));
         if (!history.isEmpty() && "user".equals(history.get(history.size() - 1).role()) && input.equals(history.get(history.size() - 1).content())) history.remove(history.size() - 1);
@@ -210,9 +227,31 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
         int output = policy.path("maxOutputTokens").asInt(context.path("modelConfig").path("maxOutputTokens").asInt(4096));
         if (task <= 0 || daily <= 0 || output <= 0) throw new IOException("中心剩余Token预算不足或未提供，执行已拒绝");
         return new BudgetedLlmClient(client, Math.min(task, daily), output, usage -> {
-            try { ObjectNode body = lease.identity(); String id = UUID.randomUUID().toString(); body.put("eventId", id); body.put("type", "USAGE"); body.set("payload", CanonicalJson.MAPPER.valueToTree(usage)); center.post("/paicli/runner/v1/events", body, id); }
+            try { ObjectNode body = lease.identity(); String id = UUID.randomUUID().toString(); body.put("eventId", id); body.put("type", "USAGE"); body.set("payload", usagePayload(context, usage)); center.post("/paicli/runner/v1/events", body, id); }
             catch (IOException failure) { lease.invalidate(); throw new UncheckedIOException("中心用量未确认，停止执行", failure); }
         });
+    }
+
+    static ObjectNode usagePayload(JsonNode context, BudgetedLlmClient.Usage usage) {
+        ObjectNode payload = CanonicalJson.MAPPER.valueToTree(usage);
+        payload.remove("callIdentity");
+        BudgetedLlmClient.CallIdentity identity = usage.callIdentity();
+        // 搜索沿用已有事件契约；不能把独立外部调用登记成会话主模型。
+        if (identity != null && "SEARCH".equals(identity.capability())) return payload;
+        if (identity != null) {
+            payload.put("capability", identity.capability()); payload.put("provider", identity.provider());
+            payload.put("model", identity.model()); payload.put("configurationVersion", identity.configurationVersion());
+            if (identity.configFingerprint() != null) payload.put("configFingerprint", identity.configFingerprint());
+            if (identity.releaseId() != null && !identity.releaseId().isBlank()) {
+                payload.put("releaseId", identity.releaseId()); payload.put("releaseVersion", identity.releaseVersion());
+            }
+        } else {
+            payload.put("capability", "CHAT"); payload.put("provider", context.path("provider").asText());
+            payload.put("model", context.path("modelConfig").path("modelId").asText(context.path("model").asText()));
+            JsonNode model = context.path("modelConfig");
+            payload.put("configurationVersion", model.path("configurationVersion").asLong(model.path("version").asLong()));
+        }
+        return payload;
     }
 
     private PlanExecuteAgent.PlanReviewDecision review(RunnerLease lease, ExecutionPlan plan, CenterToolRegistry tools) {

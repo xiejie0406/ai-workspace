@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -33,6 +34,7 @@ public class WorkflowExportService {
     private static final String QUERY="paiflow:workflow:query";
     private static final int DRAFT_BYTES=16*1024*1024;
     private static final int EXPORT_BYTES=32*1024*1024;
+    private static final Set<String> SERVER_META=Set.of("id","flowId","spaceId","uid","userId","ownerUserId","appId","appKey","appSecret","botId","agentRevision","agentBindingStatus","revision","latestVersionId","status","isPublic","canPublish","createBy","updateBy","createTime","updateTime","deleted","publishResult","publishChannel","publicationStatus","bindingStatus");
     private final WorkflowService workflows;
     private final DefaultPersonalSpaceService defaults;
     private final ResourceAccessService access;
@@ -69,11 +71,30 @@ public class WorkflowExportService {
         SourceMeta typedMeta;
         try {typedMeta=JSON.parseObject(metaInput.toJSONString(JSONWriter.Feature.WriteMapNullValue),SourceMeta.class);}
         catch(RuntimeException ex){throw new ServiceException("工作流元信息不符合原导出字段类型",400);}
+        // 已批准的未知扩展保全：以当前草稿覆盖原导入快照，显式null不会消失。
         Map<String,Object> meta=new LinkedHashMap<>();
+        if(metadata.get("importSourceMetadata")!=null)meta.putAll(object(metadata.getString("importSourceMetadata"),"importSourceMetadata"));
+        meta.putAll(metadata);meta.remove("importSourceMetadata");meta.remove("importPackageExtensions");
+        for(String key:SERVER_META)meta.remove(key);
+        if(meta.get("ext") instanceof Map<?,?> || meta.get("ext") instanceof String) {
+            boolean text=meta.get("ext") instanceof String;
+            Object parsed=meta.get("ext");
+            if(text)try {parsed=JSON.parse((String)meta.get("ext"));}catch(RuntimeException nonJson){parsed=null;}
+            if(parsed instanceof Map<?,?> map) {
+                JSONObject ext=JSON.parseObject(JSON.toJSONString(map,JSONWriter.Feature.WriteMapNullValue));
+                for(String key:List.of("botId","agentRevision","agentBindingStatus"))ext.remove(key);
+                meta.put("ext",text?ext.toJSONString(JSONWriter.Feature.WriteMapNullValue):ext);
+            }
+        }
         meta.put("name",typedMeta.name);meta.put("description",typedMeta.description);meta.put("avatarIcon",typedMeta.avatarIcon);
         meta.put("avatarColor",typedMeta.avatarColor);meta.put("edgeType",typedMeta.edgeType);meta.put("category",typedMeta.category);meta.put("advancedConfig",typedMeta.advancedConfig);
-        meta.values().removeIf(value->value==null);meta.put("dslVersion","v1");
-        Map<String,Object> wrapper=new LinkedHashMap<>();wrapper.put("flowMeta",meta);wrapper.put("flowData",flowData);
+        // 原DTO七字段仍按原规则处理；扩展中的null按原输入保留。
+        for(String key:List.of("name","description","avatarIcon","avatarColor","edgeType","category","advancedConfig"))if(meta.get(key)==null)meta.remove(key);
+        meta.put("dslVersion","v1");
+        Map<String,Object> wrapper=new LinkedHashMap<>();
+        if(metadata.get("importPackageExtensions")!=null)wrapper.putAll(object(metadata.getString("importPackageExtensions"),"importPackageExtensions"));
+        if(wrapper.containsKey("flowMeta") || wrapper.containsKey("flowData"))throw new ServiceException("包根扩展与工作流字段冲突",409);
+        wrapper.put("flowMeta",meta);wrapper.put("flowData",flowData);
         WorkflowJsonBoundary.check(wrapper,"export",EXPORT_BYTES);
         byte[] bytes=dump(wrapper,cleared);
         // requireSpace清当前SqlSession后再复读WF，避免缓存行掩盖撤权/删除/域变更。

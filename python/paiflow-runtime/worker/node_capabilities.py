@@ -1,6 +1,7 @@
 """原 Plugin/专业RAG/Agent/数据库/RPA 节点的固定能力绑定。
 
-这些是尚无生产端点的草案消费者；原算法保留，正式状态只接受中心回执。
+Link工具另有正式固定快照/完整回执校验；其他能力沿各自接线状态。
+原算法保留，消费者通过不代表中心Producer或业务验收已经完成。
 """
 import copy
 import json
@@ -120,8 +121,8 @@ async def agent_response(node, payload, consume):
     no_credentials(node, "apiKey", "apiSecret")
     if node.modelConfig.api or node.plugin.mcpServerUrls:
         raise WorkerError("TOOL_POLICY_DENIED", "Agent不接受旧模型API或MCP URL")
-    if node.enableChatHistoryV2.is_enabled:
-        raise WorkerError("RESOURCE_UNAVAILABLE", "Agent正式历史scope尚未绑定")
+    if node.enableChatHistoryV2.is_enabled and current_context().execution_context is None:
+        raise WorkerError("RESOURCE_UNAVAILABLE", "Agent 历史必须绑定中心正式会话")
     plugin = copy.deepcopy(payload["plugin"])
     resource = await bound_resource(node, node.agentResourceId, "agent", {"provider": "original-agent",
         "strategy": node.modelConfig.agentStrategy, "modelResourceId": node.modelResourceId,
@@ -161,6 +162,11 @@ async def agent_response(node, payload, consume):
     for selection, (kind, expected) in expected_selections.items():
         identifier = selections[selection]
         await bound_resource(node, identifier, kind, expected)
+    if resource.get('executionMode') == 'worker-original':
+        from .legacy_operations import _authorized
+        from .agent_factory import consume_bound_agent
+        _authorized(node, 'agent.invoke')
+        return await consume_bound_agent(node, payload, resource, consume)
     body, fingerprint = stream_parameters(node, node.agentResourceId, resource, payload, bindings)
     async with response_stream(node, "agent.invoke", body, fingerprint, "agent") as response:
         return await consume(response)
@@ -169,8 +175,6 @@ async def agent_response(node, payload, consume):
 def structured_database_request(node, inputs):
     """保留第一case、NULL/ZERO/LIKE及写后返回规则，改为中心参数化事务。"""
     from workflow.engine.nodes.pgsql.pgsql_node import ZERO
-    if node.mode == 0:
-        raise WorkerError("RESOURCE_UNAVAILABLE", "CUSTOM SQL尚无中心解析/翻译和授权端口")
     if node.sql:
         raise WorkerError("TOOL_POLICY_DENIED", "结构化数据库操作不能携带任意SQL")
     identifiers = [node.tableName, *node.assignmentList, *(item.fieldName for item in node.orderData)]
@@ -203,6 +207,24 @@ def structured_database_request(node, inputs):
         "returning": "last_inserted_row" if node.mode == 1 else "matched_rows" if node.mode == 2 else "exec_success"}
 
 
+def custom_database_request(node, inputs):
+    """原占位符替换保留；本地只分流和粗核逻辑表，中心必须重解析所有SQL。"""
+    if not isinstance(node.sql, str) or not node.sql.strip():
+        raise WorkerError("DSL_INVALID", "CUSTOM SQL必须提供原语句")
+    sql = node.replace_placeholders(node.sql, inputs)
+    if len(sql) > 65536:
+        raise WorkerError("DSL_INVALID", "CUSTOM SQL超过中心预算")
+    # 避免字符串中的FROM/表名影响粗检；不把替换值拼成新的本地SQL算法。
+    routing = re.sub(r"'(?:[^']|'')*'", "''", sql).strip()
+    patterns = (("select", r"^select\b[\s\S]*?\bfrom\s+"), ("insert", r"^insert\s+into\s+"),
+                ("update", r"^update\s+"), ("delete", r"^delete\s+from\s+"))
+    for operation, prefix in patterns:
+        match = re.match(prefix + r'("[A-Za-z_][A-Za-z0-9_]*"|[A-Za-z_][A-Za-z0-9_]*)(?=\s|\(|;|$)', routing, re.I)
+        if match:
+            return {"mode": 0, "sql": sql}, match.group(1).strip('"'), "data.query" if operation == "select" else "data.mutate"
+    raise WorkerError("TOOL_POLICY_DENIED", "CUSTOM须为中心支持的单逻辑表SELECT/INSERT/UPDATE/DELETE")
+
+
 def _database_response(value, failed):
     if (not isinstance(value, dict) or type(value.get("code")) is not int or (value["code"] != 0) != failed
             or not isinstance(value.get("message", ""), str)):
@@ -215,20 +237,30 @@ def _database_response(value, failed):
 @guarded
 async def database_response(node, inputs):
     no_credentials(node, "apiKey")
-    payload = structured_database_request(node, inputs)
+    environment = current_context().assignment.data_environment
+    if type(environment) is not int or environment not in {1, 2}:
+        raise WorkerError("DSL_INVALID", "数据节点缺少中心固定运行环境")
+    if node.mode == 0:
+        payload, table, operation = custom_database_request(node, inputs)
+    else:
+        payload, table, operation = structured_database_request(node, inputs), node.tableName, "data.query" if node.mode == 3 else "data.mutate"
+    payload["execDev"] = environment
     resource = await bound_resource(node, node.dataResourceId, "database", {"provider": "center-data",
         "legacyDbId": node.dbId, "legacySpaceId": node.spaceId})
     tables = resource.get("tables")
-    if (not isinstance(tables, dict) or node.tableName not in tables or not isinstance(tables[node.tableName], dict)
-            or node.mode not in tables[node.tableName].get("allowedModes", [])):
-        raise WorkerError("TOOL_POLICY_DENIED", "中心未授权该逻辑表和数据操作")
-    columns = tables[node.tableName].get("columns")
-    used = {*payload["values"], *payload["columns"], *(item["fieldName"] for item in payload["where"]["conditions"]),
+    grant = tables.get(table) if isinstance(tables, dict) else None
+    if (not isinstance(grant, dict) or not isinstance(grant.get("allowedModes"), list)
+            or any(type(mode) is not int for mode in grant["allowedModes"]) or node.mode not in grant["allowedModes"]
+            or not isinstance(grant.get("execEnvs"), list) or any(type(env) is not int for env in grant["execEnvs"])
+            or environment not in grant["execEnvs"]):
+        raise WorkerError("TOOL_POLICY_DENIED", "中心未授权该逻辑表、数据操作或环境")
+    columns = grant.get("columns")
+    used = set() if node.mode == 0 else {*payload["values"], *payload["columns"], *(item["fieldName"] for item in payload["where"]["conditions"]),
             *(item["fieldName"] for item in payload["order"])}
-    if not isinstance(columns, list) or not used <= set(columns):
+    if not isinstance(columns, list) or any(not isinstance(column, str) for column in columns) or not used <= set(columns):
         raise WorkerError("TOOL_POLICY_DENIED", "中心未授权对应逻辑列")
     body, fingerprint = parameters(node.dataResourceId, resource, payload)
-    original = await completed_response(node, "data.query" if node.mode == 3 else "data.mutate", body, fingerprint, _database_response)
+    original = await completed_response(node, operation, body, fingerprint, _database_response)
     if original["code"] != 0:
         from workflow.exception.e import CustomException
         from workflow.exception.errors.err_code import CodeEnum

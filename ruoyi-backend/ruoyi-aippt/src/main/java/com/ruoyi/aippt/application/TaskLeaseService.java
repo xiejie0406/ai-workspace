@@ -15,9 +15,12 @@ import org.springframework.transaction.support.TransactionTemplate;
     private final AipptService service;
     private final AipptProperties props;
     private RedisDeliveryService delivery;
+    private AipptTextRouteService textRoutes;
     private static final Set<String> TASK_TYPES=Set.of("parse_source","generate_outline","generate_slide","ai_edit","relayout","quality","export");
     @org.springframework.beans.factory.annotation.Autowired(required=false)
     public void setDelivery(RedisDeliveryService value) { delivery=value; }
+    @org.springframework.beans.factory.annotation.Autowired
+    public void setTextRoutes(AipptTextRouteService value) { textRoutes=value; }
     public TaskLeaseService(AipptRepository d,AipptMapper m,@Qualifier("aipptTransactions")TransactionTemplate t,AipptService s,AipptProperties p)  {
         db=d;
         mapper=m;
@@ -76,6 +79,17 @@ import org.springframework.transaction.support.TransactionTemplate;
                     finishFailure(task,"任务超过总时限");
                     continue;
                 }
+                if(AipptTextRouteService.TEXT_TYPES.contains(task.getString("type"))) {
+                    // 已经预占/发送过模型请求的旧尝试不通过自动领取重送收费请求。
+                    if(hasTextCalls(task)) { finishFailure(task,"原尝试已有文本调用，禁止自动重新执行");continue; }
+                    if(textRoutes==null)throw AipptTextRouteService.unavailable();
+                    JSONObject route=textRoutes.snapshot();
+                    JSONObject frozen=task.getJSONObject("text_route");
+                    if(frozen!=null&&!Objects.equals(frozen.getString("routeVersion"),route.getString("routeVersion"))) {
+                        finishFailure(task,"文本路由版本已变化，请重新创建任务");continue;
+                    }
+                    task.put("text_route",route);
+                }
                 task.put("attempt",task.getIntValue("attempt")+1);
                 task.put("fencing_token",task.getLongValue("fencing_token")+1);
                 task.put("lease_token",UUID.randomUUID().toString());
@@ -112,9 +126,9 @@ import org.springframework.transaction.support.TransactionTemplate;
                 task.put("status","cancelled");
                 service.failedOutput(task,"任务取消，租约到期");
             }
-            else if(task.getIntValue("attempt")>=props.getWorker().getMaxAttempts()||Instant.parse(task.getString("deadline")).isBefore(Instant.now()))  {
+            else if(hasTextCalls(task)||task.getIntValue("attempt")>=props.getWorker().getMaxAttempts()||Instant.parse(task.getString("deadline")).isBefore(Instant.now()))  {
                 task.put("status","failed");
-                service.failedOutput(task,"Worker租约超时，超过恢复次数");
+                service.failedOutput(task,hasTextCalls(task)?"Worker租约超时且已有文本调用，远端结果须核对，不自动重送":"Worker租约超时，超过恢复次数");
             }
             else task.put("status","queued");
             db.save("task",task,task.getLongValue("revision"));
@@ -226,7 +240,7 @@ import org.springframework.transaction.support.TransactionTemplate;
             String error=request.getString("message");
             if(error==null)error="算法任务失败";
             AipptRules.text(error,1,1000,"失败原因");
-            boolean retry=request.getBooleanValue("retryable")&&!t.getBooleanValue("cancel_requested")&&t.getIntValue("attempt")<props.getWorker().getMaxAttempts()&&Instant.parse(t.getString("deadline")).isAfter(Instant.now());
+            boolean retry=request.getBooleanValue("retryable")&&!hasTextCalls(t)&&!t.getBooleanValue("cancel_requested")&&t.getIntValue("attempt")<props.getWorker().getMaxAttempts()&&Instant.parse(t.getString("deadline")).isAfter(Instant.now());
             if(retry)  {
                 t.put("status","queued");
                 t.put("error",error);
@@ -294,5 +308,9 @@ import org.springframework.transaction.support.TransactionTemplate;
         JSONObject p=db.get("project",task.getString("project_id"));
         if("generate_slide".equals(task.getString("type")))service.settle(p);
         service.event(p.getString("id"),p.getLongValue("owner_user_id"),"failed",JSONObject.of("task_id",task.getString("id"),"message",error));
+    }
+    private static boolean hasTextCalls(JSONObject task) {
+        JSONObject calls=task.getJSONObject("text_calls");
+        return calls!=null&&!calls.isEmpty();
     }
 }

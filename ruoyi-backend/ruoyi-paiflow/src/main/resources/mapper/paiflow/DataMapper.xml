@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.DataMapper">
+  <resultMap id="dataRecord" type="com.ruoyi.paiflow.domain.DataRecord">
+    <result property="id" column="id"/>
+    <result property="spaceId" column="space_id"/>
+    <result property="ownerUserId" column="owner_user_id"/>
+    <result property="dbId" column="db_id"/>
+    <result property="name" column="name"/>
+    <result property="description" column="description"/>
+    <result property="avatarIcon" column="avatar_icon"/>
+    <result property="avatarColor" column="avatar_color"/>
+    <result property="fieldsJson" column="fields_json"/>
+    <result property="revision" column="revision"/>
+    <result property="deleted" column="deleted"/>
+    <result property="createTime" column="create_time"/>
+    <result property="updateTime" column="update_time"/>
+  </resultMap>
+  <sql id="dbColumns">id,space_id,owner_user_id,name,description,avatar_icon,avatar_color,revision,deleted,create_time,update_time</sql>
+  <sql id="tableColumns">id,db_id,name,description,fields_json,revision,deleted,create_time,update_time</sql>
+  <select id="database" resultMap="dataRecord">SELECT <include refid="dbColumns"/> FROM paiflow_data_database WHERE id=#{id}</select>
+  <select id="lockDatabase" resultMap="dataRecord">SELECT <include refid="dbColumns"/> FROM paiflow_data_database WHERE id=#{id} FOR UPDATE</select>
+  <select id="databases" resultMap="dataRecord">SELECT <include refid="dbColumns"/> FROM paiflow_data_database WHERE space_id=#{space} AND deleted=0 ORDER BY id DESC LIMIT 10001</select>
+  <insert id="insertDatabase" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_data_database(space_id,owner_user_id,name,description,avatar_icon,avatar_color,revision,deleted,create_time,update_time) VALUES(#{spaceId},#{ownerUserId},#{name},#{description},#{avatarIcon},#{avatarColor},0,0,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))</insert>
+  <update id="updateDatabase">UPDATE paiflow_data_database SET name=#{name},description=#{description},avatar_icon=#{avatarIcon},avatar_color=#{avatarColor},deleted=#{deleted},revision=revision+1,update_time=UTC_TIMESTAMP(3) WHERE id=#{id} AND revision=#{revision}</update>
+  <select id="table" resultMap="dataRecord">SELECT <include refid="tableColumns"/> FROM paiflow_data_table WHERE id=#{id}</select>
+  <select id="lockTable" resultMap="dataRecord">SELECT <include refid="tableColumns"/> FROM paiflow_data_table WHERE id=#{id} FOR UPDATE</select>
+  <select id="tables" resultMap="dataRecord">SELECT <include refid="tableColumns"/> FROM paiflow_data_table WHERE db_id=#{db} AND deleted=0 ORDER BY id LIMIT 1001</select>
+  <insert id="insertTable" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_data_table(db_id,name,description,fields_json,revision,deleted,create_time,update_time) VALUES(#{dbId},#{name},#{description},#{fieldsJson},0,0,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))</insert>
+  <update id="updateTable">UPDATE paiflow_data_table SET name=#{name},description=#{description},fields_json=#{fieldsJson},deleted=#{deleted},revision=revision+1,update_time=UTC_TIMESTAMP(3) WHERE id=#{id} AND revision=#{revision}</update>
+  <resultMap id="rowRecord" type="map">
+    <result property="id" column="id"/>
+    <result property="rowJson" column="row_json"/>
+  </resultMap>
+  <select id="rows" resultMap="rowRecord">SELECT id,row_json FROM paiflow_data_row WHERE table_id=#{table} AND exec_env=#{env} ORDER BY id LIMIT #{limit}</select>
+  <select id="countRows" resultType="long">SELECT COUNT(*) FROM paiflow_data_row WHERE table_id=#{table} AND exec_env=#{env}</select>
+  <insert id="insertRow" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_data_row(table_id,exec_env,row_json) VALUES(#{table},#{env},#{json})</insert>
+  <update id="updateRow">UPDATE paiflow_data_row SET row_json=#{json} WHERE table_id=#{table} AND exec_env=#{env} AND id=#{id}</update>
+  <delete id="deleteRow">DELETE FROM paiflow_data_row WHERE table_id=#{table} AND exec_env=#{env} AND id=#{id}</delete>
+  <!-- 版本JSON中固定data描述由Compiler产生；不把字符串LIKE当引用判断。 -->
+  <select id="referencedDatabase" resultType="int">SELECT COUNT(*) FROM paiflow_workflow_version v,JSON_TABLE(v.resource_snapshots_json,'$.*' COLUMNS(kind VARCHAR(32) PATH '$.kind',db BIGINT PATH '$.legacyDbId' NULL ON EMPTY)) refs WHERE refs.kind='database' AND refs.db=#{id}</select>
+  <select id="referencedTable" resultType="int">SELECT COUNT(*) FROM paiflow_workflow_version v,JSON_TABLE(v.resource_snapshots_json,'$.*' COLUMNS(kind VARCHAR(32) PATH '$.kind',NESTED PATH '$.tables.*' COLUMNS(tb BIGINT PATH '$.tableId' NULL ON EMPTY))) refs WHERE refs.kind='database' AND refs.tb=#{id}</select>
+  <resultMap id="requestRecord" type="map">
+    <result property="requestHash" column="request_hash"/>
+    <result property="responseJson" column="response_json"/>
+  </resultMap>
+  <select id="request" resultMap="requestRecord">SELECT request_hash,response_json FROM paiflow_data_request WHERE run_id=#{run} AND attempt=#{attempt} AND request_key_hash=#{key}</select>
+  <insert id="record">INSERT INTO paiflow_data_request(run_id,attempt,request_key_hash,request_hash,response_json) VALUES(#{run},#{attempt},#{key},#{hash},#{response})</insert>
+  <resultMap id="completionRecord" type="map">
+    <result property="requestKeyHash" column="request_key_hash"/>
+    <result property="completionJson" column="completion_json"/>
+    <result property="completionHash" column="completion_hash"/>
+  </resultMap>
+  <select id="completion" resultMap="completionRecord">SELECT request_key_hash,completion_json,completion_hash FROM paiflow_data_completion WHERE run_id=#{run} AND attempt=#{attempt} AND request_key_hash=#{key}</select>
+  <select id="completedSources" resultMap="completionRecord">SELECT request_key_hash,completion_json,completion_hash FROM paiflow_data_completion WHERE run_id=#{run} AND lease_id=#{lease} AND attempt=#{attempt} AND node_id=#{node} AND iteration_id=#{iteration} ORDER BY request_key_hash LIMIT 2</select>
+  <insert id="recordCompletion">INSERT INTO paiflow_data_completion(run_id,lease_id,attempt,node_id,iteration_id,request_key_hash,completion_json,completion_hash) VALUES(#{run},#{lease},#{attempt},#{node},#{iteration},#{key},#{json},#{hash})</insert>
+</mapper>

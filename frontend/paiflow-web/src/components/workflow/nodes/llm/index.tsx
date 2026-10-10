@@ -17,6 +17,20 @@ import {
 import { isJSON } from '@/utils';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
 import { ModelSection } from '@/components/workflow/nodes/node-common';
+import type { NodeDataType } from '@/components/workflow/types';
+import type { ModelNodeParameters } from '@/components/workflow/types/nodes/components';
+import type { UseNodeFuncReturn } from '@/components/workflow/types/hooks';
+
+interface LargeModelParameters extends ModelNodeParameters {
+  respFormat?: number;
+  templateErrMsg?: string;
+  setAnswerContentErrMsg?: string;
+}
+interface LargeModelProps {
+  id: string;
+  data: NodeDataType<LargeModelParameters>;
+}
+type ModelSectionProps = LargeModelProps & Pick<UseNodeFuncReturn, 'handleChangeNodeParam'>;
 
 import promptOptimizationIcon from '@/assets/imgs/workflow/prompt-optimization-icon.png';
 import promptLibraryIcon from '@/assets/imgs/workflow/prompt-library-icon.svg';
@@ -25,7 +39,7 @@ const PromptSection = ({
   id,
   data,
   handleChangeNodeParam,
-}): React.ReactElement => {
+}: ModelSectionProps): React.ReactElement => {
   const { t } = useTranslation();
   const canvasesDisabled = useFlowsManager(state => state.canvasesDisabled);
   const setSelectPromptModalInfo = useFlowsManager(
@@ -130,7 +144,7 @@ const OutputSection = ({
   id,
   data,
   handleChangeNodeParam,
-}): React.ReactElement => {
+}: ModelSectionProps): React.ReactElement => {
   const { currentNode, isThinkModel } = useNodeCommon({ id, data });
   const { t } = useTranslation();
   const canvasesDisabled = useFlowsManager(state => state.canvasesDisabled);
@@ -161,7 +175,7 @@ const OutputSection = ({
                   value: 2,
                 },
               ]}
-              onChange={value =>
+              onChange={(value: number) =>
                 handleChangeNodeParam((data, value) => {
                   data.nodeParam.respFormat = value;
                   if (data.nodeParam.respFormat === 0) {
@@ -187,7 +201,9 @@ const OutputSection = ({
                               default: '',
                             },
                           },
-                          ...data.outputs,
+                          ...(data.outputs ?? []).filter(
+                            output => !['REASONING_CONTENT', 'output'].includes(output.name)
+                          ),
                         ]
                       : [
                           {
@@ -201,7 +217,7 @@ const OutputSection = ({
                         ];
                     updateNodeRef(id);
                   }
-                  if (!checkedNodeOutputData(data?.outputs, currentNode)) {
+                  if (!checkedNodeOutputData(data.outputs ?? [], currentNode)) {
                     const customOutput = JSON.stringify(
                       { output: '' },
                       null,
@@ -219,9 +235,9 @@ const OutputSection = ({
                   } else {
                     const customOutput = JSON.stringify(
                       generateOrUpdateObject(
-                        data?.outputs,
-                        isJSON(data?.retryConfig?.customOutput)
-                          ? JSON.parse(data?.retryConfig?.customOutput)
+                        data.outputs ?? [],
+                        isJSON(data.retryConfig?.customOutput ?? '')
+                          ? JSON.parse(data.retryConfig?.customOutput ?? '')
                           : null
                       ),
                       null,
@@ -246,7 +262,7 @@ const OutputSection = ({
   );
 };
 
-export const LargeModelDetail = memo(({ id, data }): React.ReactElement => {
+export const LargeModelDetail = memo(({ id, data }: LargeModelProps): React.ReactElement => {
   const { handleChangeNodeParam } = useNodeCommon({
     id,
     data,

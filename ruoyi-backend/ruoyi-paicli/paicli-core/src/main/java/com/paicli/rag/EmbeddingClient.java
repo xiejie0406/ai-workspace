@@ -23,22 +23,32 @@ public class EmbeddingClient {
     private final String model;
     private final String baseUrl;
     private final String apiKey;
+    private final int expectedDimensions;
+    public static final String CHUNKER_VERSION = "code-chunker-v1";
     public record Usage(int inputTokens, boolean present) { }
     private final ThreadLocal<Usage> lastUsage = new ThreadLocal<>();
     public Usage consumeUsage() { Usage value = lastUsage.get(); lastUsage.remove(); return value == null ? new Usage(0, false) : value; }
 
     public EmbeddingClient() {
-        this.provider = getEnv("EMBEDDING_PROVIDER", "ollama");
-        this.model = getEnv("EMBEDDING_MODEL", "nomic-embed-text:latest");
-        this.baseUrl = getEnv("EMBEDDING_BASE_URL", inferDefaultUrl(provider));
-        this.apiKey = getEnv("EMBEDDING_API_KEY", "");
+        this(getEnv("EMBEDDING_PROVIDER", "ollama"), getEnv("EMBEDDING_MODEL", "nomic-embed-text:latest"),
+                getEnv("EMBEDDING_BASE_URL", inferDefaultUrl(getEnv("EMBEDDING_PROVIDER", "ollama"))),
+                getEnv("EMBEDDING_API_KEY", ""));
     }
 
     public EmbeddingClient(String provider, String model, String baseUrl, String apiKey) {
-        this.provider = provider;
-        this.model = model;
-        this.baseUrl = baseUrl;
+        this(provider, model, baseUrl, apiKey, 0);
+    }
+
+    public EmbeddingClient(String provider, String model, String baseUrl, String apiKey, int expectedDimensions) {
+        this.provider = provider == null ? "" : provider.trim().toLowerCase(java.util.Locale.ROOT);
+        if (!java.util.Set.of("ollama", "openai", "zhipu", "glm").contains(this.provider))
+            throw new IllegalArgumentException("Embedding供应商不受支持");
+        if (model == null || model.isBlank()) throw new IllegalArgumentException("Embedding型号不能为空");
+        if (expectedDimensions < 0 || expectedDimensions > 65536) throw new IllegalArgumentException("向量维度非法");
+        this.model = model.trim();
+        this.baseUrl = normalizeBaseUrl(baseUrl);
         this.apiKey = apiKey;
+        this.expectedDimensions = expectedDimensions;
     }
 
     // 安全截断长度（中文密集文本 2000 字符 ≈ 4000~6000 token，适配 8192 上下文模型）
@@ -61,7 +71,7 @@ public class EmbeddingClient {
         return switch (provider.toLowerCase()) {
             case "ollama" -> embedOllama(input);
             case "openai", "zhipu", "glm" -> embedOpenAICompatible(input);
-            default -> embedOllama(input);
+            default -> throw new IOException("Embedding供应商不受支持");
         };
     }
 
@@ -74,18 +84,10 @@ public class EmbeddingClient {
 
         String responseBody = postJson(url, requestBody.toString(), false);
         JsonNode root = mapper.readTree(responseBody);
-        lastUsage.set(new Usage(root.path("prompt_eval_count").asInt(), root.has("prompt_eval_count")));
+        lastUsage.set(inputUsage(root.path("prompt_eval_count")));
         JsonNode embeddingNode = root.path("embedding");
 
-        if (!embeddingNode.isArray()) {
-            throw new IOException("Ollama 返回的 embedding 格式不正确: " + responseBody);
-        }
-
-        float[] embedding = new float[embeddingNode.size()];
-        for (int i = 0; i < embeddingNode.size(); i++) {
-            embedding[i] = (float) embeddingNode.get(i).asDouble();
-        }
-        return embedding;
+        return parseVector(embeddingNode);
     }
 
     private float[] embedOpenAICompatible(String text) throws IOException {
@@ -97,20 +99,72 @@ public class EmbeddingClient {
 
         String responseBody = postJson(url, requestBody.toString(), true);
         JsonNode root = mapper.readTree(responseBody);
-        JsonNode usage = root.path("usage"); lastUsage.set(new Usage(usage.path("prompt_tokens").asInt(usage.path("total_tokens").asInt()), usage.has("prompt_tokens") || usage.has("total_tokens")));
+        JsonNode usage = root.path("usage");
+        Usage prompt=inputUsage(usage.path("prompt_tokens")),total=inputUsage(usage.path("total_tokens"));
+        if(usage.has("prompt_tokens")&&usage.has("total_tokens"))
+            lastUsage.set(new Usage(Math.max(prompt.inputTokens(),total.inputTokens()),prompt.present()&&total.present()&&prompt.inputTokens()==total.inputTokens()));
+        else lastUsage.set(usage.has("prompt_tokens")?prompt:total);
         JsonNode data = root.path("data");
 
         if (!data.isArray() || data.isEmpty()) {
-            throw new IOException("API 返回的 embedding 格式不正确: " + responseBody);
+            throw new IOException("API 返回的 embedding 格式不正确");
         }
 
-        JsonNode embeddingNode = data.get(0).path("embedding");
-        float[] embedding = new float[embeddingNode.size()];
-        for (int i = 0; i < embeddingNode.size(); i++) {
-            embedding[i] = (float) embeddingNode.get(i).asDouble();
-        }
-        return embedding;
+        if (root.hasNonNull("model") && !model.equals(root.path("model").asText()))
+            throw new IOException("Embedding响应型号与固定配置不符");
+        return parseVector(data.get(0).path("embedding"));
     }
+
+    private float[] parseVector(JsonNode vector) throws IOException {
+        if (!vector.isArray() || vector.isEmpty()) throw new IOException("Embedding响应必须包含非空向量数组");
+        float[] values = new float[vector.size()];
+        for (int i = 0; i < vector.size(); i++) {
+            if (!vector.get(i).isNumber()) throw new IOException("Embedding向量元素必须是数值");
+            values[i] = (float) vector.get(i).asDouble();
+        }
+        validateVector(values, expectedDimensions);
+        return values;
+    }
+    private static Usage inputUsage(JsonNode value) {
+        if(!value.isIntegralNumber()||!value.canConvertToInt()||value.asInt()<0||value.asInt()>100_000_000)
+            return new Usage(0,false);
+        return new Usage(value.asInt(),true);
+    }
+
+    public static void validateVector(float[] vector, int expectedDimensions) throws IOException {
+        if (vector == null || vector.length == 0) throw new IOException("Embedding向量为空");
+        if (expectedDimensions > 0 && vector.length != expectedDimensions)
+            throw new IOException("Embedding维度不符：预期" + expectedDimensions + "，实际" + vector.length);
+        boolean nonzero = false;
+        for (float value : vector) {
+            if (!Float.isFinite(value)) throw new IOException("Embedding向量必须为有限数值");
+            nonzero |= value != 0f;
+        }
+        if (!nonzero) throw new IOException("Embedding向量不能全零");
+    }
+
+    public static String normalizeBaseUrl(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("Embedding服务地址不能为空");
+        String root = value.trim().replaceAll("/+$", "");
+        java.net.URI uri;
+        try { uri = java.net.URI.create(root); } catch (RuntimeException failure) { throw new IllegalArgumentException("Embedding服务地址非法"); }
+        String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(java.util.Locale.ROOT);
+        if (!java.util.Set.of("http", "https").contains(scheme) || uri.getHost() == null
+                || uri.getRawUserInfo() != null || uri.getRawQuery() != null || uri.getRawFragment() != null)
+            throw new IllegalArgumentException("Embedding服务地址非法");
+        uri = uri.normalize();
+        String path = uri.getRawPath().replaceAll("/+$", "");
+        if (path.endsWith("/embeddings")) throw new IllegalArgumentException("请登记Embedding根地址，不能包含请求路径");
+        int port = uri.getPort();
+        if ((scheme.equals("https") && port == 443) || (scheme.equals("http") && port == 80)) port = -1;
+        String host = uri.getHost().toLowerCase(java.util.Locale.ROOT);
+        if (host.contains(":") && !host.startsWith("[")) host = "[" + host + "]";
+        return scheme + "://" + host + (port < 0 ? "" : ":" + port) + path;
+    }
+
+    public int getExpectedDimensions() { return expectedDimensions; }
+    public String getBaseUrl() { return baseUrl; }
+    public EmbeddingIdentity getIdentity() { return new EmbeddingIdentity(provider, baseUrl, model, expectedDimensions, CHUNKER_VERSION); }
 
     private String postJson(String url, String jsonBody, boolean useAuth) throws IOException {
         RequestBody body = RequestBody.create(jsonBody, MediaType.parse("application/json"));
@@ -126,8 +180,7 @@ public class EmbeddingClient {
         try (Response response = HTTP_CLIENT.newCall(builder.build()).execute()) {
             ResponseBody responseBody = response.body();
             if (!response.isSuccessful()) {
-                String error = responseBody != null ? responseBody.string() : "无响应";
-                throw new IOException("Embedding API 请求失败 [" + response.code() + "]: " + error);
+                throw new IOException("Embedding API 请求失败 [" + response.code() + "]");
             }
             if (responseBody == null) {
                 throw new IOException("Embedding API 返回空响应体");

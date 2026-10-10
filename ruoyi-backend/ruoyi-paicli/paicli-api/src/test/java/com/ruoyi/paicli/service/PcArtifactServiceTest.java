@@ -33,6 +33,73 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PcArtifactServiceTest {
     Path temporary;
+    @Test void personalUserFilePreviewNeedsNoSessionAndKeepsCompleteUtf8BytesAcrossPages(){
+        Fixture f=new Fixture(temporary);String original="首行\r\n<script>原文而非执行</script>\t中🙂尾\n";
+        byte[] bytes=original.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        Map<String,Object> stored=f.service.upload(10,"personal-preview",(Long)null,"USER_FILE","资料.html","text/html",bytes);
+        long id=Long.parseLong(stored.get("id").toString()),offset=0;StringBuilder restored=new StringBuilder();
+        while(offset<bytes.length){
+            Map<String,Object> page=f.service.userFilePreviewText(10,id,offset,7);
+            assertEquals(java.util.Set.of("artifactId","fileName","purpose","sha256","size","offset","nextOffset","hasMore","text"),page.keySet());
+            assertEquals(String.valueOf(id),page.get("artifactId"));assertEquals("资料.html",page.get("fileName"));assertEquals("USER_FILE",page.get("purpose"));
+            assertEquals(PcArtifactService.digest(bytes),page.get("sha256"));assertEquals(bytes.length,((Number)page.get("size")).longValue());
+            assertEquals(offset,((Number)page.get("offset")).longValue());String text=page.get("text").toString();long next=((Number)page.get("nextOffset")).longValue();
+            assertEquals(text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length,next-offset);assertTrue(next>offset);assertTrue(next-offset<=7);
+            restored.append(text);offset=next;
+        }
+        assertEquals(original,restored.toString());Map<String,Object> end=f.service.userFilePreviewText(10,id,offset,4);
+        assertEquals("",end.get("text"));assertEquals(false,end.get("hasMore"));assertFalse(end.containsKey("sessionId"));
+        assertEquals(403,assertThrows(PcException.class,()->f.service.outputText(10,id,300,0,7)).status());
+    }
+    @Test void userFilePreviewAboveAnalysisLimitStillWorksWithoutChangingAnalysisLimit(){
+        Fixture f=new Fixture(temporary);byte[] bytes=new byte[1024*1024+1];Arrays.fill(bytes,(byte)'x');
+        Map<String,Object> stored=f.service.upload(10,"large-preview",(Long)null,"USER_FILE","large.txt","text/plain",bytes);long id=Long.parseLong(stored.get("id").toString());
+        assertEquals(false,stored.get("supportedAnalysis"));assertEquals("PC_FILE_ANALYSIS_SIZE",assertThrows(PcException.class,()->f.service.userFile(10,id)).code());
+        Map<String,Object> first=f.service.userFilePreviewText(10,id,0,65536),last=f.service.userFilePreviewText(10,id,bytes.length-1,4);
+        assertEquals(65536,first.get("text").toString().length());assertEquals(65536L,((Number)first.get("nextOffset")).longValue());assertEquals(true,first.get("hasMore"));
+        assertEquals("x",last.get("text"));assertEquals(false,last.get("hasMore"));
+    }
+    @Test void userFilePreviewAcceptsUploadBoundaryAndPreservesFiftyMiBUploadLimit(){
+        Fixture f=new Fixture(temporary);byte[] bytes=new byte[PcArtifactService.MAX_DATA_BYTES];Arrays.fill(bytes,(byte)'a');
+        Map<String,Object> stored=f.service.upload(10,"boundary-preview",(Long)null,"USER_FILE","boundary.txt","application/octet-stream",bytes);long id=Long.parseLong(stored.get("id").toString());
+        Map<String,Object> page=f.service.userFilePreviewText(10,id,bytes.length-4,4);assertEquals("aaaa",page.get("text"));assertEquals(false,page.get("hasMore"));
+        assertEquals(PcArtifactService.MAX_DATA_BYTES,((Number)page.get("size")).longValue());assertEquals(PcArtifactService.digest(bytes),page.get("sha256"));
+        assertEquals("PC_ARTIFACT_SIZE",assertThrows(PcException.class,()->f.service.upload(10,"boundary-overflow",(Long)null,"USER_FILE","too-large.txt","text/plain",new byte[PcArtifactService.MAX_DATA_BYTES+1])).code());
+    }
+    @Test void previewRejectsInvalidUtf8AndBinaryControlsAnywhereInFileButLeavesDownloadAvailable(){
+        Fixture f=new Fixture(temporary);
+        byte[][] invalid={{(byte)0xff,65},{65,(byte)0xc3},{65,0,66},{65,1,66},{65,11,66}};
+        for(int i=0;i<invalid.length;i++){
+            byte[] bytes=invalid[i];long id=Long.parseLong(f.service.upload(10,"invalid-preview-"+i,(Long)null,"USER_FILE","binary-"+i+".txt","text/plain",bytes).get("id").toString());
+            PcException denied=assertThrows(PcException.class,()->f.service.userFilePreviewText(10,id,0,4));assertEquals(422,denied.status());assertEquals("PC_FILE_ANALYSIS_UNSUPPORTED",denied.code());
+            assertEquals(PcArtifactService.digest(bytes),f.service.content(10,id).sha256());
+        }
+        byte[] late=new byte[65537];Arrays.fill(late,(byte)'a');late[late.length-1]=0;
+        long id=Long.parseLong(f.service.upload(10,"late-invalid-preview",(Long)null,"USER_FILE","late.txt","text/plain",late).get("id").toString());
+        assertEquals(422,assertThrows(PcException.class,()->f.service.userFilePreviewText(10,id,0,4)).status());
+    }
+    @Test void userFilePreviewRejectsOtherOwnerPurposeInvalidDirectoryAndInvalidByteRanges(){
+        Fixture f=new Fixture(temporary);long id=Long.parseLong(f.service.upload(10,"preview-scope",1,"USER_FILE","scope.txt","text/plain","A中文🙂".getBytes(java.nio.charset.StandardCharsets.UTF_8)).get("id").toString());
+        assertEquals(403,assertThrows(PcException.class,()->f.service.userFilePreviewText(20,id,0,7)).status());
+        for(long offset:new long[]{-1,2,100})assertEquals(400,assertThrows(PcException.class,()->f.service.userFilePreviewText(10,id,offset,7)).status());
+        for(int limit:new int[]{0,3,1024*1024+1})assertEquals(400,assertThrows(PcException.class,()->f.service.userFilePreviewText(10,id,0,limit)).status());
+        long output=Long.parseLong(f.service.storeRunnerOutput(1,10,300,400,"preview-wrong-purpose","safe").get("id").toString());
+        assertEquals(403,assertThrows(PcException.class,()->f.service.userFilePreviewText(10,output,0,4)).status());
+        assertEquals("safe",f.service.outputText(10,output,300,0,4).get("text"));
+        f.rows.get(PcTable.DIRECTORY_CONTEXT).get(1L).setState("INVALID");assertEquals("PC_DIRECTORY_NOT_READY",assertThrows(PcException.class,()->f.service.userFilePreviewText(10,id,0,7)).code());
+    }
+    @Test void userFilePreviewRejectsExpiredAndChangedDiskBytes()throws Exception{
+        Fixture f=new Fixture(temporary);long id=Long.parseLong(f.service.upload(10,"preview-lifecycle",(Long)null,"USER_FILE","life.txt","text/plain","abcd".getBytes(java.nio.charset.StandardCharsets.UTF_8)).get("id").toString());
+        PcRecord row=f.rows.get(PcTable.ARTIFACT).get(id);var expiry=row.getExpiresAt();row.setExpiresAt(f.clock.instant().minusSeconds(1));
+        assertEquals("PC_ARTIFACT_EXPIRED",assertThrows(PcException.class,()->f.service.userFilePreviewText(10,id,0,4)).code());row.setExpiresAt(expiry);
+        Path file=f.service.content(10,id).file();Files.writeString(file,"dcba");assertEquals(409,assertThrows(PcException.class,()->f.service.userFilePreviewText(10,id,0,4)).status());
+    }
+    @Test void userFilePreviewRejectsBroadenedPrivateAclWithoutRepairingIt()throws Exception{
+        Fixture f=new Fixture(temporary);long id=Long.parseLong(f.service.upload(10,"preview-private",(Long)null,"USER_FILE","private.txt","text/plain","safe".getBytes(java.nio.charset.StandardCharsets.UTF_8)).get("id").toString());
+        Path file=f.service.content(10,id).file();Object original=permissions(file);
+        try{broaden(file);Object broad=permissions(file);assertEquals(503,assertThrows(PcException.class,()->f.service.userFilePreviewText(10,id,0,4)).status());assertEquals(broad,permissions(file));}
+        finally{restore(file,original);}
+    }
     @Test void projectRuleSourcePreservesLargeUtf8BytesAndRejectsInvalidTextBeforePersistence()throws Exception {
         Fixture f=new Fixture(temporary);String text="# 项目规则\r\n"+"保留中文原文和来源\r\n".repeat(40000);
         byte[] bytes=text.getBytes(java.nio.charset.StandardCharsets.UTF_8);assertTrue(bytes.length>1024*1024);
@@ -157,7 +224,7 @@ class PcArtifactServiceTest {
         Fixture f=new Fixture(temporary);BufferedImage image=new BufferedImage(3,2,BufferedImage.TYPE_INT_ARGB);image.setRGB(1,1,0x40223344);ByteArrayOutputStream bytes=new ByteArrayOutputStream();ImageIO.write(image,"png",bytes);
         var uploaded=f.service.upload(10,"transparent-upload",1,"TURN_IMAGE","透明.png","image/png",bytes.toByteArray());long id=Long.parseLong(String.valueOf(uploaded.get("id")));
         var transport=f.service.runnerImage(id,1,10);assertEquals("image/png",transport.get("mimeType"));assertNotNull(transport.get("base64Data"));
-        assertThrows(PcException.class,()->f.service.runnerImage(id,1,20));assertThrows(PcException.class,()->f.service.runnerImage(id,2,10));
+        assertThrows(PcException.class,()->f.service.runnerImage(id,1,20));assertEquals(transport,f.service.runnerImage(id,2,10),"本人输入图片允许在有显式任务引用的其他执行目录读取");
         assertEquals(0x40223344,ImageIO.read(f.service.content(10,id).file().toFile()).getRGB(1,1));
     }
     @Test void toolOutputIsStoredWholeWithStableDigestAndSegmentedByOriginalLines()throws Exception{
@@ -278,7 +345,7 @@ class PcArtifactServiceTest {
             when(mapper.insert(any(PcTable.class),any(PcRecord.class))).thenAnswer(call->{PcRecord row=call.getArgument(1);row.setId(ids.incrementAndGet());rows.get(call.getArgument(0,PcTable.class)).put(row.getId(),row);return 1;});
             when(mapper.update(any(PcTable.class),any(PcRecord.class),anyLong())).thenReturn(1);
             store=new PcStore(mapper,json,clock);PcAccess access=new PcAccess(store);
-            PcRecord workspace=new PcRecord();workspace.setId(1L);workspace.setOwnerId(10L);workspace.setState("ACTIVE");workspace.setPayload("{}");rows.get(PcTable.WORKSPACE).put(1L,workspace);
+            PcRecord workspace=new PcRecord();workspace.setId(1L);workspace.setOwnerId(10L);workspace.setState("VERIFIED");workspace.setPayload("{}");rows.get(PcTable.DIRECTORY_CONTEXT).put(1L,workspace);PcRecord policy=new PcRecord();policy.setId(2L);policy.setOwnerId(10L);policy.setState("ACTIVE");policy.setUniqueKey("owner:10");policy.setPayload("{\"retentionDays\":90}");rows.get(PcTable.POLICY_VERSION).put(2L,policy);
             for(long owner:new long[]{10,20}){PcRecord member=new PcRecord();member.setId(owner);member.setOwnerId(owner);member.setWorkspaceId(1L);member.setState("ACTIVE");member.setUniqueKey("workspace:1:user:"+owner);member.setPayload("{\"role\":\"DEVELOPER\"}");rows.get(PcTable.WORKSPACE_MEMBER).put(owner,member);}
             PcCrypto crypto=new PcCrypto(mock(ManagedSecretService.class),json){@Override protected byte[] key(){return new byte[32];}};
             service=new PcArtifactService(store,access,new PcIdempotency(store,crypto),mock(PcEvidence.class),storage);

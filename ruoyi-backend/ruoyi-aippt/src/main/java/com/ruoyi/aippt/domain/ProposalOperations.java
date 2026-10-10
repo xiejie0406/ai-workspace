@@ -52,9 +52,11 @@ public final class ProposalOperations  {
             setTextStyle(leaf, next.getString("type"));
             JSONObject tree = slide.getJSONObject("layout_tree");
             String anchor = op.getString("after_block_id");
+            if("add".equals(operation)&&!undo)AipptRules.require(anchor!=null&&blocks.stream().map(JSONObject.class::cast).anyMatch(block->anchor.equals(block.getString("id"))), "新增锚点块不存在");
             if (!insertAfter(tree, anchor, leaf))  {
-                tree.getJSONArray("children").add(0, leaf);
-                insertRatio(tree, 0);
+                // 恢复删除的首块插在根首位；其他分支沿原 insert_leaf_after 追加。
+                int index = undo && "delete".equals(operation) ? 0 : tree.getJSONArray("children").size();
+                AipptRules.require(FlexEditing.insertLeaf(tree, tree.getString("id"), index, leaf), "无法插入候选内容块");
             }
             clearOverrides(tree);
         }
@@ -93,9 +95,7 @@ public final class ProposalOperations  {
         for (int i = 0; i < children.size(); i++)  {
             JSONObject child = children.getJSONObject(i);
             if (anchor != null && anchor.equals(child.getString("block_id")))  {
-                children.add(i + 1, leaf);
-                insertRatio(node, i + 1);
-                return true;
+                return FlexEditing.insertLeaf(node, node.getString("id"), i + 1, leaf);
             }
             if (insertAfter(child, anchor, leaf)) return true;
         }

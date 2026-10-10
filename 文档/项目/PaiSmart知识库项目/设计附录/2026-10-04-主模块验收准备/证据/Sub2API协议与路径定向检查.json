@@ -1,0 +1,79 @@
+{
+  "authorization": "用户要求尝试OpenAI协议，核对协议/路径假设",
+  "scope": "同地址同Key，三种请求各一次，最多128输出Token；未改生产Provider或Codex配置",
+  "results": [
+    {
+      "startedAt": "2026-10-04T20:26:48.456496+08:00",
+      "method": "POST",
+      "protocol": "OpenAI Chat Completions",
+      "endpoint": "http://39.102.215.183:8080/chat/completions",
+      "requestBody": {
+        "model": "gpt-5.5",
+        "store": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "请只输出：连接成功"
+          }
+        ],
+        "max_completion_tokens": 128
+      },
+      "httpStatus": 200,
+      "keyFingerprint": "f95b75d63d35bcfb",
+      "responseSha256": "392967aa30770bf400ee8f7cbaf0f3ea84324005ac69b7bbb72fa8a0e60f30ff",
+      "error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+      "result": "未通过",
+      "elapsedSeconds": 0.329,
+      "finishedAt": "2026-10-04T20:26:48.782926+08:00"
+    },
+    {
+      "startedAt": "2026-10-04T20:26:48.457494+08:00",
+      "method": "POST",
+      "protocol": "OpenAI Chat Completions",
+      "endpoint": "http://39.102.215.183:8080/v1/chat/completions",
+      "requestBody": {
+        "model": "gpt-5.5",
+        "store": false,
+        "messages": [
+          {
+            "role": "user",
+            "content": "请只输出：连接成功"
+          }
+        ],
+        "max_completion_tokens": 128
+      },
+      "httpStatus": 401,
+      "keyFingerprint": "f95b75d63d35bcfb",
+      "error": "{\"code\":\"INVALID_API_KEY\",\"message\":\"Invalid API key\"}",
+      "result": "未通过",
+      "elapsedSeconds": 0.329,
+      "finishedAt": "2026-10-04T20:26:48.782926+08:00"
+    },
+    {
+      "startedAt": "2026-10-04T20:26:48.458502+08:00",
+      "method": "POST",
+      "protocol": "OpenAI Responses",
+      "endpoint": "http://39.102.215.183:8080/v1/responses",
+      "requestBody": {
+        "model": "gpt-5.5",
+        "store": false,
+        "input": [
+          {
+            "role": "user",
+            "content": "请只输出：连接成功"
+          }
+        ],
+        "max_output_tokens": 128,
+        "include": [
+          "reasoning.encrypted_content"
+        ]
+      },
+      "httpStatus": 401,
+      "keyFingerprint": "f95b75d63d35bcfb",
+      "error": "{\"code\":\"INVALID_API_KEY\",\"message\":\"Invalid API key\"}",
+      "result": "未通过",
+      "elapsedSeconds": 0.313,
+      "finishedAt": "2026-10-04T20:26:48.772275+08:00"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "检查": "原有全量文档检查的HTML路径异常，只读定位",
+  "执行环境": "Windows PowerShell（powershell -NoProfile），与失败命令相同",
+  "原脚本": "scripts/check-docs.ps1",
+  "失败行": 216,
+  "原有HTML": "文档/项目/PaiCLI智能编码项目/证据/2026-10-03-完整功能与数据库/页面使用与业务验收逻辑.html",
+  "实际诊断失败链接数": 14,
+  "URI类型": "file:///",
+  "原因": "原脚本过滤列表未包括file URI，Join-Path后GetFullPath将其当作相对Windows文件路径，抛NotSupportedException",
+  "本轮处理": "保留原HTML和脚本，不修改其他项目已有内容；全量检查仍未通过"
+}

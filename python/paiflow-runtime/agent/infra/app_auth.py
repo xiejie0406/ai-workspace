@@ -9,9 +9,9 @@ from typing import Any, Dict, Optional
 import aiohttp
 from pydantic import BaseModel, Field
 
-from common_imports import Span
-from exceptions.middleware_exc import MiddlewareExc
-from infra import agent_config
+from agent.common_imports import Span
+from agent.exceptions.middleware_exc import MiddlewareExc
+from agent.infra import agent_config
 
 
 def http_date(dt: datetime.datetime) -> str:

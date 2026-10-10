@@ -62,8 +62,7 @@ public class WorkflowMsgCallback implements StreamCallback {
                     log.error("Error in stream callback", e);
                 }
             }
-            scheduleTaskOver = true;
-        });
+        }, () -> scheduleTaskOver = true);
     }
 
     /**

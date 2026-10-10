@@ -1,0 +1,51 @@
+{
+  "checkedAt": "2026-10-04T22:32:23.6609950+08:00",
+  "issue": "用量流水原查询缺少页面展示的用户与关联记录",
+  "changedFiles": [
+    "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java",
+    "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/api/UsageRecordsBoundaryTest.java"
+  ],
+  "behavior": "原流水查询LEFT JOIN原sys_user，仅补userId、userName和operation_key AS correlationId；继续按原uid限制并保留审计权限、类型、日期、排序及分页，不新增接口或DDL",
+  "contractCompatibility": "UsageRecord保留既有必需字段，additionalProperties=true；新字段与当前前端UsageRecord一致",
+  "maven": {
+    "failures": 0,
+    "moduleSHA256": "89cbc724c2ea31952050b045e8a4be46b25fb9d428d97224fbb1d1a8a44675a8",
+    "ownedSourcesMatchBuild": true,
+    "testSources": 38,
+    "privateBuild": ".runtime/paismart/model-integration-implementation/backend-check/backend",
+    "tests": 21,
+    "skipped": 0,
+    "errors": 0,
+    "mainSources": 69,
+    "log": ".runtime/paismart/model-integration-implementation/backend-check/usage-boundary-maven.log",
+    "moduleArtifact": ".runtime/paismart/model-integration-implementation/backend-check/backend/ruoyi-paismart/target/ruoyi-paismart-3.9.2.jar",
+    "command": "mvn -o -pl ruoyi-paismart -am -Dtest=Sub2ApiReasoningEffortTest,ProviderInputBoundaryTest,UsageRecordsBoundaryTest -Dsurefire.failIfNoSpecifiedTests=false -DskipTests=false package",
+    "exitCode": 0
+  },
+  "newH2Tests": [
+    "本人流水真实关联平台用户名及操作键，其他人不混入且无密码字段",
+    "无审计权限不能选他人",
+    "有审计权限只查询指定用户",
+    "类型日期过滤和分页计数、排序一致",
+    "缺失平台用户仍保留授权历史流水及关联键",
+    "非法类型或日期维持拒绝"
+  ],
+  "frontendPreviewIndependentReview": {
+    "testsInspected": 3,
+    "blockers": [],
+    "source": "frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue",
+    "reviewOnly": true,
+    "reviewerDidNotImplementFrontend": true,
+    "testsRerunByReviewer": false,
+    "test": "frontend/admin-web/tests/unit/paismart/document-preview-routing.spec.ts",
+    "result": "通过：仅PDF且有页数时走页接口并显示分页；TXT有pageCount仍读取正文；版本/页码/引用锚点保留；无页数PDF保留待解析原路径"
+  },
+  "limits": [
+    "本记录为技术检查，运行包同步及真实页面复验由主对话继续",
+    "Controller测试直接调用既有方法与实际H2查询，保留原Spring权限注解；不宣称重新验证完整HTTP安全链",
+    "未调用真实API、原数据库或模型，未读取真实Key，未启动停止服务"
+  ],
+  "realApiCalls": 0,
+  "realDatabaseWrites": 0,
+  "serviceOperations": 0
+}

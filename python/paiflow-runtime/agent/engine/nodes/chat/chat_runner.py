@@ -2,12 +2,12 @@ from typing import AsyncIterator
 
 from pydantic import Field
 
-from api.schemas.agent_response import AgentResponse
+from agent.api.schemas.agent_response import AgentResponse
 
 # Use unified common package import module
-from common_imports import NodeTrace, Span
-from engine.nodes.base import RunnerBase
-from engine.nodes.chat.chat_prompt import CHAT_SYSTEM_TEMPLATE, CHAT_USER_TEMPLATE
+from agent.common_imports import NodeTrace, Span
+from agent.engine.nodes.base import RunnerBase
+from agent.engine.nodes.chat.chat_prompt import CHAT_SYSTEM_TEMPLATE, CHAT_USER_TEMPLATE
 
 
 class ChatRunner(RunnerBase):

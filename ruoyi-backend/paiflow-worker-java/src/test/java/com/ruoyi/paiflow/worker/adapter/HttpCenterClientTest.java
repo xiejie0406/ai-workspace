@@ -31,6 +31,183 @@ class HttpCenterClientTest {
     private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
     private final Lease lease = new Lease("run-1", "lease-1", 1);
 
+    @Test void officialVerifyTopLevelContextBindsInternalAssignmentWithoutChangingDslOrRawTask() throws Exception {
+        ObjectNode response=verification();ObjectNode data=(ObjectNode)response.get("data");
+        ObjectNode raw=(ObjectNode)data.get("assignment");raw.remove("executionContext");
+        JsonNode original=raw.deepCopy();ObjectNode context=mapper.createObjectNode().put("flowId","fixed-flow")
+                .put("userId","ruoyi:1").put("appId","debug:9").put("chatId","实际中心会话");
+        data.set("executionContext",context);
+        var actual=client(response,null).verify(lease);
+        assertEquals(mapper.convertValue(context,Map.class),actual.executionContext());
+        assertEquals(original.get("dsl"),mapper.valueToTree(actual.dsl()));assertEquals(original.path("dslHash").asText(),actual.dslHash());
+        assertEquals(original.path("dslCanonicalBase64").asText(),actual.dslCanonicalBase64());assertEquals(original,raw);
+        assertThrows(UnsupportedOperationException.class,()->actual.executionContext().put("chatId","changed"));
+    }
+
+    @Test void verifyAcceptsMatchingDualContextsAndRejectsConflictingOrMalformedTopContext() throws Exception {
+        ObjectNode context=mapper.createObjectNode().put("flowId","fixed-flow").put("userId","ruoyi:1").put("appId","debug:9").put("chatId","");
+        ObjectNode matching=verification();((ObjectNode)matching.get("data")).set("executionContext",context);
+        ((ObjectNode)matching.path("data").path("assignment")).set("executionContext",context.deepCopy());
+        assertEquals("",client(matching,null).verify(lease).executionContext().get("chatId"));
+        for(String changed:java.util.List.of("flowId","userId","appId","chatId")){
+            ObjectNode mismatch=matching.deepCopy();((ObjectNode)mismatch.path("data").path("executionContext")).put(changed,"different");
+            assertEquals("LEASE_LOST",assertThrows(WorkerException.class,()->client(mismatch,null).verify(lease)).getCode());
+        }
+        for(JsonNode wrong:java.util.List.of(mapper.nullNode(),mapper.valueToTree("bad"),mapper.createObjectNode(),context.deepCopy().put("extra",true),context.deepCopy().put("chatId",1),context.deepCopy().put("userId","worker:1"))){
+            ObjectNode invalid=matching.deepCopy();((ObjectNode)invalid.get("data")).set("executionContext",wrong);
+            assertEquals("LEASE_LOST",assertThrows(WorkerException.class,()->client(invalid,null).verify(lease)).getCode());
+        }
+        ObjectNode legacy=verification();assertNull(client(legacy,null).verify(lease).executionContext());
+        ((ObjectNode)legacy.get("data")).putNull("executionContext");assertNull(client(legacy,null).verify(lease).executionContext());
+    }
+
+    @Test
+    void formalModelAndToolOperationsPreserveAllSevenFieldsIncludingTopLevelNull() throws Exception {
+        for (String operation : java.util.List.of("model.invoke", "tools.read")) {
+            AtomicReference<HttpRequest> captured = new AtomicReference<>();
+            ObjectNode ack = operationAck("RUNNING");
+            boolean tool = "tools.read".equals(operation);
+            String nodeId = tool ? "plugin::original" : "spark-llm::original";
+            Map<String, Object> parameters = tool ? Map.of("resourceId", "tool:1:version:2:operation:ZWNobw", "resourceVersion", "2",
+                    "kind", "tool", "provider", "spark-link", "resourceBindings", Map.of(), "legacyPayload",
+                    Map.of("header", Map.of("app_id", "fixed-app"), "parameter", Map.of("tool_id", "1", "operation_id", "echo", "version", "V1.0"),
+                            "payload", Map.of("message", Map.of())))
+                    : Map.of("resourceId", "model:1:version:2", "resourceVersion", "2", "provider", "openai", "modelName", "fixed-model",
+                            "mode", "chat", "messages", java.util.List.of(Map.of("role", "user", "content", "原消息中文")),
+                            "options", Map.of("temperature", 0.5, "maxTokens", 1024, "topK", 4, "patchId", "0", "respFormat", 0,
+                                    "searchDisable", true, "extraParams", Map.of()));
+            if (tool) {
+                ObjectNode data = (ObjectNode) ack.get("data");
+                data.put("nodeId", nodeId).put("operationId", "tool-op:e34337c2-0a20-4b15-8eba-5148f71e72f2")
+                        .put("resourceId", "tool:1:version:2:operation:ZWNobw").put("provider", "spark-link").put("kind", "tool")
+                        .put("operation", operation).put("idempotencyKey", "run-1:original-key").putNull("failureKind")
+                        .putNull("legacyResponse").put("stopped", false).putNull("proofId");
+                data.set("resourceBindings", mapper.createObjectNode());
+            }
+            Map<String, Object> actual = client(ack, captured).operation(lease, nodeId, operation,
+                    parameters, "run-1:original-key");
+            JsonNode body = mapper.readTree(requestBody(captured.get()));
+            assertEquals(7, body.size());
+            assertEquals(java.util.Set.of("leaseId", "attempt", "nodeId", "iterationId", "operation", "parameters", "idempotencyKey"),
+                    mapper.convertValue(body, Map.class).keySet());
+            assertTrue(body.has("iterationId"));
+            assertTrue(body.get("iterationId").isNull());
+            assertEquals("lease-1", body.path("leaseId").asText());
+            assertEquals(1, body.path("attempt").asInt());
+            assertEquals(nodeId, body.path("nodeId").asText());
+            assertEquals(operation, body.path("operation").asText());
+            assertEquals("run-1:original-key", body.path("idempotencyKey").asText());
+            assertEquals(mapper.valueToTree(parameters), body.get("parameters"));
+            assertEquals(ack.get("data"), mapper.valueToTree(actual));
+            assertEquals("/context/internal/paiflow/v1/runs/run-1/operations", captured.get().uri().getPath());
+            assertEquals("Bearer test-service-token", captured.get().headers().firstValue("Authorization").orElseThrow());
+        }
+        // 即使调用者mapper省略Map中的null，正式ObjectNode仍必须发送必填iterationId。
+        ObjectMapper omitNulls = mapper.copy().setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL);
+        AtomicReference<HttpRequest> captured = new AtomicReference<>();
+        HttpCenterClient center = new HttpCenterClient(URI.create("https://center.invalid"), "test-token", omitNulls, request -> {
+            captured.set(request);
+            return new HttpCenterClient.WireResponse(200, mapper.writeValueAsBytes(operationAck("RUNNING")));
+        });
+        center.operation(lease, "spark-llm::original", "model.invoke", Map.of(), "original-key");
+        assertTrue(mapper.readTree(requestBody(captured.get())).get("iterationId").isNull());
+    }
+
+    @Test
+    void framesReadsTheSameOperationWithExactCursorAndKeepsOriginalUsageAndNullFinish() throws Exception {
+        ObjectNode ack = operationAck("RUNNING");
+        ObjectNode data = (ObjectNode) ack.get("data");
+        data.put("operationState", "RUNNING").put("nextCursor", 2).put("done", false).put("lastSeq", 2).putNull("finishSeq").putNull("failureKind");
+        data.set("frames", mapper.readTree("[{\"choices\":[],\"usage\":{\"prompt_tokens\":4,\"completion_tokens\":3,\"total_tokens\":7}}]"));
+        AtomicReference<HttpRequest> captured = new AtomicReference<>();
+        Map<String, Object> actual = client(ack, captured).operationFrames(lease, "e34337c2-0a20-4b15-8eba-5148f71e72f2", 1, 64);
+        assertEquals("/context/internal/paiflow/v1/runs/run-1/operations/e34337c2-0a20-4b15-8eba-5148f71e72f2/frames", captured.get().uri().getPath());
+        assertEquals(mapper.valueToTree(Map.of("leaseId", "lease-1", "attempt", 1, "afterCursor", 1, "limit", 64)),
+                mapper.readTree(requestBody(captured.get())));
+        assertEquals(data, mapper.valueToTree(actual));
+        assertEquals(false, actual.get("done"));
+        assertTrue(actual.containsKey("finishSeq"));
+        assertNull(actual.get("finishSeq"));
+    }
+
+    @Test
+    void toolStatusAndCancelKeepCompleteUnknownAckAndEncodeOneOperationPathSegment() throws Exception {
+        String operationId = "tool-op:e34337c2-0a20-4b15-8eba-5148f71e72f2";
+        ObjectNode ack = operationAck("EFFECT_UNKNOWN");
+        ObjectNode data = (ObjectNode) ack.get("data");
+        data.put("operationId", operationId).put("nodeId", "plugin::original").put("resourceId", "tool:1:version:2:operation:ZWNobw")
+                .put("operation", "tools.invoke").put("idempotencyKey", "natural-tool-key")
+                .put("kind", "tool").put("provider", "spark-link").put("failureKind", "cancelled")
+                .put("stopped", false).putNull("proofId").putNull("legacyResponse");
+        data.set("resourceBindings", mapper.createObjectNode());
+        for (String action : java.util.List.of("status", "cancel")) {
+            AtomicReference<HttpRequest> captured = new AtomicReference<>();
+            HttpCenterClient center = client(ack, captured);
+            Map<String, Object> actual = "status".equals(action) ? center.operationStatus(lease, operationId) : center.cancelOperation(lease, operationId);
+            assertEquals("/context/internal/paiflow/v1/runs/run-1/operations/tool-op%3Ae34337c2-0a20-4b15-8eba-5148f71e72f2/" + action,
+                    captured.get().uri().getRawPath());
+            assertEquals(mapper.valueToTree(Map.of("leaseId", "lease-1", "attempt", 1)), mapper.readTree(requestBody(captured.get())));
+            assertEquals(data, mapper.valueToTree(actual));
+            assertEquals("EFFECT_UNKNOWN", actual.get("state"));
+            assertEquals(false, actual.get("stopped"));
+            assertNull(actual.get("proofId"));
+        }
+    }
+
+    @Test
+    void operationReadsEnforcePublicBudgetsAndNeverRetryUnknownTransport() throws Exception {
+        AtomicInteger calls = new AtomicInteger();
+        HttpCenterClient center = new HttpCenterClient(URI.create("https://center.invalid"), "test-token", mapper, request -> {
+            calls.incrementAndGet(); throw new IOException("隔离Exchange模拟回执丢失");
+        });
+        for (long cursor : new long[]{-1, 10001}) {
+            assertEquals("OPERATION_PROTOCOL_INVALID", assertThrows(WorkerException.class,
+                    () -> center.operationFrames(lease, "original-operation", cursor, 64)).getCode());
+        }
+        for (int limit : new int[]{0, 65}) {
+            assertThrows(WorkerException.class, () -> center.operationFrames(lease, "original-operation", 0, limit));
+        }
+        assertEquals(0, calls.get());
+        assertEquals("CENTER_UNAVAILABLE", assertThrows(WorkerException.class,
+                () -> center.operationFrames(lease, "original-operation", 10000, 1)).getCode());
+        assertEquals(1, calls.get());
+        assertThrows(WorkerException.class, () -> center.operationStatus(lease, "original-operation"));
+        assertEquals(2, calls.get());
+        assertThrows(WorkerException.class, () -> center.cancelOperation(lease, "original-operation"));
+        assertEquals(3, calls.get());
+        byte[] oversized = new byte[2 * 1024 * 1024 + 1];
+        HttpCenterClient overBudget = new HttpCenterClient(URI.create("https://center.invalid"), "test-token", mapper,
+                request -> new HttpCenterClient.WireResponse(200, oversized));
+        assertEquals("CENTER_RESPONSE_TOO_LARGE", assertThrows(WorkerException.class,
+                () -> overBudget.operationFrames(lease, "original-operation", 0, 64)).getCode());
+        assertEquals("CENTER_RESPONSE_TOO_LARGE", assertThrows(WorkerException.class,
+                () -> overBudget.operationStatus(lease, "original-operation")).getCode());
+        assertEquals("CENTER_RESPONSE_TOO_LARGE", assertThrows(WorkerException.class,
+                () -> overBudget.cancelOperation(lease, "original-operation")).getCode());
+    }
+
+    @Test
+    void legacyEffectAuthorizationStillOmitsOptionalNullApproval() throws Exception {
+        AtomicReference<HttpRequest> captured = new AtomicReference<>();
+        var effect = new com.ruoyi.paiflow.worker.domain.WorkerProtocol.Effect("lease-1", 1, "model.infer", "legacy-resource",
+                "https://approved.invalid/api", null);
+        client(mapper.readTree("{\"code\":200,\"data\":{\"authorized\":true,\"grantId\":\"legacy-grant\"}}"), captured).authorizeEffect(lease, effect);
+        JsonNode body = mapper.readTree(requestBody(captured.get()));
+        assertEquals(5, body.size());
+        assertFalse(body.has("approvalRef"));
+        assertFalse(body.has("iterationId"));
+    }
+
+    private ObjectNode operationAck(String state) {
+        ObjectNode data = mapper.createObjectNode().put("runId", "run-1").put("leaseId", "lease-1").put("attempt", 1)
+                .put("workflowVersionId", "version-1").put("dslHash", "0".repeat(64)).put("nodeId", "spark-llm::original")
+                .putNull("iterationId").put("operationId", "e34337c2-0a20-4b15-8eba-5148f71e72f2")
+                .put("resourceId", "model:1:version:2").put("resourceVersion", "2").put("provider", "openai")
+                .put("state", state);
+        ObjectNode envelope = mapper.createObjectNode().put("code", 200);
+        envelope.set("data", data); return envelope;
+    }
+
     @Test
     void beginRequiresExactSnapshotBindingAndOnlySendsTheLeaseIdentity() throws Exception {
         var task = mapper.treeToValue(verification().path("data").path("assignment"), com.ruoyi.paiflow.worker.domain.WorkerProtocol.Assignment.class);

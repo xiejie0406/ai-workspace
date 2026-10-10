@@ -1,7 +1,15 @@
-[CmdletBinding()]
-param([string]$DatabaseConfigPath, [string]$RuntimeConfigPath, [string]$JavaArtifactPath, [switch]$Frontend, [switch]$PythonOnly, [switch]$JavaOnly, [switch]$WorkerOnly)
+﻿[CmdletBinding()]
+param([string]$DatabaseConfigPath, [string]$RuntimeConfigPath, [string]$JavaArtifactPath, [switch]$Frontend, [switch]$PythonOnly, [switch]$JavaOnly, [switch]$WorkerOnly, [switch]$SkipWorker)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+if(-not $PythonOnly -and -not $WorkerOnly) {
+    $pictureCaptchaDebugEnabled=[Environment]::GetEnvironmentVariable('RUOYI_LOCAL_CAPTCHA_DEBUG_ENABLED','Process')
+    if([string]::IsNullOrEmpty($pictureCaptchaDebugEnabled)) { $pictureCaptchaDebugEnabled='true' }
+    $pictureCaptchaDebugEnabled=$pictureCaptchaDebugEnabled.ToLowerInvariant()
+    if($pictureCaptchaDebugEnabled -notin @('true','false')) { throw 'RUOYI_LOCAL_CAPTCHA_DEBUG_ENABLED仅允许true或false；未启动Java。' }
+}
+if($SkipWorker -and ($JavaOnly -or $WorkerOnly)) { throw 'SkipWorker仅用于完整启动或Python恢复，不能与JavaOnly或WorkerOnly混用。' }
+if(-not $PythonOnly -and -not $WorkerOnly -and -not $JavaArtifactPath) { throw '启动Java必须显式JavaArtifactPath指定已核实的本项目固定包，不默认使用共享target。' }
 if($WorkerOnly -and ($PythonOnly -or $JavaOnly -or $Frontend -or $JavaArtifactPath)) { throw 'WorkerOnly不能与PythonOnly、JavaOnly、Frontend或JavaArtifactPath混用。' }
 if($PythonOnly -and ($Frontend -or $JavaArtifactPath)) { throw '仅恢复Python不能同时启动前端或替换Java制品。' }
 if($PythonOnly -and $JavaOnly) { throw 'PythonOnly与JavaOnly不能同时使用。' }
@@ -102,13 +110,17 @@ if($PythonOnly) {
     if (-not (Test-Path -LiteralPath $pictureJarSource -PathType Leaf)) { throw '指定的 Java 制品不存在，请先完成对应构建。' }
     $pictureArchive=[IO.Compression.ZipFile]::OpenRead($pictureJarSource)
     try { if (-not ($pictureArchive.Entries | Where-Object { $_.FullName -eq 'BOOT-INF/lib/ruoyi-aipicture-3.9.2.jar' })) { throw '总包缺少图片模块；先完成 Maven 装配。' } } finally { $pictureArchive.Dispose() }
-    Copy-Item -LiteralPath $pictureJarSource -Destination $pictureJar
+    if([IO.Path]::GetFullPath($pictureJarSource) -ne [IO.Path]::GetFullPath($pictureJar)) { Copy-Item -LiteralPath $pictureJarSource -Destination $pictureJar }
 }
 $picturePython=Join-Path $pictureRoot 'python/aipicture-runtime/.venv/Scripts/python.exe'
 if (-not (Test-Path -LiteralPath $picturePython)) { throw '图片 Python 虚拟环境未准备。' }
 $pictureSecretPath=Join-Path $pictureRunRoot 'service.secret'
 if(($PythonOnly -or $WorkerOnly) -and -not (Test-Path -LiteralPath $pictureSecretPath -PathType Leaf)) { throw '局部恢复Python需要原服务凭据，不自动新建或轮换。' }
-if (-not (Test-Path -LiteralPath $pictureSecretPath)) { [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)) | Set-Content -LiteralPath $pictureSecretPath -Encoding utf8 -NoNewline }
+if (-not (Test-Path -LiteralPath $pictureSecretPath -PathType Leaf)) { throw '缺少原图片服务凭据，启动不自动创建或轮换身份。' }
+if(-not $JavaOnly -and -not $SkipWorker) {
+    $spool=$pictureSettings['AIPICTURE_DELIVERY_SPOOL_DIRECTORY']
+    if(-not $spool -or -not [IO.Path]::IsPathFullyQualified($spool) -or -not (Test-Path -LiteralPath $spool -PathType Container)) { throw '原Worker缺少已核实的私有绝对交付目录；仅查看页面可显式SkipWorker，不能创建替代Worker配置。' }
+}
 $pictureSettings.AIPICTURE_SERVICE_SECRET=(Get-Content -LiteralPath $pictureSecretPath -Raw).Trim()
 $pictureSettings.AIPICTURE_ENABLED='true'
 $pictureSettings.AIPICTURE_CENTER_URL='http://127.0.0.1:8415'
@@ -122,6 +134,7 @@ $pictureSettings.APS_ENABLED='false'
 $pictureSettings.AIPPT_ENABLED='false'
 $pictureSettings.PAICLI_ENABLED='false'
 $pictureSettings.PAISMART_ENABLED='false'
+$pictureSettings.PAIFLOW_ENABLED='false'
 $pictureSettings.SPRING_QUARTZ_AUTO_STARTUP='false'
 $pictureSettings.SPRING_PROFILES_ACTIVE='druid,test,aipicture'
 $pictureOldEnv=@{}
@@ -129,16 +142,24 @@ $pictureStarted=[Collections.Generic.List[object]]::new()
 try {
     foreach($name in $pictureSettings.Keys) { $pictureOldEnv[$name]=[Environment]::GetEnvironmentVariable($name,'Process'); [Environment]::SetEnvironmentVariable($name,$pictureSettings[$name],'Process') }
     if(-not $PythonOnly -and -not $WorkerOnly) {
-        $java=Start-Process -FilePath (Get-Command java.exe).Source -ArgumentList @('-jar',('"'+$pictureJar+'"')) -WorkingDirectory $pictureRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $pictureRunRoot 'java.log') -RedirectStandardError (Join-Path $pictureRunRoot 'java.err.log')
+        # 使用命令行最高优先级关闭九业务，再仅开启图片；复用原Redis，不启动基础服务。
+        $javaArgs=@('-Xms128m','-Xmx768m','-jar',('"'+$pictureJar+'"'),'--server.address=127.0.0.1','--server.port=8415',('--ruoyi.local-captcha-debug.enabled='+$pictureCaptchaDebugEnabled),
+            '--interview.enabled=false','--fashion.enabled=false','--aipicture.enabled=true','--aden.enabled=false',
+            '--aippt.enabled=false','--paismart.enabled=false','--paiflow.enabled=false','--paicli.enabled=false','--aps.enabled=false',
+            '--aden.collection.enabled=false','--aps.datasource.enabled=false','--aps.worker.enabled=false','--aps.worker.polling-enabled=false',
+            '--fashion.image.worker-enabled=false','--fashion.ai-runtime.worker-enabled=false','--spring.quartz.auto-startup=false',
+            '--spring.data.redis.host=127.0.0.1','--spring.data.redis.port=6379','--spring.data.redis.database=0')
+        $java=Start-Process -FilePath (Get-Command java.exe).Source -ArgumentList $javaArgs -WorkingDirectory $pictureRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $pictureRunRoot 'java.log') -RedirectStandardError (Join-Path $pictureRunRoot 'java.err.log')
         $pictureStarted.Add([pscustomobject]@{name='java';pid=$java.Id;artifact=$pictureJar;sha256=(Get-FileHash -LiteralPath $pictureJar -Algorithm SHA256).Hash;port=8415})
     }
-    if(-not $JavaOnly) { foreach($kind in $(if($WorkerOnly){@('worker')}else{@('serve','worker')})) {
+    if(-not $JavaOnly) { foreach($kind in $(if($WorkerOnly){@('worker')}elseif($SkipWorker){@('serve')}else{@('serve','worker')})) {
         $arguments=@('-m','aipicture_runtime',$kind)
         if($kind -eq 'serve') { $arguments+=@('--host','127.0.0.1','--port','7405') }
         $python=Start-Process -FilePath $picturePython -ArgumentList $arguments -WorkingDirectory (Join-Path $pictureRoot 'python/aipicture-runtime') -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $pictureRunRoot "python-$kind.log") -RedirectStandardError (Join-Path $pictureRunRoot "python-$kind.err.log")
         $pictureStarted.Add([pscustomobject]@{name="python-$kind";pid=$python.Id;artifact=$picturePython;port=$(if($kind -eq 'serve'){7405}else{0})})
     } }
     if($Frontend) {
+        foreach($name in @('ADMIN_DEV_BACKEND_URL','PROJECT_VITE_CACHE_DIR')) { if(-not $pictureOldEnv.ContainsKey($name)) { $pictureOldEnv[$name]=[Environment]::GetEnvironmentVariable($name,'Process') } }
         $env:ADMIN_DEV_BACKEND_URL='http://127.0.0.1:8415'
         $env:PROJECT_VITE_CACHE_DIR=Join-Path $pictureRunRoot 'vite-cache'
         $node=(Get-Command node.exe).Source
@@ -148,6 +169,7 @@ try {
     }
 } finally {
     foreach($name in $pictureOldEnv.Keys) { [Environment]::SetEnvironmentVariable($name,$pictureOldEnv[$name],'Process') }
+    foreach($entry in $pictureStarted) { $proc=Get-CimInstance Win32_Process -Filter "ProcessId=$($entry.pid)"; if($proc) { $entry | Add-Member -NotePropertyName createdAt -NotePropertyValue $proc.CreationDate.ToUniversalTime().ToString('o') -Force } }
     # 只保存进程与产物身份，不保存数据库或供应商密钥；进程启动不代表业务健康。
     if($WorkerOnly) {
         # 派发前失败时保留原清单完整字节，便于凭原 worker 身份继续恢复。
@@ -169,7 +191,7 @@ try {
         if($RuntimeConfigPath) { $previous | Add-Member -NotePropertyName pythonRuntimeConfigPath -NotePropertyValue ([IO.Path]::GetFullPath($RuntimeConfigPath)) -Force }
         $previous | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pictureManifest -Encoding utf8
     } else {
-        [pscustomobject]@{startedAt=(Get-Date).ToUniversalTime().ToString('o');databaseMode='existing';database='ry-vue';processes=$pictureStarted.ToArray()} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pictureManifest -Encoding utf8
+        [pscustomobject]@{startedAt=(Get-Date).ToUniversalTime().ToString('o');databaseMode='existing';database='ry-vue';databaseConfigPath=[IO.Path]::GetFullPath($DatabaseConfigPath);pythonRuntimeConfigPath=$RuntimeConfigPath;javaArtifactSourcePath=$pictureJarSource;redis='127.0.0.1:6379/0';workerStarted=(-not $SkipWorker);frontendProxy='http://127.0.0.1:8415';viteCache=(Join-Path $pictureRunRoot 'vite-cache');processes=$pictureStarted.ToArray()} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pictureManifest -Encoding utf8
     }
 }
 '图片通道已派发启动；请核对日志与实际接口。前端：http://127.0.0.1:14385/；未配置模型的能力会明确失败。'

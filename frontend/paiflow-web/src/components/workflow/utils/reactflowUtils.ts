@@ -4,8 +4,10 @@ import Ajv from 'ajv';
 import i18next from 'i18next';
 import { isJSON } from '@/utils';
 import { InputSchema, ToolArg } from '@/types/plugin-store';
+import type { Edge, Viewport } from 'reactflow';
+import type { NodeDataType, OutputType, ReferenceType, WorkflowProperty } from '../types';
 
-const errorOutputTemplate = [
+const errorOutputTemplate: OutputType[] = [
   {
     id: uuid(),
     name: 'errorCode',
@@ -45,7 +47,9 @@ export function customStringify(obj: unknown): string {
     if (obj instanceof Date) {
       return `"${obj.toISOString()}"`;
     }
-    return JSON.stringify(obj);
+    const encoded = JSON.stringify(obj);
+    if (encoded === undefined) throw new TypeError('值不能序列化为工作流JSON');
+    return encoded;
   }
 
   if (Array.isArray(obj)) {
@@ -55,7 +59,7 @@ export function customStringify(obj: unknown): string {
 
   const keys = Object.keys(obj).sort();
   const keyValuePairs = keys.map(
-    key => `"${key}":${customStringify(obj[key])}`
+    key => `"${key}":${customStringify((obj as Record<string, unknown>)[key])}`
   );
   return `{${keyValuePairs.join(',')}}`;
 }
@@ -89,10 +93,11 @@ function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function generateRandomPosition(viewPoint: unknown): {
+export function generateRandomPosition(viewPoint: Viewport | undefined): {
   x: number;
   y: number;
 } {
+  if (!viewPoint) throw new TypeError('工作流视口尚未初始化');
   const zoom = 1 / viewPoint.zoom;
   return {
     x: (getRandomInt(500, 800) - viewPoint.x) * zoom,
@@ -265,11 +270,11 @@ export const checkedNodeRepeatedInputData = (
 };
 
 // ==================== 输出数据验证 ====================
-function validateProperties(
-  items: unknown[],
+function validateProperties<T extends WorkflowProperty>(
+  items: T[],
   parentPath = '',
-  parentType: string
-): { validatedItems: unknown[]; flag: boolean } {
+  parentType = ''
+): { validatedItems: T[]; flag: boolean } {
   let flag = true;
   const nameCount: Record<string, number> = {};
 
@@ -294,7 +299,7 @@ function validateProperties(
     });
 
   newItems.forEach(item => {
-    if (nameCount[item.name] > 1 && !item.nameErrMsg) {
+    if ((nameCount[item.name] ?? 0) > 1 && !item.nameErrMsg) {
       item.nameErrMsg = i18next.t(
         'workflow.nodes.validation.valueCannotBeRepeated'
       );
@@ -329,8 +334,16 @@ function validateProperties(
 }
 
 export const checkedNodeOutputData = (
-  data: unknown[],
-  currentCheckNode: unknown
+  data: OutputType[],
+  currentCheckNode: {
+    nodeType?: string;
+    data?: {
+      nodeParam?: Record<string, unknown> & {
+        answerType?: string;
+        directAnswer?: { handleResponse?: boolean };
+      };
+    };
+  } | undefined
 ): boolean => {
   let passFlag = true;
 
@@ -730,13 +743,16 @@ export const checkedNodeParams = (currentCheckNode: unknown): boolean => {
 };
 
 // ==================== 节点操作函数 ====================
-export function getNextName(arr: unknown[], prefix: string): string {
+export function getNextName(
+  arr: Array<{ data?: { label?: string } }>,
+  prefix: string
+): string {
   const regex = new RegExp(`^${prefix}_(\\d+)$`);
   const numbers = arr
     .map(item => item?.data?.label)
     .map(name => {
       const match = name?.match(regex);
-      return match ? parseInt(match[1], 10) : null;
+      return match?.[1] ? parseInt(match[1], 10) : null;
     })
     .filter((number): number is number => number !== null);
 
@@ -756,7 +772,7 @@ export function getNextName(arr: unknown[], prefix: string): string {
 
 export function findChildrenNodes(
   startNodeId: string,
-  edges: unknown[]
+  edges: Array<Pick<Edge, 'source' | 'target'>>
 ): string[] {
   const visited = new Set<string>();
   const stack = [startNodeId];
@@ -783,7 +799,7 @@ export function findChildrenNodes(
 
 export function findParentNodes(
   startNodeId: string,
-  edges: unknown[]
+  edges: Array<Pick<Edge, 'source' | 'target'>>
 ): string[] {
   const visited = new Set<string>();
   const stack = [startNodeId];
@@ -876,7 +892,19 @@ export const copyNodeData = (data: unknown): unknown => {
   return newData;
 };
 
-export function findItemById(dataArray: unknown[], id: string): unknown | null {
+export interface SearchableWorkflowItem {
+  id?: string;
+  properties?: SearchableWorkflowItem[];
+  schema?: { properties?: SearchableWorkflowItem[] };
+}
+
+export function findItemById(dataArray: readonly WorkflowProperty[], id: string): WorkflowProperty | null;
+export function findItemById<T extends {
+  id?: string;
+  properties?: T[];
+  schema?: { properties?: T[] };
+}>(dataArray: readonly T[], id: string): T | null;
+export function findItemById(dataArray: readonly SearchableWorkflowItem[], id: string): SearchableWorkflowItem | null {
   for (const item of dataArray) {
     if (item.id === id) {
       return item;
@@ -1001,15 +1029,19 @@ export function hasDecisionMakingNode(nodes: unknown[]): boolean {
   );
 }
 
-export const handleReplaceNodeId = (
-  childNodes: unknown[],
+export const handleReplaceNodeId = <T,>(
+  childNodes: T[],
   replacements: Record<string, string>
-): unknown[] => {
+): T[] => {
   const childNodesString = JSON.stringify(childNodes);
   return JSON.parse(
     childNodesString.replace(
       new RegExp(Object.keys(replacements).join('|'), 'g'),
-      match => replacements[match]
+      match => {
+        const replacement = replacements[match];
+        if (replacement === undefined) throw new TypeError('节点替换映射缺少匹配ID');
+        return replacement;
+      }
     )
   );
 };
@@ -1315,8 +1347,30 @@ function handleArrayObjectSchema(schema: unknown): unknown[] {
     : [];
 }
 
-function isObject(value: unknown): boolean {
-  return value && typeof value === 'object' && !Array.isArray(value);
+export function isObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+// 与当前 React DOM 文本框的 getToStringValue/toString 保持相同转换，不改原默认值。
+export function workflowValueToText(value: unknown): string {
+  if (value == null) return '';
+  switch (typeof value) {
+    case 'string':
+      return value;
+    case 'number':
+    case 'boolean':
+    case 'object':
+      return '' + value;
+    default:
+      return '';
+  }
+}
+
+type WorkflowDisplayValue = string | number | boolean | null | undefined | WorkflowDisplayValue[];
+
+export function isWorkflowDisplayValue(value: unknown): value is WorkflowDisplayValue {
+  return value == null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+    || (Array.isArray(value) && value.every((item: unknown) => isWorkflowDisplayValue(item)));
 }
 
 // ==================== 路径查找函数 ====================
@@ -1532,26 +1586,36 @@ export const transformTree = (inputArray: unknown[]): unknown[] => {
 
 // ==================== 项目删除函数 ====================
 function removeFromProperties(
-  propertiesArray: unknown[],
+  propertiesArray: WorkflowProperty[],
   idToRemove: string
-): unknown[] {
+): WorkflowProperty[] {
   return propertiesArray
     .map(property => {
+      let next = property;
       if (property.properties && Array.isArray(property.properties)) {
-        return {
+        next = {
           ...property,
           properties: removeFromProperties(property.properties, idToRemove),
         };
       }
-      return property;
+      if (property.schema?.properties && Array.isArray(property.schema.properties)) {
+        next = {
+          ...next,
+          schema: {
+            ...property.schema,
+            properties: removeFromProperties(property.schema.properties, idToRemove),
+          },
+        };
+      }
+      return next;
     })
     .filter(property => property.id !== idToRemove);
 }
 
-export const removeItemById = (
-  dataArray: unknown[],
+export const removeItemById = <T extends WorkflowProperty>(
+  dataArray: T[],
   idToRemove: string
-): unknown[] => {
+): T[] => {
   return dataArray
     .map(item => {
       if (item.schema && item.schema.properties) {
@@ -1603,7 +1667,8 @@ export const extractIdsWithNonEmptyProperties = (data: unknown[]): string[] => {
 
 type NodeType = {
   id: string;
-  data: unknown;
+  nodeType?: string;
+  data: Pick<NodeDataType, 'outputs' | 'retryConfig' | 'label'>;
 };
 
 type EdgeType = {
@@ -1611,12 +1676,14 @@ type EdgeType = {
   target: string;
 };
 
+type ReferenceSchema = Pick<WorkflowProperty, 'id' | 'name' | 'type' | 'properties' | 'allowedFileType'>;
+
 function buildSchemaReferences(
-  schema: unknown,
+  schema: ReferenceSchema,
   parent: { originId: string; prefix?: string; parentType?: string } = {
     originId: '',
   }
-): unknown[] {
+): ReferenceType[] {
   if (!schema) return [];
 
   const baseValue = parent.prefix
@@ -1624,7 +1691,7 @@ function buildSchemaReferences(
     : schema.name;
 
   // 基础类型
-  if (!['object', 'array-object'].includes(schema.type)) {
+  if (!['object', 'array-object'].includes(schema.type ?? '')) {
     return [
       {
         originId: parent.originId,
@@ -1649,7 +1716,7 @@ function buildSchemaReferences(
         type: schema?.type,
         parentType: parent.parentType,
         fileType: schema.allowedFileType?.[0] || '',
-        children: schema.properties.flatMap((prop: unknown) =>
+        children: schema.properties.flatMap(prop =>
           buildSchemaReferences(
             {
               ...prop,
@@ -1675,22 +1742,22 @@ function buildSchemaReferences(
 function buildOwnReferences(
   sourceNode: NodeType,
   targetNode: NodeType
-): unknown[] {
+): ReferenceType[] {
   const errorOutputs =
-    [1, 2]?.includes(sourceNode?.data?.retryConfig?.errorStrategy) &&
+    [1, 2]?.includes(sourceNode?.data?.retryConfig?.errorStrategy ?? -1) &&
     sourceNode?.data?.retryConfig?.shouldRetry
       ? errorOutputTemplate
       : [];
 
   const outputs =
     targetNode?.nodeType === 'iteration'
-      ? sourceNode?.data?.outputs?.filter((output: unknown) =>
+      ? sourceNode?.data?.outputs?.filter(output =>
           output?.schema?.type?.includes('array')
         )
       : [...(sourceNode?.data?.outputs || []), ...errorOutputs];
 
   return (
-    outputs?.flatMap((output: unknown) =>
+    outputs?.flatMap(output =>
       buildSchemaReferences(
         {
           ...output,
@@ -1709,7 +1776,7 @@ export function generateReferences(
   nodes: NodeType[],
   edges: EdgeType[],
   id: string
-): unknown[] {
+): ReferenceType[] {
   const targetNode = nodes.find(n => n.id === id);
   if (!targetNode) return [];
 
@@ -1747,7 +1814,7 @@ export function generateReferences(
         ],
       };
     })
-    .filter(Boolean) as unknown[];
+    .filter((reference): reference is NonNullable<typeof reference> => reference !== null);
 
   return result;
 }

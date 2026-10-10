@@ -21,6 +21,18 @@
     "dslCanonicalBase64"
   ],
   "properties": {
+    "executionContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["flowId", "userId", "appId", "chatId"],
+      "properties": {
+        "flowId": {"type": "string", "minLength": 1, "maxLength": 128},
+        "userId": {"type": "string", "minLength": 1},
+        "appId": {"type": "string", "minLength": 1},
+        "chatId": {"type": "string", "maxLength": 128}
+      },
+      "$comment": "可选中心上下文来自实际RunContext，不从DSL.uuid或Worker输入推断；原空chatId仍允许。字段与固定assignment一起验证，不能授予额外资源权限。"
+    },
     "schemaVersion": {
       "const": "paiflow.worker.v1"
     },
@@ -44,6 +56,15 @@
     },
     "input": {
       "type": "object"
+    },
+    "executionCodec": {
+      "enum": ["paiflow.execution.v1", "paiflow.execution.v2", "paiflow.execution.v3", "paiflow.execution.v4"],
+      "$comment": "中心固定执行版本的编译格式；V4必须显式派发且仅供Python。字段属于整个固定assignment绑定，缺省沿用旧任务准入，不能凭资源快照扩张旧版本能力。"
+    },
+    "dataEnvironment": {
+      "type": "integer",
+      "enum": [1, 2],
+      "$comment": "由中心固定运行派发：1调试数据、2生产数据。纯图可省略，含database节点必须显式提供；不得从nodeParam/input自行选择环境。"
     },
     "resourceSnapshots": {
       "type": "object",
@@ -147,6 +168,13 @@
       "$comment": "中心DslCodec规范化UTF-8 JSON字节；Worker解码原字节做SHA256，并核对解码后的图与dsl相等，不重新JSON序列化计算哈希。"
     }
   },
+  "allOf": [{
+    "if": {"required": ["executionCodec"], "properties": {"executionCodec": {"const": "paiflow.execution.v4"}}},
+    "then": {"properties": {"engineProfile": {"const": "python"}}}
+  }, {
+    "if": {"properties": {"dsl": {"properties": {"nodes": {"contains": {"properties": {"id": {"pattern": "^database::"}}, "required": ["id"]}}}}}},
+    "then": {"required": ["dataEnvironment"]}
+  }],
   "$comment": "中心保存正式任务/租约/事件与一次性执行登记；真实联机/资源端点仍未完整验证。verify仅核对快照，进入原引擎前必须获得execution/begin首次完整ACK；任何重复/丢失/未知ACK均不得执行或提交终态。dslHash使用中心DslCodec规范化执行图；资源和凭据只能由中心按运行范围提供。",
   "$defs": {
     "ExecutionBeginAck": {

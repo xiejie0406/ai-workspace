@@ -32,8 +32,15 @@ public class WorkerRunController {
         var value=json(body);RunJsonBoundary.fields(value,Set.of("leaseId","attempt"),Set.of());return value;
     }
     @PostMapping("/claim")
-    public AjaxResult claim(@RequestHeader(value="Authorization",required=false) String token) {
-        var worker=identities.authenticate(token);var value=runs.claim(worker);
+    public AjaxResult claim(@RequestHeader(value="Authorization",required=false) String token,
+            @RequestBody(required=false) Map<String,Object> body) {
+        var worker=identities.authenticate(token);
+        if(body!=null && !body.isEmpty()) {
+            var request=json(body);RunJsonBoundary.fields(request,Set.of("engineProfile"),Set.of());
+            if(!worker.engineProfile().equals(request.get("engineProfile")))
+                throw new com.ruoyi.common.exception.ServiceException("领取引擎与Worker服务身份不一致",403);
+        }
+        var value=runs.claim(worker);
         return AjaxResult.success().put("data",value);
     }
     @PostMapping("/{runId}/lease/verify")

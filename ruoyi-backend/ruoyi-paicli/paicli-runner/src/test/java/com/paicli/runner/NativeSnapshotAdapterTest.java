@@ -22,7 +22,7 @@ class NativeSnapshotAdapterTest {
         Path root=RunnerPrivateDirectory.createDirectories(container.resolve("large-workspace")),state=RunnerPrivateDirectory.createDirectories(container.resolve("large-state"));
         Files.writeString(root.resolve("file.txt"),"a".repeat(40000)+"\n");
         var snapshots=new SideGitManager(root,new SnapshotConfig(true,state.resolve("snapshots"),50,List.of(".git")));var target=snapshots.preTurnSnapshot("before","original");Files.writeString(root.resolve("file.txt"),"b".repeat(40000)+"\n");
-        var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","2").put("workspaceId","3").put("leaseId","4").put("fencingToken",5).put("version",6).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(120).toString());var lease=new RunnerLease(claim);
+        var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","2").put("directoryContextId","3").put("leaseId","4").put("fencingToken",5).put("version",6).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(120).toString());var lease=new RunnerLease(claim);
         try(var server=new MockWebServer()) {server.setDispatcher(new Dispatcher(){public MockResponse dispatch(RecordedRequest request){try {
             assertEquals("/paicli/runner/v1/tool-outputs",request.getPath());var input=CanonicalJson.MAPPER.readTree(request.getBody().readUtf8());byte[] content=input.path("content").asText().getBytes(java.nio.charset.StandardCharsets.UTF_8);var full=CanonicalJson.MAPPER.readTree(content);
             assertFalse(full.has("payload"));assertEquals("snapshot__preview",input.path("toolName").asText());assertTrue(full.path("restorePreview").path("files").get(0).path("diff").asText().length()>64000);
@@ -38,7 +38,7 @@ class NativeSnapshotAdapterTest {
     }
     private void run(boolean changed,boolean expiresAfterExecution)throws Exception {
         Path root=RunnerPrivateDirectory.createDirectories(container.resolve("workspace")),state=RunnerPrivateDirectory.createDirectories(container.resolve("state"));Files.writeString(root.resolve("file.txt"),"original\n");
-        var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","2").put("workspaceId","3").put("leaseId","4").put("fencingToken",5).put("version",6).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(120).toString());var lease=new RunnerLease(claim);
+        var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","2").put("directoryContextId","3").put("leaseId","4").put("fencingToken",5).put("version",6).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(120).toString());var lease=new RunnerLease(claim);
         SideGitManager snapshots=new SideGitManager(root,new SnapshotConfig(true,state.resolve("snapshots"),50,List.of(".git"))) {
             @Override public synchronized RestoreResult restoreSnapshot(String id)throws IOException,org.eclipse.jgit.api.errors.GitAPIException {var result=super.restoreSnapshot(id);if(expiresAfterExecution)lease.invalidate();return result;}
         };
@@ -46,7 +46,7 @@ class NativeSnapshotAdapterTest {
         try(var server=new MockWebServer()) {
             server.setDispatcher(new Dispatcher(){public MockResponse dispatch(RecordedRequest request){try {
                 assertEquals("/paicli/runner/v1/revert-context",request.getPath());ObjectNode body=(ObjectNode)CanonicalJson.MAPPER.readTree(request.getBody().readUtf8());
-                body.put("sessionId",lease.claim().path("sessionId").asText()).put("workspaceId",lease.claim().path("workspaceId").asText());
+                body.put("sessionId",lease.claim().path("sessionId").asText()).put("directoryContextId",lease.claim().path("directoryContextId").asText());
                 return new MockResponse().setHeader("Content-Type","application/json").setBody(CanonicalJson.MAPPER.createObjectNode().put("code",200).set("data",body).toString());
             }catch(IOException error){throw new UncheckedIOException(error);}}});server.start();
             try(var center=new CenterHttpClient(server.url("/").toString(),"fixture",true)) {

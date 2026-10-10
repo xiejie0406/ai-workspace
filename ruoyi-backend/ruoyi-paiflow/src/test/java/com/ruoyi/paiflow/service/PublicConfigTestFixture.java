@@ -46,7 +46,7 @@ public class PublicConfigTestFixture implements AutoCloseable {
         try(var statement=schemaConnection.createStatement()) {
             statement.execute("SET IGNORECASE TRUE");statement.execute(ddl);
         }
-        catalog=JSON.parseObject(Files.readString(Path.of("src/main/resources/paiflow/public-config-source.json")));
+        try(var source=new ClassPathResource("paiflow/public-config-source.json").getInputStream()) {catalog=JSON.parseObject(new String(source.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));}
         try(var connection=dataSource.getConnection();var insert=connection.prepareStatement("INSERT INTO paiflow_public_config (id,category,code,name,value,is_valid,remarks,create_time,update_time) VALUES (?,?,?,?,?,?,?,?,?)")) {
             for(var raw:catalog.getJSONArray("records")) {
                 var row=(JSONObject)raw;insert.setLong(1,row.getLongValue("id"));

@@ -31,6 +31,11 @@ public class ImageReferenceParser {
     private ImageReferenceParser() {}
 
     public static LlmClient.Message userMessage(String input, Path baseDir) {
+        return userMessage(input, baseDir, false);
+    }
+
+    /** 网页托管文件图只能来自登记工作区，剪贴板须由浏览器附件桥提供。 */
+    public static LlmClient.Message userMessage(String input, Path baseDir, boolean restrictedWorkspace) {
         String rawInput = input == null ? "" : input;
         List<ImageRef> refs = findRefs(rawInput);
         if (refs.isEmpty()) {
@@ -46,7 +51,7 @@ public class ImageReferenceParser {
         List<LlmClient.ContentPart> imageParts = new ArrayList<>();
 
         for (ImageRef ref : refs) {
-            ImagePayload payload = loadImage(ref.value(), baseDir);
+            ImagePayload payload = loadImage(ref.value(), baseDir, restrictedWorkspace);
             String displayLabel = displayLabelFor(ref, payload);
             if (!payload.ok()) {
                 notes.add("[图片引用无效: " + displayLabel + "，原因: " + payload.error() + "]");
@@ -97,10 +102,11 @@ public class ImageReferenceParser {
         return IMAGE_REF.matcher(input).replaceAll("").replaceAll("[ \\t]+\\n", "\n").trim();
     }
 
-    private static ImagePayload loadImage(String rawPath, Path baseDir) {
+    private static ImagePayload loadImage(String rawPath, Path baseDir, boolean restrictedWorkspace) {
         try {
             Path resolvedPath = null;
             if (CLIPBOARD_TOKEN.equals(rawPath)) {
+                if (restrictedWorkspace) return ImagePayload.error("网页剪贴板必须由当前用户主动粘贴，不能读取Runner宿主剪贴板");
                 ClipboardImage.GrabResult grab = ClipboardImage.grab();
                 if (!grab.ok()) {
                     return ImagePayload.error(grab.error());
@@ -109,6 +115,7 @@ public class ImageReferenceParser {
                 rawPath = resolvedPath.toString();
             }
             Path path = resolvedPath != null ? resolvedPath : resolvePath(rawPath, baseDir);
+            if (restrictedWorkspace) path = new com.paicli.policy.PathGuard(baseDir.toString()).resolveSafe(path.toString());
             if (!Files.exists(path)) {
                 return ImagePayload.error("文件不存在");
             }

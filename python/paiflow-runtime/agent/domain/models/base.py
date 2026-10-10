@@ -4,8 +4,8 @@ from openai import APIError, APITimeoutError, AsyncOpenAI
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import BaseModel, ConfigDict
 
-from common_imports import Span
-from exceptions.plugin_exc import PluginExc, llm_plugin_error
+from agent.common_imports import Span
+from agent.exceptions.plugin_exc import PluginExc, llm_plugin_error
 
 
 class BaseLLMModel(BaseModel):

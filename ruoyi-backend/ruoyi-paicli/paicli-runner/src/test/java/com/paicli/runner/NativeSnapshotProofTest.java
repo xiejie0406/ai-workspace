@@ -41,5 +41,5 @@ class NativeSnapshotProofTest {
             }
         }
     }
-    private ObjectNode claim(Path root,String id)throws IOException{return CanonicalJson.MAPPER.createObjectNode().put("taskId",id).put("sessionId","2").put("workspaceId","7").put("leaseId","3").put("fencingToken",4).put("version",5).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(90).toString());}
+    private ObjectNode claim(Path root,String id)throws IOException{return CanonicalJson.MAPPER.createObjectNode().put("taskId",id).put("sessionId","2").put("directoryContextId","7").put("leaseId","3").put("fencingToken",4).put("version",5).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(90).toString());}
 }

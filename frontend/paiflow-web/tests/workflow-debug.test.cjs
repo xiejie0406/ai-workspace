@@ -39,6 +39,13 @@ test('普通模式不泄漏前次comparison版本；chat原输入和chatId保留
  const {ctx}=context();const body=JSON.parse(ctx.chatBody);assert.deepEqual(body.inputs,{original:null});assert.equal(body.chatId,'original-chat-id');assert.equal(body.requestKey,'request-key-fixture');assert.equal(body.debugReceipt.workflowVersionId,'51');
  assert.throws(()=>new helper.WorkflowDebugContext(receipt(),'scope',()=> 'scope','request-key-fixture',{flow_id:'flow-nine',version:'old'},()=> 'reply-key-fixture'));
 });
+test('V4 Python构建回执完整绑定调试请求，错引擎和未知格式不能通过',()=>{
+ const r=receipt({executionCodec:'paiflow.execution.v4'});
+ const actual=helper.readDebugReceipt(data(r),expected());
+ const ctx=new helper.WorkflowDebugContext(actual,'scope',()=> 'scope','request-key-fixture',{flow_id:r.flowId,inputs:{question:'原问题'},chatId:'original-chat-id',regen:false},()=> 'reply-key-fixture');
+ const body=JSON.parse(ctx.chatBody);assert.equal(body.debugReceipt.executionCodec,'paiflow.execution.v4');assert.equal(body.debugReceipt.workflowVersionId,r.workflowVersionId);assert.deepEqual(body.inputs,{question:'原问题'});
+ for(const patch of [{engineProfile:'java'},{executionCodec:'paiflow.execution.v5'},{executionCodec:null}])assert.throws(()=>helper.readDebugReceipt(data({...r,...patch}),expected()));
+});
 test('打开流必须HTTP200/SSE和真实同Run双头，跨Run/version/JSON响应不能接收',()=>{
  const {ctx}=context();ctx.open(opened());ctx.open(opened());
  for(const response of [opened('other-run-id'),opened('run-fixture-nine','52'),{status:503,headers:opened().headers},{status:200,headers:new Headers({'Content-Type':'application/json'})}]) assert.throws(()=>ctx.open(response));
@@ -97,13 +104,13 @@ test('会话/空间切换或显式detach取消本地流，禁止旧回复但不�
  const other=context();const old=other.ctx.nextStream(), fresh=other.ctx.nextStream();assert.equal(old.aborted,true);assert.equal(fresh.aborted,false);other.ctx.detach();assert.equal(fresh.aborted,true);
 });
 
-function application(history=false) {
+function application(history=false, capturedNodes) {
  let next=0;const requests=[], builds=[],errors=[],windowListeners=new Map();const listeners={space:new Set(),manager:new Set()};
  const notify=kind=>listeners[kind].forEach(fn=>fn());
  const manager={currentFlow:{id:'9',flowId:'flow-nine',name:'原图',advancedConfig:JSON.stringify({suggestedQuestionsAfterAnswer:{enabled:false}})},historyVersion:history,historyVersionData:{id:'10'},
   setCanPublish:()=>{},setShowNodeList:()=>{},setCanvasesDisabled:value=>manager.disabled=value,setFlowResult:value=>{manager.flowResult=value;notify('manager');}};
  const space={spaceId:'',spaceType:'personal',enterpriseId:''};let token='Bearer actor-a';
- const nodes=[{id:'node-start',nodeType:'node-start',data:{status:'',debuggerResult:{}},position:{x:0,y:0}},{id:'qa',data:{status:'',debuggerResult:{}},position:{x:0,y:0}}];
+ const nodes=capturedNodes??[{id:'node-start',nodeType:'node-start',data:{status:'',debuggerResult:{}},position:{x:0,y:0}},{id:'qa',data:{status:'',debuggerResult:{}},position:{x:0,y:0}}];
  const flow={nodes,edges:[],setNodes:change=>{flow.nodes=typeof change==='function'?change(flow.nodes):change;},setNode:()=>{},setEdges:()=>{}};
  const service={buildFlowAPI:(params,key)=>new Promise(resolve=>builds.push({mode:'ordinary',params,key,resolve})),addComparisons:(params,key)=>new Promise(resolve=>builds.push({mode:'comparison',params,key,resolve})),getInputsType:()=>Promise.resolve([])};
  const streams=async(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));
@@ -249,4 +256,43 @@ test('不带真实Run头的错误首响不创建续读；pagehide取消本地读
  const app=application();app.start();app.build(0);await flush();const request=app.requests[0];
  await assert.rejects(()=>request.options.onopen({status:200,headers:new Headers({'Content-Type':'text/event-stream'})}));assert.equal(app.state.debugContext.runId,undefined);
  app.windowListeners.get('pagehide')();assert.equal(request.options.signal.aborted,true);assert.equal(app.requests.some(req=>req.short),false);request.resolve();await flush();
+});
+
+const javaModelFrames=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/java-model-original-frames.json'),'utf8'));
+for(const captured of javaModelFrames.cases) {
+ test(`实际Java模型原帧${captured.variant}：null保持运行，节点stop保全7与0 token且不终结整体`,async()=>{
+  const nodes=[...new Set(captured.frames.map(({frame})=>frame.workflow_step.node.id))]
+   .map(id=>({id,data:{status:'',debuggerResult:{}},position:{x:0,y:0}}));
+  const app=application(false,nodes);app.start();app.build(0);await flush();
+  const request=app.requests[0],context=app.state.debugContext;await request.options.onopen(opened());
+  try {
+   for(const {seq,frame:original} of captured.frames) {
+    const page=structuredClone(original);page.id='run-fixture-nine';
+    request.options.onmessage({id:`run-fixture-nine:${seq}`,data:JSON.stringify(page)});
+    const node=nodes.find(node=>node.id===page.workflow_step.node.id),completed=page.workflow_step.node.finish_reason==='stop';
+    assert.equal(node.data.status,completed?'success':'running');assert.equal(node.data.debuggerResult.done,completed);
+    assert.equal(context.terminal,false);assert.equal(app.manager.flowResult.status,'running');
+   }
+   const model=nodes.find(node=>node.id.startsWith('spark-llm'));
+   assert.equal(model.data.debuggerResult.answerContent,' 原文本');assert.equal(model.data.debuggerResult.reasoningContent,'思考');
+   assert.equal(model.data.debuggerResult.rawOutput,'原文本');assert.equal(model.data.debuggerResult.tokenCost,7);
+   for(const node of nodes.filter(node=>!node.id.startsWith('spark-llm'))) assert.equal(node.data.debuggerResult.tokenCost,0);
+   // 整体终帧只测试原store的终态入口；实际中心终帧另由父同Run Codec检查证明。
+   request.options.onmessage({id:'run-fixture-nine:16',data:frame('stop',{workflow_step:{node:{id:'flow_obj',finish_reason:'stop'}}})});
+   assert.equal(context.terminal,true);assert.equal(app.manager.flowResult.status,'success');
+   assert.equal(model.data.status,'success');assert.equal(model.data.debuggerResult.tokenCost,7);
+  } finally {context.detach();request.resolve();await flush();}
+ });
+}
+test('原完成帧缺usage仍无token，失败帧仍保原failed判定',async()=>{
+ const original=javaModelFrames.cases[0].frames.find(({frame})=>frame.workflow_step.node.id.startsWith('spark-llm')&&frame.workflow_step.node.finish_reason==='stop').frame;
+ const node={id:original.workflow_step.node.id,data:{status:'',debuggerResult:{}},position:{x:0,y:0}},app=application(false,[node]);
+ app.start();app.build(0);await flush();const request=app.requests[0],context=app.state.debugContext;await request.options.onopen(opened());
+ try {
+  const failed=structuredClone(original);failed.id='run-fixture-nine';failed.code=500;failed.message='原失败';failed.workflow_step.node.usage=null;
+  request.options.onmessage({id:'run-fixture-nine:1',data:JSON.stringify(failed)});
+  assert.equal(node.data.status,'failed');assert.equal(node.data.debuggerResult.done,true);
+  assert.equal(node.data.debuggerResult.failedReason,'原失败');assert.equal(node.data.debuggerResult.tokenCost,undefined);
+  assert.equal(context.terminal,false);assert.equal(app.manager.flowResult.status,'running');
+ } finally {context.detach();request.resolve();await flush();}
 });

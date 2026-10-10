@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.paicli.mapper.PcLedgerMapper">
   <resultMap id="record" type="com.ruoyi.paicli.domain.PcRecord">
-    <id property="id" column="id"/><result property="workspaceId" column="workspace_id"/>
+    <id property="id" column="id"/><result property="workspaceId" column="workspace_id"/><result property="directoryContextId" column="directory_context_id"/>
     <result property="ownerId" column="owner_id"/><result property="parentId" column="parent_id"/>
     <result property="sessionId" column="session_id"/><result property="runnerId" column="runner_id"/>
     <result property="kind" column="kind"/><result property="state" column="state"/>
@@ -13,75 +13,78 @@
     <result property="expiresAt" column="expires_at"/>
   </resultMap>
   <!-- table.sqlName 来自 sealed-by-enum PcTable，不暴露任何字符串表名入口。 -->
+  <select id="publishedReleasesForUpdate" resultMap="record">SELECT * FROM pc_model_release WHERE state='PUBLISHED' ORDER BY id FOR UPDATE</select>
+  <!-- 同能力默认发布共用一条持久行锁，跨管理员、跨中心实例串行。 -->
+  <insert id="ensureDefaultSelection">INSERT INTO pc_model_release(kind,state,unique_key,payload,content_hash,version,sequence_number,fencing_token,created_at,updated_at) VALUES('DEFAULT_SELECTION','INTERNAL',CONCAT('default-selection:',#{kind}),'{}','',1,0,0,#{now},#{now}) ON DUPLICATE KEY UPDATE unique_key=unique_key</insert>
   <select id="find" resultMap="record">SELECT * FROM ${table.sqlName} WHERE id=#{id}<if test="lock"> FOR UPDATE</if></select>
   <select id="findKey" resultMap="record">SELECT * FROM ${table.sqlName} WHERE unique_key=#{key}<if test="lock"> FOR UPDATE</if></select>
   <select id="list" resultMap="record">
     SELECT * FROM ${table.sqlName}
     <where>
-      <if test="workspaceId != null">AND workspace_id=#{workspaceId}</if>
+      <if test="directoryContextId != null">AND directory_context_id=#{directoryContextId}</if>
       <if test="ownerId != null">AND owner_id=#{ownerId}</if>
       <if test="parentId != null">AND parent_id=#{parentId}</if>
       <if test="state != null">AND state=#{state}</if>
     </where> ORDER BY id DESC
   </select>
   <insert id="insert" useGeneratedKeys="true" keyProperty="row.id">
-    INSERT INTO ${table.sqlName}(workspace_id,owner_id,parent_id,session_id,runner_id,kind,state,unique_key,content_hash,
+    INSERT INTO ${table.sqlName}(directory_context_id,owner_id,parent_id,session_id,runner_id,kind,state,unique_key,content_hash,
       payload,version,sequence_number,fencing_token,created_at,updated_at,expires_at)
-    VALUES(#{row.workspaceId},#{row.ownerId},#{row.parentId},#{row.sessionId},#{row.runnerId},#{row.kind},#{row.state},
+    VALUES(#{row.directoryContextId},#{row.ownerId},#{row.parentId},#{row.sessionId},#{row.runnerId},#{row.kind},#{row.state},
       #{row.uniqueKey},#{row.contentHash},#{row.payload},#{row.version},#{row.sequenceNumber},#{row.fencingToken},
       #{row.createdAt},#{row.updatedAt},#{row.expiresAt})
   </insert>
   <update id="update">
-    UPDATE ${table.sqlName} SET state=#{row.state},payload=#{row.payload},content_hash=#{row.contentHash},
+    UPDATE ${table.sqlName} SET directory_context_id=#{row.directoryContextId},owner_id=#{row.ownerId},state=#{row.state},payload=#{row.payload},content_hash=#{row.contentHash},
       parent_id=#{row.parentId},session_id=#{row.sessionId},unique_key=#{row.uniqueKey},
       runner_id=#{row.runnerId},fencing_token=#{row.fencingToken},sequence_number=#{row.sequenceNumber},
       expires_at=#{row.expiresAt},updated_at=#{row.updatedAt},version=version+1 WHERE id=#{row.id} AND version=#{expected}
   </update>
   <select id="events" resultMap="record">
-    SELECT * FROM pc_event WHERE workspace_id=#{workspaceId} AND session_id=#{sessionId}
+    SELECT * FROM pc_event WHERE session_id=#{sessionId}
       AND sequence_number &gt; #{cursor} AND expires_at &gt; #{now} ORDER BY sequence_number LIMIT #{limit}
   </select>
   <select id="messages" resultMap="record">
-    SELECT * FROM pc_message WHERE workspace_id=#{workspaceId} AND owner_id=#{ownerId} AND session_id=#{sessionId}
+    SELECT * FROM pc_message WHERE owner_id=#{ownerId} AND session_id=#{sessionId}
       AND sequence_number &gt; #{after} AND sequence_number &lt;= #{end} AND state!='REVOKED_IMPORT'
       ORDER BY sequence_number,id LIMIT #{limit}
   </select>
   <select id="taskEvents" resultMap="record">
-    SELECT * FROM pc_event WHERE workspace_id=#{workspaceId} AND session_id=#{sessionId} AND parent_id=#{taskId}
+    SELECT * FROM pc_event WHERE session_id=#{sessionId} AND parent_id=#{taskId}
       AND sequence_number &gt; #{after} AND sequence_number &lt;= #{end} AND state!='REVOKED_IMPORT'
       ORDER BY sequence_number,id LIMIT #{limit}
   </select>
   <select id="recentMessages" resultMap="record">
-    SELECT * FROM pc_message WHERE workspace_id=#{workspaceId} AND owner_id=#{ownerId} AND session_id=#{sessionId}
+    SELECT * FROM pc_message WHERE owner_id=#{ownerId} AND session_id=#{sessionId}
       AND sequence_number &lt;= #{end} AND state!='REVOKED_IMPORT' ORDER BY sequence_number DESC,id DESC LIMIT #{limit}
   </select>
   <select id="messageCount" resultType="long">
-    SELECT COUNT(*) FROM pc_message WHERE workspace_id=#{workspaceId} AND owner_id=#{ownerId} AND session_id=#{sessionId} AND state!='REVOKED_IMPORT'
+    SELECT COUNT(*) FROM pc_message WHERE owner_id=#{ownerId} AND session_id=#{sessionId} AND state!='REVOKED_IMPORT'
   </select>
   <select id="sessionRecordEnd" resultType="long">
-    SELECT COALESCE(MAX(id),0) FROM ${table.sqlName} WHERE workspace_id=#{workspaceId} AND session_id=#{sessionId} AND state!='REVOKED_IMPORT'
+    SELECT COALESCE(MAX(id),0) FROM ${table.sqlName} WHERE session_id=#{sessionId} AND state!='REVOKED_IMPORT'
   </select>
   <select id="sessionRecords" resultMap="record">
-    SELECT * FROM ${table.sqlName} WHERE workspace_id=#{workspaceId} AND session_id=#{sessionId}
+    SELECT * FROM ${table.sqlName} WHERE session_id=#{sessionId}
       AND id &gt; #{after} AND id &lt;= #{end} AND state!='REVOKED_IMPORT' ORDER BY id LIMIT #{limit}
   </select>
   <select id="recentSessionRecords" resultMap="record">
-    SELECT * FROM ${table.sqlName} WHERE workspace_id=#{workspaceId} AND session_id=#{sessionId}
+    SELECT * FROM ${table.sqlName} WHERE session_id=#{sessionId}
       AND state!='REVOKED_IMPORT' ORDER BY id DESC LIMIT #{limit}
   </select>
   <select id="minCursor" resultType="long">
-    SELECT COALESCE(MIN(sequence_number),0) FROM pc_event WHERE workspace_id=#{workspaceId} AND session_id=#{sessionId} AND expires_at &gt; #{now}
+    SELECT COALESCE(MIN(sequence_number),0) FROM pc_event WHERE session_id=#{sessionId} AND expires_at &gt; #{now}
   </select>
   <select id="expiredLeases" resultMap="record">SELECT * FROM pc_task_lease WHERE state='ACTIVE' AND expires_at &lt;= #{now} ORDER BY id LIMIT #{limit}</select>
-  <select id="queued" resultMap="record">SELECT * FROM pc_task WHERE workspace_id=#{workspaceId} AND state='ENQUEUED' AND (runner_id IS NULL OR runner_id=#{runnerId}) ORDER BY id LIMIT 100</select>
+  <select id="queued" resultMap="record">SELECT t.* FROM pc_task t WHERE t.state='ENQUEUED' AND t.runner_id=#{runnerId} AND EXISTS(SELECT 1 FROM pc_runner r WHERE r.id=#{runnerId} AND r.owner_id=t.owner_id) ORDER BY t.id LIMIT 100</select>
   <select id="activeTasks" resultType="int">
     SELECT COUNT(*) FROM pc_task WHERE state IN ('LEASED','RUNNING','WAITING_APPROVAL','CANCELLING','RECONCILE_REQUIRED')
-    <if test="workspaceId != null">AND workspace_id=#{workspaceId}</if><if test="sessionId != null">AND session_id=#{sessionId}</if>
+    <if test="directoryContextId != null">AND directory_context_id=#{directoryContextId}</if><if test="sessionId != null">AND session_id=#{sessionId}</if>
     <if test="ownerId != null">AND owner_id=#{ownerId}</if><if test="runnerId != null">AND runner_id=#{runnerId}</if>
   </select>
   <select id="audits" resultMap="record">
-    SELECT r.* FROM pc_security_audit r WHERE r.workspace_id=#{workspaceId}
-      AND EXISTS(SELECT 1 FROM pc_workspace_member m WHERE m.workspace_id=r.workspace_id AND m.owner_id=#{userId} AND m.state='ACTIVE')
+    SELECT r.* FROM pc_security_audit r WHERE r.directory_context_id=#{directoryContextId}
+      AND r.owner_id=#{userId}
       <!-- MySQL JSON返回时可能规范化插入空格；过滤字段只允许无空格稳定标识。 -->
       <if test="toolFilter != null">AND REPLACE(r.payload,' ','') LIKE #{toolFilter} ESCAPE '!'</if>
       <if test="decisionFilter != null">AND REPLACE(r.payload,' ','') LIKE #{decisionFilter} ESCAPE '!'</if>
@@ -89,10 +92,10 @@
     ORDER BY r.id DESC
   </select>
   <select id="visibleWorkspaces" resultMap="record">
-    SELECT w.* FROM pc_workspace w WHERE w.state='ACTIVE' AND EXISTS(SELECT 1 FROM pc_workspace_member m WHERE m.workspace_id=w.id AND m.owner_id=#{userId} AND m.state='ACTIVE') ORDER BY w.id DESC
+    SELECT w.* FROM pc_directory_context w WHERE w.state='VERIFIED' AND w.owner_id=#{userId} ORDER BY w.id DESC
   </select>
   <select id="searchTasks" resultMap="record">
-    SELECT r.* FROM pc_task r WHERE r.workspace_id=#{workspaceId} AND r.owner_id=#{userId}
+    SELECT r.* FROM pc_task r WHERE r.owner_id=#{userId}<if test="directoryContextId != null"> AND r.directory_context_id=#{directoryContextId}</if>
       <if test="state != null and state != ''">AND r.state=#{state}</if>
       <if test="search != null">AND (r.task_title LIKE #{search} ESCAPE '!' OR r.prompt_text LIKE #{search} ESCAPE '!')</if>
       <if test="requester != null">AND EXISTS(SELECT 1 FROM sys_user u WHERE u.user_id=r.owner_id AND u.user_name LIKE #{requester} ESCAPE '!')</if>
@@ -100,16 +103,16 @@
   </select>
   <select id="searchMemories" resultMap="record">
     SELECT r.* FROM pc_memory r WHERE r.kind NOT IN ('SCOPE_LOCK','PROJECT_RULE','POLICY') AND r.state NOT IN ('DELETED','REPLACED','REVOKED_IMPORT')
-      <choose><when test="personal">AND r.workspace_id IS NULL AND r.owner_id=#{userId}</when><otherwise>AND r.workspace_id=#{workspaceId}
-        AND EXISTS(SELECT 1 FROM pc_workspace_member m WHERE m.workspace_id=r.workspace_id AND m.owner_id=#{userId} AND m.state='ACTIVE')
+      <choose><when test="personal">AND r.directory_context_id IS NULL AND r.owner_id=#{userId}</when><otherwise>AND r.directory_context_id=#{directoryContextId}
+        AND r.owner_id=#{userId}
       </otherwise></choose>
       <if test="search != null">AND r.memory_content LIKE #{search} ESCAPE '!'</if>
     ORDER BY r.id DESC
   </select>
   <select id="visible" resultMap="record">
     SELECT r.* FROM ${table.sqlName} r WHERE
-      ((r.workspace_id IS NULL AND r.owner_id=#{userId}) OR EXISTS(SELECT 1 FROM pc_workspace_member m WHERE m.workspace_id=r.workspace_id AND m.owner_id=#{userId} AND m.state='ACTIVE'))
-      <if test="workspaceId != null">AND r.workspace_id=#{workspaceId}</if>
+      r.owner_id=#{userId}
+      <if test="directoryContextId != null">AND r.directory_context_id=#{directoryContextId}</if>
       <if test="ownerOnly">AND r.owner_id=#{userId}</if>
     ORDER BY r.id DESC
   </select>

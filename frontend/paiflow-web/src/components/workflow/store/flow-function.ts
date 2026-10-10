@@ -1,7 +1,6 @@
 import {
   getNodeId,
   getEdgeId,
-  extractTargetAndSource,
   checkedNodeInputData,
   checkedNodeOutputData,
   checkedNodeParams,
@@ -28,8 +27,9 @@ import {
   Connection,
 } from 'reactflow';
 import { NodeDataType } from '@/components/workflow/types';
+import type { FlowStoreType, GetFlowState, SetFlowState } from '../types/zustand/flow';
 
-export const initialStatus = {
+export const initialStatus: Pick<FlowStoreType, 'historys' | 'sseData' | 'nodes' | 'edges' | 'isBuilding' | 'isPending' | 'isBuilt' | 'lastCopiedSelection' | 'zoom'> = {
   historys: [],
   sseData: {},
   nodes: [],
@@ -42,12 +42,9 @@ export const initialStatus = {
 };
 
 const undo = (
-  get: () => {
-    historys: unknown[];
-    setHistorys: (callback: (history: unknown[]) => unknown[]) => void;
-  }
+  get: GetFlowState
 ): void => {
-  const history: unknown = get().historys?.[get().historys.length - 1];
+  const history = get().historys?.[get().historys.length - 1];
   if (history) {
     const currentStore = useFlowsManager.getState().getCurrentStore();
     currentStore.getState().loadHistory(history?.nodes, history?.edges);
@@ -60,7 +57,7 @@ const undo = (
 
 const setZoom = (
   zoom: number,
-  set: (state: { zoom: number }) => void
+  set: SetFlowState
 ): void => {
   set({
     zoom,
@@ -68,9 +65,7 @@ const setZoom = (
 };
 
 const takeSnapshot = (
-  get: () => {
-    setHistorys: (callback: (history: unknown[]) => unknown[]) => void;
-  }
+  get: GetFlowState
 ): void => {
   const currentStore = useFlowsManager.getState().getCurrentStore();
   const flowStore = currentStore.getState();
@@ -82,9 +77,9 @@ const takeSnapshot = (
 };
 
 const setHistorys = (
-  change: unknown,
-  get,
-  set: (state: { historys: unknown[] }) => void
+  change: Parameters<FlowStoreType['setHistorys']>[0],
+  get: GetFlowState,
+  set: SetFlowState
 ): void => {
   const newChange =
     typeof change === 'function' ? change(get().historys) : change;
@@ -93,7 +88,7 @@ const setHistorys = (
   });
 };
 
-const moveToPosition = (viewport: unknown): void => {
+const moveToPosition = (viewport: Parameters<FlowStoreType['moveToPosition']>[0]): void => {
   const flowStore = useFlowsManager?.getState?.();
   const currentStore = flowStore?.getCurrentStore?.();
   const currentState = currentStore?.getState?.();
@@ -104,13 +99,13 @@ const moveToPosition = (viewport: unknown): void => {
 };
 
 const setReactFlowInstance = (
-  newState: unknown,
-  set: (state: { reactFlowInstance: unknown }) => void
+  newState: Parameters<FlowStoreType['setReactFlowInstance']>[0],
+  set: SetFlowState
 ): void => {
   set({ reactFlowInstance: newState });
 };
 
-const onNodesChange = (changes: NodeChange[], get, set): void => {
+const onNodesChange = (changes: NodeChange[], get: GetFlowState, set: SetFlowState): void => {
   set({
     nodes: applyNodeChanges(changes, get().nodes),
   });
@@ -118,17 +113,28 @@ const onNodesChange = (changes: NodeChange[], get, set): void => {
 
 const onEdgesChange = (
   changes: EdgeChange[],
-  get: () => {
-    takeSnapshot: () => void;
-    removeNodeRef: (source: string, target: string) => void;
-  },
-  set: (state: { edges: Edge[] }) => void
+  get: GetFlowState,
+  set: SetFlowState
 ): void => {
-  const change = changes[0];
-  if (change?.type === 'remove') {
-    get()?.takeSnapshot();
-    const [source, target] = extractTargetAndSource(change.id);
-    get().removeNodeRef(source, target);
+  const before = get().edges;
+  const removed: Edge[] = [];
+  const ids = new Set<string>();
+  for (const change of changes) {
+    if (change.type !== 'remove' || ids.has(change.id)) continue;
+    ids.add(change.id);
+    const edge = before.find(item => item.id === change.id);
+    if (!edge) continue;
+    if (typeof edge.source !== 'string' || !edge.source || typeof edge.target !== 'string' || !edge.target)
+      throw new TypeError('工作流边缺少实际源节点或目标节点');
+    removed.push(edge);
+  }
+  if (removed.length) {
+    get().takeSnapshot();
+    let remaining = before;
+    for (const edge of removed) {
+      get().removeNodeRef(edge.source, edge.target, remaining);
+      remaining = remaining.filter(item => item.id !== edge.id);
+    }
   }
   set({
     edges: applyEdgeChanges(changes, get().edges),
@@ -136,9 +142,9 @@ const onEdgesChange = (
 };
 
 const setNodes = (
-  change: unknown,
-  get: () => { nodes: Node[]; edges: Edge[] },
-  set: (state: { nodes: Node[]; edges: Edge[] }) => void
+  change: Parameters<FlowStoreType['setNodes']>[0],
+  get: GetFlowState,
+  set: SetFlowState
 ): void => {
   const newChange = typeof change === 'function' ? change(get().nodes) : change;
   const newEdges = cloneDeep(get().edges);
@@ -149,9 +155,9 @@ const setNodes = (
 };
 
 const setEdges = (
-  change: unknown,
-  get: () => { edges: Edge[] },
-  set: (state: { edges: Edge[] }) => void
+  change: Parameters<FlowStoreType['setEdges']>[0],
+  get: GetFlowState,
+  set: SetFlowState
 ): void => {
   const newChange = typeof change === 'function' ? change(get().edges) : change;
   set({
@@ -162,15 +168,14 @@ const setEdges = (
 const setNode = (
   id: string,
   change: Node | ((oldState: Node) => Node),
-  get: () => {
-    nodes: Node[];
-    setNodes: (callback: (nodes: Node[]) => Node[]) => void;
-  },
-  set: (state: { nodes: Node[] }) => void
+  get: GetFlowState,
+  set: SetFlowState
 ): void => {
+  const currentNode = get().nodes.find(node => node.id === id);
+  if (!currentNode) return;
   const newChange =
     typeof change === 'function'
-      ? change(get().nodes.find(node => node.id === id))
+      ? change(currentNode)
       : change;
 
   get().setNodes((oldNodes: Node[]) =>
@@ -185,11 +190,12 @@ const setNode = (
 
 const delayCheckNode = (
   nodeId: string,
-  get: () => { nodes: Node[]; setNode: (id: string, node: Node) => void },
-  set: (state: unknown) => void
+  get: GetFlowState,
+  set: SetFlowState
 ): void => {
   setTimeout(() => {
     const currentCheckNode = get().nodes.find(node => node.id === nodeId);
+    if (!currentCheckNode) return;
     const inputsFlag = checkedNodeInputData(
       currentCheckNode?.data?.inputs || [],
       currentCheckNode
@@ -209,9 +215,10 @@ const delayCheckNode = (
 
 const checkNode = (
   nodeId: string,
-  get: () => { nodes: Node[]; setNode: (id: string, node: Node) => void }
+  get: GetFlowState
 ): boolean => {
   const currentCheckNode = get().nodes.find(node => node.id === nodeId);
+  if (!currentCheckNode) return false;
   const inputsFlag = checkedNodeInputData(
     currentCheckNode.data.inputs || [],
     currentCheckNode
@@ -229,14 +236,11 @@ const checkNode = (
 
 const copyNode = (
   nodeId: string,
-  get: () => {
-    nodes: Node[];
-    setNodes: (callback: (nodes: Node[]) => Node[]) => void;
-    takeSnapshot: () => void;
-  }
+  get: GetFlowState
 ): void => {
   get()?.takeSnapshot();
   const currentNode = get().nodes.find(item => item.id === nodeId);
+  if (!currentNode) return;
   const currentTypeList = get().nodes.filter(
     node => node.nodeType === currentNode.nodeType
   );
@@ -330,14 +334,7 @@ const copyNode = (
 
 const deleteNode = (
   nodeId: string,
-  get: () => {
-    nodes: Node[];
-    edges: Edge[];
-    setNodes: (callback: (nodes: Node[]) => Node[]) => void;
-    setEdges: (edges: Edge[]) => void;
-    takeSnapshot: () => void;
-    removeNodeRef: (source: string, target: string, edges: Edge[]) => void;
-  }
+  get: GetFlowState
 ): void => {
   get()?.takeSnapshot();
   const currentNode = get().nodes?.find(node => node?.id === nodeId);
@@ -382,18 +379,15 @@ const deleteNode = (
 const updateNodeNameStatus = (
   nodeId: string,
   labelInputId: string | undefined,
-  get: () => {
-    nodes: Node[];
-    setNodes: (callback: (nodes: Node[]) => Node[]) => void;
-    updateNodeRef: (id: string) => void;
-  }
+  get: GetFlowState
 ): void => {
   get().setNodes((nodes: Node[]) => {
     const targetNode = nodes.find(item => item?.id === nodeId);
+    if (!targetNode) return nodes;
     targetNode.data.labelEdit = !targetNode.data.labelEdit;
     if (targetNode.data.labelEdit) {
       setTimeout(() => {
-        document.getElementById(labelInputId)?.focus();
+        if (labelInputId) document.getElementById(labelInputId)?.focus();
       }, 100);
     } else {
       setTimeout(() => {
@@ -407,24 +401,18 @@ const updateNodeNameStatus = (
 const reNameNode = (
   nodeId: string,
   value: string,
-  get: () => {
-    nodes: Node[];
-    setNodes: (callback: (nodes: Node[]) => Node[]) => void;
-  }
+  get: GetFlowState
 ): void => {
   get().setNodes((nodes: Node[]) => {
     const targetNode = nodes.find(item => item?.id === nodeId);
+    if (!targetNode) return nodes;
     targetNode.data.label = value;
     return cloneDeep(nodes);
   });
 };
 
 const paste = async (
-  get: () => {
-    nodes: Node[];
-    setNodes: (callback: (nodes: Node[]) => Node[]) => void;
-    setEdges: (edges: Edge[]) => void;
-  }
+  get: GetFlowState
 ): Promise<void> => {
   try {
     const text = await navigator.clipboard.readText();
@@ -511,7 +499,7 @@ const paste = async (
 };
 
 // Function to update node references
-const updateNodeRef = (id: string, get): void => {
+const updateNodeRef = (id: string, get: GetFlowState): void => {
   const childrenNodes: string[] = findChildrenNodes(id, get().edges);
 
   get().setNodes(old => {
@@ -599,7 +587,7 @@ function updateIterationOutputs(item, old): void {
 }
 
 // Function to delay updating node references
-const delayUpdateNodeRef = (id: string, get): void => {
+const delayUpdateNodeRef = (id: string, get: GetFlowState): void => {
   setTimeout(() => {
     get().updateNodeRef(id);
   }, 500);
@@ -609,8 +597,8 @@ const delayUpdateNodeRef = (id: string, get): void => {
 const removeNodeRef = (
   souceId: string,
   targetId: string,
-  inputEdges?: Edge[],
-  get
+  inputEdges: Edge[] | undefined,
+  get: GetFlowState
 ): void => {
   const edges = (inputEdges || get().edges).filter(
     edge => edge.target !== targetId || edge.source !== souceId
@@ -640,7 +628,7 @@ const removeNodeRef = (
 };
 
 // Function to delete node references
-const deleteNodeRef = (id: string, outputId: string, get): void => {
+const deleteNodeRef = (id: string, outputId: string, get: GetFlowState): void => {
   const childrenNodes: string[] = findChildrenNodes(id, get().edges);
   get().setNodes(old => {
     old.forEach(item => {
@@ -661,18 +649,19 @@ const deleteNodeRef = (id: string, outputId: string, get): void => {
 };
 
 // Function to switch node references
-const switchNodeRef = (connection: Connection, oldEdge: Edge, get): void => {
+const switchNodeRef = (connection: Connection, oldEdge: Edge, get: GetFlowState): void => {
   get().removeNodeRef(oldEdge.source, oldEdge.target);
 };
 
 // Function to add intent ID
-const addIntentId = (connection: Edge, get): void => {
+const addIntentId = (connection: Edge, get: GetFlowState): void => {
   const sourceNode = get().nodes?.find(item => item.id === connection.source);
+  if (!sourceNode) return;
   get().setNode(connection.source, cloneDeep(sourceNode));
 };
 
 // Function to handle connection
-const onConnect = (connection: Connection, get): void => {
+const onConnect = (connection: Connection, get: GetFlowState): void => {
   let newEdges: Edge[] = [];
   get()?.takeSnapshot();
   get().setEdges((oldEdges: Edge[]) => {
@@ -695,7 +684,7 @@ const onConnect = (connection: Connection, get): void => {
 };
 
 // Function to load history
-const loadHistory = (nodes: Node[], edges: Edge[], set): void => {
+const loadHistory = (nodes: Node[], edges: Edge[], set: SetFlowState): void => {
   set({
     nodes,
     edges,

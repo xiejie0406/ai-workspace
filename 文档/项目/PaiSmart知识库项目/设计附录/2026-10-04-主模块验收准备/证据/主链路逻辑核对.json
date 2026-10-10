@@ -1,0 +1,537 @@
+{
+  "checkedAt": "2026-10-04T22:28:38.51343+08:00",
+  "reviewType": "第一阶段只读主链路逻辑核对",
+  "scope": "源码、前端、契约、非秘密解析配置、固定Worker制品；没有执行上传、模型、业务API或服务操作",
+  "reviewConclusion": "上传至检索问答核心处理已实现；TXT预览及3处跨表稳定ID JOIN修复已独立核对，私有52项测试及模块制品已回读。本记录仅表示逻辑和技术证据范围，不代表真实页面、上传问答或用户接受结论。",
+  "identifierJoinRepairReview": {
+    "reviewedDate": "2026-10-04",
+    "reviewer": "implement_frontend",
+    "independentFromBackendImplementation": true,
+    "result": "通过",
+    "blockingDefects": [],
+    "scope": [
+      "3处文档/分块稳定ID JOIN",
+      "GovernanceMigrationBoundaryTest新增3项与幂等旧用例同步",
+      "SearchBoundaryTest新增1项",
+      "实际私有Maven记录与模块制品"
+    ],
+    "identifierComparison": {
+      "conversion": "双侧CAST AS BINARY(144)",
+      "capacity": "原VARCHAR(36) utf8mb4最多144字节；36位UUID完整保留，不使用默认BINARY(1)。",
+      "padding": "等宽零填充对现有非NUL稳定UUID保持精确比较；末位和大小写差异不能关联。未改变任意文本搜索或排序规则，未执行DDL。",
+      "preserved": [
+        "content_version与document.version一致",
+        "READY且未删除",
+        "Search原所有者/公开/组织可见权限与指定空间",
+        "首次索引expected非0拒绝空切换",
+        "重建正式数量验证"
+      ]
+    },
+    "idempotencyTest": {
+      "actualFile": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/intelligence/GovernanceMigrationBoundaryTest.java",
+      "case": "sameEvaluationRequestReplaysReceiptBeforeConfigurationIsRefrozen",
+      "result": "同步stub/verify为实际生产冻结入口providers.freezeActiveText，未降低原幂等要求。首次返回模型，首次后让activeIndex及freezeActiveText抛错；同键重放仍成功，验证同作业id/payload、评测/作业/outbox各1条、原config_json不变且两冻结入口调用各仅1次。",
+      "productionOrdering": "GovernanceService.createEvaluation原receipt回读及请求指纹核对先于activeIndex和freezeActiveText；新请求才冻结；异输入同键拒绝及不同owner独立receipt用例保留。"
+    },
+    "testExecutionObserved": {
+      "executedByThisReviewer": false,
+      "log": ".runtime/paismart/model-integration-implementation/backend-check/identifier-join-maven.log",
+      "buildResult": "BUILD SUCCESS",
+      "finishedAt": "2026-10-04T23:03:06+08:00",
+      "tests": 52,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "UsageRecordsBoundaryTest",
+          "tests": 6
+        },
+        {
+          "name": "GovernanceMigrationBoundaryTest",
+          "tests": 23
+        },
+        {
+          "name": "IndexCoordinatorTest",
+          "tests": 2
+        },
+        {
+          "name": "ProviderInputBoundaryTest",
+          "tests": 9
+        },
+        {
+          "name": "SearchBoundaryTest",
+          "tests": 6
+        },
+        {
+          "name": "Sub2ApiReasoningEffortTest",
+          "tests": 6
+        }
+      ],
+      "surefireXmlChecked": true,
+      "selectionNote": "仅本次6套件合计52项；目录中较早探针报告没有加入本次计数。"
+    },
+    "artifact": {
+      "path": ".runtime/paismart/model-integration-implementation/backend-check/backend/ruoyi-paismart/target/ruoyi-paismart-3.9.2.jar",
+      "actualSHA256": "7ad566ef2da2039736deb23b5a484a3dcb10d4422553fb0d1bdbe930b6c5578c",
+      "sourceAndPrivateBuildCopiesMatch": true,
+      "sources": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+          "sha256": "026fcdb06eaf829e77275ae7949ebca66bab164bd1b8f4fe2492c71642c2487d"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+          "sha256": "5cf9a560c136aa48de1661e1bf1f91a33479b481465ff7a4b5b58cb4286ba051"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+          "sha256": "63ce314a8bc2f93a1e1e761aa7d78e518875c489532262cdcda4726003a742e0"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/intelligence/GovernanceMigrationBoundaryTest.java",
+          "sha256": "163cc82e157aeb1f8d5fa5429393340553154937a6fab979a664d0ebcf1d7a88"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/intelligence/SearchBoundaryTest.java",
+          "sha256": "c1155dee894f0a45df7176fd8b3bc5424be95181b32c7c9f07444f3c4ae07ce3"
+        }
+      ]
+    },
+    "staticDiffCheck": {
+      "exitCode": 0,
+      "files": 5
+    },
+    "limits": [
+      "H2 VARCHAR_IGNORECASE边界证明完整精确ID及过滤规则，不独立重演MySQL1267；原MySQL只读COUNT0及末位不等事实由主对话另留真实证据。",
+      "仅核对模块构建制品，中心包同步、实际加载与上传/问答复验由主对话执行。",
+      "没有访问原数据库/API/浏览器/模型/Secret或操作服务；仅原位更新本机器记录。"
+    ]
+  },
+  "businessAcceptanceExecuted": false,
+  "actions": {
+    "realApiRequests": 0,
+    "realModelCalls": 0,
+    "databaseWrites": 0,
+    "serviceOperations": 0,
+    "secretReads": 0,
+    "codeChanges": 0
+  },
+  "sample": {
+    "source": "D:\\2025Ai\\26-05-23\\java-workspace\\文档\\项目\\PaiSmart知识库项目\\设计附录\\2026-10-04-本机完整链路配置\\本机问答验证说明.txt",
+    "sha256": "3fef34bf38a2923c65332fe8974e64cf8222136d3a161c7fdee5b45d95f7888f",
+    "bytes": 121,
+    "expectedFacts": [
+      "每周五17:30",
+      "林知",
+      "下周一09:00补交"
+    ],
+    "usageBoundary": "用户授权后由主对话上传并保留；此次未上传"
+  },
+  "parserConfiguration": {
+    "approvedProperties": {
+      "paismart.intelligence.parse.process-enabled": "true",
+      "paismart.intelligence.parse.worker-classpath": "D:/2025Ai/26-05-23/java-workspace/.runtime/paismart-logic-20261003-373ca66f2b0a/backend/ruoyi-paismart/target/logic-worker/ruoyi-paismart-3.9.2.jar;D:/2025Ai/26-05-23/java-workspace/.runtime/paismart-logic-20261003-373ca66f2b0a/backend/ruoyi-paismart/target/logic-worker/lib/*",
+      "paismart.intelligence.parse.pdf-engine": "pdfbox",
+      "paismart.intelligence.parse.concurrency": "1",
+      "paismart.intelligence.parse.ocr-enabled": "false"
+    },
+    "workerMainClassPresent": true,
+    "dependencyJarCount": 240,
+    "textParserDependencies": [
+      "tika-parser-text-module-3.3.2.jar"
+    ],
+    "conclusion": "非PDF走固定Java ParserWorker，字节识别交给Tika，TXT逻辑页为1；不依赖OCR。此核对未真实启动Worker，不证明样本实际解析成功。"
+  },
+  "stages": [
+    {
+      "name": "文件上传与合并",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/UploadService.java:86",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/UploadService.java:208",
+        "frontend/admin-web/src/views/paismart/composables/useChunkUpload.ts:17"
+      ],
+      "logic": "支持txt；按用户、空间、可见范围核权，持久manifest、分片SHA与总文件SHA核对，合并到本项目对象，文档及DOCUMENT_PROCESS绑定原库任务，已合并请求复用。",
+      "toVerify": "真实文件摘要、原MinIO对象、manifest文档ID与ps_document/ps_job一致；不以合并成功代替READY。"
+    },
+    {
+      "name": "Kafka通知与租约执行",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/JobService.java:29",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/PaismartKafkaRuntime.java:40",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/PaismartKafkaRuntime.java:71"
+      ],
+      "logic": "任务/outbox在原库，Kafka只发送通知；唯一业务handler、租约CAS、心跳、逐分区确认和重复通知去重。",
+      "toVerify": "本项目运行消费者实际收到通知，DOCUMENT_PROCESS成功，任务结果documentId/version与正式文档一致；失败不得自动重发未知模型结果。"
+    },
+    {
+      "name": "TXT解析与分块",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/ParserWorker.java:26",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/IsolatedDocumentParser.java:19",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java:49",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/TextChunker.java:15"
+      ],
+      "logic": "固定Worker使用内容字节识别；非PDF文本页1，清理预算、受限环境与并发1；短于最小分块阈值的唯一短块不会被丢弃。",
+      "toVerify": "源文本三项事实完整保存在content_text、page_count=1和当版原文chunk中。"
+    },
+    {
+      "name": "首次正式索引与别名",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java:107",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java:140",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/IndexCoordinator.java:26"
+      ],
+      "logic": "没有活动索引时冻结激活Embedding快照，从provider.dimension创建dense_vector；1024来源于正式Provider，不写死。先PREPARED且空索引回读，无既有READY遗漏，持久切换并回读paismart-knowledge别名，再原库ACTIVE/COMPLETED。",
+      "toVerify": "激活Embedding为text-embedding-v4/1024，ES mapping metadata与原库快照一致，只有一条ACTIVE和一个正确别名，无RECOVERY_REQUIRED；此刻别名空不等于问答已通过。"
+    },
+    {
+      "name": "向量化、投影与READY",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java:144",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelGateway.java:20",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java:80"
+      ],
+      "logic": "每批最多16文本，调用Gateway；向量数、有限值和维度核对，缓存附原调用账本，DB向量和ES当前内容版本投影；refresh后才READY。",
+      "toVerify": "真实Embedding已COMPLETED、有正实际用量、vector_json维度1024，ES投影chunk/document/version一致、文档READY且actual_tokens对应已结算调用。"
+    },
+    {
+      "name": "有权检索与模型工具回答",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java:40",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java:86",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java:138",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java:187"
+      ],
+      "logic": "冻结LLM及secret版本；有权限检索原文、实体保留、最多4轮规划/8次工具；Embedding+BM25并行RRF，ES过滤后原库权限与READY/内容版本再次核对。",
+      "toVerify": "必须看到search_knowledge或明确生成摘要工具实际成功，答案三个事实与独立样本预期相符，并产生引用；只凭模型直接回答或降级BM25不能证明完整向量链路。"
+    },
+    {
+      "name": "引用原文与权限",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/CitationService.java:20",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/CitationService.java:34",
+        "frontend/admin-web/src/views/paismart/chat/components/ReferencePreview.vue:10"
+      ],
+      "logic": "引用含当版document/chunk/page/anchor及原文、检索mode；打开重新核权与版本，更新版本不能冒充旧引用。引用LLM语义核验当前关闭，界面应显示未执行核验。",
+      "toVerify": "引用片段三项事实真实、与保存原文一致；TXT正文接口修复已静态核对，引用完整文档预览真实UI仍待复验。"
+    },
+    {
+      "name": "历史与断线恢复",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java:52",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/PaismartChatWebSocket.java:17",
+        "frontend/admin-web/src/views/paismart/composables/useChatStream.ts:35",
+        "frontend/admin-web/src/views/paismart/history/index.vue:14"
+      ],
+      "logic": "用户/assistant消息、references及序号事件存MySQL；WS恢复持久事件而不重发收费提问，历史读取复用ReferencePreview。",
+      "toVerify": "重新打开问答历史仍有同一答案/引用，消息ID与生成ID对应，引用回读仍有权；此核对未断线或重开页面。"
+    },
+    {
+      "name": "资格、额度、预算与正式用量",
+      "implemented": true,
+      "sources": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelCallService.java:27",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java:37",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java:81"
+      ],
+      "logic": "资格、限流、用户余额/日额度及总预算预留；实际usage结算；同操作已完成响应重放，STARTED/UNCERTAIN拒绝自动重送。",
+      "toVerify": "先准备本次既有用户LLM与EMBEDDING额度；逐次检查实际账本、冻结/债务/余量，无法据源码预先保证供应商实际费用或隐藏前缀token。"
+    }
+  ],
+  "blockers": [
+    {
+      "severity": "阻止TXT原文预览及引用完整文档验收",
+      "classification": "已从代码确定的处理错误；非本次实际页面失败",
+      "location": "frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue:12",
+      "relatedLocations": [
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java:61",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/DocumentService.java:105",
+        "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java:52"
+      ],
+      "trigger": "TXT解析完成后page_count=1，DocumentPreview仅按pageCount选择PDF pages接口。",
+      "expected": "非PDF使用受权限及版本保护的content接口返回原文。",
+      "actualByCode": "调用PDF页接口后pdfPage检查mimeType非application/pdf，抛400：该文档不是PDF。",
+      "fix": "仅当mimeType===application/pdf且pageCount>0时调用getDocumentPage并显示页码选择；TXT及其他非PDF走getDocumentContent；原contentVersion/权限校验保持。",
+      "repairStatus": "代码静态阻断已关闭；真实UI及运行版定向复验仍待主对话执行。",
+      "resolution": {
+        "reviewedAt": "2026-10-04T22:30:16.348932+08:00",
+        "reviewType": "发现者独立只读复核；未参与前端修改",
+        "staticBlockerClosed": true,
+        "actualUiVerified": false,
+        "technicalTestsExecutedByThisReviewer": false,
+        "changes": "hasPdfPages同时要求实际PDF mime与正页数；分页控件与load接口路由共用同一计算值。TXT pageCount=1走content接口。",
+        "preserved": [
+          "PDF initialPage",
+          "PDF initialAnchor",
+          "contentVersion参数",
+          "AbortController与serial失效响应门禁",
+          "历史引用版本比较及权限接口"
+        ],
+        "testReview": {
+          "caseCount": 3,
+          "meaningful": true,
+          "cases": [
+            "TXT pageCount=1真实挂载后核对正文API参数、禁止PDF API、原文渲染及隐藏分页",
+            "PDF pageCount=4/initialPage=2核对页API参数、禁止正文API、页组件与anchor传递",
+            "PDF pageCount=0核对原正文回退、待解析提示及隐藏分页"
+          ],
+          "executionBoundary": "只审用例，没有重跑或冒认测试通过。"
+        },
+        "sourceSnapshots": [
+          {
+            "path": "frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue",
+            "sha256": "6603cb10693247b1b67b5c2a15c48f86ac58eb9956911c37ba15fcce801a85b1"
+          },
+          {
+            "path": "frontend/admin-web/tests/unit/paismart/document-preview-routing.spec.ts",
+            "sha256": "a6e242e25788aefedaecf62fccf3e05e1cd446baf4195f5fe1384d9fe65b2782"
+          },
+          {
+            "path": "frontend/admin-web/src/views/paismart/chat/components/ReferencePreview.vue",
+            "sha256": "17b8c678d20465b61bd71ed967e41d52bb4edaf3fe0d988a760fcf45b33aaa25"
+          }
+        ]
+      }
+    }
+  ],
+  "conditionsBeforeExecution": [
+    "原库用户身份及菜单权限足够；管理员样本不能证明普通成员权限通过",
+    "LLM gpt-6.1-sol已真实文字/流式/工具验证及正式激活，Embedding text-embedding-v4/1024已启用激活且用途有效",
+    "用户LLM、EMBEDDING及全局预算有余量，无未核对欠额/UNCERTAIN",
+    "真实中心加载当前运行包，Kafka/MinIO/TLS ES及固定解析Worker配置一致",
+    "TXT预览定向修复完成且当前前端运行产物包含该修改"
+  ],
+  "notProven": [
+    "任何真实Provider或Key当前可用状态",
+    "原库实时文档/索引/预算统计",
+    "首文档实际创建索引和别名的结果",
+    "真实Worker的本样本中文解析结果",
+    "真实gpt-6.1-sol工具规划及三项答案事实",
+    "页面截图、引用回读、历史重开及用量结算成功",
+    "用户接受决定"
+  ],
+  "sourceSnapshots": [
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/UploadService.java",
+      "sha256": "d77e5e3f1cad1cc47b5e5c37eac21642432bbd9cd3671409538f9296e0a1fed3"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/DocumentService.java",
+      "sha256": "57010aca217b19daed91d8d15bb77ea79562aaa3844d58af22cdecb2fc1d1ebd"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/jobs/JobService.java",
+      "sha256": "88ff04cf6f8ce5f9861e50f41a1b2a817501441c89516ff62ca321568e5a80fd"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/PaismartKafkaRuntime.java",
+      "sha256": "aef31c22bbe657cc400fe7fabb90388a669bf25c440af6281df7fd2c450916ca"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/IsolatedDocumentParser.java",
+      "sha256": "24244afc4540dfd8f8126211e42b27fdd881086e91e749a459b625500659deae"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/ParserWorker.java",
+      "sha256": "90aace53bae7d09e3279ba151358a1443ae9b7afb7448ee88968311cdcc34d1e"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+      "sha256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/TextChunker.java",
+      "sha256": "7aa0c995233bd37cb07b92437fcdfcddbccfeedfaa8be111432fca869a26b4aa"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelGateway.java",
+      "sha256": "f9ced35e9d72e6fb92560cd5adf61a4df6a4ebe10e987962346414ed33d1e475"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelCallService.java",
+      "sha256": "af1b39f7c2a833372c0a014775e5350a4b5028f3c52a0249e582c7b58d9f75a3"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/IndexCoordinator.java",
+      "sha256": "12ff3bf3fe2f2d5b8b881d5ab5bc681ed7fef7e0e46511319a0fc76bc1649030"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+      "sha256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java",
+      "sha256": "4938f0beca72002d0bcb5e272ada6ab717b7910dc2ab5d4dfa7c51589eb9a6d4"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/CitationService.java",
+      "sha256": "cabd2ab598610d0a22845fac2e4b6da49fac3c152017fa4aa7eae10c31e541b5"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java",
+      "sha256": "3010f667113a496fe8e497c46f46570182b1cf53ed689710dbf9f14bfe39e82a"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java",
+      "sha256": "7441abb9a2ddb725921ada0de47e8289c9d9e05c60edfe27a8c72ced956399d3"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java",
+      "sha256": "88197707440d21466621d7bd1481f67ff839b81ae764aea7267c5b49d2f96c84"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java",
+      "sha256": "2ea751d7be5274bb361ae784678188d83c4ee2af910deeb4b6b16711f1aab624"
+    },
+    {
+      "path": "frontend/admin-web/src/views/paismart/composables/useChunkUpload.ts",
+      "sha256": "071c7716b3f7383128709e321accc6fa9e3b0723209d22da3074cdeca4e49d81"
+    },
+    {
+      "path": "frontend/admin-web/src/views/paismart/composables/useChatStream.ts",
+      "sha256": "750de6bcc9e85c058e40921600e426f8c5c4b2376e9e8fde28a717e76c9f84c5"
+    },
+    {
+      "path": "frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue",
+      "sha256": "6603cb10693247b1b67b5c2a15c48f86ac58eb9956911c37ba15fcce801a85b1"
+    },
+    {
+      "path": "frontend/admin-web/src/views/paismart/chat/components/ReferencePreview.vue",
+      "sha256": "17b8c678d20465b61bd71ed967e41d52bb4edaf3fe0d988a760fcf45b33aaa25"
+    },
+    {
+      "path": "frontend/admin-web/src/views/paismart/history/index.vue",
+      "sha256": "0db6de0d1dee2077b8068c86f9fe1fc88f57288a8689e0528a19bbe55c187681"
+    },
+    {
+      "path": "contracts/paismart/knowledge-v1.openapi.yaml",
+      "sha256": "7b6e7ffa2b0169953a3a0c3a4b76329f7e693fff87a495180528f4556c6dbd99"
+    }
+  ],
+  "indexProgressFrontendRepair": {
+    "checkedDate": "2026-10-04",
+    "executor": "implement_frontend",
+    "reviewType": "实现者技术验证，不能替代独立复核或真实页面验收",
+    "result": "技术检查通过",
+    "sourceFiles": [
+      {
+        "path": "frontend/admin-web/src/types/paismart/index.ts",
+        "sha256": "103afd98c76e4392dac37ed20d02b427490f687f166530ac69413f3ae91034b6"
+      },
+      {
+        "path": "frontend/admin-web/src/api/paismart/adapters.ts",
+        "sha256": "238922645d53bd1d31052f6cf0740a3638b2018557941b06f7881d797f839903"
+      },
+      {
+        "path": "frontend/admin-web/src/views/paismart/governance/indexes/index.vue",
+        "sha256": "965552212e8a37d87396fa9c750c5326eb4df122ad63ae1f4fe9522b36de7392"
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/paismart/protocol-boundaries.spec.ts",
+        "sha256": "f783248ae2f8f7d4f8e0f4e2699805221ccfb40a5d05cbee53bbe2077f61a6ed"
+      }
+    ],
+    "sourceSummary": [
+      "IndexRevision新增可选processedCount；保留真正documentCount字段以兼容真实返回值。",
+      "normalizeIndex只保留后端原计数字段，删除processedCount到documentCount的fallback。",
+      "治理页原列改为processedCount和重建已处理文档，并就地说明全量重建进度不是实时文档总量。",
+      "既有协议测试验证processedCount为0时不制造documentCount，以及真实返回两个计数时分别保留。"
+    ],
+    "checks": {
+      "typecheck": {
+        "command": "npm.cmd run typecheck:paismart",
+        "workingDirectory": "frontend/admin-web",
+        "exitCode": 0,
+        "toolOutputSummary": "vue-tsc --noEmit --project tsconfig.paismart.json；退出0，无类型诊断。",
+        "coverage": "实际tsconfig.paismart.json包含src/api/paismart/**/*.ts、src/types/paismart/**/*.ts、src/views/paismart/**/*.ts与/**/*.vue、tests/unit/paismart/**/*.ts，且按TypeScript引用解析导入依赖；不是只检查这4文件。"
+      },
+      "protocolUnit": {
+        "command": "npm.cmd run test:unit:paismart -- tests/unit/paismart/protocol-boundaries.spec.ts",
+        "workingDirectory": "frontend/admin-web",
+        "exitCode": 0,
+        "startTime": "23:13:27",
+        "tests": 12,
+        "testFiles": 1,
+        "failed": 0,
+        "toolOutputSummary": "Test Files 1 passed (1); Tests 12 passed (12); Duration 2.31s。",
+        "persistentLogAvailable": false,
+        "recordSource": "本智能体实际工具返回；未为补日志重复运行。"
+      },
+      "productionBuild": {
+        "command": "npm.cmd run build:prod -- --outDir D:/2025Ai/26-05-23/java-workspace/.runtime/paismart/model-integration-implementation/frontend-index-progress-dist",
+        "workingDirectory": "frontend/admin-web",
+        "exitCode": 0,
+        "privateOutputDirectory": ".runtime/paismart/model-integration-implementation/frontend-index-progress-dist",
+        "toolOutputSummary": "vite v6.4.3；3237 modules transformed；rendering chunks/computing gzip size；最终进程退出0。输出目录在工程根外，未使用emptyOutDir，未部署或替换当前运行包。",
+        "persistentLogAvailable": false,
+        "artifact": {
+          "path": ".runtime/paismart/model-integration-implementation/frontend-index-progress-dist/static/js/index-C-F-DINB.js",
+          "sha256": "cdc5ddb6785da18c398910aa2f6ea03e1b11509a53e772bdeba9f82d94721858",
+          "verifiedContent": "构建JS实际包含重建已处理文档和全量重建进度说明。"
+        }
+      },
+      "scopedDiffCheck": {
+        "command": "git diff --check -- frontend/admin-web/src/types/paismart/index.ts frontend/admin-web/src/api/paismart/adapters.ts frontend/admin-web/src/views/paismart/governance/indexes/index.vue frontend/admin-web/tests/unit/paismart/protocol-boundaries.spec.ts",
+        "exitCode": 0
+      }
+    },
+    "relatedUnitExecutions": {
+      "total": 25,
+      "aggregationNote": "分别执行的4文件定向通过数相加；不声明同一次25项联合运行。",
+      "suites": [
+        {
+          "file": "provider-reasoning-config.spec.ts",
+          "tests": 8,
+          "passed": 8,
+          "scope": "真实ElementPlus数字控件及Responses low保存、协议/供应商/用途清理、普通旧配置保留"
+        },
+        {
+          "file": "protocol-boundaries.spec.ts",
+          "tests": 12,
+          "passed": 12,
+          "scope": "协议边界及重建进度真实计数"
+        },
+        {
+          "file": "document-preview-routing.spec.ts",
+          "tests": 3,
+          "passed": 3,
+          "scope": "TXT pageCount1走正文、PDF指定页和版本、PDF无页数"
+        },
+        {
+          "file": "pdf-rendering.spec.ts",
+          "tests": 2,
+          "passed": 2,
+          "scope": "本地PDF渲染/引用定位及未命中反馈"
+        }
+      ]
+    },
+    "uiAcceptance": {
+      "recordedByThisExecutor": false,
+      "owner": "root",
+      "note": "本字段仅技术结果；真实页面结果和截图由root填入。"
+    },
+    "limitations": [
+      "本智能体未访问浏览器、真实数据库、API、模型或Key，未操作服务。",
+      "源代码实现者自查不替代其他智能体独立复核。",
+      "通过技术检查和私有构建不能独立证明部署版本或业务验收通过。"
+    ],
+    "uiReverification": {
+      "result": "通过",
+      "scope": "当前活动索引页面显示重建已处理文档0及全量重建进度说明，不把0解释为实时文档总数；ES实际1内容块另有只读证据",
+      "screenshots": [
+        "截图/索引进度语义修复后.jpg",
+        "截图/重建已处理文档字段回读.jpg"
+      ],
+      "screenshotReadback": "已逐张回读"
+    }
+  }
+}

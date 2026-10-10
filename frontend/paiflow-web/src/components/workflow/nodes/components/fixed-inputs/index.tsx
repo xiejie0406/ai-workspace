@@ -10,11 +10,14 @@ import {
   ErrorMessages,
 } from '@/components/workflow/nodes/components/inputs';
 import { EnabledChatHistory } from '../single-input';
-import { capitalizeFirstLetter } from '@/components/workflow/utils/reactflowUtils';
+import { capitalizeFirstLetter, isWorkflowDisplayValue } from '@/components/workflow/utils/reactflowUtils';
+import type { InputType, InputsProps } from '@/components/workflow/types';
 
 import desciptionIcon from '@/assets/imgs/workflow/desciption-icon.png';
 
-function InputName({ item }: { item: unknown }): React.ReactElement {
+function InputName({ item }: { item: InputType }): React.ReactElement {
+  const hint = item.description || item.default;
+  const title = isWorkflowDisplayValue(hint) ? hint : JSON.stringify(hint);
   return (
     <span className="relative flex items-center gap-1.5 max-w-[80px]">
       <span className="flex-1 text-overflow" title={item?.name}>
@@ -23,9 +26,9 @@ function InputName({ item }: { item: unknown }): React.ReactElement {
       {item?.required && (
         <span className="text-[#F74E43] flex-shrink-0">*</span>
       )}
-      {(item?.description || item?.default) && (
+      {title && (
         <Tooltip
-          title={item?.description || item?.default}
+          title={title}
           overlayClassName="white-tooltip"
         >
           <img src={desciptionIcon} className="w-[10px] h-[10px]" alt="" />
@@ -35,7 +38,7 @@ function InputName({ item }: { item: unknown }): React.ReactElement {
   );
 }
 
-function InputTypeTag({ item }: { item: unknown }): React.ReactElement {
+function InputTypeTag({ item }: { item: InputType }): React.ReactElement {
   return (
     <div className="bg-[#F0F0F0] py-1 px-2.5 rounded text-xs ml-1 flex-shrink-0">
       {capitalizeFirstLetter(item?.schema?.type)}
@@ -43,7 +46,7 @@ function InputTypeTag({ item }: { item: unknown }): React.ReactElement {
   );
 }
 
-function index({ id, data }): React.ReactElement {
+function index({ id, data }: Pick<InputsProps, 'id' | 'data'>): React.ReactElement {
   const { t } = useTranslation();
   const { inputs } = useNodeCommon({ id, data });
   return (

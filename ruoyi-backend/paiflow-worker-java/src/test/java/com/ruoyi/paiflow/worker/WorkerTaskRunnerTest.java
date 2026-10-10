@@ -32,6 +32,100 @@ import static org.mockito.Mockito.*;
 
 class WorkerTaskRunnerTest {
     @Test
+    void actualOriginalEmptyStartCompletionAndFailureFramesArePreservedAsOriginalObjects() throws Exception {
+        ObjectMapper mapper=new ObjectMapper().findAndRegisterModules();CenterClient center=mock(CenterClient.class);
+        List<Event> events=new ArrayList<>();doAnswer(invocation->{events.add(invocation.getArgument(0));return null;}).when(center).event(any());
+        var task=assignment(mapper);
+        try(ExecutionScope scope=new ExecutionScope(center,task,Clock.systemUTC())) {
+            scope.bind();
+            Class<?> callbackClass=Class.forName("com.ruoyi.paiflow.worker.service.WorkerTaskRunner$CenterStreamCallback");
+            var constructor=callbackClass.getDeclaredConstructors()[0];constructor.setAccessible(true);
+            var callback=(com.iflytek.astron.workflow.engine.node.StreamCallback)(constructor.getParameterCount()==5
+                    ?constructor.newInstance(center,task,Clock.systemUTC(),scope,mapper):constructor.newInstance(center,task,Clock.systemUTC(),scope));
+            var queue=new java.util.concurrent.ConcurrentLinkedQueue<com.iflytek.astron.workflow.engine.domain.callbacks.LLMGenerate>();
+            var original=new com.iflytek.astron.workflow.engine.domain.callbacks.ChatCallBacks("actual-source-sid",queue,
+                    com.iflytek.astron.workflow.engine.constants.EndNodeOutputModeEnum.VARIABLE_MODE,java.util.Set.of(),new java.util.concurrent.ConcurrentLinkedQueue<>());
+            original.onSparkflowStart();original.onNodeStart(0,"node-start::1","原开始");
+            NodeRunResult result=new NodeRunResult();result.setInputs(Map.of("input","原输入"));result.setOutputs(Map.of());original.onNodeEnd("node-start::1","原开始",result,null);
+            original.onNodeStart(0,"plugin::2","原工具");original.onNodeEnd("plugin::2","原工具",null,
+                    new com.iflytek.astron.workflow.exception.NodeCustomException(com.iflytek.astron.workflow.exception.ErrorCode.NODE_RUN_ERROR,"真实算法失败夹具"));
+            original.onSparkflowEnd(result);
+            List<com.iflytek.astron.workflow.engine.domain.callbacks.LLMGenerate> frames=new ArrayList<>(queue);
+            for(var frame:frames)callback.callback("stream",frame);
+            String export=System.getProperty("paiflow.worker.originalEmptyFramesPath");
+            if(export!=null){var capture=mapper.createObjectNode();capture.set("actualOriginalFrames",mapper.valueToTree(frames));capture.set("actualEvents",mapper.valueToTree(events));java.nio.file.Files.writeString(java.nio.file.Path.of(export),mapper.writerWithDefaultPrettyPrinter().writeValueAsString(capture),java.nio.charset.StandardCharsets.UTF_8);}
+            var actualNodeFrames=frames.stream().filter(f->f.getWorkflowStep()!=null&&f.getWorkflowStep().getNode()!=null&&!"flow_obj".equals(f.getWorkflowStep().getNode().getId())).toList();
+            assertEquals(4,events.size(),"原空内容开始/完成/失败帧不能被丢弃");assertEquals(actualNodeFrames.size(),events.size());
+            for(int index=0;index<events.size();index++) {
+                Event event=events.get(index);assertEquals(13+index,event.seq());assertEquals("text.delta",event.eventType());
+                assertEquals(actualNodeFrames.get(index).getWorkflowStep().getNode().getId(),event.nodeId());
+                assertEquals(mapper.valueToTree(actualNodeFrames.get(index)),mapper.valueToTree(event.payload()).path("legacyFrame"));
+                assertFalse(event.eventType().startsWith("node."));
+            }
+            assertTrue(mapper.valueToTree(events.get(0).payload()).path("legacyFrame").has("usage"));
+            assertTrue(mapper.valueToTree(events.get(3).payload()).path("legacyFrame").path("code").asInt()!=0);
+        }
+    }
+    @Test
+    void cancelledQueuedActionStillSignalsExitAndReleasesItsRegisteredChild() throws Exception {
+        try (ExecutionScope scope = new ExecutionScope(mock(CenterClient.class),
+                assignment(new ObjectMapper().findAndRegisterModules()), Clock.systemUTC())) {
+            scope.bind();
+            var entered = new java.util.concurrent.atomic.AtomicBoolean();
+            var exited = new java.util.concurrent.atomic.AtomicBoolean();
+            Runnable queued = ExecutionScope.wrap(() -> entered.set(true), () -> exited.set(true));
+            scope.cancel();
+            assertEquals("RUN_CANCELLED", assertThrows(WorkerException.class, queued::run).getCode());
+            assertFalse(entered.get()); assertTrue(exited.get());
+            assertTrue(scope.awaitChildrenStopped(java.time.Duration.ZERO));
+        }
+    }
+
+    @Test
+    void callbackWhoseQueuedBodyIsCancelledBeforeEntryStillFinishes() throws Exception {
+        try (ExecutionScope scope = new ExecutionScope(mock(CenterClient.class),
+                assignment(new ObjectMapper().findAndRegisterModules()), Clock.systemUTC())) {
+            scope.bind(); scope.cancel();
+            var client = mock(com.iflytek.astron.workflow.engine.node.StreamCallback.class);
+            var callback = new com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback("cancel-before-entry", client,
+                    com.iflytek.astron.workflow.engine.constants.EndNodeOutputModeEnum.DIRECT_MODE,
+                    new java.util.concurrent.ConcurrentLinkedQueue<>(), new java.util.concurrent.ConcurrentLinkedQueue<>());
+            assertTimeoutPreemptively(java.time.Duration.ofSeconds(1), callback::finished);
+            assertTrue(scope.awaitChildrenStopped(java.time.Duration.ofSeconds(1)));
+            verify(client, never()).callback(anyString(), any());
+        }
+    }
+
+    @Test
+    void interruptedFinishExitsButCannotPretendABlockedCallbackHasStopped() throws Exception {
+        CountDownLatch entered = new CountDownLatch(1), release = new CountDownLatch(1);
+        try (ExecutionScope scope = new ExecutionScope(mock(CenterClient.class),
+                assignment(new ObjectMapper().findAndRegisterModules()), Clock.systemUTC())) {
+            scope.bind();
+            var client = mock(com.iflytek.astron.workflow.engine.node.StreamCallback.class);
+            doAnswer(invocation -> {
+                entered.countDown();
+                boolean waiting = true;
+                while (waiting) { try { release.await(); waiting = false; } catch (InterruptedException ignored) {} }
+                return null;
+            }).when(client).callback(eq("stream"), any());
+            var queue = new java.util.concurrent.ConcurrentLinkedQueue<com.iflytek.astron.workflow.engine.domain.callbacks.LLMGenerate>();
+            queue.add(new com.iflytek.astron.workflow.engine.domain.callbacks.LLMGenerate());
+            var callback = new com.iflytek.astron.workflow.engine.node.callback.WorkflowMsgCallback("blocked-child", client,
+                    com.iflytek.astron.workflow.engine.constants.EndNodeOutputModeEnum.DIRECT_MODE, queue,
+                    new java.util.concurrent.ConcurrentLinkedQueue<>());
+            try {
+                assertTrue(entered.await(1, TimeUnit.SECONDS));
+                Thread.currentThread().interrupt();
+                assertEquals("RUN_CANCELLED", assertThrows(WorkerException.class, callback::finished).getCode());
+                assertTrue(Thread.interrupted(), "等待退出须保留中断标志");
+                assertFalse(scope.awaitChildrenStopped(java.time.Duration.ofMillis(20)), "真实回调未退出，仍须保持未知");
+            } finally { Thread.interrupted(); release.countDown(); }
+            assertTrue(scope.awaitChildrenStopped(java.time.Duration.ofSeconds(1)));
+        } finally { Thread.interrupted(); release.countDown(); }
+    }
+
+    @Test
     void cancellationDuringCompletionIsConfirmedOnlyAfterActualEngineStopsAndNoEffectRemainsUnknown() throws Exception {
         CenterClient center = mock(CenterClient.class);
         ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
@@ -435,7 +529,8 @@ class WorkerTaskRunnerTest {
         try (WorkerTaskRunner runner = new WorkerTaskRunner(center, new WorkflowEngine(List.copyOf(nodes)), parallel,
                 Clock.systemUTC(), 30, 1, mapper)) {
             assertEquals("COMPLETED", runner.execute(lease).state());
-            Event delta = events.stream().filter(event -> "text.delta".equals(event.eventType())).findFirst().orElseThrow();
+            Event delta = events.stream().filter(event -> "text.delta".equals(event.eventType())
+                    && mapper.valueToTree(event.payload()).has("delta")).findFirst().orElseThrow();
             assertEquals(Map.of("delta", "未来字符串片段"), delta.payload());
             assertTrue(events.stream().allMatch(event -> mapper.valueToTree(event.payload()).isObject()));
             assertTrue(events.stream().anyMatch(event -> "node.completed".equals(event.eventType())

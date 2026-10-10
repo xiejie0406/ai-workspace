@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:python-history:v1",
+  "title": "PaiFlow Python原节点历史的中心冻结窗口",
+  "description": "当前接续顶层普通LLM旧历史；V2会话历史、Decision和嵌套仍须各自接通。旧历史用于调试展示，Provider消息仍是当前SYSTEM/USER；只有原节点成功路径追加完整query/raw_output，不能套Java失败半轮。快照和追加来源均由中心核对，本契约不代表运行环境或业务验收完成。",
+  "$defs": {
+    "ReadRequest": {
+      "type": "object", "additionalProperties": false, "required": ["leaseId", "attempt"],
+      "properties": {"leaseId": {"type": "string", "minLength": 1, "maxLength": 64}, "attempt": {"type": "integer", "minimum": 1}}
+    },
+    "Message": {
+      "type": "object", "additionalProperties": false, "required": ["role", "content"],
+      "properties": {"role": {"enum": ["user", "assistant"]}, "content": {"type": "string"}}
+    },
+    "NodeHistory": {
+      "type": "object", "additionalProperties": false, "required": ["nodeID", "chat_history"],
+      "properties": {
+        "nodeID": {"type": "string", "minLength": 1, "maxLength": 255},
+        "chat_history": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/Message"}}
+      }
+    },
+    "History": {"type": "array", "maxItems": 1000, "items": {"$ref": "#/$defs/NodeHistory"}},
+    "Snapshot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["runId", "leaseId", "attempt", "workflowVersionId", "dslHash", "spaceId", "ownerUserId", "workflowId", "flowId", "userId", "appId", "chatId", "inputHash", "history", "historyV2"],
+      "properties": {
+        "runId": {"type": "string", "minLength": 1, "maxLength": 64}, "leaseId": {"type": "string", "minLength": 1, "maxLength": 64},
+        "attempt": {"type": "integer", "minimum": 1}, "workflowVersionId": {"type": "integer", "minimum": 1},
+        "dslHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "spaceId": {"type": "integer", "minimum": 0},
+        "ownerUserId": {"type": "integer", "minimum": 1}, "workflowId": {"type": "integer", "minimum": 1},
+        "flowId": {"type": "string", "minLength": 1, "maxLength": 128}, "userId": {"type": "string", "minLength": 1, "maxLength": 128},
+        "appId": {"type": "string", "minLength": 1, "maxLength": 128}, "chatId": {"type": "string", "maxLength": 128},
+        "inputHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "history": {"$ref": "#/$defs/History"}, "historyV2": {"type": "array", "maxItems": 0}
+      }
+    },
+    "ReadAck": {
+      "type": "object", "additionalProperties": false, "required": ["history", "historyV2", "historyRef", "historyHash", "snapshot"],
+      "properties": {
+        "history": {"$ref": "#/$defs/History"}, "historyV2": {"type": "array", "maxItems": 0},
+        "historyRef": {"type": "string", "minLength": 1, "maxLength": 128}, "historyHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "snapshot": {"$ref": "#/$defs/Snapshot"}
+      }
+    }
+  },
+  "x-runtime-invariants": [
+    "historyHash是快照按递归键排序、保留null、UTF8 JSON生成的SHA256；ACK完整正文限1800KiB，首次超限事务回滚，不截断旧窗口",
+    "每Run/attempt冻结一次；lease/version/DSL/input及中心真实用户/空间/工作流/App/chat必须逐项匹配，重放不重新选取历史",
+    "旧窗口按当前固定节点限定，每节点原最近十轮恢复时间顺序；问答user/assistant成对，节点不能重复，V2当前明确空",
+    "历史追加复用原/history入口及幂等回执，但仅凭Worker自报问题/答案不能写入；中心核同次模型批准、全原帧和准确结束事实，失败或未知停止不造成功问答",
+    "新可信读窗口若含无正式来源证据的旧轮则503，不伪回填或静默遗漏；旧显示读接口不作为模型/历史许可证明",
+    "旧轮全量来源复核按Run/operation去重，实际SQL字节总量限128MiB，超限413；加载前检查实际字节，不以自报responseBytes代替实际大小"
+  ]
+}

@@ -15,10 +15,10 @@ _MAX_COUNTER=100_000_000
 class ExecutionStats:
     def __init__(self,settings,task_type):
         self.started=time.perf_counter();self.calls={};self.tool_rounds=None;self.invalid_usage=False
-        self.logical_calls=0;self.max_calls=settings.llm_max_calls
-        safe={key:getattr(settings,key) for key in ("llm_model","llm_thinking_enabled","llm_timeout_seconds","image_enabled","image_provider","image_model","image_timeout_seconds","max_payload_bytes","max_tree_depth","max_tree_nodes","max_blocks_per_slide","max_upload_mb","max_image_mb","max_image_pixels","max_zip_entries","max_zip_uncompressed_bytes","max_pdf_pages","parse_timeout_seconds")}
-        safe.update({key:getattr(settings,key) for key in ("llm_max_calls","llm_max_output_tokens","llm_max_retries","tool_rounds_max","repair_rounds_max","edit_history_max")})
-        safe.update(task_type=task_type)
+        self.logical_calls=0;self.max_calls=settings.llm_max_calls;self.center_routes=set()
+        safe={key:getattr(settings,key) for key in ("image_enabled","image_provider","image_model","image_timeout_seconds","max_payload_bytes","max_tree_depth","max_tree_nodes","max_blocks_per_slide","max_upload_mb","max_image_mb","max_image_pixels","max_zip_entries","max_zip_uncompressed_bytes","max_pdf_pages","parse_timeout_seconds")}
+        safe.update({key:getattr(settings,key) for key in ("llm_max_calls","tool_rounds_max","repair_rounds_max","edit_history_max")})
+        safe.update(task_type=task_type, text_transport="center", text_request_timeout_seconds=settings.text_request_timeout_seconds)
         self.parameters_version=hashlib.sha256(json.dumps(safe,sort_keys=True,separators=(",", ":")).encode()).hexdigest()
         module={"generate_outline":"deepseek","generate_slide":"slide","ai_edit":"slide_edit","relayout":"relayout"}.get(task_type)
         self.prompt_version=None
@@ -53,8 +53,32 @@ class ExecutionStats:
             if values and all(isinstance(value,int) and not isinstance(value,bool) and 0<=value<=_MAX_COUNTER for value in values) and sum(values)<=_MAX_COUNTER:call[field]=sum(values)
             elif any(value is not None and (not isinstance(value,int) or isinstance(value,bool) or value<0 or value>_MAX_COUNTER) for value in values) or values and all(isinstance(value,int) and not isinstance(value,bool) for value in values) and sum(values)>_MAX_COUNTER:self.invalid_usage=True
 
+    def center_end(self, call_id, response):
+        self.start(call_id, response.get("model"))
+        self.center_routes.add((response["routeVersion"], response["wireApi"], response["model"]))
+        call = self.calls[str(call_id)]
+        usage = response.get("usage")
+        if not isinstance(usage, dict):
+            self.invalid_usage = True
+            return
+        for field in _TOKEN_FIELDS:
+            value = usage.get(field)
+            if value is None:
+                continue
+            if isinstance(value, int) and not isinstance(value, bool) and 0 <= value <= _MAX_COUNTER:
+                call[field] = value
+            else:
+                self.invalid_usage = True
+        if all(field in call for field in _TOKEN_FIELDS) and call["total_tokens"] != call["input_tokens"] + call["output_tokens"]:
+            for field in _TOKEN_FIELDS:
+                call.pop(field, None)
+            self.invalid_usage = True
+
     def summary(self):
         summary={"parameters_version":self.parameters_version,"elapsed_ms":max(0,int((time.perf_counter()-self.started)*1000)),"model_calls":len(self.calls)}
+        if self.center_routes:
+            summary["parameters_version"] = hashlib.sha256(json.dumps({"worker": self.parameters_version,
+                "center_routes": sorted(self.center_routes)}, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
         if self.prompt_version:summary["prompt_version"]=self.prompt_version
         if self.tool_rounds is not None:summary["tool_rounds"]=self.tool_rounds
         if not self.calls:
@@ -106,6 +130,18 @@ def begin_execution(settings,task_type):
 
 
 def end_execution(token):_current.reset(token)
+
+
+def start_center_call(call_id):
+    stats = _current.get()
+    if stats is not None:
+        stats.start(call_id)
+
+
+def record_center_call(call_id, response):
+    stats = _current.get()
+    if stats is not None:
+        stats.center_end(call_id, response)
 
 
 def begin_tool_rounds():

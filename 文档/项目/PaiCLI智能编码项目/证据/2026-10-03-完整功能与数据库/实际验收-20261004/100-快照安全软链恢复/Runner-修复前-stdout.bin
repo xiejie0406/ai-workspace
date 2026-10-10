@@ -1,0 +1,103 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] PaiCLI paicli-core                                                 [jar]
+[INFO] RuoYi :: PaiCLI                                                    [pom]
+[INFO] PaiCLI :: 本机受控执行器                                                  [jar]
+[INFO] 
+[INFO] -----------------------< com.ruoyi:paicli-core >------------------------
+[INFO] Building PaiCLI paicli-core 3.9.2                                  [1/3]
+[INFO]   from paicli-core\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.4.0:resources (default-resources) @ paicli-core ---
+[INFO] Copying 22 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.0:compile (default-compile) @ paicli-core ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.4.0:testResources (default-testResources) @ paicli-core ---
+[INFO] Copying 4 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.14.0:testCompile (default-testCompile) @ paicli-core ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ paicli-core ---
+[INFO] 
+[INFO] -----------------------< com.ruoyi:ruoyi-paicli >-----------------------
+[INFO] Building RuoYi :: PaiCLI 3.9.2                                     [2/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ----------------------< com.ruoyi:paicli-runner >-----------------------
+[INFO] Building PaiCLI :: 本机受控执行器 3.9.2                                   [3/3]
+[INFO]   from paicli-runner\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.4.0:resources (default-resources) @ paicli-runner ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ paicli-runner ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.4.0:testResources (default-testResources) @ paicli-runner ---
+[INFO] skip non existing resourceDirectory D:\2025Ai\26-05-23\java-workspace\ruoyi-backend\ruoyi-paicli\paicli-runner\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ paicli-runner ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ paicli-runner ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.paicli.runner.SnapshotResourceFingerprintTest
+[ERROR] Tests run: 7, Failures: 1, Errors: 0, Skipped: 5, Time elapsed: 1.527 s <<< FAILURE! -- in com.paicli.runner.SnapshotResourceFingerprintTest
+[ERROR] com.paicli.runner.SnapshotResourceFingerprintTest.snapshotInputNeverNarrowsTheFrozenTreeToAnOptionalPath -- Time elapsed: 0.129 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: revert_turn ==> expected: <df8a13ad2682b2016fd217aa609887eb0d04e5000dbad91b5b8256222b3a396f> but was: <f8e2b80116a914004635826f1bd1a725d25cf0b2a83bd9d0f065926eb71cd988>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1156)
+	at com.paicli.runner.SnapshotResourceFingerprintTest.snapshotInputNeverNarrowsTheFrozenTreeToAnOptionalPath(SnapshotResourceFingerprintTest.java:29)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   SnapshotResourceFingerprintTest.snapshotInputNeverNarrowsTheFrozenTreeToAnOptionalPath:29 revert_turn ==> expected: <df8a13ad2682b2016fd217aa609887eb0d04e5000dbad91b5b8256222b3a396f> but was: <f8e2b80116a914004635826f1bd1a725d25cf0b2a83bd9d0f065926eb71cd988>
+[INFO] 
+[ERROR] Tests run: 7, Failures: 1, Errors: 0, Skipped: 5
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for RuoYi :: PaiCLI 3.9.2:
+[INFO] 
+[INFO] PaiCLI paicli-core ................................. SUCCESS [  4.211 s]
+[INFO] RuoYi :: PaiCLI .................................... SUCCESS [  0.001 s]
+[INFO] PaiCLI :: 本机受控执行器 .................................. FAILURE [  4.171 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  9.438 s
+[INFO] Finished at: 2026-10-05T15:04:51+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.2:test (default-test) on project paicli-runner: There are test failures.
+[ERROR] 
+[ERROR] See D:\2025Ai\26-05-23\java-workspace\ruoyi-backend\ruoyi-paicli\paicli-runner\target\surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :paicli-runner

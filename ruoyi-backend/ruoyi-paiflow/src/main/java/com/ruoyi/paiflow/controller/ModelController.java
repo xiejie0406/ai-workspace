@@ -54,6 +54,10 @@ public class ModelController {
     public AjaxResult version(@PathVariable long versionId,@RequestParam(required=false) Long spaceId) {return AjaxResult.success(models.versionDetail(versionId,spaceId));}
     @GetMapping("/category-tree") @PreAuthorize("@ss.hasPermi('paiflow:model:query')")
     public AjaxResult category(@RequestParam long spaceId) {return AjaxResult.success(models.categoryTree(spaceId));}
+    @GetMapping("/local-files") @PreAuthorize("@ss.hasPermi('paiflow:model:query')")
+    public AjaxResult localFiles(@RequestParam long spaceId){return AjaxResult.success(models.localModelList(spaceId));}
+    @PostMapping("/{id}/deployment-status") @PreAuthorize("@ss.hasPermi('paiflow:model:edit')")
+    public AjaxResult deploymentStatus(@PathVariable long id,@RequestBody JSONObject body,@RequestHeader(value="If-Match",required=false) String match,HttpServletResponse response){return result(models.refreshDeployment(id,optionalSpace(body),condition(id,body.get("revision"),match)),response);}
     @GetMapping("/category-tree/diagnostics") @PreAuthorize("@ss.hasPermi('paiflow:model:query')")
     public AjaxResult diagnostics(@RequestParam long spaceId) {return AjaxResult.success(models.categoryDiagnostics(spaceId));}
     private static AjaxResult page(ModelService.Page page) {return AjaxResult.success().put("rows",page.records()).put("total",page.total()).put("pageNum",page.current()).put("pageSize",page.size());}

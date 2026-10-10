@@ -1,0 +1,163 @@
+import {beforeEach,describe,expect,it,vi} from 'vitest'
+import {flushPromises,mount} from '@vue/test-utils'
+import ChatMessage from '@/views/paismart/chat/components/ChatMessage.vue'
+import type {FeedbackResult,Message} from '@/types/paismart'
+
+const mocks=vi.hoisted(()=>({sendFeedback:vi.fn(),prompt:vi.fn(),alert:vi.fn()}))
+vi.mock('@/api/paismart/chat',()=>({sendFeedback:mocks.sendFeedback}))
+vi.mock('element-plus',()=>({ElMessageBox:{prompt:mocks.prompt,alert:mocks.alert}}))
+const global={stubs:{'el-button':{props:['disabled','loading','type'],emits:['click'],template:'<button :disabled="disabled" @click="!disabled&&$emit(\'click\')"><slot/></button>'}},directives:{hasPermi:()=>{}}}
+function deferred<T>(){let resolve!:(value:T)=>void,reject!:(reason:unknown)=>void;const promise=new Promise<T>((yes,no)=>{resolve=yes;reject=no});return {promise,resolve,reject}}
+function message(id='A',fields:Partial<Message>={}):Message{return {id,role:'assistant',content:'已有回答',state:'COMPLETE',generationId:`g-${id}`,rating:null,feedbackVersion:0,feedbackEligible:true,...fields}}
+function reply(id='A',fields:Partial<FeedbackResult>={}){return {data:{messageId:id,generationId:`g-${id}`,conversationId:'c-1',rating:'GOOD',rowVersion:1,changed:true,...fields}}}
+function button(wrapper:ReturnType<typeof mount>,label:string){return wrapper.findAll('button').find(item=>item.text()===label)!}
+beforeEach(()=>{vi.resetAllMocks();mocks.prompt.mockResolvedValue({value:'补充材料要求'});mocks.sendFeedback.mockResolvedValue(reply())})
+
+describe('同一消息的当前评价与提交边界',()=>{
+  it('刷新读取的当前评价用文字和aria-pressed呈现',()=>{
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{rating:'BAD',feedbackVersion:4})},global})
+    expect(button(wrapper,'需改进').attributes('aria-pressed')).toBe('true')
+    expect(button(wrapper,'有帮助').attributes('aria-pressed')).toBe('false')
+    expect(wrapper.text()).toContain('当前评价：需改进');wrapper.unmount()
+  })
+  it('新界面发送当前版本，成功只更新当前消息并保留下一次版本',async()=>{
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{rating:'BAD',feedbackVersion:4})},global})
+    mocks.sendFeedback.mockResolvedValue(reply('A',{rowVersion:5}))
+    await button(wrapper,'有帮助').trigger('click');await flushPromises()
+    expect(mocks.sendFeedback).toHaveBeenCalledWith('A','good','',4)
+    expect(wrapper.text()).toContain('当前评价：有帮助')
+    expect(button(wrapper,'有帮助').attributes('aria-pressed')).toBe('true')
+    mocks.sendFeedback.mockResolvedValue(reply('A',{rating:'BAD',rowVersion:6}))
+    await button(wrapper,'需改进').trigger('click');await flushPromises()
+    expect(mocks.sendFeedback).toHaveBeenLastCalledWith('A','bad','补充材料要求',5);wrapper.unmount()
+  })
+  it('相同值回执仍反映当前评价且不虚构变更',async()=>{
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{rating:'GOOD',feedbackVersion:3})},global})
+    mocks.sendFeedback.mockResolvedValue(reply('A',{rowVersion:3,changed:false}))
+    await button(wrapper,'有帮助').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('当前评价未变化')
+    expect(button(wrapper,'有帮助').attributes('aria-pressed')).toBe('true');wrapper.unmount()
+  })
+  it('原因弹窗之前冻结目标，A→B后确认旧弹窗不会向B发送',async()=>{
+    const popup=deferred<{value:string}>();mocks.prompt.mockReturnValue(popup.promise)
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{feedbackVersion:2})},global})
+    await button(wrapper,'需改进').trigger('click')
+    expect(button(wrapper,'有帮助').attributes('disabled')).toBeDefined()
+    await wrapper.setProps({message:message('B',{feedbackVersion:7})})
+    popup.resolve({value:'A的反馈原因'});await flushPromises()
+    expect(mocks.sendFeedback).not.toHaveBeenCalled()
+    expect(wrapper.text()).not.toContain('A的反馈原因');expect(wrapper.text()).not.toContain('反馈已记录');wrapper.unmount()
+  })
+  it('A迟到成功不能清除B正在保存的busy或覆盖B评价',async()=>{
+    const a=deferred<ReturnType<typeof reply>>(),b=deferred<ReturnType<typeof reply>>()
+    mocks.sendFeedback.mockReturnValueOnce(a.promise).mockReturnValueOnce(b.promise)
+    const wrapper=mount(ChatMessage,{props:{message:message()},global})
+    await button(wrapper,'有帮助').trigger('click')
+    await wrapper.setProps({message:message('B',{rating:'BAD',feedbackVersion:8})})
+    await button(wrapper,'有帮助').trigger('click')
+    a.resolve(reply());await flushPromises()
+    expect(wrapper.text()).toContain('当前评价：需改进')
+    expect(button(wrapper,'有帮助').attributes('disabled')).toBeDefined()
+    b.resolve(reply('B',{rowVersion:9}));await flushPromises()
+    expect(wrapper.text()).toContain('当前评价：有帮助')
+    expect(button(wrapper,'有帮助').attributes('disabled')).toBeUndefined();wrapper.unmount()
+  })
+  it('A→B→A不能重新接纳旧A回执，重读版本用于下一次保存',async()=>{
+    const old=deferred<ReturnType<typeof reply>>();mocks.sendFeedback.mockReturnValueOnce(old.promise)
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{rating:'BAD',feedbackVersion:6})},global})
+    await button(wrapper,'有帮助').trigger('click')
+    await wrapper.setProps({message:message('B')})
+    await wrapper.setProps({message:message('A',{rating:'BAD',feedbackVersion:9})})
+    old.resolve(reply('A',{rowVersion:7}));await flushPromises()
+    expect(wrapper.text()).toContain('当前评价：需改进');expect(wrapper.text()).not.toContain('反馈已记录')
+    mocks.sendFeedback.mockResolvedValue(reply('A',{rowVersion:10}))
+    await button(wrapper,'有帮助').trigger('click');await flushPromises()
+    expect(mocks.sendFeedback).toHaveBeenLastCalledWith('A','good','',9);wrapper.unmount()
+  })
+  it('A迟到失败不把错误写到B，当前失败则保留原评价并显示原因',async()=>{
+    const pending=deferred<ReturnType<typeof reply>>();mocks.sendFeedback.mockReturnValueOnce(pending.promise)
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{rating:'GOOD',feedbackVersion:1})},global})
+    await button(wrapper,'有帮助').trigger('click');await wrapper.setProps({message:message('B',{rating:'BAD',feedbackVersion:2})})
+    pending.reject(new Error('A已失败'));await flushPromises()
+    expect(wrapper.text()).not.toContain('A已失败');expect(wrapper.text()).toContain('当前评价：需改进')
+    mocks.sendFeedback.mockRejectedValue(new Error('评价版本已变化，请重新读取'))
+    await button(wrapper,'有帮助').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('评价版本已变化');expect(wrapper.text()).toContain('当前评价：需改进');wrapper.unmount()
+  })
+  it('取消旧弹窗及卸载后失败均被处理，不产生跨消息提示',async()=>{
+    const popup=deferred<{value:string}>();mocks.prompt.mockReturnValue(popup.promise)
+    const wrapper=mount(ChatMessage,{props:{message:message()},global})
+    await button(wrapper,'需改进').trigger('click');await wrapper.setProps({message:message('B')})
+    popup.reject('cancel');await flushPromises()
+    expect(mocks.sendFeedback).not.toHaveBeenCalled();expect(wrapper.text()).not.toContain('cancel')
+    const pending=deferred<ReturnType<typeof reply>>();mocks.sendFeedback.mockReturnValue(pending.promise)
+    await button(wrapper,'有帮助').trigger('click');wrapper.unmount();pending.reject(new Error('卸载后的失败'));await flushPromises()
+  })
+  it('同一消息在popup或请求busy期间只发一次',async()=>{
+    const pending=deferred<ReturnType<typeof reply>>();mocks.sendFeedback.mockReturnValue(pending.promise)
+    const wrapper=mount(ChatMessage,{props:{message:message()},global})
+    await button(wrapper,'有帮助').trigger('click');await button(wrapper,'有帮助').trigger('click');await button(wrapper,'需改进').trigger('click')
+    expect(mocks.sendFeedback).toHaveBeenCalledTimes(1);expect(mocks.prompt).not.toHaveBeenCalled()
+    pending.resolve(reply());await flushPromises();wrapper.unmount()
+  })
+  it.each([{messageId:'B'},{generationId:'g-B'},{rating:'BAD' as const},{rowVersion:0},{rowVersion:1.5},{changed:undefined}])('串号或非法回执不覆盖当前评价：%j',async fields=>{
+    mocks.sendFeedback.mockResolvedValue(reply('A',{rowVersion:3,...fields}))
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{rating:'BAD',feedbackVersion:2})},global})
+    await button(wrapper,'有帮助').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('反馈回执与当前回答不一致');expect(wrapper.text()).toContain('当前评价：需改进');wrapper.unmount()
+  })
+  it('重新读取同A的新评价和版本令进行中的回执失效',async()=>{
+    const pending=deferred<ReturnType<typeof reply>>();mocks.sendFeedback.mockReturnValueOnce(pending.promise)
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{feedbackVersion:1})},global})
+    await button(wrapper,'有帮助').trigger('click')
+    await wrapper.setProps({message:message('A',{rating:'BAD',feedbackVersion:5})})
+    pending.resolve(reply('A',{rowVersion:2}));await flushPromises()
+    expect(wrapper.text()).toContain('当前评价：需改进');expect(wrapper.text()).not.toContain('反馈已记录');wrapper.unmount()
+  })
+  it.each([{changed:true,rowVersion:5},{changed:true,rowVersion:7},{changed:false,rowVersion:6}])('回执版本必须准确对应一次变更：%j',async fields=>{
+    mocks.sendFeedback.mockResolvedValue(reply('A',fields))
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{rating:'BAD',feedbackVersion:5})},global})
+    await button(wrapper,'有帮助').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('反馈回执与当前回答不一致')
+    expect(wrapper.text()).toContain('当前评价：需改进')
+    expect(button(wrapper,'有帮助').attributes('aria-pressed')).toBe('false');wrapper.unmount()
+  })
+  it('保存后迟到的旧props读取不倒退当前评价和版本',async()=>{
+    mocks.sendFeedback.mockResolvedValue(reply('A',{rowVersion:2}))
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{rating:'BAD',feedbackVersion:1})},global})
+    await button(wrapper,'有帮助').trigger('click');await flushPromises()
+    await wrapper.setProps({message:message('A',{rating:null,feedbackVersion:0})})
+    expect(wrapper.text()).toContain('当前评价：有帮助')
+    mocks.sendFeedback.mockResolvedValue(reply('A',{rating:'BAD',rowVersion:3}))
+    await button(wrapper,'需改进').trigger('click');await flushPromises()
+    expect(mocks.sendFeedback).toHaveBeenLastCalledWith('A','bad','补充材料要求',2);wrapper.unmount()
+  })
+  it('显式不可评价优先于可恢复生成信息，不把已知生成误说为历史未知',async()=>{
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{feedbackEligible:false})},global})
+    await button(wrapper,'有帮助').trigger('click')
+    expect(mocks.sendFeedback).not.toHaveBeenCalled();expect(wrapper.text()).toContain('尚不满足评价条件');expect(wrapper.text()).not.toContain('生成关联尚未确认');wrapper.unmount()
+  })
+  it('旧接口缺eligible时，已有生成/终态/非空答案可恢复评价且发送0版本',async()=>{
+    const wrapper=mount(ChatMessage,{props:{message:message('A',{feedbackEligible:undefined,feedbackVersion:undefined})},global})
+    await button(wrapper,'有帮助').trigger('click');await flushPromises()
+    expect(mocks.sendFeedback).toHaveBeenCalledWith('A','good','',0);wrapper.unmount()
+  })
+  it.each([{generationId:null},{feedbackEligible:undefined,state:'RUNNING'},{feedbackEligible:undefined,content:''}])('缺生成或无法恢复的旧状态不允许写入：%j',async fields=>{
+    const wrapper=mount(ChatMessage,{props:{message:message('A',fields)},global})
+    await button(wrapper,'有帮助').trigger('click');expect(mocks.sendFeedback).not.toHaveBeenCalled();wrapper.unmount()
+  })
+  it('stream和管理员只读审计沿原streaming用法隐藏操作',()=>{
+    const wrapper=mount(ChatMessage,{props:{message:message(),streaming:true},global})
+    expect(wrapper.findAll('button')).toHaveLength(0);wrapper.unmount()
+  })
+  it('需改进原因保留原校验，取消后不显示失败、不发送反馈',async()=>{
+    mocks.prompt.mockRejectedValue('close')
+    const wrapper=mount(ChatMessage,{props:{message:message()},global})
+    await button(wrapper,'需改进').trigger('click');await flushPromises()
+    const options=mocks.prompt.mock.calls[0][2]
+    expect(options.inputValidator('')).toBe('请填写反馈原因')
+    expect(options.inputValidator('a'.repeat(1001))).toBe('反馈原因不得超过1000字')
+    expect(options.inputValidator('有理由')).toBe(true)
+    expect(mocks.sendFeedback).not.toHaveBeenCalled();expect(wrapper.text()).not.toContain('close');wrapper.unmount()
+  })
+})

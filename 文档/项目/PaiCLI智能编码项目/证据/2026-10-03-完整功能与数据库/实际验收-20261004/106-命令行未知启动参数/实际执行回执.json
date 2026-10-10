@@ -1,0 +1,89 @@
+{
+  "性质": "第106步骤3单次真实CLI未知启动拒绝，限定子场景，不证明106完整业务或三种终端通过",
+  "start": "2026-10-05T14:08:14.512524+08:00",
+  "end": "2026-10-05T14:08:15.032022+08:00",
+  "elapsedSeconds": 0.656,
+  "argv": [
+    "C:\\Users\\admin\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe",
+    "-jar",
+    "C:\\Users\\admin\\paicli-local-20261003T123101-ed12e6a6cb174b07bfd8db55753e8ac5\\acceptance-cli-a4b04ac7d6656772\\paicli-cli-3.9.2.jar",
+    "acceptance_unknown_startup"
+  ],
+  "pid": 16972,
+  "cwd": "C:\\Users\\admin\\paicli-local-20261003T123101-ed12e6a6cb174b07bfd8db55753e8ac5\\验收样本-命令行启动拒绝-20261005",
+  "environmentNames": [
+    "COMSPEC",
+    "PATHEXT",
+    "SystemDrive",
+    "SystemRoot",
+    "TEMP",
+    "TMP",
+    "WINDIR"
+  ],
+  "exitCode": 2,
+  "timeout": false,
+  "expectedSHA256": "a4bbcc78f2a5930424e0b16f661f1dbae84495dd6a8845f752f3580aff48f3e6",
+  "javaSHA256": "bd3d87dfb44651a1c61c995e08ca4fcadb458437a373d46941381f9aeff9d6a0",
+  "jarSHA256": "a4b04ac7d66567724092b4af96d38c8e154a5eb4c0127eb912074b4fcd45ad6f",
+  "classIdentity": [
+    {
+      "class": "com/paicli/cli/Main.class",
+      "sha256": "745b5cf8482220b0f74146debac1e7721c9571715ff83a6003ce4591be2f2128",
+      "旧新私有包相同": true
+    },
+    {
+      "class": "com/paicli/cli/CenterCli.class",
+      "sha256": "b8cf2982414dc74db34cd181d091150a85626f1b6f7aa2736447b32616a02857",
+      "旧新私有包相同": true
+    },
+    {
+      "class": "com/paicli/cli/CenterCli$Options.class",
+      "sha256": "4f7423c8f3197c3a52c7042673267857743afa760b412d2919c0b18b1df66e0a",
+      "旧新私有包相同": true
+    },
+    {
+      "class": "com/paicli/runner/CenterGateway.class",
+      "sha256": "1b0c6be44f587a3e829d4b0b956445a452c4a35f02973f3112479c3f5919f0a5",
+      "旧新私有包相同": true
+    }
+  ],
+  "streams": [
+    {
+      "name": "stdout",
+      "rawPath": "stdout.bin",
+      "rawBytes": 0,
+      "rawSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "strictEncoding": "utf-8",
+      "logPath": "stdout.log",
+      "logBytes": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "stderr",
+      "rawPath": "stderr.bin",
+      "rawBytes": 59,
+      "rawSHA256": "149cb5c2fd769858434c692fe206cbb611e4df71d3991aaf11a52c2941d23e7f",
+      "strictEncoding": "gb18030",
+      "logPath": "stderr.log",
+      "logBytes": 69,
+      "logSHA256": "1b2356f8c98d0c15a17223261ac29228634e03ad2cb7f184900ed8364122ed49",
+      "text": "PaiCLI 联机失败: 未知启动参数: acceptance_unknown_startup\r\n"
+    }
+  ],
+  "checks": {
+    "实际非零退出且等于独立预期": true,
+    "stdout为空": true,
+    "stderr精确拒绝": true,
+    "无超时": true,
+    "样本目录仍空": true,
+    "jar摘要尺寸时间未变": true,
+    "事前预期未变": true,
+    "被测进程已退出": true
+  },
+  "limitedPass": true,
+  "wholePointPass": false,
+  "请求边界依据": "真实固定入口Main→CenterGateway→CenterCli.run→Options.parse，未知参数先抛出，ServiceLoader/Gateway.open/Renderer均未执行；没有抓包或直接读取中心计数，不伪造模型调用统计",
+  "截图": "不适用：正常CLI在终端构造前失败，无TTY/页面；原始流、严格解码日志和PID/退出回执替代",
+  "产品重试数": 0
+}

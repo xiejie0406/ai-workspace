@@ -59,7 +59,8 @@ export function readDebugReceipt(value: unknown, expected: DebugBuildExpectation
     || !key(receipt.buildRequestKey) || receipt.buildRequestKey !== expected.buildRequestKey
     || typeof receipt.dslHash !== 'string' || !/^[a-f0-9]{64}$/.test(receipt.dslHash)
     || !identifier(receipt.engineProfile) || typeof receipt.executionCodec !== 'string'
-    || !['paiflow.execution.v1', 'paiflow.execution.v2', 'paiflow.execution.v3'].includes(receipt.executionCodec)) fail();
+    || !['paiflow.execution.v1', 'paiflow.execution.v2', 'paiflow.execution.v3', 'paiflow.execution.v4'].includes(receipt.executionCodec)
+    || receipt.executionCodec === 'paiflow.execution.v4' && receipt.engineProfile !== 'python') fail();
   // 复制已核对的字段，避免外部响应对象后续变化改变请求绑定。
   return Object.freeze({ workflowVersionId: receipt.workflowVersionId, workflowId: receipt.workflowId,
     flowId: receipt.flowId, mode: receipt.mode, comparisonId: receipt.comparisonId,

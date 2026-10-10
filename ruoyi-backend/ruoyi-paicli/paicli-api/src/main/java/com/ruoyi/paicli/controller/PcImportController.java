@@ -13,7 +13,7 @@ import java.util.Map;
 public class PcImportController extends PcControllerSupport {
     private final PcImportService service;
     public PcImportController(PcStore s,PcImportService i){super(s);service=i;}
-    @GetMapping @PreAuthorize("@ss.hasPermi('paicli:import:read')") public AjaxResult list(@RequestParam long workspaceId){return AjaxResult.success(service.list(actor(),workspaceId));}
+    @GetMapping @PreAuthorize("@ss.hasPermi('paicli:import:read')") public AjaxResult list(@RequestParam long directoryContextId){return AjaxResult.success(service.list(actor(),directoryContextId));}
     @PostMapping("/preflight") @PreAuthorize("@ss.hasPermi('paicli:import:manage')") @Log(title="PaiCLI迁移预检",businessType=BusinessType.OTHER,isSaveRequestData=false) public AjaxResult preflight(@RequestHeader("Idempotency-Key") String key,@RequestBody Map<String,Object> input){return AjaxResult.success(service.preflight(actor(),key,input));}
     @PostMapping("/{id}") @PreAuthorize("@ss.hasPermi('paicli:import:manage')") @Log(title="PaiCLI迁移批次",businessType=BusinessType.UPDATE,isSaveRequestData=false) public AjaxResult action(@PathVariable long id,@RequestHeader("If-Match") String v,@RequestHeader("Idempotency-Key") String key,@RequestBody Map<String,Object> input){return AjaxResult.success(service.action(actor(),id,version(v),key,PcJson.text(input,"action")));}
 }

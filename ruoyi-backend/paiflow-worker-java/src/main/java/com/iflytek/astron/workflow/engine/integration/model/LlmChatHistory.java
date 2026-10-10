@@ -138,6 +138,8 @@ public class LlmChatHistory {
      */
     public static List<ChatItem> getHistory(String chatId, String nodeId) {
         String key = generateKey(chatId, nodeId);
+        ExecutionScope scope = ExecutionScope.current();
+        if (scope.hasHistoryContext()) return new ArrayList<>(scope.javaHistory(chatId, nodeId));
         return new ArrayList<>(queue(chatId, nodeId, true));
     }
 
@@ -151,6 +153,12 @@ public class LlmChatHistory {
      */
     public static List<ChatItem> getHistory(String chatId, String nodeId, int count) {
         String key = generateKey(chatId, nodeId);
+        ExecutionScope scope = ExecutionScope.current();
+        if (scope.hasHistoryContext()) {
+            List<ChatItem> old = scope.javaHistory(chatId, nodeId);
+            // 保留原Java int减法及subList行为，不能把负轮数clamp成零。
+            return new ArrayList<>(old.subList(Math.max(0, old.size() - count), old.size()));
+        }
         ConcurrentLinkedQueue<ChatItem> queue = queue(chatId, nodeId, true);
 
         List<ChatItem> allItems = new ArrayList<>(queue);
@@ -184,6 +192,15 @@ public class LlmChatHistory {
 
     private static ConcurrentLinkedQueue<ChatItem> queue(String chatId, String nodeId, boolean requireHistory) {
         ExecutionScope scope = ExecutionScope.current();
+        if (scope.hasHistoryContext()) {
+            List<ChatItem> old = scope.javaHistory(chatId, nodeId);
+            return scope.temporaryState("chat:" + generateKey(chatId, nodeId), () -> {
+                ConcurrentLinkedQueue<ChatItem> items = createChatHistoryQueue();
+                // 本轮临时记录与中心冻结旧List不共享可变列表。
+                for (ChatItem item : old) items.add(JSON.parseObject(JSON.toJSONString(item), ChatItem.class));
+                return items;
+            });
+        }
         Map<String, Object> snapshot = scope.resources().values().stream()
                 .filter(resource -> "conversation-history".equals(resource.get("kind")) && nodeId.equals(resource.get("nodeId")))
                 .findFirst().orElse(null);

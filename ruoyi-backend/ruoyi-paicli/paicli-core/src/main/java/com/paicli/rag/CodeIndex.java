@@ -19,6 +19,7 @@ public class CodeIndex {
     private final CodeAnalyzer analyzer;
     private final ProgressListener progressListener;
     private final Path cacheDirectory;
+    private final VectorStore.CommitGuard commitGuard;
 
     @FunctionalInterface
     public interface ProgressListener {
@@ -46,11 +47,15 @@ public class CodeIndex {
         this(embeddingClient, progressListener, null);
     }
     public CodeIndex(EmbeddingClient embeddingClient, ProgressListener progressListener, Path cacheDirectory) {
+        this(embeddingClient, progressListener, cacheDirectory, () -> {});
+    }
+    public CodeIndex(EmbeddingClient embeddingClient, ProgressListener progressListener, Path cacheDirectory, VectorStore.CommitGuard commitGuard) {
         this.embeddingClient = embeddingClient;
         this.chunker = new CodeChunker();
         this.analyzer = new CodeAnalyzer();
         this.progressListener = progressListener == null ? ProgressListener.noop() : progressListener;
         this.cacheDirectory = cacheDirectory;
+        this.commitGuard = java.util.Objects.requireNonNull(commitGuard);
     }
 
     /**
@@ -95,6 +100,7 @@ public class CodeIndex {
 
         int processed = 0;
         int total = filesToIndex.size();
+        int actualDimensions = embeddingClient.getExpectedDimensions();
 
         for (Path file : filesToIndex) {
             processed++;
@@ -108,7 +114,10 @@ public class CodeIndex {
 
                 // 2. 生成 Embedding 并组装条目
                 for (CodeChunk chunk : chunks) {
+                    commitGuard.check();
                     float[] embedding = embeddingClient.embed(chunk.toEmbeddingText());
+                    EmbeddingClient.validateVector(embedding, actualDimensions);
+                    if (actualDimensions == 0) actualDimensions = embedding.length;
                     entries.add(new VectorStore.CodeChunkEntry(chunk, embedding));
                 }
 
@@ -127,12 +136,14 @@ public class CodeIndex {
         // 4. 持久化到 SQLite
         Path owner = indexOwner == null ? root : indexOwner;
         try (VectorStore store = cacheDirectory == null ? new VectorStore(owner.toString()) : new VectorStore(owner.toString(), cacheDirectory)) {
-            store.replaceProject(entries, allRelations);
+            commitGuard.check();
+            store.replaceProject(entries, allRelations, embeddingClient.getIdentity(), actualDimensions, commitGuard);
 
             VectorStore.IndexStats stats = store.getStats();
             String msg = String.format("索引完成：%d 个代码块，%d 条关系", stats.chunkCount(), stats.relationCount());
             emit("✅ " + msg);
-            return new IndexResult(stats.chunkCount(), stats.relationCount(), msg);
+            return new IndexResult(stats.chunkCount(), stats.relationCount(), msg,
+                    embeddingClient.getIdentity(), embeddingClient.getIdentity().fingerprint(), actualDimensions, true);
         } catch (Exception e) {
             String error = "持久化失败: " + e.getMessage();
             emit("❌ " + error);
@@ -198,5 +209,11 @@ public class CodeIndex {
         }
     }
 
-    public record IndexResult(int chunkCount, int relationCount, String message) {}
+    public record IndexResult(int chunkCount, int relationCount, String message,
+                              EmbeddingIdentity embeddingIdentity, String fingerprint,
+                              int actualDimensions, boolean success) {
+        public IndexResult(int chunkCount, int relationCount, String message) {
+            this(chunkCount, relationCount, message, null, null, 0, false);
+        }
+    }
 }

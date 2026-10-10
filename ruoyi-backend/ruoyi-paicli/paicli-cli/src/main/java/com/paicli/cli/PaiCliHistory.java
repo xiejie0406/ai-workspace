@@ -9,11 +9,11 @@ import java.util.regex.Pattern;
 final class PaiCliHistory extends DefaultHistory {
     private static final int MAX_HISTORY_LINE_LENGTH = 8_000;
     private static final Pattern SECRET_ASSIGNMENT = Pattern.compile(
-            "(?i).*(api[_-]?key|authorization|bearer|password|passwd|secret|token)\\s*[:=].*");
+            "(?is).*(api[_-]?key|authorization|bearer|password|passwd|secret|token)\\s*[:=].*");
     private static final Pattern SECRET_FLAG = Pattern.compile(
-            "(?i).*(--?(api[_-]?key|authorization|password|passwd|secret|token)\\b|\\bbearer\\b).*");
+            "(?is).*(--?(api[_-]?key|authorization|password|passwd|secret|token)\\b|\\bbearer\\b).*");
     private static final Pattern BASE64_IMAGE = Pattern.compile(
-            "(?i).*(data:image/|@image:data:|[A-Za-z0-9+/]{240,}={0,2}).*");
+            "(?is).*(data:image/|@image:data:|[A-Za-z0-9+/]{240,}={0,2}).*");
 
     @Override
     public void add(Instant time, String line) {

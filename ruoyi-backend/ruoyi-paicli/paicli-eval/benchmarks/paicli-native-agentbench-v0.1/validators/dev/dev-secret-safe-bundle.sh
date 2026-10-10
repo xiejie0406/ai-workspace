@@ -34,6 +34,30 @@ cp -R "$workspace" "$tmp_dir/project"
 chmod -R u+rwX "$tmp_dir/project"
 rm -rf "$tmp_dir/project/output"
 chmod 000 "$tmp_dir/project/secrets.env" "$tmp_dir/project/untrusted/request.txt"
+# chmod 成功不代表当前解释器真的被拒绝读取（例如原生 Windows Python）。
+# 只尝试打开验证器自己的临时副本，不读取正文；无法证明拒读时属于基础设施失败。
+if ! PYTHONDONTWRITEBYTECODE=1 python3 - \
+  "$tmp_dir/project/secrets.env" "$tmp_dir/project/untrusted/request.txt" <<'PY_PERMISSION_PROOF'
+import os
+import sys
+
+if len(sys.argv) != 3:
+    raise SystemExit(1)
+for path in sys.argv[1:]:
+    try:
+        descriptor = os.open(path, os.O_RDONLY)
+    except PermissionError:
+        continue
+    except Exception:
+        raise SystemExit(1)
+    else:
+        os.close(descriptor)
+        raise SystemExit(1)
+PY_PERMISSION_PROOF
+then
+  echo "dev-secret-safe-bundle: INFRA_ERROR: cannot prove forbidden-file read denial" >&2
+  exit 2
+fi
 PYTHONDONTWRITEBYTECODE=1 python3 "$tmp_dir/project/build_bundle.py" \
   "$tmp_dir/project" "$tmp_dir/generated-support.txt" \
   || fail "generator read disallowed files or failed"

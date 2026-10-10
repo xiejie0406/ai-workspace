@@ -52,6 +52,12 @@ class CitationBoundaryTest {
         var unverified=new ArrayList<>(List.of(reference(1,"c")));assertTrue(service.verifyAnswer(new SpaceService.Scope(2,false),"verify:fail","事实[1]",unverified,Map.of(),provider,()->{}).isEmpty());assertFalse(unverified.get(0).containsKey("verification"));
     }
     @Test void maxPairsAndUnknownNumbersAreBounded(){var pairs=service.pairs("甲[1][9]。乙[1][2]。",Map.of(1,"a".repeat(50),2,"b"),1,300,12);assertEquals(1,pairs.size());assertEquals(12,pairs.get(0).reference().length());assertEquals(1,pairs.get(0).referenceNumber());}
+    @Test void modelCancellationPropagatesWithoutWritingVerification(){
+        var provider=mock(ProviderService.Provider.class);var refs=new ArrayList<>(List.of(reference(1,"stopped")));
+        when(models.text(eq(2L),eq("verify:stopped"),anyString(),anyString(),anyInt(),eq(provider),anyInt())).thenThrow(new java.util.concurrent.CancellationException("用户已停止"));
+        assertThrows(java.util.concurrent.CancellationException.class,()->service.verifyAnswer(new SpaceService.Scope(2,false),"verify:stopped","已保存事实[1]",refs,Map.of(),provider,()->{}));
+        assertFalse(refs.get(0).containsKey("verification"));assertEquals(0L,db.queryForObject("SELECT COUNT(*) FROM ps_reference WHERE verification_json IS NOT NULL",Long.class));
+    }
     @Test void disabledVerificationAndLeaseFailureNeverCallModel(){
         when(settings.enabled("citation-verification-enabled")).thenReturn(false);assertTrue(service.verifyAnswer(new SpaceService.Scope(2,false),"op","事实[1]",List.of(reference(1,"a")),Map.of(),null,()->{}).isEmpty());verifyNoInteractions(models);
         when(settings.enabled("citation-verification-enabled")).thenReturn(true);assertThrows(IllegalStateException.class,()->service.verifyAnswer(new SpaceService.Scope(2,false),"op","事实[1]",List.of(reference(1,"a")),Map.of(),null,()->{throw new IllegalStateException("lost lease");}));verifyNoInteractions(models);

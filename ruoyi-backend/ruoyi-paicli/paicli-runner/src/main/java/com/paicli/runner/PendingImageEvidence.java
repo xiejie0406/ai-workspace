@@ -43,6 +43,11 @@ final class PendingImageEvidence {
         Path preserveOutput(ObjectNode binding,ToolOutput output)throws IOException{
             return persist(outputEvidence(binding,output),this);
         }
+        Path preserveModification(ObjectNode binding,ToolOutput output,JsonNode modification)throws IOException{
+            ObjectNode evidence=outputEvidence(binding,output);
+            evidence.set("fileModification",modification.deepCopy());
+            return persist(evidence,this);
+        }
         @Override public void close(){synchronized(quota){if(!released){quota.remainingBytes-=MAX_ITEM-retainedBytes;quota.remainingFiles-=2-retained.size();released=true;}}}
     }
     Path preserve(ObjectNode binding,int index,JsonNode part)throws IOException {
@@ -59,7 +64,7 @@ final class PendingImageEvidence {
     }
     private ObjectNode identity(ObjectNode binding){
         ObjectNode evidence=CanonicalJson.MAPPER.createObjectNode();
-        for(String key:new String[]{"taskId","sessionId","leaseId","fencingToken","version","policyVersion","rootFingerprint","toolCallId","argsHash","resourceHash","planVersion"})
+        for(String key:new String[]{"taskId","sessionId","ownerUserId","directoryContextId","runnerId","leaseId","fencingToken","version","policyVersion","rootFingerprint","toolCallId","argsHash","resourceHash","planVersion"})
             if(binding.has(key))evidence.set(key,binding.get(key).deepCopy());
         return evidence;
     }

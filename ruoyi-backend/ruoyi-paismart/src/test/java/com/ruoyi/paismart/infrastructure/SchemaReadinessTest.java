@@ -23,13 +23,14 @@ class SchemaReadinessTest {
             new ClassPathResource("db/paismart/V002__documents_spaces.sql"),
             new ClassPathResource("db/paismart/V003__intelligence.sql"),
             new ClassPathResource("db/paismart/V004__operations_migration_receipts.sql"),
-            new ClassPathResource("db/paismart/V005__evaluation_datasets.sql")
+            new ClassPathResource("db/paismart/V005__evaluation_datasets.sql"),
+            new ClassPathResource("db/paismart/V006__message_feedback.sql")
         ).execute(source);
     }
     @Test void completeVersionedSchemaNeedsNoBusinessDataOrWrites() {
         assertEquals(List.of(),readiness.missing());
         assertEquals(0,db.queryForObject("SELECT COUNT(*) FROM ps_member",Integer.class));
-        assertEquals(5,db.queryForObject("SELECT COUNT(*) FROM paismart_schema_history",Integer.class));
+        assertEquals(6,db.queryForObject("SELECT COUNT(*) FROM paismart_schema_history",Integer.class));
         assertEquals(0,db.queryForObject("SELECT COUNT(*) FROM ps_job",Integer.class));
     }
     @Test void essentialOcrModelProcessingAndMigrationColumnsAreRequired() {
@@ -52,7 +53,7 @@ class SchemaReadinessTest {
     }
     @Test void completeTablesWithoutHistoryMarkersCannotClaimReady() {
         db.update("DELETE FROM paismart_schema_history WHERE version_no IN (2,4,5)");
-        db.update("INSERT INTO paismart_schema_history(version_no,description) VALUES(6,'Unrelated later version')");
+        db.update("INSERT INTO paismart_schema_history(version_no,description) VALUES(7,'Unrelated later version')");
         assertEquals(List.of("paismart_schema_history.version:2","paismart_schema_history.version:4","paismart_schema_history.version:5"),readiness.missing());
     }
     @Test void existingFourVersionSchemaRequiresExplicitDatasetUpgrade() {
@@ -83,4 +84,28 @@ class SchemaReadinessTest {
         SchemaReadiness.required().forEach((table,fields) -> expected.put(table,new HashSet<>(fields)));
         assertEquals(expected,actual);
     }
+    @Test void versionSixAndAllMessageFeedbackFieldsAreRequired(){
+        db.execute("DROP INDEX uk_ps_feedback_user_message");for(String column:List.of("message_id","generation_id","row_version","updated_at"))db.execute("ALTER TABLE ps_tool_feedback DROP COLUMN "+column);db.execute("ALTER TABLE ps_chat_message DROP COLUMN generation_id");db.update("DELETE FROM paismart_schema_history WHERE version_no=6");
+        assertEquals(Set.of("ps_chat_message.generation_id","ps_tool_feedback.message_id","ps_tool_feedback.generation_id","ps_tool_feedback.row_version","ps_tool_feedback.updated_at","paismart_schema_history.version:6","ps_tool_feedback.unique:user_id,message_id"),new HashSet<>(readiness.missing()));
+    }
+    @Test void sameIndexNameWithoutUniquenessCannotClaimMessageFeedbackReady(){db.execute("DROP INDEX uk_ps_feedback_user_message");db.execute("CREATE INDEX uk_ps_feedback_user_message ON ps_tool_feedback(user_id,message_id)");assertEquals(List.of("ps_tool_feedback.unique:user_id,message_id"),readiness.missing());}
+    @Test void reversedOrWiderUniqueIndexCannotReplaceExactUserMessageConstraint(){
+        db.execute("DROP INDEX uk_ps_feedback_user_message");db.execute("CREATE UNIQUE INDEX wrong_order ON ps_tool_feedback(message_id,user_id)");db.execute("CREATE UNIQUE INDEX wrong_width ON ps_tool_feedback(user_id,message_id,generation_id)");assertEquals(List.of("ps_tool_feedback.unique:user_id,message_id"),readiness.missing());
+    }
+    @Test void singleColumnUniqueAndOtherSchemaIndexCannotHideMissingConstraint(){
+        db.execute("DROP INDEX uk_ps_feedback_user_message");db.execute("CREATE UNIQUE INDEX wrong_single ON ps_tool_feedback(message_id)");db.execute("CREATE SCHEMA unrelated_feedback");db.execute("CREATE TABLE unrelated_feedback.ps_tool_feedback(user_id BIGINT,message_id VARCHAR(36),UNIQUE(user_id,message_id))");assertEquals(List.of("ps_tool_feedback.unique:user_id,message_id"),readiness.missing());
+    }
+    @Test void ConstraintIsCheckedByItsDefinitionInsteadOfJustExpectedName(){db.execute("DROP INDEX uk_ps_feedback_user_message");db.execute("CREATE UNIQUE INDEX actual_feedback_constraint ON ps_tool_feedback(user_id,message_id)");assertEquals(List.of(),readiness.missing());}
+    List<String> mysqlConstraintMissing(Integer prefix)throws Exception{
+        try(Connection actual=source.getConnection()){
+            String catalog=actual.getCatalog();
+            var metadata=org.mockito.Mockito.mock(java.sql.DatabaseMetaData.class,org.mockito.AdditionalAnswers.delegatesTo(actual.getMetaData()));org.mockito.Mockito.doReturn("MySQL").when(metadata).getDatabaseProductName();
+            var connection=org.mockito.Mockito.mock(Connection.class,org.mockito.AdditionalAnswers.delegatesTo(actual));org.mockito.Mockito.doReturn(metadata).when(connection).getMetaData();var statement=org.mockito.Mockito.mock(java.sql.PreparedStatement.class);var rows=org.mockito.Mockito.mock(java.sql.ResultSet.class);var position=new java.util.concurrent.atomic.AtomicInteger();
+            String sql="SELECT SEQ_IN_INDEX,COLUMN_NAME,NON_UNIQUE,SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND INDEX_NAME=? ORDER BY SEQ_IN_INDEX";
+            org.mockito.Mockito.doReturn(statement).when(connection).prepareStatement(sql);org.mockito.Mockito.when(statement.executeQuery()).thenReturn(rows);org.mockito.Mockito.when(rows.next()).thenAnswer(invocation->position.incrementAndGet()<=2);org.mockito.Mockito.when(rows.getInt("SEQ_IN_INDEX")).thenAnswer(invocation->position.get());org.mockito.Mockito.when(rows.getString("COLUMN_NAME")).thenAnswer(invocation->position.get()==1?"user_id":"message_id");org.mockito.Mockito.when(rows.getObject("SUB_PART")).thenAnswer(invocation->position.get()==2?prefix:null);
+            var wrapped=org.mockito.Mockito.mock(javax.sql.DataSource.class);org.mockito.Mockito.when(wrapped.getConnection()).thenReturn(connection);var result=new SchemaReadiness(new JdbcTemplate(wrapped)).missing();org.mockito.Mockito.verify(statement).setString(1,catalog);return result;
+        }
+    }
+    @Test void mysqlUniquePrefixCannotClaimCompleteMessageIdConstraint()throws Exception{assertEquals(List.of("ps_tool_feedback.unique:user_id,message_id"),mysqlConstraintMissing(6));}
+    @Test void mysqlFullColumnUniqueMetadataIsAcceptedWithoutDatabaseWrites()throws Exception{assertEquals(List.of(),mysqlConstraintMissing(null));}
 }

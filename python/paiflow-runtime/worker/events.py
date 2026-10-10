@@ -16,19 +16,25 @@ WORKER_EVENT_TYPES = EVENT_TYPES - {"run.completed", "run.failed", "run.cancelle
 SECRET_KEYS = frozenset({"password", "passwd", "apikey", "apisecret", "accesstoken", "refreshtoken", "authorization", "secretkey"})
 
 
-def _validate_payload(value, depth=0):
+def _validate_payload(value, depth=0, *, schema_paths=frozenset(), _path=(), _schema=False, _schema_data=False):
+    # 仅调用方明确指定的原函数parameters是业务JSON Schema；其中properties/default等
+    # 字段名并不是Provider认证路径。其它事件/帧仍沿用原凭据守卫。
+    _schema = _schema or _path in schema_paths
     if depth > 64:
         raise WorkerError("DSL_INVALID", "事件数据嵌套超过预算")
     if isinstance(value, dict):
         for key, item in value.items():
             if not isinstance(key, str):
                 raise WorkerError("DSL_INVALID", "事件对象键无效")
-            if key.lower().replace("_", "").replace("-", "") in SECRET_KEYS and item:
+            schema_names = _schema and _path and _path[-1] in {
+                'properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas', 'dependencies'}
+            if not (_schema_data or schema_names) and key.lower().replace("_", "").replace("-", "") in SECRET_KEYS and item:
                 raise WorkerError("TOOL_POLICY_DENIED", "事件不能携带明文凭据")
-            _validate_payload(item, depth + 1)
+            data = _schema_data or _schema and key in {'default', 'const', 'enum', 'examples'}
+            _validate_payload(item, depth + 1, schema_paths=schema_paths, _path=(*_path, key), _schema=_schema, _schema_data=data)
     elif isinstance(value, list):
-        for item in value:
-            _validate_payload(item, depth + 1)
+        for index, item in enumerate(value):
+            _validate_payload(item, depth + 1, schema_paths=schema_paths, _path=(*_path, index), _schema=_schema, _schema_data=_schema_data)
 
 
 class EventPublisher:

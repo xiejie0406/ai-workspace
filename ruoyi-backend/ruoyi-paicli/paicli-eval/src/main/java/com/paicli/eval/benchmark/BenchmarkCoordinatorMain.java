@@ -432,7 +432,19 @@ public final class BenchmarkCoordinatorMain {
         episode.writeVerifier(verification);
 
         BenchmarkFailureClassifier.Disposition verifierDisposition =
-                BenchmarkFailureClassifier.classifyVerifier(verification.status());
+                BenchmarkFailureClassifier.classifyVerifier(definition, verification);
+        if (verifierDisposition == BenchmarkFailureClassifier.Disposition.INFRA_ERROR) {
+            String detail = verification.status() == null
+                    ? "verifier infrastructure unavailable: missing verifier status"
+                    : "verifier sandbox unavailable: forbidden-file read denial could not be proved";
+            episode.writeRun(runArtifact(
+                    options, definition, repeat, "INFRA_ERROR", startedAt,
+                    Instant.now(clock).toString(), worker, workerMetrics(worker), verification, detail));
+            if (BenchmarkSecretCanary.containsInTree(episode.directory(), apiKey)) {
+                return securityFailure(options, definition, repeat, episode, startedAt, clock);
+            }
+            return EpisodeOutcome.infra(definition.id(), repeat, detail, workerMetrics(worker));
+        }
         boolean strictSuccess = verifierDisposition == BenchmarkFailureClassifier.Disposition.PASSED;
         double score = strictSuccess ? 100.0 : 0.0;
         String status = strictSuccess ? "SCORED_PASS" : "SCORED_FAIL";

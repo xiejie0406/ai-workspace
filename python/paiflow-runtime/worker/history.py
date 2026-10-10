@@ -13,6 +13,8 @@ async def add_history(flow_id, node_id, uid, raw_question, raw_answer, chat_id=N
         raise WorkerError("TOOL_POLICY_DENIED", "原历史作用域与中心租约绑定不一致")
     # flow/uid/chat 仅为原算法上下文；中心从租约关联正式身份和会话。
     try:
+        from .python_history import require_snapshot
+        require_snapshot(context, node_id)
         result = await context.center.append_history(context.assignment.run_id, context.assignment.lease_id,
             context.assignment.attempt, node_id, raw_question, raw_answer, iteration_id=CURRENT_ITERATION_ID.get())
         context.assert_active()

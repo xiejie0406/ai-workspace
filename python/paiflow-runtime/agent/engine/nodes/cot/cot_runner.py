@@ -4,25 +4,25 @@ from typing import Any, AsyncIterator, Union
 
 from pydantic import Field
 
-from api.schemas.agent_response import AgentResponse, CotStep
-from api.schemas.llm_message import LLMMessage, LLMMessages
+from agent.api.schemas.agent_response import AgentResponse, CotStep
+from agent.api.schemas.llm_message import LLMMessage, LLMMessages
 
 # Use unified common package import module
-from common_imports import Node, NodeData, NodeDataUsage, NodeTrace, Span
-from domain.models.base import BaseLLMModel
-from engine.nodes.base import RunnerBase, Scratchpad
-from engine.nodes.cot.cot_prompt import (
+from agent.common_imports import Node, NodeData, NodeDataUsage, NodeTrace, Span
+from agent.domain.models.base import BaseLLMModel
+from agent.engine.nodes.base import RunnerBase, Scratchpad
+from agent.engine.nodes.cot.cot_prompt import (
     COT_SYSTEM_NO_R1_MORE_TEMPLATE,
     COT_SYSTEM_R1_MORE_TEMPLATE,
     COT_SYSTEM_TEMPLATE,
     COT_USER_TEMPLATE,
 )
-from engine.nodes.cot_process.cot_process_runner import CotProcessRunner
-from exceptions import cot_exc
-from service.plugin.base import BasePlugin, PluginResponse
-from service.plugin.link import LinkPlugin
-from service.plugin.mcp import McpPlugin
-from service.plugin.workflow import WorkflowPlugin
+from agent.engine.nodes.cot_process.cot_process_runner import CotProcessRunner
+from agent.exceptions import cot_exc
+from agent.service.plugin.base import BasePlugin, PluginResponse
+from agent.service.plugin.link import LinkPlugin
+from agent.service.plugin.mcp import McpPlugin
+from agent.service.plugin.workflow import WorkflowPlugin
 
 default_cot_step = CotStep(empty=True)
 

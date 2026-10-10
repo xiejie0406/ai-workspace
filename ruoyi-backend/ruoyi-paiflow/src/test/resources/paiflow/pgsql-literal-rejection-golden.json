@@ -1,0 +1,139 @@
+{
+  "cases": [
+    {
+      "name": "nested-minus",
+      "literal": "[-(-1)]",
+      "astError": "ValueError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    },
+    {
+      "name": "nested-plus",
+      "literal": "[+(+1)]",
+      "astError": "ValueError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    },
+    {
+      "name": "nested-mixed",
+      "literal": "[-(+1)]",
+      "astError": "ValueError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    },
+    {
+      "name": "statement-separated-adjacent",
+      "literal": "'a'\n'b'",
+      "astError": "SyntaxError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    },
+    {
+      "name": "hex-escape-plus",
+      "literal": "['\\x+1']",
+      "astError": "SyntaxError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    },
+    {
+      "name": "unicode-escape-plus",
+      "literal": "['\\u+001']",
+      "astError": "SyntaxError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    },
+    {
+      "name": "vertical-tab-as-whitespace",
+      "literal": "[1,\u000b2]",
+      "astError": "SyntaxError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    },
+    {
+      "name": "top-unary-newline",
+      "literal": "-\n1",
+      "astError": "SyntaxError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    },
+    {
+      "name": "newline-before-tuple-comma",
+      "literal": "1\n,2",
+      "astError": "SyntaxError",
+      "actualResult": {
+        "leaseId": "lease-1",
+        "attempt": 1,
+        "state": "FAILED",
+        "error": {
+          "code": "DSL_INVALID",
+          "message": "引擎协议或输出无效"
+        }
+      },
+      "operations": []
+    }
+  ]
+}

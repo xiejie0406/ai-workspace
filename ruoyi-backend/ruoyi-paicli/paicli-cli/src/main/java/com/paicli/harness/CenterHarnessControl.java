@@ -31,8 +31,12 @@ public final class CenterHarnessControl implements NativeControlExecutor.Extensi
             try { send(center, lease, "LEDGER_MESSAGE", NativeTaskExecutor.ledgerPayload(entry, tools)); }
             catch (Exception failure) { lease.invalidate(); throw new IllegalStateException("中心Harness审查轨迹未确认", failure); }
         });
-        var depth = "HARNESS_QUICK".equals(operation) ? BetterHarnessOptions.Depth.QUICK : BetterHarnessOptions.Depth.NORMAL;
-        BetterHarnessOptions options = new BetterHarnessOptions(depth, "HARNESS_INLINE".equals(operation));
+        String depthName=arguments.path("depth").asText("HARNESS_QUICK".equals(operation)?"QUICK":"NORMAL");
+        if(!List.of("QUICK","NORMAL").contains(depthName))throw new java.io.IOException("中心Harness审查深度非法");
+        var depth=BetterHarnessOptions.Depth.valueOf(depthName);
+        boolean inline=arguments.path("inline").asBoolean("HARNESS_INLINE".equals(operation));
+        if(inline!= "HARNESS_INLINE".equals(operation))throw new java.io.IOException("中心Harness选项与冻结操作不一致");
+        BetterHarnessOptions options = new BetterHarnessOptions(depth, inline);
         var runner = new BetterHarnessRunner(client, Path.of(tools.getProjectPath()), ledger, NativeTaskExecutor.approvedSkills(context), derivedState.resolve("harness-cache"));
         var result = runner.run(options);
         ObjectNode payload = CanonicalJson.MAPPER.createObjectNode();

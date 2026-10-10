@@ -13,7 +13,11 @@ class Settings(BaseSettings):
     concurrency: int = Field(default=3, ge=1, le=16)
     heartbeat_seconds: float = Field(default=15, ge=1, le=60)
     claim_interval_seconds: float = Field(default=2, ge=0.1, le=60)
+    # 默认只接本地算法任务；启用中心文本通道后显式加入四类文本任务。
+    claim_types: list[Literal["parse_source", "generate_outline", "generate_slide", "ai_edit", "relayout", "quality", "export"]] = Field(default_factory=lambda: ["parse_source", "quality", "export"])
     task_timeout_seconds: float = Field(default=900, ge=10, le=7200)
+    # 中心出站上限80秒；固定90秒给中心终态留余量，不能提前制造未知费用。
+    text_request_timeout_seconds: float = Field(default=90, ge=90, le=90)
     llm_api_key: str = ""
     llm_base_url: str = "https://api.deepseek.com"
     llm_model: str = "deepseek-v4-flash"

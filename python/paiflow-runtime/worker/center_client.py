@@ -91,6 +91,15 @@ class CenterClient:
     def _run(self, run_id: str) -> str:
         return "/runs/" + self._id(run_id)
 
+    async def claim(self) -> dict[str, Any] | None:
+        """领取中心正式 Python 任务；空队列返回 None，不生成本地任务。"""
+        data = await self._request("POST", "/runs/claim", {"engineProfile": "python"}, strict_json=True)
+        if data is None:
+            return None
+        if not isinstance(data, dict) or data.get("engineProfile") != "python":
+            raise CenterUnavailable()
+        return data
+
     async def verify_lease(self, run_id: str, lease_id: str, attempt: int) -> dict[str, Any]:
         data = await self._request("POST", self._run(run_id) + "/lease/verify", {"leaseId": lease_id, "attempt": attempt})
         if not isinstance(data, dict) or data.get("valid") is not True:
@@ -128,30 +137,116 @@ class CenterClient:
         return data
 
     async def resource(self, run_id: str, lease_id: str, attempt: int, resource_id: str) -> dict[str, Any]:
-        data = await self._request("POST", self._run(run_id) + "/resources/" + self._id(resource_id),
+        from .tool_contract import formal_tool, check_resource
+        resource_path = quote(resource_id, safe='') if formal_tool(resource_id) and len(resource_id) <= 1024 else self._id(resource_id)
+        data = await self._request("POST", self._run(run_id) + "/resources/" + resource_path,
                                    {"leaseId": lease_id, "attempt": attempt})
         if not isinstance(data, dict):
             raise CenterUnavailable()
         if data.get('kind') == 'model':
             if (set(data) != {'kind', 'provider', 'version', 'modelName', 'enabled', 'capabilities'}
-                    or data['provider'] != 'openai' or data['enabled'] is not True or data['capabilities'] != ['chat']
-                    or any(not isinstance(data[k], str) or not data[k] or len(data[k]) > 256 for k in ('version', 'modelName'))):
+                    or data.get('provider') not in {'openai', 'xinghuo'} or data.get('enabled') is not True
+                    or not (data.get('capabilities') == ['chat'] or data.get('provider') == 'xinghuo'
+                            and data.get('capabilities') == ['chat', 'function_call'])
+                    or any(not isinstance(data.get(k), str) or not data[k] or len(data[k]) > 256 for k in ('version', 'modelName'))):
                 raise CenterUnavailable()
+        if formal_tool(resource_id):
+            check_resource(resource_id, data)
         return data
 
     @staticmethod
-    def _model_binding(run_id, lease_id, attempt, **fields):
+    def _tool_binding(run_id, lease_id, attempt, node_id, operation, parameters, key, *, stopping=False, operation_id=None):
+        from .task_runner import CURRENT_CONTEXT, current_context
+        from .tool_contract import check_resource, check_parameters
+        context = CURRENT_CONTEXT.get() if stopping else current_context()
+        if context is None:
+            raise WorkerError('RESOURCE_UNAVAILABLE', '工具HTTP缺少已验证中心运行')
+        task = context.assignment
+        from .node_context import CURRENT_ITERATION_ID
+        if (task.run_id != run_id or task.lease_id != lease_id or type(attempt) is not int or task.attempt != attempt
+                or task.execution_codec != 'paiflow.execution.v4'
+                or CURRENT_ITERATION_ID.get() is not None or not isinstance(node_id, str) or node_id not in context.node_ids
+                or not node_id.startswith('plugin::') or operation not in {'tools.read', 'tools.invoke'}
+                or operation not in task.effect_policy['allowedOperations']
+                or task.effect_policy['mode'] == 'read_only' and operation != 'tools.read'
+                or not isinstance(key, str) or not 1 <= len(key) <= 4096
+                or any(ord(c) < 32 or 127 <= ord(c) <= 159 for c in key)
+                or not isinstance(parameters, dict)
+                or set(parameters) != {'kind', 'provider', 'resourceId', 'resourceVersion', 'legacyPayload', 'resourceBindings'}
+                or not isinstance(parameters.get('resourceId'), str)):
+            raise WorkerError('TOOL_POLICY_DENIED', '工具请求不属于本次节点/租约/操作策略')
+        descriptor = task.resources.get(parameters['resourceId'])
+        check_resource(parameters['resourceId'], descriptor)
+        node = next(n for n in task.dsl['nodes'] if n['id'] == node_id)
+        fixed = node['data'].get('nodeParam', {})
+        if (node['data'].get('nodeMeta', {}).get('nodeType') != 'plugin'
+                or fixed.get('toolResourceId') != parameters['resourceId']
+                or fixed.get('pluginId') != descriptor['pluginId'] or fixed.get('operationId') != descriptor['operationId']
+                or fixed.get('version', 'V1.0') != descriptor['legacyVersion'] or fixed.get('appId') != descriptor['legacyAppId']
+                or parameters['kind'] != 'tool' or parameters['provider'] != 'spark-link'
+                or parameters['resourceVersion'] != descriptor['version'] or parameters['resourceBindings'] != {}
+                or (operation == 'tools.read') != (descriptor['effectClass'] == 'read')):
+            raise WorkerError('VERSION_CONFLICT', '工具调用与节点固定资源/版本不一致')
+        check_parameters(parameters, descriptor)
+        expected = {'runId': run_id, 'leaseId': lease_id, 'attempt': attempt, 'workflowVersionId': task.version_id,
+            'dslHash': task.hash, 'nodeId': node_id, 'iterationId': None, 'idempotencyKey': key, 'operation': operation,
+            'kind': 'tool', 'provider': 'spark-link', 'resourceId': parameters['resourceId'],
+            'resourceVersion': parameters['resourceVersion'], 'resourceBindings': {}}
+        if operation_id is not None:
+            from .tool_contract import OPERATION_PATTERN
+            if not isinstance(operation_id, str) or not OPERATION_PATTERN.fullmatch(operation_id):
+                raise WorkerError('DSL_INVALID', '工具操作标识无效')
+            expected['operationId'] = operation_id
+        return expected
+
+    async def tool_status(self, run_id, lease_id, attempt, operation_id, *, node_id, operation, parameters, key):
+        from .tool_contract import check_ack
+        expected = self._tool_binding(run_id, lease_id, attempt, node_id, operation, parameters, key, operation_id=operation_id)
+        data = await self._request('POST', self._run(run_id) + '/operations/' + self._id(operation_id) + '/status',
+            {'leaseId': lease_id, 'attempt': attempt}, strict_json=True)
+        return check_ack(data, expected)
+
+    async def cancel_tool_operation(self, run_id, lease_id, attempt, operation_id, *, node_id, operation, parameters, key):
+        from .tool_contract import check_ack
+        expected = self._tool_binding(run_id, lease_id, attempt, node_id, operation, parameters, key,
+            stopping=True, operation_id=operation_id)
+        data = await self._request('POST', self._run(run_id) + '/operations/' + self._id(operation_id) + '/cancel',
+            {'leaseId': lease_id, 'attempt': attempt}, strict_json=True)
+        return check_ack(data, expected, cancel=True)
+
+    @staticmethod
+    def _model_binding(run_id, lease_id, attempt, *, stopping=False, **fields):
         # 绑定取自本次已验证运行，客户端不建立第二套操作缓存或许可。
-        from .task_runner import CURRENT_CONTEXT
-        context = CURRENT_CONTEXT.get()
+        from .task_runner import CURRENT_CONTEXT, current_context
+        context = CURRENT_CONTEXT.get() if stopping else current_context()
         if context is None:
             raise WorkerError('RESOURCE_UNAVAILABLE', '模型HTTP须在已验证中心运行内调用')
         task = context.assignment
         if task.run_id != run_id or task.lease_id != lease_id or type(attempt) is not int or task.attempt != attempt:
             raise WorkerError('VERSION_CONFLICT', '模型请求与当前运行租约不一致')
+        from .node_context import CURRENT_ITERATION_ID
         return {'runId': run_id, 'leaseId': lease_id, 'attempt': attempt,
                 'workflowVersionId': task.version_id, 'dslHash': task.hash,
-                'iterationId': None, 'provider': 'openai', **fields}
+                'iterationId': CURRENT_ITERATION_ID.get(), **fields}
+
+    @staticmethod
+    def _check_model_resource(data, *, stopping=False):
+        from .task_runner import CURRENT_CONTEXT, current_context
+        # 停止回读不能被此前粘性失败阻断；仍完整核对本租约/节点/资源版本，不授权新操作。
+        context = CURRENT_CONTEXT.get() if stopping else current_context()
+        if context is None:
+            raise WorkerError('RESOURCE_UNAVAILABLE', '模型回执缺少当前运行上下文')
+        fixed = context.assignment.resources.get(data.get('resourceId'))
+        if (data.get('nodeId') not in context.node_ids or not isinstance(fixed, dict)
+                or fixed.get('kind') != 'model' or fixed.get('enabled') is not True
+                or fixed.get('provider') != data.get('provider') or fixed.get('version') != data.get('resourceVersion')):
+            raise WorkerError('VERSION_CONFLICT', '模型回执不属于当前节点/固定资源版本')
+        node = next(item for item in context.assignment.dsl['nodes'] if item['id'] == data['nodeId'])
+        node_parameters = node['data'].get('nodeParam', {})
+        if (node_parameters.get('modelResourceId') != data.get('resourceId')
+                or node_parameters.get('source', 'xinghuo') != data.get('provider')
+                or node_parameters.get('domain') != fixed.get('modelName')):
+            raise WorkerError('VERSION_CONFLICT', '模型回执资源不属于该节点的固定引用')
 
     async def operation(self, run_id: str, lease_id: str, attempt: int, node_id: str,
                         operation: str, parameters: dict[str, Any], idempotency_key: str) -> Any:
@@ -159,14 +254,35 @@ class CenterClient:
         body = {
             "leaseId": lease_id, "attempt": attempt, "nodeId": node_id,
             "operation": operation, "parameters": parameters, "idempotencyKey": idempotency_key}
+        from .tool_contract import formal_tool, check_ack
+        if operation in {'tools.read', 'tools.invoke'} and isinstance(parameters, dict) and formal_tool(parameters.get('resourceId')):
+            expected = self._tool_binding(run_id, lease_id, attempt, node_id, operation, parameters, idempotency_key)
+            body['iterationId'] = None
+            from .events import _validate_payload
+            _validate_payload(body)
+            if len(json_bytes(body)) > 2 * 1024 * 1024:
+                raise WorkerError('DSL_INVALID', '工具操作请求超过正式契约预算')
+            data = await self._request('POST', self._run(run_id) + '/operations', body, strict_json=True)
+            return check_ack(data, expected)
         if operation != 'model.invoke':
             return await self._request('POST', self._run(run_id) + '/operations', body)
         from .node_context import CURRENT_ITERATION_ID
-        if (CURRENT_ITERATION_ID.get() is not None or not isinstance(node_id, str)
-                or not node_id.startswith('spark-llm::') or not node_id[len('spark-llm::'):]
-                or not isinstance(parameters, dict) or parameters.get('provider') != 'openai' or parameters.get('mode') != 'chat'):
-            raise WorkerError('ENGINE_UNSUPPORTED', '正式模型HTTP仅接顶层普通LLM/OpenAI chat')
+        from .task_runner import current_context
+        context = current_context()
+        kind = node_id.split('::', 1)[0] if isinstance(node_id, str) else None
+        dynamic = kind in {'extractor-parameter', 'decision-making', 'question-answer'}
+        if (kind != 'spark-llm' and not (dynamic and context.assignment.execution_codec == 'paiflow.execution.v4')
+                or CURRENT_ITERATION_ID.get() is not None
+                or not isinstance(parameters, dict) or parameters.get('provider') not in {'openai', 'xinghuo'}
+                or parameters.get('mode') not in ({'chat', 'function_call'} if dynamic else {'chat'})):
+            raise WorkerError('ENGINE_UNSUPPORTED', '模型类型或原调用模式不受支持')
         required = {'resourceId', 'resourceVersion', 'provider', 'modelName', 'mode', 'messages', 'options'}
+        if parameters['mode'] == 'function_call':
+            required |= {'functions'}
+        if kind == 'question-answer':
+            required |= {'checkpointId'}
+            if not isinstance(parameters.get('checkpointId'), str) or not 1 <= len(parameters['checkpointId']) <= 256:
+                raise WorkerError('DSL_INVALID', '动态问答必须绑定中心已消费检查点')
         if (set(parameters) - required - {'timeoutSeconds'} or not required <= set(parameters)
                 or any(not isinstance(parameters[k], str) or not parameters[k] or len(parameters[k]) > 256
                        for k in ('resourceId', 'resourceVersion', 'modelName'))
@@ -174,12 +290,23 @@ class CenterClient:
                 or any(ord(c) < 32 or 127 <= ord(c) <= 159 for c in idempotency_key)):
             raise WorkerError('DSL_INVALID', '模型请求字段/幂等键无效')
         messages = parameters['messages']
+        from .python_history import check_model_messages
+        check_model_messages(context, node_id, messages)
         if (not isinstance(messages, list) or not messages or any(not isinstance(m, dict)
-                or set(m) != {'role', 'content'} or m['role'] not in {'user', 'system'} or not isinstance(m['content'], str)
-                for m in messages)):
-            raise WorkerError('ENGINE_UNSUPPORTED', '正式模型HTTP尚未接历史或多模态消息')
+                or set(m) != {'role', 'content'} or m['role'] not in {'user', 'system'}
+                or not isinstance(m['content'], str) for m in messages)):
+            raise WorkerError('DSL_INVALID', '原模型消息结构无效')
+        if parameters['mode'] == 'function_call' and (parameters['provider'] != 'xinghuo'
+                or not isinstance(parameters.get('functions'), list) or not parameters['functions']
+                or any(not isinstance(function, dict) or set(function) != {'name', 'description', 'parameters'}
+                       or not isinstance(function['name'], str) or not isinstance(function['description'], str)
+                       or not isinstance(function['parameters'], dict) for function in parameters['functions'])):
+            raise WorkerError('ENGINE_UNSUPPORTED', '原 FunctionCall 必须使用 Spark 函数声明')
         options = parameters['options']
-        if (not isinstance(options, dict) or set(options) != {'temperature', 'maxTokens', 'topK', 'patchId', 'respFormat', 'searchDisable', 'extraParams'}
+        option_keys = {'temperature', 'maxTokens', 'topK', 'patchId', 'respFormat', 'searchDisable', 'extraParams'}
+        if parameters['mode'] == 'function_call':
+            option_keys |= {'questionType', 'functionChoice'}
+        if (not isinstance(options, dict) or set(options) != option_keys
                 or type(options['temperature']) not in (int, float) or not 0 < options['temperature'] <= 1
                 or type(options['maxTokens']) is not int or options['maxTokens'] < 1
                 or type(options['topK']) is not int or type(options['respFormat']) is not int or options['respFormat'] not in (0, 1, 2)
@@ -193,13 +320,38 @@ class CenterClient:
             'audio', 'modalities', 'prediction', 'service_tier'}
         if set(extra) - allowed or 'n' in extra and (type(extra['n']) is not int or extra['n'] != 1):
             raise WorkerError('TOOL_POLICY_DENIED', '模型额外参数超出原SDK受控字段范围')
-        body['iterationId'] = None
+        body['iterationId'] = CURRENT_ITERATION_ID.get()
         if len(json_bytes(body)) > 2 * 1024 * 1024:
             raise WorkerError('DSL_INVALID', '模型完整请求超出2MiB UTF8预算')
         expected = self._model_binding(run_id, lease_id, attempt, nodeId=node_id,
-            resourceId=parameters['resourceId'], resourceVersion=parameters['resourceVersion'])
+            resourceId=parameters['resourceId'], resourceVersion=parameters['resourceVersion'], provider=parameters['provider'])
+        self._check_model_resource(expected)
+        node = next(item for item in context.assignment.dsl['nodes'] if item['id'] == node_id)
+        node_parameters = node['data'].get('nodeParam', {})
+        fixed = context.assignment.resources[parameters['resourceId']]
+        if (node_parameters.get('modelResourceId') != parameters['resourceId']
+                or node_parameters.get('source', 'xinghuo') != parameters['provider']
+                or node_parameters.get('domain') != parameters['modelName']
+                or fixed.get('modelName') != parameters['modelName']):
+            raise WorkerError('VERSION_CONFLICT', '模型请求不属于固定节点和资源')
+        if dynamic:
+            expected_mode = 'chat'
+            if kind == 'extractor-parameter' and node_parameters.get('reasonMode', 0) != 1:
+                expected_mode = 'function_call'
+            elif kind == 'decision-making' and node_parameters.get('reasonMode', 0) != 1 and node_parameters.get('useFunctionCall', True):
+                expected_mode = 'function_call'
+            elif kind == 'question-answer' and not (node_parameters.get('answerType') == 'direct'
+                    and node_parameters.get('directAnswer', {}).get('handleResponse') is True):
+                raise WorkerError('TOOL_POLICY_DENIED', '静态问答不能申请模型操作')
+            if parameters['mode'] != expected_mode or expected_mode not in fixed.get('capabilities', []):
+                raise WorkerError('TOOL_POLICY_DENIED', '原节点调用模式不属于固定模型能力')
+            if expected_mode == 'function_call' and (options.get('questionType') != node_parameters.get('question_type', 'not_knowledge')
+                    or options.get('functionChoice') != ('extractor_parameter' if kind == 'extractor-parameter' else '')
+                    or options['extraParams'] != {} or options['searchDisable'] is not True or 'timeoutSeconds' in parameters):
+                raise WorkerError('VERSION_CONFLICT', '原函数调用选项与固定节点不一致')
         data = await self._request('POST', self._run(run_id) + '/operations', body, strict_json=True)
         check_binding(data, expected, {'state'})
+        self._check_model_resource(data)
         if data['state'] != 'RUNNING':
             raise CenterUnavailable()
         return data
@@ -211,17 +363,15 @@ class CenterClient:
         data = await self._request("POST", self._run(run_id) + "/operations/" + self._id(operation_id) + "/frames",
             {"leaseId": lease_id, "attempt": attempt, "afterCursor": after_cursor, "limit": limit}, strict_json=True)
         check_frames(data, expected, after_cursor, limit)
-        if not data['nodeId'].startswith('spark-llm::'):
-            raise CenterUnavailable()
+        self._check_model_resource(data)
         return data
 
     async def cancel_model_operation(self, run_id, lease_id, attempt, operation_id):
-        expected = self._model_binding(run_id, lease_id, attempt, operationId=operation_id)
+        expected = self._model_binding(run_id, lease_id, attempt, stopping=True, operationId=operation_id)
         data = await self._request('POST', self._run(run_id) + '/operations/' + self._id(operation_id) + '/cancel',
             {'leaseId': lease_id, 'attempt': attempt}, strict_json=True)
         check_cancel(data, expected)
-        if not data['nodeId'].startswith('spark-llm::'):
-            raise CenterUnavailable()
+        self._check_model_resource(data, stopping=True)
         return data
 
     async def legacy_frames(self, run_id, lease_id, attempt, operation_id, after_cursor, limit=64):
@@ -340,6 +490,24 @@ class CenterClient:
         if (not isinstance(data, dict) or data.get("stored") is not True
                 or type(data.get("revision")) is not int or data["revision"] < 1):
             raise CenterUnavailable()
+        return data
+
+    async def read_history(self, run_id, lease_id, attempt):
+        """中心给出当前运行的正式会话历史，Worker 不接收前端自报归属。"""
+        data = await self._request("POST", self._run(run_id) + "/history/read",
+                                   {"leaseId": lease_id, "attempt": attempt}, strict_json=True)
+        if (not isinstance(data, dict) or set(data) != {"history", "historyV2"}
+                or not isinstance(data['history'], list) or not isinstance(data['historyV2'], list)):
+            raise CenterUnavailable()
+        return data
+
+    async def read_python_history(self, run_id, lease_id, attempt):
+        """读取固定运行的Python旧历史快照；完整作用域/hash由RunContext消费者核对。"""
+        data = await self._request('POST', self._run(run_id) + '/history/python/read',
+                                   {'leaseId': lease_id, 'attempt': attempt}, strict_json=True)
+        from .python_history import ACK_KEYS, MAX_HISTORY_BYTES, canonical
+        if not isinstance(data, dict) or set(data) != ACK_KEYS or len(canonical(data)) > MAX_HISTORY_BYTES:
+            raise WorkerError('HISTORY_PROTOCOL_INVALID', 'Python旧历史回执字段或字节预算无效')
         return data
 
     async def variables(self, run_id, lease_id, attempt, operation, *, node_id, **values):

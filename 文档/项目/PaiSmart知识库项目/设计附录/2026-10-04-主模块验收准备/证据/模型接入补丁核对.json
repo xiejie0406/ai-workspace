@@ -1,0 +1,548 @@
+{
+  "checkedAt": "2026-10-04T21:50:18.479493+08:00",
+  "scope": "候选patch及接入方案的离线技术核对",
+  "patch": "工具/PaiSmart模型接入.patch",
+  "patchSha256": "8159b081b63234da7f2261b5e5a9e4cbb20b6bc132bba7a192b99b0e4e49763a",
+  "gitApplyCheck": "通过，未执行git apply应用",
+  "candidateFileCount": 10,
+  "existingSourceBaseline": [
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java",
+      "existsInCurrentSource": true,
+      "sha256": "d2ec65706798541b22f1a3fbebc3f78d1eb0b6b143f79c9373d44df9d624cda8"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/Sub2ApiTextAdapter.java",
+      "existsInCurrentSource": true,
+      "sha256": "a5860aba5d6a01c32ca927c07ff3ecc82a7100291340fa120898b70c0c36fed5"
+    },
+    {
+      "path": "frontend/admin-web/src/types/paismart/index.ts",
+      "existsInCurrentSource": true,
+      "sha256": "76ac1eb826c090050ed4349fcce415e4f6245ec600ff47263046f4fb00f63be4"
+    },
+    {
+      "path": "frontend/admin-web/src/views/paismart/operations/providers/index.vue",
+      "existsInCurrentSource": true,
+      "sha256": "cefac6105cf95a83fee743c042cc418ae48bc5058f98d460d5d4d1412a0672ad"
+    },
+    {
+      "path": "contracts/paismart/knowledge-v1.openapi.yaml",
+      "existsInCurrentSource": true,
+      "sha256": "a7b9c6c0cba0b3714b6f5c5d3b708f2a46f31b0e9673deedeb4165224a08b0df"
+    },
+    {
+      "path": "scripts/paismart/启动知识库本机环境.ps1",
+      "existsInCurrentSource": true,
+      "sha256": "1dfbbba59f2b32ea65e9ed0aa2425c38965385f929822230aabde1255a1a4a57"
+    },
+    {
+      "path": "scripts/paismart/录入模型密钥.ps1",
+      "existsInCurrentSource": true,
+      "sha256": "0a99f884b3589693648a87fb4c7f0c2e2e48dadb9709b90cfd592743ba81842e"
+    },
+    {
+      "path": "scripts/paismart/模型接入配置.json",
+      "existsInCurrentSource": false,
+      "sha256": null
+    },
+    {
+      "path": "scripts/paismart/准备模型接入.ps1",
+      "existsInCurrentSource": false,
+      "sha256": null
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/infrastructure/intelligence/Sub2ApiReasoningEffortTest.java",
+      "existsInCurrentSource": false,
+      "sha256": null
+    }
+  ],
+  "javaTargetedCompile": {
+    "result": "通过",
+    "release": 17,
+    "classes": [
+      "ProviderService",
+      "Sub2ApiTextAdapter"
+    ],
+    "librarySource": ".runtime/paismart/startup-fix/lib"
+  },
+  "javaOfflineAssertions": {
+    "result": "通过",
+    "count": 16,
+    "includesCompatibilityFingerprintInvalidation": true,
+    "databaseCalls": 0,
+    "modelCalls": 0
+  },
+  "powerShellAst": {
+    "scriptCount": 3,
+    "errorCount": 0
+  },
+  "mockConfigurationApi": {
+    "planNoApi": true,
+    "createTwoCandidates": true,
+    "candidatesInactive": true,
+    "reuseWithoutAdditionalWrite": true,
+    "conflictRejectedBeforeWrite": true,
+    "nestedSecretRejected": true,
+    "noModelOrQuotaRequests": true,
+    "realApiCalls": 0
+  },
+  "vueSfcCheck": {
+    "parse": "通过",
+    "script": "通过",
+    "template": "通过",
+    "fullTypecheckExecuted": false
+  },
+  "openApiYamlParse": "通过；reasoningEffort枚举为low",
+  "fullKeyInPatch": false,
+  "independentReview": "两项脚本问题已修复，定向复核无新的阻断问题；仅技术方案与候选代码范围",
+  "patchAppliedToSource": false,
+  "runtimeArtifactsUpdated": false,
+  "mavenTestsExecuted": false,
+  "realModelCallsExecuted": false,
+  "businessConfigurationWritten": false,
+  "businessAcceptanceExecuted": false,
+  "currentImplementationPatch": {
+    "checkedAt": "2026-10-04T23:18:30.447368+08:00",
+    "fileCount": 24,
+    "preliminary": false,
+    "patchUpdated": true,
+    "patchSHA256": "2dec290ff813a7019b33fa5bba5a69817d98bf16e810e0c157b94129337cc6dd",
+    "patchBytes": 306490,
+    "scope": "既有dirty基线与当前源码差异；私有无Git仓库目录正反向检查和实际应用；不改工作源码或Git索引",
+    "checks": [
+      {
+        "mode": "--check",
+        "fixture": "before",
+        "exitCode": 0,
+        "expectedSuccess": true,
+        "scenario": null
+      },
+      {
+        "mode": "--reverse --check",
+        "fixture": "after",
+        "exitCode": 0,
+        "expectedSuccess": true,
+        "scenario": null
+      },
+      {
+        "mode": "--check",
+        "fixture": "after",
+        "exitCode": 1,
+        "expectedSuccess": false,
+        "scenario": "已修改源拒绝重复正向应用"
+      },
+      {
+        "mode": "--reverse --check",
+        "fixture": "before",
+        "exitCode": 1,
+        "expectedSuccess": false,
+        "scenario": "原基线拒绝未应用即反向恢复"
+      },
+      {
+        "mode": "--check",
+        "fixture": "before",
+        "exitCode": 1,
+        "expectedSuccess": false,
+        "scenario": "关键JOIN前像被改动时拒绝套用"
+      },
+      {
+        "mode": "",
+        "fixture": "before",
+        "exitCode": 0,
+        "expectedSuccess": true,
+        "scenario": null
+      },
+      {
+        "mode": "--reverse",
+        "fixture": "after",
+        "exitCode": 0,
+        "expectedSuccess": true,
+        "scenario": null
+      }
+    ],
+    "forwardContentExact": true,
+    "reverseContentExact": true,
+    "workingSourceUnchanged": true,
+    "inlineKeyPresent": false,
+    "previous21FilePatchSHA256": "33494af8200cd3f8250d9bef041410a7f35d5737dfb18b41933f13d3a218c672",
+    "previous21FileBaselinesPreserved": true,
+    "previous21FileUnchangedPatchSegments": 20,
+    "existingFilesRefreshed": [
+      "frontend/admin-web/src/types/paismart/index.ts"
+    ],
+    "existingFileRefreshReason": "root确认索引计数语义修复；既有类型仅增加processedCount可选字段，沿用原dirty基线刷新该文件差异",
+    "uniquePatchWrittenAndReadBack": true,
+    "artifactCorrection": {
+      "observedPublic16PatchSHA256": "336b1e992b7097acf51bfd4897d4ff51533b7ed35254621a4dbedab809552c29",
+      "recoveredVerified21PatchSHA256": "33494af8200cd3f8250d9bef041410a7f35d5737dfb18b41933f13d3a218c672",
+      "cause": "此前生成器target变量被fixture循环复用，21/初次24内存与隔离检查真实通过，但写入了私有fixture末项而非唯一patch；证据中已更新断言不准确",
+      "fix": "采用独立patch_target并对唯一文件实际写后回读bytes、SHA和24diff条目，修正同一证据",
+      "method": "原21文件dirty基线与既有精确source fixture重建，强匹配原验证SHA；不把公开16文件作为21基线",
+      "authorizedBy": "root授权恢复已验证21内容并扩展24"
+    },
+    "files": [
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java",
+        "new": false,
+        "baselineSHA256": "b765e34408ec647f33c21a8fab4dd816624ba158cb44c94f9bc6ba4498b04303",
+        "currentSHA256": "3010f667113a496fe8e497c46f46570182b1cf53ed689710dbf9f14bfe39e82a"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/Sub2ApiTextAdapter.java",
+        "new": false,
+        "baselineSHA256": "0f21180c285d72ce3527ce3d21bb1ecb8784be9fbbd7cccb4a4420a84bece50e",
+        "currentSHA256": "c8910375a6d10b78036932badde8afd2fbe6b7b2915f629654334029f5dad5f5"
+      },
+      {
+        "path": "frontend/admin-web/src/types/paismart/index.ts",
+        "new": false,
+        "baselineSHA256": "bc6488199af842e9d08a367fd4eb2886e5553411db75cb64649c3d7775a74873",
+        "currentSHA256": "103afd98c76e4392dac37ed20d02b427490f687f166530ac69413f3ae91034b6"
+      },
+      {
+        "path": "frontend/admin-web/src/views/paismart/operations/providers/index.vue",
+        "new": false,
+        "baselineSHA256": "25769565b6aecba247727336024a8cb5aacf692d5aa2f4fa9b5a3153072aa7f4",
+        "currentSHA256": "72d99dc097665e66cc5b053400a5fc1d3aaee2401c2f1fb6a71ecba6550a8d36"
+      },
+      {
+        "path": "contracts/paismart/knowledge-v1.openapi.yaml",
+        "new": false,
+        "baselineSHA256": "fad2fb0375adc4ba2aef7c6c9c4ac681de83cb1564b337f57845cc7a206739eb",
+        "currentSHA256": "7b6e7ffa2b0169953a3a0c3a4b76329f7e693fff87a495180528f4556c6dbd99"
+      },
+      {
+        "path": "scripts/paismart/启动知识库本机环境.ps1",
+        "new": false,
+        "baselineSHA256": "1c6e65c6d6c10441e25a2b1ad2eb35bcc26c360d974fec6170d4c60396916dc1",
+        "currentSHA256": "e7911039ed87836eba76b0d7bfc5574f61cd34f6ec580defe85ee8ac1f1e3c64"
+      },
+      {
+        "path": "scripts/paismart/录入模型密钥.ps1",
+        "new": false,
+        "baselineSHA256": "a619ea043e29f08dae8ac9519de85c1eae498f8992b0c4ab83784d69ce9e5f0c",
+        "currentSHA256": "3bd20f77969671585dd37507b307ff989b09000f8ccee8c0e5a074ee94ee5814"
+      },
+      {
+        "path": "scripts/paismart/模型接入配置.json",
+        "new": true,
+        "baselineSHA256": null,
+        "currentSHA256": "0bdee21ddd37f6c14ba6ea66f171c9327ddcb49f661e6311dfc87f9ebb232061"
+      },
+      {
+        "path": "scripts/paismart/准备模型接入.ps1",
+        "new": true,
+        "baselineSHA256": null,
+        "currentSHA256": "957819fe7439056d31549092823b2926aee96967dc7ffed2a2a8f4bbaeb93497"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/infrastructure/intelligence/Sub2ApiReasoningEffortTest.java",
+        "new": true,
+        "baselineSHA256": null,
+        "currentSHA256": "39aef0715b2f4ce2b4dfb2520de3138022426ecf9fa6cac90a9d37497fa12d9b"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/intelligence/ProviderInputBoundaryTest.java",
+        "new": false,
+        "baselineSHA256": "70e0a0cf5225f32815d2ca5d21b4d6c0fd0cc7dd67650993cd7c6b63a7e0feef",
+        "currentSHA256": "a91a07232dd3dffdb63a2cee5ab4093988e556cd791df4f8af50672785f7b631"
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/paismart/provider-reasoning-config.spec.ts",
+        "new": true,
+        "baselineSHA256": null,
+        "currentSHA256": "0a3c6dfd08b06753b4a5617e04ff40f6c807255d6ced6b231eb979a476792edd"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java",
+        "new": false,
+        "baselineSHA256": "c40d90b924db5fc0cc3cbf2b4c122ea3983a4ccb749d6fe213003de58406b096",
+        "currentSHA256": "cd0760c3eb6f12a6f7e263293a37183a91f7a44919b6fb857c4930a185254eca"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/api/UsageRecordsBoundaryTest.java",
+        "new": true,
+        "baselineSHA256": null,
+        "currentSHA256": "9a255188a0236c5336ffa729e224fbdecc86f8b9728be8206eb3cb12c4bea19e"
+      },
+      {
+        "path": "frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue",
+        "new": false,
+        "baselineSHA256": "b218ffd3d6d13f7aef289443feebf71f3894a79152a047ee8f58c134b10dacee",
+        "currentSHA256": "6603cb10693247b1b67b5c2a15c48f86ac58eb9956911c37ba15fcce801a85b1"
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/paismart/document-preview-routing.spec.ts",
+        "new": true,
+        "baselineSHA256": null,
+        "currentSHA256": "a6e242e25788aefedaecf62fccf3e05e1cd446baf4195f5fe1384d9fe65b2782"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+        "new": false,
+        "baselineSHA256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0",
+        "currentSHA256": "026fcdb06eaf829e77275ae7949ebca66bab164bd1b8f4fe2492c71642c2487d"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+        "new": false,
+        "baselineSHA256": "9d37a9d29d261b1e3c0909613ad85659dd12f028a8853bfe39d6f344529f60f8",
+        "currentSHA256": "5cf9a560c136aa48de1661e1bf1f91a33479b481465ff7a4b5b58cb4286ba051"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+        "new": false,
+        "baselineSHA256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705",
+        "currentSHA256": "63ce314a8bc2f93a1e1e761aa7d78e518875c489532262cdcda4726003a742e0"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/intelligence/GovernanceMigrationBoundaryTest.java",
+        "new": false,
+        "baselineSHA256": "24e33caf55886621ace264a5dc748bf99cd43e74f44a879413812103d325f1ff",
+        "currentSHA256": "163cc82e157aeb1f8d5fa5429393340553154937a6fab979a664d0ebcf1d7a88"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/intelligence/SearchBoundaryTest.java",
+        "new": false,
+        "baselineSHA256": "340b1fa657c1e5257e28d19c429e9e49abbd994beb46261c542b3d101a56d57c",
+        "currentSHA256": "c1155dee894f0a45df7176fd8b3bc5424be95181b32c7c9f07444f3c4ae07ce3"
+      },
+      {
+        "path": "frontend/admin-web/src/api/paismart/adapters.ts",
+        "new": false,
+        "baselineSHA256": "f2db8909f4415d58c1fa7fc16159ea437ec3770a52da8be9c1d4160457dc4f67",
+        "currentSHA256": "238922645d53bd1d31052f6cf0740a3638b2018557941b06f7881d797f839903"
+      },
+      {
+        "path": "frontend/admin-web/src/views/paismart/governance/indexes/index.vue",
+        "new": false,
+        "baselineSHA256": "924a0956525a8bc8468d32b954a07678d5d3603d7ffad90a07849f7d6ee6854d",
+        "currentSHA256": "965552212e8a37d87396fa9c750c5326eb4df122ad63ae1f4fe9522b36de7392"
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/paismart/protocol-boundaries.spec.ts",
+        "new": false,
+        "baselineSHA256": "a1f6328bba4894d45e37d12a3148097c163b04187677055bde628b5907d27c2f",
+        "currentSHA256": "f783248ae2f8f7d4f8e0f4e2699805221ccfb40a5d05cbee53bbe2077f61a6ed"
+      }
+    ],
+    "previewBaseline": {
+      "source": "前端修改者确认的精确三处guard preimage，LF归一化；非GitHEAD",
+      "existingAuditSourceSnapshotSHA256": "6603cb10693247b1b67b5c2a15c48f86ac58eb9956911c37ba15fcce801a85b1",
+      "normalizedPreimageSHA256": "b218ffd3d6d13f7aef289443feebf71f3894a79152a047ee8f58c134b10dacee",
+      "originalRawBytesRecovered": false,
+      "limitation": "既有审查源快照6603与当前已修复文件原始Hash相同，采样发生在并行修复落盘后，不能当作修改前raw基线。未保存修改前原始字节；该文件反向目标为执行者确认的三处修改前LF归一化语义基线，不声称原始字节恢复。"
+    },
+    "usageBaseline": {
+      "source": ".runtime/paismart-sub2api-20261004-def81fe34bf5/backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java",
+      "crossCheckedAgainst": ".runtime/paismart-logic-20261003-373ca66f2b0a/backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java",
+      "twoSourcesByteEqual": true
+    },
+    "joinRepairBaselines": [
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+        "baselineSHA256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0",
+        "source": "执行者交接的精确逆变更，仅在私有目录重建，保留其他dirty内容；未使用GitHEAD",
+        "previouslyObservedRawSHA256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0",
+        "previouslyObservedRawHashMatched": true,
+        "crossChecks": [
+          {
+            "source": ".runtime/paismart-sub2api-20261004-def81fe34bf5/backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+            "sha256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0",
+            "byteEqual": true,
+            "normalizedLFEqual": true
+          },
+          {
+            "source": ".runtime/paismart-logic-20261003-373ca66f2b0a/backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+            "sha256": "8416e7a47ea659a203182e4e20f20e7ff502b45e36e14edee56895d8ba76fd0e",
+            "byteEqual": false,
+            "normalizedLFEqual": false
+          }
+        ],
+        "limitation": null
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+        "baselineSHA256": "9d37a9d29d261b1e3c0909613ad85659dd12f028a8853bfe39d6f344529f60f8",
+        "source": "执行者交接的精确逆变更，仅在私有目录重建，保留其他dirty内容；未使用GitHEAD",
+        "previouslyObservedRawSHA256": null,
+        "previouslyObservedRawHashMatched": null,
+        "crossChecks": [
+          {
+            "source": ".runtime/paismart-sub2api-20261004-def81fe34bf5/backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+            "sha256": "9d37a9d29d261b1e3c0909613ad85659dd12f028a8853bfe39d6f344529f60f8",
+            "byteEqual": true,
+            "normalizedLFEqual": true
+          },
+          {
+            "source": ".runtime/paismart-logic-20261003-373ca66f2b0a/backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+            "sha256": "66ef17f0f3ce5c17f9e74d1d804c6d615bc0580a7142c195165a2a10a22fc024",
+            "byteEqual": false,
+            "normalizedLFEqual": false
+          }
+        ],
+        "limitation": "未保存实施前原始字节或事前SHA，不能声称原raw恢复；反向验证目标为执行者说明的精确逆变更preimage"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+        "baselineSHA256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705",
+        "source": "执行者交接的精确逆变更，仅在私有目录重建，保留其他dirty内容；未使用GitHEAD",
+        "previouslyObservedRawSHA256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705",
+        "previouslyObservedRawHashMatched": true,
+        "crossChecks": [
+          {
+            "source": ".runtime/paismart-sub2api-20261004-def81fe34bf5/backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+            "sha256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705",
+            "byteEqual": true,
+            "normalizedLFEqual": true
+          },
+          {
+            "source": ".runtime/paismart-logic-20261003-373ca66f2b0a/backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+            "sha256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705",
+            "byteEqual": true,
+            "normalizedLFEqual": true
+          }
+        ],
+        "limitation": null,
+        "handoffCorrection": "执行者核对原工具记录确认64hex；初次交接多抄一个a的65hex为抄录笔误，未作为验证依据"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/intelligence/GovernanceMigrationBoundaryTest.java",
+        "baselineSHA256": "24e33caf55886621ace264a5dc748bf99cd43e74f44a879413812103d325f1ff",
+        "source": "执行者交接的精确逆变更，仅在私有目录重建，保留其他dirty内容；未使用GitHEAD",
+        "previouslyObservedRawSHA256": null,
+        "previouslyObservedRawHashMatched": null,
+        "crossChecks": [],
+        "limitation": "未保存实施前原始字节或事前SHA，不能声称原raw恢复；反向验证目标为执行者说明的精确逆变更preimage"
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-paismart/src/test/java/com/ruoyi/paismart/application/intelligence/SearchBoundaryTest.java",
+        "baselineSHA256": "340b1fa657c1e5257e28d19c429e9e49abbd994beb46261c542b3d101a56d57c",
+        "source": "执行者交接的精确逆变更，仅在私有目录重建，保留其他dirty内容；未使用GitHEAD",
+        "previouslyObservedRawSHA256": null,
+        "previouslyObservedRawHashMatched": null,
+        "crossChecks": [],
+        "limitation": "未保存实施前原始字节或事前SHA，不能声称原raw恢复；反向验证目标为执行者说明的精确逆变更preimage"
+      }
+    ],
+    "backendArtifactSHA256": "7ad566ef2da2039736deb23b5a484a3dcb10d4422553fb0d1bdbe930b6c5578c",
+    "backendBuildEvidence": {
+      "source": ".runtime/paismart/model-integration-implementation/backend-check/identifier-join-maven.log",
+      "observedSummary": "Tests run: 52, Failures: 0, Errors: 0, Skipped: 0; BUILD SUCCESS",
+      "jarHashIndependentlyRechecked": true,
+      "scope": "只读核对既有构建日志及产物SHA，没有重新运行Maven或部署/调用模型"
+    },
+    "indexCounterBaselines": [
+      {
+        "path": "frontend/admin-web/src/api/paismart/adapters.ts",
+        "baselineSHA256": "f2db8909f4415d58c1fa7fc16159ea437ec3770a52da8be9c1d4160457dc4f67",
+        "currentSHA256": "238922645d53bd1d31052f6cf0740a3638b2018557941b06f7881d797f839903",
+        "source": "frontend实际写前Get-FileHash与review agent精确逆变更重建bytes强校验一致；不使用GitHEAD",
+        "previouslyObservedRawHashMatched": true
+      },
+      {
+        "path": "frontend/admin-web/src/views/paismart/governance/indexes/index.vue",
+        "baselineSHA256": "924a0956525a8bc8468d32b954a07678d5d3603d7ffad90a07849f7d6ee6854d",
+        "currentSHA256": "965552212e8a37d87396fa9c750c5326eb4df122ad63ae1f4fe9522b36de7392",
+        "source": "frontend实际写前Get-FileHash与review agent精确逆变更重建bytes强校验一致；不使用GitHEAD",
+        "previouslyObservedRawHashMatched": true
+      },
+      {
+        "path": "frontend/admin-web/tests/unit/paismart/protocol-boundaries.spec.ts",
+        "baselineSHA256": "a1f6328bba4894d45e37d12a3148097c163b04187677055bde628b5907d27c2f",
+        "currentSHA256": "f783248ae2f8f7d4f8e0f4e2699805221ccfb40a5d05cbee53bbe2077f61a6ed",
+        "source": "frontend实际写前Get-FileHash与review agent精确逆变更重建bytes强校验一致；不使用GitHEAD",
+        "previouslyObservedRawHashMatched": true
+      }
+    ],
+    "indexCounterReview": {
+      "reviewer": "implement_scripts，未参与业务源码修改",
+      "blockingFindings": [],
+      "conclusion": "后端与契约processedCount为重建进度，界面改为重建已处理文档且解释非实时总量；adapter保留真实字段，不从进度伪造documentCount",
+      "consumerScope": "全src检索，normalizeIndex仅由listIndexes调用，索引计数显示仅治理索引页；原恢复/回滚/重建API和后端进度均未改动",
+      "checks": [
+        "初始processedCount=0保留0且不产生documentCount",
+        "真实documentCount与processedCount同时返回时各自保留",
+        "模型快照、validation、sourceWatermark等原适配保留",
+        "其他21文件原dirty基线SHA全部未变，原20个差异段原bytes保持"
+      ],
+      "independentTest": {
+        "command": "node node_modules/vitest/vitest.mjs run --config vitest.paismart.config.ts tests/unit/paismart/protocol-boundaries.spec.ts --no-file-parallelism --maxWorkers=1",
+        "startedAt": "2026-10-04T23:15:24+08:00",
+        "passed": 12,
+        "failed": 0,
+        "exitCode": 0
+      },
+      "limitation": "本代理没有浏览器、数据库、模型或部署操作；真实界面验证由主对话执行"
+    },
+    "dimensionAlignment": {
+      "checkedAt": "2026-10-05T02:03:28.601106+08:00",
+      "scope": "仅向量表单上限与后台1–8192对齐；其他23个patch片段不变",
+      "checks": [
+        {
+          "fixture": "original-patch",
+          "mode": [
+            "--check"
+          ],
+          "exitCode": 0
+        },
+        {
+          "fixture": "original-patch",
+          "mode": [],
+          "exitCode": 0
+        },
+        {
+          "fixture": "updated-patch",
+          "mode": [
+            "--check"
+          ],
+          "exitCode": 0
+        },
+        {
+          "fixture": "updated-patch",
+          "mode": [],
+          "exitCode": 0
+        },
+        {
+          "fixture": "updated-patch",
+          "mode": [
+            "--reverse",
+            "--check"
+          ],
+          "exitCode": 0
+        },
+        {
+          "fixture": "updated-patch",
+          "mode": [
+            "--reverse"
+          ],
+          "exitCode": 0
+        }
+      ],
+      "unchangedOtherSegments": 23,
+      "workingSourceUnchanged": true,
+      "providerTargetExact": true,
+      "limits": "证明原dirty基线可正反应用及该文件目标准确；其他管理员恢复修改不纳入模型接入patch，真实页面边界尚未验收。"
+    }
+  },
+  "currentScopeAudit": {
+    "checkedAt": "2026-10-05T03:06:16.949559+08:00",
+    "patchSHA256": "2dec290ff813a7019b33fa5bba5a69817d98bf16e810e0c157b94129337cc6dd",
+    "scope": "模型接入专项补丁；不是后续管理员续验全部工作区的完整交付包",
+    "segments": 24,
+    "matchesCurrentSource": 19,
+    "changedSinceSpecialistPatch": 5,
+    "currentConversationFixSegments": 0,
+    "sourceDrift": [
+      "types/paismart/index.ts",
+      "启动知识库本机环境.ps1",
+      "DocumentPreview.vue",
+      "document-preview-routing.spec.ts",
+      "protocol-boundaries.spec.ts"
+    ],
+    "dependencyLimits": "后续启动持久配置依赖公共函数/本机功能配置，上传恢复依赖useChunkUpload，均超出原24段；不能只刷新两个依赖段当可独立应用。",
+    "decision": "保留专项范围及原dirty前像，不机械追加本次会话修复；当前实现查看真实源码和统一技术记录。已实施工作区不重复套用，其他环境不得把此专项patch当当前项目全量迁移包。",
+    "method": "独立智能体以内存逐hunk检查原基线SHA与后像，19匹配/5语义变化；没有Git操作、文件应用或模型调用。"
+  }
+}

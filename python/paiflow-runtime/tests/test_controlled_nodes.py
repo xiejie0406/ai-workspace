@@ -160,7 +160,7 @@ class ModelCenter(RecordingCenter):
             self.frame_wait.set()
             await asyncio.Event().wait()
         after = args[-2]
-        provider = self.raw["resourceSnapshots"]["model-1"]["provider"]
+        provider = self.raw["resourceSnapshots"][self.bindings[args[-3]]["resourceId"]]["provider"]
         frame = self.frames[after:after + 1]
         complete = after + len(frame) == len(self.frames)
         state = 'FAILED' if self.failure_kind else 'COMPLETED'

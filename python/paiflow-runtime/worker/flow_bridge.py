@@ -23,8 +23,8 @@ async def frames(node, inputs, timeout):
             raise WorkerError("RESOURCE_UNAVAILABLE", "子流程缺少中心固定资源绑定")
         if CURRENT_ITERATION_ID.get() is not None:
             raise WorkerError("RESOURCE_UNAVAILABLE", "迭代子run缺少中心实际轮次归属，不以不透明幂等键替代")
-        if node.enableChatHistoryV2.is_enabled:
-            raise WorkerError("RESOURCE_UNAVAILABLE", "子流程正式历史scope尚未接通")
+        if node.enableChatHistoryV2.is_enabled and context.execution_context is None:
+            raise WorkerError("RESOURCE_UNAVAILABLE", "子流程历史必须绑定中心正式会话")
         snapshot = context.assignment.resources.get(node.flowResourceId)
         if not isinstance(snapshot, dict):
             raise WorkerError("TOOL_POLICY_DENIED", "子流程资源不属于固定任务快照")

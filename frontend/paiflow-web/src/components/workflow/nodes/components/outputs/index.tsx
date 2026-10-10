@@ -4,10 +4,19 @@ import { useTranslation } from 'react-i18next';
 import { FLowCollapse, FLowTree } from '@/components/workflow/ui';
 import useFlowsManager from '@/components/workflow/store/use-flows-manager';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
+import type { InputsProps } from '@/components/workflow/types';
 
 import inputAddIcon from '@/assets/imgs/workflow/input-add-icon.png';
 
-function index({ id, data, children }): React.ReactElement {
+interface OutputsProps extends Pick<InputsProps, 'id' | 'data' | 'children'> {
+  allowAdd?: boolean;
+  disabled?: boolean;
+  allowRemove?: boolean;
+  hasDescription?: boolean;
+  hasRef?: boolean;
+}
+
+function index({ id, data, children, allowAdd = true, disabled = false }: OutputsProps): React.ReactElement {
   const {
     handleAddOutputLine,
     addUniqueComponentToProperties,
@@ -22,8 +31,8 @@ function index({ id, data, children }): React.ReactElement {
   }, [outputs, outputs]);
 
   const canAdd = useMemo(() => {
-    return !canvasesDisabled;
-  }, [canvasesDisabled]);
+    return !canvasesDisabled && allowAdd && !disabled;
+  }, [canvasesDisabled, allowAdd, disabled]);
 
   return (
     <FLowCollapse

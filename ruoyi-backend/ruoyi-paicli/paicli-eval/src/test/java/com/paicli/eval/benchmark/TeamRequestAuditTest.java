@@ -60,6 +60,18 @@ class TeamRequestAuditTest {
         else System.setProperty(AutoCompactionManager.SESSION_MEMORY_PROPERTY, priorSessionMemory);
     }
 
+    @Test void snapshotRemainsPrivateAndNeverOverwritesExistingEvidence() throws Exception {
+        var audit = new TeamRequestAudit(GOAL);
+        Path evidence = temp.resolve("team-audit.json");
+        audit.writeSnapshot(evidence);
+        byte[] original = Files.readAllBytes(evidence);
+        assertEquals(JSON.valueToTree(audit.snapshot()), JSON.readTree(original));
+        assertEquals(SecureFiles.PRIVATE_FILE, SecureFiles.permissions(evidence),
+                "审计快照必须在当前平台取得仅所有者读写权限证明");
+        assertThrows(java.nio.file.FileAlreadyExistsException.class, () -> audit.writeSnapshot(evidence));
+        assertArrayEquals(original, Files.readAllBytes(evidence), "既有审计证据不能被重试覆盖");
+    }
+
     @Test void parallelActorsBindActualInputsToolsAndDependencyResultsBeforeDocumentStarts() throws Exception {
         var harness = new NativeHarness(temp, Scenario.PARALLEL, Mutation.NONE, true);
         assertTrue(harness.run().startsWith("✅"));

@@ -90,16 +90,16 @@ docker run --rm --read-only --network "$approvedNetwork" --tmpfs /tmp:rw,nosuid,
 
 外部生图与图库须同时满足本机 `AIPPT_IMAGE_ENABLED=true` 和中心任务 `payload.image_enabled` 严格为 JSON `true`。本机默认关闭，配置密钥不会自动开启；关闭或中心许可缺失时保留占位图，不请求 Provider/Unsplash。已上传的中心私有图片读取、质量检查和原生 PPTX 导出继续可用。
 
-成功 `output.execution` 和失败 `/fail.execution` 回传任务摘要：实际单调钟耗时、实际 LangChain 文本调用数/模型、原提示词模块代码版本及非敏感参数版本 hash、可观察的工具轮数。token 仅来自实际 `AIMessage.usage_metadata`/兼容响应 `token_usage`，仅完整覆盖全部调用的字段才汇总；缺项、异常值或总数超中心上限时省略字段，以 `usage_status` 和固定原因说明，不填假0或计算费用。ContextVar 隔离并发任务，摘要不保存正文/提示词/密钥。该统计记录可观察的文本模型调用，不能冒充隐藏HTTP重试或图片供应商计费记录。
+成功 `output.execution` 和失败 `/fail.execution` 回传任务摘要：实际单调钟耗时、中心文本逻辑请求数/实际返回模型、原提示词模块代码版本及非敏感参数版本 hash、可观察的工具轮数。正式运行token仅来自中心规范响应的真实 `usage.input_tokens/output_tokens/total_tokens`；保留原离线注入时的LangChain回调。仅完整覆盖全部调用的字段才汇总；缺项、异常值或总数超中心上限时省略字段，以 `usage_status` 和固定原因说明，不填假0或计算费用。中心请求结果未知时，该次请求仍保留在摘要中，用量未知。参数版本关联中心返回的实际 `routeVersion/wireApi/model`，不把Worker遗留的DeepSeek默认值当作当前中心模型。ContextVar 隔离并发任务，摘要不保存正文/提示词/密钥，也不冒充图片供应商计费记录。
 
-先将 `.env.example` 复制为本地 `.env`，填写经批准的中心运行通道和 `AIPPT_WORKER_KEY`；未提供的Provider凭据保持为空。以下命令会连接真实中心，不属于纯算法测试：
+从既有私有配置注入经批准的中心运行通道、Worker运行标识及中心/Worker一致的至少32字符机器凭据 `AIPPT_WORKER_KEY`；首次准备时可参考 `.env.example`，本机配对配置应保存在批准的私有运行位置。Worker不配置长期文本供应商key、自由出站地址或中心精确模型。以下命令会连接真实中心，不属于纯算法测试：
 
 ```powershell
 .venv/Scripts/python.exe -m app run
 .venv/Scripts/python.exe -m app run --once
 ```
 
-所有机器请求带 `X-Aippt-Worker-Key`。领取 `/internal/aippt/tasks/claim` 使用 `workerId/catalogVersion/waitMillis`；Worker标识按中心UTF-16长度限制为1至128，等待参数为0至10000毫秒整数。常驻槽位默认请求最多10秒的HTTP长轮询，`run --once` 显式请求0，不因无任务多等10秒；单次HTTP超时仍为30秒。中心返回null后沿用 `AIPPT_CLAIM_INTERVAL_SECONDS` 的默认2秒退避，并发槽位沿用默认3。客户端可选 `types` 限定七类已定义任务，省略表示全部、空数组表示不领取；Worker仍只通过HTTP领取，不增加RedisSDK或Redis凭据。中心Redis唤醒属于非权威提示，丢失提示时仍由中心有界重查正式数据库维持正确性。续约、进度、终态和临时资产请求均携带 `attempt/leaseToken/fencingToken`。目录逐文件校验 `contracts/aippt/catalog-manifest.json`，不能凭目录名相同接受旧算法。所有输入是中心快照，业务模型字段为原 `snake_case`。
+所有机器请求带 `X-Aippt-Worker-Key`。领取 `/internal/aippt/tasks/claim` 使用 `workerId/catalogVersion/waitMillis/types`；Worker标识按中心UTF-16长度限制为1至128，等待参数为0至10000毫秒整数。常驻槽位默认请求最多10秒的HTTP长轮询，`run --once` 显式请求0，不因无任务多等10秒；领取、心跳、资产HTTP超时仍为30秒。中心返回null后沿用 `AIPPT_CLAIM_INTERVAL_SECONDS` 的默认2秒退避，并发槽位配置沿用默认3，本机初始配置使用1。`AIPPT_CLAIM_TYPES` 是JSON数组，默认 `["parse_source","quality","export"]`，只接受下表七类；中心文本通道获准启用后显式加入四类文本任务，空数组不领取。常驻和once入口均传递该范围，不因为存在旧Provider key自动扩大范围。Worker仍只通过HTTP领取，不增加RedisSDK或Redis凭据。中心Redis唤醒属于非权威提示，丢失提示时仍由中心有界重查正式数据库维持正确性。续约、进度、终态和临时资产请求均携带 `attempt/leaseToken/fencingToken`。目录逐文件校验 `contracts/aippt/catalog-manifest.json`，不能凭目录名相同接受旧算法。所有输入是中心快照，业务模型字段为原 `snake_case`。`health` 仅本地校验目录、报告中心机器配置是否存在、`text_transport=center` 和领取范围，不连接中心，也不声明Provider已联机。
 
 Worker启动前后校验同一目录字节并预热主题、布局和预设缓存；每任务在算法开始前重新校验所有目录文件。运行期间部署目录须只读且不可变，更新使用新进程/版本，不原地替换JSON。该边界避免首任务懒加载不同字节；本地任意进程在检查间隙篡改文件不属于受信部署条件。
 
@@ -113,7 +113,9 @@ Worker启动前后校验同一目录字节并预热主题、布局和预设缓�
 | `quality` | snapshot.project/slides及可选slide_sources/slide_roles；输出issues/can_export/fonts_available |
 | `export` | 同一不可变snapshot；错误门禁阻断，原生PPTX回读通过后才上传，返回verify/quality/hash/filename |
 
-生成提纲保留12,000/单节2,000字、单页保留6,000/单节1,500字预算。`AIPPT_LLM_MAX_CALLS=8` 在每次逻辑请求前扣除任务预算，允许调小；`AIPPT_LLM_MAX_OUTPUT_TOKENS=8192`（256–32768）传给实际模型请求。`AIPPT_TOOL_ROUNDS_MAX=4`、`AIPPT_REPAIR_ROUNDS_MAX=1`、`AIPPT_EDIT_HISTORY_MAX=5` 保留原上限且允许调小。`AIPPT_LLM_MAX_RETRIES=2`（0–2）显式限制SDK传输重试，8次逻辑请求与每次最多3次HTTP尝试是不同范围，回调不保证看到隐藏重试/费用。任务默认900秒并取中心deadline更小值；预算超限、缺key和结构错误不自动重试，连接/超时/429/5xx沿异常cause识别为可重试，由中心约束最多2次attempt。六替换工具与flex三结构工具不访问外部任意工具。锁定块副本在工具入口和候选出口双重检查。
+生成提纲保留12,000/单节2,000字、单页保留6,000/单节1,500字预算。四类文本任务在原生成器中注入中心结构化客户端，保留LangGraph及原提示词/业务结构检查；`ai_edit`沿用原九工具及最多4轮循环，通过JSON信封表示工具调用，严格校验工具名称、ID、数量和原参数schema，工具仍只修改原提案副本。历史和工具结果以JSON消息数据编码，不能改变系统约束。单轮最多64个工具调用，ID在该轮唯一，长度1至128且只含字母、数字、下划线或连字符。`AIPPT_LLM_MAX_CALLS=8` 在逻辑请求前扣除任务预算，允许调小；中心独立执行最多8次预算并决定真实输出上限。`AIPPT_TOOL_ROUNDS_MAX=4`、`AIPPT_REPAIR_ROUNDS_MAX=1`、`AIPPT_EDIT_HISTORY_MAX=5` 保留原上限且允许调小。
+
+`POST /internal/aippt/tasks/{id}/text` 携带固定UUID `callId`、`attempt/leaseToken/fencingToken/system/user/purpose`，不带供应商地址、模型或长期key。单次文本HTTP使用独立 `AIPPT_TEXT_REQUEST_TIMEOUT_SECONDS`（固定90秒，只接受90），不阻塞其他心跳连接，中心出站超时最高80秒，保留中心提交终态的余量。请求和响应分别限制2MiB，system最多65,536字符、purpose最多100字符。一次逻辑调用只生成一次callId，无应用层/SDK传输重试；结果未知、超时、中心拒绝均停止当前文本流程，不换ID重发，不把收费回合作为任务自动重做。软取消阻止后续文本回合，失租停止候选写回，已经发出的请求不能承诺撤回费用。任务默认900秒并取中心deadline更小值。本地任务没有发生文本请求时保留原可重试恢复规则。原 `create_chat_model/StructuredChatClient` 与直接模型注入仅保留给离线fixture/原工具，不在正式 `run` 通道调用，其遗留 `AIPPT_LLM_API_KEY/BASE_URL/MODEL/MAX_RETRIES` 不影响中心文本出口。六替换工具与flex三结构工具不访问外部任意工具，锁定块副本在工具入口和候选出口双重检查。
 
 固定页解锁使用叶子 `rect_override` 保存原槽位的全页归一化坐标；首帧质量计算和原生PPTX沿用原框。矩形必须为有限值且完全位于画布内。成功人工移动、AI结构编辑或自动重排清除覆盖，后续按树权重计算；文字替换和拒绝的结构操作保留原框。
 

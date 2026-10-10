@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "paiflow.publication-preparation.v1",
+  "title": "PaiFlow固定版本发布准备",
+  "description": "源码契约，029仅隔离验证；准备记录不是已发布渠道或正式调用凭据。标准API使用若依信封、列表TableDataInfo。",
+  "$defs": {
+    "channel": {"enum": ["MARKET", "API", "MCP", "WECHAT", "FEISHU", "IFLYTEK_AIUI", "IFLYTEK_OPEN"]},
+    "request": {
+      "type": "object", "additionalProperties": false,
+      "required": ["applicationId", "channel", "debugRunId"],
+      "properties": {
+        "applicationId": {"type": "string", "format": "uuid"},
+        "channel": {"$ref": "#/$defs/channel"},
+        "debugRunId": {"type": "string", "format": "uuid"}
+      },
+      "description": "POST /paiflow/publications/preparations；If-Match为先前读取应用revision，Idempotency-Key为8至128位字母数字下划线或连字符。只核固定版本等价调试证据，资源/渠道需后续当前预检和真实回读。"
+    },
+    "view": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id","applicationId","applicationRevision","spaceId","ownerUserId","agentId","workflowId","workflowVersionId","dslHash","engineProfile","channel","state","revision","debugRunId","debugWorkflowVersionId","proofHash","fixedSnapshotRevision","debugSnapshotRevision","createTime","phase","isPublished","channelStatus","resourceStatus","credentialStatus"],
+      "properties": {
+        "id": {"type": "string", "format": "uuid"},
+        "applicationId": {"type": "string", "format": "uuid"},
+        "applicationRevision": {"type": "integer", "minimum": 0},
+        "spaceId": {"type": "integer", "minimum": 1},
+        "ownerUserId": {"type": "integer", "minimum": 1},
+        "agentId": {"type": "integer", "minimum": 1},
+        "workflowId": {"type": "integer", "minimum": 1},
+        "workflowVersionId": {"type": "integer", "minimum": 1},
+        "dslHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "engineProfile": {"enum": ["java", "python"]},
+        "channel": {"$ref": "#/$defs/channel"},
+        "state": {"enum": ["PENDING", "WITHDRAWN"]},
+        "revision": {"type": "integer", "minimum": 0},
+        "debugRunId": {"type": "string", "format": "uuid"},
+        "debugWorkflowVersionId": {"type": "integer", "minimum": 1},
+        "proofHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "fixedSnapshotRevision": {"type": "integer", "minimum": 0},
+        "debugSnapshotRevision": {"type": "integer", "minimum": 0},
+        "createTime": {"type": ["string", "integer"]},
+        "phase": {"const": "version_debug_proof_prepared"},
+        "isPublished": {"const": false},
+        "channelStatus": {"const": "unconfigured"},
+        "resourceStatus": {"const": "requires_current_channel_preflight"},
+        "credentialStatus": {"const": "unconfigured"}
+      }
+    }
+  },
+  "$ref": "#/$defs/request"
+}

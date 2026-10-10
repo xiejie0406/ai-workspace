@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.DataMapper">
+  <sql id="dbColumns">id,space_id,owner_user_id,name,description,avatar_icon,avatar_color,revision,deleted,create_time,update_time</sql>
+  <sql id="tableColumns">id,db_id,name,description,fields_json,revision,deleted,create_time,update_time</sql>
+  <select id="database" resultType="com.ruoyi.paiflow.domain.DataRecord">SELECT <include refid="dbColumns"/> FROM paiflow_data_database WHERE id=#{id}</select>
+  <select id="lockDatabase" resultType="com.ruoyi.paiflow.domain.DataRecord">SELECT <include refid="dbColumns"/> FROM paiflow_data_database WHERE id=#{id} FOR UPDATE</select>
+  <select id="databases" resultType="com.ruoyi.paiflow.domain.DataRecord">SELECT <include refid="dbColumns"/> FROM paiflow_data_database WHERE space_id=#{space} AND deleted=0 ORDER BY id DESC LIMIT 10001</select>
+  <insert id="insertDatabase" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_data_database(space_id,owner_user_id,name,description,avatar_icon,avatar_color,revision,deleted,create_time,update_time) VALUES(#{spaceId},#{ownerUserId},#{name},#{description},#{avatarIcon},#{avatarColor},0,0,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))</insert>
+  <update id="updateDatabase">UPDATE paiflow_data_database SET name=#{name},description=#{description},avatar_icon=#{avatarIcon},avatar_color=#{avatarColor},deleted=#{deleted},revision=revision+1,update_time=UTC_TIMESTAMP(3) WHERE id=#{id} AND revision=#{revision}</update>
+  <select id="table" resultType="com.ruoyi.paiflow.domain.DataRecord">SELECT <include refid="tableColumns"/> FROM paiflow_data_table WHERE id=#{id}</select>
+  <select id="lockTable" resultType="com.ruoyi.paiflow.domain.DataRecord">SELECT <include refid="tableColumns"/> FROM paiflow_data_table WHERE id=#{id} FOR UPDATE</select>
+  <select id="tables" resultType="com.ruoyi.paiflow.domain.DataRecord">SELECT <include refid="tableColumns"/> FROM paiflow_data_table WHERE db_id=#{db} AND deleted=0 ORDER BY id LIMIT 1001</select>
+  <insert id="insertTable" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_data_table(db_id,name,description,fields_json,revision,deleted,create_time,update_time) VALUES(#{dbId},#{name},#{description},#{fieldsJson},0,0,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3))</insert>
+  <update id="updateTable">UPDATE paiflow_data_table SET name=#{name},description=#{description},fields_json=#{fieldsJson},deleted=#{deleted},revision=revision+1,update_time=UTC_TIMESTAMP(3) WHERE id=#{id} AND revision=#{revision}</update>
+  <select id="rows" resultType="map">SELECT id,row_json AS rowJson FROM paiflow_data_row WHERE table_id=#{table} AND exec_env=#{env} ORDER BY id LIMIT #{limit}</select>
+  <select id="countRows" resultType="long">SELECT COUNT(*) FROM paiflow_data_row WHERE table_id=#{table} AND exec_env=#{env}</select>
+  <insert id="insertRow" useGeneratedKeys="true" keyProperty="id">INSERT INTO paiflow_data_row(table_id,exec_env,row_json) VALUES(#{table},#{env},#{json})</insert>
+  <update id="updateRow">UPDATE paiflow_data_row SET row_json=#{json} WHERE table_id=#{table} AND exec_env=#{env} AND id=#{id}</update>
+  <delete id="deleteRow">DELETE FROM paiflow_data_row WHERE table_id=#{table} AND exec_env=#{env} AND id=#{id}</delete>
+  <!-- 版本JSON中固定data描述由Compiler产生；不把字符串LIKE当引用判断。 -->
+  <select id="referencedDatabase" resultType="int">SELECT COUNT(*) FROM paiflow_workflow_version v,JSON_TABLE(v.resource_snapshots_json,'$.*' COLUMNS(kind VARCHAR(32) PATH '$.kind',db BIGINT PATH '$.legacyDbId' NULL ON EMPTY)) refs WHERE refs.kind='database' AND refs.db=#{id}</select>
+  <select id="referencedTable" resultType="int">SELECT COUNT(*) FROM paiflow_workflow_version v,JSON_TABLE(v.resource_snapshots_json,'$.*' COLUMNS(kind VARCHAR(32) PATH '$.kind',NESTED PATH '$.tables.*' COLUMNS(tb BIGINT PATH '$.tableId' NULL ON EMPTY))) refs WHERE refs.kind='database' AND refs.tb=#{id}</select>
+  <select id="request" resultType="map">SELECT request_hash AS requestHash,response_json AS responseJson FROM paiflow_data_request WHERE run_id=#{run} AND attempt=#{attempt} AND request_key_hash=#{key}</select>
+  <insert id="record">INSERT INTO paiflow_data_request(run_id,attempt,request_key_hash,request_hash,response_json) VALUES(#{run},#{attempt},#{key},#{hash},#{response})</insert>
+</mapper>

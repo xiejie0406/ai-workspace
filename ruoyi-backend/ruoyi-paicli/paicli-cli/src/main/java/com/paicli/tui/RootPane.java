@@ -41,10 +41,12 @@ public class RootPane extends Panel {
     private Consumer<String> messageHandler;
     private Runnable modeChangeHandler = () -> {};
     private Runnable cancelHandler = () -> {};
+    private Runnable historyHandler;
     private boolean centralPresentation;
 
     public void setModeChangeHandler(Runnable handler) { modeChangeHandler = Objects.requireNonNull(handler); }
     public void setCancelHandler(Runnable handler) { cancelHandler = Objects.requireNonNull(handler); }
+    public void setHistoryHandler(Runnable handler) { historyHandler = Objects.requireNonNull(handler); }
     public void setCentralPresentation(boolean enabled) { centralPresentation = enabled; }
 
     // 宽度比例（百分比）
@@ -198,13 +200,14 @@ public class RootPane extends Panel {
             return true;
         }
         // Ctrl+O: 折叠/展开代码块
-        if (keyStroke.getKeyType() == KeyType.Character && keyStroke.isCtrlDown() && keyStroke.getCharacter() == 'O') {
-            centerPane.appendSystemMessage("代码块折叠快捷键已收到；当前版本保留完整代码输出。");
+        if (keyStroke.getKeyType() == KeyType.Character && keyStroke.isCtrlDown() && Character.toLowerCase(keyStroke.getCharacter()) == 'o') {
+            centerPane.toggleCodeBlocks();
             return true;
         }
 
         // Ctrl+P: 查看历史对话
-        if (keyStroke.getKeyType() == KeyType.Character && keyStroke.isCtrlDown() && keyStroke.getCharacter() == 'P') {
+        if (keyStroke.getKeyType() == KeyType.Character && keyStroke.isCtrlDown() && Character.toLowerCase(keyStroke.getCharacter()) == 'p') {
+            if (historyHandler != null) { historyHandler.run(); return true; }
             centerPane.appendSystemMessage(centralPresentation
                     ? "对话与工具账本由中心持有；使用 /history 查询、/export 导出。"
                     : "对话历史已持续保存到 ~/.paicli/history/。");

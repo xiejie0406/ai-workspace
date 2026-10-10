@@ -1,0 +1,80 @@
+# 所有外部动作默认关闭；不定义另一数据源，不执行迁移，不分配端口。
+paismart:
+  enabled: false
+  upload:
+    max-file-bytes: 536870912
+  object-store:
+    enabled: false
+    writes-enabled: false
+    probe-enabled: false
+    endpoint: ''
+    bucket: ''
+    access-key-secret-ref: platform.paismart.minio.access-key
+    secret-key-secret-ref: platform.paismart.minio.secret-key
+  jobs:
+    kafka-enabled: false
+    bootstrap-servers: ''
+    security-protocol: SSL
+    allow-plaintext: false
+    sasl-mechanism: SCRAM-SHA-512
+    jaas-secret-ref: platform.paismart.kafka.jaas
+    truststore-location: ''
+    truststore-password-ref: platform.paismart.kafka.truststore
+    memory-high-water: 0.85
+    memory-low-water: 0.70
+  intelligence:
+    external-calls-enabled: false
+    allow-http: false
+    allowed-hosts: ''
+    contextual-enabled: false
+    rerank-enabled: false
+    rerank-threshold: '0.2'
+    citation-verification-enabled: false
+    conflict-llm-confirmation-enabled: false
+    elasticsearch:
+      endpoint: ''
+      secret-ref: platform.paismart.elasticsearch.api-key
+      analyzer: standard
+    parse:
+      process-enabled: false
+      worker-classpath: ''
+      pdf-engine: pdfbox
+      liteparse-command: ''
+      ocr-enabled: false
+      ocr-language: chi_sim+eng
+      ocr-callback-base: ''
+      concurrency: 2
+      max-bytes: 104857600
+      max-pages: 1000
+      max-characters: 4194304
+      timeout-seconds: 300
+    ocr:
+      aliyun-enabled: false
+      secret-ref: ai.paismart.aliyun.ocr
+    chunk:
+      size: 1000
+      overlap: 100
+      min-size: 100
+    parent-context:
+      max-characters: 16000
+    chat:
+      allowed-origins: ''
+      max-output-tokens: 4096
+    eval:
+      human-sample-rate: '0.2'
+  payment:
+    enabled: false
+    merchant-id: ''
+    app-id: ''
+    serial: ''
+    notify-url: ''
+    private-key-alias: platform.paismart.payment.private-key
+    api-v3-alias: platform.paismart.payment.api-v3
+  operations:
+    execute-enabled: false
+    legacy-source:
+      enabled: false
+      endpoint: ''
+      bucket: ''
+      access-key-secret-ref: platform.paismart.minio.access-key
+      secret-key-secret-ref: platform.paismart.minio.secret-key

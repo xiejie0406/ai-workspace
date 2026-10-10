@@ -23,7 +23,8 @@ class CenterWechatBridgeTest {
                 else if(request.getPath().endsWith("/events")){var events=data.putArray("events");events.addObject().put("sequence",1).put("type","MODEL_DELTA").putObject("payload").put("presentation","THINKING_DELTA").put("delta","私有思考");events.addObject().put("sequence",2).put("type","MODEL_DELTA").putObject("payload").put("presentation","ASSISTANT_DELTA").put("delta","未完成片段");events.addObject().put("sequence",3).put("type",terminal).putObject("payload").put("message",terminal.equals("TASK_COMPLETED")?"最终实际正文":"真实失败原因");}
                 return new MockResponse().setHeader("Content-Type","application/json").setBody(CanonicalJson.MAPPER.createObjectNode().put("code",200).set("data",data).toString());
             }catch(IOException error){throw new UncheckedIOException(error);}}});server.start();
-            var resolved=CanonicalJson.MAPPER.createObjectNode().put("channelId","7").put("expiresAt",Instant.now().plusSeconds(90).toString());
+            // 使用独立冻结的真实发送者标识派生 fixture 绑定，不能取消产品的 senderHash 校验。
+            var resolved=CanonicalJson.MAPPER.createObjectNode().put("channelId","7").put("senderHash",CanonicalJson.sha256("actual-wechat-sender".getBytes(StandardCharsets.UTF_8))).put("expiresAt",Instant.now().plusSeconds(90).toString());
             try(var client=new CenterHttpClient(server.url("/").toString(),"fixture",true);var bridge=new CenterWechatControl.Bridge(client,resolved,"1");var session=new CenterWechatControl.RemoteSession(bridge)){
                 String result=session.submitMessage(new WechatMessage("original-id","actual-wechat-sender","context","问题",List.of())).get(5,TimeUnit.SECONDS);
                 assertEquals(List.of(CanonicalJson.sha256("actual-wechat-sender".getBytes(StandardCharsets.UTF_8))),seen);assertFalse(result.contains("私有思考"));assertFalse(result.contains("未完成片段"));

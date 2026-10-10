@@ -19,4 +19,18 @@ class SearchBoundaryTest {
     @Test void organizationConversationCannotCarryPrivateOrOtherSpaceEvidence(){var privateDoc=mock(DocumentService.Document.class);when(privateDoc.spaceId()).thenReturn("org1");when(privateDoc.visibility()).thenReturn("PRIVATE");var publicDoc=mock(DocumentService.Document.class);when(publicDoc.spaceId()).thenReturn("org1");when(publicDoc.visibility()).thenReturn("PUBLIC");when(docs.getReadable(any(),eq("private"))).thenReturn(privateDoc);when(docs.getReadable(any(),eq("public"))).thenReturn(publicDoc);var evidence=List.of(new SearchService.Evidence("privateChunk","private",1,0,null,"私有","私人文本","","",1,"RRF"),new SearchService.Evidence("publicChunk","public",1,0,null,"公共","公共文本","","",1,"RRF"));var result=search.sharedEvidence(new SpaceService.Scope(2,false),evidence,"org1");assertEquals(1,result.size());assertEquals("publicChunk",result.get(0).id());}
     @Test void latestUpdateUsesTheSameVisibleScopeAndCannotRevealPrivateDocumentActivity(){doc("visible",3,null,"PUBLIC");doc("hidden",3,null,"PRIVATE");db.update("UPDATE ps_document SET updated_at=TIMESTAMP '2026-10-02 11:00:00' WHERE id='visible'");db.update("UPDATE ps_document SET updated_at=TIMESTAMP '2026-10-03 15:00:00' WHERE id='hidden'");var result=search.statistics(new SpaceService.Scope(2,false));assertEquals(java.time.LocalDateTime.of(2026,10,2,11,0),result.get("latestUpdatedAt"));assertEquals("PAISMART_MYSQL",result.get("authority"));assertEquals("CURRENT_PERMISSION_SCOPE",result.get("source"));assertFalse(result.containsKey("storeSizeInBytes"));assertFalse(result.containsKey("deletedFragmentCount"));verifyNoInteractions(http,models);}
     @Test void emptyVisibleScopeReportsNoLatestUpdateRatherThanInventingAnEsFact(){var result=search.statistics(new SpaceService.Scope(2,false));assertEquals(0L,result.get("visibleDocuments"));assertNull(result.get("latestUpdatedAt"));assertEquals("PAISMART_MYSQL",result.get("authority"));verifyNoInteractions(http,models);}
+    @Test void statisticsUsesFullExactDocumentIdsWithoutWeakeningPermissionOrVersionFilters(){
+        db.execute("ALTER TABLE ps_document ALTER COLUMN id VARCHAR_IGNORECASE(40)");
+        db.execute("ALTER TABLE ps_document_chunk ALTER COLUMN document_id VARCHAR_IGNORECASE(40)");
+        String first="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1",second=first.substring(0,35)+"2";
+        doc(first,2,null,"PRIVATE");doc(second,3,null,"PRIVATE");
+        db.update("INSERT INTO ps_document_chunk VALUES('foreign-suffix',?,1)",first.substring(0,35)+"3");
+        db.update("INSERT INTO ps_document_chunk VALUES('foreign-case',?,1)",first.toUpperCase(Locale.ROOT));
+        doc("failed",2,null,"PRIVATE");db.update("UPDATE ps_document SET status='FAILED' WHERE id='failed'");
+        doc("deleted",2,null,"PRIVATE");db.update("UPDATE ps_document SET deleted_at=CURRENT_TIMESTAMP WHERE id='deleted'");
+        var result=search.statistics(new SpaceService.Scope(2,false));
+        assertEquals(2L,result.get("visibleDocuments"));assertEquals(1L,result.get("countedChunks"));
+        assertEquals(2L,search.statistics(new SpaceService.Scope(1,true)).get("countedChunks"));
+        verifyNoInteractions(http,models);
+    }
 }

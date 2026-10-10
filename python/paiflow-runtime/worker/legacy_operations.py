@@ -32,8 +32,13 @@ async def bound_resource(node, resource_id, kind, expected):
         raise WorkerError("RESOURCE_UNAVAILABLE", "中心固定能力版本不可用")
     if any(not _same_json(value, resource.get(key)) for key, value in snapshot.items()):
         raise WorkerError("VERSION_CONFLICT", "固定资源描述改变但版本未更新")
-    _validate_payload(snapshot)
-    _validate_payload(resource)
+    from .tool_contract import formal_tool, check_resource
+    if kind == 'tool' and formal_tool(resource_id):
+        check_resource(resource_id, snapshot)
+        check_resource(resource_id, resource)
+    else:
+        _validate_payload(snapshot)
+        _validate_payload(resource)
     return snapshot
 
 
@@ -71,6 +76,9 @@ def _key(context, node, operation, fingerprint):
 async def completed_response(node, operation, body, fingerprint, validate):
     """同步原 Link/数据响应仍须中心确认结束；不自行重放写后查询。"""
     context = _authorized(node, operation)
+    from .tool_contract import formal_tool
+    if operation in {'tools.read', 'tools.invoke'} and formal_tool(body.get('resourceId')):
+        return await _formal_tool_response(context, node, operation, body, fingerprint, validate)
     writing = operation not in READ_ONLY_OPERATIONS
     try:
         ack = await context.operation(node.node_id, operation, body, key=_key(context, node, operation, fingerprint))
@@ -96,6 +104,80 @@ async def completed_response(node, operation, body, fingerprint, validate):
             error = WorkerError("EFFECT_UNKNOWN", "已请求写入能力但回执或停止未知")
         context.boundary_failure = error
         raise error
+
+
+async def _formal_tool_response(context, node, operation, body, fingerprint, validate):
+    """正式工具只轮询中心已登记的同一操作；不重发供应商请求。"""
+    from .center_client import CenterClient
+    from .tool_contract import check_ack
+    from datetime import datetime, timezone
+    task = context.assignment
+    key = _key(context, node, operation, fingerprint)
+    expected = CenterClient._tool_binding(task.run_id, task.lease_id, task.attempt, node.node_id, operation, body, key)
+    operation_id, terminal, dispatched, owned_uncertainty = None, False, False, None
+    resolved_failure = None
+    writing = operation == 'tools.invoke'
+    arguments = {'node_id': node.node_id, 'operation': operation, 'parameters': body, 'key': key}
+    try:
+        dispatched = True
+        ack = await context.operation(node.node_id, operation, body, key=key)
+        check_ack(ack, expected)
+        operation_id = ack['operationId']
+        expected['operationId'] = operation_id
+        while ack['state'] == 'RUNNING':
+            context.assert_active()
+            remaining = (task.deadline - datetime.now(timezone.utc)).total_seconds()
+            if remaining <= 0:
+                raise WorkerError('DEPENDENCY_TIMEOUT', '工具操作等待超过固定任务截止时间')
+            await asyncio.sleep(min(.05, remaining))
+            context.assert_active()
+            try:
+                ack = await asyncio.wait_for(context.center.tool_status(task.run_id, task.lease_id, task.attempt,
+                    operation_id, **arguments), timeout=remaining)
+            except asyncio.TimeoutError:
+                raise WorkerError('DEPENDENCY_TIMEOUT', '工具操作等待超过固定任务截止时间') from None
+            context.assert_active()
+            check_ack(ack, expected)
+        original = ack['legacyResponse']
+        if ack['state'] == 'COMPLETED' and ack['failureKind'] is None:
+            terminal = True
+            validate(original, False)
+        elif ack['state'] == 'FAILED' and ack['failureKind'] == 'provider':
+            terminal = True
+            validate(original, True)
+        else:
+            raise WorkerError('EFFECT_UNKNOWN' if ack['state'] == 'EFFECT_UNKNOWN' else
+                'TOOL_POLICY_DENIED' if ack['failureKind'] == 'authorization' else 'RESOURCE_UNAVAILABLE',
+                '中心未确认工具原响应完成')
+        _validate_payload(original)
+        return original
+    except asyncio.CancelledError:
+        if writing and dispatched and not terminal:
+            owned_uncertainty = WorkerError('EFFECT_UNKNOWN', '已请求工具写入但终态/停止未知')
+            resolved_failure = WorkerError('CANCEL_REQUESTED', '中心已确认该工具操作停止或原终态')
+            context.boundary_failure = owned_uncertainty
+        raise
+    except WorkerError as error:
+        if writing and dispatched and not terminal and error.code != 'TOOL_POLICY_DENIED':
+            resolved_failure = error
+            error = WorkerError('EFFECT_UNKNOWN', '已请求工具写入但回执未知')
+            owned_uncertainty = error
+        context.boundary_failure = error
+        raise error
+    finally:
+        if dispatched and not terminal and operation_id is not None:
+            try:
+                ack = await asyncio.wait_for(context.center.cancel_tool_operation(task.run_id, task.lease_id,
+                    task.attempt, operation_id, **arguments), timeout=2)
+                check_ack(ack, expected, cancel=True)
+                confirmed_terminal = ack['state'] in {'COMPLETED', 'FAILED'}
+                if not ack['stopped'] and not confirmed_terminal:
+                    raise WorkerError('EFFECT_UNKNOWN', '中心未确认工具停止或原终态')
+                if context.boundary_failure is owned_uncertainty and owned_uncertainty is not None:
+                    context.boundary_failure = resolved_failure
+            except (Exception, asyncio.CancelledError):
+                if writing:
+                    context.boundary_failure = WorkerError('EFFECT_UNKNOWN', '工具写入停止事实尚未确认')
 
 
 @asynccontextmanager

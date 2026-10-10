@@ -63,6 +63,37 @@ class MemberManagementBoundaryTest {
         login(4);db.update("INSERT INTO ps_member(user_id,status) VALUES(4,'ACTIVE')");
         assertTrue(controller.members(1,20,"",null).getRows().isEmpty());verifyNoInteractions(users);
     }
+    @Test void ownVisibleSpacesUseExistingScopeAndExposeOnlyNamesWithoutManagementPermission() {
+        assertEquals(1,db.update("UPDATE ps_member SET status='ACTIVE' WHERE user_id=3"));
+        String child=tx.execute(s->spaces.save(root,null,managed,"研发子空间",null,-1,null)).id();
+        login(3);var me=data(controller.me().get("data"));
+        @SuppressWarnings("unchecked") var visible=(List<Map<String,Object>>)me.get("visibleSpaces");
+        assertEquals(spaces.visibleSpaceIds(new SpaceService.Scope(3,false)),new HashSet<>(visible.stream().map(row->(String)row.get("id")).toList()));
+        assertFalse(visible.stream().anyMatch(row->child.equals(row.get("id"))));
+        assertTrue(visible.stream().allMatch(row->row.keySet().equals(Set.of("id","name"))));
+        verifyNoInteractions(users);
+    }
+    @Test void ownVisibleSpacesIncludeManagerChildrenAndExcludeUnrelatedSpaceNames() {
+        String child=tx.execute(s->spaces.save(root,null,managed,"研发子空间",null,-1,null)).id();
+        login(2);var me=data(controller.me().get("data"));
+        @SuppressWarnings("unchecked") var visible=(List<Map<String,Object>>)me.get("visibleSpaces");
+        assertTrue(visible.stream().anyMatch(row->child.equals(row.get("id"))));
+        assertFalse(visible.stream().anyMatch(row->other.equals(row.get("id"))||personal.equals(row.get("id"))));
+    }
+    @Test void ineligibleMemberCannotReadVisibleSpaceNamesOrGainEligibilityThroughMe() {
+        login(3);var me=data(controller.me().get("data"));
+        assertEquals(List.of(),me.get("visibleSpaces"));assertFalse(eligibility.isEligible(3));
+    }
+    @Test void administratorEligibilityUsesPlatformIdentityWithoutActivatingBusinessMembership() {
+        assertEquals("INELIGIBLE",db.queryForObject("SELECT status FROM ps_member WHERE user_id=1",String.class));
+        login(1);var me=data(controller.me().get("data"));
+        assertEquals(true,me.get("eligible"));assertEquals("ACTIVE",me.get("status"));
+        @SuppressWarnings("unchecked") var visible=(List<Map<String,Object>>)me.get("visibleSpaces");
+        assertEquals(spaces.visibleSpaceIds(root),new HashSet<>(visible.stream().map(row->(String)row.get("id")).toList()));
+        assertEquals("INELIGIBLE",db.queryForObject("SELECT status FROM ps_member WHERE user_id=1",String.class));
+        assertTrue(visible.stream().allMatch(row->row.keySet().equals(Set.of("id","name"))));
+        verifyNoInteractions(users);
+    }
     @Test void aggregateUsesRealVersionAndStaleRetryDoesNotPartiallyWriteOrGrantEligibility() {
         long version=spaces.membershipVersion(3);
         var input=new MemberController.MemberSpacesRequest(List.of(new SpaceService.Assignment(managed,false,true)),null,version,version);

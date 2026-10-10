@@ -2,14 +2,14 @@ import { computed, onBeforeUnmount, onDeactivated, ref } from 'vue'
 import { getSession, submitTurn } from '@/api/paicli/sessions'
 import { getSessionEvents } from '@/api/paicli/events'
 import type { PcEvent, PcSessionDetail, PcTurnInput } from '@/types/paicli'
-import { errorText, operationKeys, terminalTaskStates } from './model'
+import { errorText, isHistoricalSession, operationKeys, terminalTaskStates } from './model'
 
 /** 页面只保存视图副本；中心事件与聚合详情始终为业务事实源。 */
 export function useSession() {
   const detail = ref<PcSessionDetail>(), events = ref<PcEvent[]>([]), loading = ref(false), sending = ref(false), error = ref(''), streamState = ref<'IDLE' | 'CONNECTING' | 'CONNECTED' | 'DISCONNECTED' | 'EXPIRED'>('IDLE'), cursor = ref('')
   const keys = operationKeys()
   let generation = 0, refreshGeneration = 0, selected = '', requestController: AbortController | undefined, streamController: AbortController | undefined
-  const active = computed(() => !!detail.value?.activeTaskId && !terminalTaskStates.has(detail.value.status))
+  const active = computed(() => { const current=detail.value; if (!current?.activeTaskId || terminalTaskStates.has(current.status)) return false; if (!current.latestTaskId && current.directoryPreparationTaskId === current.activeTaskId) return false; return true })
   function stopStream() { streamController?.abort(); streamController = undefined }
   function dispose() { generation++; refreshGeneration++; requestController?.abort(); stopStream(); loading.value = false; selected = ''; detail.value = undefined; events.value = []; cursor.value = ''; streamState.value = 'IDLE' }
   async function select(id: string) {
@@ -56,11 +56,11 @@ export function useSession() {
   }
   async function send(input: PcTurnInput) {
     const id = selected, current = generation; if (!id || sending.value || active.value) return false
-    if (detail.value?.status === 'HISTORICAL' || !detail.value?.runnerId) { error.value = '历史归档会话只读，请新建会话绑定当前 Runner 与模型。'; return false }
+    if (isHistoricalSession(detail.value)) { error.value = '此对话为只读历史，请新建对话后继续。'; return false }
     sending.value = true; error.value = ''; const intent = { id, ...input }
     try { const response = await submitTurn(id, input, keys.get(intent)); keys.done(intent); if (current !== generation) return false; if (detail.value) { detail.value.activeTaskId = response.data.taskId; detail.value.status = 'ENQUEUED'; detail.value.version = response.data.version }; await refresh(); void subscribe(); return true } catch (cause) { if (current === generation) error.value = errorText(cause); return false } finally { sending.value = false }
   }
-  onBeforeUnmount(dispose); onDeactivated(dispose)
+  onBeforeUnmount(dispose); onDeactivated(() => { generation++; refreshGeneration++; requestController?.abort(); stopStream(); streamState.value = 'IDLE' })
   return { detail, events, loading, sending, error, streamState, cursor, active, select, refresh, subscribe, dispose, send }
 }
 function pause(ms: number, signal: AbortSignal) { return new Promise<void>(resolve => { const finish = () => { clearTimeout(timer); signal.removeEventListener('abort', finish); resolve() }; const timer = setTimeout(finish, ms); signal.addEventListener('abort', finish, { once: true }); if (signal.aborted) finish() }) }

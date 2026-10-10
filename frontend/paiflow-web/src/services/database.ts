@@ -110,15 +110,32 @@ export async function exportData(
   params: ExportDataParams
 ): Promise<AxiosResponse<Blob>> {
   // 这个接口返回blob文件，需要特殊处理
-  return await http.post('/db/export-table-data', params, {
+  return await checkedDownload(await http.post('/db/export-table-data', params, {
     responseType: 'blob',
-  });
+  }));
+}
+// 错误信封也可能以HTTP 200和Blob返回，不能让JSON变成用户下载的表格。
+async function checkedDownload(response: AxiosResponse<Blob>): Promise<AxiosResponse<Blob>> {
+  if (!(response?.data instanceof Blob) || response.data.size === 0) {
+    throw new Error('数据下载返回了空文件或无效响应');
+  }
+  const blob = response.data;
+  const contentType = String(response.headers?.['content-type'] || blob.type).toLowerCase();
+  const prefix = await blob.slice(0, 512).text();
+  if (contentType.includes('json') || /^\s*[\[{]/.test(prefix)) {
+    let value: unknown;
+    if (blob.size > 2 * 1024 * 1024) throw new Error('数据下载返回了无效错误响应');
+    try { value = JSON.parse(await blob.text()); } catch { throw new Error('数据下载返回了无效错误响应'); }
+    const error = value && typeof value === 'object' ? value as Record<string, unknown> : {};
+    const message = [error.message, error.msg, error.desc].find(item => typeof item === 'string' && item.length > 0);
+    throw new Error(typeof message === 'string' ? message : '数据下载失败');
+  }
+  if (contentType.includes('text/html') || /^\s*(?:<!doctype html|<html)/i.test(prefix)) throw new Error('数据下载返回了页面，未取得表格');
+  return response;
 }
 // 下载表字段模板
-export async function downloadFieldTemplate(): Promise<string> {
-  return await http.get(
-    '/config-info/get-by-category-and-code?category=DB_TABLE_TEMPLATE&code=TB'
-  );
+export async function downloadFieldTemplate(): Promise<AxiosResponse<Blob>> {
+  return await checkedDownload(await http.get('/db/field-template', { responseType: 'blob' }));
 }
 // 下载数据模板文件
 export async function downloadTableTemplate(
@@ -129,16 +146,7 @@ export async function downloadTableTemplate(
     params,
     responseType: 'blob',
   });
-  try {
-    const blob = response.data as unknown as Blob;
-    const data = await blob?.text();
-    const jsonData = JSON.parse(data);
-    // 如果可以解析为JSON，说明是错误信息
-    throw new Error(jsonData.message);
-  } catch {
-    // 不能解析为JSON，说明是正常的文件
-    return response;
-  }
+  return await checkedDownload(response);
 }
 // 获取库表
 export async function allTableList(): Promise<
@@ -159,7 +167,5 @@ export async function importFieldData(
 }
 // 禁止字段枚举
 export async function getDisableFields(): Promise<{ value: string }> {
-  return await http.get(
-    '/config-info/get-by-category-and-code?category=DB_TABLE_RESERVED_KEYWORD&code=reserved_keyword'
-  );
+  return await http.get('/db/reserved-fields');
 }

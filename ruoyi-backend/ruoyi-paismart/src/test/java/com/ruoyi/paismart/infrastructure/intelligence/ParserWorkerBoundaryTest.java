@@ -12,7 +12,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ocr.TesseractOCRConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 本地真实文件解析；直接调用Worker主逻辑，不启动服务、CLI或任何OCR进程。 */
+/** 本地真实文件解析及堆门禁边界；不启动服务、CLI或任何OCR进程。 */
 class ParserWorkerBoundaryTest {
     @TempDir Path directory;
     Map<String,Object> parse(Path input,int pages,int chars)throws Exception{Path output=directory.resolve(UUID.randomUUID()+".json");ParserWorker.main(new String[]{input.toString(),output.toString(),Integer.toString(pages),Integer.toString(chars)});return Jsons.map(Files.readString(output));}
@@ -23,4 +23,32 @@ class ParserWorkerBoundaryTest {
     @Test void textAndBrokenPdfBudgetsRejectInsteadOfReportingSuccess()throws Exception{Path text=directory.resolve("long.txt");Files.writeString(text,"content ".repeat(100));assertThrows(Exception.class,()->parse(text,10,30));Path pdf=directory.resolve("broken.pdf");Files.writeString(pdf,"%PDF- broken");assertThrows(Exception.class,()->parse(pdf,10,1000));}
     @Test void safeContextDisablesEmbeddedAndOcr()throws Exception{var context=ParserWorker.safeContext();assertFalse(context.get(EmbeddedDocumentExtractor.class).shouldParseEmbedded(new Metadata()));assertTrue(context.get(TesseractOCRConfig.class).isSkipOcr());assertFalse(context.get(TesseractOCRConfig.class).isEnableImagePreprocessing());assertTrue(context.get(javax.xml.parsers.SAXParser.class).getXMLReader().getFeature("http://apache.org/xml/features/disallow-doctype-decl"));}
     @Test void nonpositiveBudgetsNeverEnableUnlimitedParsing()throws Exception{Path input=directory.resolve("sample.txt");Files.writeString(input,"Approved evidence");for(int[] budget:List.of(new int[]{0,100},new int[]{10,0},new int[]{10,-1}))assertThrows(IllegalArgumentException.class,()->parse(input,budget[0],budget[1]));try(var files=Files.list(directory)){assertFalse(files.anyMatch(path->path.getFileName().toString().endsWith(".json")));}}
+    @Test void expandableHeapDoesNotRejectLowCommittedFreeMemory(){
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(1000,200,10),"已提交堆仅余5%，但最大堆仍可用81%");
+    }
+    @Test void identicalUsedHeapHasSameDecisionRegardlessOfCommittedSize(){
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(1000,200,10));
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(1000,1000,810));
+        assertTrue(IsolatedDocumentParser.memoryBackpressured(1000,950,49));
+        assertTrue(IsolatedDocumentParser.memoryBackpressured(1000,1000,99));
+    }
+    @Test void fullCommittedHeapPreservesStrictTenPercentBoundary(){
+        assertTrue(IsolatedDocumentParser.memoryBackpressured(1000,1000,99));
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(1000,1000,100),"恰好10%沿用原严格小于语义");
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(1000,1000,101));
+    }
+    @Test void heapAboveTwoGiBRetainsBytePrecision(){
+        long maximum=10L*1024*1024*1024;
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(maximum,maximum,maximum/10+1));
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(maximum,maximum,maximum/10));
+        assertTrue(IsolatedDocumentParser.memoryBackpressured(maximum,maximum,maximum/10-1));
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(maximum,2L*1024*1024*1024,32));
+    }
+    @Test void validHeapNearLongLimitDoesNotOverflowAvailableCalculation(){
+        assertFalse(IsolatedDocumentParser.memoryBackpressured(Long.MAX_VALUE,Long.MAX_VALUE,Long.MAX_VALUE));
+        assertTrue(IsolatedDocumentParser.memoryBackpressured(Long.MAX_VALUE,Long.MAX_VALUE,0));
+    }
+    @Test void zeroMaximumUsesOriginalNonzeroDenominatorGuard(){
+        assertTrue(IsolatedDocumentParser.memoryBackpressured(0,0,0));
+    }
 }

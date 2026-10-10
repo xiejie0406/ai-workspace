@@ -50,7 +50,7 @@ public final class NativeSnapshotAdapter {
         JsonNode context;
         try {context=center.post("/paicli/runner/v1/revert-context",binding,java.util.UUID.randomUUID().toString());}
         catch(IOException unavailable){lease.invalidate();throw new IOException("中心冻结恢复上下文未确认，未执行恢复",unavailable);}
-        for(String field:List.of("taskId","sessionId","workspaceId","leaseId","fencingToken","version")) {
+        for(String field:List.of("taskId","sessionId","directoryContextId","leaseId","fencingToken","version")) {
             String expected=lease.claim().path(field).asText();
             if(expected.isBlank()||!expected.equals(context.path(field).asText()))throw new IOException("中心恢复上下文不属于当前消费范围");
         }

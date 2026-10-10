@@ -26,8 +26,10 @@ import org.springframework.stereotype.Service;
 public class ModelRuntimeCatalog {
     /** 仅本地读取已批准配置；没有默认实现，不能在版本事务中进行网络探测。 */
     public interface ProfilePort { RuntimeProfile resolve(SourceModel source); }
-    public record RuntimeProfile(String sourceFingerprint,String provider,Set<String> capabilities) {
+    public record RuntimeProfile(String sourceFingerprint,String provider,Set<String> capabilities,String privateBaseUrl) {
+        public RuntimeProfile(String sourceFingerprint,String provider,Set<String> capabilities){this(sourceFingerprint,provider,capabilities,null);}
         public RuntimeProfile { capabilities=capabilities==null?Set.of():Set.copyOf(capabilities); }
+        @Override public String toString(){return "RuntimeProfile[redacted]";}
     }
     /** 私有源不是Bean/record，避免诊断或默认序列化泄露endpoint/凭据引用。 */
     public static final class SourceModel {
@@ -57,7 +59,7 @@ public class ModelRuntimeCatalog {
         public String sourceFingerprint(){return source.sourceFingerprint();} public String credentialVersion(){return source.credentialVersion();}
         public String privateEndpoint(){return source.privateEndpoint();} public String privateBaseUrl(){return baseUrl;}
         public String credentialRef(){return source.credentialRef();} public Set<String> capabilities(){return profile.capabilities();}
-        public JSONObject publicDescriptor(){var d=new JSONObject();d.put("kind","model");d.put("provider",provider());d.put("version",String.valueOf(modelVersionId()));d.put("modelName",domain());d.put("enabled",true);d.put("capabilities",new com.alibaba.fastjson2.JSONArray(java.util.List.of("chat")));return d;}
+        public JSONObject publicDescriptor(){var d=new JSONObject();d.put("kind","model");d.put("provider",provider());d.put("version",String.valueOf(modelVersionId()));d.put("modelName",domain());d.put("enabled",true);d.put("capabilities",new com.alibaba.fastjson2.JSONArray(profile.capabilities().stream().sorted().toList()));return d;}
     }
     private final ModelMapper models;private final SpaceMapper spaces;private final ResourceAccessService access;
     private final ISysUserService users;private final SysPermissionService permissions;
@@ -96,12 +98,12 @@ public class ModelRuntimeCatalog {
     private com.ruoyi.paiflow.domain.ModelRecord current(long space,long id){
         currentRead();
         var row=models.find(id);if(row==null || row.getDeleted()!=0 || !Objects.equals(row.getSpaceId(),space))throw new ServiceException("模型不存在或不可访问",404);
-        if(!Objects.equals(row.getType(),1) || !Objects.equals(row.getEnabled(),1) || !"VALIDATED".equals(row.getState()))throw unavailable();return row;
+        if(!(Objects.equals(row.getType(),1) || Objects.equals(row.getType(),2)) || !Objects.equals(row.getEnabled(),1) || !"VALIDATED".equals(row.getState()))throw unavailable();return row;
     }
     private FixedModel resolve(long space,long modelId,long versionId){
         var version=models.version(versionId);
         if(version==null || !Objects.equals(version.getModelId(),modelId) || !Objects.equals(version.getSpaceId(),space))throw new ServiceException("模型版本不存在或不可访问",404);
-        if(!Objects.equals(version.getType(),1) || !Objects.equals(version.getEnabled(),1) || !"VALIDATED".equals(version.getState()) || blank(version.getCredentialVersion()) || blank(version.getCandidateHash()))throw unavailable();
+        if(!(Objects.equals(version.getType(),1) || Objects.equals(version.getType(),2)) || !Objects.equals(version.getEnabled(),1) || !"VALIDATED".equals(version.getState()) || blank(version.getCredentialVersion()) || blank(version.getCandidateHash()))throw unavailable();
         var config=JSON.parseObject(version.getConfigurationJson());if(config==null)throw unavailable();
         String domain=config.getString("domain"),endpoint=config.getString("endpoint"),ref=config.getString("credentialRef"),provider=config.getString("provider");
         if(blank(domain)||blank(endpoint)||blank(ref)||blank(provider))throw unavailable();
@@ -110,8 +112,8 @@ public class ModelRuntimeCatalog {
         RuntimeProfile profile;
         try { profile=port.resolve(source); }
         catch(RuntimeException rejected) { throw unavailable(); } // 私有本地配置错误不向HTTP回执暴露endpoint/引用。
-        if(profile==null || !Objects.equals(profile.sourceFingerprint(),source.sourceFingerprint()) || !"openai".equals(profile.provider()) || !Set.of("chat").equals(profile.capabilities()))throw unavailable();
-        return new FixedModel(source,openAiBase(endpoint),profile);
+        if(profile==null || !Objects.equals(profile.sourceFingerprint(),source.sourceFingerprint()) || !Set.of("openai","xinghuo").contains(profile.provider()) || !profile.capabilities().contains("chat") || !Set.of("chat","function_call").containsAll(profile.capabilities()) || "openai".equals(profile.provider()) && profile.capabilities().contains("function_call"))throw unavailable();
+        return new FixedModel(source,profile.privateBaseUrl()!=null?profile.privateBaseUrl():"openai".equals(profile.provider())?openAiBase(endpoint):ManagedModelRuntime.sparkEndpoint(endpoint).toString(),profile);
     }
     private static boolean blank(String s){return s==null||s.isBlank();}
     private static ServiceException unavailable(){return new ServiceException("固定模型运行配置/批准能力尚不可用",503);}

@@ -8,7 +8,7 @@ function storage(initial={}) { const values=new Map(Object.entries(initial));ret
 function execute(file,imports,sandbox={}) {
  const source=fs.readFileSync(path.join(__dirname,'../src',file),'utf8').replaceAll('import.meta.env','__buildEnv');
  const exports={};
- vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,URL,...sandbox,require:name=>{if (!(name in imports)) throw new Error(`Unexpected import ${name}`);return imports[name];}});
+ vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,{exports,URL,...sandbox,require:name=>{if (!(name in imports)) throw new Error(`Unexpected import ${name}`);return imports[name];}});
  return exports;
 }
 function httpFixture(runtime={}) {
@@ -63,6 +63,21 @@ test('logout network failure remains retryable and never reports success',async(
 test('login redirect keeps an internal return path and removes obsolete tokens',()=>{
  const f=authFixture();f.module.handleLoginRedirect();assert.equal(f.sessionStorage.getItem('postLoginRedirect'),'/workflow?id=1');assert.equal(f.localStorage.getItem('accessToken'),null);assert.equal(f.window.location.href,'/login');
 });
+test('unauthorized requests on the login page clear tokens without reloading or losing the return path',()=>{
+ for(const pathname of ['/login','/login/']) {
+  const f=authFixture();f.window.location.pathname=pathname;f.window.location.search='?next=/workflow';
+  let navigations=0;
+  Object.defineProperty(f.window.location,'href',{get:()=>pathname+'?next=/workflow',set:()=>{navigations++;}});
+  f.module.handleLoginRedirect();f.module.handleLoginRedirect();
+  assert.equal(navigations,0);assert.equal(f.localStorage.getItem('accessToken'),null);assert.equal(f.localStorage.getItem('refreshToken'),null);
+  assert.equal(f.sessionStorage.getItem('postLoginRedirect'),'/workflow?fixture=1');
+ }
+});
+test('unauthorized callback still returns to login without replacing the saved return path',()=>{
+ const f=authFixture();f.window.location.pathname='/callback';f.module.handleLoginRedirect();
+ assert.equal(f.window.location.href,'/login');assert.equal(f.localStorage.getItem('accessToken'),null);
+ assert.equal(f.sessionStorage.getItem('postLoginRedirect'),'/workflow?fixture=1');
+});
 test('post-login redirect rejects external URLs and login loops',()=>{
  for(const url of ['//evil.example','https://evil.example','/\\evil.example','/login?next=/','/callback','/\n/evil.example','/workflow/../login']) assert.equal(authFixture(false,url).module.getPostLoginRedirect(),'/home');
  assert.equal(authFixture(false,'/workflow?id=3').module.getPostLoginRedirect(),'/workflow?id=3');
@@ -85,4 +100,20 @@ test('session check uses the protected centre endpoint and preserves token on ne
  const localStorage=storage({accessToken:'platform-fixture'});const calls=[];
  const module=execute('hooks/use-login.ts',{react:{useCallback:f=>f,useState:initial=>[initial,()=>{}]},'@/utils/http':{default:{get:async url=>{calls.push(url);throw {code:100};}}}},{localStorage});
  assert.equal(await module.default().refreshToken(),false);assert.deepEqual(calls,['/api/session']);assert.equal(localStorage.getItem('accessToken'),'platform-fixture');
+});
+
+test('登录与回调入口不发起业务身份和空间初始化，业务入口保留初始化',async()=>{
+ for(const pathname of ['/login','/login/','/callback','/callback/','/home','/login-other']) {
+  const effects=[];const calls=[];const record=name=>async()=>{calls.push(name);};
+  const module=execute('App.tsx',{
+   react:{useCallback:f=>f,useEffect:f=>effects.push(f),useState:v=>[v,()=>{}]},
+   'react/jsx-runtime':{jsx:()=>null,Fragment:'fragment'},
+   'react-router-dom':{RouterProvider:()=>null},'@/router':{default:{}},
+   '@/store/user-store':{default:selector=>selector({getUserInfo:record('user')})},
+   './hooks/use-enterprise':{useEnterprise:()=>({getJoinedEnterpriseList:record('joined'),getEnterpriseSpaceCount:record('count'),visitEnterprise:record('visit')})},
+   './hooks/use-space-type':{useSpaceType:()=>({getLastVisitSpace:record('last'),enterpriseId:'',switchToPersonal:record('switch'),isTeamSpace:()=>false})},
+  },{window:{location:{pathname}},sessionStorage:storage()});
+  module.default();for(const effect of effects)effect();await Promise.resolve();
+  assert.deepEqual(calls,/^\/(login|callback)(\/|$)/.test(pathname)?[]:['user','last','count','joined'],pathname);
+ }
 });

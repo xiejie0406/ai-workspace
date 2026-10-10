@@ -99,6 +99,9 @@ public class TokenBudget {
         if (messages == null) return 0;
         int total = 0;
         for (LlmClient.Message msg : messages) {
+            if (msg.responseItems() != null) for (var item : msg.responseItems()) {
+                if ("reasoning".equals(item.path("type").asText())) total += MemoryEntry.estimateTokens(item.toString());
+            }
             if (msg.contentParts() != null) {
                 for (LlmClient.ContentPart part : msg.contentParts()) {
                     if (part == null) {

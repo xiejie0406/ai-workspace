@@ -43,10 +43,10 @@ class CodeRetrieverTest {
                 20, 40
         );
 
-        store.insertChunks(List.of(
+        store.replaceProject(List.of(
                 new VectorStore.CodeChunkEntry(getterChunk, new float[]{1.0f, 0.0f}),
                 new VectorStore.CodeChunkEntry(agentChunk, new float[]{0.80f, 0.20f})
-        ));
+        ), List.of(), new EmbeddingClient("ollama", "stub", "http://localhost", "").getIdentity(), 2);
 
         EmbeddingClient stubClient = new EmbeddingClient("ollama", "stub", "http://localhost", "") {
             @Override

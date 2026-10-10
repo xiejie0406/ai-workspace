@@ -30,7 +30,7 @@ public class EngineContextHolder {
     public static EngineContext initContext(String flowId, String chatId, WorkflowMsgCallback workflowCallback) {
         EngineContext context = new EngineContext();
         context.setFlowId(flowId);
-        context.setChatId(chatId);
+        context.setChatId(com.ruoyi.paiflow.worker.service.ExecutionScope.current().executionChatId(chatId));
         context.setCallback(workflowCallback);
         context.setSid(FlowUtil.genSid());
         set(context);

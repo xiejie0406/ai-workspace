@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { approvalReason, operationKeys, safeText, validateDag } from '../model'
 import type { PcApproval, PcPlanStep } from '@/types/paicli'
 const step = (id: string, dependencies: string[] = []): PcPlanStep => ({ id, dependencies, description:`任务 ${id}`,status:'PENDING',attempts:0 })
-const approval = (values: Partial<PcApproval> = {}): PcApproval => ({ id:'1',workspaceId:'1',taskId:'1',runnerId:'1',version:3,status:'PENDING',hardDenied:false,toolName:'execute_command',arguments:{ command:'echo hello' },inputHash:'fixed',rootFingerprint:'root',paths:[],impact:'构建目录',requesterName:'测试用户',createdAt:'2026-01-01T00:00:00Z',expiresAt:'2026-01-02T00:00:00Z',policyVersion:1,...values })
+const approval = (values: Partial<PcApproval> = {}): PcApproval => ({ id:'1',directoryContextId:'1',taskId:'1',runnerId:'1',version:3,status:'PENDING',hardDenied:false,toolName:'execute_command',arguments:{ command:'echo hello' },inputHash:'fixed',rootFingerprint:'root',paths:[],impact:'构建目录',requesterName:'测试用户',createdAt:'2026-01-01T00:00:00Z',expiresAt:'2026-01-02T00:00:00Z',policyVersion:1,...values })
 describe('计划与批准输入边界', () => {
   it('有效 DAG 保留独立分支，循环与未知依赖拒绝执行', () => { expect(validateDag([step('A'),step('B',['A']),step('C')])).toEqual([]); expect(validateDag([step('A',['B']),step('B',['A'])]).join('')).toContain('依赖循环'); expect(validateDag([step('A',['UNKNOWN'])]).join('')).toContain('未知依赖') })
   it('重复编号与缺描述不能变成有效计划', () => { expect(validateDag([step('A'),step('A')]).join('')).toContain('重复'); expect(validateDag([{ ...step('A'),description:'' }]).join('')).toContain('缺少描述') })

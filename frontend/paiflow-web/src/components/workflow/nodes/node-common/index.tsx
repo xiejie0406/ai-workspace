@@ -38,6 +38,7 @@ import ModelSelect from '@/components/workflow/nodes/components/model-select';
 import { Icons } from '@/components/workflow/icons';
 import { typeList } from '@/constants';
 import { convertToKBMB } from '@/components/workflow/utils/reactflowUtils';
+import type { InputsProps } from '@/components/workflow/types';
 import JsonMonacoEditor from '@/components/monaco-editor/JsonMonacoEditor';
 import { generateUploadType } from '@/components/workflow/utils/reactflowUtils';
 
@@ -511,7 +512,7 @@ export const NodeWrapper = memo<NodeWrapperProps>(({ id, data, children }) => {
   );
 });
 
-export const ModelSection = memo(({ id, data }): React.ReactElement => {
+export const ModelSection = memo(({ id, data }: Pick<InputsProps, 'id' | 'data'>): React.ReactElement => {
   return (
     <FLowCollapse
       label={<h2 className="text-base font-medium">模型</h2>}

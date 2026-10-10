@@ -6,9 +6,15 @@
     <name>RuoYi :: PaiFlow</name>
     <description>PaiFlow正式业务中心；复用若依身份，保留原React前端和独立执行器</description>
     <dependencies>
+        <dependency><groupId>com.networknt</groupId><artifactId>json-schema-validator</artifactId><version>1.5.9</version></dependency>
         <dependency><groupId>com.ruoyi</groupId><artifactId>ruoyi-common</artifactId></dependency>
         <dependency><groupId>com.ruoyi</groupId><artifactId>ruoyi-framework</artifactId></dependency>
+        <!-- 复用Worker/PaiCLI的固定DNS、TLS及SSE/WSS客户端；禁止默认代理、跳转和自动重发。 -->
+        <dependency><groupId>com.squareup.okhttp3</groupId><artifactId>okhttp</artifactId><version>4.12.0</version></dependency>
+        <!-- 原Link允许GET/HEAD携JSON体；复用既有Apache4固定DNS出口机制，不反射更改OkHttp。 -->
+        <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpclient</artifactId><version>4.5.14</version></dependency>
         <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>com.squareup.okhttp3</groupId><artifactId>mockwebserver</artifactId><version>4.12.0</version><scope>test</scope><exclusions><exclusion><groupId>org.hamcrest</groupId><artifactId>hamcrest-core</artifactId></exclusion></exclusions></dependency>
         <!-- 仅离线内存Mapper验证，缓存已有；不作为正式业务数据库。 -->
         <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><version>2.4.240</version><scope>test</scope></dependency>
     </dependencies>

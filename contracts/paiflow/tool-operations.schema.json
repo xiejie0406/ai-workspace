@@ -1,0 +1,1171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:tool-operations:v1",
+  "title": "正式中心 Link 工具固定资源、操作与停止回执",
+  "$ref": "#/$defs/ToolOperationRequest",
+  "x-status": "implementation-pending-integration-validation",
+  "x-invariants": [
+    "顶层普通plugin按中心固定engineProfile选择：Python使用V4，Java使用V2及原Java取值/整Map/完成事件规则；Agent/MCP/迭代/子流程仍须各自中心准入，目录ID不授予权限。",
+    "资源末段为UTF8原operationId的无padding Base64url，version精确对应固定版本ID。",
+    "原Link四位置参数编码/默认由原Factory生成，中心依据固定Schema与运行输入重新核对，不信Worker自报。",
+    "同完整绑定与天然key只登记同operation。RUNNING只POST同operation/status，不重发Provider。",
+    "取消只有中心真实proofId可证明stopped；发送后无证明为EFFECT_UNKNOWN，HTTP关闭不证明停止。",
+    "所有ACK完整归属与资源绑定严格相等；整数拒bool；字节预算由实际JSON UTF8编码检查。",
+    "仅明确OpenAPI JSON Schema定义域允许业务字段/default；根、认证材料与其它事件仍守凭据边界。"
+  ],
+  "$defs": {
+    "ToolResourceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^tool:[1-9][0-9]*:version:[1-9][0-9]*:operation:[A-Za-z0-9_-]+$"
+    },
+    "ToolOperationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^tool-op:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "ToolResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "enabled",
+        "pluginId",
+        "operationId",
+        "legacyVersion",
+        "legacyAppId",
+        "effectClass",
+        "openApiSchema"
+      ],
+      "properties": {
+        "kind": {
+          "const": "tool"
+        },
+        "provider": {
+          "const": "spark-link"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "enabled": {
+          "const": true
+        },
+        "pluginId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "legacyVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "legacyAppId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "effectClass": {
+          "enum": [
+            "read",
+            "write"
+          ]
+        },
+        "openApiSchema": {
+          "type": "object",
+          "required": [
+            "paths"
+          ],
+          "properties": {
+            "paths": {
+              "type": "object"
+            }
+          },
+          "not": {
+            "required": [
+              "servers"
+            ]
+          }
+        }
+      }
+    },
+    "ToolParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "legacyPayload"
+      ],
+      "properties": {
+        "kind": {
+          "const": "tool"
+        },
+        "provider": {
+          "const": "spark-link"
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^tool:[1-9][0-9]*:version:[1-9][0-9]*:operation:[A-Za-z0-9_-]+$"
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "resourceBindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {}
+        },
+        "legacyPayload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "header",
+            "parameter",
+            "payload"
+          ],
+          "properties": {
+            "header": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "app_id"
+              ],
+              "properties": {
+                "app_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                }
+              }
+            },
+            "parameter": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "tool_id",
+                "version",
+                "operation_id"
+              ],
+              "properties": {
+                "tool_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "operation_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                }
+              }
+            },
+            "payload": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "header": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2097152,
+                      "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                    },
+                    "query": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2097152,
+                      "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2097152,
+                      "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                    },
+                    "body": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2097152,
+                      "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "LegacyLinkRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "header",
+        "parameter",
+        "payload"
+      ],
+      "properties": {
+        "header": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "app_id"
+          ],
+          "properties": {
+            "app_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          }
+        },
+        "parameter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool_id",
+            "version",
+            "operation_id"
+          ],
+          "properties": {
+            "tool_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "operation_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "message"
+          ],
+          "properties": {
+            "message": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "header": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2097152,
+                  "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                },
+                "query": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2097152,
+                  "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2097152,
+                  "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                },
+                "body": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2097152,
+                  "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ToolOperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "operation",
+        "parameters",
+        "idempotencyKey"
+      ],
+      "properties": {
+        "leaseId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^plugin::.+$"
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "operation": {
+          "enum": [
+            "tools.read",
+            "tools.invoke"
+          ]
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "provider",
+            "resourceId",
+            "resourceVersion",
+            "resourceBindings",
+            "legacyPayload"
+          ],
+          "properties": {
+            "kind": {
+              "const": "tool"
+            },
+            "provider": {
+              "const": "spark-link"
+            },
+            "resourceId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^tool:[1-9][0-9]*:version:[1-9][0-9]*:operation:[A-Za-z0-9_-]+$"
+            },
+            "resourceVersion": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "pattern": "^[1-9][0-9]*$"
+            },
+            "resourceBindings": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {}
+            },
+            "legacyPayload": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "header",
+                "parameter",
+                "payload"
+              ],
+              "properties": {
+                "header": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "app_id"
+                  ],
+                  "properties": {
+                    "app_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    }
+                  }
+                },
+                "parameter": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "tool_id",
+                    "version",
+                    "operation_id"
+                  ],
+                  "properties": {
+                    "tool_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "operation_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  }
+                },
+                "payload": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "header": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2097152,
+                          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "query": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2097152,
+                          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2097152,
+                          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "body": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2097152,
+                          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+        }
+      },
+      "x-maxUtf8Bytes": 2097152
+    },
+    "ToolOperationAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "workflowVersionId",
+        "dslHash",
+        "nodeId",
+        "iterationId",
+        "idempotencyKey",
+        "operationId",
+        "operation",
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "state",
+        "failureKind",
+        "legacyResponse",
+        "stopped",
+        "proofId"
+      ],
+      "properties": {
+        "runId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "leaseId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "workflowVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "dslHash": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^plugin::.+$"
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^tool-op:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "operation": {
+          "enum": [
+            "tools.read",
+            "tools.invoke"
+          ]
+        },
+        "kind": {
+          "const": "tool"
+        },
+        "provider": {
+          "const": "spark-link"
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^tool:[1-9][0-9]*:version:[1-9][0-9]*:operation:[A-Za-z0-9_-]+$"
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "resourceBindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {}
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "failureKind": {
+          "enum": [
+            null,
+            "provider",
+            "authorization",
+            "protocol",
+            "transport",
+            "deadline",
+            "lease",
+            "cancelled",
+            "budget"
+          ]
+        },
+        "legacyResponse": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "stopped": {
+          "type": "boolean"
+        },
+        "proofId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "RUNNING",
+                  "COMPLETED"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "FAILED",
+                  "CANCELLED",
+                  "EFFECT_UNKNOWN"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failureKind": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "RUNNING"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "legacyResponse": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "legacyResponse": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "FAILED"
+              },
+              "failureKind": {
+                "const": "provider"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "legacyResponse": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "FAILED",
+                  "CANCELLED",
+                  "EFFECT_UNKNOWN"
+                ]
+              },
+              "failureKind": {
+                "not": {
+                  "const": "provider"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "legacyResponse": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "COMPLETED",
+                  "FAILED",
+                  "CANCELLED"
+                ]
+              },
+              "proofId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "proofId": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "x-maxUtf8Bytes": 2097152
+    },
+    "ToolCancelAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "workflowVersionId",
+        "dslHash",
+        "nodeId",
+        "iterationId",
+        "idempotencyKey",
+        "operationId",
+        "operation",
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "state",
+        "failureKind",
+        "legacyResponse",
+        "stopped",
+        "proofId"
+      ],
+      "properties": {
+        "runId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "leaseId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "workflowVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "dslHash": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^plugin::.+$"
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^tool-op:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "operation": {
+          "enum": [
+            "tools.read",
+            "tools.invoke"
+          ]
+        },
+        "kind": {
+          "const": "tool"
+        },
+        "provider": {
+          "const": "spark-link"
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^tool:[1-9][0-9]*:version:[1-9][0-9]*:operation:[A-Za-z0-9_-]+$"
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "resourceBindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {}
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "failureKind": {
+          "enum": [
+            null,
+            "provider",
+            "authorization",
+            "protocol",
+            "transport",
+            "deadline",
+            "lease",
+            "cancelled",
+            "budget"
+          ]
+        },
+        "legacyResponse": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "stopped": {
+          "type": "boolean"
+        },
+        "proofId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "RUNNING",
+                  "COMPLETED"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "FAILED",
+                  "CANCELLED",
+                  "EFFECT_UNKNOWN"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failureKind": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "RUNNING"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "legacyResponse": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "legacyResponse": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "FAILED"
+              },
+              "failureKind": {
+                "const": "provider"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "legacyResponse": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "FAILED",
+                  "CANCELLED",
+                  "EFFECT_UNKNOWN"
+                ]
+              },
+              "failureKind": {
+                "not": {
+                  "const": "provider"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "legacyResponse": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "COMPLETED",
+                  "FAILED",
+                  "CANCELLED"
+                ]
+              },
+              "proofId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "proofId": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "COMPLETED",
+                  "FAILED",
+                  "CANCELLED"
+                ]
+              },
+              "proofId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ToolStatusRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt"
+      ],
+      "properties": {
+        "leaseId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "ToolCancelRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt"
+      ],
+      "properties": {
+        "leaseId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

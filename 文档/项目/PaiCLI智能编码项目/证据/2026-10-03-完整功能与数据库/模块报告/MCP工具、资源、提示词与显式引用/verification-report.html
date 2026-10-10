@@ -1,0 +1,199 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PaiCLI MCP工具、资源、提示词与显式引用验收报告</title><style>
+:root{--bg:#f3f6fb;--paper:#fff;--text:#243247;--muted:#617089;--line:#dce4ef;--blue:#215fd3;--soft:#edf3ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.85 system-ui,"Microsoft YaHei",sans-serif}header{padding:35px max(24px,calc((100vw - 1380px)/2));background:#163254;color:#fff}header h1{margin:0 0 8px;font-size:30px}header p{margin:8px 0;max-width:1040px;color:#dce6f5}.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.stat{background:#ffffff12;border:1px solid #ffffff30;border-radius:9px;padding:7px 13px}.layout{max-width:1430px;margin:auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:25px;padding:24px}nav{position:sticky;top:18px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px}nav a{display:block;padding:7px 5px;line-height:1.5;color:var(--muted);text-decoration:none;font-size:14px}nav a:hover{color:var(--blue);background:var(--soft)}main{min-width:0}.toolbar{position:sticky;top:0;z-index:2;background:var(--bg);padding:9px 0 14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:12px;font:inherit;color:inherit;background:var(--paper)}button{font:inherit;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;color:var(--text)}button:hover{border-color:var(--blue);color:var(--blue)}.module,.introduction{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:24px;margin-bottom:20px}.introduction>h1{font-size:26px}.module h2{font-size:23px;color:#15385c;margin:0 0 18px;scroll-margin-top:90px}h3{font-size:19px;margin-top:23px}p{margin:10px 0}li{margin:7px 0}a{color:var(--blue);overflow-wrap:anywhere}code{font:0.88em/1.6 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;background:var(--soft);padding:2px 5px;border-radius:4px}pre{white-space:pre-wrap;background:var(--soft);padding:15px}blockquote{margin:10px 0;border-left:4px solid #84a6e6;padding:8px 16px;background:#f5f8fd;color:var(--muted)}.case{border:1px solid var(--line);border-radius:10px;margin:12px 0;background:var(--paper)}.case>summary{cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;font-weight:600;list-style:none}.case>summary:before{content:'▸';color:var(--blue)}.case[open]>summary:before{content:'▾'}.number{background:var(--soft);color:var(--blue);border-radius:6px;padding:1px 9px;flex:none}.label{font-size:12px;font-weight:400;margin-left:auto;white-space:nowrap;color:#705c18;background:#fbf5df;border-radius:5px;padding:1px 7px}.case-body{padding:0 23px 17px}.case-body ul{padding-left:22px}.case-body li>strong:first-child{color:#15385c}.annex>summary{cursor:pointer;font-size:20px;font-weight:600}.annex>div{padding-top:20px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.7;margin:18px 0;min-width:550px}th,td{padding:9px 11px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft)}tr:nth-child(even){background:#fafcff}.module{overflow-x:auto}.hidden{display:none!important}.search-status{color:var(--muted);font-size:14px}footer{padding:24px;color:var(--muted);text-align:center;font-size:13px}.notice{font-size:14px;color:var(--muted)}@media(max-width:950px){.layout{grid-template-columns:1fr;padding:15px}nav{position:static;max-height:260px}.module,.introduction{padding:18px}header{padding:25px 20px}}@media(max-width:500px){header h1{font-size:24px}.label{display:none}.case>summary{padding:12px;font-size:15px}.case-body{padding:0 13px 15px}.toolbar{position:static}.layout{padding:10px}}@media print{header{background:white;color:black}header p{color:black}.layout{display:block}nav,.toolbar,.label{display:none}.case-body{display:block!important}.case,.module{break-inside:avoid}details:not([open])>*:not(summary){display:block!important}}
+.case[data-result="通过"] .label{color:#166534;background:#dcfce7}.case[data-result="未通过"] .label{color:#991b1b;background:#fee2e2}.case[data-result="受阻"] .label{color:#92400e;background:#fef3c7}.case[data-result="未执行"] .label{color:#475569;background:#e2e8f0}.result-warning{color:#92400e;background:#fffbeb;border-left:4px solid #d97706;padding:10px}.module-summary,.current-position{border:1px solid var(--line);background:var(--soft);padding:12px;margin-bottom:15px}.actual-image{margin:16px 0}.actual-image img,.module img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}.actual-image figcaption{font-size:13px;color:var(--muted);line-height:1.65}.case-body ol{padding-left:26px}</style></head><body><header><h1>PaiCLI MCP工具、资源、提示词与显式引用验收报告</h1><p>本页完整覆盖唯一验收正文第14章的8个业务点；按下面的实际结果与继续条件核对，不以子流程通过替代模块完整结论。</p><p>验收受阻。当前本模块业务点结果：通过0，未通过0，受阻1，未执行7，不适用0；已登记2个前提核实或执行子场景。本页由唯一正文对应模块生成，完整流程和未完成项全部保留；已有有效子场景按正文沿用，本次报告生成不计新执行业务。技术检查、业务结果及截图完整度分别记录；用户接受：待确认。</p><div class="stats"><span class="stat">通过 0</span><span class="stat">未通过 0</span><span class="stat">受阻 1</span><span class="stat">未执行 7</span><span class="stat">不适用 0</span><span class="stat">8 个详细验收点</span><span class="stat">1 个业务模块</span></div></header><div class="layout"><nav aria-label="文档目录"><strong>本模块完整流程</strong><a href="#heading-1">14. MCP工具、资源、提示词与显式引用</a><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%8C%E6%95%B4%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E8%AE%B0%E5%BD%95.md">查看唯一 Markdown 正文</a></nav><main><div class="toolbar"><input id="search" type="search" placeholder="搜索验收点，例如：图片、恢复、MCP、重试" aria-label="搜索详细验收点"><button id="expand">展开全部</button><button id="collapse">收起全部</button><span class="search-status" id="status">共 8 点</span></div><p class="notice">报告视觉检查未执行：当前浏览器安全策略限制 file:// 页面；静态核对不代替实际布局、图片加载和搜索交互检查。</p><p class="notice">点击验收点标题查看操作。搜索匹配标题、步骤、预期及源码名称；追溯表和已有实际记录可单独展开。</p><section class="module" data-module="14. MCP工具、资源、提示词与显式引用"><h2 id="heading-1">14. MCP工具、资源、提示词与显式引用</h2>
+<p><strong>模块完整流程</strong>：登记并批准服务及信任版本 → 建立对应传输与协议握手 → 发现并冻结工具目录 → 按许可调用工具 → 读取资源或提示词并显式引用 → 处理通知与目录变更 → 停用、撤销或重启后核对旧权限不能沿用。两个传输及资源、提示词分支分别验收。</p>
+<p><strong>当前完成位置与续验</strong>：当前只读列表证据及登记前提见第136点；四标签共同原因/恢复结论统一引用第8点，不在本模块重复计数。stdio/HTTP握手、信任、工具、资源、提示词、通知与撤销均未开始。下一步在模型与设置的MCP标签，由获准配置身份使用已有协议样本和明确获准服务，准备目录/隔离宿主后登记并冻结同一服务配置哈希；后续请求与回执均绑定该服务和信任版本。</p>
+<p class="module-summary">通过 0 · 未通过 0 · 受阻 1 · 未执行 7 · 不适用 0；模块截图：已登记，仍须逐点核对；完整结论：尚未全部完成</p><details class="case" data-result="受阻" data-search="### 136. mcp两层配置、变量展开、信任与条件内置搜索 - **验收前提**：受控用户/project mcp.json，同名test_echo分别指不同fixture；`${project_dir}`、`${home}`、缺失变量、一个合法一个坏server；`mcp/config/mcpconfigloader`。 - **操作步骤**：核用户→project覆盖；启动时逐server展开；给command/url冲突或缺字段；修改已信任server定义再次启动；分别无step_api_key、有引用key、显式配置step_search覆盖时查看列表。 - **预期结果**：同名project覆盖只在批准信任范围生效，变更hash要求重新确认，不自动执行仓库任意命令。一个server缺变量只使自己error，其他合法server可用；秘密脱敏。条件step_search仅有key时生成、显式配置不被覆盖，配置存在不等于真实已连通。 - **证据要求**：脱敏配置版本/信任hash、server列表及错误截图、变量后的安全参数、key不泄漏、条件内置项列表对照。 #### 逐步验收 1. **操作**：加载两层配置并展开变量。**输入**：用户/project同名test_echo；project_dir/home及缺变量。**预期及核对**：同名覆盖在批准信任内，逐server失败隔离；截列表/错误并核安全展开参数。**本步交付**：可用server与明确错误项。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：变更定义并验证配置拒绝。**输入**：已信任定义hash变化、command/url冲突或缺字段。**预期及核对**：变更重确认，不执行任意仓库命令；秘密脱敏；截信任/拒绝，核进程。**本步交付**：当前获信任定义。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：核条件内置搜索及显式覆盖。**输入**：无step key、有引用key、显式step_search。**预期及核对**：仅有key才生成且不覆盖显式定义；截三份列表，不把存在当连通。**本步交付**：条件项迁移与连接待验范围。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 #### 本次只读检查：mcp配置入口空态 - **验收前提**：当前已登录用户、无已登记mcp服务、个人执行目录未准备；不登记或启动服务。 - **操作与输入**：在模型与设置已展开的高级能力中进入“mcp 服务 / 资源 / 提示词”，读取列表、入口及说明。不提交写入。 - **预期及取证**：显示实际配置数量和真实不可用原因；没有服务时不伪造工具、资源或提示词可用状态。截图包含选中标签、列表、字段与缺项提示；下一步须获准配置和服务才能执行握手。 - **执行边界**：只核当前入口/状态，不将空态读取计作本点完整业务通过；本次与已通过且不受影响的旧页面范围分开。 **当前执行位置**：已查看当前可见mcp列表及修复后的目录提示，实际没有已登记服务；握手、信任、工具、资源与提示词业务尚未执行。整点受阻。 #### 执行记录 ##### 子场景：mcp当前get列表与字段空态 - 结果：通过 - 执行类型：业务验收页面子场景（限定本次观察，不表示全模块通过） - 时间：2026-10-05；精确保存时间见截图版本与回读索引 - 版本：15176 vite实际源码；修复后connections sha256 b843ccb6c4b0f30cdfc129572bfa0a1745b1f835379cc5e501666a90c033b867；中心api 7d42903071a0f7ee；没有替换后端或eval分发 - 身份：用户亲自登录的当前若依admin - 实际观察：实际选中mcp标签，服务/来源传输/状态信任/操作字段可见，当前用户可见列表为空且显示没有已登记mcp服务；原列表get仍执行，本次没有登记或启动服务。 - 核对结果：只核当前列表及字段空态，不证明握手、信任或工具可用。共同目录禁用原因及恢复结论仅引用第8点，不在本点重复统计。 - 证据：[10-mcp服务-目录原因修复后](实际验收-20261004/10-mcp服务-目录原因修复后.txt)；[截图版本与回读索引](实际验收-20261004/截图版本与回读索引.json) - 截图要求：必需 - 截图：[10-mcp服务-目录原因修复后](实际验收-20261004/10-mcp服务-目录原因修复后.jpg) - 截图回读：已逐张回读；仅证明所列页面、选中态、提示和原门禁 - 恢复条件：本页面子场景已完成；有服务后执行原信任与协议步骤。 ##### 子场景：mcp登记、握手及资源提示词全流程 - 结果：受阻 - 执行类型：业务验收页面子场景（限定本次观察，不表示全模块通过） - 时间：2026-10-05；精确保存时间见截图版本与回读索引 - 版本：15176 vite实际源码；修复后connections sha256 b843ccb6c4b0f30cdfc129572bfa0a1745b1f835379cc5e501666a90c033b867；中心api 7d42903071a0f7ee；没有替换后端或eval分发 - 身份：用户亲自登录的当前若依admin - 实际观察：当前无可用个人目录、执行宿主和获准mcp对象，未执行服务登记与真实握手。 - 核对结果：缺业务前提；列表空态不代替服务能力通过。 - 证据：[10-mcp服务-目录原因修复后](实际验收-20261004/10-mcp服务-目录原因修复后.txt)；[截图版本与回读索引](实际验收-20261004/截图版本与回读索引.json) - 截图要求：必需 - 截图：[10-mcp服务-目录原因修复后](实际验收-20261004/10-mcp服务-目录原因修复后.jpg) - 截图回读：已逐张回读；仅证明所列页面、选中态、提示和原门禁 - 恢复条件：准备获准执行环境、目录与mcp对象，再执行正常、变更、拒绝和故障分支。 "><summary><span class="number">136</span><span>MCP两层配置、变量展开、信任与条件内置搜索</span><span class="label">受阻</span></summary><div class="case-body"><div class="current-position"><strong>当前完成位置与承接条件</strong><p><strong>MCP当前GET列表与字段空态：</strong>实际选中MCP标签，服务/来源传输/状态信任/操作字段可见，当前用户可见列表为空且显示没有已登记MCP服务；原列表GET仍执行，本次没有登记或启动服务。<br><strong>下一步条件：</strong>本页面子场景已完成；有服务后执行原信任与协议步骤。</p><p><strong>MCP登记、握手及资源提示词全流程：</strong>当前无可用个人目录、执行宿主和获准MCP对象，未执行服务登记与真实握手。<br><strong>下一步条件：</strong>准备获准执行环境、目录与MCP对象，再执行正常、变更、拒绝和故障分支。</p></div><figure class="actual-image"><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/10-MCP%E6%9C%8D%E5%8A%A1-%E7%9B%AE%E5%BD%95%E5%8E%9F%E5%9B%A0%E4%BF%AE%E5%A4%8D%E5%90%8E.jpg"><img loading="lazy" src="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/10-MCP%E6%9C%8D%E5%8A%A1-%E7%9B%AE%E5%BD%95%E5%8E%9F%E5%9B%A0%E4%BF%AE%E5%A4%8D%E5%90%8E.jpg" alt="MCP两层配置、变量展开、信任与条件内置搜索：MCP当前GET列表与字段空态的实际截图"></a><figcaption>对应“MCP当前GET列表与字段空态”的当前页面证据；采集或沿用时间：2026-10-05；精确保存时间见截图版本与回读索引。已逐张回读；仅证明所列页面、选中态、提示和原门禁。本图只证明画面中的状态，不能代替本点其余步骤。<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/10-MCP%E6%9C%8D%E5%8A%A1-%E7%9B%AE%E5%BD%95%E5%8E%9F%E5%9B%A0%E4%BF%AE%E5%A4%8D%E5%90%8E.jpg">查看清晰原图</a></figcaption></figure><ul>
+<li><strong>验收前提</strong>：受控用户/project mcp.json，同名test_echo分别指不同fixture；<code>${PROJECT_DIR}</code>、<code>${HOME}</code>、缺失变量、一个合法一个坏server；<code>mcp/config/McpConfigLoader</code>。</li>
+<li><strong>操作步骤</strong>：核用户→project覆盖；启动时逐server展开；给command/URL冲突或缺字段；修改已信任server定义再次启动；分别无STEP_API_KEY、有引用Key、显式配置step_search覆盖时查看列表。</li>
+<li><strong>预期结果</strong>：同名project覆盖只在批准信任范围生效，变更hash要求重新确认，不自动执行仓库任意命令。一个server缺变量只使自己ERROR，其他合法server可用；秘密脱敏。条件step_search仅有Key时生成、显式配置不被覆盖，配置存在不等于真实已连通。</li>
+<li><strong>证据要求</strong>：脱敏配置版本/信任hash、server列表及错误截图、变量后的安全参数、Key不泄漏、条件内置项列表对照。</li>
+</ul>
+<h4 id="heading-2">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：加载两层配置并展开变量。<strong>输入</strong>：用户/project同名test_echo；PROJECT_DIR/HOME及缺变量。<strong>预期及核对</strong>：同名覆盖在批准信任内，逐server失败隔离；截列表/错误并核安全展开参数。<strong>本步交付</strong>：可用server与明确错误项。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：变更定义并验证配置拒绝。<strong>输入</strong>：已信任定义hash变化、command/URL冲突或缺字段。<strong>预期及核对</strong>：变更重确认，不执行任意仓库命令；秘密脱敏；截信任/拒绝，核进程。<strong>本步交付</strong>：当前获信任定义。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：核条件内置搜索及显式覆盖。<strong>输入</strong>：无STEP Key、有引用Key、显式step_search。<strong>预期及核对</strong>：仅有Key才生成且不覆盖显式定义；截三份列表，不把存在当连通。<strong>本步交付</strong>：条件项迁移与连接待验范围。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+<h4 id="heading-3">本次只读检查：MCP配置入口空态</h4>
+<ul>
+<li><strong>验收前提</strong>：当前已登录用户、无已登记MCP服务、个人执行目录未准备；不登记或启动服务。</li>
+<li><strong>操作与输入</strong>：在模型与设置已展开的高级能力中进入“MCP 服务 / 资源 / 提示词”，读取列表、入口及说明。不提交写入。</li>
+<li><strong>预期及取证</strong>：显示实际配置数量和真实不可用原因；没有服务时不伪造工具、资源或提示词可用状态。截图包含选中标签、列表、字段与缺项提示；下一步须获准配置和服务才能执行握手。</li>
+<li><strong>执行边界</strong>：只核当前入口/状态，不将空态读取计作本点完整业务通过；本次与已通过且不受影响的旧页面范围分开。</li>
+</ul>
+<p><strong>当前执行位置</strong>：已查看当前可见MCP列表及修复后的目录提示，实际没有已登记服务；握手、信任、工具、资源与提示词业务尚未执行。整点受阻。</p>
+<h4 id="heading-4">执行记录</h4>
+<h5 id="heading-5">子场景：MCP当前GET列表与字段空态</h5>
+<ul>
+<li>结果：通过</li>
+<li>执行类型：业务验收页面子场景（限定本次观察，不表示全模块通过）</li>
+<li>时间：2026-10-05；精确保存时间见截图版本与回读索引</li>
+<li>版本：15176 Vite实际源码；修复后connections SHA256 B843CCB6C4B0F30CDFC129572BFA0A1745B1F835379CC5E501666A90C033B867；中心API 7D42903071A0F7EE；没有替换后端或Eval分发</li>
+<li>身份：用户亲自登录的当前若依admin</li>
+<li>实际观察：实际选中MCP标签，服务/来源传输/状态信任/操作字段可见，当前用户可见列表为空且显示没有已登记MCP服务；原列表GET仍执行，本次没有登记或启动服务。</li>
+<li>核对结果：只核当前列表及字段空态，不证明握手、信任或工具可用。共同目录禁用原因及恢复结论仅引用第8点，不在本点重复统计。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/10-MCP%E6%9C%8D%E5%8A%A1-%E7%9B%AE%E5%BD%95%E5%8E%9F%E5%9B%A0%E4%BF%AE%E5%A4%8D%E5%90%8E.txt">10-MCP服务-目录原因修复后</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E6%88%AA%E5%9B%BE%E7%89%88%E6%9C%AC%E4%B8%8E%E5%9B%9E%E8%AF%BB%E7%B4%A2%E5%BC%95.json">截图版本与回读索引</a></li>
+<li>截图要求：必需</li>
+<li>截图：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/10-MCP%E6%9C%8D%E5%8A%A1-%E7%9B%AE%E5%BD%95%E5%8E%9F%E5%9B%A0%E4%BF%AE%E5%A4%8D%E5%90%8E.jpg">10-MCP服务-目录原因修复后</a></li>
+<li>截图回读：已逐张回读；仅证明所列页面、选中态、提示和原门禁</li>
+<li>恢复条件：本页面子场景已完成；有服务后执行原信任与协议步骤。</li>
+</ul>
+<h5 id="heading-6">子场景：MCP登记、握手及资源提示词全流程</h5>
+<ul>
+<li>结果：受阻</li>
+<li>执行类型：业务验收页面子场景（限定本次观察，不表示全模块通过）</li>
+<li>时间：2026-10-05；精确保存时间见截图版本与回读索引</li>
+<li>版本：15176 Vite实际源码；修复后connections SHA256 B843CCB6C4B0F30CDFC129572BFA0A1745B1F835379CC5E501666A90C033B867；中心API 7D42903071A0F7EE；没有替换后端或Eval分发</li>
+<li>身份：用户亲自登录的当前若依admin</li>
+<li>实际观察：当前无可用个人目录、执行宿主和获准MCP对象，未执行服务登记与真实握手。</li>
+<li>核对结果：缺业务前提；列表空态不代替服务能力通过。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/10-MCP%E6%9C%8D%E5%8A%A1-%E7%9B%AE%E5%BD%95%E5%8E%9F%E5%9B%A0%E4%BF%AE%E5%A4%8D%E5%90%8E.txt">10-MCP服务-目录原因修复后</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E6%88%AA%E5%9B%BE%E7%89%88%E6%9C%AC%E4%B8%8E%E5%9B%9E%E8%AF%BB%E7%B4%A2%E5%BC%95.json">截图版本与回读索引</a></li>
+<li>截图要求：必需</li>
+<li>截图：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/10-MCP%E6%9C%8D%E5%8A%A1-%E7%9B%AE%E5%BD%95%E5%8E%9F%E5%9B%A0%E4%BF%AE%E5%A4%8D%E5%90%8E.jpg">10-MCP服务-目录原因修复后</a></li>
+<li>截图回读：已逐张回读；仅证明所列页面、选中态、提示和原门禁</li>
+<li>恢复条件：准备获准执行环境、目录与MCP对象，再执行正常、变更、拒绝和故障分支。</li>
+</ul>
+</div></details><details class="case" data-result="未执行" data-search="### 137. mcp标准输入输出transport与json-rpc - **验收前提**：已批准固定stdio fixture，提供echo工具并记录调用参数；`mcp/transport/stdiotransport`、`jsonrpc/jsonrpcclient`、`mcpclient`。 - **操作步骤**：启动initialize/initialized与tools/list；调用echo；stdout分段发送json、stderr写诊断；回无效json、未知request id、工具iserror、超时、进程提前退出；stop/restart并复测。 - **预期结果**：握手与id对应，stderr不污染协议；片段可正确拼接，协议/工具错误明确失败不伪造成功；超时取消和退出清理待响应，stop不遗留目标子进程；启动命令/环境仍受批准和沙箱边界约束。 - **证据要求**：脱敏json-rpc握手/请求/响应录制、同参数echo独立预期、timeout与进程状态、日志及中心工具receipt。 #### 逐步验收 1. **操作**：启动受信任stdio并调用echo。**输入**：固定fixture；initialize/initialized、tools/list、echo参数。**预期及核对**：握手/id匹配、回值对照输入；记录协议与中心回执；cli展示时截结果。**本步交付**：实际连通的stdio工具。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：逐项回放协议和工具异常。**输入**：分段stdout、stderr诊断、坏json/未知id/iserror/超时/提前退出。**预期及核对**：stderr不污染，分段正确；错误不伪成功，待响应清理；核录制/状态。**本步交付**：受控失败与无悬挂请求。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：停止并重启后复测。**输入**：同一已批准命令/环境。**预期及核对**：目标子进程清理，重握手echo正确且不越沙箱；核进程及receipt。**本步交付**：可安全重启的transport。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">137</span><span>MCP标准输入输出transport与JSON-RPC</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：已批准固定stdio fixture，提供echo工具并记录调用参数；<code>mcp/transport/StdioTransport</code>、<code>jsonrpc/JsonRpcClient</code>、<code>McpClient</code>。</li>
+<li><strong>操作步骤</strong>：启动initialize/initialized与tools/list；调用echo；stdout分段发送JSON、stderr写诊断；回无效JSON、未知request id、工具isError、超时、进程提前退出；stop/restart并复测。</li>
+<li><strong>预期结果</strong>：握手与id对应，stderr不污染协议；片段可正确拼接，协议/工具错误明确失败不伪造成功；超时取消和退出清理待响应，stop不遗留目标子进程；启动命令/环境仍受批准和沙箱边界约束。</li>
+<li><strong>证据要求</strong>：脱敏JSON-RPC握手/请求/响应录制、同参数echo独立预期、timeout与进程状态、日志及中心工具receipt。</li>
+</ul>
+<h4 id="heading-7">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：启动受信任stdio并调用echo。<strong>输入</strong>：固定fixture；initialize/initialized、tools/list、echo参数。<strong>预期及核对</strong>：握手/id匹配、回值对照输入；记录协议与中心回执；CLI展示时截结果。<strong>本步交付</strong>：实际连通的stdio工具。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：逐项回放协议和工具异常。<strong>输入</strong>：分段stdout、stderr诊断、坏JSON/未知id/isError/超时/提前退出。<strong>预期及核对</strong>：stderr不污染，分段正确；错误不伪成功，待响应清理；核录制/状态。<strong>本步交付</strong>：受控失败与无悬挂请求。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：停止并重启后复测。<strong>输入</strong>：同一已批准命令/环境。<strong>预期及核对</strong>：目标子进程清理，重握手echo正确且不越沙箱；核进程及receipt。<strong>本步交付</strong>：可安全重启的transport。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 138. mcp streamablehttp transport与鉴权失败 - **验收前提**：授权受控http/sse fixture，分别返回json响应及event-stream；`mcp/transport/streamablehttptransport`、mcpclient协议版本/会话管理。 - **操作步骤**：初始化后list/call；测试sse分段、session/header连续性、401/403、非json错误页、超时/断流、server拒绝协议版本；stop/restart后再握手。 - **预期结果**：json与sse支持按真实transport解析，同一session/id正确；401/403不反复无界重试、不将key或html页注入成功工具结果；连接失败状态明确且不影响其他server。重新启动按新握手恢复，不能拿旧session冒称可用；http网络许可仍需目标策略。 - **证据要求**：脱敏http头/json-rpc/sse录制、状态及失败截图、重启session变化、日志无秘密与重试次数。 #### 逐步验收 1. **操作**：用http/sse两样本握手并调用。**输入**：授权fixture，initialize后list/call。**预期及核对**：json与event-stream实际解析，session/id连续；脱敏录制头和帧，界面截状态。**本步交付**：两种真实响应格式。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：逐项回放认证与连接错误。**输入**：401/403、非json页、超时/断流、拒协议版本。**预期及核对**：有限失败不泄key、不把html作成功结果，其他server不受影响；核重试/日志。**本步交付**：明确且有界的失败。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：停止重启后重新握手。**输入**：原失败及可用fixture。**预期及核对**：新session恢复，不能冒用旧session；核网络许可和握手变化，截图重连状态。**本步交付**：受授权的新连接。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">138</span><span>MCP StreamableHTTP transport与鉴权失败</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：授权受控HTTP/SSE fixture，分别返回JSON响应及event-stream；<code>mcp/transport/StreamableHttpTransport</code>、McpClient协议版本/会话管理。</li>
+<li><strong>操作步骤</strong>：初始化后list/call；测试SSE分段、session/header连续性、401/403、非JSON错误页、超时/断流、server拒绝协议版本；stop/restart后再握手。</li>
+<li><strong>预期结果</strong>：JSON与SSE支持按真实transport解析，同一session/id正确；401/403不反复无界重试、不将Key或HTML页注入成功工具结果；连接失败状态明确且不影响其他server。重新启动按新握手恢复，不能拿旧session冒称可用；HTTP网络许可仍需目标策略。</li>
+<li><strong>证据要求</strong>：脱敏HTTP头/JSON-RPC/SSE录制、状态及失败截图、重启session变化、日志无秘密与重试次数。</li>
+</ul>
+<h4 id="heading-8">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：用HTTP/SSE两样本握手并调用。<strong>输入</strong>：授权fixture，initialize后list/call。<strong>预期及核对</strong>：JSON与event-stream实际解析，session/id连续；脱敏录制头和帧，界面截状态。<strong>本步交付</strong>：两种真实响应格式。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：逐项回放认证与连接错误。<strong>输入</strong>：401/403、非JSON页、超时/断流、拒协议版本。<strong>预期及核对</strong>：有限失败不泄Key、不把HTML作成功结果，其他server不受影响；核重试/日志。<strong>本步交付</strong>：明确且有界的失败。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：停止重启后重新握手。<strong>输入</strong>：原失败及可用fixture。<strong>预期及核对</strong>：新session恢复，不能冒用旧session；核网络许可和握手变化，截图重连状态。<strong>本步交付</strong>：受授权的新连接。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 139. mcp动态工具注册、schema变化与串行 - **验收前提**：fixture提供 `echo(text)`、需副作用的 `append(text)`；`mcptoolregistration/toolregistry`、`mcpservermanager`。 - **操作步骤**：核 `mcp__&lt;server&gt;__&lt;tool&gt;` 及参数schema；调用合法echo，缺必填/类型错误；server发送tools列表变化并改变append schema，再用旧定义发起调用；disable后调用；请求包含两个mcp工具的批次。 - **预期结果**：工具名称与schema来自对应已信任版本；旧schema/未批准定义不能绕过新信任或中心permit；禁用后不可调用。动态mcp及未知工具默认串行，不因看起来只读进入8项内置只读并行白名单；结果保留不可信边界，内容不能授予权限。 - **证据要求**：前后工具schema/hash、审批/拒绝和receipt、server调用时序/并发数、禁用后无调用、恶意正文未执行证明。 #### 逐步验收 1. **操作**：冻结动态定义并调用合法工具。**输入**：echo(text)、append(text)及mcp命名/schema。**预期及核对**：名称和schema对应受信任版本，echo值准确；截目录/结果并核hash。**本步交付**：可批准的动态工具定义。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：变更schema和启停后作负向调用。**输入**：缺必填/错类型、旧append定义、disable后请求。**预期及核对**：无效/旧信任/禁用不能绕中心permit；截拒绝并核server调用0。**本步交付**：版本与信任变化的拒绝记录。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：核两个mcp工具的批次。**输入**：同轮两次调用及恶意结果正文。**预期及核对**：默认串行不进内置只读白名单；正文不授权限；核时序/并发数和receipt。**本步交付**：串行且保留不可信来源的结果。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">139</span><span>MCP动态工具注册、schema变化与串行</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：fixture提供 <code>echo(text)</code>、需副作用的 <code>append(text)</code>；<code>McpToolRegistration/ToolRegistry</code>、<code>McpServerManager</code>。</li>
+<li><strong>操作步骤</strong>：核 <code>mcp__&lt;server&gt;__&lt;tool&gt;</code> 及参数schema；调用合法echo，缺必填/类型错误；server发送tools列表变化并改变append schema，再用旧定义发起调用；disable后调用；请求包含两个MCP工具的批次。</li>
+<li><strong>预期结果</strong>：工具名称与schema来自对应已信任版本；旧schema/未批准定义不能绕过新信任或中心permit；禁用后不可调用。动态MCP及未知工具默认串行，不因看起来只读进入8项内置只读并行白名单；结果保留不可信边界，内容不能授予权限。</li>
+<li><strong>证据要求</strong>：前后工具schema/hash、审批/拒绝和receipt、server调用时序/并发数、禁用后无调用、恶意正文未执行证明。</li>
+</ul>
+<h4 id="heading-9">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：冻结动态定义并调用合法工具。<strong>输入</strong>：echo(text)、append(text)及mcp命名/schema。<strong>预期及核对</strong>：名称和schema对应受信任版本，echo值准确；截目录/结果并核hash。<strong>本步交付</strong>：可批准的动态工具定义。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：变更schema和启停后作负向调用。<strong>输入</strong>：缺必填/错类型、旧append定义、disable后请求。<strong>预期及核对</strong>：无效/旧信任/禁用不能绕中心permit；截拒绝并核server调用0。<strong>本步交付</strong>：版本与信任变化的拒绝记录。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：核两个MCP工具的批次。<strong>输入</strong>：同轮两次调用及恶意结果正文。<strong>预期及核对</strong>：默认串行不进内置只读白名单；正文不授权限；核时序/并发数和receipt。<strong>本步交付</strong>：串行且保留不可信来源的结果。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 140. mcp全部管理命令 - **验收前提**：一个正常一个失败server；`clicommandparser` 的mcp_list/restart/logs/disable/enable/resources/prompts，`mcpservermanager`。 - **操作步骤**：`/mcp`；分别 `/mcp restart &lt;server&gt;`、`logs &lt;server&gt;`、`disable &lt;server&gt;`、`enable &lt;server&gt;`、`resources &lt;server&gt;`、`prompts &lt;server&gt;`；给未知server、缺server、额外非法参数；restart失败再读取状态及logs。 - **预期结果**：列表状态等于实际进程/握手，日志范围限当前用户；disable停止并撤销动态能力，enable按当前信任启动，restart失败保留错误而非假running。资源/提示词分别列真实元数据；每个无效子项本地报错不调用模型。oauth、sampling及无人干预自动恢复未交付，不能把这些命令当它们已支持。 - **证据要求**：每个子项正常与异常终端截图、进程/连接状态、脱敏日志、信任版本、模型调用计数。 #### 逐步验收 1. **操作**：检查列表并逐个管理正常server。**输入**：/mcp及restart/logs/disable/enable。**预期及核对**：状态对应进程/握手；disable撤能力，enable按信任启动；截前后并核进程。**本步交付**：可管理的真实连接状态。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：查询资源/提示词并制造重启失败。**输入**：resources/prompts、失败server restart再logs。**预期及核对**：元数据真实，日志限本人且脱敏；失败保持error不假running；截状态/列表。**本步交付**：真实元数据与故障原因。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：逐子项测试参数错误。**输入**：未知/缺server、额外参数、未知子项。**预期及核对**：本地错误且模型调用0；不将oauth/sampling/自动恢复宣传为已支持；截用法。**本步交付**：全部命令校验和未交付边界。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">140</span><span>MCP全部管理命令</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：一个正常一个失败server；<code>CliCommandParser</code> 的MCP_LIST/RESTART/LOGS/DISABLE/ENABLE/RESOURCES/PROMPTS，<code>McpServerManager</code>。</li>
+<li><strong>操作步骤</strong>：<code>/mcp</code>；分别 <code>/mcp restart &lt;server&gt;</code>、<code>logs &lt;server&gt;</code>、<code>disable &lt;server&gt;</code>、<code>enable &lt;server&gt;</code>、<code>resources &lt;server&gt;</code>、<code>prompts &lt;server&gt;</code>；给未知server、缺server、额外非法参数；restart失败再读取状态及logs。</li>
+<li><strong>预期结果</strong>：列表状态等于实际进程/握手，日志范围限当前用户；disable停止并撤销动态能力，enable按当前信任启动，restart失败保留错误而非假RUNNING。资源/提示词分别列真实元数据；每个无效子项本地报错不调用模型。OAuth、sampling及无人干预自动恢复未交付，不能把这些命令当它们已支持。</li>
+<li><strong>证据要求</strong>：每个子项正常与异常终端截图、进程/连接状态、脱敏日志、信任版本、模型调用计数。</li>
+</ul>
+<h4 id="heading-10">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：检查列表并逐个管理正常server。<strong>输入</strong>：/mcp及restart/logs/disable/enable。<strong>预期及核对</strong>：状态对应进程/握手；disable撤能力，enable按信任启动；截前后并核进程。<strong>本步交付</strong>：可管理的真实连接状态。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：查询资源/提示词并制造重启失败。<strong>输入</strong>：resources/prompts、失败server restart再logs。<strong>预期及核对</strong>：元数据真实，日志限本人且脱敏；失败保持ERROR不假RUNNING；截状态/列表。<strong>本步交付</strong>：真实元数据与故障原因。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：逐子项测试参数错误。<strong>输入</strong>：未知/缺server、额外参数、未知子项。<strong>预期及核对</strong>：本地错误且模型调用0；不将OAuth/sampling/自动恢复宣传为已支持；截用法。<strong>本步交付</strong>：全部命令校验和未交付边界。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 141. mcp资源列表、读取、虚拟工具与缓存 - **验收前提**：fixture发布 `sample://doc` 内容 `acceptance-resource-v1`、一个二进制资源、无权uri；`mcp/resources/*`、`mcpclient`。 - **操作步骤**：`resources/list`与虚拟工具 `mcp__&lt;server&gt;__list_resources`；`resources/read`与 `mcp__&lt;server&gt;__read_resource(uri)`；读取用户明确uri、列表uri、伪造未授uri/空uri；订阅后改变内容、发送资源更新/列表变化通知；stop/restart查看缓存。 - **预期结果**：展示uri/name/mime/description，文本字节与fixture一致，二进制按声明处理不误当明文。读取只能使用有来源且有授权uri；通知使对应缓存失效，后读v2不残留v1，其他server缓存不被清错；断开不使用过期资源冒称最新。 - **证据要求**：列表、读取、订阅/更新请求及通知录制，v1/v2内容hash、缓存范围、越权拒绝截图、虚拟工具receipt。 #### 逐步验收 1. **操作**：列出并读取合法资源。**输入**：resources/list/read及两个虚拟工具；sample://doc文本与二进制。**预期及核对**：uri/name/mime/description准确，文本等于v1、二进制按声明；截元数据/内容，核hash。**本步交付**：有来源的资源内容。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：订阅变化并回读缓存。**输入**：改为v2、updated/list_changed、stop/restart。**预期及核对**：对应缓存失效，v2不残v1、不清他服缓存，不称断线内容最新；核通知/哈希，截回读。**本步交付**：当前版本及正确失效范围。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：测试无来源/无权限uri。**输入**：伪造未授、空uri及他人server资源。**预期及核对**：拒绝不猜内容、不暗读；截错误并核资源读取次数和receipt。**本步交付**：受限的资源读取面。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">141</span><span>MCP资源列表、读取、虚拟工具与缓存</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：fixture发布 <code>sample://doc</code> 内容 <code>acceptance-resource-v1</code>、一个二进制资源、无权URI；<code>mcp/resources/*</code>、<code>McpClient</code>。</li>
+<li><strong>操作步骤</strong>：<code>resources/list</code>与虚拟工具 <code>mcp__&lt;server&gt;__list_resources</code>；<code>resources/read</code>与 <code>mcp__&lt;server&gt;__read_resource(uri)</code>；读取用户明确URI、列表URI、伪造未授URI/空URI；订阅后改变内容、发送资源更新/列表变化通知；stop/restart查看缓存。</li>
+<li><strong>预期结果</strong>：展示URI/name/MIME/description，文本字节与fixture一致，二进制按声明处理不误当明文。读取只能使用有来源且有授权URI；通知使对应缓存失效，后读v2不残留v1，其他server缓存不被清错；断开不使用过期资源冒称最新。</li>
+<li><strong>证据要求</strong>：列表、读取、订阅/更新请求及通知录制，v1/v2内容hash、缓存范围、越权拒绝截图、虚拟工具receipt。</li>
+</ul>
+<h4 id="heading-11">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：列出并读取合法资源。<strong>输入</strong>：resources/list/read及两个虚拟工具；sample://doc文本与二进制。<strong>预期及核对</strong>：URI/name/MIME/description准确，文本等于v1、二进制按声明；截元数据/内容，核hash。<strong>本步交付</strong>：有来源的资源内容。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：订阅变化并回读缓存。<strong>输入</strong>：改为v2、updated/list_changed、stop/restart。<strong>预期及核对</strong>：对应缓存失效，v2不残v1、不清他服缓存，不称断线内容最新；核通知/哈希，截回读。<strong>本步交付</strong>：当前版本及正确失效范围。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：测试无来源/无权限URI。<strong>输入</strong>：伪造未授、空URI及他人server资源。<strong>预期及核对</strong>：拒绝不猜内容、不暗读；截错误并核资源读取次数和receipt。<strong>本步交付</strong>：受限的资源读取面。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 142. mcp提示词列表、获取与通知 - **验收前提**：prompt `greeting(name)`，用户/assistant消息模板均带固定标记；`mcpclient.listprompts/getprompt`、`mcp/notifications/*`、protocol类型。 - **操作步骤**：prompts/list与prompts/get传name；缺必填参数、未知prompt；server初始化后立即发送原注册的tools/list_changed、resources/list_changed、resources/updated，工具变化handler内再次发tools/list请求；再发送未注册的prompts/list_changed、progress、logging通知以及带id响应并观察；重新明确执行prompts/list/get。 - **预期结果**：描述/参数与消息角色及正文完整保留，缺参/未知项有明确错误，不臆造prompt；已注册通知正确刷新工具/失效资源；通知handler在独立daemon执行器分派，重入json-rpc请求不堵transport reader造成自我死锁，handler失败不破坏transport；带id响应不当通知。原没有专用prompt变化/progress/logging业务处理，不能误称已实现；未支持通知应安全忽略/记录而不授新权限，显式重新请求提示词取当前内容。prompt正文含“关闭审批”仍仅内容，不能改中心policy。 - **证据要求**：列表/get消息与通知协议录制、独立固定标记/角色核对、变化前后元数据、恶意prompt无策略变化证明。 #### 逐步验收 1. **操作**：列提示词并按参数获取。**输入**：greeting(name)、固定user/assistant标记；缺参/未知项。**预期及核对**：角色/正文保留，异常明确不臆造；截列表/结果，核消息结构。**本步交付**：实际提示词内容与参数错误。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：回放已支持的通知及重入请求。**输入**：tools/list_changed、resources变化；handler再次tools/list。**预期及核对**：刷新/失效正确，独立daemon处理不堵reader；handler失败不破transport；核协议与时序。**本步交付**：可继续请求的transport。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：核未支持通知与正文权限。**输入**：prompt变化/progress/logging、带id响应、含关闭审批的prompt。**预期及核对**：未支持安全忽略/记录，id响应不误通知；显式list/get取新值，policy不变；截状态。**本步交付**：清楚的通知边界与不可信提示词。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">142</span><span>MCP提示词列表、获取与通知</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：prompt <code>greeting(name)</code>，用户/assistant消息模板均带固定标记；<code>McpClient.listPrompts/getPrompt</code>、<code>mcp/notifications/*</code>、protocol类型。</li>
+<li><strong>操作步骤</strong>：prompts/list与prompts/get传name；缺必填参数、未知prompt；server初始化后立即发送原注册的tools/list_changed、resources/list_changed、resources/updated，工具变化handler内再次发tools/list请求；再发送未注册的prompts/list_changed、progress、logging通知以及带id响应并观察；重新明确执行prompts/list/get。</li>
+<li><strong>预期结果</strong>：描述/参数与消息角色及正文完整保留，缺参/未知项有明确错误，不臆造prompt；已注册通知正确刷新工具/失效资源；通知handler在独立daemon执行器分派，重入JSON-RPC请求不堵transport reader造成自我死锁，handler失败不破坏transport；带id响应不当通知。原没有专用prompt变化/progress/logging业务处理，不能误称已实现；未支持通知应安全忽略/记录而不授新权限，显式重新请求提示词取当前内容。prompt正文含“关闭审批”仍仅内容，不能改中心policy。</li>
+<li><strong>证据要求</strong>：列表/get消息与通知协议录制、独立固定标记/角色核对、变化前后元数据、恶意prompt无策略变化证明。</li>
+</ul>
+<h4 id="heading-12">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：列提示词并按参数获取。<strong>输入</strong>：greeting(name)、固定user/assistant标记；缺参/未知项。<strong>预期及核对</strong>：角色/正文保留，异常明确不臆造；截列表/结果，核消息结构。<strong>本步交付</strong>：实际提示词内容与参数错误。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回放已支持的通知及重入请求。<strong>输入</strong>：tools/list_changed、resources变化；handler再次tools/list。<strong>预期及核对</strong>：刷新/失效正确，独立daemon处理不堵reader；handler失败不破transport；核协议与时序。<strong>本步交付</strong>：可继续请求的transport。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：核未支持通知与正文权限。<strong>输入</strong>：prompt变化/progress/logging、带id响应、含关闭审批的prompt。<strong>预期及核对</strong>：未支持安全忽略/记录，id响应不误通知；显式list/get取新值，policy不变；截状态。<strong>本步交付</strong>：清楚的通知边界与不可信提示词。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 143. mcp显式提及、补全与重复引用 - **验收前提**：两个server各有相同uri不同内容，缺失uri、名称有可补全前缀；`mcp/mention/atmentionparser/atmentionexpander/atmentioncompleter`。 - **操作步骤**：tab补全 `@server:sample://doc`，同句引用两个server，同uri重复引用，夹中文/标点；不可用server/缺资源重试；同句出现本地 `@file` 与 `@image`。 - **预期结果**：按server+uri精确定位，补全不越用户授权server，不互换同名资源；引用展开保留来源标记和不可信边界，不吞中文或误当图片/本地文件；缺资源清楚报错，不猜正文，重复引用按现有去重规则核实际调用次数与消息结构。 - **证据要求**：补全和展开截图、模型输入结构/来源、读取调用录制及次数、错误提示、跨用户不可见候选。 #### 逐步验收 1. **操作**：补全并引用两个server资源。**输入**：@server:sample://doc；同uri不同内容及中文标点。**预期及核对**：候选限授权server，展开按server+uri不串内容；截候选/输入，核来源标记。**本步交付**：来源明确的引用内容。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：核重复与混合提及。**输入**：同uri重复、本地@file与@image同句。**预期及核对**：不吞中文、不误解析，按已有去重规则核次数和消息结构；截展开提示。**本步交付**：完整且无误重复的模型输入。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：验证不可用和越权候选。**输入**：缺资源/不可用server、乙查看甲候选。**预期及核对**：清楚报错不猜正文，跨用户候选不可见；截拒绝并核调用。**本步交付**：失败恢复原因与候选权限边界。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">143</span><span>MCP显式提及、补全与重复引用</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：两个server各有相同URI不同内容，缺失URI、名称有可补全前缀；<code>mcp/mention/AtMentionParser/AtMentionExpander/AtMentionCompleter</code>。</li>
+<li><strong>操作步骤</strong>：Tab补全 <code>@server:sample://doc</code>，同句引用两个server，同URI重复引用，夹中文/标点；不可用server/缺资源重试；同句出现本地 <code>@file</code> 与 <code>@image</code>。</li>
+<li><strong>预期结果</strong>：按server+URI精确定位，补全不越用户授权server，不互换同名资源；引用展开保留来源标记和不可信边界，不吞中文或误当图片/本地文件；缺资源清楚报错，不猜正文，重复引用按现有去重规则核实际调用次数与消息结构。</li>
+<li><strong>证据要求</strong>：补全和展开截图、模型输入结构/来源、读取调用录制及次数、错误提示、跨用户不可见候选。</li>
+</ul>
+<h4 id="heading-13">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：补全并引用两个server资源。<strong>输入</strong>：@server:sample://doc；同URI不同内容及中文标点。<strong>预期及核对</strong>：候选限授权server，展开按server+URI不串内容；截候选/输入，核来源标记。<strong>本步交付</strong>：来源明确的引用内容。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：核重复与混合提及。<strong>输入</strong>：同URI重复、本地@file与@image同句。<strong>预期及核对</strong>：不吞中文、不误解析，按已有去重规则核次数和消息结构；截展开提示。<strong>本步交付</strong>：完整且无误重复的模型输入。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：验证不可用和越权候选。<strong>输入</strong>：缺资源/不可用server、乙查看甲候选。<strong>预期及核对</strong>：清楚报错不猜正文，跨用户候选不可见；截拒绝并核调用。<strong>本步交付</strong>：失败恢复原因与候选权限边界。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details></section></main></div><footer>来源：完整业务验收记录.md · 更新日期2026-10-05 · 本页由正文生成，阅读检查不计作产品验收。</footer><script>
+const cases=[...document.querySelectorAll('.case')];const input=document.querySelector('#search');const status=document.querySelector('#status');input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let n=0;cases.forEach(el=>{const hit=!q||el.dataset.search.includes(q);el.classList.toggle('hidden',!hit);if(hit){n++;if(q)el.open=true;}});document.querySelectorAll('.module').forEach(el=>{const items=[...el.querySelectorAll('.case')];el.classList.toggle('hidden',items.length>0&&!items.some(x=>!x.classList.contains('hidden')));});status.textContent=q?'匹配 '+n+' / '+cases.length+' 点':'共 '+cases.length+' 点';});document.querySelector('#expand').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=true));document.querySelector('#collapse').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=false));
+</script></body></html>

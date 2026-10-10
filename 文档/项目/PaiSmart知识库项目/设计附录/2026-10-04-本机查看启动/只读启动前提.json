@@ -1,0 +1,98 @@
+{
+  "capturedAt": "2026-10-04T15:43:41.0906833+08:00",
+  "project": "PaiSmart",
+  "branch": "main",
+  "configurationSource": "D:\\2025Ai\\26-05-23\\java-workspace\\.env",
+  "database": "localhost:3306/ry-vue",
+  "redis": {
+    "database": 0,
+    "ping": "PONG",
+    "address": "127.0.0.1:6379"
+  },
+  "databaseReadonly": {
+    "connection": {
+      "rows": [
+        "ry-vue\t8.0.46"
+      ],
+      "query": "SELECT DATABASE(),VERSION();"
+    },
+    "tables": {
+      "rows": [
+        "54"
+      ],
+      "query": "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND (table_name REGEXP '^ps_' OR table_name='paismart_schema_history');"
+    },
+    "history": {
+      "rows": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "query": "SELECT version_no FROM paismart_schema_history ORDER BY version_no;"
+    },
+    "jobs": {
+      "rows": [],
+      "query": "SELECT type,state,COUNT(*) FROM ps_job GROUP BY type,state;"
+    },
+    "outbox": {
+      "rows": [],
+      "query": "SELECT topic,state,COUNT(*) FROM ps_outbox GROUP BY topic,state;"
+    },
+    "providers": {
+      "rows": [],
+      "query": "SELECT scope,enabled,active,COUNT(*) FROM ps_provider GROUP BY scope,enabled,active;"
+    },
+    "managedSecrets": {
+      "rows": [],
+      "query": "SELECT secret_kind,capability_code,status,COUNT(*) FROM sys_managed_secret WHERE project_code='paismart' GROUP BY secret_kind,capability_code,status;"
+    },
+    "indexes": {
+      "rows": [],
+      "query": "SELECT state,COUNT(*) FROM ps_index_revision GROUP BY state;"
+    },
+    "documents": {
+      "rows": [
+        "0"
+      ],
+      "query": "SELECT COUNT(*) FROM ps_document;"
+    },
+    "menus": {
+      "rows": [],
+      "query": "SELECT menu_name,path,component,perms,status FROM sys_menu WHERE perms LIKE 'paismart:%' OR component LIKE 'paismart/%' OR path='paismart' ORDER BY order_num,menu_id;"
+    },
+    "platformScheduledJobs": {
+      "rows": [
+        "1\t3"
+      ],
+      "query": "SELECT status,COUNT(*) FROM sys_job GROUP BY status;"
+    }
+  },
+  "java": "C:\\Users\\admin\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe",
+  "node": "C:\\Program Files\\nodejs\\node.exe",
+  "artifact": {
+    "path": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart-sub2api-20261004-def81fe34bf5\\backend\\ruoyi-admin\\target\\ruoyi-admin.jar",
+    "sha256": "3d5662bf0fcb913be4fa46bc4461dae8335a1e65c46ba5e1fad6ba6d16da575d"
+  },
+  "memory": {
+    "TotalVisibleMemorySize": 33391796,
+    "FreePhysicalMemory": 10379216
+  },
+  "listeners": [
+    {
+      "LocalAddress": "::",
+      "LocalPort": 3306,
+      "OwningProcess": 7636
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 6379,
+      "OwningProcess": 6212
+    }
+  ],
+  "environmentPrepared": {
+    "masterKey": true,
+    "masterKeyId": true
+  }
+}

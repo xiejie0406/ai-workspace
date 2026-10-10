@@ -1,0 +1,174 @@
+# 多项目并行开发启动指南
+
+> 文档类型：本机开发环境操作指南  
+> 文档版本：2026.10-r8；更新时间：2026-10-04  
+> 文档状态：Draft；启动规则已按用户决定更新，未登记配置和未完成的脚本适配就地说明  
+> owner：各项目对话维护自己的实际启动资料；协调对话维护公共入口  
+> 依据：2026-10-03 用户认可“各项目独立 Java／Tomcat、仅开启当前业务、共享已有基础服务”，并要求覆盖全部项目、保留三章结构后重构文档  
+> 适用范围：当前 Windows 电脑、已有开发环境；不包含自动建库、数据迁移、依赖重装或发布  
+> 关联：[工作区协作入口](../../AGENTS.md)、[Java 装配说明](Java业务模块统一装配.md)、[本次修订与原文恢复](证据/2026-10-03-多项目启动指南重构/重构与检查记录.md)
+> r8 修订依据：同日用户要求核查 PaiSmart 软件并落实开发前启动；只补本项目入口，未登记实际运行通道，见[本次核查记录](../项目/PaiSmart知识库项目/完整迁移设计.md#65-windows环境核查与开发前启动要求)。
+
+以后可以直接说：**“参考本指南，帮我启动生产排产开发环境。”** 执行者先查第 1 章，再按第 2 章对应项目启动，更新或停止查第 3 章。执行前核实当前文件、配置和进程；本文不是所有项目已经联机的证明。
+
+## 1. 项目一览与共用规则
+
+当前工作区为 `D:\2025Ai\26-05-23\java-workspace`，本次只读核对的分支为 `main`。日常先在此目录执行 `git branch --show-current`，沿用已确定的工作分支；不自动切换、创建分支或要求另建源码目录。共享目录中可以按业务文件分工，不能让不同对话轮流切换不同分支。
+
+| 项目 | 唯一开启的业务总开关 | Java 后端 | 页面或客户端 | 必要业务配套 |
+|---|---|---|---|---|
+| [面试](../项目/面试项目/README.md) | `interview.enabled` | `18091` | `http://interview.localhost:15173/`；`frontend/portal-web` | 原语音识别、朗读、音频存储配置 |
+| [智能选品](../项目/智能选品项目/README.md) | `fashion.enabled` | `18092` | `http://127.0.0.1:15174/`；`frontend/admin-web` | `python/fashion-ai-runtime`，原接口端口 `18100` |
+| [智能体桌面端](../项目/智能体桌面端项目/README.md) | `aden.enabled` | `18093` | 本机安装版 `Aden Local Test.exe` | 原 Runner；所需能力按项目配置 |
+| [生产排产](../项目/生产排产项目/README.md) | `aps.enabled` | `18094` | `http://127.0.0.1:15175/`；`frontend/admin-web` | 独立 `aps-worker` |
+| [AI 图片编辑](../项目/AI图片编辑项目/README.md) | `aipicture.enabled` | 原脚本 `8415` | 原管理端入口 `http://127.0.0.1:14385/`，嵌入 `frontend/aipicture-workbench` | `python/aipicture-runtime`：serve `7405`、独立 worker |
+| [AI 演示文稿](../项目/AI演示文稿项目/完整迁移设计.md) | `aippt.enabled` | 本指南尚无正式通道登记 | `frontend/aippt-web`；源码开发入口 `http://127.0.0.1:39173/aippt-web/` | `python/aippt-worker` |
+| [PaiSmart 知识库](../项目/PaiSmart知识库项目/完整迁移设计.md) | `paismart.enabled` | 本指南尚无正式通道登记 | `frontend/admin-web` 中的知识库页面；前端端口首次核定 | 解析进程、检索及对象服务按原配置复用 |
+| [PaiFlow 工作流](../项目/PaiFlow工作流项目/完整迁移设计.md) | `paiflow.enabled` | 本指南尚无正式通道登记 | `frontend/paiflow-web`；源码开发端口 `3000` | Java 21 Worker、`python/paiflow-runtime` 按引擎需要运行 |
+| [PaiCLI 智能编码](../项目/PaiCLI智能编码项目/完整迁移设计.md) | `paicli.enabled` | `18095` | `http://127.0.0.1:15176/`；`frontend/admin-web`、原终端入口 | `paicli-runner`需实际身份与绑定；评测不随日常环境自动启动 |
+
+**端口含义：**旧项目列的是已有启动定义；React 开发端口列的是源码配置，不表示进程已运行、已登录或代理已连接正确后端。未登记项目首次启动先查所属实施记录、原配置和现有进程，已有通道则沿用；确无通道时选未占用端口并登记，不能把前端默认代理 `8081` 当作已经核实的项目后端。
+
+**共享什么、分别运行什么：**
+
+- 每个正在调试的项目有自己的 Java／内置 Tomcat 和前端或客户端。若依登录、权限、菜单和公共基础保留，只开启当前业务及其必要依赖；不直接运行业务库模块代替 `ruoyi-admin`。
+- MySQL、PostgreSQL、Redis、对象服务、第三方连接、账号、密钥及已准备的依赖环境直接复用。不得按项目或对话创建、克隆、初始化数据库，另起 Redis，复制凭据或重装依赖。数据库仍遵循各业务原有所有权，共享服务不等于合并业务数据。
+- Redis 使用同一个已核实的现有连接，保留原认证及必要的业务键规则。旧 `16391～16394` 不再作为“每项目必须启动一个 Redis”的要求；本轮未指定新连接，也未停止、删除这些旧进程或数据。共享地址尚未核实时，只阻塞依赖该连接的启动，不猜测 `6379`。
+- 必要 Worker、Runner、Python 业务进程按功能运行，已有正确实例先复用；这不授权复制底层运行环境。原私有上传、语音、索引和产物目录沿用，不因端口改变而改到空目录。
+- 后端启动参数按进程传入，不反复改公共 `.env` 来切换项目。关闭总开关时还须核对后台任务、专用数据源及子功能；当前 `aden.collection.enabled` 等独立子开关不能只凭总开关推断已关闭。菜单按既有若依权限生成，后台关闭不保证菜单自动隐藏。
+
+## 2. 各项目怎样启动
+
+### 2.1 所有项目共用的启动步骤
+
+1. **找项目。**在第 1 章找到对应项目，进入所属控制页或实施记录，核实原配置文件、正确运行包和当前进程。配置只读取本项目需要的项，不打印数据库口令、服务 Token 或供应商 Key。
+2. **检查已有环境。**核对原库及必要表、共享 Redis、密钥用途、原存储目录和本机依赖。已有且地址、版本、身份正确的业务进程复用；缺项明确说明，不自动建表、初始化账号或创建替代配置。
+3. **准备运行包。**日常恢复优先用本项目已登记的固定包；源码更新则按第 3 章构建，核对包内包含当前模块，保存为本项目固定版本并登记哈希。当前 POM 仍包含多个业务，不存在已实现的按项目 Maven Profile。
+4. **启动自己的后端。**监听本项目端口，沿用原数据、托管密钥及共享 Redis 配置；显式关闭九个业务，再只开启当前一个，并核对该业务必要子开关。不把其他对话进程中的配置默认视为自己的原配置。
+5. **启动配套和前端。**完整开发环境运行当前业务所需服务，前端明确代理到本项目后端；只开发普通页面等缩小范围时，应由本次任务明确，不能擅自关闭语音、AI 或求解后仍称完整环境。
+6. **核对并打开。**检查实际监听进程、固定运行包、业务接口、前端代理和配套心跳／健康状态，再打开浏览器或安装版。只说明启动范围与缺项，不把验证码 HTTP 200、构建成功当作业务通过。
+
+**脚本现状：**[旧四项目启动脚本](../../scripts/dev/start-four-projects.ps1)会新启动各通道 Redis，且只显式切换旧四个业务；[旧停止脚本](../../scripts/dev/stop-four-projects.ps1)也会停止项目名下 Redis。二者当前不符合本指南，不能作为新的默认启动／停止命令。尚无通用九项目脚本；本次仅修改文档，执行者应依下述参数和原配置核实后启动，不能假称 `start-projects.ps1` 已存在。
+
+后端选择示例（排产；**参数示意，不是无需准备即可复制执行的脚本**）：先由执行者核实固定包、共享 Redis 连接、原配置的注入方法和必要子开关，再把参数交给既有 Java 启动方式。仅打开一个总开关不保证原配置已经齐备。
+
+```powershell
+$project = 'aps'
+$backendPort = 18094
+$backendJar = '<本项目已核实的固定运行包绝对路径>'
+$businesses = @('interview','fashion','aipicture','aden','aippt','paismart','paiflow','paicli','aps')
+$moduleArgs = foreach ($business in $businesses) {
+    '--{0}.enabled={1}' -f $business, ($business -eq $project).ToString().ToLowerInvariant()
+}
+$javaArgs = @('-Xms128m','-Xmx768m','-jar',$backendJar,
+    '--server.address=127.0.0.1',"--server.port=$backendPort",
+    '--spring.profiles.active=druid,local') + $moduleArgs
+# 在本项目启动进程中补入已核实的共享 Redis 连接、日志和必要子开关参数。
+# 后台派发用 Start-Process -WindowStyle Hidden，并登记 PID、创建时间、包哈希和日志。
+# 本段不加载秘密、不创建配置、不启动数据库或 Redis。
+```
+
+普通若依管理端前端使用下面的现有入口，变量必须先按第 1 章填入实际值。共享 `admin-web` 的多个前端实例设置各自 Vite 缓存路径；缓存、日志和固定包分别记录，不是复制一套基础服务。
+
+```powershell
+# 在工作区根目录执行；$backendPort、$frontendPort、$project 已核实并填写。
+$env:ADMIN_DEV_BACKEND_URL = "http://127.0.0.1:$backendPort"
+$env:PROJECT_VITE_CACHE_DIR = Join-Path (Get-Location) ".runtime/$project/vite-cache"
+npm --prefix frontend/admin-web run dev -- --host 127.0.0.1 --port $frontendPort --strictPort
+```
+
+<a id="面试语音日常配置"></a>
+
+### 2.2 面试
+
+- **位置与后端：**`ruoyi-backend/ruoyi-interview`，开启 `interview.enabled`；Java `18091`。原根 `.env` 为已核实配置入口，平台 MySQL `localhost:3306/ry-vue`、业务 PostgreSQL `localhost:5432/ai_interview_coach` 沿用，不用误建 `dev_interview` 或 `interview_dev_20260930`。
+- **必须保留：**识别、朗读、音频写入开启；原库托管的语音与音频加密密钥用途、原音频目录、模型／资源／音色、门户 Origin 齐全。沿用此前实测资源，不以新模型名称替换或因通道拆分关闭语音；缺项停止相应启动。
+- **前端命令：**在根目录设置 `$env:INTERVIEW_DEV_BACKEND_URL='http://127.0.0.1:18091'`，设置本项目 `PROJECT_VITE_CACHE_DIR`，执行 `npm --prefix frontend/portal-web run dev -- --host 127.0.0.1 --port 15173 --strictPort`，打开 `http://interview.localhost:15173/`。
+- **检查：**门户确实连接面试后端，`/api/v1/voice-capabilities` 回读配置就绪；读取能力不发起录音、收费探测或代替真实语音结果。[面试配置与实际记录](../项目/面试项目/功能/FEAT-INTERVIEW-002-商业邀测/验证记录.md)、[原连接及语音修复记录](证据/2026-10-01-接回原数据库/接回原库执行清单.md)。
+
+以下是旧指南保留的日常非秘密配置，启动前与当前原配置核对；供应商凭据仍从原库 `ai.interview.volcengine.speech` 用途读取，加密沿用 `platform.interview.envelope.active`，不创建或复制明文凭据。
+
+| 配置 | 沿用值 |
+|---|---|
+| `INTERVIEW_EXTERNAL_PROVIDER_CALLS_ENABLED`、`INTERVIEW_OBJECT_STORAGE_WRITES_ENABLED` | 均为 `true` |
+| `INTERVIEW_VOICE_STORAGE_ROOT` | `D:/2025Ai/26-05-23/java-workspace/.runtime/private-audio-voice-uat`；必须核实原目录存在 |
+| `INTERVIEW_VOLCENGINE_ASR_MODEL`、`INTERVIEW_VOLCENGINE_ASR_RESOURCE_ID` | 均为 `volc.bigasr.sauc.duration`，保留此前实测 ASR 1.0；不自行切到曾返回 403 的 2.0 资源 |
+| `INTERVIEW_VOLCENGINE_TTS_MODEL`、`INTERVIEW_VOLCENGINE_TTS_RESOURCE_ID` | `doubao-tts-2.0`、`seed-tts-2.0` |
+| `INTERVIEW_VOLCENGINE_TTS_VOICE` | `zh_female_vv_uranus_bigtts` |
+| `INTERVIEW_VOICE_ALLOWED_ORIGINS` | 保留原来源并包含 `http://interview.localhost:15173`，不放开任意来源 |
+
+### 2.3 智能选品
+
+- **位置与后端：**`ruoyi-backend/ruoyi-fashion`，开启 `fashion.enabled`；Java `18092`。使用已核实原 MySQL 和 `fashion-private` 存储，原配置位置从所属记录核对，不新建库、口令或上传目录。
+- **配套：**复用 `python/fashion-ai-runtime` 的原虚拟环境和服务身份；原 Java 启动器入口为 `--run-fashion-ai-runtime <原Python解释器> -m uvicorn fashion_ai.main:app --host 127.0.0.1 --port 18100`。它是独立启动动作，不是正常 HTTP 后端参数；须按原身份注入机制运行，不能裸启动绕过认证。
+- **前端命令：**按 2.1 的管理端命令填写 `project=fashion`、后端 `18092`、前端 `15174`，打开 `http://127.0.0.1:15174/`。
+- **检查与缺项：**核对 `/health`、中心到 Runtime 的认证和所需 Worker。旧记录中曾缺 Runtime 密钥；本轮未复测，不能直接认定仍缺或已经恢复。若只恢复 Java，明确 AI 链路不可用并在该进程暂停依赖它的任务，不修改原配置。[项目控制页](../项目/智能选品项目/README.md)、[Java 与 Python 边界](../项目/智能选品项目/架构/技术架构设计.md)。
+
+### 2.4 智能体桌面端
+
+- **位置与后端：**`ruoyi-backend/ruoyi-aden`，开启 `aden.enabled`；Java `18093`。先核实原业务表、空间、成员、托管密钥、Runner 原身份及私有存储；旧隔离 Runner 恢复材料不能作当前配置。
+- **客户端：**只启动 `C:\Users\admin\AppData\Local\Programs\Aden Local Test\Aden Local Test.exe`。核对安装目录 `resources/app/local-test.json` 的 `channel=local-test`、`apiBaseUrl=http://127.0.0.1:18093`，已有正确窗口复用；不以源码 Electron 或工作区 `out/` 替代。
+- **启动方法：**沿用已有测试资料目录及[安装版启动入口](../../frontend/desktop/aden-desktop/scripts/start-installed-local-test.ps1)，先核对其当前参数；清除当前启动进程中可能残留的 `ELECTRON_RUN_AS_NODE` 等桌面测试变量。Runner 使用原凭据、地址及原 Python 环境，检查最近成功心跳，不自动注册替代 Runner。
+- **检查与缺项：**安装版确实连接 `18093`，账号／空间可用，Runner 身份及能力符合所需任务。原表或身份缺失时说明不能完成的功能，不创建替代中心。[安装与同步功能](../项目/智能体桌面端项目/功能/FEAT-ADEN-002-桌面安装包与本地同步/README.md)、[业务设计](../项目/智能体桌面端项目/产品/统一设计文档.md)。
+
+### 2.5 生产排产
+
+- **位置与后端：**`ruoyi-backend/aps`，开启 `aps.enabled`；Java `18094`。沿用原平台配置及 `APS_DB_URL`、`APS_DB_USERNAME` 等已登记业务连接，开启必要的 API、持久化、数据源及报表；日常 `aps.flyway.enabled=false`，不随启动执行迁移。2026-10-02 建表及原连接登记见[实际记录](证据/2026-10-01-接回原数据库/接回原库执行清单.md)，历史结果不代表今日在线。
+- **求解：**独立运行已核实的 `aps-worker-3.9.2.jar`，来自 `ruoyi-backend/aps/aps-worker/target` 或该项目固定运行包；沿用原口令注入方式，开启 Worker、轮询、求解及必要持久化开关。HTTP 后端不承担独立 Worker 的职责；普通页面开发可按明确范围不运行求解，但不称完整排产环境。
+- **前端命令：**按 2.1 填写 `project=aps`、后端 `18094`、前端 `15175`，打开 `http://127.0.0.1:15175/`。
+- **检查：**若依认证、排产接口和前端代理连接正确，完整环境还需核对 Worker 的原连接、健康与领取配置，不为启动检查提交求解任务。[排产控制页](../项目/生产排产项目/README.md)、[Worker 工程](../../ruoyi-backend/aps/aps-worker/)。
+
+### 2.6 AI 图片编辑
+
+- **位置与后端：**`ruoyi-backend/ruoyi-aipicture`，开启 `aipicture.enabled`；原脚本 Java `8415`。核对原 MySQL 的 `aip_*` 表、平台菜单、私有资产目录及原服务身份。运行记录在 `.runtime/aipicture/processes.json`；缺表不自动运行初始化脚本。
+- **配套与现有入口：**[图片启动脚本](../../scripts/aipicture/启动图片本地通道.ps1)接受 `-DatabaseConfigPath`、`-RuntimeConfigPath`、`-JavaArtifactPath` 和 `-Frontend`；沿用已登记原路径，先检查当前脚本的九业务关闭规则和共享 Redis 连接是否满足本指南，存在差异先处理受影响启动，不能把脚本存在当作合规证明。它管理原 `python/aipicture-runtime/.venv` 的 serve `7405` 和 worker，不另外安装环境。
+- **前端：**React／Konva 编辑器位于 `frontend/aipicture-workbench`，是库构建，不存在 `npm run dev`。改动后在根目录执行 `npm --prefix frontend/admin-web run build:aipicture`，由现有入口同步嵌入管理端；再用管理端命令代理到 `8415`，前端端口 `14385`，从若依授权菜单打开。
+- **检查：**回读 Java、serve、worker 的实际身份及原通道清单，确认编辑器嵌入产物和能力状态；模型未预热、供应商或服务身份缺失时列出受影响工具，不使用 Mock 代替。[项目与实施入口](../项目/AI图片编辑项目/README.md)、[Runtime 说明](../../python/aipicture-runtime/README.md)。
+
+### 2.7 AI 演示文稿
+
+- **位置与后端：**`ruoyi-backend/ruoyi-aippt`，开启 `aippt.enabled`；从本项目实施记录核实或首次登记后端端口。先检查原表与权限、中心与 Worker 身份、私有存储、同版本 `contracts/aippt/catalog` 及所需字体资源；启动不自动迁移或下载字体。
+- **配套：**`python/aippt-worker` 使用已有解释器及原配置；工作目录内的实际入口为 `python -m app run`，应替换为已核实的原解释器路径。`python -m app health` 仅证明本地算法／目录准备，不证明中心联机或真实 Provider 可用；任务和 Provider 开关按所需完整功能配置，不擅自扩大调用范围。
+- **前端命令：**设置 `$env:ADMIN_DEV_BACKEND_URL` 指向已核实的本项目后端，再执行 `npm --prefix frontend/aippt-web run dev -- --host 127.0.0.1 --port 39173 --strictPort`。入口为 `/aippt-web/`，沿用实际若依登录、授权及 React 接入方式；不把独立页面能打开当作登录已接通。嵌入部署使用已有 `npm --prefix frontend/admin-web run build:aippt`。
+- **缺项处理：**当前指南未登记正式后端通道；不能默认连 `8081`，不能用旧 Vue 页面替代已批准 React 工程。[完整设计](../项目/AI演示文稿项目/完整迁移设计.md)、[中心说明](../../ruoyi-backend/ruoyi-aippt/README.md)、[Worker 配置与实际入口](../../python/aippt-worker/README.md)。
+
+### 2.8 PaiSmart 知识库
+
+- **开发前要求：**先按[开发环境启动指南](../项目/PaiSmart知识库项目/开发环境启动指南.md)准备并核实环境，再修改业务代码。该文档维护 `D:\javaSoft` 软件事实、必要/可选服务、首次准备、每日启动与就绪证据；用户明确指定文档/只读/离线范围时按其例外处理。本次只有软件核查和文档更新，未启动项目。
+- **位置与后端：**`ruoyi-backend/ruoyi-paismart`，开启 `paismart.enabled`；先从本项目原配置及实施记录核实后端和前端端口，再登记。使用现有平台数据源、`ps_*` 表及原对象、索引、模型和解析配置，不启动参考项目的另一套账户／数据库。
+- **配套：**按[工程运行说明](../../ruoyi-backend/ruoyi-paismart/README.md)核对消费任务、独立解析、对象操作、模型／OCR 等子开关与真实连接。需要的现有服务复用；缺少配置只阻塞相关能力，不自动启动 Docker 全套基础服务或初始化管理员。
+- **前端命令：**采用 2.1 的 `frontend/admin-web` 入口，填入核实后的本项目端口，通过若依授权菜单进入知识库页面，核对接口确实走本项目后端。
+- **检查与缺项：**普通页面、资料导入、解析、检索和问答所需配套不同，按本次开发范围报告；没有统一一键入口，不能用模块构建或本地离线解析冒充完整环境。[完整设计与实施事实](../项目/PaiSmart知识库项目/完整迁移设计.md)。
+
+### 2.9 PaiFlow 工作流
+
+- **位置与后端：**`ruoyi-backend/ruoyi-paiflow`，开启 `paiflow.enabled`；核实或登记中心端口、原表／权限、Worker 服务身份及所需外部端口。共享 Java 中心仍由 `ruoyi-admin` 启动。
+- **前端命令：**在根目录设置 `$env:VITE_PAIFLOW_CENTRE_URL` 为核实后的中心地址，执行 `npm --prefix frontend/paiflow-web run dev -- --host 127.0.0.1 --port 3000 --strictPort`。保留原 React 画布与已接入的若依认证；确认源码配置的代理实际生效，不启动原管理后端代替若依中心。
+- **配套：**Java Worker 位于 `ruoyi-backend/paiflow-worker-java`，使用其已有 Java 21 环境和实际工程配置；Python 位于 `python/paiflow-runtime`。按引擎选择复用必要执行进程，不把全部原参考服务自动启动。
+- **缺项处理：**[Python 运行说明](../../python/paiflow-runtime/README.md)当前明确没有常驻领取循环；不能编造 `uvicorn` 或 `python -m ... worker` 入口。中心和双 Worker 的联机前提按[Java Worker 说明](../../ruoyi-backend/paiflow-worker-java/README.md)及[项目实施记录](../项目/PaiFlow工作流项目/设计资料核对记录.md)逐项核实，缺入口时报告具体范围，不称全部节点可运行。
+
+### 2.10 PaiCLI 智能编码
+
+- **位置与后端：**`ruoyi-backend/ruoyi-paicli/paicli-api`，开启 `paicli.enabled`；沿用中心18095和管理端15176。2026-10-03本次实际启动继续使用原`localhost:3306/ry-vue`及共享Redis `127.0.0.1:6379`、database0；不再启动历史16395。核对原业务表、中心控制密钥、私有产物、菜单权限、工作区和原设备身份，不自动导入旧配置中的明文密钥。
+- **前端与终端：**Web 使用 2.1 的管理端入口及核实后的端口；终端包的实际构建位置为 `ruoyi-backend/ruoyi-paicli/paicli-cli/target/paicli-cli-3.9.2.jar`。按[工程运行说明](../../ruoyi-backend/ruoyi-paicli/README.md)和实际命令帮助确定中心地址、身份及启动参数，不把终端启动成功当作联机成功。
+- **配套：**运行所属 `paicli-runner`，使用已有设备配置、租约和批准机制；只打开本次开发所需工具。`paicli-eval` 与 Docker 评测不随普通开发启动，不执行真实编码任务来探测环境。
+- **检查与缺项：**Web／终端连接同一中心，Runner 心跳和权限可核对；缺真实表、身份或服务端口时分别报告。当前已核对中心及Web入口，工作区和Runner尚未登记，不能称完整执行环境已就绪；旧`ruoyi-backend/bin/start-paicli-local.ps1`会另起16395，不按当前规则直接执行。实际固定包、进程及原私有运行目录中的本次启动资料见[实际实施记录](../项目/PaiCLI智能编码项目/开发记录/2026-10-03-完整迁移实施记录.md#2306-用户自行验收环境启动)和[共享环境核对](../项目/PaiCLI智能编码项目/证据/2026-10-03-完整功能与数据库/用户自行验收共享环境启动核对.json)。[完整设计](../项目/PaiCLI智能编码项目/完整迁移设计.md)。
+
+## 3. 并行开发、更新和停止
+
+**排产与选品同时开发的顺序：**先核实并复用共享数据库、Redis及原配置；排产对话运行 `18094＋15175＋必要 Worker`，选品对话运行 `18092＋15174＋必要 Runtime`。各后端只开启自己业务，前端只连接自己后端。二者共享基础服务，但不互相改变对方的业务配置或数据规则。
+
+| 改了什么 | 怎样生效；怎样避免影响其他项目 |
+|---|---|
+| Java 业务代码 | 执行对应模块的必要测试，排队构建共享 `ruoyi-admin`，固定新包路径和哈希；只更新、重启自己的 Java。当前可用构建入口为 `mvn -f ruoyi-backend/pom.xml -pl ruoyi-admin -am package`，不是按单业务裁剪；先确认检查范围，不用另一对话的新包自动替换当前实例 |
+| 排产 Worker | 对应检查与构建入口 `mvn -f ruoyi-backend/pom.xml -pl aps/aps-worker -am package`；固定 Worker 包，只重启本项目 Worker，保留其他业务进程 |
+| Vue／React 页面 | 查看自己的入口；代理或环境变量变化则重启自己的前端。图片／演示文稿嵌入产物按第 2 章同步；共享管理端的公共修改核对受影响项目 |
+| Python／Runner／其他 Worker | 使用原解释器和配置完成对应检查，只重启归属明确的业务进程；原模型进程正确且已预热时复用，不重新复制环境 |
+| Aden 桌面 | 退出属于目标安装目录的窗口，在 `frontend/desktop/aden-desktop` 执行 `npm run sync:local`，完成构建、备份、同步及哈希核对，再打开安装版；扩展、Native Host、安装器按各自分发范围处理 |
+| 公共若依设施或数据库结构 | 协调受影响项目和必要检查；不由不同对话同时覆盖公共文件，不在共享目录切换分支。启动环境不自动扩大为表迁移、发布或 Git 写操作 |
+
+**停止方法：**先依据本项目运行清单核对 PID、创建时间、完整命令和包／解释器路径，确认属于本项目后才定向停止；不能按端口、进程名扫杀所有 Java、Node、Python。共享数据库、Redis和第三方基础服务保留；旧四项目停止脚本在排除 Redis 之前不得直接使用。图片专用停止入口见[脚本](../../scripts/aipicture/停止图片本地通道.ps1)，同样须核对其当前身份范围；安装版窗口按其实际目录归属关闭。
+
+**每次启动后只需简短汇报：**项目和实际分支；已复用／新启动的业务进程与包版本；开启业务和关闭业务；共享基础连接的非秘密地址；可打开的页面／客户端；未就绪配套及影响。把新的配置位置、通道端口、包哈希和进程身份登记到项目已有运行清单或唯一实施记录，不另建按对话划分的长期状态文档。
+
+**新增项目：**在第 1 章增加项目与入口，在第 2 章增加真实目录、原配置、命令、配套和检查；复用既有基础环境。已有记录缺失就地说明，首次启动核实后更新同一入口；不把示例端口、离线夹具或尚未存在的启动脚本写成已就绪环境。

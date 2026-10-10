@@ -11,6 +11,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ModelCommandsTest {
+    @Test void sub2ApiModelInfoShowsExactProtocolAndDoesNotUseBuiltinAlias() throws Exception {
+        LocalConfig config=new LocalConfig();var provider=new PaiCliConfig.ProviderConfig("synthetic-key","https://sub2api.example/v1","exact-model");
+        provider.setWireApi("responses");config.getProviders().put("sub2api",provider);config.setDefaultProvider("sub2api");
+        String info=ModelCommands.handle("info sub2api/exact-model",config,null);
+        assertTrue(info.contains("Sub2API"));assertTrue(info.contains("调用 API：Responses"));assertTrue(info.contains("exact-model"));assertFalse(info.contains("synthetic-key"));
+        provider.setWireApi("chat_completions");assertTrue(ModelCommands.handle("info sub2api/exact-model",config,null).contains("Chat Completions"));
+    }
     static class LocalConfig extends PaiCliConfig {
         String saved;
         boolean fail;

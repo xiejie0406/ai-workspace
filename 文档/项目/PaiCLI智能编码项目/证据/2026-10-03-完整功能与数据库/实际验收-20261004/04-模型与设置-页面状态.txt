@@ -1,0 +1,134 @@
+- link "AI 面试教练管理后台":
+  - /url: /
+  - heading "AI 面试教练管理后台" [level=1]
+- menubar:
+  - link "首页":
+    - /url: /index
+    - menuitem "首页":
+      - generic: 首页
+  - menuitem "AI 面试管理":
+    - generic "AI 面试管理"
+  - menuitem "系统管理":
+    - generic: 系统管理
+  - menuitem "系统监控":
+    - generic: 系统监控
+  - menuitem "系统工具":
+    - generic: 系统工具
+  - link "若依官网":
+    - /url: http://ruoyi.vip
+    - menuitem "若依官网":
+      - generic: 若依官网
+  - menuitem "生产排产系统":
+    - generic "生产排产系统"
+  - menuitem "PaiCLI智能编码" [expanded]:
+    - generic "PaiCLI智能编码"
+    - menu:
+      - link "智能编码":
+        - /url: /paicli/workbench
+        - menuitem "智能编码":
+          - generic: 智能编码
+      - link "我的文件":
+        - /url: /paicli/knowledge
+        - menuitem "我的文件":
+          - generic: 我的文件
+      - link "模型与设置":
+        - /url: /paicli/connections
+        - menuitem "模型与设置":
+          - generic: 模型与设置
+  - menuitem "AI 基础设施":
+    - generic "AI 基础设施"
+  - menuitem "智能选品":
+    - generic: 智能选品
+  - menuitem "AI 图片编辑":
+    - generic "AI 图片编辑"
+  - menuitem "AI 演示文稿":
+    - generic "AI 演示文稿"
+  - menuitem "PaiSmart 知识库":
+    - generic "PaiSmart 知识库"
+- navigation "面包屑":
+  - link "首页"
+  - text: /
+  - link "PaiCLI智能编码"
+  - text: /
+  - link "模型与设置"
+- button:
+- generic: "3"
+- button "若依":
+  - text: 若依
+- link "首页":
+  - /url: /index
+- link "模型与设置":
+  - /url: /paicli/connections
+  - text: 模型与设置
+- button:
+- generic "刷新页面":
+  - text: 刷新
+- main:
+  - heading "模型与设置" [level=1]
+  - paragraph: 选择模型和个人偏好。扩展能力按需配置，编码入口无需登记目录或成员。
+  - button "刷新配置":
+    - generic: 刷新配置
+  - button "高级能力":
+    - generic: 高级能力
+  - heading "默认模型" [level=2]
+  - combobox "选择个人默认模型"
+  - generic: 请选择
+  - button "设为我的默认模型" [disabled]:
+    - generic: 设为我的默认模型
+  - paragraph: 内置模型由管理员发布；个人模型和偏好只影响本人，新对话使用默认模型。
+  - region "代码检索能力":
+    - heading "代码检索" [level=2]
+    - status: 语义检索尚未准备
+    - paragraph: 语义检索帮助定位相关代码；精确文件搜索仍可使用。
+    - generic: 使用方式
+    - combobox "代码检索使用方式"
+    - generic: 自动选择（个人优先）
+    - paragraph: 个人配置优先；没有个人选择时使用受众内的平台默认。个人配置失败会保留失败状态。
+    - button "保存使用方式":
+      - generic: 保存使用方式
+  - tablist:
+    - tab "供应商与模型" [selected]
+  - tabpanel "供应商与模型":
+    - button "登记供应商":
+      - generic: 登记供应商
+    - alert:
+      - generic: 完整供应商与模型列表来自中心登记；模型刷新只追加，失败保留原配置。未知模型默认 128k 文本，能力须核实；Sub2API 文字、工具与图片分别验证，图片仅在 Responses 的有效证明通过后可用。
+    - table:
+      - rowgroup:
+        - row "供应商 协议 服务地址 密钥状态 状态 操作":
+          - columnheader "供应商":
+            - generic: 供应商
+          - columnheader "协议":
+            - generic: 协议
+          - columnheader "服务地址":
+            - generic: 服务地址
+          - columnheader "密钥状态":
+            - generic: 密钥状态
+          - columnheader "状态":
+            - generic: 状态
+          - columnheader "操作":
+            - generic: 操作
+    - table:
+      - rowgroup
+    - generic: 暂无数据
+    - button "添加模型" [disabled]:
+      - generic: 添加模型
+    - table:
+      - rowgroup:
+        - row "完整模型 ID 供应商 上下文 Token 能力 启用 配置":
+          - columnheader "完整模型 ID":
+            - generic: 完整模型 ID
+          - columnheader "供应商":
+            - generic: 供应商
+          - columnheader "上下文 Token":
+            - generic: 上下文 Token
+          - columnheader "能力":
+            - generic: 能力
+          - columnheader "启用":
+            - generic: 启用
+          - columnheader "配置":
+            - generic: 配置
+    - table:
+      - rowgroup
+    - generic: 暂无数据
+    - paragraph: 没有已登记模型，请先配置供应商

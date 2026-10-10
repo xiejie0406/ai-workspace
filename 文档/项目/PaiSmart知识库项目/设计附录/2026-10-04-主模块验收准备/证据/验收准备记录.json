@@ -1,0 +1,294 @@
+{
+  "preparedAt": "2026-10-04T18:06:48.803271+08:00",
+  "kind": "主模块验收准备与前置配置调查",
+  "businessAcceptanceExecuted": false,
+  "userAccepted": false,
+  "instruction": "用户要求先调查全部配置、由用户补齐后再进入验收；本轮只读，不测试模型、不写业务数据、不启停服务。",
+  "database": {
+    "database": "ry-vue",
+    "managedPurposes": {
+      "platform.paismart.minio.access-key": true,
+      "platform.paismart.minio.secret-key": true,
+      "platform.paismart.elasticsearch.api-key": true,
+      "ai.paismart.sub2api.llm": false,
+      "ai.paismart.aliyun.embedding": false
+    },
+    "providers": [],
+    "pendingJobs": 0,
+    "pendingJobTypes": [],
+    "legacyPendingTextJobs": 0,
+    "activeIndexes": 0,
+    "documents": 0,
+    "quotaPolicies": 0,
+    "tokenAccounts": 0,
+    "availableTokens": 0,
+    "menus": 33,
+    "modelCallsTested": false
+  },
+  "counts": {
+    "spaces": 1,
+    "activeMembers": 0,
+    "operationPlans": 0,
+    "ratePolicyRows": 0,
+    "checkedDatabase": "ry-vue",
+    "memberSpaceLinks": 1,
+    "rechargePackages": 0,
+    "ocrManagedPurpose": 0,
+    "knowledgeRoleMenuLinks": 0,
+    "paymentManagedPurposes": 0
+  },
+  "environment": {
+    "checkedAt": "2026-10-04T18:00:23.6641122+08:00",
+    "mode": "仅检查",
+    "project": "PaiSmart",
+    "items": [
+      {
+        "name": "原MySQL及项目配置",
+        "state": "就绪",
+        "detail": "原库可读；知识库菜单33项",
+        "checkedAt": "2026-10-04T17:58:16.5446056+08:00"
+      },
+      {
+        "name": "共享Redis",
+        "state": "就绪",
+        "detail": "复用127.0.0.1:6379/0",
+        "checkedAt": "2026-10-04T17:58:16.6907968+08:00"
+      },
+      {
+        "name": "MinIO",
+        "state": "就绪",
+        "detail": "通过本机身份与连接检查；正常进程复用，未重新初始化资源",
+        "checkedAt": "2026-10-04T17:59:33.1976380+08:00"
+      },
+      {
+        "name": "Kafka",
+        "state": "就绪",
+        "detail": "通过本机身份与连接检查；正常进程复用，未重新初始化资源",
+        "checkedAt": "2026-10-04T17:59:56.3948589+08:00"
+      },
+      {
+        "name": "ES",
+        "state": "就绪",
+        "detail": "通过本机身份与连接检查；正常进程复用，未重新初始化资源",
+        "checkedAt": "2026-10-04T18:00:04.6744478+08:00"
+      },
+      {
+        "name": "存储与检索托管连接",
+        "state": "就绪",
+        "detail": "三个固定用途可由原根密钥解密，未回显秘密",
+        "checkedAt": "2026-10-04T18:00:09.3609438+08:00"
+      },
+      {
+        "name": "任务消费前提",
+        "state": "就绪",
+        "detail": "当前在途任务0项；无未知类型或旧文字策略任务",
+        "checkedAt": "2026-10-04T18:00:09.3706596+08:00"
+      },
+      {
+        "name": "解析Worker",
+        "state": "已配置",
+        "detail": "固定Java解析JAR及240依赖存在；业务样本另行验证",
+        "checkedAt": "2026-10-04T18:00:09.3799292+08:00"
+      },
+      {
+        "name": "Java生产存储与ES连接",
+        "state": "就绪",
+        "detail": "原托管用途解密；生产MinIO桶HEAD和Java私有TLS ES健康真实响应；未写业务对象/索引",
+        "checkedAt": "2026-10-04T18:00:18.2887009+08:00"
+      },
+      {
+        "name": "中心运行配置",
+        "state": "就绪",
+        "detail": "期望配置、当前文件与登记运行摘要一致",
+        "checkedAt": "2026-10-04T18:00:18.2958605+08:00"
+      },
+      {
+        "name": "中心与前端HTTP",
+        "state": "就绪",
+        "detail": "中心200、同源代理正常；未登录及业务功能单独验证",
+        "checkedAt": "2026-10-04T18:00:23.6607152+08:00"
+      },
+      {
+        "name": "文字模型",
+        "state": "未就绪",
+        "detail": "缺唯一启用/激活的真实Provider或本项目有效密钥",
+        "checkedAt": "2026-10-04T18:00:23.6609524+08:00"
+      },
+      {
+        "name": "向量模型",
+        "state": "未就绪",
+        "detail": "缺唯一启用/激活的真实Provider或本项目有效密钥",
+        "checkedAt": "2026-10-04T18:00:23.6610784+08:00"
+      },
+      {
+        "name": "正式索引",
+        "state": "未就绪",
+        "detail": "尚无唯一活动版本；不能用空索引伪装知识检索通过",
+        "checkedAt": "2026-10-04T18:00:23.6639144+08:00"
+      }
+    ],
+    "configurationReady": false,
+    "completeBusinessVerified": false,
+    "startupModelProbeMade": false,
+    "backgroundModelCallsNotMeasured": true,
+    "businessSamplesSubmitted": false,
+    "sharedServicesStopped": false,
+    "manifest": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart\\processes.json",
+    "frontend": "http://127.0.0.1:15177"
+  },
+  "moduleMapping": [
+    {
+      "number": 1,
+      "name": "文档知识库",
+      "originalNumbers": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        28
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 2,
+      "name": "知识问答",
+      "originalNumbers": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        16
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 3,
+      "name": "会话历史",
+      "originalNumbers": [
+        15,
+        16
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 4,
+      "name": "知识空间",
+      "originalNumbers": [
+        3
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 5,
+      "name": "成员与资格",
+      "originalNumbers": [
+        3,
+        23,
+        24
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 6,
+      "name": "知识冲突",
+      "originalNumbers": [
+        17,
+        18
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 7,
+      "name": "索引治理",
+      "originalNumbers": [
+        19
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 8,
+      "name": "检索评测",
+      "originalNumbers": [
+        20
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 9,
+      "name": "人工复核",
+      "originalNumbers": [
+        21
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 10,
+      "name": "用量与流水",
+      "originalNumbers": [
+        23,
+        24
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 11,
+      "name": "充值与订单",
+      "originalNumbers": [
+        26
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 12,
+      "name": "模型供应商",
+      "originalNumbers": [
+        22
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 13,
+      "name": "限流策略",
+      "originalNumbers": [
+        25
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 14,
+      "name": "充值套餐",
+      "originalNumbers": [
+        27
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 15,
+      "name": "邀请码",
+      "originalNumbers": [
+        2
+      ],
+      "result": "未执行"
+    },
+    {
+      "number": 16,
+      "name": "系统作业与审计",
+      "originalNumbers": [
+        28,
+        29,
+        31
+      ],
+      "result": "未执行"
+    }
+  ],
+  "commonOriginalNumbers": [
+    1,
+    30
+  ]
+}

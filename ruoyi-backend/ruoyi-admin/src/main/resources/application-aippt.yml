@@ -30,6 +30,18 @@ aippt:
     project-concurrency: 3
   provider:
     enabled: ${AIPPT_PROVIDER_ENABLED:false}
+    text-enabled: ${AIPPT_TEXT_ENABLED:false}
+    # 文本仅由中心通过固定HTTPS白名单出口调用；无密钥环境变量或自动探测/重试。
+    base-url: ${AIPPT_TEXT_BASE_URL:}
+    wire-api: ${AIPPT_TEXT_WIRE_API:}
+    model: ${AIPPT_TEXT_MODEL:}
+    secret-ref: ${AIPPT_TEXT_SECRET_REF:ai.aippt.sub2api.text}
+    allowed-hosts: ${AIPPT_TEXT_ALLOWED_HOSTS:}
+    output-token-parameter: ${AIPPT_TEXT_OUTPUT_TOKEN_PARAMETER:max_completion_tokens}
+    max-calls: 8
+    max-output-tokens: 8192
+    timeout-seconds: 60
+    max-response-bytes: 4194304
   image:
     # 中心与 Worker 双方显式启用后才调用外部图源，上传私有图仍可读取。
     enabled: ${AIPPT_IMAGE_ENABLED:false}

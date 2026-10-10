@@ -62,6 +62,9 @@ class LegacyBundleExporterTest {
         write(source,"skills/local/SKILL.md","---\nname: local\n---\n正文只是来源资料\n");
         Map<String,String> before=files(source);Path output=temporary.resolve("bundle.json");var summary=LegacyBundleExporter.export(source,output,clock);JsonNode bundle=json.readTree(output.toFile());
         assertEquals("paicli-legacy-v1",bundle.path("schemaVersion").asText());assertEquals(clock.instant().toString(),bundle.path("exportedAt").asText());assertEquals(before,files(source));assertTrue(summary.sourceFingerprint().matches("[a-f0-9]{64}"));
+        String ownerWarning=summary.warnings().stream().filter(warning->warning.contains("所有者为 local")).findFirst().orElseThrow();
+        assertTrue(ownerWarning.contains("显式映射为当前登录用户本人"));assertTrue(ownerWarning.contains("未映射资料不能导入"));
+        assertFalse(ownerWarning.contains("工作区"));assertFalse(ownerWarning.contains("成员"));assertTrue(bundle.path("warnings").toString().contains(ownerWarning));
         String content=Files.readString(output);for(String secret:List.of("fixture-long-credential","fixture-env-credential","fixture-header-credential","base64Data","apiKey","AUTHORIZATION"))assertFalse(content.contains(secret),secret);
         Set<String> kinds=new HashSet<>();bundle.path("records").forEach(row->{kinds.add(row.path("kind").asText());assertEquals("local",row.path("legacyOwnerId").asText());assertTrue(row.path("occurredAt").asText().endsWith("Z"));});
         assertTrue(kinds.containsAll(Set.of("PROVIDER","MODEL","MEMORY","SESSION","MESSAGE","MCP","SKILL")));

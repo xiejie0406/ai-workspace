@@ -1,0 +1,38 @@
+-------------------------------------------------------------------------------
+Test set: com.paicli.eval.benchmark.DevSafeBundleVerifierTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 10.61 s <<< FAILURE! -- in com.paicli.eval.benchmark.DevSafeBundleVerifierTest
+com.paicli.eval.benchmark.DevSafeBundleVerifierTest.forbiddenReadStillFailsAfterWritableScratchPreparation(Path) -- Time elapsed: 4.883 s <<< ERROR!
+java.io.IOException: Cannot run program "bash": CreateProcess error=2, 系统找不到指定的文件。
+	at java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1170)
+	at java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1089)
+	at com.paicli.eval.benchmark.DevSafeBundleVerifierTest.verify(DevSafeBundleVerifierTest.java:112)
+	at com.paicli.eval.benchmark.DevSafeBundleVerifierTest.forbiddenReadStillFailsAfterWritableScratchPreparation(DevSafeBundleVerifierTest.java:30)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at com.paicli.eval.benchmark.SecureFilesTempDirExtension.interceptTestMethod(SecureFilesTempDirExtension.java:17)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: java.io.IOException: CreateProcess error=2, 系统找不到指定的文件。
+	at java.base/java.lang.ProcessImpl.create(Native Method)
+	at java.base/java.lang.ProcessImpl.<init>(ProcessImpl.java:506)
+	at java.base/java.lang.ProcessImpl.start(ProcessImpl.java:159)
+	at java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1126)
+	... 7 more
+
+com.paicli.eval.benchmark.DevSafeBundleVerifierTest.validGeneratorWorksWithReadOnlySnapshot(Path) -- Time elapsed: 4.791 s <<< ERROR!
+java.io.IOException: Cannot run program "bash": CreateProcess error=2, 系统找不到指定的文件。
+	at java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1170)
+	at java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1089)
+	at com.paicli.eval.benchmark.DevSafeBundleVerifierTest.verify(DevSafeBundleVerifierTest.java:112)
+	at com.paicli.eval.benchmark.DevSafeBundleVerifierTest.validGeneratorWorksWithReadOnlySnapshot(DevSafeBundleVerifierTest.java:24)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at com.paicli.eval.benchmark.SecureFilesTempDirExtension.interceptTestMethod(SecureFilesTempDirExtension.java:17)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: java.io.IOException: CreateProcess error=2, 系统找不到指定的文件。
+	at java.base/java.lang.ProcessImpl.create(Native Method)
+	at java.base/java.lang.ProcessImpl.<init>(ProcessImpl.java:506)
+	at java.base/java.lang.ProcessImpl.start(ProcessImpl.java:159)
+	at java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1126)
+	... 7 more
+

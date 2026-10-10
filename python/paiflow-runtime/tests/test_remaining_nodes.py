@@ -54,13 +54,15 @@ def capability_raw(kind, **changes):
         "agent": {"kind": "agent", "provider": "original-agent", "strategy": 1, "modelResourceId": "model", "dependencyBindings": {}, "dependencySelections": {},
             "legacyPlugin": {"tools": [], "mcp_server_ids": [], "mcp_server_urls": [], "workflow_ids": [], "knowledge": []}},
         "database": {"kind": "database", "provider": "center-data", "legacyDbId": 7, "legacySpaceId": None,
-            "tables": {"items": {"allowedModes": [1, 2, 3, 4], "columns": ["name", "count", "question", "bundle"]}}},
+            "tables": {"items": {"allowedModes": [1, 2, 3, 4], "execEnvs": [1, 2], "columns": ["name", "count", "question", "bundle"]}}},
         "rpa": {"kind": "rpa", "provider": "original-rpa", "projectId": "legacy-project", "execPosition": "EXECUTOR",
             "stopSupported": True, "limits": {"timeoutSeconds": 300}},
     }[kind]
     resources.update(version="v1", enabled=True)
     raw["resourceSnapshots"] = {"capability": resources, "model": {"kind": "model", "provider": "xinghuo", "modelName": "fixed-model", "version": "model-v1", "enabled": True}}
     raw["effectPolicy"] = {"mode": "approved_write", "allowedOperations": ["tools.read", "tools.invoke", "knowledge.answer", "agent.invoke", "data.query", "data.mutate", "rpa.execute"], "approvalRef": "center-approved-fixture"}
+    if kind == "database":
+        raw["dataEnvironment"] = 2
     return raw
 
 
@@ -268,8 +270,8 @@ class RemainingOriginalNodeTest(unittest.IsolatedAsyncioTestCase):
             await asyncio.wait_for(execution, 8)
             self.assertEqual(center.results[-1]["state"], "EFFECT_UNKNOWN")
 
-    async def test_database_custom_sql_and_identifier_injection_are_explicitly_refused(self):
-        for params in ({"mode": 0, "sql": "SELECT 1"}, {"tableName": "items;DROP_TABLE"}, {"assignmentList": ["name --"]}):
+    async def test_database_ungranted_custom_sql_and_identifier_injection_are_explicitly_refused(self):
+        for params in ({"mode": 0, "sql": "SELECT name FROM items"}, {"tableName": "items;DROP_TABLE"}, {"assignmentList": ["name --"]}):
             center = await self.execute(capability_raw("database", **params), state="FAILED")
             self.assertEqual(center.operations, [])
 

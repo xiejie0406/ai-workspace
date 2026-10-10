@@ -1,0 +1,757 @@
+{
+  "project": "PaiCLI",
+  "date": "2026-10-04",
+  "type": "源码逻辑证据",
+  "scope": "离线代码完整度，不运行API/测试/业务或连接数据库",
+  "items": [
+    {
+      "sequence": 1,
+      "name": "原终端命令与渲染",
+      "logic": "参数/别名、JLine历史/多行/补全、inline/Lanterna/plain和键位通过CenterCli/Gateway接中心；原CLI保留。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-cli/src/main/java/com/paicli/cli/CenterCli.java",
+          "line": 80,
+          "anchor": "public static int run",
+          "sha256": "9f9f81175ac94a38e76eece78618576c0290b39c705b5d64252ee23bba513e82"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-core/src/main/java/com/paicli/runtime/center/CenterCommandGateway.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "9ddc17525fa217151dffdcab1f2a83ee6c72e59106fe211ea808f981f4d451e7"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paicli/workbench/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "37044d233984f76f5d6d4a3874d34f1d81061be068931114b8d219020a484f28"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 2,
+      "name": "三Agent算法",
+      "logic": "ReAct/Plan-Execute/TEAM原算法保留；Runner冻结context/model/PAI/ledger并注入中心工具Registry，计划审核回版本。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeTaskExecutor.java",
+          "line": 65,
+          "anchor": "execute(RunnerLease",
+          "sha256": "cdbac15d6df62c89926ddc7ba4aa28bf8ee57127c5f529e340d2d51b2eabb167"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-core/src/main/java/com/paicli/agent/Agent.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "c7e244c8edc3894aa1c2b263d3804778f9124adbbb61b66a576aa5eafca53574"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-core/src/main/java/com/paicli/agent/PlanExecuteAgent.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "3b5329e256a700c41f6228cca0ec9c844f20ea0b7518a0c4954666bed490d842"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 3,
+      "name": "内置工具与许可",
+      "logic": "17工具schema保留；独立callId提案/批准/consume，真实结果保全后receipt，未知副作用不重放。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/CenterToolRegistry.java",
+          "line": 71,
+          "anchor": "executeToolOutput",
+          "sha256": "1fa5505cab58a1e2693dd4cb8bb351f5ff89988ab14294e12dc4ae33c3866af3"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcRunnerService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "8def81ed98c03776ceaef29dea614ca69984cea3da307933f638e5216264118f"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-core/src/main/java/com/paicli/tool/ToolRegistry.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "f09eb54ee6adba142cb7fc6becf85f37c4c04a71e5e7c464757cecf7e0fe3374"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 4,
+      "name": "隔离与写边界",
+      "logic": "命令分类、硬拒绝、timeout、REQUIRED隔离；同根读4/写1和进程树取消，中心批准不解除沙箱要求。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/RunnerEngine.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "f8a1d84f7754848ef9ed1161d931ab07bf1fc8ad54368001321c0361ec652a35"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/CenterToolRegistry.java",
+          "line": 244,
+          "anchor": "executeControl",
+          "sha256": "1fa5505cab58a1e2693dd4cb8bb351f5ff89988ab14294e12dc4ae33c3866af3"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-core/src/main/java/com/paicli/tool/CommandSandbox.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "d6f7229cb58fbad7cd04b4e8a943d3cb57575a0ceede8b3a35ad96749229ebd9"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 5,
+      "name": "提示、PAI和上下文",
+      "logic": "原PAI层级/imports/模板覆盖/压缩、账本/记忆接正式中心，派生预算不覆盖原文件。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeTaskExecutor.java",
+          "line": 71,
+          "anchor": "approvedPrompts",
+          "sha256": "cdbac15d6df62c89926ddc7ba4aa28bf8ee57127c5f529e340d2d51b2eabb167"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcProjectRuleService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "5468947e8e20ddd4f3d903e7cdf96f90b2ce80585dcd2550685072fb9a3080a5"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcPromptService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "d64feb6cb309d685fa5b802df7c739e1803d7834da84bf8a496f6840d9fbfec9"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 6,
+      "name": "历史、快照与完整导出",
+      "logic": "messages/tools/events固定截止与游标、JSON/Markdown导出；历史只读，新会话当前绑定；原快照序号/预览/恢复/清理有冻结批准。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcSessionService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "e2e0afb05cf6ebb458782de6fb3caff7a65fb47741df67bbae5e1d1feaf6796a"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-cli/src/main/java/com/paicli/cli/CenterSessionExporter.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "9c36a9c550baf78ff7d6696243376c790dac61ebec107f26426e6c0937832262"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeControlExecutor.java",
+          "line": 47,
+          "anchor": "SNAPSHOT_PREVIEW",
+          "sha256": "a4ae05575890653e9983426bdec2e99b31439868aec40b412a9c53c510c79d6b"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paicli/components/SessionHistory.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "eb9e7fb7c89975a091ad12813e39b3b41ddbe9e0f9bf7534a6039402eac39a87"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 7,
+      "name": "长期记忆",
+      "logic": "原scope/时间/来源/验证/冲突、删除清理接正式center；Runner仅派生快照。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcKnowledgeService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "bd8f9dabeebf61c3da0dec240ca725b3457c436c0655285693d7d6e773c7cba2"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-cli/src/main/java/com/paicli/cli/CenterProjectMemoryControl.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "7ab513c7f566f1a985c689188f86f4a3b60866b0ce233cad3c0a415e73bb6ac4"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paicli/components/MemoryEditor.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "f25b6e5fe48350d02f0647b9daba00346a8eae7b6046daa2bf4d08e9caefafe8"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 8,
+      "name": "代码知识与AST",
+      "logic": "原BM25/vector/hybrid及AST图、索引构建，参数/检索结果经control/result回执归中心。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeControlExecutor.java",
+          "line": 46,
+          "anchor": "INDEX_BUILD",
+          "sha256": "a4ae05575890653e9983426bdec2e99b31439868aec40b412a9c53c510c79d6b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcKnowledgeService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "bd8f9dabeebf61c3da0dec240ca725b3457c436c0655285693d7d6e773c7cba2"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paicli/knowledge/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "af113d6954604c07854dbad9f48a4666e64062e630dad9f9ff7dfac9d8a8ce03"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 9,
+      "name": "模型与预算",
+      "logic": "原厂商/profile/模型发现、精确模型冻结和计量；Sub2API两协议及能力验证已经在当前源码。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeTaskExecutor.java",
+          "line": 103,
+          "anchor": "managedProvider",
+          "sha256": "cdbac15d6df62c89926ddc7ba4aa28bf8ee57127c5f529e340d2d51b2eabb167"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcConnectionService.java",
+          "line": 268,
+          "anchor": "providerContext",
+          "sha256": "14a5ebad4fdeaa2f3c60630f305d6d9ac41300b026ebc56df60b72bdd01d84a0"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paicli/connections/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "5c8dc4bb1208846b1d61f0b09fc86249914e899de3ab0d2b4f628ce56a9950df"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 10,
+      "name": "MCP",
+      "logic": "stdio/HTTP、工具/资源/提示、通知刷新/日志/启停重启和@引用；定义/信任冻结，短期secret跟permit派发。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeControlExecutor.java",
+          "line": 47,
+          "anchor": "MCP_START",
+          "sha256": "a4ae05575890653e9983426bdec2e99b31439868aec40b412a9c53c510c79d6b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcConnectionService.java",
+          "line": 161,
+          "anchor": "mcpRead",
+          "sha256": "14a5ebad4fdeaa2f3c60630f305d6d9ac41300b026ebc56df60b72bdd01d84a0"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 11,
+      "name": "浏览器与网页搜索",
+      "logic": "CDP模式绑定可信chrome-devtools MCP，探活/页签/断开；原搜索provider/网页读取接中心许可与网络范围。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeControlExecutor.java",
+          "line": 50,
+          "anchor": "BROWSER_CONNECT",
+          "sha256": "a4ae05575890653e9983426bdec2e99b31439868aec40b412a9c53c510c79d6b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcConnectionService.java",
+          "line": 140,
+          "anchor": "browserConfiguration",
+          "sha256": "14a5ebad4fdeaa2f3c60630f305d6d9ac41300b026ebc56df60b72bdd01d84a0"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-core/src/main/java/com/paicli/web/SearchProvider.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "261daa6faebc060b7394c056525bea29443156edae3fad731bb725a1b09fe8b0"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 12,
+      "name": "Skills与Java语法",
+      "logic": "builtin/user/project覆盖、索引/正文预算和load_skill同轮注入，JavaParser写后诊断；原不含多语言完整LSP。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeTaskExecutor.java",
+          "line": 127,
+          "anchor": "approvedSkills",
+          "sha256": "cdbac15d6df62c89926ddc7ba4aa28bf8ee57127c5f529e340d2d51b2eabb167"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/NativeControlExecutor.java",
+          "line": 48,
+          "anchor": "SKILLS_RELOAD",
+          "sha256": "a4ae05575890653e9983426bdec2e99b31439868aec40b412a9c53c510c79d6b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-core/src/main/java/com/paicli/lsp/LspManager.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "0e80b1378c16d3010f2e467dd6bfcad30f30c9df723a5c033708593abc655b66"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 13,
+      "name": "图片与完整产物",
+      "logic": "原粘贴/文件图片；中心私有artifact摘要/归属，完整text/image先保全、分块/UTF8分页，首图失败不丢余图。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcArtifactService.java",
+          "line": 47,
+          "anchor": "upload",
+          "sha256": "9fb5645a0aeaaeeba2cc83308417976d963288f5d27393b4017ffbc3e5cedc60"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/CenterToolRegistry.java",
+          "line": 257,
+          "anchor": "preserveCurrentOutput",
+          "sha256": "1fa5505cab58a1e2693dd4cb8bb351f5ff89988ab14294e12dc4ae33c3866af3"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paicli/components/ImageAttachments.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "b966e856289e0dd094a0e7d3198e00688a1894d5d82624336cdb02f2967ac655"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 14,
+      "name": "后台任务与Runtime",
+      "logic": "原list/add/log/cancel接中心task/outbox/lease；Runtime仅显式loopback兼容，不持第二套SQLite正式任务。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcSessionService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "e2e0afb05cf6ebb458782de6fb3caff7a65fb47741df67bbae5e1d1feaf6796a"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/CenterRuntimeApiServer.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "b4fe4b77aa548a14beab3d6e34d7aa936fb722c5bcc974c828759de5de7a318f"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paicli/tasks/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "caca03c0c69d95be8cef7321f3a2fa95c4c7a50446350c483be22bb7ad7b6932"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 15,
+      "name": "微信与Harness",
+      "logic": "原登录/文本/控制、日额度/单轮预算/白名单及独立Harness；中心正式绑定/审批，Runner实际执行与报告。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcConnectionService.java",
+          "line": 168,
+          "anchor": "wechatPolicy",
+          "sha256": "14a5ebad4fdeaa2f3c60630f305d6d9ac41300b026ebc56df60b72bdd01d84a0"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-cli/src/main/java/com/paicli/wechat/CenterWechatControl.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "16e275c7976a43657c1d1c49feca2126573542817ee093fdc7aab6636a0bd879"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-cli/src/main/java/com/paicli/harness/CenterHarnessControl.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "c4210b84ace48b17b0545388f9c3f02851b3f87cc77b5d3c145d0ff685e8fe98"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 16,
+      "name": "独立评测与Python",
+      "logic": "原Judge/AgentBench/relay/verifier/配方、fixture搬到eval；Python逐文件对应单列；正式评测暂停，D5/E3/E4原路线图不伪造完成。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/pom.xml",
+          "line": 1,
+          "anchor": "",
+          "sha256": "c9e42b17e802cd23a9f9cf2b56f9786901f5d6ce17f05b32bd34505ce30862ec"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/d3_verify.py",
+          "line": 1,
+          "anchor": "",
+          "sha256": "76f19aa5243daacbbff82ebcfbb6b4bb2d9ddf30074c9909f3de792822973f35"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/reference-tools/redfox-dashboard/generate_ai_dashboard.py",
+          "line": 1,
+          "anchor": "",
+          "sha256": "80427acfbfe331455651920acdc4ff7bd7957485e31690015671527fc23840b5"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 17,
+      "name": "网页原CLI终端",
+      "logic": "当前候选xterm→若依WS→Runner真实PTY→CenterCli/Gateway；附着/控制权/图片/键位/下载均有代码，V6/ConPTY/运行切换未执行。",
+      "targetReferences": [
+        {
+          "path": "frontend/admin-web/src/views/paicli/components/WebTerminalPane.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "178e5ff9a37945f4811ccbad5db6de6ea069587a524456ce0248e9149c321b5d"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-api/src/main/java/com/ruoyi/paicli/service/PcTerminalService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "d3efebd62f1b07782c4d0e4c408edd27d4d0ce6590d20ce11272db56eedb4220"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paicli/paicli-runner/src/main/java/com/paicli/runner/RunnerTerminalHost.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "06d2699eb6240f166860172385dac74a0756331584ece1d1986b19d92d79089e"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    }
+  ],
+  "codeFixes": [],
+  "pythonMapping": [
+    {
+      "source": {
+        "path": "参考项目/paicli-main/benchmarks/paicli-native-agentbench-v0.1/fixtures/dev/dev-python-order-summary/orders.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "b3624924f07147bb8bcdbcd4327da04f09b7691a2c801e3254b5d9c9fb33c67e"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/benchmarks/paicli-native-agentbench-v0.1/fixtures/dev/dev-python-order-summary/orders.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "b3624924f07147bb8bcdbcd4327da04f09b7691a2c801e3254b5d9c9fb33c67e"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/benchmarks/paicli-native-agentbench-v0.1/fixtures/dev/dev-secret-safe-bundle/build_bundle.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "0c3c2b847edb103918989d143037a8ac01ace7344eb4bb93e4a617a201b76f8b"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/benchmarks/paicli-native-agentbench-v0.1/fixtures/dev/dev-secret-safe-bundle/build_bundle.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "0c3c2b847edb103918989d143037a8ac01ace7344eb4bb93e4a617a201b76f8b"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/d2_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "da0e4fc65dec96fa450855f5ef6f05ddd40007d8c35198ebd3df2da06f76e329"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/d2_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "da0e4fc65dec96fa450855f5ef6f05ddd40007d8c35198ebd3df2da06f76e329"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/d3_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "827651328b8acedc9a113536393b51a5d318940bfdbca1a666ba85c82a55c4cc"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/d3_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "827651328b8acedc9a113536393b51a5d318940bfdbca1a666ba85c82a55c4cc"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/d3_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "76f19aa5243daacbbff82ebcfbb6b4bb2d9ddf30074c9909f3de792822973f35"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/d3_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "76f19aa5243daacbbff82ebcfbb6b4bb2d9ddf30074c9909f3de792822973f35"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/d4_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "d80cf412750c51bab5e9f9301e93c644017b20ee7a0d411ea4089bbff342c6bb"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/d4_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "d80cf412750c51bab5e9f9301e93c644017b20ee7a0d411ea4089bbff342c6bb"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/d4_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "83fc78b9e54db447ae7250ef25af071d21f415aa34ee8398f5184a01e851ebfd"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/d4_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "83fc78b9e54db447ae7250ef25af071d21f415aa34ee8398f5184a01e851ebfd"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/e1_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "172035f6dc8382cb7d1549d839d0f9f55a49763dddf1b0ec467ba3b1dc107e30"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/e1_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "172035f6dc8382cb7d1549d839d0f9f55a49763dddf1b0ec467ba3b1dc107e30"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/e1_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "6048cebdeebf43b5d1e3b3b94f11aee5dc073ea4aa121e7e94c684c60181cf87"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/e1_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "6048cebdeebf43b5d1e3b3b94f11aee5dc073ea4aa121e7e94c684c60181cf87"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/e2_team_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "bcce25ab1f081e727a38fa56fd49a6a782afa47af481111f90c6307a75d37c75"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/e2_team_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "bcce25ab1f081e727a38fa56fd49a6a782afa47af481111f90c6307a75d37c75"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/f1_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "d8da60244cf49c4c860cbbc326db4ea0aee300f690b48ef74f375bed45a2b203"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/f1_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "d8da60244cf49c4c860cbbc326db4ea0aee300f690b48ef74f375bed45a2b203"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/f1_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "28759e86222f6f708d38bdb21b4f2e2611e4172554d3dc44fee7da5e0e14bde5"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/f1_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "28759e86222f6f708d38bdb21b4f2e2611e4172554d3dc44fee7da5e0e14bde5"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/f2_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "b5445e3ba1eccdb1a823a237c961a831c590e3956254a28421f0c5970aa5e0ae"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/f2_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "b5445e3ba1eccdb1a823a237c961a831c590e3956254a28421f0c5970aa5e0ae"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/f2_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "cba093eef2ea49be27f86842fa94bda79c1134c1f98c0b23bebae21ffa83862c"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/f2_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "cba093eef2ea49be27f86842fa94bda79c1134c1f98c0b23bebae21ffa83862c"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/f3_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "b7ebe89b139c7d042eba09b0500a1a9524053e358c1c91907be27f1575b483ce"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/f3_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "b7ebe89b139c7d042eba09b0500a1a9524053e358c1c91907be27f1575b483ce"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/f3_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "6759520212bda1ed597a1c4f99a315f0d4e90ec5fb20495f1f9d4a2e7397bfbf"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/f3_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "6759520212bda1ed597a1c4f99a315f0d4e90ec5fb20495f1f9d4a2e7397bfbf"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/f4_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "f1e1b991da2d205d29c718c97e20f6e6c2e505f565fbf864dfbc53037c562c37"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/f4_replay.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "f1e1b991da2d205d29c718c97e20f6e6c2e505f565fbf864dfbc53037c562c37"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/src/main/resources/benchmark/f4_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "a287aac986af5441c045750b652877d9123beaea92c28d73cba06ea829307957"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/resources/benchmark/f4_verify.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "a287aac986af5441c045750b652877d9123beaea92c28d73cba06ea829307957"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    },
+    {
+      "source": {
+        "path": "参考项目/paicli-main/tools/redfox-dashboard/generate_ai_dashboard.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "80427acfbfe331455651920acdc4ff7bd7957485e31690015671527fc23840b5"
+      },
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paicli/reference-tools/redfox-dashboard/generate_ai_dashboard.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "80427acfbfe331455651920acdc4ff7bd7957485e31690015671527fc23840b5"
+      },
+      "byteIdentical": true,
+      "purpose": "独立评测/fixture/报告工具，不是业务PythonRuntime"
+    }
+  ]
+}

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @PaismartEnabled
 public class SchemaReadiness {
     private final JdbcTemplate jdbc;
-    // 与审核后的V001—V005保持同步。字段检查不能代替约束、数据和外部服务验证。
+    // 与审核后的V001—V006保持同步；消息反馈还须检查实际唯一约束。
     private static final Map<String,List<String>> REQUIRED = required();
     public SchemaReadiness(@Qualifier("paismartJdbc") JdbcTemplate jdbc) {this.jdbc=jdbc;}
 
@@ -23,9 +23,10 @@ public class SchemaReadiness {
             String catalog=connection.getCatalog(),schema=connection.getSchema();
             DatabaseMetaData metadata=connection.getMetaData();
             Set<String> tables=new HashSet<>();
+            Map<String,String> tableNames=new HashMap<>();
             Map<String,Set<String>> columns=new HashMap<>();
             try(var result=metadata.getTables(catalog,schema,"%",new String[]{"TABLE"})) {
-                while(result.next()) tables.add(normalize(result.getString("TABLE_NAME")));
+                while(result.next()){String name=result.getString("TABLE_NAME");tables.add(normalize(name));tableNames.put(normalize(name),name);}
             }
             // 一次读取当前schema列元数据，避免把下划线当JDBC通配符扩大逐表匹配范围。
             try(var result=metadata.getColumns(catalog,schema,"%","%")) {
@@ -43,13 +44,38 @@ public class SchemaReadiness {
             });
             if(tables.contains("paismart_schema_history") && columns.getOrDefault("paismart_schema_history",Set.of()).contains("version_no")) {
                 Set<Integer> installed=new HashSet<>();
-                try(var statement=connection.prepareStatement("SELECT version_no FROM paismart_schema_history WHERE version_no BETWEEN 1 AND 5");var versions=statement.executeQuery()) {
+                try(var statement=connection.prepareStatement("SELECT version_no FROM paismart_schema_history WHERE version_no BETWEEN 1 AND 6");var versions=statement.executeQuery()) {
                     while(versions.next()) installed.add(versions.getInt(1));
                 }
-                for(int version=1;version<=5;version++) if(!installed.contains(version)) absent.add("paismart_schema_history.version:"+version);
+                for(int version=1;version<=6;version++) if(!installed.contains(version)) absent.add("paismart_schema_history.version:"+version);
             }
+            if(tables.contains("ps_tool_feedback")&&!hasFeedbackUnique(connection,metadata,catalog,schema,tableNames.get("ps_tool_feedback")))absent.add("ps_tool_feedback.unique:user_id,message_id");
             return List.copyOf(absent);
         });
+    }
+    private static boolean hasFeedbackUnique(java.sql.Connection connection,DatabaseMetaData metadata,String catalog,String schema,String table)throws java.sql.SQLException{
+        Map<String,SortedMap<Integer,String>> indexes=new HashMap<>();Set<String> invalid=new HashSet<>();
+        try(var rows=metadata.getIndexInfo(catalog,schema,table,true,false)){
+            while(rows.next()){
+                if(rows.getShort("TYPE")==DatabaseMetaData.tableIndexStatistic||rows.getBoolean("NON_UNIQUE"))continue;
+                String name=rows.getString("INDEX_NAME"),column=rows.getString("COLUMN_NAME"),filter=rows.getString("FILTER_CONDITION");if(name==null)continue;
+                int position=rows.getShort("ORDINAL_POSITION");if(column==null||position<1||(filter!=null&&!filter.isBlank())){invalid.add(name);continue;}
+                if(indexes.computeIfAbsent(name,key->new TreeMap<>()).put(position,normalize(column))!=null)invalid.add(name);
+            }
+        }
+        for(var entry:indexes.entrySet())if(!invalid.contains(entry.getKey())&&entry.getValue().keySet().equals(Set.of(1,2))&&List.copyOf(entry.getValue().values()).equals(List.of("user_id","message_id"))){
+            // JDBC没有SUB_PART；MySQL必须另查原库元数据，不能把前缀唯一当作完整消息ID约束。
+            if(!"MySQL".equalsIgnoreCase(metadata.getDatabaseProductName())||hasFullMysqlFeedbackUnique(connection,catalog,table,entry.getKey()))return true;
+        }
+        return false;
+    }
+    private static boolean hasFullMysqlFeedbackUnique(java.sql.Connection connection,String catalog,String table,String index)throws java.sql.SQLException{
+        if(catalog==null||catalog.isBlank())return false;
+        String sql="SELECT SEQ_IN_INDEX,COLUMN_NAME,NON_UNIQUE,SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND INDEX_NAME=? ORDER BY SEQ_IN_INDEX";
+        try(var statement=connection.prepareStatement(sql)){
+            statement.setString(1,catalog);statement.setString(2,table);statement.setString(3,index);
+            try(var rows=statement.executeQuery()){int count=0;while(rows.next()){count++;String column=rows.getString("COLUMN_NAME");if(count>2||rows.getInt("SEQ_IN_INDEX")!=count||column==null||!List.of("user_id","message_id").get(count-1).equals(normalize(column))||rows.getBoolean("NON_UNIQUE")||rows.getObject("SUB_PART")!=null)return false;}return count==2;}
+        }
     }
     private static String normalize(String name) {return name.toLowerCase(Locale.ROOT);}
     static Map<String,List<String>> required() {
@@ -92,12 +118,12 @@ public class SchemaReadiness {
             ps_index_switch id from_revision to_revision state error_message created_at updated_at
             ps_document_conflict id new_document_id old_document_id new_version old_version new_chunk_id old_chunk_id pair_key reason_json status action resolved_by note row_version created_at resolved_at
             ps_conversation id user_id title archived space_id row_version created_at updated_at
-            ps_chat_message id conversation_id role content references_json state created_at
+            ps_chat_message id conversation_id role content references_json state created_at generation_id
             ps_chat_generation id conversation_id user_id assistant_message_id client_request_id state execution_attempt next_sequence stop_requested request_json error_message created_at updated_at
             ps_chat_event generation_id sequence_no event_json created_at
             ps_ws_ticket ticket_hash user_id origin platform_session expires_at consumed_at created_at
             ps_reference id message_id document_id content_version chunk_id reference_no page_no anchor_text evidence_text metadata_json verification_json created_at
-            ps_tool_feedback id user_id conversation_id rating note created_at
+            ps_tool_feedback id user_id conversation_id rating note created_at message_id generation_id row_version updated_at
             ps_ocr_ticket token_hash job_id document_id content_version lease_token max_uses used_count expires_at created_at
             ps_ocr_call id user_id operation_id job_id document_id content_version image_hash image_bytes state actual_pages provider_request_id response_json reason created_at updated_at
             ps_evaluation id user_id label state config_json dataset_json report_json job_id row_version created_at updated_at

@@ -83,7 +83,7 @@ public class LlmClientFactory {
         if (client != null) {
             return client;
         }
-        if ("sub2api".equals(normalizeProvider(config.getDefaultProvider()))) return null;
+        if (config.getDefaultProvider() != null && "sub2api".equals(normalizeProvider(config.getDefaultProvider()))) return null;
 
         for (String provider : new String[]{"deepseek", "glm", "hunyuan", "step", "kimi", "freellmapi", "xfyun", "agnes"}) {
             client = create(provider, config.getStartupModel(provider), config);
@@ -109,9 +109,11 @@ public class LlmClientFactory {
                 : new Sub2ApiChatClient(settings.getApiKey(), model, root);
         ModelProfile profile = settings.getModels().get(model);
         if (profile == null) return client;
-        if (Boolean.TRUE.equals(profile.imageInput()) || Boolean.TRUE.equals(profile.dsml())
+        if (Boolean.TRUE.equals(profile.dsml())
                 || Boolean.TRUE.equals(profile.reasoningHistory()) || profile.template() != null)
-            throw new IllegalArgumentException("Sub2API 只接受本期文本能力，不支持图片、DSML或厂商模板/推理历史");
+            throw new IllegalArgumentException("Sub2API 不支持 DSML 或厂商模板/推理历史");
+        if (wireApi.equals("chat_completions") && Boolean.TRUE.equals(profile.imageInput()))
+            throw new IllegalArgumentException("Sub2API 图片输入仅支持已声明能力的 Responses 协议");
         if (wireApi.equals("chat_completions") && profile.reasoningEffort() != null)
             throw new IllegalArgumentException("Sub2API Chat Completions 本期未核实 reasoning_effort");
         return client.withModelProfile(model, profile);

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:paicli:events:v1",
   "title": "PaiCLI 中心事件及原始账本协议",
-  "description": "中心发布事件、Runner输入及原始账本为不同对象；大正文只保存完整私有产物引用。事件内容不能授予新工具或账号权限。",
+  "description": "中心发布事件、Runner输入及原始账本为不同对象；大正文只保存完整私有产物引用。USAGE可带冻结的CHAT或EMBEDDING实际调用身份，中心按任务绑定校验；旧事件缺省身份仍兼容，图片计入主模型而非另造图片模型。事件内容不能授予新工具或账号权限。",
   "$ref": "#/$defs/PublishedEvent",
   "$defs": {
     "PublishedEvent": {
@@ -26,6 +26,88 @@
             "taskId": {
               "type": "string",
               "pattern": "^[1-9][0-9]{0,18}$"
+            },
+            "reportedUsage": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "inputTokens": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100000000
+                },
+                "outputTokens": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100000000
+                },
+                "cachedInputTokens": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100000000
+                },
+                "totalTokens": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100000000
+                },
+                "status": {
+                  "enum": [
+                    "FAILED",
+                    "CANCELLED"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "可选：失败/取消前已收到的合法计数证据；不证明最终费用或退款。仅USAGE且usagePresent=false；total=input+output，cached<=input。",
+              "required": [
+                "inputTokens",
+                "outputTokens",
+                "cachedInputTokens",
+                "totalTokens",
+                "status"
+              ]
+            },
+            "capability": {
+              "enum": [
+                "CHAT",
+                "EMBEDDING"
+              ]
+            },
+            "provider": {
+              "type": "string",
+              "minLength": 1
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1
+            },
+            "configurationVersion": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "configFingerprint": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "releaseId": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]{0,18}$"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9223372036854775807
+                }
+              ]
+            },
+            "releaseVersion": {
+              "type": "integer",
+              "minimum": 1
             }
           },
           "additionalProperties": true
@@ -112,6 +194,43 @@
               "type": "string",
               "pattern": "^[1-9][0-9]{0,18}$"
             },
+            "directoryContextId": {
+              "oneOf": [
+                {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,18}$"
+                    },
+                    {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9223372036854775807
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "ownerUserId": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]{0,18}$"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9223372036854775807
+                }
+              ]
+            },
+            "textOnly": {
+              "type": "boolean",
+              "description": "无文件目录的纯文字任务：中心与执行器拒绝全部工具，不准备快照或MCP"
+            },
             "leaseId": {
               "type": "string"
             },
@@ -135,6 +254,8 @@
           "additionalProperties": true,
           "required": [
             "taskId",
+            "directoryContextId",
+            "ownerUserId",
             "leaseId",
             "fencingToken",
             "version",
@@ -199,6 +320,88 @@
                 "eventArtifactSha256": {
                   "type": "string",
                   "pattern": "^[a-f0-9]{64}$"
+                },
+                "reportedUsage": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "inputTokens": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000000
+                    },
+                    "outputTokens": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000000
+                    },
+                    "cachedInputTokens": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000000
+                    },
+                    "totalTokens": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000000
+                    },
+                    "status": {
+                      "enum": [
+                        "FAILED",
+                        "CANCELLED"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "可选：失败/取消前已收到的合法计数证据；不证明最终费用或退款。仅USAGE且usagePresent=false；total=input+output，cached<=input。",
+                  "required": [
+                    "inputTokens",
+                    "outputTokens",
+                    "cachedInputTokens",
+                    "totalTokens",
+                    "status"
+                  ]
+                },
+                "capability": {
+                  "enum": [
+                    "CHAT",
+                    "EMBEDDING"
+                  ]
+                },
+                "provider": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "model": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "configurationVersion": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "configFingerprint": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "releaseId": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,18}$"
+                    },
+                    {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9223372036854775807
+                    }
+                  ]
+                },
+                "releaseVersion": {
+                  "type": "integer",
+                  "minimum": 1
                 },
                 "eventArtifactSize": {
                   "type": "integer",

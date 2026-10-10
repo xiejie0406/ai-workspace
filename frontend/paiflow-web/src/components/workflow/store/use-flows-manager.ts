@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { FlowType } from '@/components/workflow/types';
+import { FlowType, TextNodeConfig } from '@/components/workflow/types';
 import { FlowsManagerStoreType } from '@/components/workflow/types/zustand/flowsManager';
 import {
   initialStatus,
@@ -104,8 +104,8 @@ const useFlowsManagerStore = create<FlowsManagerStoreType>((set, get) => ({
   },
   addModelParamsToNode: (currentModel): void =>
     addModelParamsToNode(currentModel, get),
-  addTextNodeConfig: (params): Promise<void> => addTextNodeConfig(params, get),
-  removeTextNodeConfig: (id): Promise<unknown> => removeTextNodeConfig(id, get),
+  addTextNodeConfig: (params): Promise<unknown> => addTextNodeConfig(params, get),
+  removeTextNodeConfig: (id): Promise<TextNodeConfig[]> => removeTextNodeConfig(id, get),
   setHistorys: (change): void => setHistorys(change, get, set),
   setModels: (appId): void => setModels(appId, set),
   setFlows: (flows: FlowType[]): void => {
@@ -114,7 +114,7 @@ const useFlowsManagerStore = create<FlowsManagerStoreType>((set, get) => ({
       currentFlow: flows.find(flow => flow.id == get().currentFlowId),
     });
   },
-  setErrNodes: (errNodes: unknown): void => {
+  setErrNodes: (errNodes): void => {
     set({
       errNodes,
     });

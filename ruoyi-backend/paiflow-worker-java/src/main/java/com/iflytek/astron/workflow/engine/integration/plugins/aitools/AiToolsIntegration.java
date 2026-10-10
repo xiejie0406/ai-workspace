@@ -62,16 +62,21 @@ public class AiToolsIntegration {
             businessInput = new ArrayList<>();
         }
 
-        // Initialize Link client for tool communication
-        String pluginBaseUrl = aitoolsUrl;
-
-        Link link = new Link(
-                appId,
-                Arrays.asList(pluginId),
-                pluginBaseUrl + "/api/v1/tools/versions",
-                pluginBaseUrl + "/api/v1/tools/http_run",
-                version
-        );
+        String resourceId = getString(nodeParam, "toolResourceId");
+        if (resourceId == null || resourceId.isBlank()) {
+            throw new com.ruoyi.paiflow.worker.service.WorkerException("RESOURCE_UNAVAILABLE", "工具节点缺少中心固定资源绑定");
+        }
+        com.ruoyi.paiflow.worker.service.ExecutionScope scope = com.ruoyi.paiflow.worker.service.ExecutionScope.current();
+        Map<String, Object> resource = scope.boundResource(resourceId, Map.of("kind", "tool", "provider", "spark-link",
+                "pluginId", pluginId, "operationId", operationId, "legacyVersion", version, "legacyAppId", appId));
+        if (!(resource.get("openApiSchema") instanceof Map<?, ?> schema)
+                || !java.util.Set.of("read", "write").contains(String.valueOf(resource.get("effectClass")))) {
+            throw new com.ruoyi.paiflow.worker.service.WorkerException("RESOURCE_UNAVAILABLE", "工具资源缺少原 schema 或读写分级");
+        }
+        HashMap<String, Object> originalSchema = new HashMap<>();
+        originalSchema.put("id", pluginId);
+        originalSchema.put("schema", com.alibaba.fastjson2.JSON.toJSONString(schema));
+        Link link = new Link(appId, Arrays.asList(pluginId), version, List.of(originalSchema));
 
         Map<String, Object> actionInputs = inputs != null ? new HashMap<>(inputs) : new HashMap<>();
         Map<String, Object> outputs = new HashMap<>();
@@ -82,6 +87,7 @@ public class AiToolsIntegration {
             for (Tool tool : link.getTools()) {
                 if (tool != null && operationId.equals(tool.getOperationId())) {
                     toolFound = true;
+                    tool.bindCenter(node.getId(), resourceId, resource);
                     Map<String, Object> businessInputMap = getBusinessInput(actionInputs, businessInput);
 
                     try {
@@ -90,6 +96,7 @@ public class AiToolsIntegration {
                         outputs = res != null ? res : new HashMap<>();
                         break;
                     } catch (Exception e) {
+                        if (e instanceof com.ruoyi.paiflow.worker.service.WorkerException controlled) throw controlled;
                         log.error("Error executing plugin: {}", e.getMessage(), e);
                         throw new RuntimeException("Plugin execution failed: " + e.getMessage(), e);
                     }

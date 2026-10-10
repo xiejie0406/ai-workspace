@@ -1,0 +1,116 @@
+{
+  "type": "一次只读技术诊断证据；不是长期验收状态或测试复验结果",
+  "recordedAt": "2026-10-05T02:05:45.810452+08:00",
+  "scope": "FrozenCodeSearchIndexTest原唯一错误的触发条件与未执行断言定位",
+  "actions": {
+    "readOnlyInvestigation": true,
+    "testsExecuted": 0,
+    "sourceEdited": false,
+    "permissionsChanged": false,
+    "developerModeEnabled": false,
+    "privilegeElevated": false,
+    "providerCalls": 0,
+    "dockerStarted": 0,
+    "formalBatchStarted": false
+  },
+  "originalReport": {
+    "path": "文档/项目/PaiCLI智能编码项目/证据/2026-10-03-完整功能与数据库/实际验收-20261004/Eval沿用与复验前报告/TEST-com.paicli.eval.benchmark.rag.FrozenCodeSearchIndexTest.xml",
+    "sha256": "6b9b503f70928fb657cf637b7b8282596d1340623623d125a67e1dae090eefac",
+    "tests": 7,
+    "passed": 6,
+    "failures": 0,
+    "errors": 1,
+    "skipped": 0,
+    "unchanged": true,
+    "failureMethod": "fileLoaderRejectsSymlinkAndOversizedOrEmptyInput(Path)",
+    "exceptionType": "java.nio.file.FileSystemException",
+    "observedMessage": "linked-index.json：客户端没有所需的特权。",
+    "firstRelevantApi": "java.nio.file.Files.createSymbolicLink",
+    "testStackLocation": "FrozenCodeSearchIndexTest.java:126",
+    "tempPathOmittedForMinimalPublicEvidence": true
+  },
+  "testSource": {
+    "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/test/java/com/paicli/eval/benchmark/rag/FrozenCodeSearchIndexTest.java",
+    "sha256": "15ef678172db3e08b54bf92db13d9a9b3673b2df3b131bd1d912b3d90c439eb0",
+    "locations": {
+      "validFileControl": [
+        119,
+        123
+      ],
+      "realFileSymlinkCreation": 126,
+      "symlinkRejectionAssertion": 127,
+      "emptyFileRejection": [
+        129,
+        131
+      ],
+      "oversizedJsonRejection": [
+        133,
+        134
+      ]
+    },
+    "conclusion": "原运行已完成valid索引读取正例，随后创建真实文件软链失败；load(symlink)、empty文件拒绝及oversized JSON拒绝均未在该原方法中执行。其他通过方法不被重跑或改写。"
+  },
+  "productionSource": {
+    "path": "ruoyi-backend/ruoyi-paicli/paicli-eval/src/main/java/com/paicli/eval/benchmark/rag/FrozenCodeSearchIndex.java",
+    "sha256": "48f654291f03286a0aafd9152c31013fe28addf1f41ba8713c37d157666c3e25",
+    "locations": {
+      "load": 106,
+      "nonSymlinkRegularFileGuard": [
+        110,
+        114
+      ],
+      "sizeGuard": [
+        115,
+        118
+      ]
+    },
+    "conclusion": "load在读取索引前检查isSymbolicLink并要求NOFOLLOW_LINKS普通文件；本次错误发生于fixture创建，未进入该拒绝断言，不能据此认定生产加载器缺陷。"
+  },
+  "jdkSource": {
+    "archivePath": "C:\\Users\\admin\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\lib\\src.zip",
+    "entries": [
+      {
+        "path": "java.base/sun/nio/fs/WindowsFileSystemProvider.java",
+        "sha256": "04be2a982809da9051a938f54f5a0676bec839b993c916e7f9eb9ca8b3c5a5e8",
+        "location": [
+          595,
+          605
+        ],
+        "role": "Files.createSymbolicLink路径委托WindowsLinkSupport.createSymbolicLink"
+      },
+      {
+        "path": "java.base/sun/nio/fs/WindowsLinkSupport.java",
+        "sha256": "47cd04299a370c50483d4535a2bfb51cc9559b2d165055c330c56c41e97f49ae",
+        "location": [
+          51,
+          73
+        ],
+        "excerpt": "51:     static void createSymbolicLink(String link, String target, int flags)\n52:         throws WindowsException\n53:     {\n54:         try {\n55:             CreateSymbolicLink(link, target, flags);\n56:         } catch (WindowsException x) {\n57:             // Retry if the privilege to create symbolic links is not held\n58:             if (x.lastError() == ERROR_PRIVILEGE_NOT_HELD) {\n59:                 flags |= SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;\n60:                 try {\n61:                     CreateSymbolicLink(link, target, flags);\n62:                     return;\n63:                 } catch (WindowsException y) {\n64:                     // Throw an exception if and only if it is not due to symbolic link creation\n65:                     // privilege not being held (ERROR_PRIVILEGE_NOT_HELD) nor the\n66:                     // SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE flag not being recognized\n67:                     // (ERROR_INVALID_PARAMETER). The latter will occur for Windows builds\n68:                     // older than 14972.\n69:                     int lastError = y.lastError();\n70:                     if (lastError != ERROR_PRIVILEGE_NOT_HELD && lastError != ERROR_INVALID_PARAMETER)\n71:                         throw y;\n72:                 }\n73:             }",
+        "role": "首次调用若ERROR_PRIVILEGE_NOT_HELD，已有ALLOW_UNPRIVILEGED_CREATE重试；两次拒绝时抛原权限错误"
+      }
+    ],
+    "conclusion": "当前本机JDK21已实现无特权创建flag重试；没有证据表明另换Python/bash创建器能弥补此权限条件。"
+  },
+  "readOnlyCapabilityObservation": {
+    "privilegeQuery": "whoami.exe /priv仅筛选SeCreateSymbolicLinkPrivilege条目，不保存完整输出",
+    "symbolicLinkPrivilegeListed": false,
+    "developerModeEvidence": "只读查询未发现AllowDevelopmentWithoutDevLicense值；不保存其他注册表值或系统环境",
+    "newSymlinkProbeExecuted": false,
+    "conclusion": "没有已核实的当前创建真实文件软链条件。此结论不宣称本轮重新触发了异常；实际异常依据仍是上述原XML。"
+  },
+  "classification": {
+    "kind": "测试fixture所需Windows软链创建能力不足；原技术检查仍未闭合",
+    "implementationDefectProven": false,
+    "originalAssertionsLowered": false,
+    "skipIntroduced": false,
+    "originalErrorRetained": true,
+    "nextPrerequisite": "已授权且能创建真实文件软链的环境，再只定向原失败方法。不得用copy、hardlink或目录junction替代原文件软链样本。"
+  },
+  "limits": [
+    "本轮无新增测试运行，不能将原7项改记全部通过",
+    "empty/oversized在原失败方法中未执行；单独补它们也不闭合必需symlink断言",
+    "不修改系统开发者模式、提权、生产门禁或正式数据",
+    "本地冻结检索不需要真实embedding/Provider/数据库；正式CODE_RAG注入与正式准入仍另有未完成前提",
+    "诊断JSON与长期验收状态分开；根正文和统一结果由主对话更新"
+  ]
+}

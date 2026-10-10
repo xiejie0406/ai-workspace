@@ -11,6 +11,40 @@
     }
   ],
   "paths": {
+    "/internal/paiflow/v1/runs/{runId}/history/python/read": {
+      "post": {
+        "summary": "冻结原Python普通大模型旧节点历史",
+        "description": "当前Python有效租约和中心真实会话绑定；每Run/attempt只冻结一次。旧历史保留调试chatHistory，供应商消息仍为当前SYSTEM/USER。最近十轮中缺正式来源证据时明确阻塞，不静默遗漏。V2会话、Decision及嵌套历史另行迁移。追加复用原/history，但中心必须核对真实模型批准、完整原帧和成功结束，不接受裸问答作为来源。",
+        "parameters": [{"$ref": "#/components/parameters/RunId"}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "python-history.schema.json#/$defs/ReadRequest"}}}},
+        "responses": {
+          "200": {"description": "固定历史快照；完整响应1800KiB以内，首次超限回滚，不截断", "content": {"application/json": {"schema": {"type": "object", "required": ["code", "data"], "properties": {"code": {"const": 200}, "msg": {"type": "string"}, "data": {"$ref": "python-history.schema.json#/$defs/ReadAck"}}}}}},
+          "400": {"description": "请求形状或节点配置无效"},
+          "403": {"description": "主体、引擎、固定节点或来源事实不符"},
+          "409": {"description": "会话、快照或来源证据不一致"},
+          "410": {"description": "运行已停止或租约失效"},
+          "413": {"description": "完整响应超限或旧轮来源实际字节累计超过128MiB"},
+          "503": {"description": "缺少可信历史来源或窗口内旧记录尚未完成证据迁移"}
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/history/java/open": {
+      "post": {
+        "summary": "冻结原Java模型旧历史并保存当前问题半轮",
+        "description": "仅当前Java固定LLM节点、有效已begin租约和实际中心会话上下文。消息由中心可信输入重建；同attempt/node幂等回用固定快照，不能提交question、answer、chatId或轮数。回填仅中心内部读取正式模型账本和完整原帧，无Worker答案写入口。",
+        "parameters": [{"$ref": "#/components/parameters/RunId"}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "java-history.schema.json#/$defs/OpenRequest"}}}},
+        "responses": {
+          "200": {"description": "同次固定快照；完整资源响应1800KiB以内，首次超限回滚本轮", "content": {"application/json": {"schema": {"type": "object", "required": ["code", "data"], "properties": {"code": {"const": 200}, "msg": {"type": "string"}, "data": {"$ref": "java-history.schema.json#/$defs/OpenAck"}}}}}},
+          "400": {"description": "请求形状或原历史轮数无法执行"},
+          "403": {"description": "固定引擎、节点、输入来源或服务身份不符"},
+          "409": {"description": "会话绑定或持久快照不一致"},
+          "410": {"description": "运行已停止或租约失效"},
+          "413": {"description": "完整历史响应或输入来源超过预算"},
+          "503": {"description": "真实历史上下文或中心来源端口未装配"}
+        }
+      }
+    },
     "/internal/paiflow/v1/runs/claim": {
       "post": {
         "operationId": "claimRun",
@@ -460,15 +494,35 @@
           "in": "path",
           "required": true,
           "schema": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 256
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "not": {
+                  "anyOf": [
+                    {
+                      "pattern": "^tool:"
+                    },
+                    {
+                      "pattern": "^data:"
+                    }
+                  ]
+                }
+              },
+              {
+                "$ref": "tool-operations.schema.json#/$defs/ToolResourceId"
+              },
+              {
+                "$ref": "data-operations.schema.json#/$defs/DataResourceId"
+              }
+            ]
           }
         }
       ],
       "post": {
-        "operationId": "modelResource",
-        "description": "当前模型资源仅公开六字段，按当前租约及固定版本授权；私有endpoint/引用不出现在assignment或本响应。其他资源种类由所属能力另行实现。",
+        "operationId": "readRuntimeResource",
+        "description": "按resourceId的model/tool/data类别核对固定资源、当前身份和租约后返回公开描述；不交私有Grant或连接材料。",
         "requestBody": {
           "required": true,
           "content": {
@@ -481,7 +535,7 @@
         },
         "responses": {
           "200": {
-            "description": "AjaxResult code=200/data，完整绑定及停止/尾帧仍须严格核对",
+            "description": "若依code=200/data；模型或工具准确固定资源公开投影。",
             "content": {
               "application/json": {
                 "schema": {
@@ -499,7 +553,17 @@
                       "type": "string"
                     },
                     "data": {
-                      "$ref": "model-operations.schema.json#/$defs/OpenAIChatSnapshot"
+                      "oneOf": [
+                        {
+                          "$ref": "model-operations.schema.json#/$defs/ChatSnapshot"
+                        },
+                        {
+                          "$ref": "tool-operations.schema.json#/$defs/ToolResource"
+                        },
+                        {
+                          "$ref": "data-operations.schema.json#/$defs/DataResource"
+                        }
+                      ]
                     }
                   }
                 }
@@ -507,25 +571,25 @@
             }
           },
           "400": {
-            "description": "未知字段/非法类型/游标/参数"
+            "description": "未知字段、非法类型、伪造载荷或快照不一致"
           },
           "401": {
-            "description": "独立服务身份失效"
+            "description": "Worker服务身份缺失或失效"
           },
           "403": {
-            "description": "平台/空间/资源/费用授权拒绝"
+            "description": "当前平台、空间、资源或用途授权拒绝"
           },
           "409": {
-            "description": "租约/固定版本/幂等/CAS冲突"
+            "description": "固定版本、幂等绑定或CAS冲突"
           },
           "410": {
-            "description": "已到期/取消/失租约"
+            "description": "到期、取消或租约失效"
           },
           "413": {
-            "description": "真实UTF8正文预算超限"
+            "description": "真实UTF8字节预算超限"
           },
           "503": {
-            "description": "缺真实资源/动态消息/审批/Producer受控transport桥，零operation写"
+            "description": "资源/用途/受控生产端未装配，不假成功"
           }
         }
       }
@@ -537,21 +601,31 @@
         }
       ],
       "post": {
-        "operationId": "invokeModel",
-        "description": "本批model.invoke仅Python顶层spark-llm/OpenAI chat，iterationId必null。真实运行已begin、权限/资源/动态消息/审批/受控transport全就绪后才可保存操作；其他能力仍有各自未接契约。",
+        "operationId": "startRuntimeOperation",
+        "description": "按固定参数类别分派模型、Link工具及同步中心数据操作；各自核对当前身份、租约、begin、固定资源及费用/写入许可。数据成功同事务保存逻辑行和幂等回执，不新增数据轮询或取消路由。",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "model-operations.schema.json#/$defs/OpenAIChatOperationRequest"
+                "oneOf": [
+                  {
+                    "$ref": "model-operations.schema.json#/$defs/ModelOperationRequest"
+                  },
+                  {
+                    "$ref": "tool-operations.schema.json#/$defs/ToolOperationRequest"
+                  },
+                  {
+                    "$ref": "data-operations.schema.json#/$defs/DataOperationRequest"
+                  }
+                ]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "AjaxResult code=200/data，完整绑定及停止/尾帧仍须严格核对",
+            "description": "AjaxResult成功，data为对应ModelStartAck、ToolOperationAck或同步DataOperationAck；不把资源消费者存在当真实业务已通过。",
             "content": {
               "application/json": {
                 "schema": {
@@ -569,7 +643,17 @@
                       "type": "string"
                     },
                     "data": {
-                      "$ref": "model-operations.schema.json#/$defs/OpenAIChatStartAck"
+                      "oneOf": [
+                        {
+                          "$ref": "model-operations.schema.json#/$defs/ModelStartAck"
+                        },
+                        {
+                          "$ref": "tool-operations.schema.json#/$defs/ToolOperationAck"
+                        },
+                        {
+                          "$ref": "data-operations.schema.json#/$defs/DataOperationAck"
+                        }
+                      ]
                     }
                   }
                 }
@@ -577,25 +661,25 @@
             }
           },
           "400": {
-            "description": "未知字段/非法类型/游标/参数"
+            "description": "未知字段、非法类型、伪造载荷或快照不一致"
           },
           "401": {
-            "description": "独立服务身份失效"
+            "description": "Worker服务身份缺失或失效"
           },
           "403": {
-            "description": "平台/空间/资源/费用授权拒绝"
+            "description": "当前平台、空间、资源或用途授权拒绝"
           },
           "409": {
-            "description": "租约/固定版本/幂等/CAS冲突"
+            "description": "固定版本、幂等绑定或CAS冲突"
           },
           "410": {
-            "description": "已到期/取消/失租约"
+            "description": "到期、取消或租约失效"
           },
           "413": {
-            "description": "真实UTF8正文预算超限"
+            "description": "真实UTF8字节预算超限"
           },
           "503": {
-            "description": "缺真实资源/动态消息/审批/Producer受控transport桥，零operation写"
+            "description": "资源/用途/受控生产端未装配，不假成功"
           }
         }
       }
@@ -649,7 +733,7 @@
                       "type": "string"
                     },
                     "data": {
-                      "$ref": "model-operations.schema.json#/$defs/OpenAIChatFramesAck"
+                      "$ref": "model-operations.schema.json#/$defs/ModelFramesAck"
                     }
                   }
                 }
@@ -697,21 +781,28 @@
         }
       ],
       "post": {
-        "operationId": "cancelModel",
-        "description": "请求停止后回真实事实；已派发无Provider proof仍stopped=false/EFFECT_UNKNOWN，不以本地关闭假称停止。",
+        "operationId": "cancelRuntimeOperation",
+        "description": "按operationId分派模型或工具取消；本地关闭HTTP不能证明上游停止。工具只有中心真实proofId才可stopped=true，已发送且无法确认时保留EFFECT_UNKNOWN，不自动重发。",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "model-operations.schema.json#/$defs/LeaseRequest"
+                "anyOf": [
+                  {
+                    "$ref": "model-operations.schema.json#/$defs/LeaseRequest"
+                  },
+                  {
+                    "$ref": "tool-operations.schema.json#/$defs/ToolCancelRequest"
+                  }
+                ]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "AjaxResult code=200/data，完整绑定及停止/尾帧仍须严格核对",
+            "description": "若依code=200/data；必须核对完整绑定与真实停止证明。",
             "content": {
               "application/json": {
                 "schema": {
@@ -729,7 +820,14 @@
                       "type": "string"
                     },
                     "data": {
-                      "$ref": "model-operations.schema.json#/$defs/OpenAIChatCancelAck"
+                      "oneOf": [
+                        {
+                          "$ref": "model-operations.schema.json#/$defs/ModelCancelAck"
+                        },
+                        {
+                          "$ref": "tool-operations.schema.json#/$defs/ToolCancelAck"
+                        }
+                      ]
                     }
                   }
                 }
@@ -737,25 +835,103 @@
             }
           },
           "400": {
-            "description": "未知字段/非法类型/游标/参数"
+            "description": "未知字段、非法类型、伪造载荷或快照不一致"
           },
           "401": {
-            "description": "独立服务身份失效"
+            "description": "Worker服务身份缺失或失效"
           },
           "403": {
-            "description": "平台/空间/资源/费用授权拒绝"
+            "description": "当前平台、空间、资源或用途授权拒绝"
           },
           "409": {
-            "description": "租约/固定版本/幂等/CAS冲突"
+            "description": "固定版本、幂等绑定或CAS冲突"
           },
           "410": {
-            "description": "已到期/取消/失租约"
+            "description": "到期、取消或租约失效"
           },
           "413": {
-            "description": "真实UTF8正文预算超限"
+            "description": "真实UTF8字节预算超限"
           },
           "503": {
-            "description": "缺真实资源/动态消息/审批/Producer受控transport桥，零operation写"
+            "description": "资源/用途/受控生产端未装配，不假成功"
+          }
+        }
+      }
+    },
+    "/internal/paiflow/v1/runs/{runId}/operations/{operationId}/status": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunId"
+        },
+        {
+          "name": "operationId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "tool-operations.schema.json#/$defs/ToolOperationId"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "toolOperationStatus",
+        "description": "只回读同一中心工具操作的完整结果和停止事实，不重新派发。未确认外部结果保留EFFECT_UNKNOWN；模型帧仍用frames路由。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "tool-operations.schema.json#/$defs/ToolStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "若依code=200/data；同operation的账本事实。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code",
+                    "data"
+                  ],
+                  "properties": {
+                    "code": {
+                      "const": 200
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "tool-operations.schema.json#/$defs/ToolOperationAck"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "未知字段、非法类型、伪造载荷或快照不一致"
+          },
+          "401": {
+            "description": "Worker服务身份缺失或失效"
+          },
+          "403": {
+            "description": "当前平台、空间、资源或用途授权拒绝"
+          },
+          "409": {
+            "description": "固定版本、幂等绑定或CAS冲突"
+          },
+          "410": {
+            "description": "到期、取消或租约失效"
+          },
+          "413": {
+            "description": "真实UTF8字节预算超限"
+          },
+          "503": {
+            "description": "资源/用途/受控生产端未装配，不假成功"
           }
         }
       }
@@ -793,6 +969,10 @@
           "assignment"
         ],
         "properties": {
+          "executionContext": {
+            "$ref": "worker.schema.json#/properties/executionContext",
+            "description": "中心实际RunContext投影在verify响应顶层；消费者核对后装配内部运行上下文，不向固定assignment或DSL写入。"
+          },
           "valid": {
             "const": true
           },

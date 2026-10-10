@@ -81,6 +81,12 @@ public class InputBar extends Panel {
         return inputBox.getText();
     }
 
+    /** 附件取消或提交失败时保留原输入，同时保护期间新写入的内容。 */
+    public void restoreFailedInput(String text) {
+        String current=inputBox.getText();
+        inputBox.setText(current.isBlank()?text:text+"\n"+current);
+    }
+
     /**
      * 清空输入框。
      */

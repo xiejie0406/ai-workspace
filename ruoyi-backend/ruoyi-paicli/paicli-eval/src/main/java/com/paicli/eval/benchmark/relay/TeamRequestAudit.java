@@ -3,6 +3,7 @@ package com.paicli.eval.benchmark.relay;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paicli.agent.AgentRole;
+import com.paicli.eval.benchmark.SecureFiles;
 import com.paicli.eval.benchmark.ScopedRequestFingerprints.Binding;
 import com.paicli.llm.LlmClient;
 
@@ -126,7 +127,7 @@ public final class TeamRequestAudit {
 
     /** Explicit private host evidence; not enabled for ordinary product Team execution. */
     public synchronized void writeSnapshot(Path path) throws IOException {
-        try (var channel = java.nio.file.Files.newByteChannel(path,
+        try (var channel = SecureFiles.newByteChannel(path,
                 java.util.Set.of(java.nio.file.StandardOpenOption.CREATE_NEW, java.nio.file.StandardOpenOption.WRITE),
                 java.nio.file.attribute.PosixFilePermissions.asFileAttribute(
                         java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")))) {

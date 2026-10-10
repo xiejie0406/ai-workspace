@@ -70,7 +70,7 @@ class NativeSnapshotCleanTest {
         }
         JsonNode preview()throws Exception {return CanonicalJson.MAPPER.readTree(run("SNAPSHOT_CLEAN_PREVIEW",arguments(null)));}
         String run(String operation,JsonNode args)throws Exception {
-            var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","2").put("workspaceId","3").put("runnerId","7").put("leaseId",UUID.randomUUID().toString()).put("fencingToken",5).put("version",6).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(120).toString());
+            var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","2").put("directoryContextId","3").put("runnerId","7").put("leaseId",UUID.randomUUID().toString()).put("fencingToken",5).put("version",6).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(120).toString());
             var lease=new RunnerLease(claim);var tools=new CenterToolRegistry(center,lease,spool,root);var context=CanonicalJson.MAPPER.createObjectNode();context.putObject("taskPayload").put("operation",operation).set("arguments",args);return executor.execute(lease,tools,context);
         }
         public void close()throws Exception{executor.close();center.close();server.close();}

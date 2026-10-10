@@ -8,12 +8,13 @@ export default defineConfig(({ mode }) => {
   const isDev = mode === 'development';
   const centre = loadEnv(mode, process.cwd(), '').VITE_PAIFLOW_CENTRE_URL;
   const proxy = centre ? Object.fromEntries(
-    ['/paiflow', '/captchaImage', '/logout'].map(path => [path, {
+    ['^/paiflow(?:/|\\?|$)', '/captchaImage', '/logout'].map(path => [path, {
       target: centre, changeOrigin: true, ws: true,
     }])
   ) : {};
 
   return {
+    cacheDir: process.env.PROJECT_VITE_CACHE_DIR || 'node_modules/.vite',
     envPrefix: ['CONSOLE_', 'VITE_'],
     build: {
       rollupOptions: {

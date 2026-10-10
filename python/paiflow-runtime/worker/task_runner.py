@@ -23,12 +23,15 @@ from .errors import CenterUnavailable, LeaseLost, WorkerError
 from .events import EventPublisher
 from .pure_iteration import validate_assignment
 from .static_question_answer import validate_assignment as validate_static_question_answer
+from .model_v4 import validate_assignment as validate_model_v4
+from .tool_contract import validate_assignment as validate_tool_assignment
 
 
 install_legacy_guard()
 ASSIGNMENT_FIELDS = frozenset({"schemaVersion", "runId", "workflowVersionId", "dslHash", "engineProfile",
                               "input", "resourceSnapshots", "attempt", "leaseId", "deadline", "effectPolicy",
                               "lastEventSeq", "dsl", "dslCanonicalBase64"})
+OPTIONAL_ASSIGNMENT_FIELDS = frozenset({"dataEnvironment", "executionCodec"})
 CURRENT_CONTEXT: ContextVar["RunContext | None"] = ContextVar("paiflow_run_context", default=None)
 READ_ONLY_OPERATIONS = frozenset({"knowledge.retrieve", "data.query", "tools.read", "mcp.read", "sandbox.execute"})
 ERROR_MESSAGES = {
@@ -83,12 +86,24 @@ class Assignment:
     resources: dict[str, Any]
     effect_policy: dict[str, Any]
     snapshot: dict[str, Any]
+    data_environment: int | None = None
+    execution_codec: str | None = None
 
     @classmethod
     def parse(cls, raw: Mapping[str, Any]) -> "Assignment":
         def reject():
             raise WorkerError("DSL_INVALID", "中心任务协议、快照或参数无效")
-        if not isinstance(raw, Mapping) or set(raw) != ASSIGNMENT_FIELDS:
+        if (not isinstance(raw, Mapping) or not ASSIGNMENT_FIELDS <= set(raw)
+                or set(raw) - ASSIGNMENT_FIELDS - OPTIONAL_ASSIGNMENT_FIELDS):
+            reject()
+        data_environment = raw.get("dataEnvironment")
+        execution_codec = raw.get("executionCodec")
+        if "executionCodec" in raw and (not isinstance(execution_codec, str) or execution_codec not in {
+                "paiflow.execution.v1", "paiflow.execution.v2", "paiflow.execution.v3", "paiflow.execution.v4"}):
+            reject()
+        if execution_codec == "paiflow.execution.v4" and raw["engineProfile"] != "python":
+            reject()
+        if "dataEnvironment" in raw and (type(data_environment) is not int or data_environment not in {1, 2}):
             reject()
         if raw["schemaVersion"] != "paiflow.worker.v1":
             raise WorkerError("ENGINE_UNSUPPORTED", "不支持的 Worker 协议版本")
@@ -151,12 +166,14 @@ class Assignment:
             node_ids.add(node["id"])
             if node["id"].split("::", 1)[0] not in NODE_CLASSES:
                 raise WorkerError("ENGINE_UNSUPPORTED", "DSL 包含原 Python 注册表未支持的节点")
+            if node["id"].startswith("database::") and data_environment is None:
+                raise WorkerError("DSL_INVALID", "数据节点必须携带中心固定运行环境")
         for edge in edges:
             if not isinstance(edge, dict) or edge.get("sourceNodeId") not in node_ids or edge.get("targetNodeId") not in node_ids:
                 reject()
         return cls(raw["runId"], raw["workflowVersionId"], raw["leaseId"], raw["attempt"], deadline,
                    raw["lastEventSeq"], actual_hash, copy.deepcopy(raw["dsl"]), copy.deepcopy(raw["input"]),
-                   copy.deepcopy(raw["resourceSnapshots"]), copy.deepcopy(policy), copy.deepcopy(dict(raw)))
+                   copy.deepcopy(raw["resourceSnapshots"]), copy.deepcopy(policy), copy.deepcopy(dict(raw)), data_environment, execution_codec)
 
 
 class Engine(Protocol):
@@ -176,6 +193,8 @@ class RunContext:
         self.variable_requests = {}
         self.boundary_failure = None
         self.checkpoint_acks = {}
+        self.python_history_lock = asyncio.Lock()
+        self.python_history_cache = None
 
     def assert_active(self) -> None:
         if self.boundary_failure is not None:
@@ -292,7 +311,9 @@ class TaskRunner:
         # 纯迭代结构/展开预检只读固定快照；拒绝必须在一次性许可和原Factory前。
         # 此处失败不提交result，不能关闭真正持许可方的run。
         validate_assignment(assignment)
+        validate_model_v4(assignment)
         validate_static_question_answer(assignment)
+        validate_tool_assignment(assignment)
         publisher = EventPublisher(self.center, assignment.run_id, assignment.lease_id, assignment.attempt, assignment.last_event_seq)
         context = RunContext(self.center, assignment, publisher)
         binding = lease.get("executionContext")
@@ -333,7 +354,15 @@ class TaskRunner:
                 await heartbeat_task
             if engine_task not in done:
                 raise WorkerError("DEPENDENCY_TIMEOUT", "执行已超过中心任务截止时间")
-            output = await engine_task
+            from workflow.exception.e import CustomException
+            try:
+                output = await engine_task
+            except CustomException:
+                # 原引擎明确节点失败；直接调用原引擎仍保留原异常协议。
+                # 未确认操作/停止由粘性中心边界及下面_stop_engine优先保留。
+                if context.boundary_failure is not None:
+                    raise context.boundary_failure
+                raise WorkerError("ENGINE_FAILED", "原节点返回已知失败，数字错误码保留在过程帧") from None
             if not isinstance(output, dict):
                 raise WorkerError("DSL_INVALID", "引擎结果没有满足对象输出契约")
             try:

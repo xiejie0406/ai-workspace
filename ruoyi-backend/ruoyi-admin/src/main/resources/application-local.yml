@@ -3,6 +3,11 @@ server:
   # 合成联调只监听本机；不改变其他 profile 的绑定策略。
   address: 127.0.0.1
 
+# 全部本机验收通道共用；仍要求实际绑定及请求两端回环、独占临时文件权限。
+ruoyi:
+  local-captcha-debug:
+    enabled: ${RUOYI_LOCAL_CAPTCHA_DEBUG_ENABLED:true}
+
 interview:
   foundation-safety:
     business-rest-endpoints-enabled: ${INTERVIEW_BUSINESS_REST_ENDPOINTS_ENABLED:true}

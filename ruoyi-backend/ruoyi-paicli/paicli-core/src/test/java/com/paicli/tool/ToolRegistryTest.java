@@ -72,13 +72,37 @@ class ToolRegistryTest {
     }
 
     @Test
-    void shouldRunCommandInProjectDirectory(@TempDir Path tempDir) {
+    void shouldRunCommandInProjectDirectory(@TempDir Path tempDir) throws Exception {
         ToolRegistry registry = new ToolRegistry();
         registry.setProjectPath(tempDir.toString());
 
         String result = registry.executeTool("execute_command", "{\"command\":\"pwd\"}");
 
-        assertTrue(result.contains(tempDir.toString()));
+        assertTrue(result.startsWith("命令执行完成 (exit code: 0)\n"), result);
+        String actualDirectory = result.substring(result.indexOf('\n') + 1).strip();
+        if (System.getProperty("os.name", "").startsWith("Windows")) {
+            var msys = java.util.regex.Pattern.compile("^/([a-zA-Z])/(.*)$").matcher(actualDirectory);
+            if (msys.matches()) {
+                actualDirectory = msys.group(1).toUpperCase(java.util.Locale.ROOT) + ":/" + msys.group(2);
+            } else if (actualDirectory.startsWith("/")) {
+                // Git Bash 的 /tmp 等挂载别名不含盘符，只使用其固定argv转换器解析实际路径。
+                Path cygpath = java.util.Arrays.stream(System.getenv("PATH").split(java.util.regex.Pattern.quote(File.pathSeparator)))
+                        .map(Path::of)
+                        .flatMap(directory -> java.util.stream.Stream.of(
+                                directory.resolve("cygpath.exe"), directory.resolve("../usr/bin/cygpath.exe").normalize()))
+                        .filter(Files::isExecutable)
+                        .findFirst().orElseThrow(() -> new IllegalStateException("Git Bash路径转换器不可用"));
+                Process converted = new ProcessBuilder(cygpath.toString(), "-w", "--", actualDirectory).start();
+                try {
+                    assertTrue(converted.waitFor(3, TimeUnit.SECONDS), "MSYS路径转换超时");
+                    assertEquals(0, converted.exitValue(), "MSYS路径转换失败");
+                    actualDirectory = new String(converted.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();
+                } finally {
+                    if (converted.isAlive()) com.paicli.runtime.ProcessTree.terminate(converted);
+                }
+            }
+        }
+        assertEquals(tempDir.toRealPath(), Path.of(actualDirectory).toRealPath(), result);
     }
 
     @Test
@@ -112,7 +136,7 @@ class ToolRegistryTest {
 
     @Test
     void commandSandboxBuildsEscapedSeatbeltProfileAndDirectArgv(@TempDir Path tempDir) throws Exception {
-        Path workspace = Files.createDirectory(tempDir.resolve("workspace-quote\"-slash\\"));
+        Path workspace = Files.createDirectory(tempDir.resolve("workspace"));
         CommandSandbox sandbox = new CommandSandbox(
                 workspace,
                 Path.of("/usr/bin/sandbox-exec"),
@@ -129,7 +153,8 @@ class ToolRegistryTest {
         assertTrue(profile.contains("(allow file-read*"));
         assertTrue(profile.contains("(allow file-write*"));
         assertTrue(profile.contains("(subpath \"" + escapedWorkspace + "\")"));
-        assertTrue(profile.contains("(literal \"/dev/null\")"));
+        String escapedDevNull = Path.of("/dev/null").toString().replace("\\", "\\\\");
+        assertTrue(profile.contains("(literal \"" + escapedDevNull + "\")"));
         String readSection = profile.substring(
                 profile.indexOf("(allow file-read*"),
                 profile.indexOf("(allow file-write*"));
@@ -142,12 +167,19 @@ class ToolRegistryTest {
                 "write profile must not grant the whole /dev tree");
 
         List<String> arguments = sandbox.arguments("printf ok");
-        assertEquals("/usr/bin/sandbox-exec", arguments.get(0));
+        assertEquals(Path.of("/usr/bin/sandbox-exec").toAbsolutePath().normalize().toString(), arguments.get(0));
         assertEquals("-p", arguments.get(1));
         assertEquals(profile, arguments.get(2));
         assertEquals("/bin/bash", arguments.get(3));
         assertEquals("-c", arguments.get(4));
         assertEquals("printf ok", arguments.get(5));
+
+        // 纯 profile 构造不访问这个合成 Path，Windows 也可精确验证非法文件名字符的转义。
+        Path quoted = org.mockito.Mockito.mock(Path.class);
+        org.mockito.Mockito.when(quoted.toString()).thenReturn("/fixture/quote\"-slash\\path");
+        String quotedProfile = SeatbeltProfile.build(quoted, List.of());
+        assertTrue(quotedProfile.contains("(literal \"/fixture/quote\\\"-slash\\\\path\")"), quotedProfile);
+        assertTrue(quotedProfile.contains("(subpath \"/fixture/quote\\\"-slash\\\\path\")"), quotedProfile);
     }
 
     @Test
@@ -421,7 +453,8 @@ class ToolRegistryTest {
 
         String result = registry.executeTool("glob_files", "{\"pattern\":\"**/*Service.java\"}");
 
-        assertTrue(result.contains("src/main/java/com/example/UserService.java"));
+        assertEquals(List.of("1. " + Path.of("src/main/java/com/example/UserService.java")),
+                result.lines().skip(1).map(String::strip).toList(), result);
         assertTrue(!result.contains("README.md"));
     }
 
@@ -451,7 +484,7 @@ class ToolRegistryTest {
         String result = registry.executeTool("grep_code",
                 "{\"pattern\":\"getUserById\",\"glob\":\"**/*.java\",\"context_lines\":1}");
 
-        assertTrue(result.contains("src/main/java/com/example/UserService.java:2"));
+        assertSingleGrepLocation(result, Path.of("src/main/java/com/example/UserService.java"), 2);
         assertTrue(result.contains(">    2 |   User getUserById(String id) {"));
         assertTrue(result.contains("     3 |     return repository.findById(id);"));
     }
@@ -467,7 +500,7 @@ class ToolRegistryTest {
 
         String result = registry.executeTool("grep_code", "{\"pattern\":\"targetSymbol\",\"max_results\":10}");
 
-        assertTrue(result.contains("src/App.java:1"));
+        assertSingleGrepLocation(result, Path.of("src/App.java"), 1);
         assertTrue(!result.contains("node_modules"));
     }
 
@@ -882,6 +915,14 @@ class ToolRegistryTest {
         registry.setProjectPath(workspace.toString());
         registry.setCommandSandboxRoot(workspace);
         return registry;
+    }
+
+    private static void assertSingleGrepLocation(String result, Path expectedFile, int expectedLine) {
+        var headers = java.util.regex.Pattern.compile("(?m)^\\d+\\. (.*):(\\d+)\\r?$").matcher(result);
+        assertTrue(headers.find(), result);
+        assertEquals(expectedFile.normalize(), Path.of(headers.group(1)).normalize(), result);
+        assertEquals(expectedLine, Integer.parseInt(headers.group(2)), result);
+        assertFalse(headers.find(), "样本只允许一个精确命中，不得多出根外或依赖目录文件：" + result);
     }
 
     private static String executeCommand(ToolRegistry registry, String command) throws Exception {

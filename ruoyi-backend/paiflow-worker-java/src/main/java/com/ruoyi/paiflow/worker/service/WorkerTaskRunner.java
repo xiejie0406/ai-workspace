@@ -125,6 +125,9 @@ public final class WorkerTaskRunner implements AutoCloseable {
                     || !List.of(NodeTypeEnum.START, NodeTypeEnum.END, NodeTypeEnum.LLM, NodeTypeEnum.PLUGIN).contains(node.getNodeType()))) {
                 throw new WorkerException("ENGINE_UNSUPPORTED", "Java Worker只执行原有四类节点");
             }
+            CenterToolConsumer.validateAssignment(assignment);
+            CenterModelConsumer.validateAssignment(assignment);
+            CenterHistoryConsumer.validateAssignment(assignment);
             requireCanExecute(assignment);
             try { center.beginExecution(lease, assignment); }
             catch (RuntimeException error) {
@@ -184,7 +187,7 @@ public final class WorkerTaskRunner implements AutoCloseable {
             if (!activity.compareAndSet(0, 1)) return;
             try (scope) {
                 scope.bind();
-                StreamCallback callback = new CenterStreamCallback(center, assignment, clock, scope);
+                StreamCallback callback = new CenterStreamCallback(center, assignment, clock, scope, mapper);
                 parallel.execute(dsl, variables, assignment.input(), callback);
                 scope.check();
             } catch (Exception e) { throw new WorkerException("EXECUTION_FAILED", "节点执行未完成", e); }
@@ -200,7 +203,8 @@ public final class WorkerTaskRunner implements AutoCloseable {
                 try {
                     Assignment latest = center.verify(lease);
                     validateAssignment(lease, latest);
-                    if (!assignment.workflowVersionId().equals(latest.workflowVersionId()) || !assignment.dslHash().equals(latest.dslHash())) {
+                    if (!assignment.workflowVersionId().equals(latest.workflowVersionId()) || !assignment.dslHash().equals(latest.dslHash())
+                            || !Objects.equals(assignment.executionContext(), latest.executionContext())) {
                         throw new WorkerException("LEASE_LOST", "完成核对的版本或DSL哈希发生变化");
                     }
                     result = new Result(lease.leaseId(), lease.attempt(), "COMPLETED", finalOutput(dsl, variables), null);
@@ -240,6 +244,7 @@ public final class WorkerTaskRunner implements AutoCloseable {
                 long remaining = deadline - System.nanoTime();
                 confirmed = remaining > 0 && scope.awaitChildrenStopped(Duration.ofNanos(remaining));
             }
+            scope.stopPendingOperations();
         } catch (InterruptedException error) { interrupted = true; }
         finally { if (interrupted) Thread.currentThread().interrupt(); }
         return failed(lease, scope, confirmed ? code : "EFFECT_UNKNOWN");
@@ -296,10 +301,12 @@ public final class WorkerTaskRunner implements AutoCloseable {
         private final Assignment assignment;
         private final Clock clock;
         private final ExecutionScope scope;
+        private final ObjectMapper originalFrameMapper;
         private long seq;
 
-        private CenterStreamCallback(CenterClient center, Assignment assignment, Clock clock, ExecutionScope scope) {
+        private CenterStreamCallback(CenterClient center, Assignment assignment, Clock clock, ExecutionScope scope, ObjectMapper mapper) {
             this.center = center; this.assignment = assignment; this.clock = clock; this.scope = scope; seq = assignment.lastEventSeq();
+            originalFrameMapper = mapper.copy().setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS);
         }
 
         @Override public synchronized void callback(String eventType, Object data) {
@@ -316,11 +323,13 @@ public final class WorkerTaskRunner implements AutoCloseable {
                 if (text != null && !text.isEmpty()) type = "text.delta";
                 else if (reasoning != null && !reasoning.isEmpty()) type = "reasoning.delta";
                 else if (frame.getUsage() != null) type = "usage";
-                else return;
+                // 原开始/结束/错误帧即使没有文本也保留，不能靠Map生命周期重新造原帧。
+                else type = "text.delta";
             }
             if ("stream".equals(type)) type = "text.delta";
-            // 原对象帧保全；未来启用字符串流分支时也必须符合中心对象payload契约。
-            Object payload = data instanceof String delta ? Map.of("delta", delta) : data;
+            // 固定包装区分原Java帧与既有Map生命周期事实，snapshot明确保全nullable原字段。
+            Object payload = data instanceof LLMGenerate frame ? Map.of("legacyFrame", originalFrameMapper.valueToTree(frame))
+                    : data instanceof String delta ? Map.of("delta", delta) : data;
             try {
                 center.event(new Event("paiflow.events.v1", assignment.runId(), assignment.leaseId(), assignment.attempt(),
                         ++seq, nodeId, null, type, clock.instant(), payload));

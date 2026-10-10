@@ -4,6 +4,7 @@ import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialogBuilder;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialogButton;
 import com.googlecode.lanterna.gui2.dialogs.ListSelectDialogBuilder;
+import com.googlecode.lanterna.gui2.dialogs.TextInputDialogBuilder;
 import com.paicli.hitl.ApprovalRequest;
 import com.paicli.hitl.ApprovalResult;
 import com.paicli.llm.LlmClient;
@@ -118,7 +119,7 @@ public final class LanternaRenderer implements Renderer {
             }
         });
         synchronized (lock) {
-            while (result.get() == null) {
+            while (result.get() == null && !closed) {
                 try {
                     lock.wait(100);
                 } catch (InterruptedException e) {
@@ -127,7 +128,7 @@ public final class LanternaRenderer implements Renderer {
                 }
             }
         }
-        return result.get();
+        return result.get() == null ? ApprovalResult.reject("终端已关闭") : result.get();
     }
 
     private ApprovalResult doShowApprovalDialog(ApprovalRequest request) {
@@ -174,13 +175,33 @@ public final class LanternaRenderer implements Renderer {
             }
         });
         synchronized (lock) {
-            while (result.get() == null) {
+            while (result.get() == null && !closed) {
                 try {
                     lock.wait(100);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return -1;
                 }
+            }
+        }
+        return result.get() == null ? -1 : result.get();
+    }
+
+    /** 在原TUI中输入计划修订内容，取消和关闭均不提交后台任务。 */
+    public String inputText(String title, String description, String initialValue) {
+        AtomicReference<String> result = new AtomicReference<>();
+        java.util.concurrent.atomic.AtomicBoolean completed = new java.util.concurrent.atomic.AtomicBoolean();
+        Object lock = new Object();
+        window.runOnGuiThread(() -> {
+            try {
+                result.set(new TextInputDialogBuilder().setTitle(title).setDescription(description)
+                        .setInitialContent(initialValue == null ? "" : initialValue).build().showDialog(gui));
+            } finally { synchronized (lock) { completed.set(true); lock.notifyAll(); } }
+        });
+        synchronized (lock) {
+            while (!completed.get() && !closed) {
+                try { lock.wait(100); }
+                catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); return null; }
             }
         }
         return result.get();

@@ -12,12 +12,19 @@ import java.util.Map;
 final class CenterArtifactText {
     private CenterArtifactText() { }
     static void show(CenterCommandGateway gateway,String session,String artifact,PrintStream output) throws IOException {
+        show(session,artifact,output,(offset,limit)->gateway.readArtifactText(session,artifact,offset,limit));
+    }
+    static void showTask(CenterCommandGateway gateway,String task,String session,String artifact,PrintStream output)throws IOException {
+        show(session,artifact,output,(offset,limit)->gateway.readTaskArtifactText(task,artifact,offset,limit));
+    }
+    @FunctionalInterface private interface PageReader {CenterCommandGateway.CommandResult read(long offset,int limit)throws IOException;}
+    private static void show(String session,String artifact,PrintStream output,PageReader reader)throws IOException {
         if (artifact == null || !artifact.matches("[0-9]+")) throw new IOException("用法: /output <当前会话产物数字ID>");
         MessageDigest digest; try { digest=MessageDigest.getInstance("SHA-256"); } catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
         long offset=0,size=-1;String sha=null;
         try {
             while(true) {
-                var result=gateway.readArtifactText(session,artifact,offset,64*1024);
+                var result=reader.read(offset,64*1024);
                 if(!result.successful())throw new IOException(result.message());Map<String,Object> page=result.data();
                 long currentSize=number(page,"size"),next=number(page,"nextOffset");String currentSha=String.valueOf(page.get("sha256"));
                 if(!artifact.equals(String.valueOf(page.get("artifactId")))||!session.equals(String.valueOf(page.get("sessionId")))||number(page,"offset")!=offset||currentSize<0||!currentSha.matches("[a-f0-9]{64}"))throw new IOException("中心产物分页身份或摘要不符");

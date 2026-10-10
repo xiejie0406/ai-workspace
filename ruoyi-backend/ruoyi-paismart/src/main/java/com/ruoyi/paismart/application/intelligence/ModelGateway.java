@@ -42,6 +42,7 @@ public class ModelGateway {
     }
     public Map<String,Object> complete(long user,String operation,List<Map<String,Object>> messages,List<Map<String,Object>> tools,int maxTokens,ProviderService.Provider provider,int timeoutSeconds){
         Values.range(timeoutSeconds,90,1,90);
+        if(ProviderService.isSub2Api(provider))return sub2Complete(user,operation,messages,tools,maxTokens,provider,timeoutSeconds);
         String key=preflight(provider,"/chat/completions");Map<String,Object> body=new LinkedHashMap<>();body.put("model",provider.model());body.put("messages",messages);body.put("max_tokens",maxTokens);if(!tools.isEmpty())body.put("tools",tools);
         long input=estimateInput(messages,tools);var call=calls.begin(user,operation,"LLM",Map.of("provider",providers.snapshot(provider),"body",body),input+maxTokens);Map<String,Object> response;
         if("COMPLETED".equals(call.status()))response=Jsons.map(call.response());
@@ -54,6 +55,7 @@ public class ModelGateway {
     }
     public void stream(long user,String operation,List<Map<String,Object>> messages,Consumer<String> token,BooleanSupplier cancel,ProviderService.Provider provider){
         if(cancel.getAsBoolean())throw new CancellationException();
+        if(ProviderService.isSub2Api(provider)){sub2Stream(user,operation,messages,List.of(),token,cancel,provider,Values.range(settings.number("chat.max-output-tokens",4096),4096,1,16000));return;}
         String key=preflight(provider,"/chat/completions");int max=Values.range(settings.number("chat.max-output-tokens",4096),4096,1,16000);long input=estimateInput(messages,List.of());
         Map<String,Object> body=Map.of("model",provider.model(),"messages",messages,"stream",true,"stream_options",Map.of("include_usage",true),"max_tokens",max);
         var call=calls.begin(user,operation,"LLM",Map.of("provider",providers.snapshot(provider),"body",body),input+max);
@@ -74,8 +76,13 @@ public class ModelGateway {
     }
     /** 原 ReAct 的流式回合：正文即时发送，工具参数按 index 合并；同次调用使用同一正式费用账本。 */
     public Map<String,Object> streamTurn(long user,String operation,List<Map<String,Object>> messages,List<Map<String,Object>> tools,Consumer<String> token,BooleanSupplier cancel,ProviderService.Provider provider){
+        return streamTurn(user,operation,messages,tools,token,cancel,provider,Values.range(settings.number("chat.react-max-output-tokens",2000),2000,1,16000));
+    }
+    /** 兼容验证使用固定 128 输出预算；仍受配置、HTTP、额度及秘密版本边界约束。 */
+    public Map<String,Object> streamTurn(long user,String operation,List<Map<String,Object>> messages,List<Map<String,Object>> tools,Consumer<String> token,BooleanSupplier cancel,ProviderService.Provider provider,int maxTokens){
         if(cancel.getAsBoolean())throw new CancellationException();
-        String key=preflight(provider,"/chat/completions");int max=Values.range(settings.number("chat.react-max-output-tokens",2000),2000,1,16000);
+        int max=Values.range(maxTokens,2000,1,16000);if(ProviderService.isSub2Api(provider))return sub2Stream(user,operation,messages,tools,token,cancel,provider,max);
+        String key=preflight(provider,"/chat/completions");
         long input=estimateInput(messages,tools);Map<String,Object> body=new LinkedHashMap<>();body.put("model",provider.model());body.put("messages",messages);body.put("max_tokens",max);body.put("stream",true);body.put("stream_options",Map.of("include_usage",true));if(!tools.isEmpty())body.put("tools",tools);
         var call=calls.begin(user,operation,"LLM",Map.of("provider",providers.snapshot(provider),"body",body),input+max);
         if(Set.of("COMPLETED","STOPPED").contains(call.status())){
@@ -119,6 +126,41 @@ public class ModelGateway {
     private static long estimateOutput(Map<String,Object> message){long result=estimate(Values.text(message.get("content")));if(message.get("reasoning_content")!=null)result+=estimate(Values.text(message.get("reasoning_content")));if(message.get("tool_calls")!=null)result+=estimate(Jsons.write(message.get("tool_calls")));return result;}
     private static long supplierUsage(Map<String,Object> response){Map<String,Object> usage=Values.map(response.get("usage"));Long total=nonnegativeInteger(usage.get("total_tokens"));if(total!=null)return total;Long prompt=nonnegativeInteger(usage.get("prompt_tokens")),completion=nonnegativeInteger(usage.get("completion_tokens"));if(prompt==null||completion==null)return -1;try{return Math.addExact(prompt,completion);}catch(ArithmeticException invalid){return -1;}}
     private static Long nonnegativeInteger(Object value){if(value==null)return null;try{long n=new java.math.BigDecimal(value.toString()).longValueExact();return n>=0?n:null;}catch(NumberFormatException|ArithmeticException invalid){return null;}}
+    private Map<String,Object> sub2Complete(long user,String operation,List<Map<String,Object>> messages,List<Map<String,Object>> tools,int max,ProviderService.Provider provider,int timeout){
+        var prepared=Sub2ApiTextAdapter.prepare(provider.config(),provider.model(),messages,tools,max,false);settings.requireExternal();http.validated(provider.endpoint()+prepared.path());
+        var secret=providers.resolvedSecret(provider);long input=estimateSub2Input(prepared);int output=(int)Values.number(prepared.body().getOrDefault("max_output_tokens",prepared.body().getOrDefault("max_completion_tokens",prepared.body().get("max_tokens"))),max);
+        var call=calls.begin(user,operation,"LLM",Map.of("provider",providers.snapshot(provider),"body",prepared.body()),Math.addExact(input,output));
+        if("COMPLETED".equals(call.status()))return replaySub2(call,provider);
+        if("STOPPED".equals(call.status()))throw new CancellationException("该模型回合已停止，禁止重新发送");
+        try{
+            providers.requireProbeAttempt(provider);
+            Map<String,Object> response=http.json("POST",provider.endpoint()+prepared.path(),"Bearer "+secret.value(),prepared.body(),timeout);var result=withResponseDiagnostics(prepared,Sub2ApiTextAdapter.decode(prepared,response));
+            long tokens=result.tokens()>=0?result.tokens():Math.addExact(input,estimateOutput(result.message()));calls.complete(call,result.message(),tokens,result.estimated(),false);return result.message();
+        }catch(RuntimeException failure){var partial=failure instanceof Sub2ApiTextAdapter.ProtocolFailure p?p.partial():new Sub2ApiTextAdapter.Result(Map.of("role","assistant","content",""),-1,true);recordSub2Failure(call,failure,withResponseDiagnostics(prepared,partial));throw failure;}
+    }
+    private Map<String,Object> sub2Stream(long user,String operation,List<Map<String,Object>> messages,List<Map<String,Object>> tools,Consumer<String> token,BooleanSupplier cancel,ProviderService.Provider provider,int max){
+        if(cancel.getAsBoolean())throw new CancellationException();var prepared=Sub2ApiTextAdapter.prepare(provider.config(),provider.model(),messages,tools,max,true);settings.requireExternal();http.validated(provider.endpoint()+prepared.path());
+        var secret=providers.resolvedSecret(provider);long input=estimateSub2Input(prepared);int output=(int)Values.number(prepared.body().getOrDefault("max_output_tokens",prepared.body().getOrDefault("max_completion_tokens",prepared.body().get("max_tokens"))),max);
+        var call=calls.begin(user,operation,"LLM",Map.of("provider",providers.snapshot(provider),"body",prepared.body()),Math.addExact(input,output));
+        if(Set.of("COMPLETED","STOPPED").contains(call.status())){if(cancel.getAsBoolean())throw new CancellationException();Map<String,Object> stored=replaySub2(call,provider);String content=Values.text(stored.get("content"));if(!content.isEmpty())token.accept(content);if("STOPPED".equals(call.status())||cancel.getAsBoolean())throw new CancellationException("该模型回合已停止");return stored;}
+        var turn=Sub2ApiTextAdapter.accumulator(prepared,token);
+        try{
+            providers.requireProbeAttempt(provider);
+            http.sseFrames(provider.endpoint()+prepared.path(),secret.value(),prepared.body(),frame->{if(cancel.getAsBoolean())throw new CancellationException();return turn.accept(frame);},cancel);
+            if(cancel.getAsBoolean())throw new CancellationException();var result=withResponseDiagnostics(prepared,turn.result());long tokens=result.tokens()>=0?result.tokens():Math.addExact(input,estimateOutput(result.message()));calls.complete(call,result.message(),tokens,result.estimated(),false);return result.message();
+        }catch(RuntimeException failure){var partial=failure instanceof Sub2ApiTextAdapter.ProtocolFailure p?p.partial():turn.partial();recordSub2Failure(call,failure,withResponseDiagnostics(prepared,partial));throw failure;}
+    }
+    /** 沿原归一化消息保存诊断，不包裹/替换message，也不改变actual_tokens与estimated。 */
+    private static Sub2ApiTextAdapter.Result withResponseDiagnostics(Sub2ApiTextAdapter.Prepared prepared,Sub2ApiTextAdapter.Result result){
+        if(!"responses".equals(prepared.protocol()))return result;
+        Map<String,Object> message=new LinkedHashMap<>(result.message()),diagnostic=new LinkedHashMap<>(Values.map(message.get(Sub2ApiResponsesCodec.USAGE_DIAGNOSTICS)));
+        diagnostic.putIfAbsent("usagePresent",false);diagnostic.putIfAbsent("usage",Map.of());diagnostic.put("requestedMaxOutputTokens",prepared.body().get("max_output_tokens"));message.put(Sub2ApiResponsesCodec.USAGE_DIAGNOSTICS,diagnostic);
+        return new Sub2ApiTextAdapter.Result(message,result.tokens(),result.estimated());
+    }
+    /** 新协议保存归一化 assistant，旧供应商 response_json 继续走原分支读取。 */
+    private Map<String,Object> replaySub2(ModelCallService.Call call,ProviderService.Provider provider){Map<String,Object> stored=Jsons.map(call.response());if(!stored.containsKey("content")||!"assistant".equals(stored.get("role")))throw new IllegalStateException("MODEL_CALL_UNCERTAIN:模型缓存缺少完整归一化结果");if("COMPLETED".equals(call.status())&&"responses".equals(provider.config().get("apiProtocol"))&&!stored.containsKey(Sub2ApiResponsesCodec.ITEMS))throw new IllegalStateException("MODEL_CALL_UNCERTAIN:Responses 缓存缺少回传资料");return stored;}
+    private void recordSub2Failure(ModelCallService.Call call,RuntimeException failure,Sub2ApiTextAdapter.Result partial){if(partial.tokens()>=0)calls.complete(call,partial.message(),partial.tokens(),false,true);else calls.uncertain(call,Values.safeError(failure),partial.message());}
+    private static long estimateSub2Input(Sub2ApiTextAdapter.Prepared prepared){return estimate(Jsons.write(prepared.body()));}
     public String text(long user,String operation,String system,String prompt,int max,ProviderService.Provider provider){return Values.text(complete(user,operation,List.of(Map.of("role","system","content",system),Map.of("role","user","content",prompt)),List.of(),max,provider).get("content"));}
     public String text(long user,String operation,String system,String prompt,int max,ProviderService.Provider provider,int timeoutSeconds){return Values.text(complete(user,operation,List.of(Map.of("role","system","content",system),Map.of("role","user","content",prompt)),List.of(),max,provider,timeoutSeconds).get("content"));}
     public Map<String,Object> rerank(long user,String operation,String query,List<String> documents,ProviderService.Provider provider){String key=preflight(provider,"/rerank");long estimate=estimate(query)+documents.stream().mapToLong(ModelGateway::estimate).sum();Map<String,Object> body=Map.of("model",provider.model(),"query",query,"documents",documents,"top_n",documents.size());var call=calls.begin(user,operation,"LLM",Map.of("provider",providers.snapshot(provider),"body",body),estimate);if("COMPLETED".equals(call.status()))return Jsons.map(call.response());try{Map<String,Object> result=http.json("POST",provider.endpoint()+"/rerank","Bearer "+key,body);Map<String,Object> usage=Values.map(result.get("usage"));calls.complete(call,result,Values.number(usage.get("total_tokens"),estimate),!usage.containsKey("total_tokens"),false);return result;}catch(RuntimeException failure){calls.uncertain(call,Values.safeError(failure),Map.of());throw failure;}}

@@ -1,7 +1,7 @@
 """从实际操作者Controller核对路由、权限和HTTP字段，生成同目录唯一契约。
 
 --write用于首次生成或源协议更新；默认只核对，不修改文件。
-JSON对象扩展字段按实际Map接口保留；JSON Schema不能替代服务端成员、版本和许可检查。
+JSON对象扩展字段按实际Map接口保留；JSON Schema不能替代服务端个人owner、目录版本和许可检查。
 """
 from __future__ import annotations
 
@@ -178,46 +178,69 @@ def routes(prefix_filter="/paicli/v1", require_permissions=True):
 def body_overrides():
     source = obj({"content": {"type": "string", "description": "直接正文最多1MiB UTF-8；更大正文使用contentArtifactId"}, "contentArtifactId": INPUT_ID, "sha256": SHA},
                  anyOf=[{"required": ["content"]}, {"required": ["contentArtifactId"]}])
-    session = obj({"workspaceId": INPUT_ID, "runnerId": INPUT_ID, "modelId": INPUT_ID,
-                   "title": {"type": "string", "minLength": 1, "maxLength": 128}, "mode": {"enum": ["REACT", "PLAN", "TEAM"]},
-                   "approvalMode": {"enum": ["AUTO", "ASK", "PLAN"]}}, ("workspaceId", "runnerId", "modelId", "title", "mode", "approvalMode"))
+    session = obj({"directoryContextId": INPUT_ID, "modelId": INPUT_ID, "readOnly": {"type": "boolean", "default": False, "description": "确定性只读范围：写文件、命令、未知MCP及其他副作用拒绝"},
+                   "title": {"type": "string", "maxLength": 128, "description": "可省略，由首条要求生成"},
+                   "mode": {"enum": ["REACT", "PLAN", "TEAM"], "default": "REACT"},
+                   "approvalMode": {"enum": ["AUTO", "ASK", "PLAN"], "default": "ASK"}},
+                  description="当前认证用户的个人对话；目录和模型可取本人默认值，执行宿主由中心选择。旧workspace/人工Runner字段不产生授权。")
     turn = obj({"text": {"type": "string", "minLength": 1, "maxLength": 65536, "x-maxUtf8Bytes": 65536},
-                "attachments": {"type": "array", "maxItems": 10, "items": INPUT_ID}, "modelId": INPUT_ID,
-                "mode": {"enum": ["REACT", "PLAN", "TEAM"]}, "approvalMode": {"enum": ["AUTO", "ASK", "PLAN"]}}, ("text",))
+                "attachments": {"type": "array", "maxItems": 10, "items": INPUT_ID},
+                "files": {"type": "array", "maxItems": 5, "items": INPUT_ID, "description": "本人上传的USER_FILE引用，服务端读取并冻结受支持的UTF-8正文，总正文不超过4MiB；二进制资料不假装已读"}, "modelId": INPUT_ID,
+                "mode": {"enum": ["REACT", "PLAN", "TEAM"]}, "readOnly": {"type": "boolean"}, "approvalMode": {"enum": ["AUTO", "ASK", "PLAN"]}}, ("text",))
     rule = copy.deepcopy(source)
-    rule["properties"].update({"id": INPUT_ID, "workspaceId": INPUT_ID, "scope": {"enum": ["PROJECT", "PERSONAL"]},
+    rule["properties"].update({"id": INPUT_ID, "directoryContextId": INPUT_ID, "scope": {"enum": ["PROJECT", "PERSONAL"]},
                                "layer": {"enum": ["USER_PAI", "ROOT_PAI", "PAICLI_PAI", "LOCAL_PAI", "PAICLI_LOCAL_PAI"]},
                                "sourcePath": {"type": "string"}, "enabled": {"type": "boolean"},
                                "imports": {"type": "array", "maxItems": 200, "items": {"allOf": [source, obj({"path": {"type": "string"}}, ("path",))]}}})
     rule["required"] = ["scope", "layer", "sourcePath"]
-    memory = obj({"workspaceId": INPUT_ID, "scope": {"enum": ["PERSONAL", "PROJECT", "global", "project"]},
+    memory = obj({"directoryContextId": INPUT_ID, "scope": {"enum": ["PERSONAL", "PROJECT", "global", "project"]},
                   "content": {"type": "string", "minLength": 1, "maxLength": 8192}, "source": {"type": "string"}, "allowConflict": {"type": "boolean"},
                   "replace_id": INPUT_ID, "replaceVersion": {"type": "integer", "minimum": 1},
                   "conflictVersions": {"type": "object", "propertyNames": IDENTIFIER, "additionalProperties": {"type": "integer", "minimum": 1}}}, ("content",))
-    config = {"workspaceId": INPUT_ID, "id": INPUT_ID}
-    provider = obj({**config, "provider": {"enum": ["deepseek", "glm", "hunyuan", "kimi", "step", "freellmapi", "xfyun", "agnes"]},
+    config = {"directoryContextId": INPUT_ID, "id": INPUT_ID}
+    provider = obj({**config, "provider": {"enum": ["deepseek", "glm", "hunyuan", "kimi", "step", "freellmapi", "xfyun", "agnes", "sub2api"]},
+                    "wireApi": {"enum": ["responses", "chat_completions"], "description": "Sub2API必填；不猜测协议或回退其他供应商；Runner需声明sub2api.responses.v1或sub2api.chat_completions.v1"},
                     "name": {"type": "string"}, "baseUrl": {"type": "string", "format": "uri"}, "secretRef": {"type": "string"},
                     "model": {"type": "string", "maxLength": 256}, "loraId": {"type": "string", "maxLength": 256},
                     "temperature": {"type": "number", "minimum": 0, "maximum": 2}, "default": {"type": "boolean"}},
-                   ("workspaceId", "baseUrl"), anyOf=[{"required": ["provider"]}, {"required": ["name"]}])
+                   ("baseUrl",), anyOf=[{"required": ["provider"]}, {"required": ["name"]}],
+                   allOf=[{"if": {"anyOf": [{"required": ["provider"], "properties": {"provider": {"const": "sub2api"}}},
+                                            {"required": ["name"], "properties": {"name": {"const": "sub2api"}}}]},
+                           "then": {"required": ["wireApi"]}}])
     model = obj({**config, "providerId": INPUT_ID, "modelId": {"type": "string", "minLength": 1, "maxLength": 256},
                  "contextWindow": {"type": "integer", "minimum": 8000, "maximum": 10000000, "default": 128000},
                  "maxOutputTokens": {"type": "integer", "minimum": 1, "maximum": 1000000},
                  "thinking": {"enum": ["enabled", "disabled", ""]}, "reasoningEffort": {"enum": ["low", "medium", "high", "max", ""]},
                  **{name: {"type": "boolean"} for name in ["supportsImages", "imageInput", "supportsThinking", "supportsTools", "capabilityKnown", "enabled", "reasoningHistory", "dsml"]}},
-                ("workspaceId", "providerId", "modelId"))
+                ("providerId", "modelId"))
     mcp = obj({**config, "name": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,64}$"}, "transport": {"enum": ["STDIO", "HTTP"]},
                "command": {"type": "string", "maxLength": 4096}, "args": {"type": "array", "items": {"type": "string"}}, "url": {"type": "string", "format": "uri"},
                "envSecretRefs": {"type": "object", "additionalProperties": {"type": "string"}}, "headerSecretRefs": {"type": "object", "additionalProperties": {"type": "string"}},
-               "env": obj(), "headers": obj(), "enabled": {"type": "boolean"}}, ("workspaceId", "name", "transport"),
+               "env": obj(), "headers": obj(), "enabled": {"type": "boolean"}}, ("name", "transport"),
               allOf=[{"if": {"properties": {"transport": {"const": "STDIO"}}}, "then": {"required": ["command"]}},
                      {"if": {"properties": {"transport": {"const": "HTTP"}}}, "then": {"required": ["url"]}}])
     browser = obj({**config, "mode": {"enum": ["SHARED", "ISOLATED", "DISCONNECTED"]}, "endpoint": {"type": "string", "format": "uri"},
-                   "mcpConfigId": INPUT_ID, "confirmShared": {"type": "boolean"}, "autoConnect": {"type": "boolean"}}, ("workspaceId", "mode"),
+                   "mcpConfigId": INPUT_ID, "confirmShared": {"type": "boolean"}, "autoConnect": {"type": "boolean"}}, ("mode",),
                   allOf=[{"if": {"properties": {"mode": {"const": "SHARED"}}}, "then": {"required": ["confirmShared"], "properties": {"confirmShared": {"const": True}}}},
                          {"if": {"properties": {"mode": {"enum": ["SHARED", "ISOLATED"]}}}, "then": {"required": ["endpoint", "mcpConfigId"]}}])
     return {
         ("post", "/sessions"): session,
+        ("post", "/personal/bootstrap"): obj(),
+        ("post", "/personal/directories"): obj({"path": {"type": "string", "minLength": 1, "maxLength": 4096}}, ("path",),
+            description="只选择当前用户受信执行宿主已核对的目录；用户不提交目录指纹或另一用户身份。"),
+        ("put", "/personal/settings"): obj({"modelId": INPUT_ID, "searchConfig": obj(), "embeddingConfig": obj({"provider": {"enum": ["openai", "ollama", "zhipu", "glm"]}, "model": {"type": "string", "minLength": 1}, "baseUrl": {"type": "string", "format": "uri"}, "secretRef": {"type": "string"}, "expectedDimensions": {"type": "integer", "minimum": 1, "maximum": 65536}}), "embeddingMode": {"enum": ["AUTO", "PLATFORM", "PERSONAL", "DISABLED"]}, "embeddingReleaseId": {"oneOf": [INPUT_ID, {"type": "null"}]}},
+            description="本人默认模型和检索/embedding设置；引用托管凭据并冻结版本，不以此接口创建秘密或发起真实调用。"),
+        ("put", "/personal/embedding/selection"): obj({"embeddingMode": {"enum": ["AUTO", "PLATFORM", "DISABLED"]}, "embeddingReleaseId": {"oneOf": [INPUT_ID, {"type": "null"}]}}, additionalProperties=False,
+            description="普通用户可选择平台向量能力或明确关闭；不能通过选择接口填写凭据或个人模型。PLATFORM必须引用仍有效且本人属于受众的发布。"),
+        ("post", "/personal/embedding/verify"): obj({"confirmCost": {"const": True}, "configurationVersion": {"type": "integer", "minimum": 1}, "configFingerprint": SHA}, ("confirmCost", "configurationVersion", "configFingerprint"), additionalProperties=False,
+            description="管理员验证本人当前固定向量配置，确认一次短文本请求；成功证据绑定维度、配置指纹、定义版本和托管密钥版本。"),
+        ("post", "/models/publish"): obj({"kind": {"enum": ["CHAT", "EMBEDDING"], "default": "CHAT"}, "modelId": INPUT_ID, "modelVersion": {"type": "integer", "minimum": 1},
+            "configurationVersion": {"type": "integer", "minimum": 1}, "configFingerprint": SHA, "expectedDimensions": {"type": "integer", "minimum": 1, "maximum": 65536},
+            "audience": {"enum": ["AUTHENTICATED", "USERS"]}, "userIds": {"type": "array", "items": INPUT_ID},
+            "defaultModel": {"type": "boolean"}, "confirmSharing": {"const": True},
+            "releaseVersion": {"type": "integer", "minimum": 1}}, ("audience", "confirmSharing"),
+            allOf=[{"if": {"required": ["kind"], "properties": {"kind": {"const": "EMBEDDING"}}}, "then": {"required": ["configurationVersion", "configFingerprint", "expectedDimensions"]}, "else": {"required": ["modelId", "modelVersion"]}}],
+            description="管理员显式发布本人模型的固定模型/供应商/秘密版本供所选受众使用；不公开秘密，不自动共享其他人的配置。"),
         ("post", "/sessions/{id}/turns"): turn,
         ("post", "/tasks"): {"allOf": [session, turn]},
         ("post", "/sessions/{id}/commands"): obj({"name": {"type": "string", "minLength": 1}, "arguments": {"type": "string"}}, ("name",)),
@@ -229,10 +252,11 @@ def body_overrides():
         ("post", "/tasks/{id}/reconcile"): obj({"evidence": {"type": "string", "minLength": 1, "maxLength": 8192}, "currentFingerprint": SHA,
                                                 "decision": {"enum": ["CONFIRM_COMPLETED", "CONFIRM_FAILED", "CONFIRM_CANCELLED"]}}, ("evidence", "currentFingerprint", "decision")),
         ("put", "/providers"): provider,
+        ("post", "/providers/{id}/verify"): obj({"modelId": INPUT_ID, "modelVersion": {"type": "integer", "minimum": 1}, "capability": {"enum": ["TEXT", "IMAGES"], "default": "TEXT"}, "confirmCost": {"const": True}}, ("modelId", "modelVersion", "confirmCost")),
         ("post", "/models"): model,
         ("post", "/mcp"): mcp,
         ("put", "/browser"): browser,
-        ("post", "/skills"): obj({**config, "name": {"type": "string", "minLength": 1}, "content": {"type": "string", "minLength": 1}, "sha256": SHA, "enabled": {"type": "boolean"}}, ("workspaceId", "name", "content", "sha256")),
+        ("post", "/skills"): obj({**config, "name": {"type": "string", "minLength": 1}, "content": {"type": "string", "minLength": 1}, "sha256": SHA, "enabled": {"type": "boolean"}}, ("name", "content", "sha256")),
         ("post", "/mcp/{id}/contents"): obj({"kind": {"enum": ["resource", "prompt"]}, "reference": {"type": "string", "minLength": 1, "maxLength": 4096}, "arguments": obj()}, ("kind", "reference")),
         ("put", "/wechat/{id}/policy"): obj({"dailyTurnLimit": {"type": "integer", "minimum": 1, "maximum": 10000, "default": 50},
                                               "singleTurnTokenBudget": {"type": "integer", "minimum": 1, "maximum": 1000000, "default": 64000},
@@ -247,20 +271,29 @@ def event_schema():
     if not registered:
         raise ValueError("无法定位中心注册事件集合")
     types = re.findall(r'"([A-Z_]+)"', registered.group(1))
-    lease = obj({"taskId": IDENTIFIER, "leaseId": {"type": "string"}, "fencingToken": {"type": "integer", "minimum": 1},
+    lease = obj({"taskId": IDENTIFIER, "directoryContextId": {"oneOf": [INPUT_ID, {"type": "null"}]}, "ownerUserId": INPUT_ID,
+                 "textOnly": {"type": "boolean", "description": "无文件目录的纯文字任务：中心与执行器拒绝全部工具，不准备快照或MCP"},
+                 "leaseId": {"type": "string"}, "fencingToken": {"type": "integer", "minimum": 1},
                  "version": {"type": "integer", "minimum": 1}, "policyVersion": {"type": "integer", "minimum": 1}, "rootFingerprint": SHA},
-                ("taskId", "leaseId", "fencingToken", "version", "policyVersion", "rootFingerprint"))
+                ("taskId", "directoryContextId", "ownerUserId", "leaseId", "fencingToken", "version", "policyVersion", "rootFingerprint"))
+    reported_usage = obj({**{field: {"type": "integer", "minimum": 0, "maximum": 100000000} for field in ["inputTokens", "outputTokens", "cachedInputTokens", "totalTokens"]},
+                          "status": {"enum": ["FAILED", "CANCELLED"]}},
+                         ("inputTokens", "outputTokens", "cachedInputTokens", "totalTokens", "status"), type=["object", "null"], additionalProperties=False,
+                         description="可选：失败/取消前已收到的合法计数证据；不证明最终费用或退款。仅USAGE且usagePresent=false；total=input+output，cached<=input。")
+    capability_usage = {"capability": {"enum": ["CHAT", "EMBEDDING"]}, "provider": {"type": "string", "minLength": 1},
+                        "model": {"type": "string", "minLength": 1}, "configurationVersion": {"type": "integer", "minimum": 1},
+                        "configFingerprint": SHA, "releaseId": INPUT_ID, "releaseVersion": {"type": "integer", "minimum": 1}}
     published = obj({"eventId": IDENTIFIER, "sequence": {"type": "integer", "minimum": 1}, "type": {"type": "string", "minLength": 1},
-                     "payload": obj({"taskId": IDENTIFIER}), "occurredAt": {"type": "string", "format": "date-time"}, "taskId": IDENTIFIER},
+                     "payload": obj({"taskId": IDENTIFIER, "reportedUsage": reported_usage, **capability_usage}), "occurredAt": {"type": "string", "format": "date-time"}, "taskId": IDENTIFIER},
                     ("eventId", "sequence", "type", "payload", "occurredAt"))
     ledger = obj({"schemaVersion": {"const": 1}, "sessionId": IDENTIFIER, "sequence": {"type": "integer", "minimum": 0},
                   "event": {"type": "string", "minLength": 1}, "message": {"type": ["object", "null"]}, "metadata": obj(),
                   "rawPromptRequired": {"type": "boolean"}, "sourceSequence": CURSOR}, ("schemaVersion", "sessionId", "sequence", "event", "message", "metadata"))
     return {"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "urn:paicli:events:v1", "title": "PaiCLI 中心事件及原始账本协议",
-            "description": "中心发布事件、Runner输入及原始账本为不同对象；大正文只保存完整私有产物引用。事件内容不能授予新工具或账号权限。",
+            "description": "中心发布事件、Runner输入及原始账本为不同对象；大正文只保存完整私有产物引用。USAGE可带冻结的CHAT或EMBEDDING实际调用身份，中心按任务绑定校验；旧事件缺省身份仍兼容，图片计入主模型而非另造图片模型。事件内容不能授予新工具或账号权限。",
             "$ref": "#/$defs/PublishedEvent", "$defs": {"PublishedEvent": published, "LedgerEntry": ledger,
             "RunnerEventInput": {"allOf": [lease, obj({"eventId": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"}, "type": {"enum": types},
-                                                      "payload": obj({"eventArtifactId": INPUT_ID, "eventArtifactSha256": SHA,
+                                                      "payload": obj({"eventArtifactId": INPUT_ID, "eventArtifactSha256": SHA, "reportedUsage": reported_usage, **capability_usage,
                                                                       "eventArtifactSize": {"type": "integer", "minimum": 1, "maximum": 134217728}})}, ("eventId", "type", "payload"))]},
             "EventPage": obj({"events": {"type": "array", "items": {"$ref": "#/$defs/PublishedEvent"}}, "cursor": CURSOR,
                               "endSequence": {"type": "integer", "minimum": 0}, "hasMore": {"type": "boolean"}, "terminal": {"type": "boolean"}},
@@ -269,28 +302,51 @@ def event_schema():
 
 def operator_contract(entries):
     overrides, paths = body_overrides(), {}
-    titles = {"PcWorkspaceController": "工作区与设备", "PcSessionController": "会话、任务与批准", "PcKnowledgeController": "知识、记忆与快照",
+    titles = {"PcWorkspaceController": "旧入口退出与执行宿主管理", "PcPersonalController": "个人目录与使用准备", "PcSessionController": "对话、执行与确认", "PcKnowledgeController": "知识、记忆与快照",
               "PcConnectionController": "连接与模型", "PcProjectRuleController": "项目规则", "PcPromptController": "提示词模板",
-              "PcAuditController": "审计与评测", "PcImportController": "历史资料导入", "PcCommandController": "终端命令", "PcArtifactController": "私有附件与产物"}
+              "PcAuditController": "审计与评测", "PcImportController": "历史资料导入", "PcCommandController": "终端命令", "PcArtifactController": "私有附件与产物",
+              "PcTerminalAuthorizationController": "网页终端授权", "PcTerminalController": "网页终端", "PcTerminalClientController": "终端设备授权"}
     schemas = {"AjaxResult": obj({"code": {"type": "integer"}, "msg": {"type": "string"}, "data": {}}, ("code",)),
                "TableDataInfo": obj({"code": {"type": "integer"}, "msg": {"type": "string"}, "total": {"type": "integer", "minimum": 0}, "rows": {"type": "array", "items": obj()}}, ("code", "rows", "total")),
                "Error": obj({"code": {"type": "integer"}, "msg": {"type": "string"}, "errorCode": {"type": "string"}}, ("code", "msg")),
                "ArtifactText": obj({"artifactId": IDENTIFIER, "sessionId": IDENTIFIER, "sha256": SHA, "size": {"type": "integer", "maximum": 134217728},
                                     "offset": {"type": "integer", "minimum": 0}, "nextOffset": {"type": "integer", "minimum": 0},
-                                    "hasMore": {"type": "boolean"}, "text": {"type": "string"}}, ("artifactId", "sessionId", "sha256", "size", "offset", "nextOffset", "hasMore", "text"))}
+                                    "hasMore": {"type": "boolean"}, "text": {"type": "string"}}, ("artifactId", "sessionId", "sha256", "size", "offset", "nextOffset", "hasMore", "text")),
+               "UserFileTextPreview": obj({"artifactId": IDENTIFIER, "fileName": {"type": "string"}, "purpose": {"const": "USER_FILE"}, "sha256": SHA,
+                                    "size": {"type": "integer", "minimum": 1, "maximum": 52428800}, "offset": {"type": "integer", "minimum": 0},
+                                    "nextOffset": {"type": "integer", "minimum": 0}, "hasMore": {"type": "boolean"}, "text": {"type": "string"}},
+                                    ("artifactId", "fileName", "purpose", "sha256", "size", "offset", "nextOffset", "hasMore", "text"))}
+    schemas["PersonalContext"] = obj({
+        "ownerUserId": INPUT_ID,
+        "directoryContext": {"oneOf": [obj({"id": INPUT_ID, "ownerUserId": INPUT_ID, "runnerId": INPUT_ID,
+            "path": {"type": "string"}, "rootFingerprint": SHA, "version": {"type": "integer", "minimum": 1},
+            "state": {"type": "string"}}, ("id", "ownerUserId", "path", "version")), {"type": "null"}]},
+        "directoryState": {"enum": ["NOT_PREPARED", "VERIFIED"]},
+        "models": {"type": "array", "items": obj()}, "modelId": {"oneOf": [INPUT_ID, {"type": "null"}]},
+        "runtime": obj({"ready": {"type": "boolean"}, "code": {"type": "string"}, "message": {"type": "string"},
+            "runnerId": {"oneOf": [INPUT_ID, {"type": "null"}]}, "directoryReady": {"type": "boolean"},
+            "modelReady": {"type": "boolean"}}, ("ready", "code", "message", "runnerId", "directoryReady", "modelReady")),
+        "canChat": {"type": "boolean"}, "canOpenTerminal": {"type": "boolean"}, "bootstrapped": {"type": "boolean"},
+        "settings": obj(), "terminal": obj({"ready": {"type": "boolean"}, "code": {"type": "string"}, "message": {"type": "string"}})
+    }, ("ownerUserId", "directoryContext", "directoryState", "models", "modelId", "runtime", "canChat", "canOpenTerminal", "bootstrapped"))
     for entry in entries:
         path, method = entry["path"], entry["method"]
         operation = {"operationId": Path(entry["source"]).stem + "_" + entry["javaMethod"] + "_" + hashlib.sha256((method+path).encode()).hexdigest()[:8],
                      "summary": {"get": "查询", "post": "提交", "put": "更新", "delete": "删除", "patch": "调整"}[method] + titles[Path(entry["source"]).stem] + "：" + path,
                      "tags": [titles[Path(entry["source"]).stem]], "x-java-method": entry["javaMethod"],
                      "x-source": {"file": entry["source"], "line": entry["line"]}, "x-required-permissions": entry["permissions"],
-                     "description": "同时校验当前若依用户的按钮权限及服务端成员/owner/用途边界；ID和客户端参数不能扩大授权。",
+                     "description": "同时校验当前若依用户的按钮权限、owner、目录版本及用途边界；ID和客户端参数不能扩大授权。旧工作区/成员仅历史元数据，不参与现行业务判权。",
                      "parameters": entry["parameters"], "responses": {"200": {"description": "操作或查询成功；业务完成仍须核对正式状态和证据", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/" + ("TableDataInfo" if entry["returnType"] == "TableDataInfo" else "AjaxResult")}}}},
                      "default": {"description": "400输入；401凭证；403权限/硬拒绝；404对象；409版本/审批/CAS；410游标/产物过期；413容量；422能力；429预算/队列；503不可用", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}}}}
         if entry["body"]:
             operation["requestBody"] = entry["body"]
             if (method, path) in overrides:
                 operation["requestBody"]["content"]["application/json"]["schema"] = overrides[method, path]
+        if path.startswith("/workspaces"):
+            operation["deprecated"] = True
+            operation["description"] = "该工作区/成员维护入口已退出，返回410 PC_WORKSPACE_REMOVED；历史记录通过本人或冻结访问快照允许的只读资源接口读取，不恢复原成员判权。"
+            operation["responses"].pop("200", None)
+            operation["responses"]["410"] = {"description": "工作区及成员机制已移除，请升级个人上下文客户端", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}}
         for parameter in operation["parameters"]:
             if parameter["name"] == "Idempotency-Key":
                 parameter["schema"].update(minLength=1, maxLength=128)
@@ -304,13 +360,19 @@ def operator_contract(entries):
                 parameter["schema"].update(minimum=0, maximum=20)
         if path == "/artifacts" and method == "post":
             fields = {parameter["name"]: parameter["schema"] for parameter in operation["parameters"] if parameter["in"] in {"query", "form"}}
-            fields["purpose"] = {"enum": ["TURN_IMAGE", "LEGACY_IMPORT", "EVALUATION_REPORT", "PAI_SOURCE"]}
+            fields["purpose"] = {"enum": ["TURN_IMAGE", "USER_FILE", "LEGACY_IMPORT", "EVALUATION_REPORT", "PAI_SOURCE"]}
+            required_fields = [parameter["name"] for parameter in operation["parameters"] if parameter["in"] in {"query", "form"} and parameter["required"]]
             operation["parameters"] = [parameter for parameter in operation["parameters"] if parameter["in"] == "header"]
-            operation["requestBody"] = {"required": True, "content": {"multipart/form-data": {"schema": obj(fields, fields)}}}
+            operation["requestBody"] = {"required": True, "content": {"multipart/form-data": {"schema": obj(fields, required_fields)}}}
             operation["description"] += " TURN_IMAGE最多5MiB；其他用途最多50MiB；PAI_SOURCE须严格UTF-8，保留原bytes/SHA和CRLF，不借评测用途存规则。"
+        if path in {"/personal/context", "/personal/bootstrap"}:
+            operation["responses"]["200"]["content"]["application/json"]["schema"] = {"allOf": [{"$ref": "#/components/schemas/AjaxResult"}, obj({"data": {"$ref": "#/components/schemas/PersonalContext"}}, ("data",))]}
         if path == "/artifacts/{id}/content":
             operation["responses"]["200"] = {"description": "当前owner的私有完整产物，下载含ETag及no-store，不暴露存储路径", "content": {"application/octet-stream": {"schema": {"type": "string", "format": "binary"}}}}
-        if path.endswith(("/text", "/preview-text")):
+        if path == "/artifacts/{id}/preview-text":
+            operation["responses"]["200"]["content"]["application/json"]["schema"] = {"allOf": [{"$ref": "#/components/schemas/AjaxResult"}, obj({"data": {"$ref": "#/components/schemas/UserFileTextPreview"}}, ("data",))]}
+            operation["description"] += " 本人USER_FILE的只读文本预览，无需会话或执行目录；有目录归属时仍核该目录授权和状态。完整文件核验SHA、有效期及严格UTF-8，拒绝NUL和除CR/LF/TAB外的C0控制字符；单文件沿用50MiB上传范围，每页4字节至1MiB，默认65536字节。offset必须位于完整UTF-8码点边界，总SHA和size保持不变；不支持格式仅保留下载，预览不创建任务或调用模型，正文分析上限仍为1MiB。"
+        elif path.endswith(("/text", "/preview-text")):
             operation["responses"]["200"]["content"]["application/json"]["schema"] = {"allOf": [{"$ref": "#/components/schemas/AjaxResult"}, obj({"data": {"$ref": "#/components/schemas/ArtifactText"}}, ("data",))]}
             operation["description"] += " 字节offset只接受完整UTF-8码点边界；单页4字节至1MiB，总SHA和size保持不变。批准预览只能读取该申请冻结的preview receipt产物，不能自选artifactId；普通下载仍ownerOnly。"
         if entry["returnType"].startswith(("Map<", "List<")):
@@ -320,7 +382,7 @@ def operator_contract(entries):
         if method in paths.setdefault(path, {}):
             raise ValueError(f"重复路由{method} {path}")
         paths[path][method] = operation
-    return {"openapi": "3.1.0", "info": {"title": "PaiCLI 若依操作者接口", "version": "1.0.0", "description": "沿用若依JWT；通过现有请求组件使用，无独立账号系统。机器结构和路由来源可由verify-contracts.py核对；服务端仍执行数据库成员、owner、许可和版本规则。"},
+    return {"openapi": "3.1.0", "info": {"title": "PaiCLI 若依操作者接口", "version": "2.0.0", "description": "个人owner与目录上下文语义；沿用若依JWT和共享request。文件名与路由入口保持稳定，旧工作区客户端必须升级，不能静默创建隐式工作区。verify-contracts.py核对实际Controller，服务端仍执行owner、目录、许可和版本规则。"},
             "servers": [{"url": "/paicli/v1"}], "security": [{"platformBearer": []}], "paths": paths,
             "components": {"securitySchemes": {"platformBearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}}, "schemas": schemas}}
 

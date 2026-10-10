@@ -2,35 +2,41 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:paiflow:model-operations:v1",
   "title": "PaiFlow中心模型资源与逐次操作契约",
-  "description": "正式本批仅Python顶层spark-llm/OpenAI chat；全部授权/固定资源/动态消息/审批/受控transport桥缺任何项503且零operation写。基础两provider/FC仅保全完整目标，未启用。",
-  "x-ownership": "中心唯一持有模型资源版本、授权、许可、审批、收费、原帧、幂等、停止及终态；SDK在独立能力环境，无默认Provider或网络桥。",
+  "description": "当前中心代码支持 Python 顶层 spark-llm OpenAI/Spark chat，V4 参数提取、意图决策的 Prompt/normal chat 与 Spark FunctionCall，及绑定中心已消费回复的动态问答 chat；Java V2 顶层 spark-llm 使用原SDK八项有效选项。引擎只来自中心固定Run，原maxTokens为空时须核证部署默认上限才授费用许可，不向原wire注入默认。中心托管凭据、固定版本、权限、逐次许可、预算及持久 ACK 缺任何项均拒绝。隔离测试不代表真实 Provider 或业务验收。",
+  "x-ownership": "中心唯一持有模型资源版本、授权、逐次许可、预算、原帧、幂等、停止及终态；正式私有 HTTP/WebSocket transport 只在中心内取得托管材料，无 Worker 私有 Grant HTTP 路由、无默认 profile 或 Provider。",
   "x-current-scope": [
     "python",
-    "top-level spark-llm",
+    "java fixed paiflow.execution.v2 top-level spark-llm openai chat with original nullable options",
+    "java top-level original history with centre-bound context and frozen private history proof",
+    "python top-level ordinary spark-llm legacy debug history with centre-frozen private proof",
+    "top-level spark-llm chat",
+    "paiflow.execution.v4 extractor-parameter/decision-making Prompt/normal/Spark function_call",
+    "paiflow.execution.v4 dynamic question-answer chat with consumed checkpoint",
     "openai",
-    "chat"
+    "xinghuo"
   ],
   "x-not-enabled": [
-    "xinghuo正式HTTP",
-    "function_call",
-    "QA",
     "nested iteration",
-    "history",
+    "python V2 conversation history and Decision history",
+    "java nested history",
     "multimodal",
     "private Grant HTTP"
   ],
   "x-rules": [
+    "Python普通顶层旧历史由history/python/read按Run/attempt冻结；旧记录只进入原调试chatHistory，不发给Provider。中心私有候选绑定准确快照；追加在原节点格式化成功后、变量池必填写回和完成回调前，原raw开关追加判定与Pydantic读取判定分别保留。V2/Decision历史仍待迁移，接口与隔离证据不代表真实业务通过。",
     "runId来自路径；lease/attempt/node/iteration与完整ACK绑定，workflowVersion/dslHash/resourceVersion由中心不可变版本推出，不信Worker授予权限。模型操作必须已begin且发起者平台/空间权限持续有效。",
     "resourceId是不透明标识；公开模型仅六字段kind/provider/version/modelName/enabled/capabilities，modelName为原domain，version为不可变ModelVersion.id字符串；endpoint/ref/材料不进assignment/events/log。",
-    "模型费用须逐次批准/配额/真实资源及动态消息授权Port；profile无默认，Hello批准不能代替执行许可。当前只有顶层spark-llm OpenAI chat，其他范围503。",
+    "模型费用须逐次批准、持久配额、固定资源及中心消息来源授权；V4 模式由固定版本决定，不凭 Worker 自报或目录 capability 扩大许可。动态问答依中心 CONSUMED/resume 及先前完成操作的持久原帧复原消息。",
+    "Java参数形状不选择引擎；私有候选与Grant绑定中心Run.engineProfile，公共请求与ACK不添engine。原八项nullable选项逐值固定，n计全部choice输出预算；省略max_tokens仅预算使用已核证Provider部署默认上限，未配置不可调用。",
+    "Java非空历史必须先由history/java/open冻结；中心私有候选保存已核historyRef/historyHash/history/messages，Policy独立重读同快照。当前SYSTEM→旧问题及首ASSISTANT→当前USER顺序不变，旧SYSTEM/THINKING不发Provider；未绑定会话只允许原零历史路径。",
     "同key同完整绑定请求返回同operation；异内容409。key1..4096字符且受JSON UTF8总预算，中心保存原key和SHA256索引。acquire另一次CAS，ACK未知/重复不重授，不重发Provider。",
     "正式OperationRequest整体JSON UTF8最多2MiB；frame单64KiB、总10000帧/8MiB。cursor单调nextCursor=afterCursor+frames.length，每批最多64且信封须适配Worker2MiB响应预算，可减少本批帧数。",
     "state为本批交付投影，operationState保全正式表真态。完成或有原合法Provider终帧失败的分页在读到lastSeq前state=RUNNING/done=false，到最后才给真态/done；afterCursor==lastSeq允许空最终ACK。授权/协议/传输/期限/取消及无合法终帧失败粘性拒绝，不伪造finish。",
-    "OpenAI真实finish先存原帧RUNNING，尾usage-only完整保全；finish CAS引用已存finishSeq/lastSeq，不造choices/finish或改原帧。COMPLETED须真实stop；合法非stop FAILED/provider保留原错误。bare EOF/[DONE]/APIError不补stop。",
+    "OpenAI 真实 finish 先存原帧 RUNNING，尾 usage-only 完整保全；Spark 原 header.code/status 终帧及原 payload 保全。finish CAS 引用已存 finishSeq/lastSeq，COMPLETED 须真实 stop；合法非 stop FAILED/provider 保留原错误。bare EOF/[DONE]/APIError 不补 stop。",
     "failureKind明确provider/authorization/protocol/transport/deadline，失败没有原合法帧时finishSeq可null，不能触发原DEFAULT。SDK合法usage是累计快照，保最新完整值不累加tokens。",
     "Cancel只确认真实停止事实。未派发可由中心真实未签发状态产生proof；已派发无实际Provider停止/终止proof则stopped=false/EFFECT_UNKNOWN。本地close不证明Provider停，不造费用或回滚。",
-    "所有JSON整数须拒bool，未知字段/绑定/游标/版本拒绝；单凭done不能完成。JSONSchema的字节注解由MVC/客户端真实UTF8计数执行。私有绑定/规范字节只供未装配内部SDK桥，不开放通用Worker私有Grant路由。",
-    "中心公开failureKind另保lease/cancelled/budget真实原因，全部属于sticky边界；冻结内部Producer的FailureFacts.cancel由未装配内部桥明确转换为cancelled，SDK协议预算原因可保protocol，不伪造provider错误。"
+    "所有 JSON 整数须拒 bool，未知字段/绑定/游标/版本拒绝；单凭 done 不能完成。JSONSchema 字节注解由 MVC/客户端实际 UTF8 计数执行。私有绑定/规范字节只供中心进程内已装配生产桥，无 Worker 私有 Grant HTTP 路由。",
+    "中心公开 failureKind 保留 lease/cancelled/budget 等真实粘性边界；生产桥仅交脱敏失败事实，本地 close 不等于 Provider 停止或费用回滚。内部逐帧 ACK 必须 RUNNING/done=false/lastSeq=seq；结束 ACK 必须完整绑定、lastSeq/finishSeq/done、state/failureKind 与实际原因一致。"
   ],
   "$defs": {
     "LeaseRequest": {
@@ -108,7 +114,7 @@
         }
       },
       "x-private-internal-bridge-only": true,
-      "description": "完整内部绑定，不能授予费用或执行许可；私有SDK Grant桥未装配，无私有Grant HTTP路由。"
+      "description": "中心进程内生产桥完整绑定，不能凭此自授费用/执行许可；不存在 Worker 私有 Grant HTTP 路由。"
     },
     "ModelSnapshot": {
       "type": "object",
@@ -460,7 +466,13 @@
                 "prediction": {},
                 "service_tier": {}
               },
-              "description": "原Workflow OpenAI1.60.2支持字段名范围；固定DSL/profile/消息/副作用授权仍由中心真实Port核对，不凭SDK字段自授FC或多模态能力。"
+              "description": "原Workflow OpenAI1.60.2支持字段名范围；固定DSL/profile/消息/副作用授权仍由中心真实Port核对，不凭SDK字段自授FC或多模态能力。",
+              "not": {
+                "required": [
+                  "max_tokens",
+                  "max_completion_tokens"
+                ]
+              }
             }
           }
         },
@@ -1354,6 +1366,1393 @@
           }
         }
       ]
+    },
+    "SparkChatSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "provider",
+        "version",
+        "modelName",
+        "enabled",
+        "capabilities"
+      ],
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/OpenAIChatSnapshot/properties/kind"
+        },
+        "provider": {
+          "const": "xinghuo"
+        },
+        "version": {
+          "$ref": "#/$defs/OpenAIChatSnapshot/properties/version"
+        },
+        "modelName": {
+          "$ref": "#/$defs/OpenAIChatSnapshot/properties/modelName"
+        },
+        "enabled": {
+          "$ref": "#/$defs/OpenAIChatSnapshot/properties/enabled"
+        },
+        "capabilities": {
+          "enum": [
+            [
+              "chat"
+            ],
+            [
+              "chat",
+              "function_call"
+            ]
+          ]
+        }
+      },
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions",
+      "description": "Spark 正式顶层 chat 合同；公开附加 function_call capability 仅为固定目录事实，不授予对应节点/调用模式。"
+    },
+    "ChatSnapshot": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/OpenAIChatSnapshot"
+        },
+        {
+          "$ref": "#/$defs/SparkChatSnapshot"
+        }
+      ],
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions"
+    },
+    "SparkChatParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "modelName",
+        "mode",
+        "messages",
+        "options"
+      ],
+      "properties": {
+        "resourceId": {
+          "$ref": "#/$defs/OpenAIChatParameters/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/OpenAIChatParameters/properties/resourceVersion"
+        },
+        "provider": {
+          "const": "xinghuo"
+        },
+        "modelName": {
+          "$ref": "#/$defs/OpenAIChatParameters/properties/modelName"
+        },
+        "mode": {
+          "$ref": "#/$defs/OpenAIChatParameters/properties/mode"
+        },
+        "messages": {
+          "$ref": "#/$defs/OpenAIChatParameters/properties/messages"
+        },
+        "options": {
+          "$ref": "#/$defs/OpenAIChatParameters/properties/options"
+        },
+        "timeoutSeconds": {
+          "$ref": "#/$defs/OpenAIChatParameters/properties/timeoutSeconds"
+        }
+      },
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions",
+      "description": "Spark 正式顶层 chat 合同，不能用于 FunctionCall/PE/Decision/动态 QA 或嵌套模型。"
+    },
+    "ChatParameters": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/OpenAIChatParameters"
+        },
+        {
+          "$ref": "#/$defs/SparkChatParameters"
+        }
+      ],
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions"
+    },
+    "SparkChatOperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "operation",
+        "parameters",
+        "idempotencyKey"
+      ],
+      "properties": {
+        "leaseId": {
+          "$ref": "#/$defs/OpenAIChatOperationRequest/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/OpenAIChatOperationRequest/properties/attempt"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/OpenAIChatOperationRequest/properties/nodeId"
+        },
+        "iterationId": {
+          "$ref": "#/$defs/OpenAIChatOperationRequest/properties/iterationId"
+        },
+        "operation": {
+          "$ref": "#/$defs/OpenAIChatOperationRequest/properties/operation"
+        },
+        "parameters": {
+          "$ref": "#/$defs/SparkChatParameters"
+        },
+        "idempotencyKey": {
+          "$ref": "#/$defs/OpenAIChatOperationRequest/properties/idempotencyKey"
+        }
+      },
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions",
+      "x-max-json-utf8-bytes": 2097152,
+      "description": "Spark 正式顶层 chat 合同，不能用于 FunctionCall/PE/Decision/动态 QA 或嵌套模型。"
+    },
+    "ChatOperationRequest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/OpenAIChatOperationRequest"
+        },
+        {
+          "$ref": "#/$defs/SparkChatOperationRequest"
+        }
+      ],
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions"
+    },
+    "SparkChatStartAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/attempt"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/nodeId"
+        },
+        "iterationId": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/iterationId"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/resourceVersion"
+        },
+        "provider": {
+          "const": "xinghuo"
+        },
+        "state": {
+          "$ref": "#/$defs/OpenAIChatStartAck/properties/state"
+        }
+      },
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions",
+      "description": "Spark 正式顶层 chat 合同，不能用于 FunctionCall/PE/Decision/动态 QA 或嵌套模型。"
+    },
+    "ChatStartAck": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/OpenAIChatStartAck"
+        },
+        {
+          "$ref": "#/$defs/SparkChatStartAck"
+        }
+      ],
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions"
+    },
+    "SparkChatFramesAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state",
+        "operationState",
+        "frames",
+        "nextCursor",
+        "done",
+        "lastSeq",
+        "finishSeq",
+        "failureKind"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/attempt"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/nodeId"
+        },
+        "iterationId": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/iterationId"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/resourceVersion"
+        },
+        "provider": {
+          "const": "xinghuo"
+        },
+        "state": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/state"
+        },
+        "operationState": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/operationState"
+        },
+        "frames": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/frames"
+        },
+        "nextCursor": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/nextCursor"
+        },
+        "done": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/done"
+        },
+        "lastSeq": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/lastSeq"
+        },
+        "finishSeq": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/finishSeq"
+        },
+        "failureKind": {
+          "$ref": "#/$defs/OpenAIChatFramesAck/properties/failureKind"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operationState": {
+                "const": "FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failureKind": {
+                "enum": [
+                  "provider",
+                  "authorization",
+                  "protocol",
+                  "transport",
+                  "deadline",
+                  "lease",
+                  "cancelled",
+                  "budget"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "operationState": {
+                "const": "COMPLETED"
+              },
+              "done": {
+                "const": true
+              },
+              "finishSeq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operationState": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "finishSeq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions",
+      "description": "Spark 正式顶层 chat 合同，不能用于 FunctionCall/PE/Decision/动态 QA 或嵌套模型。"
+    },
+    "ChatFramesAck": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/OpenAIChatFramesAck"
+        },
+        {
+          "$ref": "#/$defs/SparkChatFramesAck"
+        }
+      ],
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions"
+    },
+    "SparkChatCancelAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state",
+        "stopped",
+        "proofId"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/attempt"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/nodeId"
+        },
+        "iterationId": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/iterationId"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/resourceVersion"
+        },
+        "provider": {
+          "const": "xinghuo"
+        },
+        "state": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/state"
+        },
+        "stopped": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/stopped"
+        },
+        "proofId": {
+          "$ref": "#/$defs/OpenAIChatCancelAck/properties/proofId"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "COMPLETED",
+                  "FAILED",
+                  "CANCELLED"
+                ]
+              },
+              "proofId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        }
+      ],
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions",
+      "description": "Spark 正式顶层 chat 合同，不能用于 FunctionCall/PE/Decision/动态 QA 或嵌套模型。"
+    },
+    "ChatCancelAck": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/OpenAIChatCancelAck"
+        },
+        {
+          "$ref": "#/$defs/SparkChatCancelAck"
+        }
+      ],
+      "x-status": "current_chat_contract_requires_explicit_profile_and_live_permissions"
+    },
+    "SparkFunctionCallParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "modelName",
+        "mode",
+        "messages",
+        "options",
+        "functions"
+      ],
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "provider": {
+          "const": "xinghuo"
+        },
+        "modelName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mode": {
+          "const": "function_call"
+        },
+        "messages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "content"
+            ],
+            "properties": {
+              "role": {
+                "enum": [
+                  "system",
+                  "user"
+                ]
+              },
+              "content": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "temperature",
+            "maxTokens",
+            "topK",
+            "patchId",
+            "respFormat",
+            "searchDisable",
+            "extraParams",
+            "questionType",
+            "functionChoice"
+          ],
+          "properties": {
+            "temperature": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "maxTokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "topK": {
+              "type": "integer"
+            },
+            "patchId": {
+              "type": "array"
+            },
+            "respFormat": {
+              "enum": [
+                0,
+                1,
+                2
+              ]
+            },
+            "searchDisable": {
+              "const": true
+            },
+            "extraParams": {
+              "type": "object",
+              "maxProperties": 0
+            },
+            "questionType": {
+              "type": "string"
+            },
+            "functionChoice": {
+              "type": "string"
+            }
+          }
+        },
+        "functions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "description",
+              "parameters"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "parameters": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions"
+    },
+    "QuestionAnswerChatParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "modelName",
+        "mode",
+        "messages",
+        "options",
+        "checkpointId"
+      ],
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "resourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "provider": {
+          "enum": [
+            "openai",
+            "xinghuo"
+          ]
+        },
+        "modelName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mode": {
+          "const": "chat"
+        },
+        "messages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "content"
+            ],
+            "properties": {
+              "role": {
+                "enum": [
+                  "system",
+                  "user"
+                ]
+              },
+              "content": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "temperature",
+            "maxTokens",
+            "topK",
+            "patchId",
+            "respFormat",
+            "searchDisable",
+            "extraParams"
+          ],
+          "properties": {
+            "temperature": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "maxTokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "topK": {
+              "type": "integer"
+            },
+            "patchId": {
+              "type": "array"
+            },
+            "respFormat": {
+              "enum": [
+                0,
+                1,
+                2
+              ]
+            },
+            "searchDisable": {
+              "type": "boolean"
+            },
+            "extraParams": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "temperature": {},
+                "top_p": {},
+                "max_tokens": {},
+                "presence_penalty": {},
+                "frequency_penalty": {},
+                "seed": {},
+                "stop": {},
+                "n": {
+                  "const": 1
+                },
+                "response_format": {},
+                "stream_options": {},
+                "logprobs": {},
+                "top_logprobs": {},
+                "user": {},
+                "tools": {},
+                "tool_choice": {},
+                "functions": {},
+                "function_call": {},
+                "parallel_tool_calls": {},
+                "max_completion_tokens": {},
+                "reasoning_effort": {},
+                "store": {},
+                "metadata": {},
+                "audio": {},
+                "modalities": {},
+                "prediction": {},
+                "service_tier": {}
+              },
+              "description": "原Workflow OpenAI1.60.2支持字段名范围；固定DSL/profile/消息/副作用授权仍由中心真实Port核对，不凭SDK字段自授FC或多模态能力。",
+              "not": {
+                "required": [
+                  "max_tokens",
+                  "max_completion_tokens"
+                ]
+              }
+            }
+          }
+        },
+        "timeoutSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        },
+        "checkpointId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions"
+    },
+    "V4ModelParameters": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ChatParameters"
+        },
+        {
+          "$ref": "#/$defs/SparkFunctionCallParameters"
+        },
+        {
+          "$ref": "#/$defs/QuestionAnswerChatParameters"
+        }
+      ],
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions"
+    },
+    "V4ChatOperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "operation",
+        "parameters",
+        "idempotencyKey"
+      ],
+      "properties": {
+        "leaseId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "urn:paiflow:worker:v1#/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^(spark-llm|extractor-parameter|decision-making)::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "operation": {
+          "const": "model.invoke"
+        },
+        "parameters": {
+          "$ref": "#/$defs/ChatParameters"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+        }
+      },
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions",
+      "x-max-json-utf8-bytes": 2097152
+    },
+    "SparkFunctionCallOperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "operation",
+        "parameters",
+        "idempotencyKey"
+      ],
+      "properties": {
+        "leaseId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "urn:paiflow:worker:v1#/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^(extractor-parameter|decision-making)::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "operation": {
+          "const": "model.invoke"
+        },
+        "parameters": {
+          "$ref": "#/$defs/SparkFunctionCallParameters"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+        }
+      },
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions",
+      "x-max-json-utf8-bytes": 2097152
+    },
+    "QuestionAnswerChatOperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "operation",
+        "parameters",
+        "idempotencyKey"
+      ],
+      "properties": {
+        "leaseId": {
+          "$ref": "urn:paiflow:worker:v1#/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "urn:paiflow:worker:v1#/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^question-answer::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "operation": {
+          "const": "model.invoke"
+        },
+        "parameters": {
+          "$ref": "#/$defs/QuestionAnswerChatParameters"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+        }
+      },
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions",
+      "x-max-json-utf8-bytes": 2097152
+    },
+    "V4ModelOperationRequest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/V4ChatOperationRequest"
+        },
+        {
+          "$ref": "#/$defs/SparkFunctionCallOperationRequest"
+        },
+        {
+          "$ref": "#/$defs/QuestionAnswerChatOperationRequest"
+        }
+      ],
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions"
+    },
+    "JavaOpenAIChatParameters": {
+      "description": "原Java SDK八项有效选项；仅固定Java V2运行可批准，参数形状不授予引擎或费用许可。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resourceId", "resourceVersion", "provider", "modelName", "mode", "messages", "options"],
+      "properties": {
+        "resourceId": {"$ref": "#/$defs/OpenAIChatParameters/properties/resourceId"},
+        "resourceVersion": {"$ref": "#/$defs/OpenAIChatParameters/properties/resourceVersion"},
+        "provider": {"const": "openai"},
+        "modelName": {"$ref": "#/$defs/OpenAIChatParameters/properties/modelName"},
+        "mode": {"const": "chat"},
+        "messages": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["role", "content"], "properties": {"role": {"enum": ["system", "user", "assistant"]}, "content": {"type": "string"}}}},
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maxTokens", "temperature", "topP", "presencePenalty", "frequencyPenalty", "n", "streamUsage", "enableThinking"],
+          "properties": {
+            "maxTokens": {"type": ["integer", "null"]},
+            "temperature": {"type": ["number", "null"]},
+            "topP": {"type": ["number", "null"]},
+            "presencePenalty": {"type": ["number", "null"]},
+            "frequencyPenalty": {"type": ["number", "null"]},
+            "n": {"type": ["integer", "null"]},
+            "streamUsage": {"const": true},
+            "enableThinking": {"const": true}
+          }
+        }
+      }
+    },
+    "JavaOpenAIChatOperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["leaseId", "attempt", "nodeId", "iterationId", "operation", "parameters", "idempotencyKey"],
+      "properties": {
+        "leaseId": {"$ref": "#/$defs/OpenAIChatOperationRequest/properties/leaseId"},
+        "attempt": {"$ref": "#/$defs/OpenAIChatOperationRequest/properties/attempt"},
+        "nodeId": {"$ref": "#/$defs/OpenAIChatOperationRequest/properties/nodeId"},
+        "iterationId": {"type": "null"},
+        "operation": {"const": "model.invoke"},
+        "parameters": {"$ref": "#/$defs/JavaOpenAIChatParameters"},
+        "idempotencyKey": {"$ref": "#/$defs/OpenAIChatOperationRequest/properties/idempotencyKey"}
+      },
+      "x-status": "requires_fixed_java_v2_run_explicit_profile_and_live_permissions",
+      "x-max-json-utf8-bytes": 2097152
+    },
+    "ModelOperationRequest": {
+      "x-status": "requires_explicit_profile_fixed_python_codec_or_java_v2_and_live_permissions",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ChatOperationRequest"
+        },
+        {
+          "$ref": "#/$defs/V4ModelOperationRequest"
+        },
+        {
+          "$ref": "#/$defs/JavaOpenAIChatOperationRequest"
+        }
+      ]
+    },
+    "ModelStartAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^(spark-llm|extractor-parameter|decision-making|question-answer)::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "enum": [
+            "openai",
+            "xinghuo"
+          ]
+        },
+        "state": {
+          "const": "RUNNING"
+        }
+      },
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions"
+    },
+    "ModelFramesAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state",
+        "operationState",
+        "frames",
+        "nextCursor",
+        "done",
+        "lastSeq",
+        "finishSeq",
+        "failureKind"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^(spark-llm|extractor-parameter|decision-making|question-answer)::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "enum": [
+            "openai",
+            "xinghuo"
+          ]
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "operationState": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "frames": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "x-max-json-utf8-bytes": 65536
+          }
+        },
+        "nextCursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "done": {
+          "type": "boolean"
+        },
+        "lastSeq": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "finishSeq": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            }
+          ]
+        },
+        "failureKind": {
+          "enum": [
+            null,
+            "provider",
+            "authorization",
+            "protocol",
+            "transport",
+            "deadline",
+            "lease",
+            "cancelled",
+            "budget"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operationState": {
+                "const": "FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failureKind": {
+                "enum": [
+                  "provider",
+                  "authorization",
+                  "protocol",
+                  "transport",
+                  "deadline",
+                  "lease",
+                  "cancelled",
+                  "budget"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "operationState": {
+                "const": "COMPLETED"
+              },
+              "done": {
+                "const": true
+              },
+              "finishSeq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operationState": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "finishSeq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "failureKind": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions"
+    },
+    "ModelCancelAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "iterationId",
+        "workflowVersionId",
+        "dslHash",
+        "operationId",
+        "resourceId",
+        "resourceVersion",
+        "provider",
+        "state",
+        "stopped",
+        "proofId"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/PrivateBinding/properties/runId"
+        },
+        "leaseId": {
+          "$ref": "#/$defs/PrivateBinding/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "#/$defs/PrivateBinding/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "pattern": "^(spark-llm|extractor-parameter|decision-making|question-answer)::.+$",
+          "maxLength": 256
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "workflowVersionId": {
+          "$ref": "#/$defs/PrivateBinding/properties/workflowVersionId"
+        },
+        "dslHash": {
+          "$ref": "#/$defs/PrivateBinding/properties/dslHash"
+        },
+        "operationId": {
+          "$ref": "#/$defs/PrivateBinding/properties/operationId"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/PrivateBinding/properties/resourceVersion"
+        },
+        "provider": {
+          "enum": [
+            "openai",
+            "xinghuo"
+          ]
+        },
+        "state": {
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
+            "EFFECT_UNKNOWN"
+          ]
+        },
+        "stopped": {
+          "type": "boolean"
+        },
+        "proofId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "stopped": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "COMPLETED",
+                  "FAILED",
+                  "CANCELLED"
+                ]
+              },
+              "proofId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          }
+        }
+      ],
+      "x-status": "current_http_contract_requires_explicit_profile_fixed_v4_and_live_permissions"
     }
   }
 }

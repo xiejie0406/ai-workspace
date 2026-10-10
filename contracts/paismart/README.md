@@ -42,6 +42,8 @@ Provider 只传托管用途 `secretRef`，不传明文 key；`config.providerCod
 
 Provider 测试可用 `id` 指定同用途的单条配置，省略时保持原激活配置语义。评测逐例保留检索命中/排名/覆盖、生成及裁判失败、人工抽样原因和诊断；总样本数保留失败项，检索与裁判指标分别明确其分母，未知值为 `null`。最新人工修订参与 `cohensKappa/meanAbsoluteScoreDiff` 等一致性计算，配置阈值、样本不足及重新校准警示分别保留。引用的 `text` 与 `parentContext` 区分命中原文和授权父块事实，核验失败保持未核验。
 
+Sub2API 只允许 `LLM`，协议和输出预算在 Provider 的 `config` 中显式保存；兼容性证据、有效性和激活阻断原因由服务端计算，客户端不能提交伪造证据。兼容性验证请求使用 `mode=compatibility`、目标 `id` 和 `expectedVersion`，服务端固定每次最多 128 输出 token、至多三次合成调用。验证结果的 `PASSED/FAILED/PENDING_RECONCILIATION` 表示当前调用结果，激活还复核配置摘要、Provider及托管密钥版本；未知结果不得自动重新外发。本轮只有离线实现及静态契约核对，未执行真实兼容性调用。
+
 索引列表的 `sourceWatermark` 为冻结增量水位，`validationJson` 为序列化校验记录。`PENDING` 只含待验查询；正式计数与KNN探测只有实际执行后才记录，页面不能以缺失字段补零并判定通过。
 
 索引重建与评测创建的内部载荷可包含 `requestHash`，它摘要原标准化用户输入；相同幂等键恢复原对象与原配置，输入不同拒绝，不重新生成对象。评测报告的 `configuration/config` 保留该摘要及 `generationTimeoutSeconds/judgeTimeoutSeconds`，默认完整单次 HTTP 预算分别为 90/60 秒，创建时冻结。Provider 地址兼容原完整操作 URL，统一保存及读取为基础 URL；秘密用途与外发审批仍由原机制检查。

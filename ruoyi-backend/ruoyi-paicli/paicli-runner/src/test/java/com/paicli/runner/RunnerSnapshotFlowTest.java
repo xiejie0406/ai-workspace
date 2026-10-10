@@ -77,7 +77,7 @@ class RunnerSnapshotFlowTest {
             Files.writeString(root.resolve("a.txt"),"后来编辑的正文");
             ResourceFingerprint resources=new ResourceFingerprint(root);
             current=resources.capture("revert_turn",CanonicalJson.MAPPER.createObjectNode());
-            ObjectNode claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","2").put("workspaceId","7")
+            ObjectNode claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","2").put("directoryContextId","7")
                     .put("leaseId","3").put("fencingToken",8).put("version",4).put("policyVersion",1)
                     .put("rootFingerprint",resources.rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(120).toString());
             lease=new RunnerLease(claim);

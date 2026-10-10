@@ -3,13 +3,13 @@ from typing import AsyncIterator
 
 from pydantic import Field
 
-from api.schemas.agent_response import AgentResponse
+from agent.api.schemas.agent_response import AgentResponse
 
 # Use unified common package import module
-from common_imports import NodeTrace, Span
-from domain.models.base import BaseLLMModel
-from engine.nodes.base import RunnerBase, Scratchpad
-from engine.nodes.cot_process.cot_process_prompt import (
+from agent.common_imports import NodeTrace, Span
+from agent.domain.models.base import BaseLLMModel
+from agent.engine.nodes.base import RunnerBase, Scratchpad
+from agent.engine.nodes.cot_process.cot_process_prompt import (
     COT_PROCESS_LAST_USER_STEP_TEMPLATE,
     COT_PROCESS_SYSTEM_TEMPLATE,
     COT_PROCESS_USER_STEP_TEMPLATE,

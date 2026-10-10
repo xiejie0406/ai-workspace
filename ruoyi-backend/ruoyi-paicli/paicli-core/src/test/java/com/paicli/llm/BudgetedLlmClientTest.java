@@ -8,6 +8,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BudgetedLlmClientTest {
+    @Test void embeddingIdentitySurvivesSuccessAndUncertainReservation() throws Exception {
+        List<BudgetedLlmClient.Usage> usages = new ArrayList<>();
+        LlmClient transport = new LlmClient() {
+            public ChatResponse chat(List<Message> messages, List<Tool> tools) { throw new AssertionError("not chat"); }
+            public ChatResponse chat(List<Message> messages, List<Tool> tools, StreamListener listener) { return chat(messages, tools); }
+            public String getModelName() { return "main-model"; } public String getProviderName() { return "sub2api"; }
+        };
+        var identity = new BudgetedLlmClient.CallIdentity("EMBEDDING", "openai", "text-embedding-v4", 3, "a".repeat(64), "8", 2);
+        BudgetedLlmClient client = new BudgetedLlmClient(transport, 20, 5, usages::add);
+        client.externalInputOnly(4, identity, () -> new BudgetedLlmClient.ExternalResponse<>(new float[]{1}, 2, 0, 0, true));
+        assertThrows(IOException.class, () -> client.externalInputOnly(4, identity, () -> { throw new IOException("unknown"); }));
+        assertEquals(identity, usages.get(0).callIdentity()); assertEquals(identity, usages.get(1).callIdentity());
+        assertEquals(0, usages.get(1).outputTokens()); assertFalse(usages.get(1).usagePresent());
+        assertEquals("UNCERTAIN", usages.get(1).status()); assertEquals(14, client.remainingTokens());
+    }
     @Test void embeddingAndModelSearchShareInputReservationAndDoNotChargeImaginaryEmbeddingOutput() throws Exception {
         List<BudgetedLlmClient.Usage> usages = new ArrayList<>();
         LlmClient transport = new LlmClient() {

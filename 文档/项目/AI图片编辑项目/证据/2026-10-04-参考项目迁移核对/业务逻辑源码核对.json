@@ -1,0 +1,591 @@
+{
+  "date": "2026-10-04",
+  "scope": "源码及业务逻辑静态核对；不进行API/服务/Provider/数据库/业务测试",
+  "method": "阅读原处理分支和新前端/中心/计算输出链；符号与SHA仅定位证据，不能单独证明功能完整",
+  "businessMapping": [
+    {
+      "business": "素材上传与图片库",
+      "reviewedLogic": "最短边/类型/哈希核对，私有对象登记，owner筛选，隐藏mask/导出等中间资源。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/services/assets.py",
+          "symbol": "async def library_for_user",
+          "line": 71,
+          "sha256": "e64f0d756365dd3be6829833eb0ae4ae3a28d3c7f9f374800bf3094a547a06d8"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/AssetService.java",
+          "symbol": "library(long owner,int limit)",
+          "line": 40,
+          "sha256": "c435694f1f87f092979cbdd21d32e3a388e6f70a15917e1401c2faaaa672e9a5"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/artifacts.py",
+          "symbol": "def probe",
+          "line": 23,
+          "sha256": "3796e19f70253aeaf749d88af1632fb3fc52426ddb7388289170e53f81aae157"
+        },
+        {
+          "path": "frontend/aipicture-workbench/src/api/assets.ts",
+          "symbol": "library",
+          "line": 39,
+          "sha256": "f2de97b4b1c9401f70833c3a3fa28480588c7f491355e61ced7f168e7b1dbe2c"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "生成候选与参考图",
+      "reviewedLogic": "prompt/negative_prompt/seed/count/ratio和最多三张引用传递；候选真实字节与资产ID回写。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/services/generation.py",
+          "symbol": "async def execute",
+          "line": 23,
+          "sha256": "788ec508234268bf0bc951d3f1353c1fca2804a67af44d7f664545c3d9822329"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name == \"generate_image\"",
+          "line": 329,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+          "symbol": "public Map<String,Object> submit",
+          "line": 33,
+          "sha256": "af25d40b3cbabd02477aeaea8fe137cacc167c6081cfd86c305ba35a644e99a5"
+        },
+        {
+          "path": "frontend/aipicture-workbench/src/pages/CreatePage.tsx",
+          "symbol": "generate",
+          "line": 20,
+          "sha256": "9a0ee1e9bd6adaf22092c103f18a5eccc001e0924b0ba5d69555a9fa073dee28"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "画布会话、采用与历史",
+      "reviewedLogic": "正式文档、当前/原始图和图片墙分开；采用后版本/历史改变；撤销重做与选区失效。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/routers/sessions.py",
+          "symbol": "async def patch_session",
+          "line": 98,
+          "sha256": "2743994bc7328f04712f429b175f89e46a6c253f29d5bf042b50331f4397fc55"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java",
+          "symbol": "public Map<String,Object> patch",
+          "line": 47,
+          "sha256": "5775e142ee4f9fb3b46d075a80f23ef67a58ce8873e15086bc014b201ebf55dc"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/SessionService.java",
+          "symbol": "historyMove",
+          "line": 94,
+          "sha256": "5775e142ee4f9fb3b46d075a80f23ef67a58ce8873e15086bc014b201ebf55dc"
+        },
+        {
+          "path": "frontend/aipicture-workbench/src/api/sessions.ts",
+          "symbol": "undo",
+          "line": 57,
+          "sha256": "ff1610134259672f44190006d22b5008e04a10fb6a793f0143da0a6d789e0ae8"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "九项图层与裁剪命令",
+      "reviewedLogic": "crop/flip/opacity/visible/text/reorder/scale/rotate/move由中心实际执行；比例/矩形、符号缩放、图层名与文字参数保留。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+          "symbol": "def crop",
+          "line": 145,
+          "sha256": "a907104466ccc09c3c5ee85b8ac10accb1d4c2609df61fe2b4f8272bbb029869"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/tool/DocumentCommandService.java",
+          "symbol": "public Map<String,Object> apply",
+          "line": 9,
+          "sha256": "0c00bf0fb0dd0b9a1ad122302f3d2ed5b0c01162bb8806e83803f420fb9e52e6"
+        },
+        {
+          "path": "frontend/aipicture-workbench/src/lib/tools.ts",
+          "symbol": "crop_canvas",
+          "line": 17,
+          "sha256": "71598c435dadcd25825af5b8f4fa226a1f0cdf9a250027b008486aeb72f2b98c"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "去背景和十一项调色",
+      "reviewedLogic": "保持原素材像素而非布局框缩放，默认顶层可见图像；rembg及全部调色参数处理。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/tools/retouch.py",
+          "symbol": "async def adjust_image_exec",
+          "line": 45,
+          "sha256": "351523f1daac79896f92b1426585d774af99c79bb50767395840979952949fd4"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name in {\"remove_background\", \"adjust_image\"}",
+          "line": 339,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+          "symbol": "def adjust",
+          "line": 34,
+          "sha256": "ba1662e7236d5b971fabc34bdcbf1d14c8cbeba1ae60b9cb57b9461a0c6f6781"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "换背景、扩图与超分",
+      "reviewedLogic": "单图采用、多候选或多图层只进墙；扩图cover_size；超分Provider及本地ONNX实现、来源标记俱在代码。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/tools/enhance.py",
+          "symbol": "async def replace_background_exec",
+          "line": 57,
+          "sha256": "5a85287c0cf2c5afa2adde4903a9113e7f63d1d31d4f2fa3d6bc55df97e3d231"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name in {\"replace_background\", \"expand_canvas\", \"upscale_image\"}",
+          "line": 348,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/edits/super_resolution.py",
+          "symbol": "async def upscale",
+          "line": 131,
+          "sha256": "ea347a13f6d7b485e0a1c35d8aec6023464c330b3786ca673f3d6f9ee91bc631"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "点选、涂抹和区域编辑",
+      "reviewedLogic": "points优先于strokes；追加点标记、笔刷范围/旧遮罩；全局遮罩转换图层局部，并仅合并遮罩区域。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/services/selections.py",
+          "symbol": "async def",
+          "line": 30,
+          "sha256": "cfab1440df50137e793dc2fe9b840af97ebb013450eaacead21e575cb727974e"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name in {\"selection\", \"prepare_selection\"}",
+          "line": 425,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name in {\"erase_region\", \"replace_region\"}",
+          "line": 364,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+          "symbol": "commitSelection",
+          "line": 252,
+          "sha256": "af25d40b3cbabd02477aeaea8fe137cacc167c6081cfd86c305ba35a644e99a5"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "拆主体/背景/文字与提升物体",
+      "reviewedLogic": "已拆/已提升幂等；去文字、OCR图层、旧位置填补；跨图层遮罩转换及文字保留。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/tools/layers.py",
+          "symbol": "async def split_layers_exec",
+          "line": 67,
+          "sha256": "a6534ad11dcd374d87ce1fb2fab6c2e69297056196cb2015f5b4ae186c9ef980"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "async def split",
+          "line": 190,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "async def promote",
+          "line": 212,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/edits/ocr.py",
+          "symbol": "def detect_text",
+          "line": 23,
+          "sha256": "ee428a3e37d3f41007e1e115af02454e7e83cbfe019d48abbd6fe6d897482b26"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "营销图与投放尺寸",
+      "reviewedLogic": "四种营销类型与caption/count/ratio；结果只进墙，定尺寸不裁切；比例去重、variant metadata。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/tools/marketing.py",
+          "symbol": "async def generate_marketing_exec",
+          "line": 100,
+          "sha256": "5a0c392d2dcfb9236c522ac452828a50c0611f5a5a9f89899994cb21e7c0bc44"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name == \"generate_marketing\"",
+          "line": 378,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name == \"prepare_delivery_sizes\"",
+          "line": 385,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "frontend/aipicture-workbench/src/pages/MarketingPage.tsx",
+          "symbol": "generate",
+          "line": 196,
+          "sha256": "0aa874762cafe14f8aac67cfdb79f09a0bffbb41ccd5d9aebae5d9aeee0aac69"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "批量逐项与导出",
+      "reviewedLogic": "六种允许操作顺序流水线、png/jpg；Java拆子任务、逐项失败、重试/取消/汇总，ZIP引用成功输出。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/services/batch.py",
+          "symbol": "async def apply_op",
+          "line": 46,
+          "sha256": "f6bbaf2ad9546513e50e0fd23151fe63a14a8b80151e461452c1b07d94979b2f"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "async def batch_op",
+          "line": 262,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/BatchExportEvaluationService.java",
+          "symbol": "createBatch",
+          "line": 19,
+          "sha256": "30d9bbe80da2de4006dee90b9790746d9bd2c709b24f6b415597a782a4c41526"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+          "symbol": "partial_success",
+          "line": 130,
+          "sha256": "af25d40b3cbabd02477aeaea8fe137cacc167c6081cfd86c305ba35a644e99a5"
+        },
+        {
+          "path": "frontend/aipicture-workbench/src/api/batches.ts",
+          "symbol": "retry",
+          "line": 43,
+          "sha256": "7aa51c711f1dd9baae0e454840f322f90faf665ddb88ec634987191bf1b61ca2"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "自然语言计划与失败恢复",
+      "reviewedLogic": "LangGraph/工具schema/依赖DAG与选区固定；确认/取消/重试由中心维护，供应商未知结果有独立终态。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/services/agent.py",
+          "symbol": "async def respond",
+          "line": 66,
+          "sha256": "0a8aee4fb754fd16fc5e8ab6b524360e3a4d2cb987f48acc8d57ac66133f1ff3"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/agent/graph.py",
+          "symbol": "async def run",
+          "line": 85,
+          "sha256": "dba91aea8638f2e3a187491123b1a4f94821626883619a409fd57cee0da740a4"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/PlanService.java",
+          "symbol": "public Map<String,Object> send",
+          "line": 29,
+          "sha256": "63b2748c1f09991cde7dca72997a98128acb6052c157233e026a2ec0d92b6bb8"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+          "symbol": "external_result_unknown",
+          "line": 130,
+          "sha256": "af25d40b3cbabd02477aeaea8fe137cacc167c6081cfd86c305ba35a644e99a5"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "PNG/ZIP、评测与耐久交付",
+      "reviewedLogic": "导出拍平当前图、白色/透明背景、ZIP清单；原CLI评测迁入并新增正式结果评估；回执补偿/交付重放。",
+      "entries": [
+        {
+          "path": "参考项目/ai-picture-editor-main/backend/app/services/exports.py",
+          "symbol": "async def pack",
+          "line": 66,
+          "sha256": "190ea084724a88a74c41ea288bd3ee2c6ff2c21c1da9b93cbba8bbc08e82da09"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name == \"export\"",
+          "line": 503,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/engine.py",
+          "symbol": "if name == \"evaluation\"",
+          "line": 468,
+          "sha256": "b293b29bc94de2ef2c28ce72c6a55979164c9bad53cdadb33c9fce77c127bccc"
+        },
+        {
+          "path": "python/aipicture-runtime/aipicture_runtime/delivery.py",
+          "symbol": "def",
+          "line": 13,
+          "sha256": "9a609c438099d0051932566781e39dad1a73de23f16b1aa120bba9fdff1598d1"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aipicture/src/main/java/com/ruoyi/aipicture/service/RunService.java",
+          "symbol": "commitExport",
+          "line": 253,
+          "sha256": "af25d40b3cbabd02477aeaea8fe137cacc167c6081cfd86c305ba35a644e99a5"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    }
+  ],
+  "notMigratedByDesign": "原独立认证、正式数据库/API/队列控制面由若依承接；PPT原Java与Python是替代实现，算法以Python保留",
+  "remaining": "本轮未执行功能测试与运行联通；真实权重/字体/Provider质量和用户数据迁移属于后续运行步骤。",
+  "pythonFunctionInventory": [
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/ratios.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/ratios.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 5,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/layers.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/layers.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 2,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/providers/base.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/providers/base.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 3,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/providers/mock.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/providers/mock.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 6,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/providers/dashscope.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/providers/dashscope.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "_extract_urls",
+        "__init__",
+        "generate",
+        "edit",
+        "_submit",
+        "_await_result",
+        "_download"
+      ],
+      "sourceFunctionCount": 13,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/agent/llm.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/agent/llm.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "planner"
+      ],
+      "sourceFunctionCount": 2,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/agent/graph.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/agent/graph.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 7,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/agent/plan.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/agent/plan.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "assemble"
+      ],
+      "sourceFunctionCount": 8,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/document.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/document.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 13,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/mask.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/mask.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "apply_masked"
+      ],
+      "sourceFunctionCount": 7,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/ocr.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/ocr.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "detect_text",
+        "_rapidocr"
+      ],
+      "sourceFunctionCount": 2,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/pixels.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/pixels.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "remove_background"
+      ],
+      "sourceFunctionCount": 14,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/render.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/render.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "_composite_text",
+        "_font",
+        "_font_path"
+      ],
+      "sourceFunctionCount": 7,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/segment.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/segment.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "warm_embedding",
+        "segment_points",
+        "_sam_session",
+        "_embedding_of"
+      ],
+      "sourceFunctionCount": 8,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/split.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/split.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 19,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/edits/__init__.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/edits/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/eval/cases.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/eval/cases.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "load_cases",
+        "input_path",
+        "expect_path"
+      ],
+      "sourceFunctionCount": 4,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/eval/metrics.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/eval/metrics.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 11,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/eval/runner.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/eval/runner.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "_read"
+      ],
+      "sourceFunctionCount": 7,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/eval/tasks.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/eval/tasks.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "run_task"
+      ],
+      "sourceFunctionCount": 8,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/eval/__init__.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/eval/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-picture-editor-main/backend/app/eval/__main__.py",
+      "target": "python/aipicture-runtime/aipicture_runtime/eval/__main__.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "main"
+      ],
+      "sourceFunctionCount": 1,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    }
+  ]
+}

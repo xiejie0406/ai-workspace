@@ -3,6 +3,87 @@ import { Tooltip, Slider, Switch } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { FlowInputNumber } from '@/components/workflow/ui';
 import { useTranslation } from 'react-i18next';
+import type { NodeDataType, NodeParameters } from '@/components/workflow/types';
+import type { UseNodeFuncReturn, WorkflowModelSummary } from '@/components/workflow/types/hooks';
+import type { ModelInfo as PlatformModelInfo, ModelConfigParam } from '@/types/model';
+
+export interface ModelField extends Partial<Pick<ModelConfigParam, 'name' | 'desc' | 'precision'>> {
+  key: string;
+  constraintType?: string;
+  constraintContent?: Array<{ name?: number }>;
+  default?: unknown;
+  [key: string]: unknown;
+}
+export type ModelInfo = WorkflowModelSummary & Partial<Pick<PlatformModelInfo,
+  'serviceId' | 'name' | 'domain' | 'patchId' | 'url' | 'isThink' | 'multiMode' | 'icon' | 'tag'>> & {
+  id?: string | number;
+  llmSource?: string | number;
+  shelfStatus?: number;
+  shelfOffTime?: string | number | null;
+};
+export function modelRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+export function modelNumber(value: unknown): number | undefined {
+  if (typeof value !== 'number' && typeof value !== 'string') return undefined;
+  if (value === '') return undefined;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+}
+export function readModelInfo(model: WorkflowModelSummary): ModelInfo {
+  const scalar = (value: unknown): string | number | undefined =>
+    typeof value === 'string' || typeof value === 'number' ? value : undefined;
+  const string = (value: unknown): string | undefined => typeof value === 'string' ? value : undefined;
+  const bool = (value: unknown): boolean | undefined => typeof value === 'boolean' ? value : undefined;
+  return { ...model, id: scalar(model.id), llmSource: scalar(model.llmSource),
+    serviceId: string(model.serviceId), name: string(model.name), domain: string(model.domain),
+    patchId: string(model.patchId), url: string(model.url), icon: string(model.icon),
+    isThink: bool(model.isThink), multiMode: bool(model.multiMode),
+    tag: Array.isArray(model.tag) ? model.tag.filter((tag): tag is string => typeof tag === 'string') : undefined,
+    shelfStatus: typeof model.shelfStatus === 'number' ? model.shelfStatus : undefined,
+    shelfOffTime: model.shelfOffTime === null ? null : scalar(model.shelfOffTime) };
+}
+export function readModelFields(value: unknown): ModelField[] {
+  if (!Array.isArray(value)) throw new TypeError('模型参数配置必须为数组');
+  return value.map(field => {
+    if (!modelRecord(field) || typeof field.key !== 'string') throw new TypeError('模型参数缺少有效key');
+    return { ...field, key: field.key,
+      name: typeof field.name === 'string' ? field.name : undefined,
+      desc: typeof field.desc === 'string' ? field.desc : undefined,
+      constraintType: typeof field.constraintType === 'string' ? field.constraintType : undefined,
+      precision: modelNumber(field.precision),
+      constraintContent: Array.isArray(field.constraintContent) ? field.constraintContent.map(bound => ({
+        ...(modelRecord(bound) ? bound : {}), name: modelRecord(bound) ? modelNumber(bound.name) : undefined,
+      })) : undefined };
+  });
+}
+export function serviceModelFields(config: unknown, serviceId?: string): ModelField[] {
+  if (!modelRecord(config) || !modelRecord(config.serviceBlock)) return [];
+  const blocks = config.serviceBlock;
+  const fields = (key: string): unknown => {
+    const block = blocks[key];
+    return Array.isArray(block) && modelRecord(block[0]) ? block[0].fields : undefined;
+  };
+  return readModelFields((serviceId ? fields(serviceId) : undefined) ?? fields('@@serviceId@@') ?? []);
+}
+export function modelParameterKey(key: string): string {
+  return ({ max_tokens: 'maxTokens', top_k: 'topK', search_disable: 'searchDisable' } as Record<string, string>)[key] ?? key;
+}
+type ChangeNodeParameter = UseNodeFuncReturn['handleChangeNodeParam'];
+type ChangeModelParameter = (data: NodeDataType, item: ModelField, value: unknown) => void;
+interface ParamProps {
+  item: ModelField;
+  nodeParam: NodeParameters;
+  currentSelectModel?: ModelInfo;
+  handleChangeNodeParam: ChangeNodeParameter;
+  handleDifferentModel: ChangeModelParameter;
+}
+interface ModelParamsProps {
+  setShowModelParmas: React.Dispatch<React.SetStateAction<boolean>>;
+  currentSelectModel?: ModelInfo;
+  nodeParam: NodeParameters;
+  handleChangeNodeParam: ChangeNodeParameter;
+}
 
 import debuggerIcon from '@/assets/imgs/workflow/debugger-icon.png';
 import close from '@/assets/imgs/workflow/modal-close.png';
@@ -24,27 +105,17 @@ function useClickOutside(
   }, [ref, onClose]);
 }
 
-function useConfigs(currentSelectModel, setConfigs): void {
+function useConfigs(currentSelectModel: ModelInfo | undefined, setConfigs: React.Dispatch<React.SetStateAction<ModelField[]>>): void {
   useEffect(() => {
     if (!currentSelectModel) return;
 
     try {
       if (currentSelectModel?.llmSource === 2) {
-        const configs =
-          currentSelectModel?.config?.serviceBlock?.[
-            currentSelectModel.serviceId
-          ]?.[0]?.fields ||
-          currentSelectModel?.config?.serviceBlock?.['@@serviceId@@']?.[0]
-            ?.fields ||
-          [];
-        configs.forEach(item => {
-          if (item.key === 'max_tokens') item.key = 'maxTokens';
-          if (item.key === 'top_k') item.key = 'topK';
-          if (item.key === 'search_disable') item.key = 'searchDisable';
-        });
+        const configs = serviceModelFields(currentSelectModel.config, currentSelectModel.serviceId)
+          .map(item => ({ ...item, key: modelParameterKey(item.key) }));
         setConfigs(configs);
       } else {
-        const configs = JSON.parse(currentSelectModel?.config || '[]')?.map(
+        const configs = readModelFields(JSON.parse(typeof currentSelectModel.config === 'string' ? currentSelectModel.config : '[]')).map(
           item => ({
             ...item,
             desc: item?.name,
@@ -66,13 +137,13 @@ function ParamSwitch({
   currentSelectModel,
   handleChangeNodeParam,
   handleDifferentModel,
-}): React.ReactElement {
+}: ParamProps): React.ReactElement {
   return (
     <Switch
       className="list-switch config-switch"
       checked={
         currentSelectModel?.llmSource === 0
-          ? nodeParam?.extraParams?.[item.key]
+          ? Boolean(modelRecord(nodeParam.extraParams) && nodeParam.extraParams[item.key])
           : !nodeParam[item.key]
       }
       onChange={val =>
@@ -90,8 +161,10 @@ function ParamRange({
   nodeParam,
   handleChangeNodeParam,
   handleDifferentModel,
-}): React.ReactElement {
-  const value = nodeParam[item.key] ?? nodeParam?.extraParams?.[item.key];
+}: Omit<ParamProps, 'currentSelectModel'>): React.ReactElement {
+  const extraParams = modelRecord(nodeParam.extraParams) ? nodeParam.extraParams : undefined;
+  const rawValue = nodeParam[item.key] ?? extraParams?.[item.key];
+  const value = rawValue === null ? null : modelNumber(rawValue);
 
   return (
     <div className="w-full flex items-center justify-between">
@@ -99,9 +172,9 @@ function ParamRange({
         min={item?.constraintContent?.[0]?.name}
         max={item?.constraintContent?.[1]?.name}
         step={item?.precision || 1}
-        value={value}
+        value={value ?? undefined}
         className="flex-1 config-slider nodrag"
-        onChange={val =>
+        onChange={(val: number | null) =>
           handleChangeNodeParam(
             (data, v) => handleDifferentModel(data, item, v),
             val
@@ -111,7 +184,7 @@ function ParamRange({
       <FlowInputNumber
         className="global-inputnumber-center ml-[18px] pt-1.5 pl-0.5 w-[60px] text-center nodrag"
         value={value}
-        onChange={val =>
+        onChange={(val: number | null) =>
           handleChangeNodeParam(
             (data, v) => handleDifferentModel(data, item, v),
             val
@@ -119,11 +192,12 @@ function ParamRange({
         }
         onBlur={() => {
           if (
-            nodeParam?.extraParams &&
-            nodeParam?.extraParams?.[item.key] === null
+            modelRecord(nodeParam.extraParams) && nodeParam.extraParams[item.key] === null
           ) {
             handleChangeNodeParam(
-              data => (data.nodeParam.extraParams[item.key] = item.default),
+              data => {
+                if (modelRecord(data.nodeParam.extraParams)) data.nodeParam.extraParams[item.key] = item.default;
+              },
               item.default
             );
           }
@@ -149,7 +223,7 @@ function ParamItem({
   currentSelectModel,
   handleChangeNodeParam,
   handleDifferentModel,
-}): React.ReactElement {
+}: ParamProps): React.ReactElement {
   return (
     <div>
       <div className="flex items-center gap-1 justify-between">
@@ -191,19 +265,19 @@ function ModelParams({
   currentSelectModel,
   nodeParam,
   handleChangeNodeParam,
-}): React.ReactElement {
+}: ModelParamsProps): React.ReactElement {
   const { t } = useTranslation();
   const paramsRef = useRef<HTMLDivElement | null>(null);
-  const [configs, setConfigs] = useState([]);
+  const [configs, setConfigs] = useState<ModelField[]>([]);
 
   useConfigs(currentSelectModel, setConfigs);
   useClickOutside(paramsRef, () => setShowModelParmas(false));
 
-  const handleDifferentModel = useMemoizedFn((data, item, value) => {
+  const handleDifferentModel = useMemoizedFn<ChangeModelParameter>((data, item, value) => {
     if (currentSelectModel?.llmSource === 0) {
       Reflect.deleteProperty(data.nodeParam, item.key);
       data.nodeParam.extraParams = {
-        ...data.nodeParam.extraParams,
+        ...(modelRecord(data.nodeParam.extraParams) ? data.nodeParam.extraParams : {}),
         [item.key]: value,
       };
     } else {
@@ -240,10 +314,10 @@ function ModelParams({
       </div>
       <div className="flex flex-col gap-2 w-full text-second font-medium mt-4">
         {configs
-          ?.filter((item: unknown) =>
-            ['range', 'switch'].includes(item.constraintType)
+          ?.filter(item =>
+            ['range', 'switch'].includes(item.constraintType ?? '')
           )
-          ?.map((item: unknown, index) => (
+          ?.map((item, index) => (
             <ParamItem
               key={index}
               {...{

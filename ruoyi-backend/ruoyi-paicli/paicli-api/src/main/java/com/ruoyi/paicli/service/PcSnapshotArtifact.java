@@ -13,7 +13,7 @@ public final class PcSnapshotArtifact {
     private final PcStore store;private final PcArtifactService artifacts;
     public PcSnapshotArtifact(PcStore store,PcArtifactService artifacts){this.store=store;this.artifacts=artifacts;}
     public Map<String,Object> proof(PcRecord task,String callId,Map<String,Object> projection){
-        long id=PcJson.number(projection,"previewArtifactId");Map<String,Object> metadata=artifacts.runnerOutputMetadata(id,task.getWorkspaceId(),task.getOwnerId(),task.getSessionId());
+        long id=PcJson.number(projection,"previewArtifactId");Map<String,Object> metadata=artifacts.runnerOutputMetadata(id,task.getDirectoryContextId(),task.getOwnerId(),task.getSessionId());
         if(!String.valueOf(task.getId()).equals(metadata.get("parentId"))||!callId.equals(metadata.get("toolCallId"))||!Objects.equals(metadata.get("sha256"),projection.get("previewArtifactSha256"))||PcJson.number(metadata,"size")!=PcJson.number(projection,"previewArtifactSize"))throw PcException.deny("预览产物不属于当前许可调用或完整SHA/长度不匹配");
         var content=artifacts.content(task.getOwnerId(),id);ObjectMapper mapper=new ObjectMapper(JsonFactory.builder().streamReadConstraints(StreamReadConstraints.builder().maxDocumentLength(128L*1024*1024).maxStringLength(128*1024*1024).build()).build()).rebuild().disable(tools.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS).build();Map<String,Object> body=new LinkedHashMap<>();
         try(var input=new PcCatalogueArtifact.LimitedInput(Files.newInputStream(content.file()));var parser=mapper.createParser(input)){

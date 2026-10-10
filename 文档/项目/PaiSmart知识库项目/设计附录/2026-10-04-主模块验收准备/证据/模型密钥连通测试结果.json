@@ -1,0 +1,71 @@
+{
+  "startedAt": "2026-10-04T20:23:35.010246+08:00",
+  "authorization": "2026-10-04用户提供两份密钥并明确要求连通测试",
+  "scope": "两次合成小样本直连；不操作原业务库、Provider激活、文档、索引、支付或其他项目",
+  "businessAcceptanceExecuted": false,
+  "results": [
+    {
+      "provider": "sub2api",
+      "startedAt": "2026-10-04T20:23:35.025946+08:00",
+      "baseUrl": "http://39.102.215.183:8080",
+      "requestedModel": "gpt-5.5",
+      "keyFingerprint": "f95b75d63d35bcfb",
+      "expected": "HTTP200、完整文字输出和用量",
+      "result": "未通过",
+      "httpStatus": 401,
+      "endpoint": "http://39.102.215.183:8080/responses",
+      "requestBody": {
+        "model": "gpt-5.5",
+        "input": [
+          {
+            "role": "user",
+            "content": "请只输出：连接成功"
+          }
+        ],
+        "max_output_tokens": 128,
+        "store": false,
+        "include": [
+          "reasoning.encrypted_content"
+        ]
+      },
+      "responseSha256": "5a897c59cfc7a0eb4e568778c36a946a0f31b4a4d3cae82459422271dc9f50c6",
+      "error": "{\"code\":\"INVALID_API_KEY\",\"message\":\"Invalid API key\"}",
+      "finishedAt": "2026-10-04T20:23:35.413681+08:00",
+      "elapsedSeconds": 0.391
+    },
+    {
+      "provider": "aliyun",
+      "startedAt": "2026-10-04T20:23:35.026946+08:00",
+      "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "requestedModel": "text-embedding-v4",
+      "keyFingerprint": "aec16905a7b2d081",
+      "expected": "HTTP200、1条有限非零向量和用量",
+      "result": "通过",
+      "httpStatus": 200,
+      "endpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings",
+      "requestBody": {
+        "model": "text-embedding-v4",
+        "input": [
+          "知识库连通性测试。"
+        ]
+      },
+      "responseSha256": "0225e0b43c3124fe46d0c8eef8ab3c2773ee40df3877f0a79e91894694cd7881",
+      "returnedModel": "text-embedding-v4",
+      "usage": {
+        "prompt_tokens": 8,
+        "total_tokens": 8
+      },
+      "requestId": "4837e8d0-163f-976e-bc5d-015fce3341cf",
+      "vectorCount": 1,
+      "dimensions": [
+        1024
+      ],
+      "allValuesFinite": true,
+      "nonzeroVectors": true,
+      "vectorSha256": "9e3c4764303ed09e5c46c228d4cea5f7281280cbd6a9aeaad924c9d1f4e32711",
+      "finishedAt": "2026-10-04T20:23:35.700908+08:00",
+      "elapsedSeconds": 0.671
+    }
+  ],
+  "finishedAt": "2026-10-04T20:23:35.701426+08:00"
+}

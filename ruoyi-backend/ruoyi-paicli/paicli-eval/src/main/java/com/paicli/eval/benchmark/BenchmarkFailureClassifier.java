@@ -45,6 +45,27 @@ final class BenchmarkFailureClassifier {
                 : Disposition.SCORED_FAILURE;
     }
 
+    /** 仅可信 DevSafe 验证器的完整权限预检诊断可证明 sandbox 不可用。 */
+    static Disposition classifyVerifier(CaseDefinition definition, BenchmarkVerifier.Result result) {
+        if (result == null) {
+            return classifyVerifier((BenchmarkVerifier.Status) null);
+        }
+        if (definition != null
+                && "dev-secret-safe-bundle".equals(definition.id())
+                && java.util.List.of("bash", "validators/dev/dev-secret-safe-bundle.sh", "{workspace}")
+                        .equals(definition.verifierCommand())
+                && result.status() == BenchmarkVerifier.Status.FAILED
+                && Integer.valueOf(2).equals(result.exitCode())
+                && "".equals(result.stdout())
+                && !result.stdoutTruncated() && !result.stderrTruncated()
+                && result.stderr() != null
+                && "dev-secret-safe-bundle: INFRA_ERROR: cannot prove forbidden-file read denial"
+                        .equals(result.stderr().stripTrailing())) {
+            return Disposition.INFRA_ERROR;
+        }
+        return classifyVerifier(result.status());
+    }
+
     enum Disposition {
         CONTINUE_TO_VERIFIER,
         PASSED,

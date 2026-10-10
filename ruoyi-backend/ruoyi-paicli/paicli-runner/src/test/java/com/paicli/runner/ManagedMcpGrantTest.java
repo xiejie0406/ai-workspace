@@ -12,8 +12,34 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ManagedMcpGrantTest {
-    private static ObjectNode claim(){return CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("workspaceId","7").put("leaseId","2").put("fencingToken",3).put("version",4).put("policyVersion",1).put("rootFingerprint","a".repeat(64)).put("expiresAt",Instant.now().plusSeconds(120).toString());}
-    private static ObjectNode config(){ObjectNode value=CanonicalJson.MAPPER.createObjectNode().put("id","5").put("workspaceId","7").put("version",6).put("configHash","b".repeat(64)).put("trustedHash","b".repeat(64)).put("transport","HTTP");value.putObject("headerSecretRefs").put("Authorization","ai.paicli.7.mcp");value.putObject("envSecretRefs");value.putObject("headers").put("Accept","application/json");return value;}
+    @Test void personalMcpUsesOwnerSecretAndCanBeSharedAcrossOwnDirectories()throws Exception{
+        RunnerLease lease=new RunnerLease(claim().put("ownerUserId","41"));
+        ObjectNode personal=config().put("ownerUserId","41");personal.putNull("directoryContextId");
+        personal.putObject("headerSecretRefs").put("Authorization","ai.paicli.user.41.mcp");
+        ObjectNode result=response(lease,1,Instant.now().plusSeconds(50));result.set("headerSecretRefs",personal.get("headerSecretRefs"));hash(result);
+        try(var server=new MockWebServer()){
+            server.enqueue(ok(result));server.start();
+            try(var center=new CenterHttpClient(server.url("/").toString(),"fixture",true);
+                var grant=new ManagedMcpGrant(center,lease,()->consumed(lease),personal,()->{})){
+                assertEquals("Bearer fixture-managed-secret",grant.current().headers().get("Authorization"));
+            }
+        }
+    }
+    @Test void personalMcpRejectsOtherOwnerAndOldSecretNamespaceBeforeAnyRpc()throws Exception{
+        for(boolean otherOwner:List.of(true,false)){
+            RunnerLease lease=new RunnerLease(claim().put("ownerUserId","41"));
+            ObjectNode personal=config().put("ownerUserId",otherOwner?"42":"41");personal.putNull("directoryContextId");
+            if(otherOwner)personal.putObject("headerSecretRefs").put("Authorization","ai.paicli.user.42.mcp");
+            try(var server=new MockWebServer()){
+                server.start();try(var center=new CenterHttpClient(server.url("/").toString(),"fixture",true);
+                    var grant=new ManagedMcpGrant(center,lease,()->consumed(lease),personal,()->{})){
+                    assertThrows(IOException.class,grant::current);assertEquals(0,server.getRequestCount());
+                }
+            }
+        }
+    }
+    private static ObjectNode claim(){return CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("directoryContextId","7").put("leaseId","2").put("fencingToken",3).put("version",4).put("policyVersion",1).put("rootFingerprint","a".repeat(64)).put("expiresAt",Instant.now().plusSeconds(120).toString());}
+    private static ObjectNode config(){ObjectNode value=CanonicalJson.MAPPER.createObjectNode().put("id","5").put("directoryContextId","7").put("version",6).put("configHash","b".repeat(64)).put("trustedHash","b".repeat(64)).put("transport","HTTP");value.putObject("headerSecretRefs").put("Authorization","ai.paicli.7.mcp");value.putObject("envSecretRefs");value.putObject("headers").put("Accept","application/json");return value;}
     private static ObjectNode consumed(RunnerLease lease){return lease.identity().put("toolCallId","mcp-call").put("permitToken","fixture-permit");}
     private static ObjectNode response(RunnerLease lease,int secretVersion,Instant expiry){ObjectNode value=CanonicalJson.MAPPER.createObjectNode().put("configId","5").put("configVersion",6).put("configHash","b".repeat(64)).put("expiresAt",expiry.toString());value.set("envSecretRefs",config().get("envSecretRefs"));value.set("headerSecretRefs",config().get("headerSecretRefs"));value.putObject("secretVersions").put("header.Authorization",secretVersion);value.putObject("env");value.putObject("headers").put("Authorization","Bearer fixture-managed-secret").put("Accept","application/json");for(String field:List.of("taskId","leaseId","fencingToken","version"))value.set(field,lease.identity().get(field));hash(value);return value;}
     private static void hash(ObjectNode value){ObjectNode binding=CanonicalJson.MAPPER.createObjectNode();for(String field:List.of("configId","configVersion","configHash","envSecretRefs","headerSecretRefs","secretVersions","taskId","leaseId","fencingToken","version"))binding.set(field,value.get(field));value.put("grantHash",CanonicalJson.hash(binding));}

@@ -65,6 +65,14 @@ test('同域比较构建反序回执只交付最新请求且不修改条件',()=
  const first=make(),second=make();const value={code:0,data:{id:'9',flowId:'flow-nine',spaceId:5,revision:'4',debugReceipt:{workflowId:'9',workflowVersionId:'51',flowId:'flow-nine',snapshotRevision:'4',mode:'comparison',comparisonId:'comparison-fixture',buildRequestKey:'build-key-fixture',dslHash:'a'.repeat(64),engineProfile:'python',executionCodec:'paiflow.execution.v3'}}};
  assert.equal(cache.accept(first.ticket,value,{ETag:'"4"'}),false);assert.equal(cache.accept(second.ticket,value,{ETag:'"4"'}),true);assert.equal(conditional(cache),'"4"');
 });
+test('V4普通构建只接Python及本次完整回执，错引擎不推进草稿条件',()=>{
+ const cache=fixture();load(cache);
+ const make=()=>request(cache,'post','/workflow/build',{id:'9',flowId:'flow-nine'},{headers:{'X-PaiFlow-Build-Key':'build-key-fixture'}});
+ const receipt={workflowId:'9',workflowVersionId:'51',flowId:'flow-nine',snapshotRevision:'5',mode:'ordinary',comparisonId:null,buildRequestKey:'build-key-fixture',dslHash:'a'.repeat(64),engineProfile:'python',executionCodec:'paiflow.execution.v4'};
+ const envelope={code:0,data:{id:'9',flowId:'flow-nine',spaceId:5,revision:'5',debugReceipt:receipt}};
+ assert.equal(cache.accept(make().ticket,{...envelope,data:{...envelope.data,debugReceipt:{...receipt,engineProfile:'java'}}},{ETag:'"5"'}),false);assert.equal(conditional(cache),'"4"');
+ assert.equal(cache.accept(make().ticket,envelope,{ETag:'"5"'}),true);assert.equal(conditional(cache),'"5"');
+});
 
 test('原详情只缓存条件版本，保存、版本和恢复定位同一工作流而非版本ID',()=>{
  const cache=fixture();load(cache);

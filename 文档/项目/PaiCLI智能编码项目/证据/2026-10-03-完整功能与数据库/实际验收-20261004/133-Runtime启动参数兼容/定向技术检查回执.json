@@ -1,0 +1,76 @@
+{
+  "kind": "第133点Runtime原启动参数兼容的定向技术检查",
+  "recordedAt": "2026-10-05T13:08:07.6238121+08:00",
+  "productionRuntimeStarted": false,
+  "privateCliPackagedOrChanged": false,
+  "productionBusinessPassed": false,
+  "boundary": "只运行3个现有测试类内的纯参数方法；不执行HTTP服务测试，不读取凭据、不构造Gateway；不代表真实Runtime认证/任务/端口通过",
+  "command": [
+    "D:/java-i-exe/apache-maven-3.9.15/bin/mvn.cmd",
+    "-o",
+    "-f",
+    "ruoyi-backend/ruoyi-paicli/pom.xml",
+    "-pl",
+    "paicli-runner",
+    "-am",
+    "-DskipTests=false",
+    "-Dtest=CenterRuntimeApiServerTest#runtimeArgumentsPreserveOriginalHttpFlag+runtimeArgumentsPreserveCurrentPortForms+runtimeArgumentsRejectMalformedInputBeforeConfiguration",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "test"
+  ],
+  "before": {
+    "mavenExit": 1,
+    "tests": 3,
+    "failures": 0,
+    "errors": 1,
+    "skipped": 0,
+    "parseOnlySourceSha256": "5C8A1C83C75D583F4995F2021BD92AC0B945C9FA6EC3FD097C3FE9F5FBE4578A",
+    "errorMethod": "runtimeArgumentsPreserveOriginalHttpFlag",
+    "errorType": "java.lang.IllegalArgumentException",
+    "errorMessage": "用法：paicli serve [--port 端口]"
+  },
+  "after": {
+    "mavenExit": 0,
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "sourceSha256": "A9BF6D3F45EF2BAD5D4731A429EFEAF2D940ADCD32308A04144F47A08C329970",
+    "testSha256": "7EACAD1364675BEB180862045253A77AC437BFB7C86C7CD8E1D2D53FE38DE671",
+    "methods": [
+      "runtimeArgumentsPreserveCurrentPortForms",
+      "runtimeArgumentsPreserveOriginalHttpFlag",
+      "runtimeArgumentsRejectMalformedInputBeforeConfiguration"
+    ]
+  },
+  "originalSourceSha256": "F37AB720BBB58439D0F7CB24CAC77A148546E9A385BCD8FF9CC36C7938BD335A",
+  "originalTestSha256": "70FE65CECE7EFBDEFDF2BBFC887BD335C1D8CB5896471BB8995413CCBE847128",
+  "diffCheckExit": 0,
+  "artifacts": [
+    {
+      "file": "修复前定向测试.log",
+      "sha256": "4B679E187F8FC0875B7CB726A5AB1130658E677E14D354389EBB7347DD7F1A0F",
+      "bytes": 6498
+    },
+    {
+      "file": "修复前定向测试.xml",
+      "sha256": "AC5A9A7C5536326DF747DE7A59C3DAEEF9F8D5D5FFED5DC3DF42C4601E6C00D0",
+      "bytes": 15783
+    },
+    {
+      "file": "修复后定向测试.log",
+      "sha256": "BFBDC3260755A7158EACC70A5AC84C4455691E288CAFDE0850CE5CB878B77CA9",
+      "bytes": 4778
+    },
+    {
+      "file": "修复后定向测试.xml",
+      "sha256": "DD65A8842AC6C31A516443760AB96B045139675266384DB6D6DB3C2C921FBBE4",
+      "bytes": 15169
+    },
+    {
+      "file": "差异空白检查.log",
+      "sha256": "CFDEE22E95C01852C6309DAB96082179AB82CF61A48B51F30BC94ECA963DFA86",
+      "bytes": 392
+    }
+  ]
+}

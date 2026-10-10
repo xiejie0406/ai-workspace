@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.paiflow.service.ModelOperationService;
 import com.ruoyi.paiflow.service.WorkerIdentityService;
+import com.ruoyi.paiflow.service.DataWorkerOperationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,5 +48,26 @@ class WorkerModelControllerTest {
     }
     @Test void privateMaterialInWorkerBodyIsRejectedBeforeOperationService() throws Exception {
         mvc.perform(request("/operations","{\"parameters\":{\"apiKey\":\"untrusted\"}}")).andExpect(status().isBadRequest());verifyNoInteractions(models);
+    }
+    @Test void dataDisabledRejectsInsteadOfFallingBackToModel() throws Exception {
+        mvc.perform(request("/resources/data:1:revision:2","{\"leaseId\":\"a\",\"attempt\":1}")).andExpect(status().isServiceUnavailable());
+        mvc.perform(request("/operations","{\"parameters\":{\"kind\":\"database\",\"resourceId\":\"data:1:revision:2\"}}")).andExpect(status().isServiceUnavailable());
+        verifyNoInteractions(models);
+    }
+    @Test void dataUsesSameIdentityAndPreservesConsumerCompletedReceipt() throws Exception {
+        var data=mock(DataWorkerOperationService.class);
+        var provider=mock(org.springframework.beans.factory.ObjectProvider.class);when(provider.getIfAvailable()).thenReturn(data);
+        var controller=new WorkerModelController(identities,models);controller.useDataOperations(provider);
+        mvc=MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new WorkerRunExceptionHandler()).build();
+        when(data.resource(eq(run),eq(principal),eq("data:1:revision:2"),any())).thenReturn(JSONObject.of("kind","database","provider","center-data","version","2"));
+        when(data.start(eq(run),eq(principal),any())).thenReturn(JSONObject.of("kind","database","state","COMPLETED","failureKind",null,"legacyResponse",JSONObject.of("code",0)));
+        mvc.perform(request("/resources/data:1:revision:2","{\"leaseId\":\"a\",\"attempt\":1}")).andExpect(status().isOk());
+        var response=mvc.perform(request("/operations","{\"leaseId\":\"a\",\"attempt\":1,\"parameters\":{\"kind\":\"database\",\"resourceId\":\"data:1:revision:2\",\"legacyPayload\":{\"execDev\":1,\"limit\":null}}}")).andExpect(status().isOk()).andReturn();
+        var captor=org.mockito.ArgumentCaptor.forClass(JSONObject.class);verify(data).start(eq(run),eq(principal),captor.capture());
+        var payload=captor.getValue().getJSONObject("parameters").getJSONObject("legacyPayload");assertEquals(1,payload.getIntValue("execDev"));assertTrue(payload.containsKey("limit"));
+        var receipt=JSON.parseObject(response.getResponse().getContentAsString()).getJSONObject("data");assertEquals("COMPLETED",receipt.getString("state"));assertTrue(receipt.containsKey("failureKind"));
+        verifyNoInteractions(models);verify(identities,times(2)).authenticate("Bearer fixture");
+        when(identities.authenticate("Bearer fixture")).thenThrow(new ServiceException("身份失效",401));
+        clearInvocations(data);mvc.perform(request("/resources/data:1:revision:2","{}")).andExpect(status().isUnauthorized());mvc.perform(request("/operations","{\"parameters\":{\"kind\":\"database\"}}")).andExpect(status().isUnauthorized());verifyNoInteractions(data);
     }
 }

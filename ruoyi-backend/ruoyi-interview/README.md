@@ -3,12 +3,14 @@
 > 文档类型：实现参考
 > 文档状态：Draft
 > owner / 责任边界：platform / interview module
-> 更新时间：2026-08-23
+> 更新时间：2026-10-05
 > 适用阶段：5–8
 
 `ruoyi-interview` 是 `ruoyi-backend` 的正式 Maven 业务子模块，由
 `ruoyi-admin` 的唯一 `com.ruoyi.RuoYiApplication` 进程聚合加载。旧 `backend/` 仅是
 migration compatibility source，不能作为正式启动入口。
+
+本机验收登录恢复统一见[共用操作说明](../../文档/若依框架/多项目并行开发启动指南.md#本机验收登录恢复)。全部本机验收通道启用辅助能力；先复用有效会话，失效时仅用已授权账号凭据辅助填写当前验证码并正常登录。浏览器无法控制或账号凭据未获授权时单独报告所需条件；恢复登录后回到待验步骤，既有业务结果与证据保持原判定。
 
 ## 边界
 

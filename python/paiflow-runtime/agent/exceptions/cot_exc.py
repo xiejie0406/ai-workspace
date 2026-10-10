@@ -1,5 +1,5 @@
-from common_imports import BaseExc
-from exceptions.codes import c_40022
+from agent.common_imports import BaseExc
+from agent.exceptions.codes import c_40022
 
 
 class CotExc(BaseExc):

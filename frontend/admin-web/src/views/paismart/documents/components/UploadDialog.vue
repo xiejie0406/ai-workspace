@@ -8,18 +8,20 @@ import { useChunkUpload } from '../../composables/useChunkUpload'
 import { errorText,stateLabel,usePage } from '../../composables/usePage'
 const props=defineProps<{modelValue:boolean;spaces:Space[];initialSpace?:Id}>(),emit=defineEmits<{ 'update:modelValue':[boolean]; uploaded:[]; spacesChanged:[] }>()
 const visible=computed({get:()=>props.modelValue,set:v=>emit('update:modelValue',v)}),file=ref<File>(),spaceId=ref<Id>(),visibility=ref('PRIVATE'),resumeId=ref('')
-const {manifest,busy,progress,phase,error,result,run,pause,reset}=useChunkUpload()
+const {manifest,busy,progress,phase,error,result,run,pause:pauseUpload,reset}=useChunkUpload()
+let selectionSerial=0
 const {rows:uploads,total:uploadsTotal,query:uploadQuery,loading:uploadsLoading,error:uploadsError,load:loadUploads}=usePage(listUploads,{state:'UPLOADING'}),extensions=ref<string[]>([]),accept=computed(()=>extensions.value.map(ext=>'.'+ext).join(',')),selectedUpload=ref<Upload>(),fileError=ref('')
 const uploadSizeLimit=computed(()=>{const space=props.spaces.find(s=>String(s.id)===String(spaceId.value));return space?.canManage!==true?space?.uploadMaxSizeBytes:undefined})
 function validateFile(){fileError.value='';if(!file.value)return;const ext=file.value.name.split('.').pop()?.toLowerCase();if(extensions.value.length&&!extensions.value.includes(ext??''))fileError.value='当前文件格式不受支持';else if(uploadSizeLimit.value&&file.value.size>uploadSizeLimit.value)fileError.value='文件超出当前空间单文件大小上限';if(fileError.value)error.value=fileError.value}
-function newUpload(){reset();resumeId.value='';selectedUpload.value=undefined;fileError.value=''}
-async function selectUpload(row:Upload){newUpload();if(row.state==='MERGED'){try{manifest.value=row;result.value=(await mergeUpload(row.uploadId,crypto.randomUUID())).data;progress.value=100;phase.value='原上传已合并，已读取原文档';emit('uploaded')}catch(e){error.value=errorText(e)}return};selectedUpload.value=row;resumeId.value=String(row.uploadId);spaceId.value=row.spaceId;visibility.value=row.visibility??'PRIVATE';file.value=undefined;phase.value='请重新选择原文件，摘要与大小将由客户端和服务端核对'}
+function pause(){selectionSerial++;pauseUpload()}
+function newUpload(){if(busy.value)return;selectionSerial++;reset();resumeId.value='';selectedUpload.value=undefined;fileError.value=''}
+async function selectUpload(row:Upload){if(busy.value)return;newUpload();const serial=selectionSerial;if(row.state==='MERGED'){busy.value=true;manifest.value=row;phase.value='读取已合并的原文档';try{const document=(await mergeUpload(row.uploadId,crypto.randomUUID())).data;if(serial!==selectionSerial||!visible.value)return;result.value=document;progress.value=100;phase.value='原上传已合并，已读取原文档';emit('uploaded')}catch(e){if(serial===selectionSerial&&visible.value)error.value=errorText(e)}finally{if(serial===selectionSerial)busy.value=false}return};selectedUpload.value=row;resumeId.value=String(row.uploadId);spaceId.value=row.spaceId;visibility.value=row.visibility??'PRIVATE';file.value=undefined;phase.value='请重新选择原文件，摘要与大小将由客户端和服务端核对'}
 function chooseFile(event:Event){const next=(event.target as HTMLInputElement).files?.[0];if(!selectedUpload.value&&file.value&&next&&(next.name!==file.value.name||next.size!==file.value.size||next.lastModified!==file.value.lastModified))newUpload();if(result.value)newUpload();file.value=next;validateFile()}
-async function start(){if(!file.value||!spaceId.value)return;validateFile();if(fileError.value)return;await run(file.value,spaceId.value,visibility.value,resumeId.value||undefined);if(manifest.value)resumeId.value=String(manifest.value.uploadId);if(result.value){emit('uploaded');selectedUpload.value=undefined;await loadUploads()}}
+async function start(){if(busy.value||!file.value||!spaceId.value)return;validateFile();if(fileError.value)return;const serial=++selectionSerial;await run(file.value,spaceId.value,visibility.value,resumeId.value||undefined);if(serial!==selectionSerial||!visible.value)return;if(manifest.value)resumeId.value=String(manifest.value.uploadId);if(result.value){emit('uploaded');selectedUpload.value=undefined;await loadUploads()}}
 function beforeClose(done:()=>void){if(!busy.value)done()}
 async function personal(){try{const space=(await createPersonalSpace()).data;spaceId.value=space.id;visibility.value='PRIVATE';emit('spacesChanged')}catch(e){error.value=e instanceof Error?e.message:'个人空间未能建立'}}
 watch(()=>spaceId.value,id=>{if(props.spaces.find(s=>String(s.id)===String(id))?.type==='PERSONAL')visibility.value='PRIVATE';validateFile()})
-watch(()=>props.modelValue,async v=>{if(!v)return;if(!spaceId.value)spaceId.value=props.initialSpace??props.spaces[0]?.id;void loadUploads();try{extensions.value=(await supportedUploadTypes()).data.map(row=>row.extension.replace(/^\./,''));validateFile()}catch(e){error.value=errorText(e)}})
+watch(()=>props.modelValue,async v=>{if(!v){pause();return}if(!spaceId.value)spaceId.value=props.initialSpace??props.spaces[0]?.id;void loadUploads();try{extensions.value=(await supportedUploadTypes()).data.map(row=>row.extension.replace(/^\./,''));validateFile()}catch(e){error.value=errorText(e)}})
 onBeforeUnmount(pause)
 </script>
 

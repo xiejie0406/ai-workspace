@@ -422,7 +422,7 @@ const handleFinishedNode = (nodeId, currentNode, responseResult, get): void => {
     currentNode?.data?.debuggerResult?.reasoningContent ?? '';
   currentNode.data.debuggerResult = {
     timeCost: responseResult?.timeCost || undefined,
-    tokenCost: responseResult?.timeCost?.totalTokens || undefined,
+    tokenCost: responseResult?.tokenCost ?? undefined,
     input: generateInputsAndOutputsOrder(
       currentNode,
       responseResult.inputs,

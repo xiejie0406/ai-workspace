@@ -27,6 +27,7 @@ class CenterCheckpoints:
             raise WorkerError("RESOURCE_UNAVAILABLE", "中心尚未绑定迭代内问答检查点，不转为顶层归属")
         self.ordinal = 0
         self.ack = None
+        self.consumed_checkpoint_id = None
         self.deadline = None
 
     async def announce(self, question):
@@ -61,6 +62,7 @@ class CenterCheckpoints:
             if ack["state"] == "CONSUMED":
                 raise WorkerError("VERSION_CONFLICT", "中心检查点已消费，不重开或伪造新的回复")
             self.ack, self.deadline, self.ordinal = ack, deadline, ordinal
+            self.consumed_checkpoint_id = None
             context.checkpoint_acks[ack["checkpointId"]] = {"checkpointId": ack["checkpointId"],
                 "revision": ack["revision"], "deadline": ack["deadline"], "ordinal": ordinal,
                 "nodeId": self.node_id, "iterationId": self.iteration_id}
@@ -127,6 +129,7 @@ class CenterCheckpoints:
                     if (not isinstance(message, dict) or set(message) != {"event_type", "content"}
                             or message["event_type"] not in {"resume", "ignore", "abort"} or not isinstance(message["content"], str)):
                         raise CenterUnavailable()
+                    self.consumed_checkpoint_id = self.ack['checkpointId'] if message['event_type'] == 'resume' else None
                     return resume
                 if state == "EXPIRED":
                     self._expired()

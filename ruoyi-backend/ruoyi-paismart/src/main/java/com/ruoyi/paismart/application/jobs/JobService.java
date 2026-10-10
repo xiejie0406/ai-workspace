@@ -28,7 +28,10 @@ public class JobService {
     }
     public Job enqueue(long userId,String type,Map<String,Object> payload,String key) {
         if(userId<=0 || type==null || !type.matches("[A-Z_]{3,64}") || key==null || key.isBlank() || key.length()>160) throw new IllegalArgumentException("任务参数无效");
-        String json=Jsons.write(payload);
+        if(payload.containsKey("_textProviderPolicy"))throw new IllegalArgumentException("任务不能覆盖服务端文字冻结策略");
+        Map<String,Object> storedPayload=new LinkedHashMap<>(payload);
+        if(Set.of("DOCUMENT_PROCESS","DOCUMENT_PARSE","DOCUMENT_REINDEX","REINDEX","CONFLICT_DETECT").contains(type))storedPayload.put("_textProviderPolicy",1);
+        String json=Jsons.write(storedPayload);
         if(json.length()>1_000_000) throw new IllegalArgumentException("任务负载过大");
         return tx.execute(status -> {
             // 只锁既有平台身份，不通过提交任务创建或启用业务资格。
@@ -36,7 +39,8 @@ public class JobService {
             if(existing==null) throw new IllegalArgumentException("平台账户不存在或不可用");
             List<Job> old=jdbc.query("SELECT * FROM ps_job WHERE user_id=? AND type=? AND request_key=?",(rs,n)->row(rs),userId,type,key);
             if(!old.isEmpty()) {
-                if(!old.get(0).payload().equals(payload)) throw new IllegalStateException("同一任务请求的输入不同");
+                Map<String,Object> original=new LinkedHashMap<>(old.get(0).payload());original.remove("_textProviderPolicy");
+                if(!original.equals(payload)) throw new IllegalStateException("同一任务请求的输入不同");
                 return old.get(0);
             }
             String id=UUID.randomUUID().toString();

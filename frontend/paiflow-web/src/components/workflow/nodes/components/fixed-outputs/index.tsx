@@ -2,8 +2,9 @@ import React, { useMemo } from 'react';
 import { FLowCollapse, FLowTree } from '@/components/workflow/ui';
 import { useTranslation } from 'react-i18next';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
+import type { InputsProps } from '@/components/workflow/types';
 
-function index({ id, data }): React.ReactElement {
+function index({ id, data }: Pick<InputsProps, 'id' | 'data'>): React.ReactElement {
   const { titleRender, outputs } = useNodeCommon({ id, data });
   const { t } = useTranslation();
   const treeData = useMemo(() => {

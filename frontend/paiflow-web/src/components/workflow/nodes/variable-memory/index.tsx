@@ -12,6 +12,18 @@ import {
 } from '@/components/workflow/utils/reactflowUtils';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
 import { useMemoizedFn } from 'ahooks';
+import type { Node } from 'reactflow';
+import type { InputType, InputsProps, NodeDataType, OutputType, UseNodeFuncReturn } from '@/components/workflow/types';
+
+type VariableGraphNode = Node<NodeDataType> & { nodeType?: string };
+type VariableOption = { id: string; label: string; value: string; type: string };
+interface VariableOutputsProps {
+  id: string;
+  outputs: OutputType[];
+  currentNodes: VariableGraphNode[];
+  handleChangeOutputParam: UseNodeFuncReturn['handleChangeOutputParam'];
+  handleRemoveOutputLine: UseNodeFuncReturn['handleRemoveOutputLine'];
+}
 
 import inputAddIcon from '@/assets/imgs/workflow/input-add-icon.png';
 import remove from '@/assets/imgs/workflow/input-remove-icon.png';
@@ -22,12 +34,12 @@ function Outputs({
   currentNodes,
   handleChangeOutputParam,
   handleRemoveOutputLine,
-}): React.ReactElement {
+}: VariableOutputsProps): React.ReactElement {
   const currentStore = useFlowsManager(state => state.getCurrentStore());
   const updateNodeRef = currentStore(state => state.updateNodeRef);
   const checkNode = currentStore(state => state.checkNode);
 
-  const shouldAddParam = useMemoizedFn((input, paramsOptionsArr): boolean => {
+  const shouldAddParam = useMemoizedFn((input: InputType, paramsOptionsArr: VariableOption[]): boolean => {
     if (!input?.name) return false;
 
     const existSame = paramsOptionsArr?.some(
@@ -39,7 +51,7 @@ function Outputs({
     if (!schema) return false;
 
     if (schema.type === 'literal' && schema.content) return true;
-    if (schema.type === 'ref' && schema.content?.name) return true;
+    if (schema.type === 'ref' && typeof schema.content === 'object' && schema.content?.name) return true;
 
     return false;
   });
@@ -50,12 +62,7 @@ function Outputs({
         node.nodeType === 'node-variable' &&
         node.data.nodeParam.method === 'set'
     );
-    const paramsOptionsArr: Array<{
-      id: string;
-      label: string;
-      value: string;
-      type: string;
-    }> = [];
+    const paramsOptionsArr: VariableOption[] = [];
     variableMemoryNode.forEach(item => {
       item?.data?.inputs?.forEach(input => {
         if (shouldAddParam(input, paramsOptionsArr)) {
@@ -73,11 +80,11 @@ function Outputs({
     return paramsOptionsArr;
   }, [currentNodes]);
 
-  const optionRender = useMemoizedFn(nodeData => {
+  const optionRender = useMemoizedFn((nodeData: { data: { type?: string }; label: React.ReactNode }) => {
     let type = nodeData?.data?.type;
     if (type?.includes('array')) {
       const arr = nodeData?.data?.type?.split('-');
-      type = `Array<${arr[1]}>`;
+      type = `Array<${arr?.[1]}>`;
     }
     return (
       <div className="flex items-center gap-2">
@@ -97,13 +104,14 @@ function Outputs({
                 optionRender={optionRender}
                 options={paramsOptions}
                 value={output?.name}
-                onChange={(value, currentOption) => {
+                onChange={(value: string, currentOption: VariableOption) => {
                   handleChangeOutputParam(
                     output.id,
                     (data, value) => {
-                      data.refId = currentOption?.id;
+                      // 变量读取输出在原 DSL 中保存所选设置输入的 refId。
+                      (data as OutputType & { refId?: string }).refId = currentOption?.id;
                       data.name = value;
-                      data.schema.type = currentOption?.type;
+                      data.schema!.type = currentOption?.type;
                     },
                     value
                   );
@@ -134,7 +142,7 @@ function Outputs({
   );
 }
 
-export const VariableMemoryDetail = memo(props => {
+export const VariableMemoryDetail = memo((props: Pick<InputsProps, 'id' | 'data'>) => {
   const { id, data } = props;
   const {
     handleChangeNodeParam,
@@ -154,7 +162,7 @@ export const VariableMemoryDetail = memo(props => {
   const flowNodes = useFlowStore(state => state.nodes);
   const canvasesDisabled = useFlowsManager(state => state.canvasesDisabled);
 
-  const currentNodes = useMemo(() => {
+  const currentNodes = useMemo<VariableGraphNode[]>(() => {
     if (showIterativeModal) {
       const nodeIds = nodes?.map(node => node?.id);
       return cloneDeep([
@@ -182,6 +190,7 @@ export const VariableMemoryDetail = memo(props => {
                     }}
                     onClick={() =>
                       handleChangeNodeParam((data, value) => {
+                        if (data.nodeParam.method === value) return;
                         data.inputs = [
                           {
                             id: uuid(),
@@ -210,6 +219,7 @@ export const VariableMemoryDetail = memo(props => {
                     }}
                     onClick={() =>
                       handleChangeNodeParam((data, value) => {
+                        if (data.nodeParam.method === value) return;
                         data.inputs = [];
                         data.outputs = [
                           {

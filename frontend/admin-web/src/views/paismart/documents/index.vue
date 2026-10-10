@@ -27,3 +27,7 @@ async function submitText(){formError.value='';if(!textForm.value.title.trim()||
 async function loadSpaces(){try{spaces.value=(await listSpaces()).rows;if(!textForm.value.spaceId)textForm.value.spaceId=spaces.value[0]?.id}catch(e){pageError.value=errorText(e)}}
 onMounted(()=>{void load();void loadSpaces()})
 </script>
+
+<style scoped>
+.ps-panel { background: var(--el-bg-color); color: var(--el-text-color-primary); }
+</style>

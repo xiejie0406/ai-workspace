@@ -11,18 +11,28 @@ import useFlowsManager from '@/components/workflow/store/use-flows-manager';
 import Inputs from '@/components/workflow/nodes/components/inputs';
 import { useTranslation } from 'react-i18next';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
+import type { TFunction } from 'i18next';
+import type { ChangeTextNodeParameter, TextHandleDetailProps, TextNodeParameters, TextNodeParameterKey } from '@/components/workflow/types';
 
 import inputAddIcon from '@/assets/imgs/workflow/input-add-icon.png';
 import formSelect from '@/assets/imgs/main/icon_nav_dropdown.svg';
 
 // ===================== 子组件 =====================
+interface ModeSelectorProps {
+  id: string;
+  nodeParam: TextNodeParameters;
+  handleChangeNodeParam: ChangeTextNodeParameter;
+  updateNodeRef: (id: string) => void;
+  t: TFunction;
+}
+
 const ModeSelector = ({
   id,
   nodeParam,
   handleChangeNodeParam,
   updateNodeRef,
   t,
-}): React.ReactElement => (
+}: ModeSelectorProps): React.ReactElement => (
   <FLowCollapse
     label={<div className="text-base font-medium">处理方式</div>}
     content={
@@ -52,6 +62,13 @@ const ModeSelector = ({
   />
 );
 
+interface RuleSectionProps extends TextHandleDetailProps {
+  nodeParam: TextNodeParameters;
+  handleChangeNodeParam: (key: 'prompt', value: string) => void;
+  delayCheckNode: (id: string) => void;
+  t: TFunction;
+}
+
 const RuleSection = ({
   id,
   data,
@@ -59,7 +76,7 @@ const RuleSection = ({
   handleChangeNodeParam,
   delayCheckNode,
   t,
-}): React.ReactElement =>
+}: RuleSectionProps): React.ReactElement | null =>
   nodeParam?.mode === 0 ? (
     <FLowCollapse
       label={
@@ -70,6 +87,7 @@ const RuleSection = ({
       content={
         <div className="rounded-md px-[18px] pb-3 pointer-events-auto">
           <FlowTemplateEditor
+            id={id}
             data={data}
             value={nodeParam?.prompt}
             onChange={value => handleChangeNodeParam('prompt', value)}
@@ -88,7 +106,7 @@ const SeparatorSection = ({
   id,
   nodeParam,
   handleChangeNodeParam,
-}): React.ReactElement => {
+}: Pick<ModeSelectorProps, 'id' | 'nodeParam' | 'handleChangeNodeParam'>): React.ReactElement | null => {
   const { t } = useTranslation();
   const addTextNodeConfig = useFlowsManager(state => state.addTextNodeConfig);
   const removeTextNodeConfig = useFlowsManager(
@@ -218,8 +236,8 @@ const SeparatorSection = ({
   );
 };
 
-const OutputTree = ({ nodeParam }): React.ReactElement => {
-  const renderTitle = useCallback((name, type) => {
+const OutputTree = ({ nodeParam }: Pick<ModeSelectorProps, 'nodeParam'>): React.ReactElement => {
+  const renderTitle = useCallback((name: string, type: string) => {
     return (
       <div className="flex items-center gap-2">
         <span>{name}</span>
@@ -257,7 +275,7 @@ const OutputTree = ({ nodeParam }): React.ReactElement => {
 };
 
 // ===================== 主组件 =====================
-export const TextHandleDetail = memo(({ id, data }): React.ReactElement => {
+export const TextHandleDetail = memo(({ id, data }: TextHandleDetailProps): React.ReactElement => {
   const { nodeParam } = useNodeCommon({
     id,
     data,
@@ -274,21 +292,22 @@ export const TextHandleDetail = memo(({ id, data }): React.ReactElement => {
   );
 
   const handleChangeNodeParam = useCallback(
-    (key, value) => {
+    <Key extends TextNodeParameterKey>(key: Key, value: TextNodeParameters[Key]) => {
       setNode(id, old => {
-        old.data.nodeParam[key] = value;
-        if (key === 'mode' && value === 0)
-          old.data.outputs[0].schema.type = 'string';
-        if (key === 'mode' && value === 1) {
-          old.data.outputs[0].schema.type = 'array-string';
-          old.data.inputs = [
-            {
-              id: uuid(),
-              name: 'input',
-              schema: { type: 'string', value: { type: 'ref', content: {} } },
-            },
-          ];
-        }
+        const modeOutput = old.data.outputs?.[0];
+        if (key === 'mode' && (value === 0 || value === 1)) {
+          if (!modeOutput?.schema)
+            throw new TypeError('文本处理模式缺少原输出结构');
+          old.data.nodeParam[key] = value;
+          modeOutput.schema.type = value === 0 ? 'string' : 'array-string';
+          if (value === 1) old.data.inputs = [
+              {
+                id: uuid(),
+                name: 'input',
+                schema: { type: 'string', value: { type: 'ref', content: {} } },
+              },
+            ];
+        } else old.data.nodeParam[key] = value;
         return { ...cloneDeep(old) };
       });
       autoSaveCurrentFlow();

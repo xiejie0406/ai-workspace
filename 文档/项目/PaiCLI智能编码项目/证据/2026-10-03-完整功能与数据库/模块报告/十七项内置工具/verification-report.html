@@ -1,0 +1,530 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PaiCLI 十七项内置工具验收报告</title><style>
+:root{--bg:#f3f6fb;--paper:#fff;--text:#243247;--muted:#617089;--line:#dce4ef;--blue:#215fd3;--soft:#edf3ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.85 system-ui,"Microsoft YaHei",sans-serif}header{padding:35px max(24px,calc((100vw - 1380px)/2));background:#163254;color:#fff}header h1{margin:0 0 8px;font-size:30px}header p{margin:8px 0;max-width:1040px;color:#dce6f5}.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.stat{background:#ffffff12;border:1px solid #ffffff30;border-radius:9px;padding:7px 13px}.layout{max-width:1430px;margin:auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:25px;padding:24px}nav{position:sticky;top:18px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px}nav a{display:block;padding:7px 5px;line-height:1.5;color:var(--muted);text-decoration:none;font-size:14px}nav a:hover{color:var(--blue);background:var(--soft)}main{min-width:0}.toolbar{position:sticky;top:0;z-index:2;background:var(--bg);padding:9px 0 14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:12px;font:inherit;color:inherit;background:var(--paper)}button{font:inherit;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;color:var(--text)}button:hover{border-color:var(--blue);color:var(--blue)}.module,.introduction{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:24px;margin-bottom:20px}.introduction>h1{font-size:26px}.module h2{font-size:23px;color:#15385c;margin:0 0 18px;scroll-margin-top:90px}h3{font-size:19px;margin-top:23px}p{margin:10px 0}li{margin:7px 0}a{color:var(--blue);overflow-wrap:anywhere}code{font:0.88em/1.6 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;background:var(--soft);padding:2px 5px;border-radius:4px}pre{white-space:pre-wrap;background:var(--soft);padding:15px}blockquote{margin:10px 0;border-left:4px solid #84a6e6;padding:8px 16px;background:#f5f8fd;color:var(--muted)}.case{border:1px solid var(--line);border-radius:10px;margin:12px 0;background:var(--paper)}.case>summary{cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;font-weight:600;list-style:none}.case>summary:before{content:'▸';color:var(--blue)}.case[open]>summary:before{content:'▾'}.number{background:var(--soft);color:var(--blue);border-radius:6px;padding:1px 9px;flex:none}.label{font-size:12px;font-weight:400;margin-left:auto;white-space:nowrap;color:#705c18;background:#fbf5df;border-radius:5px;padding:1px 7px}.case-body{padding:0 23px 17px}.case-body ul{padding-left:22px}.case-body li>strong:first-child{color:#15385c}.annex>summary{cursor:pointer;font-size:20px;font-weight:600}.annex>div{padding-top:20px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.7;margin:18px 0;min-width:550px}th,td{padding:9px 11px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft)}tr:nth-child(even){background:#fafcff}.module{overflow-x:auto}.hidden{display:none!important}.search-status{color:var(--muted);font-size:14px}footer{padding:24px;color:var(--muted);text-align:center;font-size:13px}.notice{font-size:14px;color:var(--muted)}@media(max-width:950px){.layout{grid-template-columns:1fr;padding:15px}nav{position:static;max-height:260px}.module,.introduction{padding:18px}header{padding:25px 20px}}@media(max-width:500px){header h1{font-size:24px}.label{display:none}.case>summary{padding:12px;font-size:15px}.case-body{padding:0 13px 15px}.toolbar{position:static}.layout{padding:10px}}@media print{header{background:white;color:black}header p{color:black}.layout{display:block}nav,.toolbar,.label{display:none}.case-body{display:block!important}.case,.module{break-inside:avoid}details:not([open])>*:not(summary){display:block!important}}
+.case[data-result="通过"] .label{color:#166534;background:#dcfce7}.case[data-result="未通过"] .label{color:#991b1b;background:#fee2e2}.case[data-result="受阻"] .label{color:#92400e;background:#fef3c7}.case[data-result="未执行"] .label{color:#475569;background:#e2e8f0}.result-warning{color:#92400e;background:#fffbeb;border-left:4px solid #d97706;padding:10px}.module-summary,.current-position{border:1px solid var(--line);background:var(--soft);padding:12px;margin-bottom:15px}.actual-image{margin:16px 0}.actual-image img,.module img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}.actual-image figcaption{font-size:13px;color:var(--muted);line-height:1.65}.case-body ol{padding-left:26px}</style></head><body><header><h1>PaiCLI 十七项内置工具验收报告</h1><p>本页完整覆盖唯一验收正文第5章的17个业务点；按下面的实际结果与继续条件核对，不以子流程通过替代模块完整结论。</p><p>验收受阻。当前本模块业务点结果：通过0，未通过0，受阻2，未执行15，不适用0；已登记2个前提核实或执行子场景。本页由唯一正文对应模块生成，完整流程和未完成项全部保留；已有有效子场景按正文沿用，本次报告生成不计新执行业务。技术检查、业务结果及截图完整度分别记录；用户接受：待确认。</p><div class="stats"><span class="stat">通过 0</span><span class="stat">未通过 0</span><span class="stat">受阻 2</span><span class="stat">未执行 15</span><span class="stat">不适用 0</span><span class="stat">17 个详细验收点</span><span class="stat">1 个业务模块</span></div></header><div class="layout"><nav aria-label="文档目录"><strong>本模块完整流程</strong><a href="#heading-1">5. 十七项内置工具</a><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%8C%E6%95%B4%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E8%AE%B0%E5%BD%95.md">查看唯一 Markdown 正文</a></nav><main><div class="toolbar"><input id="search" type="search" placeholder="搜索验收点，例如：图片、恢复、MCP、重试" aria-label="搜索详细验收点"><button id="expand">展开全部</button><button id="collapse">收起全部</button><span class="search-status" id="status">共 17 点</span></div><p class="notice">报告视觉检查未执行：当前浏览器安全策略限制 file:// 页面；静态核对不代替实际布局、图片加载和搜索交互检查。</p><p class="notice">点击验收点标题查看操作。搜索匹配标题、步骤、预期及源码名称；追溯表和已有实际记录可单独展开。</p><section class="module" data-module="5. 十七项内置工具"><h2 id="heading-1">5. 十七项内置工具</h2>
+<p>工具名称是原注册协议标识，不要求普通用户手工填写 JSON。执行时先在对话发自然语言任务，再以任务详情中的实际工具参数核对；数值/非法参数可由获准的验收工具面板或协议测试入口复现。每项都必须确认真实回执与副作用，不以模型文字声称替代。</p>
+<p><strong>模块完整流程</strong>：冻结目录、文件与独立答案 → 读取、列目录和精确搜索 → 按预览执行有限写入、修改或项目创建 → 核对命令、检索及扩展工具各自输出 → 回读文件字节和诊断 → 处理越界、参数错误、失败和恢复。十七项工具各自承接对应样本，不要求一次任务机械串用全部工具。</p>
+<p><strong>当前完成位置与续验</strong>：项目创建参数缺陷已完成代码与分发定向检查，第49/50点真实任务仍停在宿主和目录前提；其余工具正常、拒绝和故障流程没有业务通过证据。下一步在智能编码由本人使用已冻结A/B文件、目录外保护文件和独立预期，通过同一任务回读工具、文件字节与诊断；项目创建使用未存在中文目录，不覆盖旧文件。当前没有工具任务或成果可沿用。</p>
+<p class="module-summary">通过 0 · 未通过 0 · 受阻 2 · 未执行 15 · 不适用 0；模块截图：尚未登记；完整结论：尚未全部完成</p><details class="case" data-result="未执行" data-search="### 43. 读取文件与分行读取 - **验收前提**：统一 lines.txt、large.txt，出处 `tool/toolregistry.java` `read_file`、readfile。 - **操作步骤**：读取 lines.txt 全文；传 offset=3、limit=2；读 large.txt，limit=9999；传超总行数 offset 和缺失路径；再读 r 外文件。 - **预期结果**：分行返回第 3、4 行 gamma/alpha，行号为 1 基；显式大 limit 不超过 2,000 行，并提示续读位置。超行数与不存在明确反馈；外部文件拒绝且不泄内容。无参数全读与显式分行限额需按实际接口分别核对，不能误宣称所有全文都限 2,000 行。 - **证据要求**：实际参数和片段截图、2,000 行计数、拒绝回执、所有文件哈希不变。 - **适用边界**：原已有；个人目录边界按当前中心规则。 #### 逐步验收 1. **操作**：先全读再显式分段读取。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：lines.txt；offset=3、limit=2。 **预期及核对**：截图或真实终端保存全文与分段，独立答案第3/4行gamma/alpha，行号为1基。 **本步交付**：可供回答使用的准确文件片段。 2. **操作**：读取大文件并检查续读边界。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：large.txt，limit=9999；超总行数offset。 **预期及核对**：截图限额/续读及超行数反馈；显式分段最多2000行，不把无参数全文等同该限制。 **本步交付**：已读行段和明确续读位置或空范围说明。 3. **操作**：提交缺失和根外文件对照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：不存在路径、r外保护文件。 **预期及核对**：截图拒绝/不存在反馈，错误与空内容区分，外部正文不泄；核文件未变。 **本步交付**：安全读取边界及原数据完整证明。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">43</span><span>读取文件与分行读取</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：统一 lines.txt、large.txt，出处 <code>tool/ToolRegistry.java</code> <code>read_file</code>、readFile。</li>
+<li><strong>操作步骤</strong>：读取 lines.txt 全文；传 offset=3、limit=2；读 large.txt，limit=9999；传超总行数 offset 和缺失路径；再读 R 外文件。</li>
+<li><strong>预期结果</strong>：分行返回第 3、4 行 gamma/alpha，行号为 1 基；显式大 limit 不超过 2,000 行，并提示续读位置。超行数与不存在明确反馈；外部文件拒绝且不泄内容。无参数全读与显式分行限额需按实际接口分别核对，不能误宣称所有全文都限 2,000 行。</li>
+<li><strong>证据要求</strong>：实际参数和片段截图、2,000 行计数、拒绝回执、所有文件哈希不变。</li>
+<li><strong>适用边界</strong>：原已有；个人目录边界按当前中心规则。</li>
+</ul>
+<h4 id="heading-2">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：先全读再显式分段读取。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：lines.txt；offset=3、limit=2。<br>
+<strong>预期及核对</strong>：截图或真实终端保存全文与分段，独立答案第3/4行gamma/alpha，行号为1基。<br>
+<strong>本步交付</strong>：可供回答使用的准确文件片段。</p>
+</li>
+<li>
+<p><strong>操作</strong>：读取大文件并检查续读边界。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：large.txt，limit=9999；超总行数offset。<br>
+<strong>预期及核对</strong>：截图限额/续读及超行数反馈；显式分段最多2000行，不把无参数全文等同该限制。<br>
+<strong>本步交付</strong>：已读行段和明确续读位置或空范围说明。</p>
+</li>
+<li>
+<p><strong>操作</strong>：提交缺失和根外文件对照。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：不存在路径、R外保护文件。<br>
+<strong>预期及核对</strong>：截图拒绝/不存在反馈，错误与空内容区分，外部正文不泄；核文件未变。<br>
+<strong>本步交付</strong>：安全读取边界及原数据完整证明。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 44. 写文件、新建、覆盖及字节限额 - **验收前提**：ask 审批策略下的新路径 new.txt、已有值 old 的 existing.txt、utf-8 5 mib 与 5 mib+1 字节样本；出处 `tool/toolregistry.java` `write_file` 和主设计写前哈希/原子落盘要求。 - **操作步骤**：请求新建内容 `new\n中文`；在确认界面检查目标与 diff 后批准；覆盖已有文件分别拒绝/批准；模拟写前哈希变化、磁盘写失败、超限内容和越界路径。 - **预期结果**：批准的新文件字节与独立样本一致；拒绝不写。覆盖必须绑定真实旧哈希；哈希冲突不覆盖；超限/越界/写失败不留“成功”或半文件。是否允许覆盖由当前 permit 明确，不能只凭模型请求。 - **证据要求**：批准/拒绝截图、写前后 sha256、字节计数、失败文件存在性与回执。 - **适用边界**：原有写工具与 5 mib 限额；中心 permit、哈希绑定、原子落盘为迁移补齐。 #### 逐步验收 1. **操作**：新建样本并先审阅再批准。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：new.txt正文“new\n中文”；ask策略。 **预期及核对**：截图输入、完整预览、写后成果；字节等于独立样本，正式许可绑定目标。 **本步交付**：可下载回读的新文件。 2. **操作**：对已有文件分别拒绝和批准覆盖。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：existing.txt原值old及固定新正文。 **预期及核对**：截图拒绝后原值和有效批准后新值；覆盖绑定旧摘要，拒绝不写，批准仅写预览范围。 **本步交付**：可追溯的原/新版本及两种确认结果。 3. **操作**：逐一测试哈希冲突、容量、路径和磁盘故障。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：写前文件变化；utf-8 5mib/5mib+1；根外与写失败。 **预期及核对**：截图每种失败/边界，超限/越界/冲突不覆盖、不留半文件或假成功；核原摘要及未创建目标。 **本步交付**：明确失败原因及完整保留的原文件。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">44</span><span>写文件、新建、覆盖及字节限额</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：ask 审批策略下的新路径 new.txt、已有值 OLD 的 existing.txt、UTF-8 5 MiB 与 5 MiB+1 字节样本；出处 <code>tool/ToolRegistry.java</code> <code>write_file</code> 和主设计写前哈希/原子落盘要求。</li>
+<li><strong>操作步骤</strong>：请求新建内容 <code>NEW\n中文</code>；在确认界面检查目标与 diff 后批准；覆盖已有文件分别拒绝/批准；模拟写前哈希变化、磁盘写失败、超限内容和越界路径。</li>
+<li><strong>预期结果</strong>：批准的新文件字节与独立样本一致；拒绝不写。覆盖必须绑定真实旧哈希；哈希冲突不覆盖；超限/越界/写失败不留“成功”或半文件。是否允许覆盖由当前 permit 明确，不能只凭模型请求。</li>
+<li><strong>证据要求</strong>：批准/拒绝截图、写前后 SHA256、字节计数、失败文件存在性与回执。</li>
+<li><strong>适用边界</strong>：原有写工具与 5 MiB 限额；中心 permit、哈希绑定、原子落盘为迁移补齐。</li>
+</ul>
+<h4 id="heading-3">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：新建样本并先审阅再批准。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：new.txt正文“NEW\n中文”；ask策略。<br>
+<strong>预期及核对</strong>：截图输入、完整预览、写后成果；字节等于独立样本，正式许可绑定目标。<br>
+<strong>本步交付</strong>：可下载回读的新文件。</p>
+</li>
+<li>
+<p><strong>操作</strong>：对已有文件分别拒绝和批准覆盖。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：existing.txt原值OLD及固定新正文。<br>
+<strong>预期及核对</strong>：截图拒绝后原值和有效批准后新值；覆盖绑定旧摘要，拒绝不写，批准仅写预览范围。<br>
+<strong>本步交付</strong>：可追溯的原/新版本及两种确认结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：逐一测试哈希冲突、容量、路径和磁盘故障。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：写前文件变化；UTF-8 5MiB/5MiB+1；根外与写失败。<br>
+<strong>预期及核对</strong>：截图每种失败/边界，超限/越界/冲突不覆盖、不留半文件或假成功；核原摘要及未创建目标。<br>
+<strong>本步交付</strong>：明确失败原因及完整保留的原文件。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 45. 编辑文件的唯一匹配、批量替换与格式保留 - **验收前提**：重复.txt、crlf.txt，另有含 unicode 引号/不同缩进且可唯一定位的样本；出处 `tool/texteditmatcher.java`、`toolregistry.java` `edit_file`。 - **操作步骤**：默认把两个“旧值”替换为“新值”，应先拒绝歧义；明确 replace_all=true 重试；再执行唯一匹配、归一化匹配、带行号读取片段的替换。测试不存在 old_text 和编辑后超过 5 mib。 - **预期结果**：默认重复拒绝且无变化；批量替换恰好两处。精确优先，归一化只能匹配唯一位置，不扩大修改范围；读取行号剥除仅针对一次明确的读取格式。crlf 保留；不存在/超限拒绝，其他字节不变。 - **证据要求**：原/新文本、匹配处数、diff、crlf 字节核对、拒绝前后哈希。 - **适用边界**：原已有匹配逻辑；中心版本和批准另验，不能把归一化当任意模糊覆盖。 #### 逐步验收 1. **操作**：对重复文本先默认编辑再明确批量。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：两处“旧值”→“新值”；先默认，再replace_all=true。 **预期及核对**：截图歧义拒绝和批量预览/成果，默认无变化，批准后恰好两处变化。 **本步交付**：可独立核对的批量结果和拒绝基线。 2. **操作**：依次执行唯一、归一化和带行号片段替换。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：crlf、unicode引号/缩进样本、一次读取格式。 **预期及核对**：截图定位和编辑回执，精确优先且唯一，读取行号只剥一次，行尾及其他字节保持。 **本步交付**：不扩大范围的文本修改成果。 3. **操作**：测试不存在匹配与编辑超字节限额。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：无old_text、编辑后超过5mib。 **预期及核对**：截图拒绝说明，原字节不变，无成功回执或部分修改。 **本步交付**：稳定原文件及明确可修正的编辑输入。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">45</span><span>编辑文件的唯一匹配、批量替换与格式保留</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：重复.txt、crlf.txt，另有含 Unicode 引号/不同缩进且可唯一定位的样本；出处 <code>tool/TextEditMatcher.java</code>、<code>ToolRegistry.java</code> <code>edit_file</code>。</li>
+<li><strong>操作步骤</strong>：默认把两个“旧值”替换为“新值”，应先拒绝歧义；明确 replace_all=true 重试；再执行唯一匹配、归一化匹配、带行号读取片段的替换。测试不存在 old_text 和编辑后超过 5 MiB。</li>
+<li><strong>预期结果</strong>：默认重复拒绝且无变化；批量替换恰好两处。精确优先，归一化只能匹配唯一位置，不扩大修改范围；读取行号剥除仅针对一次明确的读取格式。CRLF 保留；不存在/超限拒绝，其他字节不变。</li>
+<li><strong>证据要求</strong>：原/新文本、匹配处数、diff、CRLF 字节核对、拒绝前后哈希。</li>
+<li><strong>适用边界</strong>：原已有匹配逻辑；中心版本和批准另验，不能把归一化当任意模糊覆盖。</li>
+</ul>
+<h4 id="heading-4">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：对重复文本先默认编辑再明确批量。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：两处“旧值”→“新值”；先默认，再replace_all=true。<br>
+<strong>预期及核对</strong>：截图歧义拒绝和批量预览/成果，默认无变化，批准后恰好两处变化。<br>
+<strong>本步交付</strong>：可独立核对的批量结果和拒绝基线。</p>
+</li>
+<li>
+<p><strong>操作</strong>：依次执行唯一、归一化和带行号片段替换。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：CRLF、Unicode引号/缩进样本、一次读取格式。<br>
+<strong>预期及核对</strong>：截图定位和编辑回执，精确优先且唯一，读取行号只剥一次，行尾及其他字节保持。<br>
+<strong>本步交付</strong>：不扩大范围的文本修改成果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：测试不存在匹配与编辑超字节限额。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：无old_text、编辑后超过5MiB。<br>
+<strong>预期及核对</strong>：截图拒绝说明，原字节不变，无成功回执或部分修改。<br>
+<strong>本步交付</strong>：稳定原文件及明确可修正的编辑输入。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 46. 列目录的范围与敏感信息保护 - **验收前提**：r 内固定四个资料项、子目录和含测试秘密标记的受保护文件；出处 `tool/toolregistry.java` `list_dir`、`policy/pathguard.java` 与中心敏感文件规则。 - **操作步骤**：列 r 和 src；请求列不存在目录、o 与软链目标；检查页面列表与原始工具结果。 - **预期结果**：实际可见集合与冻结目录清单一致，文件/目录区分正确；不越界、不漏出受保护文件内容或其他用户真实路径。不可访问路径有清楚拒绝。 - **证据要求**：目录截图、工具原始结果、独立目录清单和拒绝审计。 - **适用边界**：原列表已有；敏感文件和跨用户范围遵循当前迁移策略。 #### 逐步验收 1. **操作**：列个人根与子目录。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：r固定四项及src子目录。 **预期及核对**：截图列表/工具结果，与冻结文件清单核集合、文件目录类型。 **本步交付**：可供后续选择的真实本人目录项。 2. **操作**：分别列不存在、根外及软链目标。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：不存在目录、o、r内指向o链接。 **预期及核对**：截图错误/拒绝，不能越界或把错误当空集合成功，核不泄真实外部路径和正文。 **本步交付**：已限制的目录导航与具体错误原因。 3. **操作**：核敏感项在页面与原始结果中的保护。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：含人造秘密标记的保护文件及普通文件。 **预期及核对**：截图脱敏列表并检查原始结果，无保护正文泄露，正常目录仍可用。 **本步交付**：既可用又不泄敏的目录资料。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">46</span><span>列目录的范围与敏感信息保护</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：R 内固定四个资料项、子目录和含测试秘密标记的受保护文件；出处 <code>tool/ToolRegistry.java</code> <code>list_dir</code>、<code>policy/PathGuard.java</code> 与中心敏感文件规则。</li>
+<li><strong>操作步骤</strong>：列 R 和 src；请求列不存在目录、O 与软链目标；检查页面列表与原始工具结果。</li>
+<li><strong>预期结果</strong>：实际可见集合与冻结目录清单一致，文件/目录区分正确；不越界、不漏出受保护文件内容或其他用户真实路径。不可访问路径有清楚拒绝。</li>
+<li><strong>证据要求</strong>：目录截图、工具原始结果、独立目录清单和拒绝审计。</li>
+<li><strong>适用边界</strong>：原列表已有；敏感文件和跨用户范围遵循当前迁移策略。</li>
+</ul>
+<h4 id="heading-5">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：列个人根与子目录。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：R固定四项及src子目录。<br>
+<strong>预期及核对</strong>：截图列表/工具结果，与冻结文件清单核集合、文件目录类型。<br>
+<strong>本步交付</strong>：可供后续选择的真实本人目录项。</p>
+</li>
+<li>
+<p><strong>操作</strong>：分别列不存在、根外及软链目标。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：不存在目录、O、R内指向O链接。<br>
+<strong>预期及核对</strong>：截图错误/拒绝，不能越界或把错误当空集合成功，核不泄真实外部路径和正文。<br>
+<strong>本步交付</strong>：已限制的目录导航与具体错误原因。</p>
+</li>
+<li>
+<p><strong>操作</strong>：核敏感项在页面与原始结果中的保护。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：含人造秘密标记的保护文件及普通文件。<br>
+<strong>预期及核对</strong>：截图脱敏列表并检查原始结果，无保护正文泄露，正常目录仍可用。<br>
+<strong>本步交付</strong>：既可用又不泄敏的目录资料。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 47. 按模式找文件及结果上限 - **验收前提**：嵌套 java、中文路径与 205 个匹配文件的冻结名称清单；出处 `tool/toolregistry.java` `glob_files`。 - **操作步骤**：分别 `**/*.java`、中文文件名模式、无匹配；默认 max_results、指定 200、指定 9999；path 指向 o。 - **预期结果**：返回正确路径集合，默认最多 50、最大 200；截断明确，不声称全量。中文路径可定位；空集合与错误区分；越界拒绝。 - **证据要求**：模式/参数、实际路径集合与独立清单比较、计数及截断截图。 - **适用边界**：原已有；顺序若非公开保证，验收集合和计数而不臆造顺序标准。 #### 逐步验收 1. **操作**：用模式查冻结集合。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：**/*.java、中文名称模式、无匹配模式。 **预期及核对**：截图返回列表，与独立名称清单核路径；空匹配明确区别错误。 **本步交付**：可定位的正确模式结果。 2. **操作**：分别用默认、最大及超大请求限额。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：max_results不传、200、9999；205个匹配文件。 **预期及核对**：截图截断信息，默认最多50、最大200，不声称全量；以冻结全集核返回仍属合法子集。 **本步交付**：有限结果及需缩小范围的续查条件。 3. **操作**：把path改为根外再查询。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：o路径与原模式。 **预期及核对**：截图拒绝，外部文件名/内容不泄，原目录不受影响。 **本步交付**：路径受限的模式搜索结论。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">47</span><span>按模式找文件及结果上限</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：嵌套 Java、中文路径与 205 个匹配文件的冻结名称清单；出处 <code>tool/ToolRegistry.java</code> <code>glob_files</code>。</li>
+<li><strong>操作步骤</strong>：分别 <code>**/*.java</code>、中文文件名模式、无匹配；默认 max_results、指定 200、指定 9999；path 指向 O。</li>
+<li><strong>预期结果</strong>：返回正确路径集合，默认最多 50、最大 200；截断明确，不声称全量。中文路径可定位；空集合与错误区分；越界拒绝。</li>
+<li><strong>证据要求</strong>：模式/参数、实际路径集合与独立清单比较、计数及截断截图。</li>
+<li><strong>适用边界</strong>：原已有；顺序若非公开保证，验收集合和计数而不臆造顺序标准。</li>
+</ul>
+<h4 id="heading-6">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：用模式查冻结集合。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：**/*.java、中文名称模式、无匹配模式。<br>
+<strong>预期及核对</strong>：截图返回列表，与独立名称清单核路径；空匹配明确区别错误。<br>
+<strong>本步交付</strong>：可定位的正确模式结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：分别用默认、最大及超大请求限额。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：max_results不传、200、9999；205个匹配文件。<br>
+<strong>预期及核对</strong>：截图截断信息，默认最多50、最大200，不声称全量；以冻结全集核返回仍属合法子集。<br>
+<strong>本步交付</strong>：有限结果及需缩小范围的续查条件。</p>
+</li>
+<li>
+<p><strong>操作</strong>：把path改为根外再查询。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：O路径与原模式。<br>
+<strong>预期及核对</strong>：截图拒绝，外部文件名/内容不泄，原目录不受影响。<br>
+<strong>本步交付</strong>：路径受限的模式搜索结论。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 48. 精确代码搜索与双后端一致性 - **验收前提**：含 login_token/login/login、正则边界和 60,000 字符以上输出的 golden set；出处 `tool/codesearchengine.java` 及两个实现、`toolregistry.java` `grep_code`。 - **操作步骤**：字面/正则、大小写开关、glob 与 path 过滤逐项搜索；context_lines=99、max_results=999、head_limit=99、max_chars=999999；在 rg 可用/受控不可用时重复相同样本；非法正则作失败对照。 - **预期结果**：路径、行号、命中内容与独立黄金清单一致；两个后端语义一致。上下文不超过 5、命中不超过 200、单文件不超过 50、正文不超过配置最大 60,000；达到限制标记 partial 并给缩小/续读建议。正则错误不当无结果。 - **证据要求**：两后端输出对照、预期集合、计数/截断标志、失败回执及不变哈希。 - **适用边界**：原已有；rg 回退应可解释，语义检索不替代本项精确事实。 #### 逐步验收 1. **操作**：按独立黄金样本查字面和正则。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：login_token/login/login；大小写、glob、path不同组合。 **预期及核对**：截图路径、行号、片段，与预定命中集合逐项比较。 **本步交付**：准确命中的精确代码结果。 2. **操作**：提交超限参数并核截断。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：context_lines=99、max_results=999、head_limit=99、max_chars=999999。 **预期及核对**：截图partial及建议；分别最多上下文5、命中200、单文件50、正文60000字符，不把截断当完整。 **本步交付**：有范围说明且可继续缩小查询的结果。 3. **操作**：切两后端重查并提交非法正则。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：rg可用与受控不可用；同样黄金集；非法表达式。 **预期及核对**：留脱敏工具结果并截图反馈，两后端语义一致，正则错误非无结果；不靠卸载系统工具制造环境。 **本步交付**：后端一致性和错误分类证据。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">48</span><span>精确代码搜索与双后端一致性</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：含 LOGIN_TOKEN/login/Login、正则边界和 60,000 字符以上输出的 golden set；出处 <code>tool/CodeSearchEngine.java</code> 及两个实现、<code>ToolRegistry.java</code> <code>grep_code</code>。</li>
+<li><strong>操作步骤</strong>：字面/正则、大小写开关、glob 与 path 过滤逐项搜索；context_lines=99、max_results=999、head_limit=99、max_chars=999999；在 rg 可用/受控不可用时重复相同样本；非法正则作失败对照。</li>
+<li><strong>预期结果</strong>：路径、行号、命中内容与独立黄金清单一致；两个后端语义一致。上下文不超过 5、命中不超过 200、单文件不超过 50、正文不超过配置最大 60,000；达到限制标记 partial 并给缩小/续读建议。正则错误不当无结果。</li>
+<li><strong>证据要求</strong>：两后端输出对照、预期集合、计数/截断标志、失败回执及不变哈希。</li>
+<li><strong>适用边界</strong>：原已有；rg 回退应可解释，语义检索不替代本项精确事实。</li>
+</ul>
+<h4 id="heading-7">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：按独立黄金样本查字面和正则。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：LOGIN_TOKEN/login/Login；大小写、glob、path不同组合。<br>
+<strong>预期及核对</strong>：截图路径、行号、片段，与预定命中集合逐项比较。<br>
+<strong>本步交付</strong>：准确命中的精确代码结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：提交超限参数并核截断。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：context_lines=99、max_results=999、head_limit=99、max_chars=999999。<br>
+<strong>预期及核对</strong>：截图partial及建议；分别最多上下文5、命中200、单文件50、正文60000字符，不把截断当完整。<br>
+<strong>本步交付</strong>：有范围说明且可继续缩小查询的结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：切两后端重查并提交非法正则。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：rg可用与受控不可用；同样黄金集；非法表达式。<br>
+<strong>预期及核对</strong>：留脱敏工具结果并截图反馈，两后端语义一致，正则错误非无结果；不靠卸载系统工具制造环境。<br>
+<strong>本步交付</strong>：后端一致性和错误分类证据。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="受阻" data-search="### 49. 执行短命令、超时与取消进程树 - **验收前提**：已确认当前平台 required 隔离可用；无害命令只在 r 生成标记，超时样本创建受控子进程；出处 `tool/toolregistry.java` `execute_command`、commandsandbox、中心许可设计。 - **操作步骤**：显示命令、cwd 和影响后批准；拒绝同一命令作对照；运行超默认 60 秒样本并取消；请求读取 o、全盘扫描、带被禁止 shell 操作的命令。 - **预期结果**：实际 cwd 为 r、只生成指定标记；拒绝/越界/隔离缺失不执行。超时与取消停止相应进程树并有独立状态；输出、退出码、截断/卸载真实。命令黑名单不是绕过隔离的依据。 - **证据要求**：批准页、进程父子/结束核对、标记字节、cwd、退出码和拒绝调用计数。 - **适用边界**：原工具默认 60 秒；required 隔离、中心 permit 与 windows 防护属于迁移补齐。未准备隔离不得执行危险样本。 #### 逐步验收 1. **操作**：在确认隔离可用后审阅命令并分别拒绝/批准。 **实际与截图进度**：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。 **输入**：只在r生成固定标记的无害命令、cwd和影响。 **预期及核对**：截图完整预览及回执，拒绝不执行；批准真实cwd=r，标记与独立样本一致。 **本步交付**：受限命令的真实结果或明确拒绝。 2. **操作**：运行超时样本并另做取消对照。 **实际与截图进度**：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。 **输入**：超默认60秒、带受控子进程的样本。 **预期及核对**：截图超时/停止反馈，核只停止目标进程树，退出码、输出和截断/卸载如实。 **本步交付**：有进程终态的失败/取消记录。 3. **操作**：提交越界及隔离缺失样本。 **实际与截图进度**：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。 **输入**：读o、全盘扫描、禁止shell操作；无隔离设备。 **预期及核对**：截图执行前拒绝，核调用未启动；黑名单或批准不能替代required隔离。 **本步交付**：无裸shell回退的安全边界和原文件保留证明。 **当前执行位置**：windows当前commandsandboxdetector没有受支持隔离能力，真实runner未建立。既有git bash只用于离线技术复验，不改变required沙箱拒绝。；当前整点结果为受阻。证据：[实际观察或核实](实际验收-20261004/运行环境核实.json)；[运行版本与计数](实际验收-20261004/运行环境核实.json)。以上仅承接已有记录；各子步的本次执行或有效沿用须分别核对，不能由整点受阻推断所有子步均未执行，也不能据此声明后续步骤已完成。 #### 执行记录 ##### 子场景：命令隔离前提 - 结果：受阻 - 执行类型：业务验收前提核实（不把技术检查计作业务通过） - 时间：2026-10-04 23:15～23:35 +08:00 - 版本：前端15176 vite实际源码；中心api 7d42903071a0f7ee、主包ce36c05393d72686；cli73255f57610f2cb6（23:31后复制），未启动runner - 身份：用户亲自登录的当前若依admin；没有新增账号或修改角色 - 实际观察：windows当前commandsandboxdetector没有受支持隔离能力，真实runner未建立。既有git bash只用于离线技术复验，不改变required沙箱拒绝。 - 核对结果：当前条件不足以执行全部适用子场景，保留受阻与具体恢复条件。 - 证据：[实际观察或核实](实际验收-20261004/运行环境核实.json)；[运行版本与计数](实际验收-20261004/运行环境核实.json) - 截图要求：本场景为前提核实，完整模块截图尚缺 - 恢复条件：准备经允许且真正可验证的隔离执行环境后验正常命令、超时与进程树取消。 "><summary><span class="number">49</span><span>执行短命令、超时与取消进程树</span><span class="label">受阻</span></summary><div class="case-body"><div class="current-position"><strong>当前完成位置与承接条件</strong><p><strong>命令隔离前提：</strong>Windows当前CommandSandboxDetector没有受支持隔离能力，真实Runner未建立。既有Git Bash只用于离线技术复验，不改变required沙箱拒绝。<br><strong>下一步条件：</strong>准备经允许且真正可验证的隔离执行环境后验正常命令、超时与进程树取消。</p></div><ul>
+<li><strong>验收前提</strong>：已确认当前平台 required 隔离可用；无害命令只在 R 生成标记，超时样本创建受控子进程；出处 <code>tool/ToolRegistry.java</code> <code>execute_command</code>、CommandSandbox、中心许可设计。</li>
+<li><strong>操作步骤</strong>：显示命令、cwd 和影响后批准；拒绝同一命令作对照；运行超默认 60 秒样本并取消；请求读取 O、全盘扫描、带被禁止 shell 操作的命令。</li>
+<li><strong>预期结果</strong>：实际 cwd 为 R、只生成指定标记；拒绝/越界/隔离缺失不执行。超时与取消停止相应进程树并有独立状态；输出、退出码、截断/卸载真实。命令黑名单不是绕过隔离的依据。</li>
+<li><strong>证据要求</strong>：批准页、进程父子/结束核对、标记字节、cwd、退出码和拒绝调用计数。</li>
+<li><strong>适用边界</strong>：原工具默认 60 秒；required 隔离、中心 permit 与 Windows 防护属于迁移补齐。未准备隔离不得执行危险样本。</li>
+</ul>
+<h4 id="heading-8">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：在确认隔离可用后审阅命令并分别拒绝/批准。   <strong>实际与截图进度</strong>：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。
+<strong>输入</strong>：只在R生成固定标记的无害命令、cwd和影响。<br>
+<strong>预期及核对</strong>：截图完整预览及回执，拒绝不执行；批准真实cwd=R，标记与独立样本一致。<br>
+<strong>本步交付</strong>：受限命令的真实结果或明确拒绝。</p>
+</li>
+<li>
+<p><strong>操作</strong>：运行超时样本并另做取消对照。   <strong>实际与截图进度</strong>：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。
+<strong>输入</strong>：超默认60秒、带受控子进程的样本。<br>
+<strong>预期及核对</strong>：截图超时/停止反馈，核只停止目标进程树，退出码、输出和截断/卸载如实。<br>
+<strong>本步交付</strong>：有进程终态的失败/取消记录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：提交越界及隔离缺失样本。   <strong>实际与截图进度</strong>：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。
+<strong>输入</strong>：读O、全盘扫描、禁止shell操作；无隔离设备。<br>
+<strong>预期及核对</strong>：截图执行前拒绝，核调用未启动；黑名单或批准不能替代required隔离。<br>
+<strong>本步交付</strong>：无裸shell回退的安全边界和原文件保留证明。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：Windows当前CommandSandboxDetector没有受支持隔离能力，真实Runner未建立。既有Git Bash只用于离线技术复验，不改变required沙箱拒绝。；当前整点结果为受阻。证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%A0%B8%E5%AE%9E.json">实际观察或核实</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%A0%B8%E5%AE%9E.json">运行版本与计数</a>。以上仅承接已有记录；各子步的本次执行或有效沿用须分别核对，不能由整点受阻推断所有子步均未执行，也不能据此声明后续步骤已完成。</p>
+<h4 id="heading-9">执行记录</h4>
+<h5 id="heading-10">子场景：命令隔离前提</h5>
+<ul>
+<li>结果：受阻</li>
+<li>执行类型：业务验收前提核实（不把技术检查计作业务通过）</li>
+<li>时间：2026-10-04 23:15～23:35 +08:00</li>
+<li>版本：前端15176 Vite实际源码；中心API 7D42903071A0F7EE、主包CE36C05393D72686；CLI73255F57610F2CB6（23:31后复制），未启动Runner</li>
+<li>身份：用户亲自登录的当前若依admin；没有新增账号或修改角色</li>
+<li>实际观察：Windows当前CommandSandboxDetector没有受支持隔离能力，真实Runner未建立。既有Git Bash只用于离线技术复验，不改变required沙箱拒绝。</li>
+<li>核对结果：当前条件不足以执行全部适用子场景，保留受阻与具体恢复条件。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%A0%B8%E5%AE%9E.json">实际观察或核实</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%A0%B8%E5%AE%9E.json">运行版本与计数</a></li>
+<li>截图要求：本场景为前提核实，完整模块截图尚缺</li>
+<li>恢复条件：准备经允许且真正可验证的隔离执行环境后验正常命令、超时与进程树取消。</li>
+</ul>
+</div></details><details class="case" data-result="受阻" data-search="### 50. 创建 java、python、node 项目模板 - **验收前提**：r 中三个不存在目录 j/p/n；已有目录含哨兵；出处 `toolregistry.java` `create_project`。 - **操作步骤**：分别请求 java/python/node；检查生成树与内容；type=unknown、名称含 `../`、绝对外部路径、已存在目录分别提交。构建仅在批准的隔离条件执行。 - **预期结果**：java 有 src/main/java、src/main/resources 和 artifactid 对应的 pom.xml；python 有包目录、main.py、requirements.txt；node 的 package.json name 对应输入。非法类型/名称和未批准覆盖在任何目录创建之前拒绝；已有哨兵不变。 - **证据要求**：目录树与三个模板内容截图、清单/哈希、非法调用后不存在残留目录。 - **适用边界**：原三模板已有，但非法 type 会先建目录且可能报成功，覆盖保护不足；拒绝不变标准为迁移补齐。 #### 逐步验收 1. **操作**：分别创建三类新项目。 **实际与截图进度**：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。 **输入**：未存在j/p/n目录，type为java/python/node。 **预期及核对**：截图提案和生成树，独立核java目录/pom artifactid、python包/main.py/requirements、node name。 **本步交付**：各自内容正确的新模板目录。 2. **操作**：在落盘前测试类型、名称及覆盖拒绝。 **实际与截图进度**：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。 **输入**：unknown、../、绝对根外路径、已存在含哨兵目录。 **预期及核对**：截图拒绝，核非法目标没有新目录、旧哨兵不变；技术修复通过不替代此联机结果。 **本步交付**：安全保留的原目录及拒绝回执。 3. **操作**：只在获准隔离内核生成模板并再次读取。 **实际与截图进度**：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。 **输入**：上步合法模板；项目已批准的定向构建命令。 **预期及核对**：截图实际构建/未检查状态，核命令回执与文件清单，缺隔离不裸跑；不把模板生成当构建通过。 **本步交付**：可用于编码的模板及独立构建状态。 **当前执行位置**：离线检查复现未知type仍创建目录/成功、已有目录模板覆盖，以及json null/非文本被字符串化的缺陷。已局部修复输入与原子新目录创建、typed失败及部分模板提示；最终30个定向用例通过，最新cli已复制。真实中心任务及原生终端创建项目流程仍未执行，不能把30单测写为整点业务通过。；当前整点结果为受阻。证据：[实际观察或核实](实际验收-20261004/cli分发核实.json)；[运行版本与计数](实际验收-20261004/运行环境核实.json)。以上仅承接已有记录；各子步的本次执行或有效沿用须分别核对，不能由整点受阻推断所有子步均未执行，也不能据此声明后续步骤已完成。 #### 执行记录 ##### 子场景：项目创建缺陷修复及业务复验前提 - 结果：受阻 - 执行类型：业务验收前提核实（不把技术检查计作业务通过） - 时间：2026-10-04 23:15～23:35 +08:00 - 版本：前端15176 vite实际源码；中心api 7d42903071a0f7ee、主包ce36c05393d72686；cli73255f57610f2cb6（23:31后复制），未启动runner - 身份：用户亲自登录的当前若依admin；没有新增账号或修改角色 - 实际观察：离线检查复现未知type仍创建目录/成功、已有目录模板覆盖，以及json null/非文本被字符串化的缺陷。已局部修复输入与原子新目录创建、typed失败及部分模板提示；最终30个定向用例通过，最新cli已复制。真实中心任务及原生终端创建项目流程仍未执行，不能把30单测写为整点业务通过。 - 核对结果：当前条件不足以执行全部适用子场景，保留受阻与具体恢复条件。 - 证据：[实际观察或核实](实际验收-20261004/cli分发核实.json)；[运行版本与计数](实际验收-20261004/运行环境核实.json) - 截图要求：本场景为前提核实，完整模块截图尚缺 - 恢复条件：在受控宿主和允许样本目录执行三种模板、非法输入及已有哨兵完整复验，并保存真实终端/页面图。 "><summary><span class="number">50</span><span>创建 Java、Python、Node 项目模板</span><span class="label">受阻</span></summary><div class="case-body"><div class="current-position"><strong>当前完成位置与承接条件</strong><p><strong>项目创建缺陷修复及业务复验前提：</strong>离线检查复现未知type仍创建目录/成功、已有目录模板覆盖，以及JSON null/非文本被字符串化的缺陷。已局部修复输入与原子新目录创建、Typed失败及部分模板提示；最终30个定向用例通过，最新CLI已复制。真实中心任务及原生终端创建项目流程仍未执行，不能把30单测写为整点业务通过。<br><strong>下一步条件：</strong>在受控宿主和允许样本目录执行三种模板、非法输入及已有哨兵完整复验，并保存真实终端/页面图。</p></div><ul>
+<li><strong>验收前提</strong>：R 中三个不存在目录 j/p/n；已有目录含哨兵；出处 <code>ToolRegistry.java</code> <code>create_project</code>。</li>
+<li><strong>操作步骤</strong>：分别请求 java/python/node；检查生成树与内容；type=unknown、名称含 <code>../</code>、绝对外部路径、已存在目录分别提交。构建仅在批准的隔离条件执行。</li>
+<li><strong>预期结果</strong>：Java 有 src/main/java、src/main/resources 和 artifactId 对应的 pom.xml；Python 有包目录、main.py、requirements.txt；Node 的 package.json name 对应输入。非法类型/名称和未批准覆盖在任何目录创建之前拒绝；已有哨兵不变。</li>
+<li><strong>证据要求</strong>：目录树与三个模板内容截图、清单/哈希、非法调用后不存在残留目录。</li>
+<li><strong>适用边界</strong>：原三模板已有，但非法 type 会先建目录且可能报成功，覆盖保护不足；拒绝不变标准为迁移补齐。</li>
+</ul>
+<h4 id="heading-11">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：分别创建三类新项目。   <strong>实际与截图进度</strong>：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。
+<strong>输入</strong>：未存在j/p/n目录，type为java/python/node。<br>
+<strong>预期及核对</strong>：截图提案和生成树，独立核Java目录/pom artifactId、Python包/main.py/requirements、Node name。<br>
+<strong>本步交付</strong>：各自内容正确的新模板目录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：在落盘前测试类型、名称及覆盖拒绝。   <strong>实际与截图进度</strong>：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。
+<strong>输入</strong>：unknown、../、绝对根外路径、已存在含哨兵目录。<br>
+<strong>预期及核对</strong>：截图拒绝，核非法目标没有新目录、旧哨兵不变；技术修复通过不替代此联机结果。<br>
+<strong>本步交付</strong>：安全保留的原目录及拒绝回执。</p>
+</li>
+<li>
+<p><strong>操作</strong>：只在获准隔离内核生成模板并再次读取。   <strong>实际与截图进度</strong>：本步骤尚未完整核验；已核实的前提或沿用子步骤见本点当前位置和“本次执行与已有通过的沿用范围”，余项操作及证据待补。
+<strong>输入</strong>：上步合法模板；项目已批准的定向构建命令。<br>
+<strong>预期及核对</strong>：截图实际构建/未检查状态，核命令回执与文件清单，缺隔离不裸跑；不把模板生成当构建通过。<br>
+<strong>本步交付</strong>：可用于编码的模板及独立构建状态。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：离线检查复现未知type仍创建目录/成功、已有目录模板覆盖，以及JSON null/非文本被字符串化的缺陷。已局部修复输入与原子新目录创建、Typed失败及部分模板提示；最终30个定向用例通过，最新CLI已复制。真实中心任务及原生终端创建项目流程仍未执行，不能把30单测写为整点业务通过。；当前整点结果为受阻。证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/CLI%E5%88%86%E5%8F%91%E6%A0%B8%E5%AE%9E.json">实际观察或核实</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%A0%B8%E5%AE%9E.json">运行版本与计数</a>。以上仅承接已有记录；各子步的本次执行或有效沿用须分别核对，不能由整点受阻推断所有子步均未执行，也不能据此声明后续步骤已完成。</p>
+<h4 id="heading-12">执行记录</h4>
+<h5 id="heading-13">子场景：项目创建缺陷修复及业务复验前提</h5>
+<ul>
+<li>结果：受阻</li>
+<li>执行类型：业务验收前提核实（不把技术检查计作业务通过）</li>
+<li>时间：2026-10-04 23:15～23:35 +08:00</li>
+<li>版本：前端15176 Vite实际源码；中心API 7D42903071A0F7EE、主包CE36C05393D72686；CLI73255F57610F2CB6（23:31后复制），未启动Runner</li>
+<li>身份：用户亲自登录的当前若依admin；没有新增账号或修改角色</li>
+<li>实际观察：离线检查复现未知type仍创建目录/成功、已有目录模板覆盖，以及JSON null/非文本被字符串化的缺陷。已局部修复输入与原子新目录创建、Typed失败及部分模板提示；最终30个定向用例通过，最新CLI已复制。真实中心任务及原生终端创建项目流程仍未执行，不能把30单测写为整点业务通过。</li>
+<li>核对结果：当前条件不足以执行全部适用子场景，保留受阻与具体恢复条件。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/CLI%E5%88%86%E5%8F%91%E6%A0%B8%E5%AE%9E.json">实际观察或核实</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%A0%B8%E5%AE%9E.json">运行版本与计数</a></li>
+<li>截图要求：本场景为前提核实，完整模块截图尚缺</li>
+<li>恢复条件：在受控宿主和允许样本目录执行三种模板、非法输入及已有哨兵完整复验，并保存真实终端/页面图。</li>
+</ul>
+</div></details><details class="case" data-result="未执行" data-search="### 51. 自然语言代码检索工具 - **验收前提**：java 登录样本已用固定嵌入样本或真实已授权向量模型索引；出处 `toolregistry.java` `search_code`、`rag/coderetriever.java`。 - **操作步骤**：问“哪里签发登录 token”，top_k 不传/指定 2/指定 999；空索引、过期身份索引、模型不可用分别作对照；再精确读取命中文件。 - **预期结果**：结果包含与独立样本相关的 tokenservice.issue/authservice.login，并标路径/行范围，最终结论经原文件核对；默认最多 5、上限 30。未索引明确提示先索引；旧模型身份索引必须提示重建而不是混用；服务失败不伪造命中。 - **证据要求**：查询与命中、manifest 身份、原代码片段、top_k 数量、失败回执。 - **适用边界**：原 rag 已有；当前中心向量选择/索引身份/计费另依模型能力功能验收。 #### 逐步验收 1. **操作**：在已冻结向量身份下执行自然语言定位。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“哪里签发登录token”；top_k默认/2/999。 **预期及核对**：截图命中，独立答案含tokenservice.issue/authservice.login，默认最多5、上限30。 **本步交付**：具有真实路径/行段的有限语义结果。 2. **操作**：读取命中文件核最终结论。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步路径/行范围及原始文件。 **预期及核对**：截图读取片段与答复，实际源码支持定位，不以相似度排名当正确答案。 **本步交付**：经原文件确认的登录实现位置。 3. **操作**：分别使用空/旧索引和不可用服务。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：无索引、旧数学身份、向量模型失败。 **预期及核对**：截图提示先索引、需重建或服务错误，不伪造命中、不混用旧向量。 **本步交付**：明确恢复动作及保留原文件的检索状态。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">51</span><span>自然语言代码检索工具</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：Java 登录样本已用固定嵌入样本或真实已授权向量模型索引；出处 <code>ToolRegistry.java</code> <code>search_code</code>、<code>rag/CodeRetriever.java</code>。</li>
+<li><strong>操作步骤</strong>：问“哪里签发登录 token”，top_k 不传/指定 2/指定 999；空索引、过期身份索引、模型不可用分别作对照；再精确读取命中文件。</li>
+<li><strong>预期结果</strong>：结果包含与独立样本相关的 TokenService.issue/AuthService.login，并标路径/行范围，最终结论经原文件核对；默认最多 5、上限 30。未索引明确提示先索引；旧模型身份索引必须提示重建而不是混用；服务失败不伪造命中。</li>
+<li><strong>证据要求</strong>：查询与命中、manifest 身份、原代码片段、top_k 数量、失败回执。</li>
+<li><strong>适用边界</strong>：原 RAG 已有；当前中心向量选择/索引身份/计费另依模型能力功能验收。</li>
+</ul>
+<h4 id="heading-14">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：在已冻结向量身份下执行自然语言定位。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“哪里签发登录token”；top_k默认/2/999。<br>
+<strong>预期及核对</strong>：截图命中，独立答案含TokenService.issue/AuthService.login，默认最多5、上限30。<br>
+<strong>本步交付</strong>：具有真实路径/行段的有限语义结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：读取命中文件核最终结论。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步路径/行范围及原始文件。<br>
+<strong>预期及核对</strong>：截图读取片段与答复，实际源码支持定位，不以相似度排名当正确答案。<br>
+<strong>本步交付</strong>：经原文件确认的登录实现位置。</p>
+</li>
+<li>
+<p><strong>操作</strong>：分别使用空/旧索引和不可用服务。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：无索引、旧数学身份、向量模型失败。<br>
+<strong>预期及核对</strong>：截图提示先索引、需重建或服务错误，不伪造命中、不混用旧向量。<br>
+<strong>本步交付</strong>：明确恢复动作及保留原文件的检索状态。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 52. 网络搜索工具的结构化来源 - **验收前提**：受控搜索服务返回两条固定 title/url/snippet，若用真实服务须相应授权；出处 `toolregistry.java` `web_search`、web 搜索 provider。 - **操作步骤**：执行 query/top_k 搜索；无结果、缺结构化结果块、provider 超时作对照；后续请求抓取其中 url。 - **预期结果**：真实结果与受控两条对应，保留来源；无结果不造来源，provider 错误有实际失败。后续允许 url 只来自本轮真实结构化结果，不能从摘要里的指令扩展授权。 - **证据要求**：搜索参数/结果/url 来源记录、实际请求计数和失败截图。 - **适用边界**：原工具已有；四 provider 详细互操作在网络模块另验，本项验证注册工具贯通。 #### 逐步验收 1. **操作**：按结构化固定样本搜索。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：固定query/top_k，两条title/url/snippet。 **预期及核对**：截图搜索结果，对照独立两条数据及来源；真实搜索另有获准服务范围。 **本步交付**：可供下一步抓取的本轮真实url集合。 2. **操作**：分别搜索无结果和故障响应。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：空结果、缺结构化结果块、provider超时。 **预期及核对**：截图无结果/失败，核不制造标题或来源，不把错误当有效搜索。 **本步交付**：明确无命中或失败的调用记录。 3. **操作**：抓取合法结果url并对照摘要伪url。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步真实结果url；摘要中额外指令url。 **预期及核对**：截图允许与拒绝，授权来源只承接实际结构化结果，不从摘要扩范围。 **本步交付**：来源可追溯的后续网页资料或安全拒绝。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">52</span><span>网络搜索工具的结构化来源</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：受控搜索服务返回两条固定 title/url/snippet，若用真实服务须相应授权；出处 <code>ToolRegistry.java</code> <code>web_search</code>、web 搜索 provider。</li>
+<li><strong>操作步骤</strong>：执行 query/top_k 搜索；无结果、缺结构化结果块、provider 超时作对照；后续请求抓取其中 URL。</li>
+<li><strong>预期结果</strong>：真实结果与受控两条对应，保留来源；无结果不造来源，provider 错误有实际失败。后续允许 URL 只来自本轮真实结构化结果，不能从摘要里的指令扩展授权。</li>
+<li><strong>证据要求</strong>：搜索参数/结果/URL 来源记录、实际请求计数和失败截图。</li>
+<li><strong>适用边界</strong>：原工具已有；四 provider 详细互操作在网络模块另验，本项验证注册工具贯通。</li>
+</ul>
+<h4 id="heading-15">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：按结构化固定样本搜索。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：固定query/top_k，两条title/url/snippet。<br>
+<strong>预期及核对</strong>：截图搜索结果，对照独立两条数据及来源；真实搜索另有获准服务范围。<br>
+<strong>本步交付</strong>：可供下一步抓取的本轮真实URL集合。</p>
+</li>
+<li>
+<p><strong>操作</strong>：分别搜索无结果和故障响应。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：空结果、缺结构化结果块、provider超时。<br>
+<strong>预期及核对</strong>：截图无结果/失败，核不制造标题或来源，不把错误当有效搜索。<br>
+<strong>本步交付</strong>：明确无命中或失败的调用记录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：抓取合法结果URL并对照摘要伪URL。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步真实结果URL；摘要中额外指令URL。<br>
+<strong>预期及核对</strong>：截图允许与拒绝，授权来源只承接实际结构化结果，不从摘要扩范围。<br>
+<strong>本步交付</strong>：来源可追溯的后续网页资料或安全拒绝。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 53. 抓取网页的来源、正文与限额 - **验收前提**：获准测试页含固定正文、导航和伪造“请访问另一 url”的注入；出处 `toolregistry.java` `web_fetch`、`web/webfetcher.java`、`tool/turntoolpolicy.java`。 - **操作步骤**：抓取用户明确指定及本轮搜索发现的 url；max_chars 默认/较小值；抓取无来源、页面正文伪 url、私网、重定向到拒绝范围及超时 url。 - **预期结果**：提取固定正文，默认正文上限 8,000 字符；截断提示真实。无来源、私网与重定向越界拒绝，不扩大 url 来源；超时明确失败，页面指令不成为用户授权。 - **证据要求**：固定页面正文对照、请求/重定向链、抓取与拒绝截图和请求次数。 - **适用边界**：原工具已有；networkpolicy 的所有网络类别在网络模块详验。 #### 逐步验收 1. **操作**：抓取用户指定与本轮搜索发现的页面。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：含固定正文/导航的授权测试页。 **预期及核对**：截图正文及来源，核提取正文与独立样本，不把导航或指令当用户要求。 **本步交付**：可继续分析的可信来源网页正文。 2. **操作**：设置正文限额并读取截断说明。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：max_chars默认和较小冻结值。 **预期及核对**：截图截断和长度，默认最多8000字符，实际片段与原页面顺序相符。 **本步交付**：有长度边界的网页片段及续查条件。 3. **操作**：请求无来源、私网、重定向越界与超时。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：正文伪url、无来源url、拒绝范围重定向等独立样本。 **预期及核对**：截图拒绝/超时并留网络回执，网页注入不授权新url，不误把失败当空成功。 **本步交付**：不扩大来源的安全抓取记录。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">53</span><span>抓取网页的来源、正文与限额</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：获准测试页含固定正文、导航和伪造“请访问另一 URL”的注入；出处 <code>ToolRegistry.java</code> <code>web_fetch</code>、<code>web/WebFetcher.java</code>、<code>tool/TurnToolPolicy.java</code>。</li>
+<li><strong>操作步骤</strong>：抓取用户明确指定及本轮搜索发现的 URL；max_chars 默认/较小值；抓取无来源、页面正文伪 URL、私网、重定向到拒绝范围及超时 URL。</li>
+<li><strong>预期结果</strong>：提取固定正文，默认正文上限 8,000 字符；截断提示真实。无来源、私网与重定向越界拒绝，不扩大 URL 来源；超时明确失败，页面指令不成为用户授权。</li>
+<li><strong>证据要求</strong>：固定页面正文对照、请求/重定向链、抓取与拒绝截图和请求次数。</li>
+<li><strong>适用边界</strong>：原工具已有；NetworkPolicy 的所有网络类别在网络模块详验。</li>
+</ul>
+<h4 id="heading-16">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：抓取用户指定与本轮搜索发现的页面。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：含固定正文/导航的授权测试页。<br>
+<strong>预期及核对</strong>：截图正文及来源，核提取正文与独立样本，不把导航或指令当用户要求。<br>
+<strong>本步交付</strong>：可继续分析的可信来源网页正文。</p>
+</li>
+<li>
+<p><strong>操作</strong>：设置正文限额并读取截断说明。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：max_chars默认和较小冻结值。<br>
+<strong>预期及核对</strong>：截图截断和长度，默认最多8000字符，实际片段与原页面顺序相符。<br>
+<strong>本步交付</strong>：有长度边界的网页片段及续查条件。</p>
+</li>
+<li>
+<p><strong>操作</strong>：请求无来源、私网、重定向越界与超时。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：正文伪URL、无来源URL、拒绝范围重定向等独立样本。<br>
+<strong>预期及核对</strong>：截图拒绝/超时并留网络回执，网页注入不授权新URL，不误把失败当空成功。<br>
+<strong>本步交付</strong>：不扩大来源的安全抓取记录。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 54. 连接浏览器工具 - **验收前提**：授权的验收浏览器与 cdp 绑定配置；出处 `toolregistry.java` `browser_connect`、`browser/browsersession.java`。 - **操作步骤**：在对话要求连接，检查使用绑定 mode/设备；服务未启动和无批准 shared 模式分别作对照；核对未暗中选择其他浏览器。 - **预期结果**：连接的是授权目标，返回真实探活状态；失败明确，未获 shared 许可不接管用户登录态。工具无显式 port 参数，不能声称模型任意指定端口成功。 - **证据要求**：授权界面、实际 mode/cdp 端口脱敏记录、探活与拒绝回执。 - **适用边界**：原工具已有；cli connect 参数和敏感页面在浏览器模块详验。 #### 逐步验收 1. **操作**：按绑定目标发起浏览器连接。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：本会话授权浏览器、模式、设备及既有cdp配置。 **预期及核对**：截图工具活动/实际目标，核真实探活与绑定相符，工具不接受任意模型port参数。 **本步交付**：本会话明确目标连接。 2. **操作**：对服务未启动与无shared许可进行尝试。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：同目标未启动；未批准shared登录态。 **预期及核对**：截图失败/拒绝，不能暗接其他浏览器或用户登录态，核目标未改。 **本步交付**：明确失败条件和原绑定信息。 3. **操作**：再次核目标状态后用于后续浏览器任务。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步有效连接及授权范围。 **预期及核对**：截图状态/页面标识，保存探活与目标对应；仅连接成功不当页面操作已验。 **本步交付**：已连接授权浏览器及后续可操作范围。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">54</span><span>连接浏览器工具</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：授权的验收浏览器与 CDP 绑定配置；出处 <code>ToolRegistry.java</code> <code>browser_connect</code>、<code>browser/BrowserSession.java</code>。</li>
+<li><strong>操作步骤</strong>：在对话要求连接，检查使用绑定 mode/设备；服务未启动和无批准 shared 模式分别作对照；核对未暗中选择其他浏览器。</li>
+<li><strong>预期结果</strong>：连接的是授权目标，返回真实探活状态；失败明确，未获 shared 许可不接管用户登录态。工具无显式 port 参数，不能声称模型任意指定端口成功。</li>
+<li><strong>证据要求</strong>：授权界面、实际 mode/CDP 端口脱敏记录、探活与拒绝回执。</li>
+<li><strong>适用边界</strong>：原工具已有；CLI connect 参数和敏感页面在浏览器模块详验。</li>
+</ul>
+<h4 id="heading-17">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：按绑定目标发起浏览器连接。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：本会话授权浏览器、模式、设备及既有CDP配置。<br>
+<strong>预期及核对</strong>：截图工具活动/实际目标，核真实探活与绑定相符，工具不接受任意模型port参数。<br>
+<strong>本步交付</strong>：本会话明确目标连接。</p>
+</li>
+<li>
+<p><strong>操作</strong>：对服务未启动与无shared许可进行尝试。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：同目标未启动；未批准shared登录态。<br>
+<strong>预期及核对</strong>：截图失败/拒绝，不能暗接其他浏览器或用户登录态，核目标未改。<br>
+<strong>本步交付</strong>：明确失败条件和原绑定信息。</p>
+</li>
+<li>
+<p><strong>操作</strong>：再次核目标状态后用于后续浏览器任务。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步有效连接及授权范围。<br>
+<strong>预期及核对</strong>：截图状态/页面标识，保存探活与目标对应；仅连接成功不当页面操作已验。<br>
+<strong>本步交付</strong>：已连接授权浏览器及后续可操作范围。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 55. 断开浏览器工具 - **验收前提**：已连接目标测试浏览器，另有不属于该会话的浏览器；出处 `toolregistry.java` `browser_disconnect`、browsersession。 - **操作步骤**：批准断开；重复断开；无权限以及微信通道提出断开分别作对照。 - **预期结果**：只断开本会话绑定连接，不误关闭另一用户/浏览器；重复操作可解释，无权限/微信策略拒绝不改变原连接或模式。 - **证据要求**：断开前后状态截图、关联会话/设备标识、另一浏览器存活和拒绝回执。 - **适用边界**：原工具已有；会话切换副作用遵循中心当前规则。 #### 逐步验收 1. **操作**：确认本会话连接及无关浏览器基线。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：目标测试浏览器与另一无关连接。 **预期及核对**：截图安全状态并冻结连接标识，不记录真实秘密。 **本步交付**：可以限定断开的本会话目标。 2. **操作**：批准断开再重复断开。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步目标和断开许可。 **预期及核对**：截图断开及重复反馈，只改变本会话连接，另一浏览器仍在。 **本步交付**：本会话已断开状态和幂等说明。 3. **操作**：对无权限及微信通道尝试断开。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：无权限用户、微信通道提出同样请求。 **预期及核对**：截图拒绝，原连接/模式不变，不误关闭无关浏览器。 **本步交付**：授权与通道边界的断开记录。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">55</span><span>断开浏览器工具</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：已连接目标测试浏览器，另有不属于该会话的浏览器；出处 <code>ToolRegistry.java</code> <code>browser_disconnect</code>、BrowserSession。</li>
+<li><strong>操作步骤</strong>：批准断开；重复断开；无权限以及微信通道提出断开分别作对照。</li>
+<li><strong>预期结果</strong>：只断开本会话绑定连接，不误关闭另一用户/浏览器；重复操作可解释，无权限/微信策略拒绝不改变原连接或模式。</li>
+<li><strong>证据要求</strong>：断开前后状态截图、关联会话/设备标识、另一浏览器存活和拒绝回执。</li>
+<li><strong>适用边界</strong>：原工具已有；会话切换副作用遵循中心当前规则。</li>
+</ul>
+<h4 id="heading-18">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：确认本会话连接及无关浏览器基线。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：目标测试浏览器与另一无关连接。<br>
+<strong>预期及核对</strong>：截图安全状态并冻结连接标识，不记录真实秘密。<br>
+<strong>本步交付</strong>：可以限定断开的本会话目标。</p>
+</li>
+<li>
+<p><strong>操作</strong>：批准断开再重复断开。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步目标和断开许可。<br>
+<strong>预期及核对</strong>：截图断开及重复反馈，只改变本会话连接，另一浏览器仍在。<br>
+<strong>本步交付</strong>：本会话已断开状态和幂等说明。</p>
+</li>
+<li>
+<p><strong>操作</strong>：对无权限及微信通道尝试断开。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：无权限用户、微信通道提出同样请求。<br>
+<strong>预期及核对</strong>：截图拒绝，原连接/模式不变，不误关闭无关浏览器。<br>
+<strong>本步交付</strong>：授权与通道边界的断开记录。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 56. 查询浏览器状态工具 - **验收前提**：目标连接/未连接/探活失败三种状态；出处 `toolregistry.java` `browser_status`、browsersession。 - **操作步骤**：在三状态中分别查询，再由 b 尝试获取 a 设备状态。 - **预期结果**：mode、connected 与实际探活一致，不以保存过配置当已连接；不泄露其他用户 profile、页面或完整秘密连接信息，b 越权拒绝。 - **证据要求**：状态截图、实际连接核对、脱敏响应与权限拒绝。 - **适用边界**：原已有状态工具；跨用户隔离是中心迁移要求。 #### 逐步验收 1. **操作**：查询连接与未连接的真实状态。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：本人授权目标两种状态。 **预期及核对**：截图工具状态，mode/connected与实际探活一致，配置存在不当连接成功。 **本步交付**：与现场相符的本人状态。 2. **操作**：在探活失败时再次查询。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：已绑定但探活失败的受控目标。 **预期及核对**：截图失败状态，留探活记录，区别未配置与已配置但不可达。 **本步交付**：有恢复条件的连接状态。 3. **操作**：乙请求甲设备状态并回读本人功能。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：甲设备标识、乙正常状态查询。 **预期及核对**：截图越权拒绝和乙正常结果，不泄甲profile/页面/秘密连接信息。 **本步交付**：只属于本人可见范围的状态证据。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">56</span><span>查询浏览器状态工具</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：目标连接/未连接/探活失败三种状态；出处 <code>ToolRegistry.java</code> <code>browser_status</code>、BrowserSession。</li>
+<li><strong>操作步骤</strong>：在三状态中分别查询，再由 B 尝试获取 A 设备状态。</li>
+<li><strong>预期结果</strong>：mode、connected 与实际探活一致，不以保存过配置当已连接；不泄露其他用户 profile、页面或完整秘密连接信息，B 越权拒绝。</li>
+<li><strong>证据要求</strong>：状态截图、实际连接核对、脱敏响应与权限拒绝。</li>
+<li><strong>适用边界</strong>：原已有状态工具；跨用户隔离是中心迁移要求。</li>
+</ul>
+<h4 id="heading-19">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：查询连接与未连接的真实状态。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：本人授权目标两种状态。<br>
+<strong>预期及核对</strong>：截图工具状态，mode/connected与实际探活一致，配置存在不当连接成功。<br>
+<strong>本步交付</strong>：与现场相符的本人状态。</p>
+</li>
+<li>
+<p><strong>操作</strong>：在探活失败时再次查询。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：已绑定但探活失败的受控目标。<br>
+<strong>预期及核对</strong>：截图失败状态，留探活记录，区别未配置与已配置但不可达。<br>
+<strong>本步交付</strong>：有恢复条件的连接状态。</p>
+</li>
+<li>
+<p><strong>操作</strong>：乙请求甲设备状态并回读本人功能。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：甲设备标识、乙正常状态查询。<br>
+<strong>预期及核对</strong>：截图越权拒绝和乙正常结果，不泄甲profile/页面/秘密连接信息。<br>
+<strong>本步交付</strong>：只属于本人可见范围的状态证据。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 57. 保存长期记忆工具 - **验收前提**：当前项目/目录记忆为空；已有“项目使用 java 17”用于冲突；出处 `toolregistry.java` `save_memory`、`memory/longtermmemory.java`。 - **操作步骤**：保存一条显式事实，重复保存；再保存“项目使用 java 21”，分别不选择/显式 replace_id/keep_both；scope 分别 project/global，b 读取 a 记忆作对照。 - **预期结果**：显式保存可回读；重复不新增同条；冲突不自动替换，用户明确替换或共存后才按选择写入。global 仅 a 可见，project 限 a 当前目录/项目，不泄给 b。 - **证据要求**：工具参数、冲突与选择截图、写前后条数/内容/版本及权限记录。 - **适用边界**：原支持 project/global、冲突与去重；global 改为当前用户个人全局，目录映射替代旧工作区。 #### 逐步验收 1. **操作**：显式保存后重复保存同一事实。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：当前项目“项目使用java 17”，同样输入两次。 **预期及核对**：截图保存与列表，事实可回读，重复不增同条记录。 **本步交付**：一条稳定可引用的本人事实。 2. **操作**：提交冲突并分别选择替换/共存。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“项目使用java 21”；无决定、replace_id、keep_both各独立样本。 **预期及核对**：截图冲突和处理后列表，未决定旧条不变，明确选择才修改/保留两条。 **本步交付**：具有用户决定和来源的冲突处理结果。 3. **操作**：分别保存项目/全局并做乙读取对照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：project/global各一；乙读取甲记忆。 **预期及核对**：截图范围和拒绝，甲全局仅甲可见，项目仅当前本人目录，不泄乙。 **本步交付**：范围明确且可继续使用的长期事实。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">57</span><span>保存长期记忆工具</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：当前项目/目录记忆为空；已有“项目使用 Java 17”用于冲突；出处 <code>ToolRegistry.java</code> <code>save_memory</code>、<code>memory/LongTermMemory.java</code>。</li>
+<li><strong>操作步骤</strong>：保存一条显式事实，重复保存；再保存“项目使用 Java 21”，分别不选择/显式 replace_id/keep_both；scope 分别 project/global，B 读取 A 记忆作对照。</li>
+<li><strong>预期结果</strong>：显式保存可回读；重复不新增同条；冲突不自动替换，用户明确替换或共存后才按选择写入。global 仅 A 可见，project 限 A 当前目录/项目，不泄给 B。</li>
+<li><strong>证据要求</strong>：工具参数、冲突与选择截图、写前后条数/内容/版本及权限记录。</li>
+<li><strong>适用边界</strong>：原支持 project/global、冲突与去重；global 改为当前用户个人全局，目录映射替代旧工作区。</li>
+</ul>
+<h4 id="heading-20">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：显式保存后重复保存同一事实。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：当前项目“项目使用Java 17”，同样输入两次。<br>
+<strong>预期及核对</strong>：截图保存与列表，事实可回读，重复不增同条记录。<br>
+<strong>本步交付</strong>：一条稳定可引用的本人事实。</p>
+</li>
+<li>
+<p><strong>操作</strong>：提交冲突并分别选择替换/共存。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“项目使用Java 21”；无决定、replace_id、keep_both各独立样本。<br>
+<strong>预期及核对</strong>：截图冲突和处理后列表，未决定旧条不变，明确选择才修改/保留两条。<br>
+<strong>本步交付</strong>：具有用户决定和来源的冲突处理结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：分别保存项目/全局并做乙读取对照。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：project/global各一；乙读取甲记忆。<br>
+<strong>预期及核对</strong>：截图范围和拒绝，甲全局仅甲可见，项目仅当前本人目录，不泄乙。<br>
+<strong>本步交付</strong>：范围明确且可继续使用的长期事实。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 58. 按名称加载 skill 工具 - **验收前提**：可用 skill `验收技能` 正文含唯一标记 skill_body，并有关闭及不存在名称；出处 `toolregistry.java` `load_skill`、`tool/loadedskillmessages.java`。 - **操作步骤**：同轮请求 load_skill 后应用技能；查看随后模型请求；再调用禁用/未知名称；正文包含请求越界写入的测试句作对照。 - **预期结果**：按精确名称加载，正文在同轮独立 user 消息注入，不只返回摘要；禁用/未知拒绝。skill 正文不是中心权限来源，不能获得越界或未批准工具权。 - **证据要求**：加载回执、后续协议中的 skill_body 与消息位置、禁用/未知/越界拒绝。 - **适用边界**：原已有；三层来源优先级和完整 skill 命令在扩展模块另验。 #### 逐步验收 1. **操作**：按精确名称加载并同轮应用技能。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“验收技能”正文含skill_body，明确当前可用。 **预期及核对**：截图工具加载与随后回复，脱敏核同轮独立user正文而非只摘要。 **本步交付**：可用于当前请求的技能正文。 2. **操作**：提交禁用与不存在名称。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：关闭同技能、未知名称。 **预期及核对**：截图拒绝，核下一请求没有该正文，不偷偷启用或猜另一技能。 **本步交付**：明确技能可用/不可用边界。 3. **操作**：使用带越界要求的技能内容作对照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：测试句要求根外写入；原权限不改变。 **预期及核对**：截图中心硬拒绝，正文不能授工具权，保护文件无变化。 **本步交付**：有正文来源但无额外授权的技能使用记录。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">58</span><span>按名称加载 Skill 工具</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：可用 Skill <code>验收技能</code> 正文含唯一标记 SKILL_BODY，并有关闭及不存在名称；出处 <code>ToolRegistry.java</code> <code>load_skill</code>、<code>tool/LoadedSkillMessages.java</code>。</li>
+<li><strong>操作步骤</strong>：同轮请求 load_skill 后应用技能；查看随后模型请求；再调用禁用/未知名称；正文包含请求越界写入的测试句作对照。</li>
+<li><strong>预期结果</strong>：按精确名称加载，正文在同轮独立 user 消息注入，不只返回摘要；禁用/未知拒绝。Skill 正文不是中心权限来源，不能获得越界或未批准工具权。</li>
+<li><strong>证据要求</strong>：加载回执、后续协议中的 SKILL_BODY 与消息位置、禁用/未知/越界拒绝。</li>
+<li><strong>适用边界</strong>：原已有；三层来源优先级和完整 Skill 命令在扩展模块另验。</li>
+</ul>
+<h4 id="heading-21">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：按精确名称加载并同轮应用技能。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“验收技能”正文含SKILL_BODY，明确当前可用。<br>
+<strong>预期及核对</strong>：截图工具加载与随后回复，脱敏核同轮独立user正文而非只摘要。<br>
+<strong>本步交付</strong>：可用于当前请求的技能正文。</p>
+</li>
+<li>
+<p><strong>操作</strong>：提交禁用与不存在名称。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：关闭同技能、未知名称。<br>
+<strong>预期及核对</strong>：截图拒绝，核下一请求没有该正文，不偷偷启用或猜另一技能。<br>
+<strong>本步交付</strong>：明确技能可用/不可用边界。</p>
+</li>
+<li>
+<p><strong>操作</strong>：使用带越界要求的技能内容作对照。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：测试句要求根外写入；原权限不改变。<br>
+<strong>预期及核对</strong>：截图中心硬拒绝，正文不能授工具权，保护文件无变化。<br>
+<strong>本步交付</strong>：有正文来源但无额外授权的技能使用记录。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 59. 回退最近一次任务工具 - **验收前提**：一次任务前 value.txt=before、后为 after；已冻结两个快照，回退需批准；出处 `toolregistry.java` `revert_turn`、snapshot/snapshotservice。 - **操作步骤**：请求 revert_turn 默认 offset 和 offset=2；预览范围后先拒绝、再批准；不存在序号/后续人工修改/软链目标作对照。 - **预期结果**：默认 1 对应最近任务开始前，不是最近任意快照；批准只恢复预览范围，拒绝不变。序号不存在、当前哈希冲突或外部软链拒绝；中心状态与本地实际恢复一致。 - **证据要求**：快照列表/预览/批准截图、目标与恢复后哈希、拒绝不变证据及回执。 - **适用边界**：原已有回退工具；许可、哈希/软链冲突和补偿为迁移补齐，完整快照场景另验。 #### 逐步验收 1. **操作**：提出回退并核默认目标范围。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：value.txt任务前before、后after；默认offset与2对照。 **预期及核对**：截图回退预览，默认1指最近任务开始前，不是任意最近快照。 **本步交付**：与独立旧值相符的待批准恢复范围。 2. **操作**：先拒绝再重新批准恢复。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：当前文件摘要和上步有效预览。 **预期及核对**：截图拒绝后不变及批准后值，实际仅恢复预览范围，中心与本地状态一致。 **本步交付**：恢复到已知字节的文件与正式回执。 3. **操作**：测试缺序号、人工后改和软链外逃。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：不存在offset、后续手改、指向根外的目标。 **预期及核对**：截图拒绝，冲突不覆盖、根外不恢复，保留当前文件摘要。 **本步交付**：明确不能恢复的条件和安全原文件。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">59</span><span>回退最近一次任务工具</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：一次任务前 value.txt=BEFORE、后为 AFTER；已冻结两个快照，回退需批准；出处 <code>ToolRegistry.java</code> <code>revert_turn</code>、snapshot/SnapshotService。</li>
+<li><strong>操作步骤</strong>：请求 revert_turn 默认 offset 和 offset=2；预览范围后先拒绝、再批准；不存在序号/后续人工修改/软链目标作对照。</li>
+<li><strong>预期结果</strong>：默认 1 对应最近任务开始前，不是最近任意快照；批准只恢复预览范围，拒绝不变。序号不存在、当前哈希冲突或外部软链拒绝；中心状态与本地实际恢复一致。</li>
+<li><strong>证据要求</strong>：快照列表/预览/批准截图、目标与恢复后哈希、拒绝不变证据及回执。</li>
+<li><strong>适用边界</strong>：原已有回退工具；许可、哈希/软链冲突和补偿为迁移补齐，完整快照场景另验。</li>
+</ul>
+<h4 id="heading-22">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：提出回退并核默认目标范围。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：value.txt任务前BEFORE、后AFTER；默认offset与2对照。<br>
+<strong>预期及核对</strong>：截图回退预览，默认1指最近任务开始前，不是任意最近快照。<br>
+<strong>本步交付</strong>：与独立旧值相符的待批准恢复范围。</p>
+</li>
+<li>
+<p><strong>操作</strong>：先拒绝再重新批准恢复。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：当前文件摘要和上步有效预览。<br>
+<strong>预期及核对</strong>：截图拒绝后不变及批准后值，实际仅恢复预览范围，中心与本地状态一致。<br>
+<strong>本步交付</strong>：恢复到已知字节的文件与正式回执。</p>
+</li>
+<li>
+<p><strong>操作</strong>：测试缺序号、人工后改和软链外逃。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：不存在offset、后续手改、指向根外的目标。<br>
+<strong>预期及核对</strong>：截图拒绝，冲突不覆盖、根外不恢复，保留当前文件摘要。<br>
+<strong>本步交付</strong>：明确不能恢复的条件和安全原文件。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details></section></main></div><footer>来源：完整业务验收记录.md · 更新日期2026-10-05 · 本页由正文生成，阅读检查不计作产品验收。</footer><script>
+const cases=[...document.querySelectorAll('.case')];const input=document.querySelector('#search');const status=document.querySelector('#status');input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let n=0;cases.forEach(el=>{const hit=!q||el.dataset.search.includes(q);el.classList.toggle('hidden',!hit);if(hit){n++;if(q)el.open=true;}});document.querySelectorAll('.module').forEach(el=>{const items=[...el.querySelectorAll('.case')];el.classList.toggle('hidden',items.length>0&&!items.some(x=>!x.classList.contains('hidden')));});status.textContent=q?'匹配 '+n+' / '+cases.length+' 点':'共 '+cases.length+' 点';});document.querySelector('#expand').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=true));document.querySelector('#collapse').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=false));
+</script></body></html>

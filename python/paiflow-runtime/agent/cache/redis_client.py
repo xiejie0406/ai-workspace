@@ -5,7 +5,7 @@ import redis
 from pydantic import BaseModel, ConfigDict, Field
 from rediscluster import ClusterConnectionPool, RedisCluster
 
-from exceptions.middleware_exc import PingRedisExc
+from agent.exceptions.middleware_exc import PingRedisExc
 
 
 class RedisClientCache(BaseModel):

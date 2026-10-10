@@ -603,7 +603,10 @@ public abstract class AbstractOpenAiCompatibleClient implements LlmClient, Manag
         }
     }
 
-    private List<ToolCall> buildToolCalls(List<ToolCallAccumulator> accumulators) {
+    /** 某些既有厂商允许本地补 ID；严格协议适配可关闭这种兼容行为。 */
+    protected boolean requireCompleteToolCalls() { return false; }
+
+    private List<ToolCall> buildToolCalls(List<ToolCallAccumulator> accumulators) throws IOException {
         if (accumulators.isEmpty()) {
             return null;
         }
@@ -613,11 +616,14 @@ public abstract class AbstractOpenAiCompatibleClient implements LlmClient, Manag
             ToolCallAccumulator acc = accumulators.get(index);
             String name = acc.name.toString();
             if (name.isBlank()) {
+                if (requireCompleteToolCalls() && (acc.id != null || !acc.arguments.isEmpty()))
+                    throw new IOException("工具调用缺少完整函数名称");
                 // 按 index 补位产生的空槽，没有真正的工具调用
                 continue;
             }
             String id = acc.id;
             if (id == null || id.isBlank()) {
+                if (requireCompleteToolCalls()) throw new IOException("工具调用缺少真实 call ID");
                 // 个别兼容接口流式返回不带 id；直接丢弃会让模型以为调用了工具却没有结果，补一个本地 id
                 id = "call_" + index;
                 log.warn("Streamed tool call {} arrived without id; assigned {}", name, id);

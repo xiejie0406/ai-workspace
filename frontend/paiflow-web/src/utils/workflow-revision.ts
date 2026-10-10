@@ -233,7 +233,8 @@ export class WorkflowRevisionTransport {
         || receipt.snapshotRevision !== revision || typeof receipt.workflowVersionId !== 'string' || receipt.workflowVersionId !== integer(receipt.workflowVersionId, true)
         || typeof receipt.dslHash !== 'string' || !/^[a-f0-9]{64}$/.test(receipt.dslHash)
         || typeof receipt.engineProfile !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(receipt.engineProfile)
-        || typeof receipt.executionCodec !== 'string' || !['paiflow.execution.v1', 'paiflow.execution.v2', 'paiflow.execution.v3'].includes(receipt.executionCodec)
+        || typeof receipt.executionCodec !== 'string' || !['paiflow.execution.v1', 'paiflow.execution.v2', 'paiflow.execution.v3', 'paiflow.execution.v4'].includes(receipt.executionCodec)
+        || receipt.executionCodec === 'paiflow.execution.v4' && receipt.engineProfile !== 'python'
         || receipt.mode !== (ticket.kind === 'comparison' ? 'comparison' : 'ordinary')
         || receipt.comparisonId !== (ticket.kind === 'comparison' ? ticket.comparisonId : null)) return false;
     }

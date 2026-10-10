@@ -31,7 +31,7 @@
     "read effectClass guarantees no charge or mutation; all charge/write calls require approved_write and center per-call approval",
     "operations and idempotency key bound to fixed resource versions, parameter hash and current run; repeat same complete request returns same ACK, different content rejects",
     "Agent dependencySelections must map each original tool/version,MCP ID,workflow ID,ordered knowledge entry to dependencyBindings and immutable authorized resources",
-    "Database logical identifiers are authorized by center; values parameterized by producer; ADD returning last_inserted_row and UPDATE returning matched_rows use same audited transaction; no raw SQL or Worker follow-up query",
+    "Database logical table/column/environment authorized by center; CUSTOM preserves original placeholders then sends single SQL for center reparse and logical-row evaluation (never JDBC raw SQL); ADD/UPDATE return rows within the same audited transaction; no Worker follow-up query",
     "frames cursor equals prior cursor+frame count, stable fixed resourceBindings, done only known terminal; confirmed nonzero Provider error only under FAILED/failureKind=provider",
     "Cancellation requires stopped=true; missing dispatch ACK or unconfirmed write/fee stop => EFFECT_UNKNOWN; no retries to obtain a new operation",
     "All new operations reject nested iteration until actual center iteration instance ownership exists",
@@ -286,10 +286,15 @@
     "DatabaseTable": {
       "type": "object",
       "properties": {
+        "execEnvs": {"type": "array", "items": {"type": "integer", "enum": [1, 2]}, "uniqueItems": true},
+        "tableId": {"type": "integer", "minimum": 1},
+        "revision": {"type": "integer", "minimum": 0},
+        "schemaHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "allowedModes": {
           "type": "array",
           "items": {
             "enum": [
+              0,
               1,
               2,
               3,
@@ -306,6 +311,7 @@
         }
       },
       "required": [
+        "execEnvs",
         "allowedModes",
         "columns"
       ],
@@ -784,8 +790,19 @@
       "additionalProperties": false
     },
     "DatabasePayload": {
+      "oneOf": [{"$ref": "#/$defs/StructuredDatabasePayload"}, {"$ref": "#/$defs/CustomDatabasePayload"}]
+    },
+    "CustomDatabasePayload": {
+      "type": "object",
+      "required": ["mode", "sql", "execDev"],
+      "properties": {"mode": {"const": 0}, "sql": {"type": "string", "minLength": 1, "maxLength": 65536}, "execDev": {"type": "integer", "enum": [1, 2]}},
+      "additionalProperties": false,
+      "$comment": "原占位符替换后的单逻辑表SQL交中心重解析与授权，Worker不执行SQL；环境由中心派发任务固定。"
+    },
+    "StructuredDatabasePayload": {
       "type": "object",
       "properties": {
+        "execDev": {"type": "integer", "enum": [1, 2]},
         "mode": {
           "enum": [
             1,
@@ -869,6 +886,7 @@
         }
       },
       "required": [
+        "execDev",
         "mode",
         "table",
         "values",

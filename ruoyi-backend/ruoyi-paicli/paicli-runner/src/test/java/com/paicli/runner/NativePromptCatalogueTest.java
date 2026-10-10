@@ -87,7 +87,7 @@ class NativePromptCatalogueTest {
             ((com.fasterxml.jackson.databind.node.ArrayNode)definition.get("arguments")).addObject().put("name", "style").put("required", false);
             definition.putObject("vendorExtension").put("actual", "complete actual catalogue").put("large", large ? "x".repeat(4 * 1024 * 1024 + 128) : "preserve unknown field");
             if (malformed) ((ObjectNode)definition.path("arguments").get(0)).put("required", "true");
-            config = CanonicalJson.MAPPER.createObjectNode().put("id", "5").put("workspaceId", "7").put("version", 6).put("name", "prompt-fixture")
+            config = CanonicalJson.MAPPER.createObjectNode().put("id", "5").put("directoryContextId", "7").put("version", 6).put("name", "prompt-fixture")
                     .put("configHash", "b".repeat(64)).put("trustedHash", "b".repeat(64)).put("transport", "STDIO").put("command", "fixture-no-process").put("enabled", true);
             config.putArray("args"); config.putObject("envSecretRefs"); config.putObject("headerSecretRefs"); config.putObject("headers");
             server.setDispatcher(new Dispatcher() { @Override public MockResponse dispatch(RecordedRequest request) {
@@ -149,10 +149,11 @@ class NativePromptCatalogueTest {
             return true;
         }
         void execute(String operation, String reference, Map<String,String> arguments) throws Exception {
-            lastLease = new RunnerLease(CanonicalJson.MAPPER.createObjectNode().put("taskId", Integer.toString(tasks.incrementAndGet())).put("sessionId", "10").put("workspaceId", "7").put("leaseId", "20").put("fencingToken", 3).put("version", 4).put("policyVersion", 1).put("rootFingerprint", new ResourceFingerprint(root).rootFingerprint()).put("expiresAt", Instant.now().plusSeconds(120).toString()));
+            lastLease = new RunnerLease(CanonicalJson.MAPPER.createObjectNode().put("taskId", Integer.toString(tasks.incrementAndGet())).put("sessionId", "10").put("directoryContextId", "7").put("leaseId", "20").put("fencingToken", 3).put("version", 4).put("policyVersion", 1).put("rootFingerprint", new ResourceFingerprint(root).rootFingerprint()).put("expiresAt", Instant.now().plusSeconds(120).toString()));
             lastSpool = new ReceiptSpool(state.resolve("receipts")); var tools = new CenterToolRegistry(center, lastLease, lastSpool, root);
             tools.setToolResultOffloader(new HttpToolResultOffloader(center, lastLease, tools, state.resolve("tool-outputs")));
-            var context = CanonicalJson.MAPPER.createObjectNode(); context.putObject("workspace").put("sandboxVerified", true); context.putArray("mcpConfigs").add(config);
+            // 内存 transport 不启动宿主进程；fixture 按当前个人目录契约提供冻结的沙箱验证前提。
+            var context = CanonicalJson.MAPPER.createObjectNode(); context.putObject("directoryContext").put("sandboxVerified", true); context.putArray("mcpConfigs").add(config);
             var task = context.putObject("taskPayload").put("operation", operation); var args = task.putObject("arguments").put("configId", "5").put("configVersion", 6); args.set("config", config);
             if (operation.equals("MCP_READ_PROMPT")) { args.put("reference", reference); args.set("arguments", CanonicalJson.MAPPER.valueToTree(arguments)); }
             controls.execute(lastLease, tools, context);

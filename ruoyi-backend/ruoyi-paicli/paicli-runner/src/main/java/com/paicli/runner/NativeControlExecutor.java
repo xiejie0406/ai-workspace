@@ -43,8 +43,8 @@ public final class NativeControlExecutor implements AutoCloseable {
         }
         default void close() { }
     }
-    private static final java.util.Set<String> OPERATIONS = java.util.Set.of("INDEX_BUILD", "REPOSITORY_SEARCH", "AST_GRAPH",
-            "CONTEXT_COMPRESS", "SNAPSHOT_PREVIEW", "SNAPSHOT_RESTORE", "PROVIDER_REFRESH", "PROVIDER_VERIFY", "MCP_START", "MCP_STOP", "MCP_RESTART",
+    private static final java.util.Set<String> OPERATIONS = java.util.Set.of("DIR_PREPARE", "DIRECTORY_VERIFY", "INDEX_BUILD", "REPOSITORY_SEARCH", "AST_GRAPH",
+            "CONTEXT_COMPRESS", "SNAPSHOT_STATUS", "SNAPSHOT_PREVIEW", "SNAPSHOT_RESTORE", "PROVIDER_REFRESH", "PROVIDER_VERIFY", "EMBEDDING_VERIFY", "MCP_START", "MCP_STOP", "MCP_RESTART",
             "MCP_READ_RESOURCE", "MCP_READ_PROMPT", "SKILLS_RELOAD", "BROWSER_PROBE", "HARNESS_QUICK", "HARNESS_NORMAL", "HARNESS_INLINE",
             "MEMORY_VERIFY", "MEMORY_DELETE", "MEMORY_CLEAR", "WECHAT_SETUP", "WECHAT_START", "WECHAT_PAUSE", "WECHAT_RESUME", "WECHAT_STOP", "WECHAT_RESTART",
             "INIT_PROJECT_MEMORY", "SNAPSHOT_CLEAN", "SNAPSHOT_CLEAN_PREVIEW", "BROWSER_TABS", "BROWSER_DISCONNECT", "BROWSER_CONNECT", "REPOSITORY_LIST");
@@ -115,6 +115,25 @@ public final class NativeControlExecutor implements AutoCloseable {
 
     private ToolOutput perform(String operation, JsonNode args, JsonNode context, RunnerLease lease, CenterToolRegistry tools) throws Exception {
         switch (operation) {
+            case "DIRECTORY_VERIFY", "DIR_PREPARE" -> {
+                Path home=Path.of(tools.getProjectPath()).toRealPath();String owner=PersonalDirectoryContext.id(lease.claim().path("ownerUserId").asText());
+                if(!home.getFileName().toString().equals("files")||home.getParent()==null
+                    ||!home.getParent().getFileName().toString().equals(owner)||home.getParent().getParent()==null
+                    ||!home.getParent().getParent().getFileName().toString().equals("users"))throw new IOException("目录核验任务必须使用本人默认文件目录");
+                PersonalDirectoryContext directories=new PersonalDirectoryContext(home.getParent().getParent().getParent(),owner);
+                if(!directories.home().equals(home))throw new IOException("本人默认文件目录发生改变");
+                Path requested;
+                if("DIR_PREPARE".equals(operation))requested=RunnerPrivateDirectory.createDirectories(home.resolve("conversations").resolve(PersonalDirectoryContext.id(lease.sessionId())));
+                else requested=Path.of(required(args,"canonicalPath"));
+                ObjectNode proof=directories.proof(requested);
+                JsonNode verified=center.post("/paicli/runner/v1/personal-directory-proof",proof,UUID.randomUUID().toString());
+                ObjectNode envelope=CanonicalJson.MAPPER.createObjectNode().put("directoryContextId",verified.path("id").asText())
+                    .put("runnerId",verified.path("runnerId").asText()).put("ownerUserId",owner).put("rootFingerprint",proof.path("rootFingerprint").asText());
+                envelope.set("directoryContext",verified);
+                if(!requested.toRealPath().equals(directories.resolve(envelope)))throw new IOException("中心目录核验响应改变了真实路径");
+                ObjectNode result=metadata(args);result.set("directoryContext",verified);result.put("source","RUNNER");result.put("sessionId",lease.sessionId());result.put("operation",operation);
+                event(lease,"DIRECTORY_RESULT",result);return ToolOutput.text(result.toString());
+            }
             case "REPOSITORY_LIST" -> {
                 String path = required(args, "path");
                 var entries = tools.listDirectoryEntries(path);
@@ -123,10 +142,19 @@ public final class NativeControlExecutor implements AutoCloseable {
                 event(lease, "DIRECTORY_RESULT", payload); return ToolOutput.text(payload.toString());
             }
             case "INDEX_BUILD" -> {
-                var result = new CodeIndex(embedding(context, lease, tools), message -> {}, state.resolve("rag")).indexStrict(tools.getProjectPath(), args.path("path").asText("."));
-                if (!result.message().startsWith("索引完成")) return ToolOutput.failure(result.message());
+                var result = new CodeIndex(embedding(context, lease, tools), message -> {}, state.resolve("rag"), () -> {
+                    lease.ensureActive();
+                    if (com.paicli.runtime.CancellationContext.isCancelled()) throw new IOException("索引已取消，原索引保留");
+                }).indexStrict(tools.getProjectPath(), args.path("path").asText("."));
+                if (!result.success()) return ToolOutput.failure(result.message());
                 ObjectNode manifest = metadata(args); manifest.set("index", CanonicalJson.MAPPER.valueToTree(result));
                 manifest.put("selectionPath", args.path("path").asText("."));
+                manifest.put("embeddingFingerprint", result.fingerprint());
+                manifest.put("expectedDimensions", result.actualDimensions());
+                manifest.put("actualDimensions", result.actualDimensions());
+                manifest.set("embeddingIdentity", CanonicalJson.MAPPER.valueToTree(result.embeddingIdentity()));
+                manifest.put("success", true);
+                manifest.put("rootFingerprint", lease.claim().path("rootFingerprint").asText());
                 manifest.put("hashKind", "CANONICAL_MANIFEST"); manifest.put("manifestHash", CanonicalJson.hash(manifest));
                 event(lease, "INDEX_MANIFEST", manifest);
                 return ToolOutput.text(result.message());
@@ -134,12 +162,15 @@ public final class NativeControlExecutor implements AutoCloseable {
             case "REPOSITORY_SEARCH", "AST_GRAPH" -> {
                 String query = required(args, "query");
                 boolean semantic = "SEMANTIC".equalsIgnoreCase(args.path("mode").asText());
-                try (CodeRetriever retriever = new CodeRetriever(tools.getProjectPath(), semantic ? embedding(context, lease, tools) : null, state.resolve("rag"))) {
+                EmbeddingClient semanticClient = semantic ? embedding(context, lease, tools) : null;
+                try (CodeRetriever retriever = new CodeRetriever(tools.getProjectPath(), semanticClient, state.resolve("rag"))) {
                     Object result = "AST_GRAPH".equals(operation) ? retriever.getRelationGraph(query)
                             : semantic ? retriever.semanticSearch(query, Math.min(100, Math.max(1, args.path("limit").asInt(50))))
                             : retriever.keywordSearch(query).stream().limit(Math.min(100, Math.max(1, args.path("limit").asInt(50)))).toList();
                     JsonNode value = CanonicalJson.MAPPER.valueToTree(result);
                     ObjectNode payload = metadata(args); payload.put("query", query); payload.put("mode", semantic ? "SEMANTIC" : "EXACT"); payload.set("results", value);
+                    if (semantic) payload.put("embeddingFingerprint", semanticClient.getIdentity().fingerprint())
+                        .put("rootFingerprint", lease.claim().path("rootFingerprint").asText());
                     event(lease, "AST_GRAPH".equals(operation) ? "GRAPH_RESULT" : "SEARCH_RESULT", payload);
                     return ToolOutput.text(value.toString());
                 }
@@ -198,17 +229,66 @@ public final class NativeControlExecutor implements AutoCloseable {
             case "PROVIDER_VERIFY" -> {
                 approvedConfiguration(args,context,"providerConfig");
                 if(!"sub2api".equals(context.path("provider").asText()))throw new IOException("兼容验证供应商不符");
-                ObjectNode bounded=context.deepCopy();((ObjectNode)bounded.path("policy")).put("maxOutputTokens",256);
+                if(!context.path("policy").isObject())throw new IOException("兼容验证缺少中心预算策略");
+                int allowed=context.path("policy").path("maxOutputTokens").asInt(context.path("modelConfig").path("maxOutputTokens").asInt(4096));
+                if(allowed<1)throw new IOException("兼容验证输出预算不足");
+                ObjectNode bounded=context.deepCopy();((ObjectNode)bounded.path("policy")).put("maxOutputTokens",Math.min(allowed,256));
                 LlmClient client=NativeTaskExecutor.budgeted(center,lease,bounded,provider(lease,context));
                 try {
-                    var verification=com.paicli.llm.Sub2ApiVerifier.verify(client);
+                    String capability=args.path("capability").asText("TEXT");
+                    if(!List.of("TEXT","IMAGES").contains(capability))throw new IOException("未知模型验证能力");
+                    var verification="IMAGES".equals(capability)
+                        ? com.paicli.llm.Sub2ApiVerifier.verifyImages(client) : com.paicli.llm.Sub2ApiVerifier.verify(client);
                     lease.ensureActive();ObjectNode payload=metadata(args);payload.put("kind","PROVIDER");
+                    payload.put("capability",capability).put("status","READY");
                     payload.set("verification",CanonicalJson.MAPPER.valueToTree(verification));
                     payload.put("wireApi",context.path("providerConfig").path("wireApi").asText());
                     payload.set("modelId",args.path("modelId"));payload.set("modelVersion",args.path("modelVersion"));
+                    if(args.has("modelDefinitionVersion"))payload.set("modelDefinitionVersion",args.path("modelDefinitionVersion"));
                     payload.set("secretVersion",context.path("managedSecret").path("secretVersion"));
                     event(lease,"CONNECTION_RESULT",payload);return ToolOutput.text("Sub2API文本、流式、工具回灌和用量兼容验证完成");
+                } catch (IOException | RuntimeException failure) {
+                    ObjectNode failed=metadata(args);failed.put("kind","PROVIDER").put("status","FAILED")
+                        .put("capability",args.path("capability").asText("TEXT"))
+                        .put("error","能力验证未完成，请查看任务状态后重试");
+                    failed.set("modelId",args.path("modelId"));failed.set("modelVersion",args.path("modelVersion"));
+                    if(args.has("modelDefinitionVersion"))failed.set("modelDefinitionVersion",args.path("modelDefinitionVersion"));
+                    failed.set("secretVersion",context.path("managedSecret").path("secretVersion"));
+                    try { event(lease,"CONNECTION_RESULT",failed); } catch (IOException sendFailure) { failure.addSuppressed(sendFailure); }
+                    throw failure;
                 } finally { client.cancelInFlightCalls(); }
+            }
+            case "EMBEDDING_VERIFY" -> {
+                JsonNode config=context.path("embeddingConfig");
+                try {
+                verifyEmbeddingBinding(args,config);
+                EmbeddingClient client=embedding(context,lease,tools);
+                float[] vector=client.embed("PaiCLI code embedding compatibility probe");
+                if(vector.length!=config.path("expectedDimensions").asInt())throw new IOException("向量验证维度不符");
+                lease.ensureActive();
+                ObjectNode proof=CanonicalJson.MAPPER.createObjectNode();
+                proof.put("embedding",true).put("dimensions",vector.length).put("finite",true).put("nonZero",true)
+                    .put("calls",1).put("model",client.getModel()).put("provider",client.getProvider())
+                    .put("configFingerprint",config.path("configFingerprint").asText());
+                ObjectNode payload=metadata(args);payload.put("kind","EMBEDDING").put("status","READY");payload.set("verification",proof);
+                payload.set("configFingerprint",config.path("configFingerprint"));
+                payload.put("secretVersion",context.path("embeddingSecret").path("secretVersion").asInt());
+                event(lease,"CONNECTION_RESULT",payload);
+                return ToolOutput.text("向量响应、维度和用量验证完成");
+                } catch (IOException | RuntimeException failure) {
+                    ObjectNode failed=metadata(args);failed.put("kind","EMBEDDING").put("status","FAILED")
+                        .put("error","向量验证未完成，精确搜索仍可使用");
+                    failed.set("configFingerprint",config.path("configFingerprint"));
+                    failed.set("secretVersion",context.path("embeddingSecret").path("secretVersion"));
+                    try { event(lease,"CONNECTION_RESULT",failed); } catch (IOException sendFailure) { failure.addSuppressed(sendFailure); }
+                    throw failure;
+                }
+            }
+            case "SNAPSHOT_STATUS" -> {
+                SideGitManager snapshots=snapshots(tools);
+                ObjectNode payload=metadata(args);payload.put("operation","STATUS");payload.put("source","RUNNER");
+                payload.put("status",snapshots.formatStatus());
+                event(lease,"SNAPSHOT",payload);return ToolOutput.text(payload.path("status").asText());
             }
             case "SNAPSHOT_PREVIEW", "SNAPSHOT_RESTORE" -> {
                 SideGitManager snapshots = snapshots(tools);
@@ -307,7 +387,7 @@ public final class NativeControlExecutor implements AutoCloseable {
             String serverName = required(config, "name");
             if (!serverName.matches("[a-zA-Z0-9_.-]{1,128}")) throw new IOException("MCP服务器名称无效");
             if (explicit.isHttp() == explicit.isStdio() || config.toString().contains("${")) throw new IOException("MCP显式配置无效或包含未派发环境变量");
-            if (explicit.isStdio() && !context.path("workspace").path("sandboxVerified").asBoolean()) throw new IOException("STDIO启动缺少已验证沙箱");
+            if (explicit.isStdio() && !context.path("directoryContext").path("sandboxVerified").asBoolean()) throw new IOException("STDIO启动缺少已验证沙箱");
             var transportReference = new java.util.concurrent.atomic.AtomicReference<McpTransport>();
             var managedTransport = new java.util.concurrent.atomic.AtomicReference<ManagedMcpTransport>();
             ManagedMcpGrant grant = new ManagedMcpGrant(center, lease, tools, config, () -> {
@@ -507,19 +587,44 @@ public final class NativeControlExecutor implements AutoCloseable {
         if (!"ollama".equalsIgnoreCase(provider) && (secret.path("apiKey").asText().isBlank() || secret.path("secretRef").asText().isBlank())) throw new IOException("中心未派发Embedding凭证");
         if (!secret.path("expiresAt").isMissingNode() && !RunnerLease.expiry(secret.path("expiresAt")).isAfter(java.time.Instant.now())) throw new IOException("Embedding能力已过期");
         ManagedProviderGrant grant = "ollama".equalsIgnoreCase(provider) ? null : new ManagedProviderGrant(center, lease, context, "embeddingSecret");
-        return new EmbeddingClient(provider, model, url, "") {
+        int dimensions=config.path("expectedDimensions").asInt(0);
+        var identity=new com.paicli.llm.BudgetedLlmClient.CallIdentity("EMBEDDING",provider,model,
+            config.path("configurationVersion").asLong(config.path("version").asLong()),
+            config.path("configFingerprint").asText(new EmbeddingClient(provider,model,url,"",dimensions).getIdentity().fingerprint()),
+            config.path("releaseId").asText(null),config.path("releaseVersion").asLong());
+        return new EmbeddingClient(provider, model, url, "",dimensions) {
             @Override public float[] embed(String text) throws IOException {
                 lease.ensureActive();
                 String key = grant == null ? "" : grant.currentKey();
                 var budget = usageBudget(tools, context, lease);
                 String bounded = text == null ? "" : text.substring(0, Math.min(text.length(), 2000));
                 int estimated = Math.max(1, com.paicli.memory.MemoryEntry.estimateTokens(bounded));
-                return budget.externalInputOnly(estimated, () -> {
-                    EmbeddingClient client = new EmbeddingClient(provider, model, url, key); var result = client.embed(text); var usage = client.consumeUsage();
-                    return new com.paicli.llm.BudgetedLlmClient.ExternalResponse<>(result, usage.inputTokens(), 0, 0, usage.present());
+                return budget.externalInputOnly(estimated, identity, () -> {
+                    EmbeddingClient client = new EmbeddingClient(provider, model, url, key,dimensions);
+                    try {
+                        var result = client.embed(text); var usage = client.consumeUsage();
+                        return new com.paicli.llm.BudgetedLlmClient.ExternalResponse<>(result, usage.inputTokens(), 0, 0, usage.present());
+                    } catch (IOException failure) {
+                        var usage=client.consumeUsage();
+                        if(usage.present()||usage.inputTokens()>0)throw new com.paicli.llm.BudgetedLlmClient.ExternalUsageException(usage.inputTokens(),failure);
+                        throw failure;
+                    }
                 });
             }
         };
+    }
+    static void verifyEmbeddingBinding(JsonNode args,JsonNode config)throws IOException {
+        if(!config.isObject()||!args.path("configId").asText().equals(config.path("id").asText())
+            ||args.path("configVersion").asLong()<1
+            ||args.path("configVersion").asLong()!=config.path("configurationVersion").asLong(config.path("version").asLong())
+            ||args.path("expectedDimensions").asInt()<1
+            ||args.path("expectedDimensions").asInt()!=config.path("expectedDimensions").asInt()
+            ||args.path("configFingerprint").asText().isBlank()
+            ||!args.path("configFingerprint").asText().equals(config.path("configFingerprint").asText()))
+            throw new IOException("向量验证固定配置不符");
+        String actual=new EmbeddingClient(config.path("provider").asText(),config.path("model").asText(),
+            config.path("baseUrl").asText(),"",config.path("expectedDimensions").asInt()).getIdentity().fingerprint();
+        if(!actual.equals(config.path("configFingerprint").asText()))throw new IOException("向量配置指纹不符");
     }
     private SideGitManager snapshots(CenterToolRegistry tools) throws IOException {
         return new SideGitManager(Path.of(tools.getProjectPath()), new SnapshotConfig(true, state.resolve("snapshots"), 500,

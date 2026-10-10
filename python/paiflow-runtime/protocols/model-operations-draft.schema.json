@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:paiflow:python:model-operations-draft:v1",
   "title": "原模型 SDK 帧与中心操作端口草案（尚未部署）",
-  "description": "原算法/source事实与草案历史保留；请求响应唯一引用共享模型契约。基础Spark/FC目标尚未启用，正式本批仅顶层普通LLM/OpenAI chat。",
+  "description": "原算法/source事实与草案历史保留；请求响应唯一引用共享模型契约。当前代码接入顶层普通LLM的两provider chat，V4接入参数提取/决策的原Prompt、normal与Spark FC及绑定已消费检查点的动态QA；运行及真实Provider验收另行记录。",
   "x-status": "historical-source-facts-shared-contract-refs",
   "x-prefix": "/internal/paiflow/v1/runs/{runId}",
   "x-ownership": "中心持有资源权限、固定版本、审批、操作状态、审计、幂等和正式费用真相；SDK 在隔离的 Python Worker 能力环境中执行，不能由节点自由选择 URL/凭据",
@@ -27,7 +27,7 @@
   },
   "x-rules": [
     "请求/ACK字段、完整绑定、分页投影、failureKind、真实finish/尾usage、停止proof及预算唯一维护于共享model-operations.schema.json；本地defs只引用共享URN。",
-    "基础两provider/FC保全原完整目标且target_contract_not_enabled，正式HTTP当前只接顶层spark-llm/OpenAI chat，其他21类范围继续保留但不因此就绪。",
+    "旧V1/V2/V3任务沿用固定准入，不因模型目录能力扩权；新增动态模型节点须中心V4固定marker、完整assignment绑定、节点资源版本/原调用模式及逐次许可。历史V2与多模态未接线，明确拒绝。",
     "原Spark/OpenAI/FC/Decision算法及sandbox source事实仍保全；205草案规则原文见x-original-draft，不能将原阶段缺iteration字段或较少ACK字段继续作为现HTTP协议。"
   ],
   "x-sandbox": {
@@ -52,6 +52,21 @@
     },
     "ModelParameters": {
       "$ref": "urn:paiflow:model-operations:v1#/$defs/ModelParameters"
+    },
+    "V4ModelParameters": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/V4ModelParameters"
+    },
+    "ModelOperationRequest": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/ModelOperationRequest"
+    },
+    "ModelStartAck": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/ModelStartAck"
+    },
+    "ModelFramesAck": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/ModelFramesAck"
+    },
+    "ModelCancelAck": {
+      "$ref": "urn:paiflow:model-operations:v1#/$defs/ModelCancelAck"
     },
     "StartAck": {
       "$ref": "urn:paiflow:model-operations:v1#/$defs/StartAck"

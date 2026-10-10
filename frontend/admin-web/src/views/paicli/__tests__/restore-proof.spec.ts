@@ -10,7 +10,7 @@ import hasPermi from '@/directive/permission/hasPermi'
 const Container={template:'<div><slot /></div>'},Button={props:['disabled','loading'],emits:['click'],template:'<button :disabled="disabled||loading" @click="$emit(\'click\')"><slot /></button>'}
 const global={directives:{hasPermi},stubs:{ElDialog:Container,ElButton:Button,ElAlert:{props:['title'],template:'<p>{{title}}</p>'},ElTable:true,ElTableColumn:true,ElEmpty:true,ElCheckbox:Container,ElCollapse:Container,ElCollapseItem:Container,OperationTask:true,ArtifactEvidence:true}}
 const snapshot:PcSnapshot={id:'11',sessionId:'8',turnId:'1',kind:'MANUAL',createdAt:'',version:1,files:2,sha256:'a'.repeat(64)}
-const task={id:'99',workspaceId:'42',status:'COMPLETED'} as PcTaskDetail
+const task={id:'99',directoryContextId:'42',status:'COMPLETED'} as PcTaskDetail
 function proof():PcRestorePreview{return {snapshotId:'11',commitId:'c'.repeat(40),version:2,currentFingerprint:'a'.repeat(64),files:[{path:'src/a.java',status:'MODIFY',currentHash:'a'.repeat(64),targetHash:'b'.repeat(64),currentMode:420,targetMode:420,diff:'真实小文本差异'}],conflicts:[],canRestore:true}}
 describe('恢复预览真实字段与只读排队闭合',()=>{
   beforeEach(()=>{mocks.permissions=['paicli:snapshot:read','paicli:snapshot:restore'];for(const name of ['list','request','preview','restore'] as const)mocks[name].mockReset();mocks.list.mockResolvedValue({data:[snapshot]});mocks.request.mockResolvedValue({data:task})})

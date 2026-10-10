@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import jakarta.annotation.Resource;
 import javax.imageio.ImageIO;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,11 +40,14 @@ public class CaptchaController
     
     @Autowired
     private ISysConfigService configService;
+
+    @Autowired
+    private LocalCaptchaDebugService localCaptchaDebug;
     /**
      * 生成验证码
      */
     @GetMapping("/captchaImage")
-    public AjaxResult getCode(HttpServletResponse response) throws IOException
+    public AjaxResult getCode(HttpServletResponse response, HttpServletRequest request) throws IOException
     {
         AjaxResult ajax = AjaxResult.success();
         boolean captchaEnabled = configService.selectCaptchaEnabled();
@@ -89,6 +93,7 @@ public class CaptchaController
 
         ajax.put("uuid", uuid);
         ajax.put("img", Base64.encode(os.toByteArray()));
+        localCaptchaDebug.record(request, uuid, code);
         return ajax;
     }
 }

@@ -16,7 +16,8 @@ public class IsolatedDocumentParser {
     public IsolatedDocumentParser(IntelligenceSettings settings,com.ruoyi.paismart.application.intelligence.OcrService ocr){this.ocr=ocr;this.settings=settings;this.permits=new Semaphore(Math.max(1,settings.number("parse.concurrency",2)),true);}
     public List<Page> parse(InputStream input,String mime,com.ruoyi.paismart.application.jobs.JobService.Job job)throws IOException {
         if(!settings.enabled("parse.process-enabled"))throw new IllegalStateException("解析独立进程未启用");
-        if(Runtime.getRuntime().freeMemory()/(double)Math.max(1,Runtime.getRuntime().totalMemory())<0.1)throw new IllegalStateException("JOB_BUSY:解析内存背压");
+        Runtime runtime=Runtime.getRuntime();
+        if(memoryBackpressured(runtime.maxMemory(),runtime.totalMemory(),runtime.freeMemory()))throw new IllegalStateException("JOB_BUSY:解析内存背压");
         boolean acquired=false;Path dir=null;Process process=null;Throwable failure=null;
         try{acquired=permits.tryAcquire(10,TimeUnit.SECONDS);if(!acquired)throw new IllegalStateException("JOB_BUSY:解析并发达到上限");dir=Files.createTempDirectory("paismart-parse-");Path source=dir.resolve("input"),output=dir.resolve("output.json");
             try(OutputStream out=Files.newOutputStream(source)){long max=settings.number("parse.max-bytes",100*1024*1024),count=0;byte[] buf=new byte[8192];int n;while((n=input.read(buf))>=0){if((count+=n)>max)throw new IllegalArgumentException("文档超过解析字节上限");out.write(buf,0,n);}}
@@ -37,6 +38,11 @@ public class IsolatedDocumentParser {
             try{cleanupFiles(process,dir);}catch(IOException e){if(failure!=null)failure.addSuppressed(e);else throw e;}
             finally{if(acquired)permits.release();}
         }
+    }
+    /** 可用堆包含未提交部分；仅已用堆超过最大堆90%时暂停，避免把可扩堆误判为不足。 */
+    static boolean memoryBackpressured(long maximum,long committed,long free) {
+        long used=committed-free;
+        return (maximum-used)/(double)Math.max(1,maximum)<0.1;
     }
     /** 仅控制本次Process的子树；在结束前暂存中断标记，有限等待后再释放许可及文件。 */
     private static boolean terminateProcessTree(Process process) {

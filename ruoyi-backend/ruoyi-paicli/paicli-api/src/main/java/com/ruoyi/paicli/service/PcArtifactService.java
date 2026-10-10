@@ -43,14 +43,15 @@ public class PcArtifactService {
         if(publicRoot.getFileName()==null)throw new IllegalStateException("profile不能配置为文件系统根");
         return publicRoot.resolveSibling(publicRoot.getFileName()+".paicli-private").resolve("artifacts");
     }
+    public Map<String,Object> upload(long user,String key,long directory,String purpose,String name,String mime,byte[] bytes){return upload(user,key,Long.valueOf(directory),purpose,name,mime,bytes);}
     @Transactional("paicliTransactionManager")
-    public Map<String,Object> upload(long user, String key, long workspace, String purpose, String name, String mime, byte[] bytes) {
-        access.workspace(workspace, user, false);
-        if (!Set.of("TURN_IMAGE", "LEGACY_IMPORT", "EVALUATION_REPORT", "PAI_SOURCE").contains(purpose)) throw PcException.invalid("附件用途不受支持");
+    public Map<String,Object> upload(long user, String key, Long workspace, String purpose, String name, String mime, byte[] bytes) {
+        if(workspace!=null)access.directory(workspace, user, false);
+        if (!Set.of("TURN_IMAGE", "LEGACY_IMPORT", "EVALUATION_REPORT", "PAI_SOURCE", "USER_FILE").contains(purpose)) throw PcException.invalid("附件用途不受支持");
         String fileName = safeName(name);
         if (bytes == null || bytes.length == 0 || bytes.length > (purpose.equals("TURN_IMAGE") ? MAX_API_IMAGE_BYTES : MAX_DATA_BYTES)) throw new PcException(413,"PC_ARTIFACT_SIZE","附件超出该用途的容量上限");
         String originalHash = digest(bytes);
-        return idem.run("user:" + user + ":artifact", key, Map.of("workspaceId",workspace,"purpose",purpose,"fileName",fileName,"hash",originalHash), () -> {
+        return idem.run("user:" + user + ":artifact", key, Map.of("directoryContextId",workspace==null?"":workspace,"purpose",purpose,"fileName",fileName,"hash",originalHash), () -> {
             byte[] data = bytes; String contentType = "application/octet-stream"; Map<String,Object> details = new LinkedHashMap<>();
             if (purpose.equals("TURN_IMAGE")) {
                 ImageBytes image = normalizeImage(bytes,mime); data = image.bytes(); contentType = image.mimeType(); details.put("width",image.width()); details.put("height",image.height());
@@ -66,6 +67,56 @@ public class PcArtifactService {
     public ArtifactContent content(long user, long id) {
         PcRecord artifact = access.resource(PcTable.ARTIFACT,id,user,true,false);
         return verified(artifact);
+    }
+    /** 只解析实际保存且哈希复核的UTF-8正文；二进制格式不能以文件名假装已经读入。 */
+    public Map<String,Object> userFile(long user,long id){
+        PcRecord row=access.resource(PcTable.ARTIFACT,id,user,true,false);if(!"USER_FILE".equals(row.getKind()))throw PcException.deny("引用不是用户资料文件");
+        ArtifactContent content=verified(row);if(content.size()>1024*1024)throw new PcException(413,"PC_FILE_ANALYSIS_SIZE","单个资料正文分析上限1MiB，原文件仍可下载");
+        try{byte[] bytes=Files.readAllBytes(content.file());String text=java.nio.charset.StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes)).toString();if(text.chars().anyMatch(PcArtifactService::isUserFileControl))throw new IOException("binary");return Map.of("artifactId",String.valueOf(id),"fileName",content.fileName(),"sha256",content.sha256(),"size",content.size(),"content",text);}catch(IOException e){throw new PcException(422,"PC_FILE_ANALYSIS_UNSUPPORTED","本期支持UTF-8文本正文分析；该格式仅支持保存与下载");}
+    }
+    /** 本人上传资料的只读预览；完整编码校验有界流式执行，不使用模型或放宽分析容量。 */
+    public Map<String,Object> userFilePreviewText(long user,long id,long offset,int limit){
+        PcRecord row=access.resource(PcTable.ARTIFACT,id,user,true,false);
+        if(!Objects.equals(row.getOwnerId(),user)||!"USER_FILE".equals(row.getKind()))throw PcException.deny("预览不是本人的用户资料文件");
+        if(offset<0||limit<4||limit>1024*1024)throw PcException.invalid("资料字节游标或分段上限非法");
+        ArtifactContent artifact=verified(row);
+        if(offset>artifact.size())throw PcException.invalid("资料字节游标超过完整产物");
+        validateUserFileUtf8(artifact);
+        Map<String,Object> page=textPage(artifact,offset,limit);
+        // 分页后再复核不可变产物，拒绝校验和读取之间变化的正文。
+        verified(row);
+        Map<String,Object> result=new LinkedHashMap<>(page);
+        result.put("artifactId",String.valueOf(id));result.put("fileName",artifact.fileName());result.put("purpose","USER_FILE");
+        return result;
+    }
+    private static boolean isUserFileControl(int value){return value<32&&value!='\n'&&value!='\r'&&value!='\t';}
+    private static void validateUserFileUtf8(ArtifactContent artifact){
+        var decoder=java.nio.charset.StandardCharsets.UTF_8.newDecoder()
+            .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT);
+        try{
+            MessageDigest digest=MessageDigest.getInstance("SHA-256");
+            try(InputStream input=new java.security.DigestInputStream(Files.newInputStream(artifact.file(),LinkOption.NOFOLLOW_LINKS),digest);
+                    Reader reader=new InputStreamReader(input,decoder)){
+                char[] buffer=new char[8192];
+                for(int count;(count=reader.read(buffer))!=-1;)for(int i=0;i<count;i++)if(isUserFileControl(buffer[i]))throw unsupportedUserFilePreview();
+            }
+            if(Files.size(artifact.file())!=artifact.size()||!HexFormat.of().formatHex(digest.digest()).equals(artifact.sha256()))throw PcException.conflict("资料预览期间正文已改变");
+        }catch(java.nio.charset.CharacterCodingException invalid){throw unsupportedUserFilePreview();}
+        catch(IOException|java.security.NoSuchAlgorithmException failure){throw unavailable();}
+    }
+    private static PcException unsupportedUserFilePreview(){return new PcException(422,"PC_FILE_ANALYSIS_UNSUPPORTED","本期支持合规UTF-8文本预览；该资料仅支持保存与下载");}
+    /** 网页原CLI只发布两种固定文本导出；目录与会话由中心确定，不接收文件路径。 */
+    @Transactional("paicliTransactionManager")
+    public Map<String,Object> publishSessionExport(long user,String key,long session,String name,String mime,byte[] bytes){
+        PcRecord bound=access.resource(PcTable.SESSION,session,user,true,false);
+        String fileName=safeName(name);boolean json=fileName.endsWith(".json"),markdown=fileName.endsWith(".md");
+        if(!fileName.matches("session-[A-Za-z0-9_-]{1,180}\\.(md|json)")||!(json&&"application/json".equals(mime)||markdown&&Set.of("text/markdown","text/plain").contains(mime)))throw PcException.invalid("终端仅发布session-前缀的Markdown/JSON导出");
+        if(bytes==null||bytes.length<1||bytes.length>16*1024*1024)throw new PcException(413,"PC_EXPORT_SIZE","单个终端导出限16MiB");
+        validateSourceUtf8(bytes);String hash=digest(bytes);
+        return idem.run("user:"+user+":terminal-export:"+session,key,Map.of("name",fileName,"sha256",hash),()->{
+            PcRecord record=persist(bound.getDirectoryContextId(),user,session,null,"SESSION_EXPORT",fileName,json?"application/json":"text/markdown; charset=utf-8",bytes,Map.of("source","WEB_TERMINAL","encoding","UTF-8"));
+            evidence.audit(bound.getDirectoryContextId(),user,null,session,"TERMINAL_EXPORT","ACCEPTED",Map.of("artifactId",String.valueOf(record.getId()),"sha256",hash));return view(record);
+        });
     }
     /** 用户凭证读取完整输出的有界字节分页，单行JSON也不会因行长而无法查看。 */
     public Map<String,Object> outputText(long user,long id,long session,long offset,int limit) {
@@ -84,6 +135,11 @@ public class PcArtifactService {
     private Map<String,Object> outputText(PcRecord row,long offset,int limit) {
         if(offset<0||limit<4||limit>1024*1024)throw PcException.invalid("输出字节游标或分段上限非法");
         ArtifactContent artifact=verified(row);
+        Map<String,Object> result=new LinkedHashMap<>(textPage(artifact,offset,limit));
+        result.put("artifactId",String.valueOf(row.getId()));result.put("sessionId",String.valueOf(row.getSessionId()));
+        return result;
+    }
+    private static Map<String,Object> textPage(ArtifactContent artifact,long offset,int limit){
         if(offset>artifact.size())throw PcException.invalid("输出字节游标超过完整产物");
         int count=(int)Math.min(limit,artifact.size()-offset);
         try(var channel=Files.newByteChannel(artifact.file(),StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)){
@@ -98,19 +154,19 @@ public class PcArtifactService {
             long next=offset+bytes.position();
             if(next==offset&&offset<artifact.size())throw PcException.conflict("输出分段未推进");
             chars.flip();
-            return Map.of("artifactId",String.valueOf(row.getId()),"sessionId",String.valueOf(row.getSessionId()),"sha256",artifact.sha256(),"size",artifact.size(),"offset",offset,"nextOffset",next,"hasMore",next<artifact.size(),"text",chars.toString());
+            return Map.of("sha256",artifact.sha256(),"size",artifact.size(),"offset",offset,"nextOffset",next,"hasMore",next<artifact.size(),"text",chars.toString());
         }catch(IOException failure){throw unavailable();}
     }
-    /** 已验证租约的上下文服务只能读取同工作区、同任务用户的图片。 */
+    /** 已验证租约的上下文服务只能读取同目录、同任务用户的图片。 */
     public Map<String,Object> runnerImage(long id,long workspace,long owner) {
         PcRecord row = store.require(PcTable.ARTIFACT,id,false);
-        if (!Objects.equals(row.getWorkspaceId(),workspace) || !Objects.equals(row.getOwnerId(),owner) || !Set.of("TURN_IMAGE","LEDGER_IMAGE").contains(row.getKind())) throw PcException.deny("图片不属于当前任务用户和工作区");
+        if (!Objects.equals(row.getOwnerId(),owner) || !Set.of("TURN_IMAGE","LEDGER_IMAGE").contains(row.getKind())) throw PcException.deny("图片不属于当前任务用户和目录");
         ArtifactContent data = verified(row);
         try { return Map.of("name",data.fileName(),"mimeType",data.mimeType(),"base64Data",Base64.getEncoder().encodeToString(Files.readAllBytes(data.file())),"artifactId",String.valueOf(id)); }
         catch(IOException failure) { throw unavailable(); }
     }
     /** 正式账本存artifact引用，避免每个消息和事件重复保留图片base64。调用方须有事务。 */
-    public Map<String,Object> storeLedgerImages(Map<String,Object> payload,long workspace,long owner,Long session,Long task) {
+    public Map<String,Object> storeLedgerImages(Map<String,Object> payload,Long workspace,long owner,Long session,Long task) {
         @SuppressWarnings("unchecked") Map<String,Object> copied=(Map<String,Object>) rewrite(payload,workspace,owner,session,task,0);
         return copied;
     }
@@ -153,7 +209,7 @@ public class PcArtifactService {
                 protectNewNode(temp,false);byte[] buffer=new byte[64*1024];int index=0;
                 for(Object partId:(List<?>)d.get("chunks")){
                     PcRecord part=store.require(PcTable.ARTIFACT,Long.parseLong(String.valueOf(partId)),false);Map<String,Object> pd=store.data(part);
-                    if(!"OUTPUT_CHUNK".equals(part.getKind())||!Objects.equals(part.getParentId(),task)||!Objects.equals(part.getWorkspaceId(),workspace)||!Objects.equals(part.getOwnerId(),owner)||!Objects.equals(part.getSessionId(),session)||PcJson.number(pd,"uploadId")!=id||PcJson.number(pd,"index")!=index++)throw PcException.deny("分块不属于冻结上传");
+                    if(!"OUTPUT_CHUNK".equals(part.getKind())||!Objects.equals(part.getParentId(),task)||!Objects.equals(part.getDirectoryContextId(),workspace)||!Objects.equals(part.getOwnerId(),owner)||!Objects.equals(part.getSessionId(),session)||PcJson.number(pd,"uploadId")!=id||PcJson.number(pd,"index")!=index++)throw PcException.deny("分块不属于冻结上传");
                     ArtifactContent value=verified(part);MessageDigest piece=MessageDigest.getInstance("SHA-256");long count=0;
                     try(InputStream in=Files.newInputStream(value.file(),StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)){
                         for(int n;(n=in.read(buffer))!=-1;){count+=n;total+=n;if(count>value.size()||total>expectedSize)throw PcException.conflict("分块读取期间容量变化");piece.update(buffer,0,n);all.update(buffer,0,n);ByteBuffer data=ByteBuffer.wrap(buffer,0,n);while(data.hasRemaining())out.write(data);}
@@ -170,12 +226,12 @@ public class PcArtifactService {
         finally{if(temp!=null)try{Files.deleteIfExists(temp);}catch(IOException ignored){}}
     }
     private void outputUpload(PcRecord row,long workspace,long owner,long session,long task,String call,long lease,long fence){
-        if(!"TOOL_OUTPUT".equals(row.getKind())||!Set.of("UPLOADING","ACTIVE").contains(row.getState())||!Objects.equals(row.getWorkspaceId(),workspace)||!Objects.equals(row.getOwnerId(),owner)||!Objects.equals(row.getSessionId(),session)||!Objects.equals(row.getParentId(),task)||row.getExpiresAt()==null||!row.getExpiresAt().isAfter(store.clock.instant()))throw PcException.deny("输出上传不属于当前执行或已过期");
+        if(!"TOOL_OUTPUT".equals(row.getKind())||!Set.of("UPLOADING","ACTIVE").contains(row.getState())||!Objects.equals(row.getDirectoryContextId(),workspace)||!Objects.equals(row.getOwnerId(),owner)||!Objects.equals(row.getSessionId(),session)||!Objects.equals(row.getParentId(),task)||row.getExpiresAt()==null||!row.getExpiresAt().isAfter(store.clock.instant()))throw PcException.deny("输出上传不属于当前执行或已过期");
         Map<String,Object> d=store.data(row);if(!call.equals(d.get("toolCallId"))||PcJson.number(d,"leaseId")!=lease||PcJson.number(d,"fencingToken")!=fence)throw PcException.conflict("输出上传执行绑定改变");
     }
     private Map<String,Object> outputUploadView(PcRecord row){Map<String,Object> d=view(row);d.remove("chunks");d.put("uploadId",String.valueOf(row.getId()));if("ACTIVE".equals(row.getState()))d.put("artifactId",String.valueOf(row.getId()));return d;}
     private long retentionDays(long workspace){
-        Map<String,Object> wd=store.data(store.require(PcTable.WORKSPACE,workspace,false));Map<String,Object> policy=wd.get("policy") instanceof Map<?,?>?PcJson.object(wd,"policy"):wd;PcRecord current=store.mapper.findKey(PcTable.POLICY_VERSION,"workspace:"+workspace,false);if(current!=null)policy=store.data(current);
+        Map<String,Object> wd=store.data(store.require(PcTable.DIRECTORY_CONTEXT,workspace,false));Map<String,Object> policy=wd.get("policy") instanceof Map<?,?>?PcJson.object(wd,"policy"):wd;PcRecord current=store.policy(workspace,false);if(current!=null)policy=store.data(current);
         Object configured=policy.getOrDefault("retentionDays",90);long days=configured instanceof Number number?number.longValue():Long.parseLong(String.valueOf(configured));if(days<1||days>3650)throw PcException.invalid("产物保留时间应为1至3650天");return days;
     }
     private static long validatedTextLines(Path file)throws IOException{
@@ -189,7 +245,7 @@ public class PcArtifactService {
             char[] buffer=new char[8192];while(reader.read(buffer)!=-1){ /* 完整严格核验，不构造第二份原文字符串。 */ }
         }catch(IOException invalid){throw PcException.invalid("项目规则原文须为完整有效的UTF-8文本");}
     }
-    /** 只返回同会话、同工作区及当前任务用户的不可变产物元数据。 */
+    /** 只返回同会话、同目录及当前任务用户的不可变产物元数据。 */
     public Map<String,Object> runnerOutputMetadata(long id,long workspace,long owner,long session) {
         PcRecord row=runnerOutput(id,workspace,owner,session);verified(row);return view(row);
     }
@@ -218,7 +274,7 @@ public class PcArtifactService {
     private static PcException outputRange(){return new PcException(413,"PC_OUTPUT_RANGE_TOO_LARGE","当前行内容超过2MB，请缩小分段范围或下载完整产物");}
     private PcRecord runnerOutput(long id,long workspace,long owner,long session) {
         PcRecord row=store.require(PcTable.ARTIFACT,id,false);
-        if(!Objects.equals(row.getWorkspaceId(),workspace)||!Objects.equals(row.getOwnerId(),owner)||!Objects.equals(row.getSessionId(),session)||!"TOOL_OUTPUT".equals(row.getKind()))throw PcException.deny("工具产物不属于当前任务用户、工作区和会话");
+        if(!Objects.equals(row.getDirectoryContextId(),workspace)||!Objects.equals(row.getOwnerId(),owner)||!Objects.equals(row.getSessionId(),session)||!"TOOL_OUTPUT".equals(row.getKind()))throw PcException.deny("工具产物不属于当前任务用户、目录和会话");
         return row;
     }
     /** 仅为已校验的Runner任务构造内存传输视图，正式记录仍保持artifact引用。 */
@@ -239,7 +295,7 @@ public class PcArtifactService {
         if(value instanceof List<?> list){List<Object> result=new ArrayList<>();for(Object item:list)result.add(hydrate(item,workspace,owner,depth+1));return result;}
         return value;
     }
-    private Object rewrite(Object value,long workspace,long owner,Long session,Long task,int depth) {
+    private Object rewrite(Object value,Long workspace,long owner,Long session,Long task,int depth) {
         if(depth>32)throw PcException.invalid("图片账本嵌套超过上限");
         if(value instanceof Map<?,?> map){
             if(map.get("imageBase64") instanceof String encoded && !encoded.isBlank()){
@@ -255,7 +311,7 @@ public class PcArtifactService {
         if(value instanceof List<?> list){if(list.size()>10000)throw PcException.invalid("账本列表超过上限");List<Object> result=new ArrayList<>();for(Object item:list)result.add(rewrite(item,workspace,owner,session,task,depth+1));return result;}
         return value;
     }
-    private PcRecord persist(long workspace,long owner,Long session,Long task,String purpose,String name,String mime,byte[] bytes,Map<String,Object> extra) {
+    private PcRecord persist(Long workspace,long owner,Long session,Long task,String purpose,String name,String mime,byte[] bytes,Map<String,Object> extra) {
         if(bytes.length>MAX_DATA_BYTES)throw new PcException(413,"PC_ARTIFACT_SIZE","附件超出50MB");
         Path file=null;
         try {
@@ -268,9 +324,9 @@ public class PcArtifactService {
             if(TransactionSynchronizationManager.isSynchronizationActive())TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){@Override public void afterCompletion(int status){if(status!=STATUS_COMMITTED)try{Files.deleteIfExists(created);}catch(IOException ignored){}}});
             Map<String,Object> data=new LinkedHashMap<>(extra);data.put("storageKey",key);data.put("fileName",name);data.put("mimeType",mime);data.put("size",bytes.length);data.put("sha256",digest(bytes));data.put("purpose",purpose);
             PcRecord record=store.insert(PcTable.ARTIFACT,workspace,owner,task,session,null,purpose,"ACTIVE",null,data);
-            Map<String,Object> workspaceData=store.data(store.require(PcTable.WORKSPACE,workspace,false));
+            Map<String,Object> workspaceData=workspace==null?Map.of():store.data(store.require(PcTable.DIRECTORY_CONTEXT,workspace,false));
             Map<String,Object> policy=workspaceData.get("policy") instanceof Map<?,?>?PcJson.object(workspaceData,"policy"):workspaceData;
-            PcRecord currentPolicy=store.mapper.findKey(PcTable.POLICY_VERSION,"workspace:"+workspace,false);if(currentPolicy!=null)policy=store.data(currentPolicy);
+            PcRecord currentPolicy=workspace==null?store.mapper.findKey(PcTable.POLICY_VERSION,"owner:"+owner,false):store.policy(workspace,false);if(currentPolicy!=null)policy=store.data(currentPolicy);
             Object configured=policy.getOrDefault("retentionDays",90);long days=configured instanceof Number number?number.longValue():Long.parseLong(String.valueOf(configured));
             if(days<1||days>3650)throw PcException.invalid("产物保留时间应为1至3650天");
             record.setExpiresAt(store.clock.instant().plusSeconds(86400L*days));store.save(PcTable.ARTIFACT,record,data);return record;
@@ -288,7 +344,7 @@ public class PcArtifactService {
             return new ArtifactContent(file,safeName(PcJson.text(data,"fileName")),PcJson.text(data,"mimeType"),hash,size);
         }catch(IOException|java.security.NoSuchAlgorithmException failure){throw unavailable();}
     }
-    public Map<String,Object> view(PcRecord row){Map<String,Object> result=store.view(row);result.remove("storageKey");result.put("contentType",result.get("mimeType"));return result;}
+    public Map<String,Object> view(PcRecord row){Map<String,Object> result=store.view(row);result.remove("storageKey");result.put("contentType",result.get("mimeType"));if("USER_FILE".equals(row.getKind())){try{userFile(row.getOwnerId(),row.getId());result.put("supportedAnalysis",true);}catch(PcException e){result.put("supportedAnalysis",false);result.put("analysisReason",e.getMessage());}}return result;}
     /** 新节点在写入正文前获得真实私有权限；既有目录权限改变时拒绝，不静默修复。 */
     private Path privateStorage(boolean create)throws IOException {
         Deque<Path> missing=new ArrayDeque<>();Path existing=storageRoot;

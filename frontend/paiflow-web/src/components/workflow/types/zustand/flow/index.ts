@@ -7,6 +7,15 @@ import {
   ReactFlowInstance,
   Viewport,
 } from 'reactflow';
+import type { StoreApi } from 'zustand';
+
+export interface FlowSnapshot {
+  nodes: Node[];
+  edges: Edge[];
+}
+export type FlowChange<T> = T | ((previous: T) => T);
+export type GetFlowState = StoreApi<FlowStoreType>['getState'];
+export type SetFlowState = StoreApi<FlowStoreType>['setState'];
 
 export type FlowState = {
   template?: string;
@@ -56,9 +65,9 @@ export type FlowStoreType = {
   reNameNode: (id: string, value: string) => void;
   copyNode: (id: string) => void;
   takeSnapshot: (flag?: boolean) => void;
-  historys: History[];
+  historys: FlowSnapshot[];
   setHistorys: (
-    update: History[] | ((oldState: History[]) => History[])
+    update: FlowChange<FlowSnapshot[]>
   ) => void;
   undo: () => void;
 };

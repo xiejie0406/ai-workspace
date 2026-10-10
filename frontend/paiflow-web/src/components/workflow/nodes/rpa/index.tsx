@@ -2,9 +2,9 @@ import { memo } from 'react';
 import FixedOutputs from '../components/fixed-outputs';
 import ExceptionHandling from '../components/exception-handling';
 import SingleInput from '../components/single-input';
-import { NodeCommonProps } from '../../types';
+import type { InputsProps } from '../../types';
 
-export const RpaDetail = memo((props: NodeCommonProps) => {
+export const RpaDetail = memo((props: Pick<InputsProps, 'id' | 'data'>) => {
   const { id, data } = props;
 
   return (

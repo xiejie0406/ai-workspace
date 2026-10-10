@@ -1,0 +1,110 @@
+- link "AI 面试教练管理后台":
+  - /url: /
+  - heading "AI 面试教练管理后台" [level=1]
+- menubar:
+  - link "首页":
+    - /url: /index
+    - menuitem "首页":
+      - generic: 首页
+  - menuitem "AI 面试管理":
+    - generic "AI 面试管理"
+  - menuitem "系统管理":
+    - generic: 系统管理
+  - menuitem "系统监控":
+    - generic: 系统监控
+  - menuitem "系统工具":
+    - generic: 系统工具
+  - link "若依官网":
+    - /url: http://ruoyi.vip
+    - menuitem "若依官网":
+      - generic: 若依官网
+  - menuitem "生产排产系统":
+    - generic "生产排产系统"
+  - menuitem "PaiCLI智能编码" [expanded]:
+    - generic "PaiCLI智能编码"
+    - menu:
+      - link "智能编码":
+        - /url: /paicli/workbench
+        - menuitem "智能编码":
+          - generic: 智能编码
+      - link "我的文件":
+        - /url: /paicli/knowledge
+        - menuitem "我的文件":
+          - generic: 我的文件
+      - link "模型与设置":
+        - /url: /paicli/connections
+        - menuitem "模型与设置":
+          - generic: 模型与设置
+  - menuitem "AI 基础设施":
+    - generic "AI 基础设施"
+  - menuitem "智能选品":
+    - generic: 智能选品
+  - menuitem "AI 图片编辑":
+    - generic "AI 图片编辑"
+  - menuitem "AI 演示文稿":
+    - generic "AI 演示文稿"
+  - menuitem "PaiSmart 知识库":
+    - generic "PaiSmart 知识库"
+- navigation "面包屑":
+  - link "首页"
+  - text: /
+  - link "PaiCLI智能编码"
+  - text: /
+  - link "模型与设置"
+- button:
+- generic: "3"
+- button "若依":
+  - text: 若依
+- link "首页":
+  - /url: /index
+- link "模型与设置":
+  - /url: /paicli/connections
+  - text: 模型与设置
+- button:
+- generic "刷新页面":
+  - text: 刷新
+- main:
+  - heading "模型与设置" [level=1]
+  - paragraph: 选择模型和个人偏好。扩展能力按需配置，编码入口无需登记目录或成员。
+  - button "刷新配置":
+    - generic: 刷新配置
+  - button "收起高级能力":
+    - generic: 收起高级能力
+  - heading "默认模型" [level=2]
+  - combobox "选择个人默认模型"
+  - generic: 请选择
+  - button "设为我的默认模型" [disabled]:
+    - generic: 设为我的默认模型
+  - paragraph: 内置模型由管理员发布；个人模型和偏好只影响本人，新对话使用默认模型。
+  - region "代码检索能力":
+    - heading "代码检索" [level=2]
+    - status: 语义检索尚未准备
+    - paragraph: 语义检索帮助定位相关代码；精确文件搜索仍可使用。
+    - generic: 使用方式
+    - combobox "代码检索使用方式"
+    - generic: 自动选择（个人优先）
+    - paragraph: 个人配置优先；没有个人选择时使用受众内的平台默认。个人配置失败会保留失败状态。
+    - button "保存使用方式":
+      - generic: 保存使用方式
+    - heading "验证与发布" [level=3]
+    - paragraph: 仅验证已保存的个人向量配置；修改型号、地址或维度后需要重新验证和建立索引。
+    - button "验证个人向量能力" [disabled]:
+      - generic: 验证个人向量能力
+    - button "发布内置向量能力" [disabled]:
+      - generic: 发布内置向量能力
+    - heading "本人已发布的向量能力" [level=4]
+    - paragraph: 暂无发布记录。
+  - tablist:
+    - tab "高级检索配置"
+    - tab "供应商与模型"
+    - tab "MCP 服务 / 资源 / 提示词"
+    - tab "浏览器与 CDP"
+    - tab "Skills"
+    - tab "微信 iLink 文本" [active] [selected]
+    - tab "预算、策略与保留"
+  - tabpanel "微信 iLink 文本":
+    - alert:
+      - generic: 微信仅提供文本通道。必须绑定若依用户与唯一当前目录；没有审批面板的未知写入默认拒绝，二维码登录不等于已有任务授权。
+    - button "申请登录二维码" [disabled]:
+      - generic: 申请登录二维码
+    - paragraph: start/status/pause/resume/stop/restart 只管理当前文本通道，控制命令与消息预算由中心裁决。

@@ -10,10 +10,10 @@ from pydantic_settings import (
 )
 
 # Use unified common package import module
-from common_imports import ConfigFilter, DevelopmentEnv, Polaris, ProductionEnv
-from infra.config.fast_uvi import UvicornConfig
-from infra.config.middleware import MiddlewareConfig
-from infra.config.xc_utils import XChenUtilsConfig
+from agent.common_imports import ConfigFilter, DevelopmentEnv, Polaris, ProductionEnv
+from agent.infra.config.fast_uvi import UvicornConfig
+from agent.infra.config.middleware import MiddlewareConfig
+from agent.infra.config.xc_utils import XChenUtilsConfig
 
 
 class PolarisSettingsSourceFactory(PydanticBaseSettingsSource):

@@ -1,0 +1,98 @@
+{
+  "checkedAt": "2026-10-04T22:26:30.6674111+08:00",
+  "stage": "第一阶段：模型与密钥逻辑核对",
+  "result": "当前静态逻辑与运行制品核对未发现阻断问题，真实模型兼容待执行",
+  "reviewBoundary": "只读代码、非秘密配置、既有制品记录、文件哈希及本机进程身份；未调用模型/API，未读取完整真实密钥，未写业务库或操作服务",
+  "reviewerImplementedReasoningChanges": true,
+  "independenceLimit": "本执行者此前实现ProviderService和Sub2ApiTextAdapter的reasoning局部改动，对这两处本次是执行者回读；不能替代全范围独立复核",
+  "targets": [
+    {
+      "protocol": "responses",
+      "scope": "LLM",
+      "reasoningEffort": "low",
+      "capabilityCode": "llm",
+      "model": "gpt-6.1-sol",
+      "providerCode": "sub2api",
+      "secretRef": "ai.paismart.sub2api.llm",
+      "authMode": "bearer",
+      "endpoint": "http://39.102.215.183:8080/v1"
+    },
+    {
+      "providerCode": "aliyun",
+      "capabilityCode": "embedding",
+      "authMode": "bearer",
+      "model": "text-embedding-v4",
+      "dimension": 1024,
+      "secretRef": "ai.paismart.aliyun.embedding",
+      "endpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "scope": "EMBEDDING"
+    }
+  ],
+  "checks": [
+    {
+      "name": "固定用途注册",
+      "source": "scripts/paismart/java/PaismartLocalSecrets.java:18-53",
+      "fact": "注册器只登记固定PaiSmart用途，复用平台ManagedSecretService加密及审计；已有元数据或值不同拒绝自动改写/轮换"
+    },
+    {
+      "name": "Provider保存与激活",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java:61-95",
+      "fact": "初次Sub2API候选未启用/未激活；只读兼容资料不能由客户端写入；激活需启用、三项PASSED、配置及托管密钥版本指纹一致"
+    },
+    {
+      "name": "正式文字冻结",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java:29-56",
+      "fact": "冻结配置、Provider版本、密钥activeVersion/rowVersion及元数据；正式调用重新核对兼容门禁，密钥或Provider变化拒绝旧任务"
+    },
+    {
+      "name": "三步真实兼容验证",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java:118-180",
+      "fact": "非流式短文字、流式固定函数规划、合成函数结果回灌三步各最多128输出Token，调用账本需三项完整结算；保存验证证据不提升Provider版本；只可由授权接口触发"
+    },
+    {
+      "name": "Responses协议与工具",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/Sub2ApiTextAdapter.java:20-40;Sub2ApiResponsesCodec.java:15-145",
+      "fact": "映射low，输出预算不扩大，store=false，include推理加密资料；校验completed、工具schema/call_id、SSE关联、增量及终态，保留工具回灌资料"
+    },
+    {
+      "name": "超时未知与重放",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelGateway.java:129-156;ModelCallService.java:26-31;ControlledHttp.java:33-75",
+      "fact": "非流式90秒、流式120秒；账本STARTED/UNCERTAIN拒绝自动重送，已完成只重放；可确认的供应商用量按实际结算，未知保留待核对；旧未知验证不可绕过激活"
+    },
+    {
+      "name": "向量调用",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelGateway.java:20-39",
+      "fact": "原embed路径POST /embeddings，Bearer托管引用，按索引排序，核对数量、有限值和配置1024维；实际供应商默认维度仍以此次返回核对"
+    },
+    {
+      "name": "Controller授权",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java:42-60",
+      "fact": "原若依provider:list/edit/test权限；收费测试要求Idempotency-Key，日志禁存请求与响应；调用核账另要求管理员与运维执行权限"
+    }
+  ],
+  "runtimeArtifact": {
+    "processExists": true,
+    "matchesPackageVerification": true,
+    "embeddedModuleSHA256": "af3cf4fa2dc214d236fcf991dfcddd8527a9ac93122e3722d4c0ed17e6daacf5",
+    "commandContainsFixedArtifact": true,
+    "currentPaismartMainSourceMatchesBuildSnapshot": true,
+    "sha256": "af453a0f1f50f2f14ea0a1e50cb3b176f30849aa3a5972ebbb4036e2a458ee33",
+    "processId": 36252,
+    "path": ".runtime/paismart/ruoyi-admin-startupfix.jar",
+    "matchesMavenModule": true,
+    "sourceMismatches": [],
+    "matchesProcessManifest": true
+  },
+  "blockers": [],
+  "pendingFacts": [
+    "gpt-6.1-sol真实非流式、流式、工具协议能力尚待本轮原项目API验证；旧gpt-6-sol成功不沿用为通过",
+    "本轮尚未核对真实两条托管用途、Provider保存/启用/激活及额度50k/10k业务结果",
+    "若发生超时或UNKNOWN，先在原调用账本核对，禁止另起自动收费重试",
+    "实际上传、解析、向量化、正式索引和问答属于后续阶段，本记录不证明业务通过"
+  ],
+  "realModelCalls": 0,
+  "realApiCalls": 0,
+  "businessDatabaseWrites": 0,
+  "serviceOperations": 0,
+  "fullRealKeysRead": false
+}

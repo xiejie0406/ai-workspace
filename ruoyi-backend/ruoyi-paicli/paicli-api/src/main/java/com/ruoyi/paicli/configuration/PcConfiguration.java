@@ -26,13 +26,14 @@ public class PcConfiguration {
     @Bean public PcStore pcStore(PcLedgerMapper mapper,PcJson json){return new PcStore(mapper,json,Clock.systemUTC());}
     @Bean public PcCrypto pcCrypto(ManagedSecretService secrets,PcJson json){return new PcCrypto(secrets,json);}
     @Bean public PcAccess pcAccess(PcStore store){return new PcAccess(store);}
+    @Bean public PcPersonalService pcPersonalService(PcStore s,PcAccess a,PcIdempotency i,PcProperties p,ManagedSecretService secrets,org.springframework.beans.factory.ObjectProvider<PcTerminalService> terminal){PcPersonalService personal=new PcPersonalService(s,a,i,p);personal.setSecrets(secrets);personal.setTerminalStatus(id->{PcTerminalService service=terminal.getIfAvailable();return service==null?java.util.Map.of("ready",false,"code","PC_TERMINAL_DISABLED","message","网页终端功能尚未启用"):service.readiness(id);});return personal;}
     @Bean public PcEvidence pcEvidence(PcStore store,PcProperties p){return new PcEvidence(store,p.getEventRetentionDays());}
     @Bean public PcIdempotency pcIdempotency(PcStore store,PcCrypto crypto){return new PcIdempotency(store,crypto);}
     @Bean public PcWorkspaceService pcWorkspaceService(PcStore s,PcAccess a,PcEvidence e,PcIdempotency i,ISysUserService u,PcConnectionService c){return new PcWorkspaceService(s,a,e,i,u,c);}
-    @Bean public PcDeviceService pcDeviceService(PcStore s,PcAccess a,PcCrypto c,PcIdempotency i,PcEvidence e,PcProperties p,ISysUserService u){return new PcDeviceService(s,a,c,i,e,p,u);}
-    @Bean public PcSessionService pcSessionService(PcStore s,PcAccess a,PcIdempotency i,PcEvidence e,ISysUserService u){return new PcSessionService(s,a,i,e,u);}
+    @Bean public PcDeviceService pcDeviceService(PcStore s,PcAccess a,PcCrypto c,PcIdempotency i,PcEvidence e,PcProperties p,ISysUserService u,PcPersonalService personal){PcDeviceService d=new PcDeviceService(s,a,c,i,e,p,u);d.setPersonal(personal);return d;}
+    @Bean public PcSessionService pcSessionService(PcStore s,PcAccess a,PcIdempotency i,PcEvidence e,ISysUserService u,ManagedSecretService secrets,PcPersonalService personal,PcArtifactService artifacts){PcSessionService sess=new PcSessionService(s,a,i,e,u,secrets);sess.setPersonal(personal);sess.setArtifacts(artifacts);return sess;}
     @Bean public PcPromptService pcPromptService(PcStore s,PcAccess a,PcIdempotency i,PcEvidence e){return new PcPromptService(s,a,i,e);}
-    @Bean public PcRunnerService pcRunnerService(PcStore s,PcAccess a,PcIdempotency i,PcEvidence e,PcProperties p,PcArtifactService artifacts){return new PcRunnerService(s,a,i,e,p,artifacts);}
+    @Bean public PcRunnerService pcRunnerService(PcStore s,PcAccess a,PcIdempotency i,PcEvidence e,PcProperties p,PcArtifactService artifacts,ManagedSecretService secrets){return new PcRunnerService(s,a,i,e,p,artifacts,secrets);}
     @Bean public PcToolService pcToolService(PcStore s,PcAccess a,PcIdempotency i,PcEvidence e,PcCrypto c,PcRunnerService r,PcProperties p,PcArtifactService ar){return new PcToolService(s,a,i,e,c,r,p,ar);}
     @Bean public PcKnowledgeService pcKnowledgeService(PcStore s,PcAccess a,PcIdempotency i,PcEvidence e,PcSessionService sessions){return new PcKnowledgeService(s,a,i,e,sessions);}
     @Bean public PcConnectionService pcConnectionService(PcStore s,PcAccess a,PcIdempotency i,PcEvidence e,ManagedSecretService secrets,PcSessionService sessions,PcProperties p){return new PcConnectionService(s,a,i,e,secrets,sessions,p);}

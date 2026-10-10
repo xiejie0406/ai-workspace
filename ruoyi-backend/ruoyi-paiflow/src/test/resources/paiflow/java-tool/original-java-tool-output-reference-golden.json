@@ -1,0 +1,2127 @@
+{
+  "scope" : "原Java Plugin返回整Map/原VariablePool数组索引；离线Exchange",
+  "assignment" : {
+    "schemaVersion" : "paiflow.worker.v1",
+    "runId" : "java-run",
+    "workflowVersionId" : "java-version",
+    "dslHash" : "e046d111c78fb8a49748cd11c9b4d12998459678ee17fedabcf47b3f2d168989",
+    "dslCanonicalBase64" : "eyJmbG93SWQiOiJvcmlnaW5hbC1qYXZhLWZsb3ciLCJ1dWlkIjoiamF2YS1jaGF0Iiwibm9kZXMiOlt7ImlkIjoibm9kZS1zdGFydDo6MSIsImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6bnVsbCwibmFtZSI6ImgiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6bnVsbH19fSx7ImlkIjpudWxsLCJuYW1lIjoib3B0aW9uYWwiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6bnVsbH19fSx7ImlkIjpudWxsLCJuYW1lIjoiZmxhZyIsInNjaGVtYSI6eyJ0eXBlIjoiYm9vbGVhbiIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6ZmFsc2V9fX0seyJpZCI6bnVsbCwibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwidmFsdWUiOnsidHlwZSI6ImxpdGVyYWwiLCJjb250ZW50IjowfX19LHsiaWQiOm51bGwsIm5hbWUiOiJuZXN0ZWQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6eyJsZWFmIjoi5a6e6ZmF5bWM5aWXIn19fX0seyJpZCI6bnVsbCwibmFtZSI6Im91dGVyIiwic2NoZW1hIjp7InR5cGUiOiJhcnJheSIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6W3siaEJpeiI6IkJGU+esrOS4gOmhuSIsInJvdXRlIjoi5Y6f6YCP5Lyg6Lev5b6EIn0seyJoQml6IjoiQkZT56ys5LqM6aG5In1dfX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJub2RlLXN0YXJ0IiwiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6MSJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJpZCI6ImgiLCJuYW1lIjoiaCIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6Im9wdGlvbmFsIiwibmFtZSI6Im9wdGlvbmFsIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifSwicmVxdWlyZWQiOmZhbHNlfSx7ImlkIjoiZmxhZyIsIm5hbWUiOiJmbGFnIiwic2NoZW1hIjp7InR5cGUiOiJib29sZWFuIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6ImNvdW50IiwibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6Im5lc3RlZCIsIm5hbWUiOiJuZXN0ZWQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCJ9LCJyZXF1aXJlZCI6ZmFsc2V9LHsiaWQiOiJvdXRlciIsIm5hbWUiOiJvdXRlciIsInNjaGVtYSI6eyJ0eXBlIjoiYXJyYXkifSwicmVxdWlyZWQiOmZhbHNlfV0sInJldHJ5Q29uZmlnIjpudWxsfX0seyJpZCI6InBsdWdpbjo6MiIsImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6bnVsbCwibmFtZSI6ImgiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJoIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJvcHRpb25hbCIsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOnsidHlwZSI6InJlZiIsImNvbnRlbnQiOnsibmFtZSI6Im9wdGlvbmFsIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJmbGFnIiwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoiZmxhZyIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OjEifX19fSx7ImlkIjpudWxsLCJuYW1lIjoiY291bnQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJjb3VudCIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OjEifX19fSx7ImlkIjpudWxsLCJuYW1lIjoibmVzdGVkIiwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoibmVzdGVkIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJvdXRlciIsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOnsidHlwZSI6InJlZiIsImNvbnRlbnQiOnsibmFtZSI6Im91dGVyIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJwbHVnaW4iLCJhbGlhc05hbWUiOiJwbHVnaW46OjIifSwibm9kZVBhcmFtIjp7ImJ1c2luZXNzSW5wdXQiOlsiaEJpeiIsInJvdXRlIl0sInRvb2xSZXNvdXJjZUlkIjoidG9vbDoxOnZlcnNpb246MjpvcGVyYXRpb246WldOb2J3IiwicGx1Z2luSWQiOiJvcmlnaW5hbC10b29sIiwib3BlcmF0aW9uSWQiOiJlY2hvIiwiYXBwSWQiOiJvcmlnaW5hbC1hcHAifSwib3V0cHV0cyI6W3sibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwiZGVmYXVsdCI6OX0sInJlcXVpcmVkIjp0cnVlfSx7Im5hbWUiOiJtaXNzaW5nIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJkZWZhdWx0Ijoi5Y6f5aOw5piO6buY6K6kIn0sInJlcXVpcmVkIjp0cnVlfV0sInJldHJ5Q29uZmlnIjpudWxsfX0seyJpZCI6Im5vZGUtZW5kOjozIiwiZGF0YSI6eyJpbnB1dHMiOlt7Im5hbWUiOiJhbnN3ZXIiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJkYXRhWzBdLngiLCJub2RlSWQiOiJwbHVnaW46OjIifX19fSx7Im5hbWUiOiJtaXNzaW5nIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoibWlzc2luZyIsIm5vZGVJZCI6InBsdWdpbjo6MiJ9fX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJub2RlLWVuZCIsImFsaWFzTmFtZSI6Im5vZGUtZW5kOjozIn0sIm5vZGVQYXJhbSI6eyJ0ZW1wbGF0ZSI6Iue7k+aenO+8mnt7YW5zd2VyfX0iLCJvdXRwdXRNb2RlIjoxfSwib3V0cHV0cyI6W10sInJldHJ5Q29uZmlnIjpudWxsfX1dLCJlZGdlcyI6W3sic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6MSIsInRhcmdldE5vZGVJZCI6InBsdWdpbjo6MiIsInNvdXJjZUhhbmRsZSI6bnVsbH0seyJzb3VyY2VOb2RlSWQiOiJwbHVnaW46OjIiLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6MyIsInNvdXJjZUhhbmRsZSI6bnVsbH1dfQ==",
+    "engineProfile" : "java",
+    "input" : {
+      "h" : null,
+      "optional" : null,
+      "flag" : false,
+      "count" : 0,
+      "nested" : {
+        "leaf" : "实际嵌套"
+      },
+      "outer" : [ {
+        "hBiz" : "BFS第一项",
+        "route" : "原透传路径"
+      }, {
+        "hBiz" : "BFS第二项"
+      } ]
+    },
+    "resourceSnapshots" : {
+      "tool:1:version:2:operation:ZWNobw" : {
+        "kind" : "tool",
+        "provider" : "spark-link",
+        "enabled" : true,
+        "effectClass" : "read",
+        "legacyAppId" : "original-app",
+        "openApiSchema" : {
+          "openapi" : "3.0.3",
+          "paths" : {
+            "/echo" : {
+              "post" : {
+                "operationId" : "echo",
+                "parameters" : [ {
+                  "name" : "h",
+                  "in" : "header",
+                  "schema" : {
+                    "type" : "string",
+                    "x-from" : 0,
+                    "default" : "默认头"
+                  }
+                }, {
+                  "name" : "hBiz",
+                  "in" : "header",
+                  "schema" : {
+                    "type" : "string",
+                    "x-from" : 1
+                  }
+                }, {
+                  "name" : "q",
+                  "in" : "query",
+                  "schema" : {
+                    "type" : "string",
+                    "default" : "原查询默认"
+                  }
+                }, {
+                  "name" : "route",
+                  "in" : "path",
+                  "schema" : {
+                    "type" : "string",
+                    "x-from" : 1
+                  }
+                } ],
+                "requestBody" : {
+                  "content" : {
+                    "application/json" : {
+                      "schema" : {
+                        "type" : "object",
+                        "properties" : {
+                          "optional" : {
+                            "type" : "string",
+                            "default" : "空输入默认"
+                          },
+                          "flag" : {
+                            "type" : "boolean",
+                            "default" : true
+                          },
+                          "count" : {
+                            "type" : "integer",
+                            "default" : 8
+                          },
+                          "nested" : {
+                            "type" : "object",
+                            "properties" : {
+                              "leaf" : {
+                                "type" : "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses" : {
+                  "200" : {
+                    "description" : "原工具JSON对象输出",
+                    "content" : {
+                      "application/json" : {
+                        "schema" : {
+                          "type" : "object",
+                          "required" : [ "answer" ],
+                          "properties" : {
+                            "answer" : {
+                              "type" : "string"
+                            },
+                            "count" : {
+                              "anyOf" : [ {
+                                "type" : "integer"
+                              }, {
+                                "type" : "string"
+                              } ]
+                            },
+                            "flag" : {
+                              "type" : "boolean"
+                            },
+                            "extra" : {
+                              "type" : "string"
+                            },
+                            "nullable" : {
+                              "anyOf" : [ {
+                                "type" : "string"
+                              }, {
+                                "type" : "null"
+                              } ]
+                            },
+                            "data" : {
+                              "type" : "array",
+                              "items" : {
+                                "type" : "object",
+                                "properties" : {
+                                  "x" : {
+                                    "type" : "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pluginId" : "original-tool",
+        "operationId" : "echo",
+        "version" : "2",
+        "legacyVersion" : "V1.0"
+      }
+    },
+    "attempt" : 1,
+    "leaseId" : "java-lease",
+    "deadline" : "2026-10-05T00:01:00Z",
+    "effectPolicy" : {
+      "mode" : "read_only",
+      "allowedOperations" : [ "tools.read" ],
+      "approvalRef" : null
+    },
+    "dsl" : {
+      "flowId" : "original-java-flow",
+      "uuid" : "java-chat",
+      "nodes" : [ {
+        "id" : "node-start::1",
+        "data" : {
+          "inputs" : [ {
+            "id" : null,
+            "name" : "h",
+            "schema" : {
+              "type" : "string",
+              "value" : {
+                "type" : "literal",
+                "content" : null
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "optional",
+            "schema" : {
+              "type" : "string",
+              "value" : {
+                "type" : "literal",
+                "content" : null
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "flag",
+            "schema" : {
+              "type" : "boolean",
+              "value" : {
+                "type" : "literal",
+                "content" : false
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "count",
+            "schema" : {
+              "type" : "integer",
+              "value" : {
+                "type" : "literal",
+                "content" : 0
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "nested",
+            "schema" : {
+              "type" : "object",
+              "value" : {
+                "type" : "literal",
+                "content" : {
+                  "leaf" : "实际嵌套"
+                }
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "outer",
+            "schema" : {
+              "type" : "array",
+              "value" : {
+                "type" : "literal",
+                "content" : [ {
+                  "hBiz" : "BFS第一项",
+                  "route" : "原透传路径"
+                }, {
+                  "hBiz" : "BFS第二项"
+                } ]
+              }
+            }
+          } ],
+          "nodeMeta" : {
+            "nodeType" : "node-start",
+            "aliasName" : "node-start::1"
+          },
+          "nodeParam" : { },
+          "outputs" : [ {
+            "id" : "h",
+            "name" : "h",
+            "schema" : {
+              "type" : "string"
+            },
+            "required" : false
+          }, {
+            "id" : "optional",
+            "name" : "optional",
+            "schema" : {
+              "type" : "string"
+            },
+            "required" : false
+          }, {
+            "id" : "flag",
+            "name" : "flag",
+            "schema" : {
+              "type" : "boolean"
+            },
+            "required" : false
+          }, {
+            "id" : "count",
+            "name" : "count",
+            "schema" : {
+              "type" : "integer"
+            },
+            "required" : false
+          }, {
+            "id" : "nested",
+            "name" : "nested",
+            "schema" : {
+              "type" : "object"
+            },
+            "required" : false
+          }, {
+            "id" : "outer",
+            "name" : "outer",
+            "schema" : {
+              "type" : "array"
+            },
+            "required" : false
+          } ],
+          "retryConfig" : null
+        }
+      }, {
+        "id" : "plugin::2",
+        "data" : {
+          "inputs" : [ {
+            "id" : null,
+            "name" : "h",
+            "schema" : {
+              "type" : "object",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "name" : "h",
+                  "nodeId" : "node-start::1"
+                }
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "optional",
+            "schema" : {
+              "type" : "object",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "name" : "optional",
+                  "nodeId" : "node-start::1"
+                }
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "flag",
+            "schema" : {
+              "type" : "object",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "name" : "flag",
+                  "nodeId" : "node-start::1"
+                }
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "count",
+            "schema" : {
+              "type" : "object",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "name" : "count",
+                  "nodeId" : "node-start::1"
+                }
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "nested",
+            "schema" : {
+              "type" : "object",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "name" : "nested",
+                  "nodeId" : "node-start::1"
+                }
+              }
+            }
+          }, {
+            "id" : null,
+            "name" : "outer",
+            "schema" : {
+              "type" : "object",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "name" : "outer",
+                  "nodeId" : "node-start::1"
+                }
+              }
+            }
+          } ],
+          "nodeMeta" : {
+            "nodeType" : "plugin",
+            "aliasName" : "plugin::2"
+          },
+          "nodeParam" : {
+            "businessInput" : [ "hBiz", "route" ],
+            "toolResourceId" : "tool:1:version:2:operation:ZWNobw",
+            "pluginId" : "original-tool",
+            "operationId" : "echo",
+            "appId" : "original-app"
+          },
+          "outputs" : [ {
+            "name" : "count",
+            "schema" : {
+              "type" : "integer",
+              "default" : 9
+            },
+            "required" : true
+          }, {
+            "name" : "missing",
+            "schema" : {
+              "type" : "string",
+              "default" : "原声明默认"
+            },
+            "required" : true
+          } ],
+          "retryConfig" : null
+        }
+      }, {
+        "id" : "node-end::3",
+        "data" : {
+          "inputs" : [ {
+            "name" : "answer",
+            "schema" : {
+              "type" : "string",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "name" : "data[0].x",
+                  "nodeId" : "plugin::2"
+                }
+              }
+            }
+          }, {
+            "name" : "missing",
+            "schema" : {
+              "type" : "string",
+              "value" : {
+                "type" : "ref",
+                "content" : {
+                  "name" : "missing",
+                  "nodeId" : "plugin::2"
+                }
+              }
+            }
+          } ],
+          "nodeMeta" : {
+            "nodeType" : "node-end",
+            "aliasName" : "node-end::3"
+          },
+          "nodeParam" : {
+            "template" : "结果：{{answer}}",
+            "outputMode" : 1
+          },
+          "outputs" : [ ],
+          "retryConfig" : null
+        }
+      } ],
+      "edges" : [ {
+        "sourceNodeId" : "node-start::1",
+        "targetNodeId" : "plugin::2",
+        "sourceHandle" : null
+      }, {
+        "sourceNodeId" : "plugin::2",
+        "targetNodeId" : "node-end::3",
+        "sourceHandle" : null
+      } ]
+    },
+    "lastEventSeq" : 0
+  },
+  "actualRequests" : [ {
+    "path" : "/internal/paiflow/v1/runs/java-run/lease/verify",
+    "body" : {
+      "attempt" : 1,
+      "leaseId" : "java-lease"
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/execution/begin",
+    "body" : {
+      "attempt" : 1,
+      "leaseId" : "java-lease"
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/heartbeat",
+    "body" : {
+      "attempt" : 1,
+      "leaseId" : "java-lease"
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/events",
+    "body" : {
+      "schemaVersion" : "paiflow.events.v1",
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "seq" : 1,
+      "nodeId" : "node-start::1",
+      "eventType" : "node.started",
+      "timestamp" : "2026-10-05T00:00:00Z",
+      "payload" : {
+        "aliasName" : "node-start::1",
+        "nodeId" : "node-start::1"
+      }
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/events",
+    "body" : {
+      "schemaVersion" : "paiflow.events.v1",
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "seq" : 2,
+      "nodeId" : "node-start::1",
+      "eventType" : "node.completed",
+      "timestamp" : "2026-10-05T00:00:00Z",
+      "payload" : {
+        "result" : {
+          "inputs" : {
+            "flag" : false,
+            "h" : null,
+            "count" : 0,
+            "outer" : [ {
+              "hBiz" : "BFS第一项",
+              "route" : "原透传路径"
+            }, {
+              "hBiz" : "BFS第二项"
+            } ],
+            "optional" : null,
+            "nested" : {
+              "leaf" : "实际嵌套"
+            }
+          },
+          "outputs" : { },
+          "errorOutputs" : { },
+          "rawOutput" : "",
+          "nodeAnswerContent" : "",
+          "nodeAnswerReasoningContent" : "",
+          "tokenCost" : {
+            "completion_tokens" : 0,
+            "prompt_tokens" : 0,
+            "total_tokens" : 0
+          },
+          "error" : null,
+          "status" : "SUCCESS"
+        },
+        "nodeId" : "node-start::1"
+      }
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/events",
+    "body" : {
+      "schemaVersion" : "paiflow.events.v1",
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "seq" : 3,
+      "nodeId" : "plugin::2",
+      "eventType" : "node.started",
+      "timestamp" : "2026-10-05T00:00:00Z",
+      "payload" : {
+        "aliasName" : "plugin::2",
+        "nodeId" : "plugin::2"
+      }
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/resources/tool%3A1%3Aversion%3A2%3Aoperation%3AZWNobw",
+    "body" : {
+      "attempt" : 1,
+      "leaseId" : "java-lease"
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/operations",
+    "body" : {
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "nodeId" : "plugin::2",
+      "iterationId" : null,
+      "operation" : "tools.read",
+      "idempotencyKey" : "java-run:1:plugin::2:tools.read:de7d922eb3314cecbf3a80faed1958700dca85c7a5dc4565854e412b774b7337",
+      "parameters" : {
+        "kind" : "tool",
+        "resourceId" : "tool:1:version:2:operation:ZWNobw",
+        "resourceBindings" : { },
+        "provider" : "spark-link",
+        "resourceVersion" : "2",
+        "legacyPayload" : {
+          "payload" : {
+            "message" : {
+              "path" : "eyJyb3V0ZSI6IuWOn+mAj+S8oOi3r+W+hCJ9",
+              "query" : "eyJxIjoi5Y6f5p+l6K+i6buY6K6kIn0=",
+              "header" : "eyJoQml6IjoiQkZT56ys5LiA6aG5In0=",
+              "body" : "eyJmbGFnIjpmYWxzZSwiY291bnQiOjAsIm9wdGlvbmFsIjoi56m66L6T5YWl6buY6K6kIiwibmVzdGVkIjp7ImxlYWYiOiLlrp7pmYXltYzlpZcifX0="
+            }
+          },
+          "parameter" : {
+            "tool_id" : "original-tool",
+            "operation_id" : "echo",
+            "version" : "V1.0"
+          },
+          "header" : {
+            "app_id" : "original-app"
+          }
+        }
+      }
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/events",
+    "body" : {
+      "schemaVersion" : "paiflow.events.v1",
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "seq" : 4,
+      "nodeId" : "plugin::2",
+      "eventType" : "node.completed",
+      "timestamp" : "2026-10-05T00:00:00Z",
+      "payload" : {
+        "result" : {
+          "inputs" : {
+            "flag" : false,
+            "h" : null,
+            "count" : 0,
+            "outer" : [ {
+              "hBiz" : "BFS第一项",
+              "route" : "原透传路径"
+            }, {
+              "hBiz" : "BFS第二项"
+            } ],
+            "optional" : null,
+            "nested" : {
+              "leaf" : "实际嵌套"
+            }
+          },
+          "outputs" : {
+            "answer" : "原Java工具结果",
+            "count" : "原字符串",
+            "extra" : "未声明输出",
+            "nullable" : null,
+            "data" : [ {
+              "x" : "数组索引实际值"
+            } ]
+          },
+          "errorOutputs" : { },
+          "rawOutput" : "",
+          "nodeAnswerContent" : "",
+          "nodeAnswerReasoningContent" : "",
+          "tokenCost" : {
+            "completion_tokens" : 0,
+            "prompt_tokens" : 0,
+            "total_tokens" : 0
+          },
+          "error" : null,
+          "status" : "SUCCESS"
+        },
+        "nodeId" : "plugin::2"
+      }
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/events",
+    "body" : {
+      "schemaVersion" : "paiflow.events.v1",
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "seq" : 5,
+      "nodeId" : "node-end::3",
+      "eventType" : "node.started",
+      "timestamp" : "2026-10-05T00:00:00Z",
+      "payload" : {
+        "aliasName" : "node-end::3",
+        "nodeId" : "node-end::3"
+      }
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/events",
+    "body" : {
+      "schemaVersion" : "paiflow.events.v1",
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "seq" : 6,
+      "nodeId" : "node-end::3",
+      "eventType" : "node.completed",
+      "timestamp" : "2026-10-05T00:00:00Z",
+      "payload" : {
+        "result" : {
+          "inputs" : { },
+          "outputs" : {
+            "answer" : "数组索引实际值",
+            "missing" : null
+          },
+          "errorOutputs" : { },
+          "rawOutput" : "",
+          "nodeAnswerContent" : "结果：数组索引实际值",
+          "nodeAnswerReasoningContent" : "",
+          "tokenCost" : {
+            "completion_tokens" : 0,
+            "prompt_tokens" : 0,
+            "total_tokens" : 0
+          },
+          "error" : null,
+          "status" : "SUCCESS"
+        },
+        "nodeId" : "node-end::3"
+      }
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/events",
+    "body" : {
+      "schemaVersion" : "paiflow.events.v1",
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "seq" : 7,
+      "nodeId" : "node-end::3",
+      "eventType" : "text.delta",
+      "timestamp" : "2026-10-05T00:00:00Z",
+      "payload" : {
+        "code" : 0,
+        "message" : "Success",
+        "id" : "workflow#original-java-flow-1791159704129",
+        "created" : 1791159704,
+        "choices" : [ {
+          "delta" : {
+            "role" : "assistant",
+            "content" : "结果：数组索引实际值",
+            "reasoning_content" : ""
+          },
+          "index" : null,
+          "finish_reason" : null
+        } ],
+        "usage" : null,
+        "workflow_step" : {
+          "node" : {
+            "id" : "node-end::3",
+            "inputs" : { },
+            "outputs" : {
+              "answer" : "数组索引实际值",
+              "missing" : null
+            },
+            "ext" : { },
+            "usage" : {
+              "completion_tokens" : 0,
+              "prompt_tokens" : 0,
+              "total_tokens" : 0
+            },
+            "alias_name" : "Node:node-end::3",
+            "finish_reason" : "stop",
+            "error_outputs" : { },
+            "executed_time" : 0.008
+          },
+          "seq" : 0,
+          "progress" : 0.0
+        },
+        "event_data" : null
+      }
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/lease/verify",
+    "body" : {
+      "attempt" : 1,
+      "leaseId" : "java-lease"
+    }
+  }, {
+    "path" : "/internal/paiflow/v1/runs/java-run/result",
+    "body" : {
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "state" : "COMPLETED",
+      "output" : {
+        "node-end::3" : {
+          "content" : "结果：数组索引实际值",
+          "reasoning_content" : ""
+        }
+      }
+    }
+  } ],
+  "actualResponses" : [ {
+    "code" : 200,
+    "data" : {
+      "valid" : true,
+      "cancelRequested" : false,
+      "dslHash" : "e046d111c78fb8a49748cd11c9b4d12998459678ee17fedabcf47b3f2d168989",
+      "workflowVersionId" : "java-version",
+      "lastEventSeq" : 0,
+      "assignment" : {
+        "schemaVersion" : "paiflow.worker.v1",
+        "runId" : "java-run",
+        "workflowVersionId" : "java-version",
+        "dslHash" : "e046d111c78fb8a49748cd11c9b4d12998459678ee17fedabcf47b3f2d168989",
+        "dslCanonicalBase64" : "eyJmbG93SWQiOiJvcmlnaW5hbC1qYXZhLWZsb3ciLCJ1dWlkIjoiamF2YS1jaGF0Iiwibm9kZXMiOlt7ImlkIjoibm9kZS1zdGFydDo6MSIsImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6bnVsbCwibmFtZSI6ImgiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6bnVsbH19fSx7ImlkIjpudWxsLCJuYW1lIjoib3B0aW9uYWwiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6bnVsbH19fSx7ImlkIjpudWxsLCJuYW1lIjoiZmxhZyIsInNjaGVtYSI6eyJ0eXBlIjoiYm9vbGVhbiIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6ZmFsc2V9fX0seyJpZCI6bnVsbCwibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwidmFsdWUiOnsidHlwZSI6ImxpdGVyYWwiLCJjb250ZW50IjowfX19LHsiaWQiOm51bGwsIm5hbWUiOiJuZXN0ZWQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6eyJsZWFmIjoi5a6e6ZmF5bWM5aWXIn19fX0seyJpZCI6bnVsbCwibmFtZSI6Im91dGVyIiwic2NoZW1hIjp7InR5cGUiOiJhcnJheSIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6W3siaEJpeiI6IkJGU+esrOS4gOmhuSIsInJvdXRlIjoi5Y6f6YCP5Lyg6Lev5b6EIn0seyJoQml6IjoiQkZT56ys5LqM6aG5In1dfX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJub2RlLXN0YXJ0IiwiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6MSJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJpZCI6ImgiLCJuYW1lIjoiaCIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6Im9wdGlvbmFsIiwibmFtZSI6Im9wdGlvbmFsIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifSwicmVxdWlyZWQiOmZhbHNlfSx7ImlkIjoiZmxhZyIsIm5hbWUiOiJmbGFnIiwic2NoZW1hIjp7InR5cGUiOiJib29sZWFuIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6ImNvdW50IiwibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6Im5lc3RlZCIsIm5hbWUiOiJuZXN0ZWQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCJ9LCJyZXF1aXJlZCI6ZmFsc2V9LHsiaWQiOiJvdXRlciIsIm5hbWUiOiJvdXRlciIsInNjaGVtYSI6eyJ0eXBlIjoiYXJyYXkifSwicmVxdWlyZWQiOmZhbHNlfV0sInJldHJ5Q29uZmlnIjpudWxsfX0seyJpZCI6InBsdWdpbjo6MiIsImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6bnVsbCwibmFtZSI6ImgiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJoIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJvcHRpb25hbCIsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOnsidHlwZSI6InJlZiIsImNvbnRlbnQiOnsibmFtZSI6Im9wdGlvbmFsIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJmbGFnIiwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoiZmxhZyIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OjEifX19fSx7ImlkIjpudWxsLCJuYW1lIjoiY291bnQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJjb3VudCIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OjEifX19fSx7ImlkIjpudWxsLCJuYW1lIjoibmVzdGVkIiwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoibmVzdGVkIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJvdXRlciIsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOnsidHlwZSI6InJlZiIsImNvbnRlbnQiOnsibmFtZSI6Im91dGVyIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJwbHVnaW4iLCJhbGlhc05hbWUiOiJwbHVnaW46OjIifSwibm9kZVBhcmFtIjp7ImJ1c2luZXNzSW5wdXQiOlsiaEJpeiIsInJvdXRlIl0sInRvb2xSZXNvdXJjZUlkIjoidG9vbDoxOnZlcnNpb246MjpvcGVyYXRpb246WldOb2J3IiwicGx1Z2luSWQiOiJvcmlnaW5hbC10b29sIiwib3BlcmF0aW9uSWQiOiJlY2hvIiwiYXBwSWQiOiJvcmlnaW5hbC1hcHAifSwib3V0cHV0cyI6W3sibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwiZGVmYXVsdCI6OX0sInJlcXVpcmVkIjp0cnVlfSx7Im5hbWUiOiJtaXNzaW5nIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJkZWZhdWx0Ijoi5Y6f5aOw5piO6buY6K6kIn0sInJlcXVpcmVkIjp0cnVlfV0sInJldHJ5Q29uZmlnIjpudWxsfX0seyJpZCI6Im5vZGUtZW5kOjozIiwiZGF0YSI6eyJpbnB1dHMiOlt7Im5hbWUiOiJhbnN3ZXIiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJkYXRhWzBdLngiLCJub2RlSWQiOiJwbHVnaW46OjIifX19fSx7Im5hbWUiOiJtaXNzaW5nIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoibWlzc2luZyIsIm5vZGVJZCI6InBsdWdpbjo6MiJ9fX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJub2RlLWVuZCIsImFsaWFzTmFtZSI6Im5vZGUtZW5kOjozIn0sIm5vZGVQYXJhbSI6eyJ0ZW1wbGF0ZSI6Iue7k+aenO+8mnt7YW5zd2VyfX0iLCJvdXRwdXRNb2RlIjoxfSwib3V0cHV0cyI6W10sInJldHJ5Q29uZmlnIjpudWxsfX1dLCJlZGdlcyI6W3sic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6MSIsInRhcmdldE5vZGVJZCI6InBsdWdpbjo6MiIsInNvdXJjZUhhbmRsZSI6bnVsbH0seyJzb3VyY2VOb2RlSWQiOiJwbHVnaW46OjIiLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6MyIsInNvdXJjZUhhbmRsZSI6bnVsbH1dfQ==",
+        "engineProfile" : "java",
+        "input" : {
+          "h" : null,
+          "optional" : null,
+          "flag" : false,
+          "count" : 0,
+          "nested" : {
+            "leaf" : "实际嵌套"
+          },
+          "outer" : [ {
+            "hBiz" : "BFS第一项",
+            "route" : "原透传路径"
+          }, {
+            "hBiz" : "BFS第二项"
+          } ]
+        },
+        "resourceSnapshots" : {
+          "tool:1:version:2:operation:ZWNobw" : {
+            "kind" : "tool",
+            "provider" : "spark-link",
+            "enabled" : true,
+            "effectClass" : "read",
+            "legacyAppId" : "original-app",
+            "openApiSchema" : {
+              "openapi" : "3.0.3",
+              "paths" : {
+                "/echo" : {
+                  "post" : {
+                    "operationId" : "echo",
+                    "parameters" : [ {
+                      "name" : "h",
+                      "in" : "header",
+                      "schema" : {
+                        "type" : "string",
+                        "x-from" : 0,
+                        "default" : "默认头"
+                      }
+                    }, {
+                      "name" : "hBiz",
+                      "in" : "header",
+                      "schema" : {
+                        "type" : "string",
+                        "x-from" : 1
+                      }
+                    }, {
+                      "name" : "q",
+                      "in" : "query",
+                      "schema" : {
+                        "type" : "string",
+                        "default" : "原查询默认"
+                      }
+                    }, {
+                      "name" : "route",
+                      "in" : "path",
+                      "schema" : {
+                        "type" : "string",
+                        "x-from" : 1
+                      }
+                    } ],
+                    "requestBody" : {
+                      "content" : {
+                        "application/json" : {
+                          "schema" : {
+                            "type" : "object",
+                            "properties" : {
+                              "optional" : {
+                                "type" : "string",
+                                "default" : "空输入默认"
+                              },
+                              "flag" : {
+                                "type" : "boolean",
+                                "default" : true
+                              },
+                              "count" : {
+                                "type" : "integer",
+                                "default" : 8
+                              },
+                              "nested" : {
+                                "type" : "object",
+                                "properties" : {
+                                  "leaf" : {
+                                    "type" : "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "responses" : {
+                      "200" : {
+                        "description" : "原工具JSON对象输出",
+                        "content" : {
+                          "application/json" : {
+                            "schema" : {
+                              "type" : "object",
+                              "required" : [ "answer" ],
+                              "properties" : {
+                                "answer" : {
+                                  "type" : "string"
+                                },
+                                "count" : {
+                                  "anyOf" : [ {
+                                    "type" : "integer"
+                                  }, {
+                                    "type" : "string"
+                                  } ]
+                                },
+                                "flag" : {
+                                  "type" : "boolean"
+                                },
+                                "extra" : {
+                                  "type" : "string"
+                                },
+                                "nullable" : {
+                                  "anyOf" : [ {
+                                    "type" : "string"
+                                  }, {
+                                    "type" : "null"
+                                  } ]
+                                },
+                                "data" : {
+                                  "type" : "array",
+                                  "items" : {
+                                    "type" : "object",
+                                    "properties" : {
+                                      "x" : {
+                                        "type" : "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "pluginId" : "original-tool",
+            "operationId" : "echo",
+            "version" : "2",
+            "legacyVersion" : "V1.0"
+          }
+        },
+        "attempt" : 1,
+        "leaseId" : "java-lease",
+        "deadline" : "2026-10-05T00:01:00Z",
+        "effectPolicy" : {
+          "mode" : "read_only",
+          "allowedOperations" : [ "tools.read" ],
+          "approvalRef" : null
+        },
+        "dsl" : {
+          "flowId" : "original-java-flow",
+          "uuid" : "java-chat",
+          "nodes" : [ {
+            "id" : "node-start::1",
+            "data" : {
+              "inputs" : [ {
+                "id" : null,
+                "name" : "h",
+                "schema" : {
+                  "type" : "string",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : null
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "optional",
+                "schema" : {
+                  "type" : "string",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : null
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "flag",
+                "schema" : {
+                  "type" : "boolean",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : false
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "count",
+                "schema" : {
+                  "type" : "integer",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : 0
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "nested",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : {
+                      "leaf" : "实际嵌套"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "outer",
+                "schema" : {
+                  "type" : "array",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : [ {
+                      "hBiz" : "BFS第一项",
+                      "route" : "原透传路径"
+                    }, {
+                      "hBiz" : "BFS第二项"
+                    } ]
+                  }
+                }
+              } ],
+              "nodeMeta" : {
+                "nodeType" : "node-start",
+                "aliasName" : "node-start::1"
+              },
+              "nodeParam" : { },
+              "outputs" : [ {
+                "id" : "h",
+                "name" : "h",
+                "schema" : {
+                  "type" : "string"
+                },
+                "required" : false
+              }, {
+                "id" : "optional",
+                "name" : "optional",
+                "schema" : {
+                  "type" : "string"
+                },
+                "required" : false
+              }, {
+                "id" : "flag",
+                "name" : "flag",
+                "schema" : {
+                  "type" : "boolean"
+                },
+                "required" : false
+              }, {
+                "id" : "count",
+                "name" : "count",
+                "schema" : {
+                  "type" : "integer"
+                },
+                "required" : false
+              }, {
+                "id" : "nested",
+                "name" : "nested",
+                "schema" : {
+                  "type" : "object"
+                },
+                "required" : false
+              }, {
+                "id" : "outer",
+                "name" : "outer",
+                "schema" : {
+                  "type" : "array"
+                },
+                "required" : false
+              } ],
+              "retryConfig" : null
+            }
+          }, {
+            "id" : "plugin::2",
+            "data" : {
+              "inputs" : [ {
+                "id" : null,
+                "name" : "h",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "h",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "optional",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "optional",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "flag",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "flag",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "count",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "count",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "nested",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "nested",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "outer",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "outer",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              } ],
+              "nodeMeta" : {
+                "nodeType" : "plugin",
+                "aliasName" : "plugin::2"
+              },
+              "nodeParam" : {
+                "businessInput" : [ "hBiz", "route" ],
+                "toolResourceId" : "tool:1:version:2:operation:ZWNobw",
+                "pluginId" : "original-tool",
+                "operationId" : "echo",
+                "appId" : "original-app"
+              },
+              "outputs" : [ {
+                "name" : "count",
+                "schema" : {
+                  "type" : "integer",
+                  "default" : 9
+                },
+                "required" : true
+              }, {
+                "name" : "missing",
+                "schema" : {
+                  "type" : "string",
+                  "default" : "原声明默认"
+                },
+                "required" : true
+              } ],
+              "retryConfig" : null
+            }
+          }, {
+            "id" : "node-end::3",
+            "data" : {
+              "inputs" : [ {
+                "name" : "answer",
+                "schema" : {
+                  "type" : "string",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "data[0].x",
+                      "nodeId" : "plugin::2"
+                    }
+                  }
+                }
+              }, {
+                "name" : "missing",
+                "schema" : {
+                  "type" : "string",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "missing",
+                      "nodeId" : "plugin::2"
+                    }
+                  }
+                }
+              } ],
+              "nodeMeta" : {
+                "nodeType" : "node-end",
+                "aliasName" : "node-end::3"
+              },
+              "nodeParam" : {
+                "template" : "结果：{{answer}}",
+                "outputMode" : 1
+              },
+              "outputs" : [ ],
+              "retryConfig" : null
+            }
+          } ],
+          "edges" : [ {
+            "sourceNodeId" : "node-start::1",
+            "targetNodeId" : "plugin::2",
+            "sourceHandle" : null
+          }, {
+            "sourceNodeId" : "plugin::2",
+            "targetNodeId" : "node-end::3",
+            "sourceHandle" : null
+          } ]
+        },
+        "lastEventSeq" : 0
+      }
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "begun" : true,
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "workflowVersionId" : "java-version",
+      "dslHash" : "e046d111c78fb8a49748cd11c9b4d12998459678ee17fedabcf47b3f2d168989"
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "valid" : true,
+      "cancelRequested" : false
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "accepted" : true,
+      "seq" : 1
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "accepted" : true,
+      "seq" : 2
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "accepted" : true,
+      "seq" : 3
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "kind" : "tool",
+      "provider" : "spark-link",
+      "enabled" : true,
+      "effectClass" : "read",
+      "legacyAppId" : "original-app",
+      "openApiSchema" : {
+        "openapi" : "3.0.3",
+        "paths" : {
+          "/echo" : {
+            "post" : {
+              "operationId" : "echo",
+              "parameters" : [ {
+                "name" : "h",
+                "in" : "header",
+                "schema" : {
+                  "type" : "string",
+                  "x-from" : 0,
+                  "default" : "默认头"
+                }
+              }, {
+                "name" : "hBiz",
+                "in" : "header",
+                "schema" : {
+                  "type" : "string",
+                  "x-from" : 1
+                }
+              }, {
+                "name" : "q",
+                "in" : "query",
+                "schema" : {
+                  "type" : "string",
+                  "default" : "原查询默认"
+                }
+              }, {
+                "name" : "route",
+                "in" : "path",
+                "schema" : {
+                  "type" : "string",
+                  "x-from" : 1
+                }
+              } ],
+              "requestBody" : {
+                "content" : {
+                  "application/json" : {
+                    "schema" : {
+                      "type" : "object",
+                      "properties" : {
+                        "optional" : {
+                          "type" : "string",
+                          "default" : "空输入默认"
+                        },
+                        "flag" : {
+                          "type" : "boolean",
+                          "default" : true
+                        },
+                        "count" : {
+                          "type" : "integer",
+                          "default" : 8
+                        },
+                        "nested" : {
+                          "type" : "object",
+                          "properties" : {
+                            "leaf" : {
+                              "type" : "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses" : {
+                "200" : {
+                  "description" : "原工具JSON对象输出",
+                  "content" : {
+                    "application/json" : {
+                      "schema" : {
+                        "type" : "object",
+                        "required" : [ "answer" ],
+                        "properties" : {
+                          "answer" : {
+                            "type" : "string"
+                          },
+                          "count" : {
+                            "anyOf" : [ {
+                              "type" : "integer"
+                            }, {
+                              "type" : "string"
+                            } ]
+                          },
+                          "flag" : {
+                            "type" : "boolean"
+                          },
+                          "extra" : {
+                            "type" : "string"
+                          },
+                          "nullable" : {
+                            "anyOf" : [ {
+                              "type" : "string"
+                            }, {
+                              "type" : "null"
+                            } ]
+                          },
+                          "data" : {
+                            "type" : "array",
+                            "items" : {
+                              "type" : "object",
+                              "properties" : {
+                                "x" : {
+                                  "type" : "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "pluginId" : "original-tool",
+      "operationId" : "echo",
+      "version" : "2",
+      "legacyVersion" : "V1.0"
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "runId" : "java-run",
+      "leaseId" : "java-lease",
+      "attempt" : 1,
+      "workflowVersionId" : "java-version",
+      "dslHash" : "e046d111c78fb8a49748cd11c9b4d12998459678ee17fedabcf47b3f2d168989",
+      "nodeId" : "plugin::2",
+      "iterationId" : null,
+      "idempotencyKey" : "java-run:1:plugin::2:tools.read:de7d922eb3314cecbf3a80faed1958700dca85c7a5dc4565854e412b774b7337",
+      "operationId" : "tool-op:e34337c2-0a20-4b15-8eba-5148f71e72f2",
+      "operation" : "tools.read",
+      "kind" : "tool",
+      "provider" : "spark-link",
+      "resourceId" : "tool:1:version:2:operation:ZWNobw",
+      "resourceVersion" : "2",
+      "state" : "COMPLETED",
+      "stopped" : false,
+      "proofId" : null,
+      "resourceBindings" : { },
+      "failureKind" : null,
+      "legacyResponse" : {
+        "payload" : {
+          "text" : {
+            "text" : "{\"answer\":\"原Java工具结果\",\"count\":\"原字符串\",\"extra\":\"未声明输出\",\"nullable\":null,\"data\":[{\"x\":\"数组索引实际值\"}]}"
+          }
+        },
+        "header" : {
+          "sid" : "original-sid",
+          "code" : 0
+        }
+      }
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "accepted" : true,
+      "seq" : 4
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "accepted" : true,
+      "seq" : 5
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "accepted" : true,
+      "seq" : 6
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "accepted" : true,
+      "seq" : 7
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "valid" : true,
+      "cancelRequested" : false,
+      "dslHash" : "e046d111c78fb8a49748cd11c9b4d12998459678ee17fedabcf47b3f2d168989",
+      "workflowVersionId" : "java-version",
+      "lastEventSeq" : 0,
+      "assignment" : {
+        "schemaVersion" : "paiflow.worker.v1",
+        "runId" : "java-run",
+        "workflowVersionId" : "java-version",
+        "dslHash" : "e046d111c78fb8a49748cd11c9b4d12998459678ee17fedabcf47b3f2d168989",
+        "dslCanonicalBase64" : "eyJmbG93SWQiOiJvcmlnaW5hbC1qYXZhLWZsb3ciLCJ1dWlkIjoiamF2YS1jaGF0Iiwibm9kZXMiOlt7ImlkIjoibm9kZS1zdGFydDo6MSIsImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6bnVsbCwibmFtZSI6ImgiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6bnVsbH19fSx7ImlkIjpudWxsLCJuYW1lIjoib3B0aW9uYWwiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6bnVsbH19fSx7ImlkIjpudWxsLCJuYW1lIjoiZmxhZyIsInNjaGVtYSI6eyJ0eXBlIjoiYm9vbGVhbiIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6ZmFsc2V9fX0seyJpZCI6bnVsbCwibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwidmFsdWUiOnsidHlwZSI6ImxpdGVyYWwiLCJjb250ZW50IjowfX19LHsiaWQiOm51bGwsIm5hbWUiOiJuZXN0ZWQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6eyJsZWFmIjoi5a6e6ZmF5bWM5aWXIn19fX0seyJpZCI6bnVsbCwibmFtZSI6Im91dGVyIiwic2NoZW1hIjp7InR5cGUiOiJhcnJheSIsInZhbHVlIjp7InR5cGUiOiJsaXRlcmFsIiwiY29udGVudCI6W3siaEJpeiI6IkJGU+esrOS4gOmhuSIsInJvdXRlIjoi5Y6f6YCP5Lyg6Lev5b6EIn0seyJoQml6IjoiQkZT56ys5LqM6aG5In1dfX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJub2RlLXN0YXJ0IiwiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6MSJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJpZCI6ImgiLCJuYW1lIjoiaCIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6Im9wdGlvbmFsIiwibmFtZSI6Im9wdGlvbmFsIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifSwicmVxdWlyZWQiOmZhbHNlfSx7ImlkIjoiZmxhZyIsIm5hbWUiOiJmbGFnIiwic2NoZW1hIjp7InR5cGUiOiJib29sZWFuIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6ImNvdW50IiwibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIn0sInJlcXVpcmVkIjpmYWxzZX0seyJpZCI6Im5lc3RlZCIsIm5hbWUiOiJuZXN0ZWQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCJ9LCJyZXF1aXJlZCI6ZmFsc2V9LHsiaWQiOiJvdXRlciIsIm5hbWUiOiJvdXRlciIsInNjaGVtYSI6eyJ0eXBlIjoiYXJyYXkifSwicmVxdWlyZWQiOmZhbHNlfV0sInJldHJ5Q29uZmlnIjpudWxsfX0seyJpZCI6InBsdWdpbjo6MiIsImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6bnVsbCwibmFtZSI6ImgiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJoIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJvcHRpb25hbCIsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOnsidHlwZSI6InJlZiIsImNvbnRlbnQiOnsibmFtZSI6Im9wdGlvbmFsIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJmbGFnIiwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoiZmxhZyIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OjEifX19fSx7ImlkIjpudWxsLCJuYW1lIjoiY291bnQiLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJjb3VudCIsIm5vZGVJZCI6Im5vZGUtc3RhcnQ6OjEifX19fSx7ImlkIjpudWxsLCJuYW1lIjoibmVzdGVkIiwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoibmVzdGVkIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19LHsiaWQiOm51bGwsIm5hbWUiOiJvdXRlciIsInNjaGVtYSI6eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOnsidHlwZSI6InJlZiIsImNvbnRlbnQiOnsibmFtZSI6Im91dGVyIiwibm9kZUlkIjoibm9kZS1zdGFydDo6MSJ9fX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJwbHVnaW4iLCJhbGlhc05hbWUiOiJwbHVnaW46OjIifSwibm9kZVBhcmFtIjp7ImJ1c2luZXNzSW5wdXQiOlsiaEJpeiIsInJvdXRlIl0sInRvb2xSZXNvdXJjZUlkIjoidG9vbDoxOnZlcnNpb246MjpvcGVyYXRpb246WldOb2J3IiwicGx1Z2luSWQiOiJvcmlnaW5hbC10b29sIiwib3BlcmF0aW9uSWQiOiJlY2hvIiwiYXBwSWQiOiJvcmlnaW5hbC1hcHAifSwib3V0cHV0cyI6W3sibmFtZSI6ImNvdW50Iiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwiZGVmYXVsdCI6OX0sInJlcXVpcmVkIjp0cnVlfSx7Im5hbWUiOiJtaXNzaW5nIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJkZWZhdWx0Ijoi5Y6f5aOw5piO6buY6K6kIn0sInJlcXVpcmVkIjp0cnVlfV0sInJldHJ5Q29uZmlnIjpudWxsfX0seyJpZCI6Im5vZGUtZW5kOjozIiwiZGF0YSI6eyJpbnB1dHMiOlt7Im5hbWUiOiJhbnN3ZXIiLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7InR5cGUiOiJyZWYiLCJjb250ZW50Ijp7Im5hbWUiOiJkYXRhWzBdLngiLCJub2RlSWQiOiJwbHVnaW46OjIifX19fSx7Im5hbWUiOiJtaXNzaW5nIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJ0eXBlIjoicmVmIiwiY29udGVudCI6eyJuYW1lIjoibWlzc2luZyIsIm5vZGVJZCI6InBsdWdpbjo6MiJ9fX19XSwibm9kZU1ldGEiOnsibm9kZVR5cGUiOiJub2RlLWVuZCIsImFsaWFzTmFtZSI6Im5vZGUtZW5kOjozIn0sIm5vZGVQYXJhbSI6eyJ0ZW1wbGF0ZSI6Iue7k+aenO+8mnt7YW5zd2VyfX0iLCJvdXRwdXRNb2RlIjoxfSwib3V0cHV0cyI6W10sInJldHJ5Q29uZmlnIjpudWxsfX1dLCJlZGdlcyI6W3sic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6MSIsInRhcmdldE5vZGVJZCI6InBsdWdpbjo6MiIsInNvdXJjZUhhbmRsZSI6bnVsbH0seyJzb3VyY2VOb2RlSWQiOiJwbHVnaW46OjIiLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6MyIsInNvdXJjZUhhbmRsZSI6bnVsbH1dfQ==",
+        "engineProfile" : "java",
+        "input" : {
+          "h" : null,
+          "optional" : null,
+          "flag" : false,
+          "count" : 0,
+          "nested" : {
+            "leaf" : "实际嵌套"
+          },
+          "outer" : [ {
+            "hBiz" : "BFS第一项",
+            "route" : "原透传路径"
+          }, {
+            "hBiz" : "BFS第二项"
+          } ]
+        },
+        "resourceSnapshots" : {
+          "tool:1:version:2:operation:ZWNobw" : {
+            "kind" : "tool",
+            "provider" : "spark-link",
+            "enabled" : true,
+            "effectClass" : "read",
+            "legacyAppId" : "original-app",
+            "openApiSchema" : {
+              "openapi" : "3.0.3",
+              "paths" : {
+                "/echo" : {
+                  "post" : {
+                    "operationId" : "echo",
+                    "parameters" : [ {
+                      "name" : "h",
+                      "in" : "header",
+                      "schema" : {
+                        "type" : "string",
+                        "x-from" : 0,
+                        "default" : "默认头"
+                      }
+                    }, {
+                      "name" : "hBiz",
+                      "in" : "header",
+                      "schema" : {
+                        "type" : "string",
+                        "x-from" : 1
+                      }
+                    }, {
+                      "name" : "q",
+                      "in" : "query",
+                      "schema" : {
+                        "type" : "string",
+                        "default" : "原查询默认"
+                      }
+                    }, {
+                      "name" : "route",
+                      "in" : "path",
+                      "schema" : {
+                        "type" : "string",
+                        "x-from" : 1
+                      }
+                    } ],
+                    "requestBody" : {
+                      "content" : {
+                        "application/json" : {
+                          "schema" : {
+                            "type" : "object",
+                            "properties" : {
+                              "optional" : {
+                                "type" : "string",
+                                "default" : "空输入默认"
+                              },
+                              "flag" : {
+                                "type" : "boolean",
+                                "default" : true
+                              },
+                              "count" : {
+                                "type" : "integer",
+                                "default" : 8
+                              },
+                              "nested" : {
+                                "type" : "object",
+                                "properties" : {
+                                  "leaf" : {
+                                    "type" : "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "responses" : {
+                      "200" : {
+                        "description" : "原工具JSON对象输出",
+                        "content" : {
+                          "application/json" : {
+                            "schema" : {
+                              "type" : "object",
+                              "required" : [ "answer" ],
+                              "properties" : {
+                                "answer" : {
+                                  "type" : "string"
+                                },
+                                "count" : {
+                                  "anyOf" : [ {
+                                    "type" : "integer"
+                                  }, {
+                                    "type" : "string"
+                                  } ]
+                                },
+                                "flag" : {
+                                  "type" : "boolean"
+                                },
+                                "extra" : {
+                                  "type" : "string"
+                                },
+                                "nullable" : {
+                                  "anyOf" : [ {
+                                    "type" : "string"
+                                  }, {
+                                    "type" : "null"
+                                  } ]
+                                },
+                                "data" : {
+                                  "type" : "array",
+                                  "items" : {
+                                    "type" : "object",
+                                    "properties" : {
+                                      "x" : {
+                                        "type" : "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "pluginId" : "original-tool",
+            "operationId" : "echo",
+            "version" : "2",
+            "legacyVersion" : "V1.0"
+          }
+        },
+        "attempt" : 1,
+        "leaseId" : "java-lease",
+        "deadline" : "2026-10-05T00:01:00Z",
+        "effectPolicy" : {
+          "mode" : "read_only",
+          "allowedOperations" : [ "tools.read" ],
+          "approvalRef" : null
+        },
+        "dsl" : {
+          "flowId" : "original-java-flow",
+          "uuid" : "java-chat",
+          "nodes" : [ {
+            "id" : "node-start::1",
+            "data" : {
+              "inputs" : [ {
+                "id" : null,
+                "name" : "h",
+                "schema" : {
+                  "type" : "string",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : null
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "optional",
+                "schema" : {
+                  "type" : "string",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : null
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "flag",
+                "schema" : {
+                  "type" : "boolean",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : false
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "count",
+                "schema" : {
+                  "type" : "integer",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : 0
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "nested",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : {
+                      "leaf" : "实际嵌套"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "outer",
+                "schema" : {
+                  "type" : "array",
+                  "value" : {
+                    "type" : "literal",
+                    "content" : [ {
+                      "hBiz" : "BFS第一项",
+                      "route" : "原透传路径"
+                    }, {
+                      "hBiz" : "BFS第二项"
+                    } ]
+                  }
+                }
+              } ],
+              "nodeMeta" : {
+                "nodeType" : "node-start",
+                "aliasName" : "node-start::1"
+              },
+              "nodeParam" : { },
+              "outputs" : [ {
+                "id" : "h",
+                "name" : "h",
+                "schema" : {
+                  "type" : "string"
+                },
+                "required" : false
+              }, {
+                "id" : "optional",
+                "name" : "optional",
+                "schema" : {
+                  "type" : "string"
+                },
+                "required" : false
+              }, {
+                "id" : "flag",
+                "name" : "flag",
+                "schema" : {
+                  "type" : "boolean"
+                },
+                "required" : false
+              }, {
+                "id" : "count",
+                "name" : "count",
+                "schema" : {
+                  "type" : "integer"
+                },
+                "required" : false
+              }, {
+                "id" : "nested",
+                "name" : "nested",
+                "schema" : {
+                  "type" : "object"
+                },
+                "required" : false
+              }, {
+                "id" : "outer",
+                "name" : "outer",
+                "schema" : {
+                  "type" : "array"
+                },
+                "required" : false
+              } ],
+              "retryConfig" : null
+            }
+          }, {
+            "id" : "plugin::2",
+            "data" : {
+              "inputs" : [ {
+                "id" : null,
+                "name" : "h",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "h",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "optional",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "optional",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "flag",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "flag",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "count",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "count",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "nested",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "nested",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              }, {
+                "id" : null,
+                "name" : "outer",
+                "schema" : {
+                  "type" : "object",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "outer",
+                      "nodeId" : "node-start::1"
+                    }
+                  }
+                }
+              } ],
+              "nodeMeta" : {
+                "nodeType" : "plugin",
+                "aliasName" : "plugin::2"
+              },
+              "nodeParam" : {
+                "businessInput" : [ "hBiz", "route" ],
+                "toolResourceId" : "tool:1:version:2:operation:ZWNobw",
+                "pluginId" : "original-tool",
+                "operationId" : "echo",
+                "appId" : "original-app"
+              },
+              "outputs" : [ {
+                "name" : "count",
+                "schema" : {
+                  "type" : "integer",
+                  "default" : 9
+                },
+                "required" : true
+              }, {
+                "name" : "missing",
+                "schema" : {
+                  "type" : "string",
+                  "default" : "原声明默认"
+                },
+                "required" : true
+              } ],
+              "retryConfig" : null
+            }
+          }, {
+            "id" : "node-end::3",
+            "data" : {
+              "inputs" : [ {
+                "name" : "answer",
+                "schema" : {
+                  "type" : "string",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "data[0].x",
+                      "nodeId" : "plugin::2"
+                    }
+                  }
+                }
+              }, {
+                "name" : "missing",
+                "schema" : {
+                  "type" : "string",
+                  "value" : {
+                    "type" : "ref",
+                    "content" : {
+                      "name" : "missing",
+                      "nodeId" : "plugin::2"
+                    }
+                  }
+                }
+              } ],
+              "nodeMeta" : {
+                "nodeType" : "node-end",
+                "aliasName" : "node-end::3"
+              },
+              "nodeParam" : {
+                "template" : "结果：{{answer}}",
+                "outputMode" : 1
+              },
+              "outputs" : [ ],
+              "retryConfig" : null
+            }
+          } ],
+          "edges" : [ {
+            "sourceNodeId" : "node-start::1",
+            "targetNodeId" : "plugin::2",
+            "sourceHandle" : null
+          }, {
+            "sourceNodeId" : "plugin::2",
+            "targetNodeId" : "node-end::3",
+            "sourceHandle" : null
+          } ]
+        },
+        "lastEventSeq" : 0
+      }
+    }
+  }, {
+    "code" : 200,
+    "data" : {
+      "accepted" : true,
+      "state" : "COMPLETED"
+    }
+  } ],
+  "actualEvents" : [ {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-run",
+    "leaseId" : "java-lease",
+    "attempt" : 1,
+    "seq" : 1,
+    "nodeId" : "node-start::1",
+    "eventType" : "node.started",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "aliasName" : "node-start::1",
+      "nodeId" : "node-start::1"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-run",
+    "leaseId" : "java-lease",
+    "attempt" : 1,
+    "seq" : 2,
+    "nodeId" : "node-start::1",
+    "eventType" : "node.completed",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "result" : {
+        "inputs" : {
+          "flag" : false,
+          "h" : null,
+          "count" : 0,
+          "outer" : [ {
+            "hBiz" : "BFS第一项",
+            "route" : "原透传路径"
+          }, {
+            "hBiz" : "BFS第二项"
+          } ],
+          "optional" : null,
+          "nested" : {
+            "leaf" : "实际嵌套"
+          }
+        },
+        "outputs" : { },
+        "errorOutputs" : { },
+        "rawOutput" : "",
+        "nodeAnswerContent" : "",
+        "nodeAnswerReasoningContent" : "",
+        "tokenCost" : {
+          "completion_tokens" : 0,
+          "prompt_tokens" : 0,
+          "total_tokens" : 0
+        },
+        "error" : null,
+        "status" : "SUCCESS"
+      },
+      "nodeId" : "node-start::1"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-run",
+    "leaseId" : "java-lease",
+    "attempt" : 1,
+    "seq" : 3,
+    "nodeId" : "plugin::2",
+    "eventType" : "node.started",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "aliasName" : "plugin::2",
+      "nodeId" : "plugin::2"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-run",
+    "leaseId" : "java-lease",
+    "attempt" : 1,
+    "seq" : 4,
+    "nodeId" : "plugin::2",
+    "eventType" : "node.completed",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "result" : {
+        "inputs" : {
+          "flag" : false,
+          "h" : null,
+          "count" : 0,
+          "outer" : [ {
+            "hBiz" : "BFS第一项",
+            "route" : "原透传路径"
+          }, {
+            "hBiz" : "BFS第二项"
+          } ],
+          "optional" : null,
+          "nested" : {
+            "leaf" : "实际嵌套"
+          }
+        },
+        "outputs" : {
+          "answer" : "原Java工具结果",
+          "count" : "原字符串",
+          "extra" : "未声明输出",
+          "nullable" : null,
+          "data" : [ {
+            "x" : "数组索引实际值"
+          } ]
+        },
+        "errorOutputs" : { },
+        "rawOutput" : "",
+        "nodeAnswerContent" : "",
+        "nodeAnswerReasoningContent" : "",
+        "tokenCost" : {
+          "completion_tokens" : 0,
+          "prompt_tokens" : 0,
+          "total_tokens" : 0
+        },
+        "error" : null,
+        "status" : "SUCCESS"
+      },
+      "nodeId" : "plugin::2"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-run",
+    "leaseId" : "java-lease",
+    "attempt" : 1,
+    "seq" : 5,
+    "nodeId" : "node-end::3",
+    "eventType" : "node.started",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "aliasName" : "node-end::3",
+      "nodeId" : "node-end::3"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-run",
+    "leaseId" : "java-lease",
+    "attempt" : 1,
+    "seq" : 6,
+    "nodeId" : "node-end::3",
+    "eventType" : "node.completed",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "result" : {
+        "inputs" : { },
+        "outputs" : {
+          "answer" : "数组索引实际值",
+          "missing" : null
+        },
+        "errorOutputs" : { },
+        "rawOutput" : "",
+        "nodeAnswerContent" : "结果：数组索引实际值",
+        "nodeAnswerReasoningContent" : "",
+        "tokenCost" : {
+          "completion_tokens" : 0,
+          "prompt_tokens" : 0,
+          "total_tokens" : 0
+        },
+        "error" : null,
+        "status" : "SUCCESS"
+      },
+      "nodeId" : "node-end::3"
+    }
+  }, {
+    "schemaVersion" : "paiflow.events.v1",
+    "runId" : "java-run",
+    "leaseId" : "java-lease",
+    "attempt" : 1,
+    "seq" : 7,
+    "nodeId" : "node-end::3",
+    "eventType" : "text.delta",
+    "timestamp" : "2026-10-05T00:00:00Z",
+    "payload" : {
+      "code" : 0,
+      "message" : "Success",
+      "id" : "workflow#original-java-flow-1791159704129",
+      "created" : 1791159704,
+      "choices" : [ {
+        "delta" : {
+          "role" : "assistant",
+          "content" : "结果：数组索引实际值",
+          "reasoning_content" : ""
+        },
+        "index" : null,
+        "finish_reason" : null
+      } ],
+      "usage" : null,
+      "workflow_step" : {
+        "node" : {
+          "id" : "node-end::3",
+          "inputs" : { },
+          "outputs" : {
+            "answer" : "数组索引实际值",
+            "missing" : null
+          },
+          "ext" : { },
+          "usage" : {
+            "completion_tokens" : 0,
+            "prompt_tokens" : 0,
+            "total_tokens" : 0
+          },
+          "alias_name" : "Node:node-end::3",
+          "finish_reason" : "stop",
+          "error_outputs" : { },
+          "executed_time" : 0.008
+        },
+        "seq" : 0,
+        "progress" : 0.0
+      },
+      "event_data" : null
+    }
+  } ],
+  "actualResult" : {
+    "leaseId" : "java-lease",
+    "attempt" : 1,
+    "state" : "COMPLETED",
+    "output" : {
+      "node-end::3" : {
+        "content" : "结果：数组索引实际值",
+        "reasoning_content" : ""
+      }
+    },
+    "error" : null
+  }
+}

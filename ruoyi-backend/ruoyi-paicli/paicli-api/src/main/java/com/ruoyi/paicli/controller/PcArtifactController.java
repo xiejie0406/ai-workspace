@@ -23,11 +23,13 @@ public class PcArtifactController extends PcControllerSupport {
     @PostMapping(consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("@ss.hasPermi('paicli:artifact:write')")
     @Log(title="PaiCLI附件上传",businessType=BusinessType.INSERT,isSaveRequestData=false,isSaveResponseData=false)
-    public AjaxResult upload(@RequestHeader("Idempotency-Key") String key,@RequestParam long workspaceId,@RequestParam String purpose,@RequestPart("file") MultipartFile file)throws IOException{
+    public AjaxResult upload(@RequestHeader("Idempotency-Key") String key,@RequestParam(required=false) Long directoryContextId,@RequestParam String purpose,@RequestPart("file") MultipartFile file)throws IOException{
         int limit="TURN_IMAGE".equals(purpose)?PcArtifactService.MAX_API_IMAGE_BYTES:PcArtifactService.MAX_DATA_BYTES;
         if(file.isEmpty()||file.getSize()>limit)throw new PcException(413,"PC_ARTIFACT_SIZE","附件超出容量上限");
-        return AjaxResult.success(artifacts.upload(actor(),key,workspaceId,purpose,file.getOriginalFilename(),file.getContentType(),file.getBytes()));
+        return AjaxResult.success(artifacts.upload(actor(),key,directoryContextId,purpose,file.getOriginalFilename(),file.getContentType(),file.getBytes()));
     }
+    @GetMapping @PreAuthorize("@ss.hasPermi('paicli:artifact:read')")
+    public com.ruoyi.common.core.page.TableDataInfo list(@RequestParam(required=false) Long directoryContextId){startPage();var rows=store.mapper.visible(com.ruoyi.paicli.domain.PcTable.ARTIFACT,actor(),directoryContextId,true);var result=getDataTable(rows);result.setRows(rows.stream().map(artifacts::view).toList());return result;}
     @GetMapping("/{id}/content")
     @PreAuthorize("@ss.hasPermi('paicli:artifact:read')")
     public ResponseEntity<FileSystemResource> content(@PathVariable long id){
@@ -43,5 +45,12 @@ public class PcArtifactController extends PcControllerSupport {
             @RequestParam(defaultValue="0") long offset,@RequestParam(defaultValue="1048576") int limit){
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
             .body(AjaxResult.success(artifacts.outputText(actor(),id,sessionId,offset,limit)));
+    }
+    @GetMapping("/{id}/preview-text")
+    @PreAuthorize("@ss.hasPermi('paicli:artifact:read')")
+    public ResponseEntity<AjaxResult> previewText(@PathVariable long id,
+            @RequestParam(defaultValue="0") long offset,@RequestParam(defaultValue="65536") int limit){
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+            .body(AjaxResult.success(artifacts.userFilePreviewText(actor(),id,offset,limit)));
     }
 }

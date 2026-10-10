@@ -34,6 +34,8 @@ public class RunLeaseService {
     private final SysPermissionService permissions;
     private final Clock clock;
     private org.mybatis.spring.SqlSessionTemplate sessions;
+    private org.springframework.beans.factory.ObjectProvider<RunHistoryService> histories;
+    @Autowired public void useHistories(org.springframework.beans.factory.ObjectProvider<RunHistoryService> provider){histories=provider;}
     @Autowired public void useCurrentSession(org.mybatis.spring.SqlSessionTemplate template){sessions=template;}
     @Autowired public RunLeaseService(RunMapper runs,SpaceMapper spaces,ISysUserService users,SysPermissionService permissions) {
         this(runs,spaces,users,permissions,Clock.systemUTC());
@@ -128,6 +130,8 @@ public class RunLeaseService {
     private static LocalDateTime min(LocalDateTime left,LocalDateTime right) { return left.isBefore(right)?left:right; }
     private JSONObject assignment(RunRecord run) {
         var task=JSON.parseObject(run.getAssignmentJson());
+        // V4的原Python提示词区分负零；领取与verify必须保留中心已固定输入的符号。
+        if(DslCodec.V4.equals(task.getString("executionCodec")))task=ModelMessageSources.sourceObject(run.getAssignmentJson());
         task.put("leaseId",run.getLeaseId());task.put("attempt",run.getAttempt());task.put("lastEventSeq",run.getLastEventSeq());
         return task;
     }
@@ -135,9 +139,12 @@ public class RunLeaseService {
     public JSONObject verify(String id,WorkerIdentityService.Principal worker,String leaseId,int attempt) {
         var run=lock(id);sameLease(run,worker,leaseId,attempt);active(run);
         var task=assignment(run);
-        return new JSONObject().fluentPut("valid",true).fluentPut("cancelRequested","CANCEL_REQUESTED".equals(run.getState()))
+        var response=new JSONObject().fluentPut("valid",true).fluentPut("cancelRequested","CANCEL_REQUESTED".equals(run.getState()))
             .fluentPut("dslHash",task.getString("dslHash")).fluentPut("workflowVersionId",task.getString("workflowVersionId"))
             .fluentPut("lastEventSeq",run.getLastEventSeq()).fluentPut("assignment",task);
+        var history=histories==null?null:histories.getIfAvailable();
+        if(history!=null) {var context=history.executionContext(run);if(context!=null)response.put("executionContext",context);}
+        return response;
     }
     /** 每个正式运行只能签发一次；许可ACK丢失也不重发，防止Worker重启后重复进入引擎。 */
     @Transactional(rollbackFor=Exception.class,isolation=Isolation.READ_COMMITTED)
@@ -196,7 +203,7 @@ public class RunLeaseService {
             var payload=event.getJSONObject("payload");
             if(payload.containsKey("legacyFrame")) {
                 if(node==null || !(payload.get("legacyFrame") instanceof JSONObject frame)
-                        || !Objects.equals(run.getId(),frame.get("id"))
+                        || !matchesLegacyFrameId(run,frame.get("id"))
                         || !(frame.get("workflow_step") instanceof JSONObject step)
                         || !(step.get("node") instanceof JSONObject frameNode)
                         || !Objects.equals(node,frameNode.get("id")))throw new ServiceException("原节点帧与当前运行或事件节点不一致",400);
@@ -205,6 +212,12 @@ public class RunLeaseService {
             run.setLastEventSeq(seq);save(run);
         }
         return new JSONObject().fluentPut("accepted",true).fluentPut("seq",seq);
+    }
+    /** 只核原帧会话标识形状；正式授权仍取已锁定运行、Worker租约及外层节点/序号。 */
+    public static boolean matchesLegacyFrameId(RunRecord run,Object frameId) {
+        if("java".equals(run.getEngineProfile()))return frameId instanceof String sid && !sid.isBlank()
+                && sid.length()<=512 && sid.codePoints().noneMatch(Character::isISOControl);
+        return Objects.equals(run.getId(),frameId);
     }
     @Transactional(rollbackFor=Exception.class,isolation=Isolation.READ_COMMITTED)
     public JSONObject result(String id,WorkerIdentityService.Principal worker,JSONObject result) {

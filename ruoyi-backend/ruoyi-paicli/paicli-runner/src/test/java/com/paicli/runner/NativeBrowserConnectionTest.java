@@ -19,7 +19,7 @@ class NativeBrowserConnectionTest {
     @Test void approvedBrowserConnectBindsRealToolsAndDisconnectRestartsOnlyModeFlags() throws Exception {
         Path root=RunnerPrivateDirectory.createDirectories(container.resolve("workspace")); Path state=RunnerPrivateDirectory.createDirectories(container.resolve("state"));
         List<List<String>> starts=new ArrayList<>(); List<JsonNode> events=new ArrayList<>(); AtomicInteger grants=new AtomicInteger();
-        var mcp=CanonicalJson.MAPPER.createObjectNode().put("id","5").put("workspaceId","7").put("version",6).put("configHash","b".repeat(64)).put("trustedHash","b".repeat(64)).put("name","chrome-devtools").put("transport","STDIO").put("command","fixture-node").put("enabled",true);
+        var mcp=CanonicalJson.MAPPER.createObjectNode().put("id","5").put("directoryContextId","7").put("version",6).put("configHash","b".repeat(64)).put("trustedHash","b".repeat(64)).put("name","chrome-devtools").put("transport","STDIO").put("command","fixture-node").put("enabled",true);
         mcp.putArray("args").add("chrome-devtools-mcp").add("--viewport=900x600").add("--isolated=true");mcp.putObject("envSecretRefs");mcp.putObject("headerSecretRefs");mcp.putObject("headers");
         var browser=CanonicalJson.MAPPER.createObjectNode().put("id","8").put("version",9).put("enabled",true).put("mode","SHARED").put("endpoint","http://127.0.0.1:9333").put("mcpConfigId","5").put("mcpConfigVersion",6).put("mcpConfigHash","b".repeat(64));
         browser.set("mcpConfig",mcp);browser.putArray("modeArgs").add("--browserUrl=http://127.0.0.1:9333");browser.putArray("disconnectModeArgs").add("--isolated=true");
@@ -39,7 +39,8 @@ class NativeBrowserConnectionTest {
             try(var center=new CenterHttpClient(server.url("/").toString(),"fixture",true);var controls=new NativeControlExecutor(center,state,null,(config,grant,tools)->{starts.add(List.copyOf(config.getArgs()));return new FixtureMcp();})) {
                 for(String operation:List.of("BROWSER_CONNECT","BROWSER_DISCONNECT")) {
                     var lease=new RunnerLease(claim(operation).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()));var tools=new CenterToolRegistry(center,lease,new ReceiptSpool(state.resolve("receipts")),root);
-                    ObjectNode context=CanonicalJson.MAPPER.createObjectNode();context.putObject("workspace").put("sandboxVerified",true);context.set("browserConfig",browser);context.putArray("mcpConfigs").add(mcp);
+                    // 只注入内存 transport，不宣称 Windows 真实 STDIO 隔离可用。
+                    ObjectNode context=CanonicalJson.MAPPER.createObjectNode();context.putObject("directoryContext").put("sandboxVerified",true);context.set("browserConfig",browser);context.putArray("mcpConfigs").add(mcp);
                     context.putObject("taskPayload").put("operation",operation).putObject("arguments").put("configId","8").put("configVersion",9).set("config",browser);
                     assertTrue(controls.execute(lease,tools,context).contains("READY"));controls.attachConnections(lease,tools,context);
                     assertTrue(tools.hasTool("mcp__chrome-devtools__list_pages")); assertTrue(tools.executeToolOutput("browser_status","{}").text().contains(operation.equals("BROWSER_CONNECT")?"SHARED":"ISOLATED"));
@@ -49,7 +50,7 @@ class NativeBrowserConnectionTest {
             }
         }
     }
-    private static ObjectNode claim(String task){return CanonicalJson.MAPPER.createObjectNode().put("taskId",task.equals("BROWSER_CONNECT")?"1":"2").put("sessionId","10").put("workspaceId","7").put("leaseId","2").put("fencingToken",3).put("version",4).put("policyVersion",1).put("rootFingerprint","a".repeat(64)).put("expiresAt",Instant.now().plusSeconds(120).toString());}
+    private static ObjectNode claim(String task){return CanonicalJson.MAPPER.createObjectNode().put("taskId",task.equals("BROWSER_CONNECT")?"1":"2").put("sessionId","10").put("directoryContextId","7").put("leaseId","2").put("fencingToken",3).put("version",4).put("policyVersion",1).put("rootFingerprint","a".repeat(64)).put("expiresAt",Instant.now().plusSeconds(120).toString());}
     private static MockResponse ok(JsonNode data){return new MockResponse().setHeader("Content-Type","application/json").setBody(CanonicalJson.MAPPER.createObjectNode().put("code",200).set("data",data).toString());}
     private static final class FixtureMcp implements McpTransport {
         Consumer<JsonNode> listener;public void onReceive(Consumer<JsonNode> value){listener=value;}

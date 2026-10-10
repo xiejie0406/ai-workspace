@@ -20,6 +20,54 @@ CONTRACTS = Path(__file__).resolve().parents[3] / 'contracts/paiflow'
 SCHEMA = CONTRACTS / 'model-operations.schema.json'
 
 
+class JavaModelSchemaTest(unittest.TestCase):
+    """原 Java SDK 实际请求的共享形状；运行引擎及费用仍由中心固定事实批准。"""
+
+    @staticmethod
+    def originals():
+        source = CONTRACTS.parents[1] / 'ruoyi-backend/ruoyi-paiflow/src/test/resources/fixtures/java-model-wire/original-sdk.json'
+        return json.loads(source.read_text(encoding='utf-8'))
+
+    def test_original_java_nullable_zero_multiple_choice_and_length_requests(self):
+        for capture in self.originals():
+            with self.subTest(variant=capture['variant']):
+                body = capture['actualRequest']
+                for definition in ('JavaOpenAIChatOperationRequest', 'ModelOperationRequest'):
+                    local_validator(SCHEMA, definition).validate(body)
+                local_validator(SCHEMA, 'JavaOpenAIChatParameters').validate(body['parameters'])
+                self.assertFalse(local_validator(SCHEMA, 'OpenAIChatOperationRequest').is_valid(body))
+
+    def test_java_shape_cannot_add_public_engine_or_python_options(self):
+        original = self.originals()[3]['actualRequest']
+        mutations = []
+        for location in ('root', 'parameters'):
+            changed = copy.deepcopy(original)
+            (changed if location == 'root' else changed['parameters'])['engineProfile'] = 'java'
+            mutations.append(changed)
+        for key, value in (('topK', 3), ('extraParams', {}), ('streamUsage', False), ('n', '2')):
+            changed = copy.deepcopy(original)
+            changed['parameters']['options'][key] = value
+            mutations.append(changed)
+        changed = copy.deepcopy(original)
+        del changed['parameters']['options']['temperature']
+        mutations.append(changed)
+        changed = copy.deepcopy(original)
+        changed['iterationId'] = 'unapproved-iteration'
+        mutations.append(changed)
+        for changed in mutations:
+            with self.subTest(changed=changed):
+                self.assertFalse(local_validator(SCHEMA, 'JavaOpenAIChatOperationRequest').is_valid(changed))
+                self.assertFalse(local_validator(SCHEMA, 'ModelOperationRequest').is_valid(changed))
+
+    def test_python_contract_keeps_its_original_options(self):
+        values = parameters()
+        local_validator(SCHEMA, 'OpenAIChatParameters').validate(values)
+        self.assertFalse(local_validator(SCHEMA, 'JavaOpenAIChatParameters').is_valid(values))
+        changed = copy.deepcopy(values)
+        changed['options']['maxTokens'] = None
+        self.assertFalse(local_validator(SCHEMA, 'OpenAIChatParameters').is_valid(changed))
+
+
 def binding(raw, operation_id='operation-fixture'):
     return {'runId': raw['runId'], 'leaseId': raw['leaseId'], 'attempt': raw['attempt'],
         'nodeId': 'spark-llm::model', 'iterationId': None, 'workflowVersionId': raw['workflowVersionId'],
@@ -112,8 +160,51 @@ class ModelContractTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([c[2]['afterCursor'] for c in calls if c[1].endswith('/frames')], [0, 1, 2])
         self.assertFalse(any(c[1].endswith('/cancel') for c in calls))
 
+    async def test_spark_actual_catalog_chat_fc_capabilities_keep_chat_consumer_and_all_ack_contracts(self):
+        for capabilities in (['chat'], ['chat', 'function_call']):
+            raw = model_raw(source='xinghuo')
+            raw['resourceSnapshots']['model-1']['capabilities'] = capabilities
+            center = HttpModelCenter(raw, [spark_frame('原Spark内容')])
+            await create_task_runner(center).run(raw)
+            self.assertEqual('COMPLETED', center.results[-1]['state'])
+            invoke = next(call for call in center.transport.calls if call[1].endswith('/operations'))
+            self.assertEqual('chat', invoke[2]['parameters']['mode'])
+            local_validator(SCHEMA, 'SparkChatSnapshot').validate(raw['resourceSnapshots']['model-1'])
+            local_validator(SCHEMA, 'SparkChatOperationRequest').validate(invoke[2])
+            self.assertFalse(local_validator(SCHEMA, 'OpenAIChatOperationRequest').is_valid(invoke[2]))
+            bound = center.bindings['operation-fixture']
+            local_validator(SCHEMA, 'SparkChatStartAck').validate({**bound, 'state': 'RUNNING'})
+            final_page = await ModelCenter.operation_frames(center, raw['runId'], raw['leaseId'], raw['attempt'], 'operation-fixture', 0, 64)
+            local_validator(SCHEMA, 'SparkChatFramesAck').validate(final_page)
+            stop = await ModelCenter.cancel_operation(center, raw['runId'], raw['leaseId'], raw['attempt'], 'operation-fixture')
+            local_validator(SCHEMA, 'SparkChatCancelAck').validate(stop)
+
+    async def test_same_graph_stop_ack_cannot_substitute_another_nodes_fixed_model(self):
+        from tests.test_original_engine import node
+        self.raw['resourceSnapshots']['model-other'] = {**self.raw['resourceSnapshots']['model-1'], 'version': 'other-version'}
+        self.raw['dsl']['nodes'].append(node('spark-llm::other', modelResourceId='model-other', source='openai', domain='model-fixture'))
+        refresh_test_canonical(self.raw)
+        good = {**binding(self.raw), 'state': 'CANCELLED', 'stopped': True, 'proofId': 'offline-proof'}
+        transport = MemoryTransport(response={'code': 200, 'data': good})
+        client = CenterClient('https://center.invalid', 'offline-identity', transport=transport)
+        token = self.context(client)
+        try:
+            CURRENT_CONTEXT.get().boundary_failure = WorkerError('DSL_INVALID', 'fixture-sticky')
+            for changed in ({'resourceId': 'model-other', 'resourceVersion': 'other-version'}, {'nodeId': 'spark-llm::other'}):
+                transport.response['data'] = {**good, **changed}
+                with self.assertRaises(WorkerError) as caught:
+                    await client.cancel_model_operation(self.raw['runId'], self.raw['leaseId'], 1, 'operation-fixture')
+                self.assertEqual('VERSION_CONFLICT', caught.exception.code)
+            transport.response['data'] = good
+            self.assertEqual(good, await client.cancel_model_operation(self.raw['runId'], self.raw['leaseId'], 1, 'operation-fixture'))
+        finally:
+            CURRENT_CONTEXT.reset(token)
+
     async def test_model_request_exact_null_key4096_and_opaque_resource_id(self):
         values = parameters(); values['resourceId'] = 'model:17:version:29'
+        self.raw['resourceSnapshots'][values['resourceId']] = copy.deepcopy(self.raw['resourceSnapshots']['model-1'])
+        self.raw['dsl']['nodes'][1]['data']['nodeParam']['modelResourceId'] = values['resourceId']
+        refresh_test_canonical(self.raw)
         ack = {**binding(self.raw), 'resourceId': values['resourceId'], 'state': 'RUNNING'}
         transport = MemoryTransport(response={'code': 200, 'data': ack})
         client = CenterClient('https://center.invalid', 'offline-identity', transport=transport)
@@ -310,9 +401,24 @@ class ModelContractTest(unittest.IsolatedAsyncioTestCase):
         client = CenterClient('https://center.invalid', 'offline-identity', transport=transport)
         token = self.context(client)
         try:
-            CURRENT_CONTEXT.get().boundary_failure = WorkerError('DSL_INVALID', 'offline protocol failure')
+            original_failure = WorkerError('DSL_INVALID', 'offline protocol failure')
+            CURRENT_CONTEXT.get().boundary_failure = original_failure
+            CURRENT_CONTEXT.get().active = False
+            for operation in (lambda: self.invoke(client), lambda: client.operation_frames(self.raw['runId'], self.raw['leaseId'], 1, 'operation-fixture', 0)):
+                with self.assertRaises(WorkerError) as blocked:
+                    await operation()
+                self.assertIs(blocked.exception, original_failure)
+            self.assertEqual(transport.calls, [])
             result = await client.cancel_model_operation(self.raw['runId'], self.raw['leaseId'], 1, 'operation-fixture')
             self.assertEqual(result, ack)
+            self.assertIs(CURRENT_CONTEXT.get().boundary_failure, original_failure)
+            calls = len(transport.calls)
+            with self.assertRaises(WorkerError):
+                await client.cancel_model_operation('other-run', self.raw['leaseId'], 1, 'operation-fixture')
+            self.assertEqual(calls, len(transport.calls))
+            transport.response['data'] = {**ack, 'resourceVersion': 'wrong-version'}
+            with self.assertRaises(WorkerError):
+                await client.cancel_model_operation(self.raw['runId'], self.raw['leaseId'], 1, 'operation-fixture')
             transport.response['data'] = {**ack, 'state': 'EFFECT_UNKNOWN', 'stopped': False, 'proofId': None}
             with self.assertRaises(WorkerError) as caught:
                 await client.cancel_model_operation(self.raw['runId'], self.raw['leaseId'], 1, 'operation-fixture')
@@ -333,11 +439,15 @@ class ModelContractTest(unittest.IsolatedAsyncioTestCase):
         snapshot = self.raw['resourceSnapshots']['model-1']
         transport = MemoryTransport(); client = CenterClient('https://center.invalid', 'offline-identity', transport=transport)
         for bad in ({**snapshot, 'endpoint': 'https://private.invalid'}, {**snapshot, 'credentialRef': 'private-reference'},
-                    {**snapshot, 'provider': 'xinghuo'}, {**snapshot, 'capabilities': ['function_call']}, {k:v for k,v in snapshot.items() if k != 'capabilities'}):
+                    {**snapshot, 'provider': 'unknown-provider'}, {**snapshot, 'capabilities': ['function_call']}, {k:v for k,v in snapshot.items() if k != 'capabilities'}):
             transport.response = {'code': 200, 'data': bad}
             with self.assertRaises(WorkerError):
                 await client.resource('r', 'l', 1, 'opaque-resource')
             self.assertFalse(local_validator(SCHEMA, 'OpenAIChatSnapshot').is_valid(bad))
+        # 当前Java同时保全Spark chat的六字段公开目录；不能把合法provider当私有字段。
+        transport.response = {'code': 200, 'data': {**snapshot, 'provider': 'xinghuo'}}
+        self.assertEqual(await client.resource('r', 'l', 1, 'opaque-resource'), transport.response['data'])
+        local_validator(SCHEMA, 'ModelSnapshot').validate(transport.response['data'])
 
     async def test_unassembled_operation_returns503_without_retry_or_fake_response(self):
         transport = MemoryTransport(status=503)
@@ -367,7 +477,20 @@ class ModelContractTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_schema_draft_current_vs_complete_target_and_private_dto(self):
         document = json.loads(SCHEMA.read_text(encoding='utf-8'))
-        self.assertIn('QA', document['x-not-enabled'])
+        self.assertTrue({'python V2 conversation history and Decision history', 'java nested history', 'multimodal', 'nested iteration'} <= set(document['x-not-enabled']))
+        self.assertTrue(any('dynamic question-answer' in entry for entry in document['x-current-scope']))
+        self.assertTrue(any('centre-bound context' in entry for entry in document['x-current-scope']))
+        java = parameters()
+        java['options'] = {'maxTokens': 32, 'temperature': None, 'topP': None,
+            'presencePenalty': None, 'frequencyPenalty': None, 'n': None,
+            'streamUsage': True, 'enableThinking': True}
+        java['messages'].append({'role': 'assistant', 'content': 'original first answer'})
+        local_validator(SCHEMA, 'JavaOpenAIChatParameters').validate(java)
+        python_history = parameters()
+        python_history['messages'].append({'role': 'assistant', 'content': 'unbound history'})
+        self.assertFalse(local_validator(SCHEMA, 'OpenAIChatParameters').is_valid(python_history))
+        java['messages'][-1]['content'] = [{'type': 'image_url', 'image_url': 'untrusted'}]
+        self.assertFalse(local_validator(SCHEMA, 'JavaOpenAIChatParameters').is_valid(java))
         for name in ('StartAck', 'FramesAck', 'ModelParameters'):
             self.assertEqual(document['$defs'][name]['x-status'], 'target_contract_not_enabled')
         spark = parameters(); spark.update(provider='xinghuo', mode='function_call', functions=[{'name': 'original'}])
@@ -384,16 +507,23 @@ class ModelContractTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_openapi_shared_refs_and_no_private_grant_http(self):
         api = json.loads((CONTRACTS / 'internal.openapi.json').read_text(encoding='utf-8'))
-        suffixes = {'/resources/{resourceId}': ('LeaseRequest', 'OpenAIChatSnapshot'),
-            '/operations': ('OpenAIChatOperationRequest', 'OpenAIChatStartAck'),
-            '/operations/{operationId}/frames': ('FramesRequest', 'OpenAIChatFramesAck'),
-            '/operations/{operationId}/cancel': ('LeaseRequest', 'OpenAIChatCancelAck')}
+        def model(name): return {'$ref': 'model-operations.schema.json#/$defs/' + name}
+        def tool(name): return {'$ref': 'tool-operations.schema.json#/$defs/' + name}
+        def data(name): return {'$ref': 'data-operations.schema.json#/$defs/' + name}
+        suffixes = {'/resources/{resourceId}': (model('LeaseRequest'), {'oneOf': [model('ChatSnapshot'), tool('ToolResource'), data('DataResource')]}),
+            '/operations': ({'oneOf': [model('ModelOperationRequest'), tool('ToolOperationRequest'), data('DataOperationRequest')]},
+                {'oneOf': [model('ModelStartAck'), tool('ToolOperationAck'), data('DataOperationAck')]}),
+            '/operations/{operationId}/frames': (model('FramesRequest'), model('ModelFramesAck')),
+            '/operations/{operationId}/cancel': ({'anyOf': [model('LeaseRequest'), tool('ToolCancelRequest')]},
+                {'oneOf': [model('ModelCancelAck'), tool('ToolCancelAck')]}),
+            '/operations/{operationId}/status': (tool('ToolStatusRequest'), tool('ToolOperationAck'))}
         for suffix, definitions in suffixes.items():
             post = api['paths']['/internal/paiflow/v1/runs/{runId}' + suffix]['post']
-            request = post['requestBody']['content']['application/json']['schema']['$ref']
-            ack = post['responses']['200']['content']['application/json']['schema']['properties']['data']['$ref']
-            self.assertEqual((request, ack), tuple('model-operations.schema.json#/$defs/' + d for d in definitions))
+            request = post['requestBody']['content']['application/json']['schema']
+            ack = post['responses']['200']['content']['application/json']['schema']['properties']['data']
+            self.assertEqual((request, ack), definitions)
         self.assertFalse(any('grant' in p.lower() for p in api['paths']))
-        for document in (SCHEMA, CONTRACTS / 'worker.schema.json', CONTRACTS / 'events.schema.json', CONTRACTS / 'checkpoints.schema.json'):
+        for document in (SCHEMA, CONTRACTS / 'worker.schema.json', CONTRACTS / 'events.schema.json', CONTRACTS / 'checkpoints.schema.json',
+                CONTRACTS / 'tool-operations.schema.json', CONTRACTS / 'data-operations.schema.json'):
             from jsonschema import Draft202012Validator
             Draft202012Validator.check_schema(json.loads(document.read_text(encoding='utf-8')))

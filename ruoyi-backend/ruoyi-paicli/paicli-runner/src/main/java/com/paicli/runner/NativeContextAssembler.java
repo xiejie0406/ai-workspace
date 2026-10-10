@@ -11,6 +11,16 @@ public final class NativeContextAssembler {
     private NativeContextAssembler() { }
     public static JsonNode load(CenterHttpClient center, RunnerLease lease, JsonNode initial) throws IOException {
         if (!initial.isObject()) throw new IOException("中心上下文格式无效");
+        if(PersonalDirectoryContext.textOnly(lease.claim())){
+            if(!initial.path("textOnly").asBoolean())throw new IOException("中心上下文改变了纯问答无工具边界");
+            for(String field:new String[]{"ownerUserId","runtimeCanonicalPath","runtimeFingerprint"})if(lease.claim().hasNonNull(field)
+                &&!lease.claim().path(field).asText().equals(initial.path(field).asText()))throw new IOException("中心上下文改变了纯问答本人身份或运行目录");
+        }
+        if(lease.claim().hasNonNull("directoryContext")){
+            JsonNode expected=lease.claim().path("directoryContext"),actual=initial.path("directoryContext");
+            for(String field:new String[]{"id","ownerUserId","runnerId","path","rootFingerprint","version"})
+                if(!expected.path(field).asText().equals(actual.path(field).asText()))throw new IOException("中心上下文改变了租约固定个人目录："+field);
+        }
         ObjectNode context = initial.deepCopy(); long end = context.path("endSequence").asLong();
         ArrayNode history = CanonicalJson.MAPPER.createArrayNode();
         JsonNode first = context.path("history"); if (!first.isArray()) first = context.path("messages");

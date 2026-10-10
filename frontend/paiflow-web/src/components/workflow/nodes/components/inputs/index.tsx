@@ -10,15 +10,32 @@ import ChatHistory from '@/components/workflow/nodes/components/chat-history';
 import useFlowsManager from '@/components/workflow/store/use-flows-manager';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
 import { EnabledChatHistory } from '@/components/workflow/nodes/components/single-input';
+import type { InputType, InputsProps, ReferenceType, UseNodeInputRenderReturn } from '@/components/workflow/types';
 
 import inputAddIcon from '@/assets/imgs/workflow/input-add-icon.png';
 import remove from '@/assets/imgs/workflow/input-remove-icon.png';
+
+interface InputFieldProps extends Pick<InputsProps, 'id' | 'data'> {
+  item: InputType;
+}
+
+interface InputMutationProps extends Pick<InputFieldProps, 'id' | 'item'> {
+  handleChangeInputParam: UseNodeInputRenderReturn['handleChangeInputParam'];
+}
+
+interface InputReferenceProps extends InputMutationProps {
+  isFixedInputsNode: boolean;
+  references: ReferenceType[];
+}
+
+// 原变量树叶子由 buildSchemaReferences 生成，类型必为具体 string。
+type InputReferenceSelection = ReferenceType & { type: string };
 
 function NameField({
   id,
   item,
   handleChangeInputParam,
-}: unknown): React.ReactElement {
+}: InputMutationProps): React.ReactElement {
   if (item?.customParameterType === 'image_understanding') {
     return (
       <div className="flex items-center gap-2">
@@ -32,13 +49,13 @@ function NameField({
       nodeId={id}
       maxLength={30}
       value={item.name}
-      onChange={value =>
+      onChange={(value: string) =>
         handleChangeInputParam(item.id, (data, val) => (data.name = val), value)
       }
     />
   );
 }
-export function TypeSelector({ id, data, item }: unknown): React.ReactElement {
+export function TypeSelector({ id, data, item }: InputFieldProps): React.ReactElement {
   const { handleChangeInputParam, isIteratorNode, isFixedInputsNode } =
     useNodeCommon({
       id,
@@ -54,7 +71,7 @@ export function TypeSelector({ id, data, item }: unknown): React.ReactElement {
         { label: t('workflow.nodes.common.input'), value: 'literal' },
         { label: t('workflow.nodes.common.reference'), value: 'ref' },
       ]}
-      onChange={value =>
+      onChange={(value: 'literal' | 'ref') =>
         handleChangeInputParam(
           item.id,
           (data, val) => {
@@ -75,7 +92,7 @@ export function TypeSelector({ id, data, item }: unknown): React.ReactElement {
   );
 }
 
-export function ValueField({ id, data, item }: unknown): React.ReactElement {
+export function ValueField({ id, data, item }: InputFieldProps): React.ReactElement {
   const { references, handleChangeInputParam, isFixedInputsNode } =
     useNodeCommon({ id, data });
   const valueType = item?.schema?.value?.type;
@@ -106,12 +123,12 @@ export function LiteralField({
   id,
   item,
   handleChangeInputParam,
-}: unknown): React.ReactElement {
+}: InputMutationProps): React.ReactElement {
   return (
     <FlowNodeInput
       nodeId={id}
       value={item?.schema?.value?.content}
-      onChange={value =>
+      onChange={(value: string) =>
         handleChangeInputParam(
           item.id,
           (data, val) => (data.schema.value.content = val),
@@ -122,7 +139,7 @@ export function LiteralField({
   );
 }
 
-function RemoveButton({ id, data, item }: unknown): React.ReactElement {
+function RemoveButton({ id, data, item }: InputFieldProps): React.ReactElement | null {
   const { allowNoInputParams, canvasesDisabled, handleRemoveInputLine } =
     useNodeCommon({ id, data });
   if (!allowNoInputParams || canvasesDisabled) return null;
@@ -149,17 +166,18 @@ function ReferenceField({
   item,
   references,
   handleChangeInputParam,
-}: unknown): React.ReactElement {
+}: InputReferenceProps): React.ReactElement {
   const currentStore = useFlowsManager(state => state.getCurrentStore());
   const checkNode = currentStore(state => state.checkNode);
   const autoSaveCurrentFlow = useFlowsManager(
     state => state.autoSaveCurrentFlow
   );
-  const cascaderValue = item?.schema?.value?.content?.nodeId
-    ? [item?.schema?.value?.content?.nodeId, item?.schema?.value?.content?.name]
+  const content = item.schema.value.content;
+  const cascaderValue = content !== null && typeof content === 'object' && content.nodeId
+    ? [content.nodeId, content.name]
     : [];
 
-  const handleSelect = (node: unknown): void =>
+  const handleSelect = (node: InputReferenceSelection): void =>
     handleChangeInputParam(
       item.id,
       (data, val) => {
@@ -193,7 +211,7 @@ function ReferenceField({
   );
 }
 
-export function ErrorMessages({ item }: unknown): React.ReactElement {
+export function ErrorMessages({ item }: Pick<InputFieldProps, 'item'>): React.ReactElement {
   return (
     <div className="flex items-center gap-3 text-xs text-[#F74E43]">
       <div className="flex flex-col w-1/3">{item?.nameErrMsg}</div>
@@ -205,7 +223,7 @@ export function ErrorMessages({ item }: unknown): React.ReactElement {
   );
 }
 
-function index({ id, data }): React.ReactElement {
+function index({ id, data, allowAdd = true }: InputsProps): React.ReactElement {
   const { inputs, isIteratorNode, handleAddInputLine, handleChangeInputParam } =
     useNodeCommon({ id, data });
   const { t } = useTranslation();
@@ -265,7 +283,7 @@ function index({ id, data }): React.ReactElement {
               </div>
             ))}
           </div>
-          {!canvasesDisabled && !stringSplitMode && (
+          {allowAdd && !canvasesDisabled && !stringSplitMode && (
             <div
               className="text-[#275EFF] text-xs font-medium mt-1 inline-flex items-center cursor-pointer gap-1.5"
               onClick={() => handleAddInputLine()}

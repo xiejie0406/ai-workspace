@@ -18,6 +18,8 @@ import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.web.controller.common.LocalCaptchaDebugService;
+import jakarta.servlet.http.HttpServletRequest;
 import com.ruoyi.framework.web.service.SysLoginService;
 import com.ruoyi.framework.web.service.SysPermissionService;
 import com.ruoyi.framework.web.service.TokenService;
@@ -47,6 +49,9 @@ public class SysLoginController
     @Autowired
     private ISysConfigService configService;
 
+    @Autowired
+    private LocalCaptchaDebugService localCaptchaDebug;
+
     /**
      * 登录方法
      * 
@@ -54,14 +59,21 @@ public class SysLoginController
      * @return 结果
      */
     @PostMapping("/login")
-    public AjaxResult login(@RequestBody LoginBody loginBody)
+    public AjaxResult login(@RequestBody LoginBody loginBody, HttpServletRequest request)
     {
         AjaxResult ajax = AjaxResult.success();
         // 生成令牌
-        String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
-                loginBody.getUuid());
-        ajax.put(Constants.TOKEN, token);
-        return ajax;
+        try
+        {
+            String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
+                    loginBody.getUuid());
+            ajax.put(Constants.TOKEN, token);
+            return ajax;
+        }
+        finally
+        {
+            localCaptchaDebug.remove(request, loginBody.getUuid());
+        }
     }
 
     /**

@@ -17,31 +17,35 @@ export function useChunkUpload() {
     if (busy.value) return
     busy.value = true; error.value = ''; result.value = undefined; controller = new AbortController()
     const signal = controller.signal
+    const isCurrent = () => !signal.aborted && controller?.signal === signal
     try {
       if (!file.size) throw new Error('不能上传空文件')
-      phase.value = '计算文件摘要'; const hash = await sha256(file); if (signal.aborted) return
+      phase.value = '计算文件摘要'; const hash = await sha256(file); if (!isCurrent()) return
       const signature = `${hash}/${spaceId}/${visibility}`
       if (signature !== lastSignature) { uploadKey = newKey(); mergeKey = newKey(); manifest.value = undefined; lastSignature = signature }
       let current: Upload
-      if (resumeId) { current = (await uploadStatus(resumeId)).data; if ((current.sha256 && current.sha256.toLowerCase() !== hash) || (current.byteSize && current.byteSize !== file.size) || (!current.sha256 && current.filename && current.filename !== file.name) || (current.spaceId && String(current.spaceId)!==String(spaceId)) || (current.visibility && current.visibility!==visibility)) throw new Error('所选文件、空间或可见范围与续传记录不一致，请选择原文件及原范围') }
-      else { current = (await createUpload({ filename: file.name, byteSize: file.size, sha256: hash, spaceId, visibility }, uploadKey)).data; current = (await uploadStatus(current.uploadId)).data }
-      if (signal.aborted) return
-      if(current.state==='MERGED'){manifest.value=current;phase.value='读取已合并的原文档';result.value=(await mergeUpload(current.uploadId,mergeKey)).data;progress.value=100;phase.value='原上传已合并，已读取原文档';return}
+      if (resumeId) { current = (await uploadStatus(resumeId)).data; if (!isCurrent()) return; if ((current.sha256 && current.sha256.toLowerCase() !== hash) || (current.byteSize && current.byteSize !== file.size) || (!current.sha256 && current.filename && current.filename !== file.name) || (current.spaceId && String(current.spaceId)!==String(spaceId)) || (current.visibility && current.visibility!==visibility)) throw new Error('所选文件、空间或可见范围与续传记录不一致，请选择原文件及原范围') }
+      else { current = (await createUpload({ filename: file.name, byteSize: file.size, sha256: hash, spaceId, visibility }, uploadKey)).data; if (!isCurrent()) return; current = (await uploadStatus(current.uploadId)).data }
+      if (!isCurrent()) return
+      if(current.state==='MERGED'){manifest.value=current;phase.value='读取已合并的原文档';const document=(await mergeUpload(current.uploadId,mergeKey)).data;if(!isCurrent())return;result.value=document;progress.value=100;phase.value='原上传已合并，已读取原文档';return}
       if (!Number.isInteger(current.chunkSize) || current.chunkSize <= 0) throw new Error('服务端返回无效分片大小')
       manifest.value = current
       const count = Math.ceil(file.size / current.chunkSize), pending = missingChunks(count, current.completedChunks ?? [])
       progress.value = Math.round((count - pending.length) * 100 / count)
       phase.value = '上传文件分片'
       for (const n of pending) {
-        if (signal.aborted) return
+        if (!isCurrent()) return
         const chunk = file.slice(n * current.chunkSize, Math.min(file.size, (n + 1) * current.chunkSize))
-        await putChunk(current.uploadId, n, chunk, await sha256(chunk), signal)
+        const chunkHash = await sha256(chunk)
+        if (!isCurrent()) return
+        await putChunk(current.uploadId, n, chunk, chunkHash, signal)
+        if (!isCurrent()) return
         current.completedChunks = [...new Set([...current.completedChunks, n])]; progress.value = Math.round(current.completedChunks.length * 100 / count)
       }
-      if (signal.aborted) return
-      phase.value = '校验并合并'; result.value = (await mergeUpload(current.uploadId, mergeKey)).data; phase.value = '上传已合并，解析状态以文档列表为准'
-    } catch (e) { if (!signal.aborted) { error.value = errorText(e); phase.value = '上传未完成，可重试续传' } }
-    finally { if (controller?.signal === signal) busy.value = false }
+      if (!isCurrent()) return
+      phase.value = '校验并合并'; const document = (await mergeUpload(current.uploadId, mergeKey)).data; if (!isCurrent()) return; result.value = document; phase.value = '上传已合并，解析状态以文档列表为准'
+    } catch (e) { if (isCurrent()) { error.value = errorText(e); phase.value = '上传未完成，可重试续传' } }
+    finally { if (isCurrent()) busy.value = false }
   }
   return { manifest, busy, progress, phase, error, result, run, pause,reset }
 }

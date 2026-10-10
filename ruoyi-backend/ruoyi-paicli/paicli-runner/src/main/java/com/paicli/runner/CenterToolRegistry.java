@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /** 三条 Agent 路径均经同一提案、审批、消费和回执边界，不以模型回答代替许可。 */
 public class CenterToolRegistry extends ToolRegistry {
-    private static final Set<String> READ_ONLY = Set.of("read_file", "list_dir", "glob_files", "grep_code", "search_code", "web_search", "web_fetch", "load_skill", "snapshot__preview");
+    private static final Set<String> READ_ONLY = Set.of("read_file", "list_dir", "glob_files", "grep_code", "search_code", "web_search", "web_fetch", "load_skill", "snapshot__preview", "control__DIRECTORY_VERIFY");
     private static final Set<String> RESTORE_FIELDS = Set.of("snapshotMetadataId", "snapshotId", "snapshotVersion", "previewToolCallId", "currentFingerprint", "restorePreview");
     private static final ConcurrentHashMap<Path, ReentrantReadWriteLock> LOCKS = new ConcurrentHashMap<>();
     private final CenterHttpClient center;
@@ -28,6 +28,7 @@ public class CenterToolRegistry extends ToolRegistry {
     private final ReceiptSpool spool;
     private final ResourceFingerprint resources;
     private final PendingImageEvidence imageEvidence;
+    private final Path differencesCache;
     private final ReentrantReadWriteLock workspaceLock;
     private final ThreadLocal<String> callIds = new ThreadLocal<>();
     private final ThreadLocal<String> modelCallHashes = new ThreadLocal<>();
@@ -39,6 +40,7 @@ public class CenterToolRegistry extends ToolRegistry {
     private final ThreadLocal<java.util.function.Supplier<ToolOutput>> controlHandler = new ThreadLocal<>();
     private final ConcurrentHashMap<String,JsonNode> imageReferences=new ConcurrentHashMap<>();
     private volatile String planVersion;
+    private final ThreadLocal<com.paicli.tool.CommandExecutionObserver.Event> commandObservation=new ThreadLocal<>();
     private java.util.Map<String,String> centralSkillResources = java.util.Map.of();
 
     public void setCentralSkillBindings(JsonNode configurations) {
@@ -53,8 +55,12 @@ public class CenterToolRegistry extends ToolRegistry {
     }
 
     public CenterToolRegistry(CenterHttpClient center, RunnerLease lease, ReceiptSpool spool, Path root) throws IOException {
+        this(center,lease,spool,root,spool.stateDirectory());
+    }
+    public CenterToolRegistry(CenterHttpClient center, RunnerLease lease, ReceiptSpool spool, Path root,Path derivedState) throws IOException {
         this.center = center; this.lease = lease; this.spool = spool;
-        imageEvidence=new PendingImageEvidence(spool.stateDirectory());
+        imageEvidence=new PendingImageEvidence(derivedState);
+        differencesCache=derivedState.resolve("file-differences");
         resources = new ResourceFingerprint(root);
         if (!resources.rootFingerprint().equals(lease.claim().path("rootFingerprint").asText())) throw new IOException("设备登记的工作根与本机不符");
         planVersion = lease.claim().path("payload").path("planVersion").asText("0");
@@ -63,18 +69,22 @@ public class CenterToolRegistry extends ToolRegistry {
         // 真实执行器随后装配中心产物适配，绝不启用原仓库内的隐式文件卸载。
         setToolResultOffloader(new ToolResultOffloader(resources.root(),false,32000));
         setSanitizeCommandEnvironment(true);
-        Path sandbox=RunnerPrivateDirectory.createDirectories(spool.stateDirectory().resolve("sandbox"));
+        setCommandExecutionObserver(event->{if(event.phase()!=com.paicli.tool.CommandExecutionObserver.Phase.STARTED)commandObservation.set(event);});
+        Path sandbox=RunnerPrivateDirectory.createDirectories(derivedState.resolve("sandbox"));
         if(java.nio.file.Files.isSymbolicLink(sandbox)||!sandbox.toRealPath().equals(sandbox.toAbsolutePath().normalize())||sandbox.toRealPath().startsWith(resources.root()))throw new IOException("沙箱派生缓存必须位于工作根外且不能是链接");
         configureCommandSandbox(CommandSandboxMode.REQUIRED, resources.root(),sandbox);
     }
 
     @Override public String executeTool(String name, String argumentsJson) { return executeToolOutput(name, argumentsJson).text(); }
+    @Override public List<LlmClient.Tool> getToolDefinitions(){return PersonalDirectoryContext.textOnly(lease.claim())?List.of():super.getToolDefinitions();}
     @Override public ToolOutput executeToolOutput(String name, String argumentsJson) {
+        if(PersonalDirectoryContext.textOnly(lease.claim()))return ToolOutput.failure("纯问答没有文件或工具执行能力，请在文件能力就绪后发起处理要求");
         String callId = callIds.get();
         if (callId == null) callId = UUID.randomUUID().toString();
         Lock lock = READ_ONLY.contains(name) ? workspaceLock.readLock() : workspaceLock.writeLock();
         Path evidence = null;
         ToolOutput result = null;
+        ObjectNode observed=null;
         PendingImageEvidence.Reservation capacity=null;
         java.util.ArrayList<Path> pendingImages=new java.util.ArrayList<>();
         lock.lock();
@@ -133,22 +143,41 @@ public class CenterToolRegistry extends ToolRegistry {
             executionEvidence.set(pendingImages);
             executionCapacity.set(capacity);
             try {
+                FileModificationEvidence modification=Set.of("write_file","edit_file").contains(name)?FileModificationEvidence.capture(resources.root(),arguments):null;
+                commandObservation.remove();
                 result = executeAuthorized(name, argumentsJson);
-                // 在offload、图片网络上传和afterHash之前保留全部结果，不能只保留首张图。
                 pendingImages.add(capacity.preserveOutput(consume,result));
+                if(modification!=null){
+                    observed=modification.finish();
+                    pendingImages.add(capacity.preserveModification(consume,result,observed));
+                    String diff=observed.path("diff").asText();
+                    if(diff.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>256*1024){
+                        if(result.text().length()>32000)observed.remove("diff");
+                        else{
+                            var full=new HttpToolResultOffloader(center,lease,this,differencesCache);
+                            JsonNode uploaded=full.uploadContent(name,diff);ObjectNode reference=CanonicalJson.MAPPER.createObjectNode();
+                            for(String field:new String[]{"artifactId","sha256","size"})reference.set(field,uploaded.get(field));
+                            observed.set("diffArtifact",reference);observed.remove("diff");
+                        }
+                        if(!observed.has("diffArtifact"))observed.put("diffUnavailable","原始工具结果需完整卸载，同一调用不能重复占用分块正文；真实差异已保全供对账");
+                    }
+                }
+                var command=commandObservation.get();
+                if(command!=null){if(observed==null)observed=CanonicalJson.MAPPER.createObjectNode();if(command.exitCode()!=null)observed.put("exitCode",command.exitCode());observed.put("commandStatus",command.outcome().name());observed.put("processId",command.processId());}
+                // 在offload、图片网络上传和afterHash之前保留全部结果，不能只保留首张图。
                 // 控制事件/传输已经标为不确定时，只保全结果；不能用普通FAILED回执清掉已消费记录。
                 lease.ensureEvidenceAllowed();
                 // 内部预览的完整proof须进入正式回执；普通卸载提示不能代替预览正文。
                 String text="snapshot__preview".equals(name)?result.text():getToolResultOffloader().offloadIfOversized(name,argumentsJson,result.text());
                 result=new ToolOutput(text,result.imageParts(),result.successful(),result.discoveredUrls());
             }
-            finally { executionBinding.remove();executionEvidence.remove();executionCapacity.remove();controlEvidence.remove(); }
+            finally { executionBinding.remove();executionEvidence.remove();executionCapacity.remove();controlEvidence.remove();commandObservation.remove(); }
             ObjectNode receipt = lease.identity();
             receipt.put("toolCallId", callId); receipt.put("permitToken", permit.path("permitToken").asText());
             if(modelCallHashes.get()!=null)receipt.put("modelToolCallIdHash",modelCallHashes.get());
             receipt.put("eventId", UUID.randomUUID().toString()); receipt.put("status", result.successful() ? "COMPLETED" : "FAILED");
             receipt.put("beforeHash", before); receipt.put("afterHash", captureResource(name, arguments));
-            receipt.set("result", receiptResult(result,consume,pendingImages));
+            ObjectNode serialized=(ObjectNode)receiptResult(result,consume,pendingImages);if(observed!=null)serialized.setAll(observed);receipt.set("result",serialized);
             spool.receipt(evidence, receipt);
             JsonNode acknowledgement = center.post("/paicli/runner/v1/receipts", receipt, operationKey(lease.taskId(), callId, "receipt"));
             ReceiptAcknowledgement.require(acknowledgement,receipt);
@@ -296,6 +325,8 @@ public class CenterToolRegistry extends ToolRegistry {
         }
         for (String name : new String[]{"policyVersion", "fencingToken"})
             if (!lease.claim().path(name).asText().equals(permit.path(name).asText())) throw new IOException("工具许可 " + name + " 不符");
+        if(lease.claim().has("directoryContext"))for(String name:new String[]{"ownerUserId","directoryContextId"})
+            if(!lease.claim().path(name).asText().equals(permit.path(name).asText()))throw new IOException("个人工具许可身份或目录不符");
         if (!argsHash.equals(permit.path("argsHash").asText()) || !resourceHash.equals(permit.path("resourceHash").asText())
                 || !planVersion.equals(permit.path("planVersion").asText()) || !RunnerLease.expiry(permit.path("expiresAt")).isAfter(Instant.now())) throw new IOException("工具许可参数、资源、计划版本或有效期不符");
     }

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import hashlib
 import json
 
@@ -29,17 +30,22 @@ class _BoundModel:
             options.update(questionType=self.question_type, functionChoice=self.function_choice)
         body = {"resourceId": self.resource_id, "provider": self.provider, "modelName": self.model_name,
                 "mode": mode, "messages": messages, "options": options}
+        if getattr(self, 'checkpoint_id', None) is not None:
+            body['checkpointId'] = self.checkpoint_id
         if functions is not None:
             body["functions"] = functions
         if timeout is not None:
             if not isinstance(timeout, (int, float)) or isinstance(timeout, bool) or not 0 < timeout <= 600:
                 raise WorkerError("DSL_INVALID", "模型超时超出范围")
             body["timeoutSeconds"] = timeout
-        _validate_payload(body)
+        schema_paths = frozenset(('functions', index, 'parameters') for index in range(len(functions or [])))
+        _validate_payload(body, schema_paths=schema_paths)
         return body
 
     async def _frames(self, body):
         context = current_context()
+        from .python_history import check_model_messages
+        check_model_messages(context, self.node_id, body.get('messages'))
         operation_id = None
         completed = False
         invoke_dispatched = False
@@ -207,6 +213,7 @@ class CenterSparkChatAI(_BoundModel, SparkChatAi):
     resource_id: str
     provider: str = "xinghuo"
     response_format: int = 0
+    checkpoint_id: str | None = None
     async def achat(self, flow_id, user_message, span, extra_params=None, timeout=None, search_disable=True, event_log_node_trace=None):
         body = self._parameters(user_message, None, extra_params or {}, timeout, search_disable, mode="chat")
         async for frame in self._frames(body):
@@ -219,6 +226,21 @@ class CenterOpenAIChatAI(_BoundModel, OpenAIChatAI):
     patch_id: list = []
     provider: str = "openai"
     response_format: int = 0
+    checkpoint_id: str | None = None
+
+    def decode_message(self, frame):
+        # 原SDK把合法省略字段补为None，再调用原解码器。中心账本/原始LLMResponse
+        # 保持Provider字节语义；只在本次私有副本恢复三个解码需要的缺省字段。
+        decoded = copy.deepcopy(frame)
+        decoded.setdefault('usage', None)
+        choices = decoded.get('choices')
+        if isinstance(choices, list) and choices and isinstance(choices[0], dict):
+            choices[0].setdefault('finish_reason', None)
+            delta = choices[0].get('delta')
+            if isinstance(delta, dict):
+                delta.setdefault('content', None)
+        return super().decode_message(decoded)
+
     async def achat(self, flow_id, user_message, span, extra_params=None, timeout=None, search_disable=True, event_log_node_trace=None):
         body = self._parameters(user_message, None, extra_params or {}, timeout, search_disable, mode="chat")
         async for frame in self._frames(body):
@@ -259,10 +281,19 @@ def _configuration(node):
         error = WorkerError("TOOL_POLICY_DENIED", "Worker 不接受原模型 URL/明文凭据或环境引用")
         context.boundary_failure = error
         raise error
-    return {"node_id": node.node_id, "resource_id": node.modelResourceId, "model_url": "", "model_name": node.domain,
+    options = {"node_id": node.node_id, "resource_id": node.modelResourceId, "model_url": "", "model_name": node.domain,
         "spark_version": "", "temperature": node.temperature, "app_id": "", "api_key": "", "api_secret": "",
         "max_tokens": node.maxTokens, "top_k": node.topK, "patch_id": node.patch_id, "uid": "",
         "response_format": node.respFormat, "stream_node_first_token": node.stream_node_first_token}
+    if context.assignment.execution_codec == 'paiflow.execution.v4' and node.node_id.startswith('question-answer::'):
+        port = getattr(node, '_checkpoint_port', None)
+        checkpoint_id = getattr(port, 'consumed_checkpoint_id', None)
+        if not isinstance(checkpoint_id, str) or not checkpoint_id:
+            error = WorkerError('RESOURCE_UNAVAILABLE', '动态问答模型操作缺少中心已消费回复')
+            context.boundary_failure = error
+            raise error
+        options['checkpoint_id'] = checkpoint_id
+    return options
 
 
 def create_chat_ai(node):

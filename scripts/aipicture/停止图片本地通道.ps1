@@ -42,8 +42,11 @@ foreach($entry in $pictureState.processes) {
     if($WorkerOnly -and $entry.name -ne 'python-worker') { continue }
     $process=Get-CimInstance Win32_Process -Filter "ProcessId=$($entry.pid)"
     if(-not $process) { continue }
+    $creationProperty=$entry.PSObject.Properties['createdAt']
+    if(-not $creationProperty -or -not $creationProperty.Value -or ([DateTimeOffset]$creationProperty.Value).UtcDateTime -ne $process.CreationDate.ToUniversalTime()) { throw '进程创建时间与启动清单不符或缺失，不停止。' }
     if($entry.name -eq 'java') {
         if(-not $process.CommandLine.Contains($entry.artifact)) { throw 'Java PID身份已变化，不停止。' }
+        if($process.Name -ne 'java.exe' -or $process.CommandLine -notmatch ('-jar\s+"?'+[regex]::Escape($entry.artifact)+'"?(?:\s|$)') -or (Get-FileHash -LiteralPath $entry.artifact -Algorithm SHA256).Hash -ne $entry.sha256) { throw '原Java路径、命令或制品身份变化，不停止。' }
         if($JavaOnly) {
             if($process.Name -ne 'java.exe' -or $process.CommandLine -notmatch ('-jar\s+"?'+[regex]::Escape($entry.artifact)+'"?(?:\s|$)') -or (Get-FileHash -LiteralPath $entry.artifact -Algorithm SHA256).Hash -ne $entry.sha256) { throw '原Java路径、命令或制品身份变化，不停止。' }
             $javaListeners=@(Get-NetTCPConnection -LocalPort $entry.port -State Listen -ErrorAction SilentlyContinue)
@@ -65,7 +68,7 @@ foreach($entry in $pictureState.processes) {
             $picturePythonChildren+=[pscustomobject]@{name=$entry.name;pid=$child.ProcessId;parentPid=$entry.pid;artifact=$pictureBasePython;executablePath=$child.ExecutablePath;port=0;createdAt=$child.CreationDate;commandLine=$child.CommandLine}
         }
     } elseif($entry.name -eq 'frontend') {
-        if(-not $process.CommandLine.Contains($entry.artifact) -or -not $process.CommandLine.Contains('14385')) { throw '前端PID身份已变化，不停止。' }
+        if($process.Name -ne 'node.exe' -or -not $process.CommandLine.Contains($entry.artifact) -or $process.CommandLine -notmatch '--host\s+127\.0\.0\.1(?:\s|$)' -or $process.CommandLine -notmatch '--port\s+14385(?:\s|$)' -or $process.CommandLine -notmatch '--strictPort(?:\s|$)') { throw '前端PID或完整启动参数身份已变化，不停止。' }
     } else { throw '运行清单含未知进程，不停止。' }
     $pictureTargets+=[pscustomobject]@{name=$entry.name;pid=$entry.pid;artifact=$entry.artifact;executablePath=$process.ExecutablePath;port=$entry.port;createdAt=$process.CreationDate;commandLine=$process.CommandLine}
 }

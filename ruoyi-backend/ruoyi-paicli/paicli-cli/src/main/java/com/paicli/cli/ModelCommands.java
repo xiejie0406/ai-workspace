@@ -107,7 +107,7 @@ final class ModelCommands {
     }
 
     private static String providerName(String provider) {
-        return "deepseek".equals(provider) ? "DeepSeek" : provider;
+        return "deepseek".equals(provider) ? "DeepSeek" : "sub2api".equals(provider) ? "Sub2API" : provider;
     }
 
     private static String info(PaiCliConfig config, LlmClient current, String[] args) {
@@ -128,6 +128,8 @@ final class ModelCommands {
                 .append("\n上下文：").append(compactTokens(preview.maxContextWindow()))
                 .append("（").append(preview.maxContextWindow()).append(" tokens）")
                 .append("\n输入：").append(preview.supportsImageInput() ? "文本·图片" : "文本");
+        if ("sub2api".equals(provider) && settings != null)
+            out.append("\n调用 API：").append("responses".equals(settings.getWireApi()) ? "Responses" : "Chat Completions");
         if (profile != null) {
             out.append("\n配置来源：").append("discovered".equals(profile.source()) ? "发现，能力待配置" : "手动配置");
             if (profile.template() != null) out.append("\n能力模板：").append(profile.template());

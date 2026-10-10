@@ -137,9 +137,14 @@ class E2GeneratedVerifierTest {
     private Result verdict(Path root, ObjectNode evidence) throws Exception {
         Path input = com.paicli.eval.benchmark.SecureFiles.createTempFile(temp, "evidence-", ".json");
         Files.writeString(input, evidence.toString());
-        var process = new ProcessBuilder(root.resolve("validators/final/E2").toString(),
-                root.resolve("references/final/E2/workspace").toString(), input.toString())
-                .redirectErrorStream(true).start();
+        String wrapper = root.resolve("validators/final/E2").toString();
+        String workspace = root.resolve("references/final/E2/workspace").toString();
+        // Windows 测试由已有 bash 执行原 wrapper，仍由其定位并调用原私有 Python verifier。
+        var builder = System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("windows")
+                ? com.paicli.eval.benchmark.BenchmarkTestRuntime.processBuilder(
+                        "bash", wrapper, workspace, input.toString())
+                : new ProcessBuilder(wrapper, workspace, input.toString());
+        var process = builder.redirectErrorStream(true).start();
         assertTrue(process.waitFor(30, TimeUnit.SECONDS));
         String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
         JsonNode json;

@@ -88,6 +88,15 @@ class CheckpointPersistenceTest {
         body.put("timeoutSeconds",61);assertEquals(400,assertThrows(ServiceException.class,()->service.create(run.getId(),worker,body)).getCode());
         assertEquals(1,new JdbcTemplate(source).queryForObject("SELECT COUNT(*) FROM paiflow_run_checkpoint",Integer.class));
     }
+    @Test void deadlineHasTheSameDatabasePrecisionAcrossCreatePollAndConsume() {
+        time.set(Instant.parse("2026-10-03T00:00:00.123456789Z"));
+        var first=service.create(run.getId(),worker,createBody());String id=first.getString("checkpointId");
+        assertEquals("2026-10-03T00:01:00.123456Z",first.getString("deadline"));
+        assertEquals(first.getString("deadline"),service.poll(run.getId(),id,worker,pollBody(0)).getString("deadline"));
+        service.reply(run.getId(),id,replyBody("resume","真实回复","checkpoint-deadline-reply"));
+        var consumed=service.consume(run.getId(),id,worker,consumeBody(1,"checkpoint-deadline-consume"));
+        assertEquals(first.getString("deadline"),consumed.getString("deadline"));assertTrue(consumed.getBooleanValue("consumed"));
+    }
     @Test void claimedButNotBegunWorkerCannotCreateQuestionCheckpoint(){
         var other=queued();var otherTask=leases.claim(worker);var body=createBody();body.put("leaseId",otherTask.getString("leaseId"));
         assertEquals(409,assertThrows(ServiceException.class,()->service.create(other.getId(),worker,body)).getCode());

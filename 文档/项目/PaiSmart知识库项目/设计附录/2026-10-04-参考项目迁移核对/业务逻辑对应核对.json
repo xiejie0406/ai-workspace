@@ -1,0 +1,771 @@
+{
+  "project": "PaiSmart",
+  "date": "2026-10-04",
+  "type": "源码逻辑证据",
+  "scope": "离线代码完整度，不运行API/测试/业务或连接数据库",
+  "items": [
+    {
+      "sequence": 1,
+      "name": "登录注册与退出",
+      "logic": "若依身份/角色/菜单承接，业务资格注册扩展同事务消费邀请，不另发JWT或管理员权限。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/PaismartRegistrationExtension.java",
+          "line": 17,
+          "anchor": "public boolean register",
+          "sha256": "ba4b4a177e2dc3dfd56922b61a0e62c06f41a6c70fe121a82f9672745b8dcab1"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/MembershipService.java",
+          "line": 20,
+          "anchor": "requireEligible",
+          "sha256": "cd8b94a310cc1265608e3042d6d33899294d0e4c719c9a63ced6e05a2df22d7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java",
+          "line": 38,
+          "anchor": "public AjaxResult me",
+          "sha256": "1c750a6c5d566b65c643344da65c6a6e37d5a0318af40d22e02f77b705349d83"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 2,
+      "name": "邀请码",
+      "logic": "自定义/批量、有效期/次数、更新删除、资格与额度同事务消费；幂等与版本限制。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/InvitationService.java",
+          "line": 46,
+          "anchor": "createIdempotent",
+          "sha256": "265a792b89cf543166dcd0478112eccd0f176d357a63c4edea9d67759c6eb938"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/InvitationService.java",
+          "line": 85,
+          "anchor": "public void redeem",
+          "sha256": "265a792b89cf543166dcd0478112eccd0f176d357a63c4edea9d67759c6eb938"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 3,
+      "name": "知识组织与成员",
+      "logic": "原组织树、主组织、多成员标签、祖先可读和上传上限接知识空间，平台用户数据范围与业务资格分别裁决。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/spaces/SpaceService.java",
+          "line": 26,
+          "anchor": "visibleSpaceIds",
+          "sha256": "5f6b44fbb192dd7316a5e22a09465932da7b250fb7a6eac0b2909ede62ebc141"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java",
+          "line": 87,
+          "anchor": "users.checkUserDataScope(id)",
+          "sha256": "1c750a6c5d566b65c643344da65c6a6e37d5a0318af40d22e02f77b705349d83"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/members/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "38676cc0060f4720245d09adc0e71e7c4af7a9d15aef9ccd7a65f6cd3dd72f18"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 4,
+      "name": "上传续传",
+      "logic": "分片校验/持久会话/状态、缺片续传和合并摘要；正式文档入任务后处理，不能用合并成功冒充索引就绪。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/UploadService.java",
+          "line": 188,
+          "anchor": "merge",
+          "sha256": "d77e5e3f1cad1cc47b5e5c37eac21642432bbd9cd3671409538f9296e0a1fed3"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/composables/useChunkUpload.ts",
+          "line": 1,
+          "anchor": "",
+          "sha256": "071c7716b3f7383128709e321accc6fa9e3b0723209d22da3074cdeca4e49d81"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 5,
+      "name": "支持格式",
+      "logic": "原声明格式受嗅探白名单与Java解析Worker处理；图片/音视频/压缩包仍拒绝，保留原外部OCR用途。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/UploadService.java",
+          "line": 79,
+          "anchor": "supportedTypes",
+          "sha256": "d77e5e3f1cad1cc47b5e5c37eac21642432bbd9cd3671409538f9296e0a1fed3"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/ParserWorker.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "90aace53bae7d09e3279ba151358a1443ae9b7afb7448ee88968311cdcc34d1e"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 6,
+      "name": "解析分块与并发",
+      "logic": "隔离Java解析进程→分页/正文→语义句/词边界、小块合并和重叠→正式版本，租约/内存/超时/中断有界。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+          "line": 51,
+          "anchor": "parsePages",
+          "sha256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/TextChunker.java",
+          "line": 12,
+          "anchor": "public static List<String> split",
+          "sha256": "7aa0c995233bd37cb07b92437fcdfcddbccfeedfaa8be111432fca869a26b4aa"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/IsolatedDocumentParser.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "24244afc4540dfd8f8126211e42b27fdd881086e91e749a459b625500659deae"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 7,
+      "name": "PDF和阿里OCR",
+      "logic": "按页解析及LiteParse回调作业凭证、次数/归属/计费，健康调用是显式入口，不默认外呼。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/OcrService.java",
+          "line": 37,
+          "anchor": "recognize",
+          "sha256": "22b1bf79f683dff4cb1d2053d40350f8286dcfc648bb92f973191a7430d07561"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java",
+          "line": 40,
+          "anchor": "ocrHealthTest",
+          "sha256": "2ea751d7be5274bb361ae784678188d83c4ee2af910deeb4b6b16711f1aab624"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 8,
+      "name": "向量化与重试",
+      "logic": "批次向量、model/dimension快照、缓存和正式用量账，当前版本/租约后索引；失败取消回调同步文档状态。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+          "line": 80,
+          "anchor": "indexDocument",
+          "sha256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/DocumentService.java",
+          "line": 181,
+          "anchor": "onProcessingFailed",
+          "sha256": "57010aca217b19daed91d8d15bb77ea79562aaa3844d58af22cdecb2fc1d1ebd"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 9,
+      "name": "文档管理与预览",
+      "logic": "本人/授权列表、正文/下载/PDF页、删除恢复按文档ID/版本/权限；不按文件名或MD5裁决权限。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/documents/DocumentService.java",
+          "line": 55,
+          "anchor": "getReadable",
+          "sha256": "57010aca217b19daed91d8d15bb77ea79562aaa3844d58af22cdecb2fc1d1ebd"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "88197707440d21466621d7bd1481f67ff839b81ae764aea7267c5b49d2f96c84"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "b163c440384059dc2c94da82aac2c25695b35ccb76c248c5c66751c7cf227b54"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 10,
+      "name": "混合检索",
+      "logic": "权限过滤→并行BM25/KNN→RRF→重排及阈值→当前正式版本再次授权；错误显示真实降级。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+          "line": 33,
+          "anchor": "searchAt",
+          "sha256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/RrfFusion.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "3782249a8c9c341ad317eedc34ccd717acf00924324c439530d0cc9c5370881d"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/documents/components/SearchDialog.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "f29f0183e1674714e9700912d768a0b957e5d83d21c8e0e1935c2cf909d80b70"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 11,
+      "name": "上下文增强",
+      "logic": "8块批次/邻居有界窗口，说明独立保存、失败用原文，模型/费用归当前Job快照。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+          "line": 147,
+          "anchor": "generateContexts",
+          "sha256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DocumentIntelligenceService.java",
+          "line": 208,
+          "anchor": "contextWindow",
+          "sha256": "8c8949664a4123a52482319651515bc2c005e9119935d0348fef01cf65f34cf0"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 12,
+      "name": "相邻父块扩展",
+      "logic": "逐命中授权、邻居去重和字符预算、父窗口共享但保留小块原文；原规划实体父子Chunker不计已实现。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/SearchService.java",
+          "line": 72,
+          "anchor": "public List<Evidence> expand",
+          "sha256": "eaf1ea20e81088c5a5c76e75b00ee78adb8acc78a6c5b38d9bf0fe6e7317c705"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/TextChunker.java",
+          "line": 10,
+          "anchor": "stripOverlap",
+          "sha256": "7aa0c995233bd37cb07b92437fcdfcddbccfeedfaa8be111432fca869a26b4aa"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 13,
+      "name": "四工具与摘要",
+      "logic": "4轮/8次预算，搜索/摘要/明确反馈/权限统计；schema校验、事件/正文/引用存中心MySQL。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java",
+          "line": 107,
+          "anchor": "processGeneration",
+          "sha256": "4938f0beca72002d0bcb5e272ada6ab717b7910dc2ab5d4dfa7c51589eb9a6d4"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java",
+          "line": 140,
+          "anchor": "executeTool",
+          "sha256": "4938f0beca72002d0bcb5e272ada6ab717b7910dc2ab5d4dfa7c51589eb9a6d4"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java",
+          "line": 127,
+          "anchor": "toolSchemas",
+          "sha256": "4938f0beca72002d0bcb5e272ada6ab717b7910dc2ab5d4dfa7c51589eb9a6d4"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 14,
+      "name": "流式、恢复与停止",
+      "logic": "平台会话绑定ticket、持久生成/序号事件恢复；不重发已有请求，停止保留实际正文和费用。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/WebSocketTicketService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "59ea0cfa872ec2490ddb2e51fd5100316ad5b3372777ca059a0df0caee7ebc67"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/PaismartChatWebSocket.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "f641f477ecd9761f51078c28b4bdb587ab0e75e8b25b09b03514aa1b3a11d05e"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/composables/useChatStream.ts",
+          "line": 1,
+          "anchor": "",
+          "sha256": "750de6bcc9e85c058e40921600e426f8c5c4b2376e9e8fde28a717e76c9f84c5"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 15,
+      "name": "会话历史和审计",
+      "logic": "创建/切换/归档/恢复、时间/关键词分页，本人和授权空间审计，归档只读。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java",
+          "line": 31,
+          "anchor": "conversationPage",
+          "sha256": "4938f0beca72002d0bcb5e272ada6ab717b7910dc2ab5d4dfa7c51589eb9a6d4"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ChatService.java",
+          "line": 30,
+          "anchor": "auditMessages",
+          "sha256": "4938f0beca72002d0bcb5e272ada6ab717b7910dc2ab5d4dfa7c51589eb9a6d4"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/history/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "0db6de0d1dee2077b8068c86f9fe1fc88f57288a8689e0528a19bbe55c187681"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 16,
+      "name": "引用与核验",
+      "logic": "同生成工具轮次稳定编号，实际chunk/version/页/原文位置，核验可疑原因和预览保存于历史。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/CitationService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "cabd2ab598610d0a22845fac2e4b6da49fac3c152017fa4aa7eae10c31e541b5"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/CitationExtractor.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "37f280c88f81ff9a0d623a78d793cb5b95b64b67be55a400b3fcb47782f9d8dd"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/chat/components/ReferencePreview.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "17b8c678d20465b61bd71ed967e41d52bb4edaf3fe0d988a760fcf45b33aaa25"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 17,
+      "name": "冲突检测",
+      "logic": "当前索引权限候选、键值冲突及可选LLM确认，文档版本/模型/检查点和用量绑定。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+          "line": 27,
+          "anchor": "conflict",
+          "sha256": "9d37a9d29d261b1e3c0909613ad85659dd12f028a8853bfe39d6f344529f60f8"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/KeyValueConflictAnalyzer.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "1f76446744048637859368ca25a57863ab627f2758866e92574222d76257ab0a"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 18,
+      "name": "冲突裁决",
+      "logic": "保留新/旧/忽略、整篇退出检索影响明确，比较页、软删与恢复。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+          "line": 77,
+          "anchor": "resolve",
+          "sha256": "9d37a9d29d261b1e3c0909613ad85659dd12f028a8853bfe39d6f344529f60f8"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/governance/conflicts/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "cf47d0a81a0e5d7aa7c115d1f49148e9967da7569df7c4014e0290c2f56a8ffc"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 19,
+      "name": "索引版本和恢复",
+      "logic": "供应商/维度冻结、续建检查点/追平水位、校验后别名切换/收据恢复、回滚；失败不覆盖活动版本。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+          "line": 79,
+          "anchor": "rebuild",
+          "sha256": "9d37a9d29d261b1e3c0909613ad85659dd12f028a8853bfe39d6f344529f60f8"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/IndexCoordinator.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "12ff3bf3fe2f2d5b8b881d5ab5bc681ed7fef7e0e46511319a0fc76bc1649030"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/governance/indexes/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "924a0956525a8bc8468d32b954a07678d5d3603d7ffad90a07849f7d6ee6854d"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 20,
+      "name": "离线评测",
+      "logic": "内联/上传JSONL、TopK、Recall/MRR及生成/裁判诊断、按案例持久及报告快照/导出；缺样本不补零。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+          "line": 257,
+          "anchor": "createEvaluation",
+          "sha256": "9d37a9d29d261b1e3c0909613ad85659dd12f028a8853bfe39d6f344529f60f8"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/EvaluationAlgorithms.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "ce870ed7de69fe2af60658cf8518d5ea16cfe0da7403c728cc08486d8b7c21b1"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/governance/evaluations/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "f7d748dd7a148be17b115e68789f0447e3d5b1e64ba025e87bc70948313d70a3"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 21,
+      "name": "人工复核",
+      "logic": "抽样、案例/版本复核历史、一致率/kappa与最小样本门槛，不将未知结论记通过。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/GovernanceService.java",
+          "line": 352,
+          "anchor": "review",
+          "sha256": "9d37a9d29d261b1e3c0909613ad85659dd12f028a8853bfe39d6f344529f60f8"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/HumanReviewSampler.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "700cd6561f387a5069d01de958087c0df9097734e8a98f0f64bee7171778bd1e"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/governance/evaluations/review.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "24864a5b884602d9242adc146578d3e1833b0aefcfac088bf87ec5d036d56e00"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 22,
+      "name": "模型供应商",
+      "logic": "LLM/Embedding/Rerank作用域、托管key、版本/启用激活及显式测试；Sub2API后续实现按当前源码确认。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java",
+          "line": 73,
+          "anchor": "scopeConfig",
+          "sha256": "d2ec65706798541b22f1a3fbebc3f78d1eb0b6b143f79c9373d44df9d624cda8"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelGateway.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "f9ced35e9d72e6fb92560cd5adf61a4df6a4ebe10e987962346414ed33d1e475"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/operations/providers/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "cefac6105cf95a83fee743c042cc418ae48bc5058f98d460d5d4d1412a0672ad"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 23,
+      "name": "日额度与余额",
+      "logic": "DAILY/BALANCE、预留/结算/释放、不明账对账、整数Token和请求计数，不仅检查余额。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java",
+          "line": 19,
+          "anchor": "reserve",
+          "sha256": "7441abb9a2ddb725921ada0de47e8289c9d9e05c60edfe27a8c72ced956399d3"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelCallService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "af1b39f7c2a833372c0a014775e5350a4b5028f3c52a0249e582c7b58d9f75a3"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 24,
+      "name": "用量流水与追加",
+      "logic": "本人流水/日趋势、管理汇总/理由/幂等追加。本轮补成员额度三个入口的业务资格和平台数据范围。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java",
+          "line": 148,
+          "anchor": "snapshot",
+          "sha256": "7441abb9a2ddb725921ada0de47e8289c9d9e05c60edfe27a8c72ced956399d3"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java",
+          "line": 104,
+          "anchor": "public AjaxResult credit",
+          "sha256": "1c750a6c5d566b65c643344da65c6a6e37d5a0318af40d22e02f77b705349d83"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/usage/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "916c0df6f916923cf75f6646b85cf9121437ca545c90a6b13411bf5284c05850"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 25,
+      "name": "请求限流",
+      "logic": "平台登录注册限流承接，业务CHAT/UPLOAD/LLM/EMBEDDING窗口及日限额，Redis原子计数失败关闭。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/RateLimitService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "cc3ba4a391f1d63d9ae958d12f2e4f301b7d1b29e852fab338bb5d37ecc66210"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/RateLimitController.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "df0107be2a05f26eb590d623674d8623148a8f839ddc263ac8fc4af513cb27ea"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/operations/limits/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "b5d38fce6333535123f8d311b7fe36d2c76e0bfe55466ee292bfa96be4df41e5"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 26,
+      "name": "微信扫码充值",
+      "logic": "套餐/自定义基准→订单快照→扫码/主动查询/验签回调→金额交易号→唯一入账；不明预支付先查单不重送。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/RechargeService.java",
+          "line": 36,
+          "anchor": "public Order create",
+          "sha256": "1b38b6332b3b8739cdf3c241acd5a6d351660cf2bb240d6004216353520ad533"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/RechargeService.java",
+          "line": 96,
+          "anchor": "public void accept",
+          "sha256": "1b38b6332b3b8739cdf3c241acd5a6d351660cf2bb240d6004216353520ad533"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/WechatPaymentGateway.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "da8d2e1486c8f80c63eda5277c7c54116bfbaf9c604dca6245bc9d84c16778a3"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/recharge/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "b2ce2572ebff06c0cf3ee6e8bbf5c9fda14ca8116c9e3ed9b1ac72521f7be33a"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 27,
+      "name": "充值套餐",
+      "logic": "价格/权益/说明/排序/启停/删除和rowVersion，已建订单快照不随套餐变化。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/RechargeService.java",
+          "line": 24,
+          "anchor": "public Package save",
+          "sha256": "1b38b6332b3b8739cdf3c241acd5a6d351660cf2bb240d6004216353520ad533"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/operations/packages/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "edd3770157d486628e8a5a4942a6ad07c75bd0bae12b8852a3643a7c146145b7"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 28,
+      "name": "状态、审计及知识文本",
+      "logic": "平台用户复用、依赖只读状态/任务和费用核账、文本知识入正式版本；审计按原归属。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "399fcd9be774a3857ee65e25caef9f9f9b42582b8075fb9c929066ab1018b484"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/DependencyStatusService.java",
+          "line": 1,
+          "anchor": "",
+          "sha256": "aa75c07d4b37d66dd0160c34e572745ef4af1a3e60a2f110394e7c279c6d1ace"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/DocumentController.java",
+          "line": 40,
+          "anchor": "text",
+          "sha256": "88197707440d21466621d7bd1481f67ff839b81ae764aea7267c5b49d2f96c84"
+        },
+        {
+          "path": "frontend/admin-web/src/views/paismart/operations/jobs/index.vue",
+          "line": 1,
+          "anchor": "",
+          "sha256": "50ddbdf52126ff861a2f4b306f4dba3bb4bd324610acb7a5880815d719a8a842"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 29,
+      "name": "搬迁清理与内置导入",
+      "logic": "原自动清空/管理员初始化改为正式清单、独立批准、逐项租约/收据恢复，仅PaiSmart命名空间。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/operations/OperationExecutionService.java",
+          "line": 56,
+          "anchor": "processJob",
+          "sha256": "a5f44a73572a2212ca595c6b3bff70383e0d1eafc8b911974436b4a1fea9ae83"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/OperationController.java",
+          "line": 23,
+          "anchor": "execute",
+          "sha256": "399fcd9be774a3857ee65e25caef9f9f9b42582b8075fb9c929066ab1018b484"
+        }
+      ],
+      "conclusion": "代码链路已定位，运行未验证"
+    },
+    {
+      "sequence": 30,
+      "name": "占位页面",
+      "logic": "短信登录/短信重置/微信绑定为原成功提示或空模板，不复制虚假业务；认证/密码使用若依现有流程。",
+      "targetReferences": [],
+      "conclusion": "原占位/规划/技术设施，非遗漏业务"
+    },
+    {
+      "sequence": 31,
+      "name": "规划算法",
+      "logic": "原持久实体父子Chunker/格式专用策略是路线图，当前已迁实际语义分块与相邻扩展，不将路线图计为缺已实现功能。",
+      "targetReferences": [
+        {
+          "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/TextChunker.java",
+          "line": 12,
+          "anchor": "public static List<String> split",
+          "sha256": "7aa0c995233bd37cb07b92437fcdfcddbccfeedfaa8be111432fca869a26b4aa"
+        }
+      ],
+      "conclusion": "原占位/规划/技术设施，非遗漏业务"
+    },
+    {
+      "sequence": 32,
+      "name": "测试接口与部署工具",
+      "logic": "原事务测试Controller/演示页/远程部署工具不装配正式业务；不复制原生产凭据或自动部署，本轮未运行测试。",
+      "targetReferences": [],
+      "conclusion": "原占位/规划/技术设施，非遗漏业务"
+    }
+  ],
+  "codeFixes": [
+    {
+      "name": "成员额度数据范围",
+      "entries": [
+        "credits POST",
+        "quota-policy PUT",
+        "quota-policy GET"
+      ],
+      "file": {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java",
+        "line": 104,
+        "anchor": "public AjaxResult credit",
+        "sha256": "1c750a6c5d566b65c643344da65c6a6e37d5a0318af40d22e02f77b705349d83"
+      },
+      "change": "读写前检查业务管理资格和平台用户数据范围",
+      "runtimeVerified": false
+    }
+  ],
+  "pythonMapping": [
+    {
+      "purpose": "原deploy_release/deploy_remote是SSH部署工具，不是业务Runtime；原凭据和自动部署不迁正式服务"
+    },
+    {
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paismart/scripts/prepare-legacy-migration.py",
+        "line": 1,
+        "anchor": "",
+        "sha256": "b3ce2ef7205bd335a437c641b83845d52659023be2e7e5e577b39faf0441aa38"
+      },
+      "purpose": "旧资料离线映射/摘要/转换，正式状态仍中心MySQL"
+    },
+    {
+      "target": {
+        "path": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/infrastructure/intelligence/ParserWorker.java",
+        "line": 1,
+        "anchor": "",
+        "sha256": "90aace53bae7d09e3279ba151358a1443ae9b7afb7448ee88968311cdcc34d1e"
+      },
+      "purpose": "原解析业务Java，目标隔离解析仍JavaWorker；外部LiteParse/OCR按原用途接入，不新增Python控制面"
+    }
+  ]
+}

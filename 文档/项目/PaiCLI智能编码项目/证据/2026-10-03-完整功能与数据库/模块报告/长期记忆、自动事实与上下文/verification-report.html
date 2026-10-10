@@ -1,0 +1,537 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PaiCLI 长期记忆、自动事实与上下文验收报告</title><style>
+:root{--bg:#f3f6fb;--paper:#fff;--text:#243247;--muted:#617089;--line:#dce4ef;--blue:#215fd3;--soft:#edf3ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.85 system-ui,"Microsoft YaHei",sans-serif}header{padding:35px max(24px,calc((100vw - 1380px)/2));background:#163254;color:#fff}header h1{margin:0 0 8px;font-size:30px}header p{margin:8px 0;max-width:1040px;color:#dce6f5}.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.stat{background:#ffffff12;border:1px solid #ffffff30;border-radius:9px;padding:7px 13px}.layout{max-width:1430px;margin:auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:25px;padding:24px}nav{position:sticky;top:18px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px}nav a{display:block;padding:7px 5px;line-height:1.5;color:var(--muted);text-decoration:none;font-size:14px}nav a:hover{color:var(--blue);background:var(--soft)}main{min-width:0}.toolbar{position:sticky;top:0;z-index:2;background:var(--bg);padding:9px 0 14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:12px;font:inherit;color:inherit;background:var(--paper)}button{font:inherit;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;color:var(--text)}button:hover{border-color:var(--blue);color:var(--blue)}.module,.introduction{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:24px;margin-bottom:20px}.introduction>h1{font-size:26px}.module h2{font-size:23px;color:#15385c;margin:0 0 18px;scroll-margin-top:90px}h3{font-size:19px;margin-top:23px}p{margin:10px 0}li{margin:7px 0}a{color:var(--blue);overflow-wrap:anywhere}code{font:0.88em/1.6 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;background:var(--soft);padding:2px 5px;border-radius:4px}pre{white-space:pre-wrap;background:var(--soft);padding:15px}blockquote{margin:10px 0;border-left:4px solid #84a6e6;padding:8px 16px;background:#f5f8fd;color:var(--muted)}.case{border:1px solid var(--line);border-radius:10px;margin:12px 0;background:var(--paper)}.case>summary{cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;font-weight:600;list-style:none}.case>summary:before{content:'▸';color:var(--blue)}.case[open]>summary:before{content:'▾'}.number{background:var(--soft);color:var(--blue);border-radius:6px;padding:1px 9px;flex:none}.label{font-size:12px;font-weight:400;margin-left:auto;white-space:nowrap;color:#705c18;background:#fbf5df;border-radius:5px;padding:1px 7px}.case-body{padding:0 23px 17px}.case-body ul{padding-left:22px}.case-body li>strong:first-child{color:#15385c}.annex>summary{cursor:pointer;font-size:20px;font-weight:600}.annex>div{padding-top:20px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.7;margin:18px 0;min-width:550px}th,td{padding:9px 11px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft)}tr:nth-child(even){background:#fafcff}.module{overflow-x:auto}.hidden{display:none!important}.search-status{color:var(--muted);font-size:14px}footer{padding:24px;color:var(--muted);text-align:center;font-size:13px}.notice{font-size:14px;color:var(--muted)}@media(max-width:950px){.layout{grid-template-columns:1fr;padding:15px}nav{position:static;max-height:260px}.module,.introduction{padding:18px}header{padding:25px 20px}}@media(max-width:500px){header h1{font-size:24px}.label{display:none}.case>summary{padding:12px;font-size:15px}.case-body{padding:0 13px 15px}.toolbar{position:static}.layout{padding:10px}}@media print{header{background:white;color:black}header p{color:black}.layout{display:block}nav,.toolbar,.label{display:none}.case-body{display:block!important}.case,.module{break-inside:avoid}details:not([open])>*:not(summary){display:block!important}}
+.case[data-result="通过"] .label{color:#166534;background:#dcfce7}.case[data-result="未通过"] .label{color:#991b1b;background:#fee2e2}.case[data-result="受阻"] .label{color:#92400e;background:#fef3c7}.case[data-result="未执行"] .label{color:#475569;background:#e2e8f0}.result-warning{color:#92400e;background:#fffbeb;border-left:4px solid #d97706;padding:10px}.module-summary,.current-position{border:1px solid var(--line);background:var(--soft);padding:12px;margin-bottom:15px}.actual-image{margin:16px 0}.actual-image img,.module img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}.actual-image figcaption{font-size:13px;color:var(--muted);line-height:1.65}.case-body ol{padding-left:26px}</style></head><body><header><h1>PaiCLI 长期记忆、自动事实与上下文验收报告</h1><p>本页完整覆盖唯一验收正文第7章的16个业务点；按下面的实际结果与继续条件核对，不以子流程通过替代模块完整结论。</p><p>验收受阻。当前本模块业务点结果：通过0，未通过0，受阻2，未执行14，不适用0；已登记4个前提核实或执行子场景。本页由唯一正文对应模块生成，完整流程和未完成项全部保留；已有有效子场景按正文沿用，本次报告生成不计新执行业务。技术检查、业务结果及截图完整度分别记录；用户接受：待确认。</p><div class="stats"><span class="stat">通过 0</span><span class="stat">未通过 0</span><span class="stat">受阻 2</span><span class="stat">未执行 14</span><span class="stat">不适用 0</span><span class="stat">16 个详细验收点</span><span class="stat">1 个业务模块</span></div></header><div class="layout"><nav aria-label="文档目录"><strong>本模块完整流程</strong><a href="#heading-1">7. 长期记忆、自动事实与上下文</a><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%8C%E6%95%B4%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E8%AE%B0%E5%BD%95.md">查看唯一 Markdown 正文</a></nav><main><div class="toolbar"><input id="search" type="search" placeholder="搜索验收点，例如：图片、恢复、MCP、重试" aria-label="搜索详细验收点"><button id="expand">展开全部</button><button id="collapse">收起全部</button><span class="search-status" id="status">共 16 点</span></div><p class="notice">报告视觉检查未执行：当前浏览器安全策略限制 file:// 页面；静态核对不代替实际布局、图片加载和搜索交互检查。</p><p class="notice">点击验收点标题查看操作。搜索匹配标题、步骤、预期及源码名称；追溯表和已有实际记录可单独展开。</p><section class="module" data-module="7. 长期记忆、自动事实与上下文"><h2 id="heading-1">7. 长期记忆、自动事实与上下文</h2>
+<p><strong>模块完整流程</strong>：从用户原话准备事实 → 查看来源、冲突和候选 → 由用户决定保存、替换或共存 → 再次检索及核实时间状态 → 形成上下文预算并执行清理或压缩 → 回读历史和摘要 → 验证外部污染、失败与取消不破坏原数据。</p>
+<p><strong>当前完成位置与续验</strong>：已核本人记忆入口/关键词空态及未提交草稿的必填校验与取消；真实事实候选、保存、冲突、时效、上下文清理与压缩均未完成。下一步在智能编码的对话记录/上下文或我的文件的本人记忆入口，由本人使用固定Clock、用户原话和冲突样本建立同一来源消息与候选记录；分别验证个人和项目作用域。原样本文件尚无中心候选ID，不表示已保存记忆。</p>
+<p class="module-summary">通过 0 · 未通过 0 · 受阻 2 · 未执行 14 · 不适用 0；模块截图：已登记，仍须逐点核对；完整结论：尚未全部完成</p><details class="case" data-result="未执行" data-search="### 71. 短期历史、上下文引用与长期事实的区别 - **验收前提**：新会话没有长期记忆，先发“本轮临时标记为 turn_only”，另会话使用 other_turn；出处 `agent/agent.java` 的 conversationhistory、`memory/memorymanager.java`、conversationhistorycompactor。 - **操作步骤**：同一会话下一轮问临时标记；另会话同问；查看长期记忆列表及实际模型 history；clear 后再问；显式 save 另一个稳定事实作对照。 - **预期结果**：同一会话有效历史可续用 turn_only，其他会话不串入；当前原话只作为短期 user message，不自动重复包装成稳定记忆；clear 后本轮有效上下文没有该标记，原账本仍可审计。显式长期事实的持久化/范围独立，不能把“能回忆上一轮”当长期记忆通过。 - **证据要求**：两会话对话截图、实际请求 history、长期列表、clear 后请求与原始账本。 - **适用边界**：原真实 history 与长期存储已有；当前中心连续会话和各角色 history 必须隔离，不新建影子短期真相。 #### 逐步验收 1. **操作**：在一会话连续询问临时标记。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：先“本轮临时标记为turn_only”，下一轮问该标记。 **预期及核对**：截图两轮与有效历史，正确承接turn_only，不自动包装稳定记忆。 **本步交付**：可继续追问的短期会话上下文。 2. **操作**：另会话对照并查长期记忆。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：other_turn另一会话；同问标记及记忆列表。 **预期及核对**：截图不同会话回复/列表，前一临时标记不串入，不因能回忆上一轮判长期记忆通过。 **本步交付**：独立短期历史与尚未持久保存的事实。 3. **操作**：清当前上下文后再问并显式保存另一稳定事实。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/clear，原标记追问；明确save新稳定事实。 **预期及核对**：截图清理后状态和显式保存；有效上下文无turn_only，原账本仍在，长期保存独立核范围。 **本步交付**：清后新上下文与独立持久事实。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">71</span><span>短期历史、上下文引用与长期事实的区别</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：新会话没有长期记忆，先发“本轮临时标记为 TURN_ONLY”，另会话使用 OTHER_TURN；出处 <code>agent/Agent.java</code> 的 conversationHistory、<code>memory/MemoryManager.java</code>、ConversationHistoryCompactor。</li>
+<li><strong>操作步骤</strong>：同一会话下一轮问临时标记；另会话同问；查看长期记忆列表及实际模型 history；clear 后再问；显式 save 另一个稳定事实作对照。</li>
+<li><strong>预期结果</strong>：同一会话有效历史可续用 TURN_ONLY，其他会话不串入；当前原话只作为短期 user message，不自动重复包装成稳定记忆；clear 后本轮有效上下文没有该标记，原账本仍可审计。显式长期事实的持久化/范围独立，不能把“能回忆上一轮”当长期记忆通过。</li>
+<li><strong>证据要求</strong>：两会话对话截图、实际请求 history、长期列表、clear 后请求与原始账本。</li>
+<li><strong>适用边界</strong>：原真实 history 与长期存储已有；当前中心连续会话和各角色 history 必须隔离，不新建影子短期真相。</li>
+</ul>
+<h4 id="heading-2">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：在一会话连续询问临时标记。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：先“本轮临时标记为TURN_ONLY”，下一轮问该标记。<br>
+<strong>预期及核对</strong>：截图两轮与有效历史，正确承接TURN_ONLY，不自动包装稳定记忆。<br>
+<strong>本步交付</strong>：可继续追问的短期会话上下文。</p>
+</li>
+<li>
+<p><strong>操作</strong>：另会话对照并查长期记忆。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：OTHER_TURN另一会话；同问标记及记忆列表。<br>
+<strong>预期及核对</strong>：截图不同会话回复/列表，前一临时标记不串入，不因能回忆上一轮判长期记忆通过。<br>
+<strong>本步交付</strong>：独立短期历史与尚未持久保存的事实。</p>
+</li>
+<li>
+<p><strong>操作</strong>：清当前上下文后再问并显式保存另一稳定事实。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/clear，原标记追问；明确save新稳定事实。<br>
+<strong>预期及核对</strong>：截图清理后状态和显式保存；有效上下文无TURN_ONLY，原账本仍在，长期保存独立核范围。<br>
+<strong>本步交付</strong>：清后新上下文与独立持久事实。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="受阻" data-search="### 72. 记忆状态、列表及两个作用域 #### 本次续验清单（操作前保存） 本次只执行当前登录用户的personal空列表查询及第73点未保存表单分支；不新增记忆、账号、目录或模型调用。原已通过的导航和共同登录条件沿用。 1. 从“我的文件”展开“代码与知识能力”，进入“长期记忆与冲突”，核对默认范围为当前用户个人偏好、空列表不显示虚构事实，采集入口截图。 2. 输入“验收偏好”查询，核对仍为本人personal范围及明确空结果，采集查询截图。空样本只能证明本次空查询反馈，不能证明命中、甲乙隔离或网页/cli一致。 3. 按第73点打开未保存表单，核对必填条件后取消；返回同一列表应无新增条目。有效记忆id尚未建立，后续持久化、去重和跨作用域流程保留未完成。 - **验收前提**：a 在目录 r1 有 project 记忆、r2 有另一条，另有 a global 与 b global；出处 memory/longtermmemory、memoryretriever、main memory_status/memory_list。 - **操作步骤**：在 r1 执行 `/memory`、`/mem`、`/memory list`；切 r2 后重复；从知识与上下文页查看同一记录；b 查询 a id。 - **预期结果**：状态、条数、内容与可见范围对应；r1 可见自身 project 和 a global，不见 r2 project/b global。网页/cli 是同一正式记忆，刷新不失去；越权拒绝。 - **证据要求**：两目录列表截图、中心记忆归属/版本核对、cli 与页面对账。 - **适用边界**：原 project/global 迁移为个人目录内与个人全局；不恢复工作区或成员入口。 #### 逐步验收 1. **操作**：在r1查看记忆状态与列表。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/memory、/mem、/memory list；r1项目记忆及甲全局。 **预期及核对**：截图真实终端/当前记忆入口，条数和内容按冻结集合，可见甲r1与甲global。 **本步交付**：当前目录可使用的记忆集合。 2. **操作**：切r2并从网页回读同一正式资料。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：甲r2另一条；原全局记录。 **预期及核对**：截图切换及刷新，r1项目不混r2，网页/cli记录一致、不建第二份正式记忆。 **本步交付**：与当前目录相符的正式记忆。 3. **操作**：乙读取甲标识并访问本人资料对照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：甲真实记忆id与乙global。 **预期及核对**：截图越权拒绝/本人正常列表，乙不见甲全局，不能因同库共享。 **本步交付**：作用域清楚的各用户记忆结果。 **当前执行位置**：已完成personal入口与关键词可见空态两步，未取得真实查询回执；两目录、cli对账、命中和甲乙隔离受阻。完整流程未通过。 #### 执行记录 ##### 子场景：本人记忆入口和关键词空态展示 - 结果：通过 - 执行类型：业务验收页面子场景（仅可见状态） - 时间：2026-10-05 00:30:14～00:30:45；精确保存时间见索引 - 版本：15176 vite当时实际源码；中心api 7d42903071a0f7ee；未保存记忆 - 身份：用户亲自登录的当前若依admin - 实际观察：由我的文件展开代码与知识能力，进入长期记忆与冲突，默认范围为当前用户个人偏好。输入“验收偏好”并点击查询后，画面仍显示暂无数据，没有虚构记忆内容。 - 核对结果：只核对默认范围、输入内容和可见空列表；没有网络回执取证，不将空表解释成get成功或中心已确认无记忆，不证明命中、持久化、cli对账或甲乙隔离。 - 证据：[入口dom](实际验收-20261004/15-个人记忆-personal空列表.txt)；[截图版本与回读索引](实际验收-20261004/截图版本与回读索引.json)。第二张截图后的dom采集超时，没有对应txt，不补造。 - 截图要求：必需 - 截图：[个人记忆入口空态](实际验收-20261004/15-个人记忆-personal空列表.jpg)；[关键词空态](实际验收-20261004/16-个人记忆-关键词空结果.jpg) - 截图回读：已逐张回读，主对话和独立复核均确认 - 恢复条件：本可见状态子场景已完成；真实查询与同记录关联仍需接口/数据回执及获准样本。 ##### 子场景：两目录、cli对账和甲乙隔离完整流程 - 结果：受阻 - 执行类型：业务验收前提核实 - 时间：2026-10-05 - 实际观察：尚无获准的甲乙正式记忆样本、两目录及真实cli会话；当前只保留同一页面的两张空态图。 - 核对结果：未执行本点原三个完整步骤，不因空表显示正确计整点通过；恢复后从待验样本继续，不重验共同登录和有效旧入口。 - 证据：[同一页面两步截图索引](实际验收-20261004/截图版本与回读索引.json) - 截图要求：完整流程仍待采集 - 恢复条件：原本机通道已恢复；仍须准备明确允许的甲乙身份/记忆样本和目录，按原步骤核同一id、版本与cli/页面回读。 "><summary><span class="number">72</span><span>记忆状态、列表及两个作用域</span><span class="label">受阻</span></summary><div class="case-body"><div class="current-position"><strong>当前完成位置与承接条件</strong><p><strong>本人记忆入口和关键词空态展示：</strong>由我的文件展开代码与知识能力，进入长期记忆与冲突，默认范围为当前用户个人偏好。输入“验收偏好”并点击查询后，画面仍显示暂无数据，没有虚构记忆内容。<br><strong>下一步条件：</strong>本可见状态子场景已完成；真实查询与同记录关联仍需接口/数据回执及获准样本。</p><p><strong>两目录、CLI对账和甲乙隔离完整流程：</strong>尚无获准的甲乙正式记忆样本、两目录及真实CLI会话；当前只保留同一页面的两张空态图。<br><strong>下一步条件：</strong>原本机通道已恢复；仍须准备明确允许的甲乙身份/记忆样本和目录，按原步骤核同一ID、版本与CLI/页面回读。</p></div><figure class="actual-image"><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/15-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-PERSONAL%E7%A9%BA%E5%88%97%E8%A1%A8.jpg"><img loading="lazy" src="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/15-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-PERSONAL%E7%A9%BA%E5%88%97%E8%A1%A8.jpg" alt="记忆状态、列表及两个作用域：本人记忆入口和关键词空态展示的实际截图"></a><figcaption>对应“本人记忆入口和关键词空态展示”的当前页面证据；采集或沿用时间：2026-10-05 00:30:14～00:30:45；精确保存时间见索引。已逐张回读，主对话和独立复核均确认。本图只证明画面中的状态，不能代替本点其余步骤。<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/15-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-PERSONAL%E7%A9%BA%E5%88%97%E8%A1%A8.jpg">查看清晰原图</a></figcaption></figure><figure class="actual-image"><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/16-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-%E5%85%B3%E9%94%AE%E8%AF%8D%E7%A9%BA%E7%BB%93%E6%9E%9C.jpg"><img loading="lazy" src="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/16-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-%E5%85%B3%E9%94%AE%E8%AF%8D%E7%A9%BA%E7%BB%93%E6%9E%9C.jpg" alt="记忆状态、列表及两个作用域：本人记忆入口和关键词空态展示的实际截图"></a><figcaption>对应“本人记忆入口和关键词空态展示”的当前页面证据；采集或沿用时间：2026-10-05 00:30:14～00:30:45；精确保存时间见索引。已逐张回读，主对话和独立复核均确认。本图只证明画面中的状态，不能代替本点其余步骤。<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/16-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-%E5%85%B3%E9%94%AE%E8%AF%8D%E7%A9%BA%E7%BB%93%E6%9E%9C.jpg">查看清晰原图</a></figcaption></figure><h4 id="heading-3">本次续验清单（操作前保存）</h4>
+<p>本次只执行当前登录用户的PERSONAL空列表查询及第73点未保存表单分支；不新增记忆、账号、目录或模型调用。原已通过的导航和共同登录条件沿用。</p>
+<ol>
+<li>从“我的文件”展开“代码与知识能力”，进入“长期记忆与冲突”，核对默认范围为当前用户个人偏好、空列表不显示虚构事实，采集入口截图。</li>
+<li>输入“验收偏好”查询，核对仍为本人PERSONAL范围及明确空结果，采集查询截图。空样本只能证明本次空查询反馈，不能证明命中、甲乙隔离或网页/CLI一致。</li>
+<li>按第73点打开未保存表单，核对必填条件后取消；返回同一列表应无新增条目。有效记忆ID尚未建立，后续持久化、去重和跨作用域流程保留未完成。</li>
+</ol>
+<ul>
+<li><strong>验收前提</strong>：A 在目录 R1 有 project 记忆、R2 有另一条，另有 A global 与 B global；出处 memory/LongTermMemory、MemoryRetriever、Main MEMORY_STATUS/MEMORY_LIST。</li>
+<li><strong>操作步骤</strong>：在 R1 执行 <code>/memory</code>、<code>/mem</code>、<code>/memory list</code>；切 R2 后重复；从知识与上下文页查看同一记录；B 查询 A ID。</li>
+<li><strong>预期结果</strong>：状态、条数、内容与可见范围对应；R1 可见自身 project 和 A global，不见 R2 project/B global。网页/CLI 是同一正式记忆，刷新不失去；越权拒绝。</li>
+<li><strong>证据要求</strong>：两目录列表截图、中心记忆归属/版本核对、CLI 与页面对账。</li>
+<li><strong>适用边界</strong>：原 project/global 迁移为个人目录内与个人全局；不恢复工作区或成员入口。</li>
+</ul>
+<h4 id="heading-4">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：在R1查看记忆状态与列表。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/memory、/mem、/memory list；R1项目记忆及甲全局。<br>
+<strong>预期及核对</strong>：截图真实终端/当前记忆入口，条数和内容按冻结集合，可见甲R1与甲global。<br>
+<strong>本步交付</strong>：当前目录可使用的记忆集合。</p>
+</li>
+<li>
+<p><strong>操作</strong>：切R2并从网页回读同一正式资料。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：甲R2另一条；原全局记录。<br>
+<strong>预期及核对</strong>：截图切换及刷新，R1项目不混R2，网页/CLI记录一致、不建第二份正式记忆。<br>
+<strong>本步交付</strong>：与当前目录相符的正式记忆。</p>
+</li>
+<li>
+<p><strong>操作</strong>：乙读取甲标识并访问本人资料对照。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：甲真实记忆ID与乙global。<br>
+<strong>预期及核对</strong>：截图越权拒绝/本人正常列表，乙不见甲全局，不能因同库共享。<br>
+<strong>本步交付</strong>：作用域清楚的各用户记忆结果。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：已完成PERSONAL入口与关键词可见空态两步，未取得真实查询回执；两目录、CLI对账、命中和甲乙隔离受阻。完整流程未通过。</p>
+<h4 id="heading-5">执行记录</h4>
+<h5 id="heading-6">子场景：本人记忆入口和关键词空态展示</h5>
+<ul>
+<li>结果：通过</li>
+<li>执行类型：业务验收页面子场景（仅可见状态）</li>
+<li>时间：2026-10-05 00:30:14～00:30:45；精确保存时间见索引</li>
+<li>版本：15176 Vite当时实际源码；中心API 7D42903071A0F7EE；未保存记忆</li>
+<li>身份：用户亲自登录的当前若依admin</li>
+<li>实际观察：由我的文件展开代码与知识能力，进入长期记忆与冲突，默认范围为当前用户个人偏好。输入“验收偏好”并点击查询后，画面仍显示暂无数据，没有虚构记忆内容。</li>
+<li>核对结果：只核对默认范围、输入内容和可见空列表；没有网络回执取证，不将空表解释成GET成功或中心已确认无记忆，不证明命中、持久化、CLI对账或甲乙隔离。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/15-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-PERSONAL%E7%A9%BA%E5%88%97%E8%A1%A8.txt">入口DOM</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E6%88%AA%E5%9B%BE%E7%89%88%E6%9C%AC%E4%B8%8E%E5%9B%9E%E8%AF%BB%E7%B4%A2%E5%BC%95.json">截图版本与回读索引</a>。第二张截图后的DOM采集超时，没有对应TXT，不补造。</li>
+<li>截图要求：必需</li>
+<li>截图：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/15-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-PERSONAL%E7%A9%BA%E5%88%97%E8%A1%A8.jpg">个人记忆入口空态</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/16-%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86-%E5%85%B3%E9%94%AE%E8%AF%8D%E7%A9%BA%E7%BB%93%E6%9E%9C.jpg">关键词空态</a></li>
+<li>截图回读：已逐张回读，主对话和独立复核均确认</li>
+<li>恢复条件：本可见状态子场景已完成；真实查询与同记录关联仍需接口/数据回执及获准样本。</li>
+</ul>
+<h5 id="heading-7">子场景：两目录、CLI对账和甲乙隔离完整流程</h5>
+<ul>
+<li>结果：受阻</li>
+<li>执行类型：业务验收前提核实</li>
+<li>时间：2026-10-05</li>
+<li>实际观察：尚无获准的甲乙正式记忆样本、两目录及真实CLI会话；当前只保留同一页面的两张空态图。</li>
+<li>核对结果：未执行本点原三个完整步骤，不因空表显示正确计整点通过；恢复后从待验样本继续，不重验共同登录和有效旧入口。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E6%88%AA%E5%9B%BE%E7%89%88%E6%9C%AC%E4%B8%8E%E5%9B%9E%E8%AF%BB%E7%B4%A2%E5%BC%95.json">同一页面两步截图索引</a></li>
+<li>截图要求：完整流程仍待采集</li>
+<li>恢复条件：原本机通道已恢复；仍须准备明确允许的甲乙身份/记忆样本和目录，按原步骤核同一ID、版本与CLI/页面回读。</li>
+</ul>
+</div></details><details class="case" data-result="受阻" data-search="### 73. 显式保存、参数与重复去重 #### 本次续验清单（操作前保存） 只检查“明确记住一条”的组件草稿与必填禁用，不点击有效保存按钮。分别填入候选“验收草稿：默认用中文沟通”且来源为空、仅来源“验收合成草稿，未提交”、两者均填写后取消。预期前两种保存禁用，取消后同一personal列表没有新增记忆；截图记录不同输入和返回位置。未执行任何保存、替换、共存、删除或模型请求，不能据此判持久化和去重通过。 - **验收前提**：独立空记忆样本；出处 memory/memorycommandargs、memorydeduplicator、longtermmemory，main memory_save。 - **操作步骤**：`/save --project 项目使用 java 17`，重复及规范化近似重复；`/save --global 默认用中文沟通`；组合已支持的前置标志；空事实与非法参数查看反馈。刷新或重启授权会话后回读。 - **预期结果**：保存事实及 scope 正确、显式验证时间可追踪；重复只保留一条、不增 id，原条核实时间按显式保存更新。非法参数不得被误当受支持开关；若原解析将未知开关视正文，必须明确展示正文而非偷偷改变 scope；空内容不写。 - **证据要求**：输入/反馈截图、前后条数与 id、核实时间、回读结果。 - **适用边界**：原已有；持久化落中心而不是新增用户本地第二套正式记忆。 #### 逐步验收 1. **操作**：显式保存项目事实并回读。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/save --project 项目使用java 17。 **预期及核对**：截图保存和列表，正文、作用域、核实时间来源可追踪。 **本步交付**：一条可供去重对照的本人项目记忆。 2. **操作**：重复与规范化近似保存，再保存全局。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：同事实两次；/save --global 默认用中文沟通；已支持前置标志组合。 **预期及核对**：截图去重和两作用域结果，重复不增id，核实时间按显式保存更新。 **本步交付**：去重后项目事实及独立全局事实。 3. **操作**：检查空内容、未知参数并重开回读。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：空事实、非法参数；刷新或授权会话重启。 **预期及核对**：截图解析反馈及持久读回，原将未知开关当正文时明确显示，不偷偷变scope；空不写。 **本步交付**：可解释参数语义及持久记忆证据。 **当前执行位置**：已完成未提交草稿的必填禁用、齐全可用与取消，五张状态图和网络观测已核对；成功保存、去重和cli持久化完整流程受阻，整点未通过。 #### 闪退接续核对 闪退时已保存操作前清单，但第二张截图保存后的dom采集超时，当时尚未执行“明确记住一条”按钮和必填草稿操作。恢复时从打开表单继续；不补写字段输入、禁用或取消成功，不将第72点的空表图当保存流程证据。当时本点未执行；恢复后的当前结果见下方同一业务点执行记录。 #### 执行记录 ##### 子场景：记忆草稿必填校验与取消 - 结果：通过 - 执行类型：业务验收页面子场景（草稿未提交） - 时间：2026-10-05 00:59～01:01；逐文件保存时间见截图索引 - 版本：15176原vite源码通道；中心api 7d42903071a0f7ee - 身份：用户亲自登录且恢复后仍有效的当前若依admin - 实际观察：在当前用户个人偏好范围打开“明确记住一条”。候选“验收草稿：默认用中文沟通”且来源空时，保存不可用；只填来源“验收合成草稿，未提交”时也不可用；两者填齐后保存可用，未点击保存。点击“取消，保留原条目”后弹窗关闭，同一范围仍暂无数据。 - 核对结果：只验证本地草稿的必填禁用、齐全可用及取消；网络观测82～89无请求、无截断和未读取续页。随后只读数据核对memory=0、artifact=0，不将当前计数反推未记录历史。未保存、替换、共存、删除、去重或调用模型。 - 证据：[缺来源dom](实际验收-20261004/19-记忆草稿-缺来源禁止保存.txt)；[缺内容dom](实际验收-20261004/20-记忆草稿-缺内容禁止保存.txt)；[齐全未提交dom](实际验收-20261004/21-记忆草稿-字段齐全可保存未提交.txt)；[取消完成dom](实际验收-20261004/23-记忆草稿-取消完成个人空列表.txt)；[网络观测](实际验收-20261004/23-记忆草稿-网络观测.json)；[只读数据核对](实际验收-20261004/运行环境核实.json) - 截图要求：必需 - 截图：[打开时字段为空](实际验收-20261004/19-记忆草稿-打开时字段为空.jpg)；[缺来源禁止保存](实际验收-20261004/20-记忆草稿-缺来源禁止保存.jpg)；[缺内容禁止保存](实际验收-20261004/21-记忆草稿-缺内容禁止保存.jpg)；[齐全未提交](实际验收-20261004/22-记忆草稿-字段齐全未提交.jpg)；[取消完成](实际验收-20261004/23-记忆草稿-取消完成个人空列表.jpg) - 截图回读：已逐张回读，主对话与独立复核均确认实际字段；截图19～22曾滞后一状态，保留图像字节、按实际画面更正名称，原dom不改写。截图20对应原dom19的缺来源状态，图21对应原dom20，图22对应原dom21；原dom22含关闭动画中的空弹窗，取消完成由图23及其dom独立确认。对应与原名见索引。 - 恢复条件：该草稿子场景完成；不替代中心保存、去重、cli参数及重启回读。 ##### 子场景：中心保存、重复去重和cli持久化完整流程 - 结果：受阻 - 执行类型：业务验收前提核实 - 时间：2026-10-05 - 实际观察：尚无获准保留的正式记忆样本、本人执行目录和真实cli会话。未点击保存，也未执行原三个完整步骤。 - 核对结果：草稿校验通过不证明成功写入或去重；原无写入证据限制继续保留，整点未通过。 - 证据：[当前环境与空记忆计数](实际验收-20261004/运行环境核实.json) - 截图要求：完整流程仍待采集 - 恢复条件：本人personal记忆的中心保存、重复输入和刷新回读，先恢复登录并明确合成事实数量及留存范围，不要求runner或执行目录；沿同一id、作用域、条数和核实时间取证。原/save参数、项目记忆和cli重启回读分支另准备可信宿主、目录与cli会话，不能用中心保存替代。 "><summary><span class="number">73</span><span>显式保存、参数与重复去重</span><span class="label">受阻</span></summary><div class="case-body"><div class="current-position"><strong>当前完成位置与承接条件</strong><p><strong>记忆草稿必填校验与取消：</strong>在当前用户个人偏好范围打开“明确记住一条”。候选“验收草稿：默认用中文沟通”且来源空时，保存不可用；只填来源“验收合成草稿，未提交”时也不可用；两者填齐后保存可用，未点击保存。点击“取消，保留原条目”后弹窗关闭，同一范围仍暂无数据。<br><strong>下一步条件：</strong>该草稿子场景完成；不替代中心保存、去重、CLI参数及重启回读。</p><p><strong>中心保存、重复去重和CLI持久化完整流程：</strong>尚无获准保留的正式记忆样本、本人执行目录和真实CLI会话。未点击保存，也未执行原三个完整步骤。<br><strong>下一步条件：</strong>本人PERSONAL记忆的中心保存、重复输入和刷新回读，先恢复登录并明确合成事实数量及留存范围，不要求Runner或执行目录；沿同一ID、作用域、条数和核实时间取证。原/save参数、项目记忆和CLI重启回读分支另准备可信宿主、目录与CLI会话，不能用中心保存替代。</p></div><figure class="actual-image"><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/19-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E6%89%93%E5%BC%80%E6%97%B6%E5%AD%97%E6%AE%B5%E4%B8%BA%E7%A9%BA.jpg"><img loading="lazy" src="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/19-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E6%89%93%E5%BC%80%E6%97%B6%E5%AD%97%E6%AE%B5%E4%B8%BA%E7%A9%BA.jpg" alt="显式保存、参数与重复去重：记忆草稿必填校验与取消的实际截图"></a><figcaption>对应“记忆草稿必填校验与取消”的当前页面证据；采集或沿用时间：2026-10-05 00:59～01:01；逐文件保存时间见截图索引。已逐张回读，主对话与独立复核均确认实际字段；截图19～22曾滞后一状态，保留图像字节、按实际画面更正名称，原DOM不改写。截图20对应原DOM19的缺来源状态，图21对应原DOM20，图22对应原DOM21；原DOM22含关闭动画中的空弹窗，取消完成由图23及其DOM独立确认。对应与原名见索引。。本图只证明画面中的状态，不能代替本点其余步骤。<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/19-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E6%89%93%E5%BC%80%E6%97%B6%E5%AD%97%E6%AE%B5%E4%B8%BA%E7%A9%BA.jpg">查看清晰原图</a></figcaption></figure><figure class="actual-image"><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/20-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E6%9D%A5%E6%BA%90%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.jpg"><img loading="lazy" src="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/20-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E6%9D%A5%E6%BA%90%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.jpg" alt="显式保存、参数与重复去重：记忆草稿必填校验与取消的实际截图"></a><figcaption>对应“记忆草稿必填校验与取消”的当前页面证据；采集或沿用时间：2026-10-05 00:59～01:01；逐文件保存时间见截图索引。已逐张回读，主对话与独立复核均确认实际字段；截图19～22曾滞后一状态，保留图像字节、按实际画面更正名称，原DOM不改写。截图20对应原DOM19的缺来源状态，图21对应原DOM20，图22对应原DOM21；原DOM22含关闭动画中的空弹窗，取消完成由图23及其DOM独立确认。对应与原名见索引。。本图只证明画面中的状态，不能代替本点其余步骤。<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/20-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E6%9D%A5%E6%BA%90%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.jpg">查看清晰原图</a></figcaption></figure><figure class="actual-image"><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/21-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E5%86%85%E5%AE%B9%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.jpg"><img loading="lazy" src="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/21-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E5%86%85%E5%AE%B9%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.jpg" alt="显式保存、参数与重复去重：记忆草稿必填校验与取消的实际截图"></a><figcaption>对应“记忆草稿必填校验与取消”的当前页面证据；采集或沿用时间：2026-10-05 00:59～01:01；逐文件保存时间见截图索引。已逐张回读，主对话与独立复核均确认实际字段；截图19～22曾滞后一状态，保留图像字节、按实际画面更正名称，原DOM不改写。截图20对应原DOM19的缺来源状态，图21对应原DOM20，图22对应原DOM21；原DOM22含关闭动画中的空弹窗，取消完成由图23及其DOM独立确认。对应与原名见索引。。本图只证明画面中的状态，不能代替本点其余步骤。<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/21-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E5%86%85%E5%AE%B9%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.jpg">查看清晰原图</a></figcaption></figure><figure class="actual-image"><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/22-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%AD%97%E6%AE%B5%E9%BD%90%E5%85%A8%E6%9C%AA%E6%8F%90%E4%BA%A4.jpg"><img loading="lazy" src="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/22-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%AD%97%E6%AE%B5%E9%BD%90%E5%85%A8%E6%9C%AA%E6%8F%90%E4%BA%A4.jpg" alt="显式保存、参数与重复去重：记忆草稿必填校验与取消的实际截图"></a><figcaption>对应“记忆草稿必填校验与取消”的当前页面证据；采集或沿用时间：2026-10-05 00:59～01:01；逐文件保存时间见截图索引。已逐张回读，主对话与独立复核均确认实际字段；截图19～22曾滞后一状态，保留图像字节、按实际画面更正名称，原DOM不改写。截图20对应原DOM19的缺来源状态，图21对应原DOM20，图22对应原DOM21；原DOM22含关闭动画中的空弹窗，取消完成由图23及其DOM独立确认。对应与原名见索引。。本图只证明画面中的状态，不能代替本点其余步骤。<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/22-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%AD%97%E6%AE%B5%E9%BD%90%E5%85%A8%E6%9C%AA%E6%8F%90%E4%BA%A4.jpg">查看清晰原图</a></figcaption></figure><figure class="actual-image"><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/23-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%8F%96%E6%B6%88%E5%AE%8C%E6%88%90%E4%B8%AA%E4%BA%BA%E7%A9%BA%E5%88%97%E8%A1%A8.jpg"><img loading="lazy" src="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/23-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%8F%96%E6%B6%88%E5%AE%8C%E6%88%90%E4%B8%AA%E4%BA%BA%E7%A9%BA%E5%88%97%E8%A1%A8.jpg" alt="显式保存、参数与重复去重：记忆草稿必填校验与取消的实际截图"></a><figcaption>对应“记忆草稿必填校验与取消”的当前页面证据；采集或沿用时间：2026-10-05 00:59～01:01；逐文件保存时间见截图索引。已逐张回读，主对话与独立复核均确认实际字段；截图19～22曾滞后一状态，保留图像字节、按实际画面更正名称，原DOM不改写。截图20对应原DOM19的缺来源状态，图21对应原DOM20，图22对应原DOM21；原DOM22含关闭动画中的空弹窗，取消完成由图23及其DOM独立确认。对应与原名见索引。。本图只证明画面中的状态，不能代替本点其余步骤。<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/23-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%8F%96%E6%B6%88%E5%AE%8C%E6%88%90%E4%B8%AA%E4%BA%BA%E7%A9%BA%E5%88%97%E8%A1%A8.jpg">查看清晰原图</a></figcaption></figure><h4 id="heading-8">本次续验清单（操作前保存）</h4>
+<p>只检查“明确记住一条”的组件草稿与必填禁用，不点击有效保存按钮。分别填入候选“验收草稿：默认用中文沟通”且来源为空、仅来源“验收合成草稿，未提交”、两者均填写后取消。预期前两种保存禁用，取消后同一PERSONAL列表没有新增记忆；截图记录不同输入和返回位置。未执行任何保存、替换、共存、删除或模型请求，不能据此判持久化和去重通过。</p>
+<ul>
+<li><strong>验收前提</strong>：独立空记忆样本；出处 memory/MemoryCommandArgs、MemoryDeduplicator、LongTermMemory，Main MEMORY_SAVE。</li>
+<li><strong>操作步骤</strong>：<code>/save --project 项目使用 Java 17</code>，重复及规范化近似重复；<code>/save --global 默认用中文沟通</code>；组合已支持的前置标志；空事实与非法参数查看反馈。刷新或重启授权会话后回读。</li>
+<li><strong>预期结果</strong>：保存事实及 scope 正确、显式验证时间可追踪；重复只保留一条、不增 ID，原条核实时间按显式保存更新。非法参数不得被误当受支持开关；若原解析将未知开关视正文，必须明确展示正文而非偷偷改变 scope；空内容不写。</li>
+<li><strong>证据要求</strong>：输入/反馈截图、前后条数与 ID、核实时间、回读结果。</li>
+<li><strong>适用边界</strong>：原已有；持久化落中心而不是新增用户本地第二套正式记忆。</li>
+</ul>
+<h4 id="heading-9">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：显式保存项目事实并回读。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/save --project 项目使用Java 17。<br>
+<strong>预期及核对</strong>：截图保存和列表，正文、作用域、核实时间来源可追踪。<br>
+<strong>本步交付</strong>：一条可供去重对照的本人项目记忆。</p>
+</li>
+<li>
+<p><strong>操作</strong>：重复与规范化近似保存，再保存全局。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：同事实两次；/save --global 默认用中文沟通；已支持前置标志组合。<br>
+<strong>预期及核对</strong>：截图去重和两作用域结果，重复不增ID，核实时间按显式保存更新。<br>
+<strong>本步交付</strong>：去重后项目事实及独立全局事实。</p>
+</li>
+<li>
+<p><strong>操作</strong>：检查空内容、未知参数并重开回读。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：空事实、非法参数；刷新或授权会话重启。<br>
+<strong>预期及核对</strong>：截图解析反馈及持久读回，原将未知开关当正文时明确显示，不偷偷变scope；空不写。<br>
+<strong>本步交付</strong>：可解释参数语义及持久记忆证据。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：已完成未提交草稿的必填禁用、齐全可用与取消，五张状态图和网络观测已核对；成功保存、去重和CLI持久化完整流程受阻，整点未通过。</p>
+<h4 id="heading-10">闪退接续核对</h4>
+<p>闪退时已保存操作前清单，但第二张截图保存后的DOM采集超时，当时尚未执行“明确记住一条”按钮和必填草稿操作。恢复时从打开表单继续；不补写字段输入、禁用或取消成功，不将第72点的空表图当保存流程证据。当时本点未执行；恢复后的当前结果见下方同一业务点执行记录。</p>
+<h4 id="heading-11">执行记录</h4>
+<h5 id="heading-12">子场景：记忆草稿必填校验与取消</h5>
+<ul>
+<li>结果：通过</li>
+<li>执行类型：业务验收页面子场景（草稿未提交）</li>
+<li>时间：2026-10-05 00:59～01:01；逐文件保存时间见截图索引</li>
+<li>版本：15176原Vite源码通道；中心API 7D42903071A0F7EE</li>
+<li>身份：用户亲自登录且恢复后仍有效的当前若依admin</li>
+<li>实际观察：在当前用户个人偏好范围打开“明确记住一条”。候选“验收草稿：默认用中文沟通”且来源空时，保存不可用；只填来源“验收合成草稿，未提交”时也不可用；两者填齐后保存可用，未点击保存。点击“取消，保留原条目”后弹窗关闭，同一范围仍暂无数据。</li>
+<li>核对结果：只验证本地草稿的必填禁用、齐全可用及取消；网络观测82～89无请求、无截断和未读取续页。随后只读数据核对memory=0、artifact=0，不将当前计数反推未记录历史。未保存、替换、共存、删除、去重或调用模型。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/19-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E6%9D%A5%E6%BA%90%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.txt">缺来源DOM</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/20-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E5%86%85%E5%AE%B9%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.txt">缺内容DOM</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/21-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%AD%97%E6%AE%B5%E9%BD%90%E5%85%A8%E5%8F%AF%E4%BF%9D%E5%AD%98%E6%9C%AA%E6%8F%90%E4%BA%A4.txt">齐全未提交DOM</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/23-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%8F%96%E6%B6%88%E5%AE%8C%E6%88%90%E4%B8%AA%E4%BA%BA%E7%A9%BA%E5%88%97%E8%A1%A8.txt">取消完成DOM</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/23-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BD%91%E7%BB%9C%E8%A7%82%E6%B5%8B.json">网络观测</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%A0%B8%E5%AE%9E.json">只读数据核对</a></li>
+<li>截图要求：必需</li>
+<li>截图：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/19-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E6%89%93%E5%BC%80%E6%97%B6%E5%AD%97%E6%AE%B5%E4%B8%BA%E7%A9%BA.jpg">打开时字段为空</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/20-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E6%9D%A5%E6%BA%90%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.jpg">缺来源禁止保存</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/21-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E7%BC%BA%E5%86%85%E5%AE%B9%E7%A6%81%E6%AD%A2%E4%BF%9D%E5%AD%98.jpg">缺内容禁止保存</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/22-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%AD%97%E6%AE%B5%E9%BD%90%E5%85%A8%E6%9C%AA%E6%8F%90%E4%BA%A4.jpg">齐全未提交</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/23-%E8%AE%B0%E5%BF%86%E8%8D%89%E7%A8%BF-%E5%8F%96%E6%B6%88%E5%AE%8C%E6%88%90%E4%B8%AA%E4%BA%BA%E7%A9%BA%E5%88%97%E8%A1%A8.jpg">取消完成</a></li>
+<li>截图回读：已逐张回读，主对话与独立复核均确认实际字段；截图19～22曾滞后一状态，保留图像字节、按实际画面更正名称，原DOM不改写。截图20对应原DOM19的缺来源状态，图21对应原DOM20，图22对应原DOM21；原DOM22含关闭动画中的空弹窗，取消完成由图23及其DOM独立确认。对应与原名见索引。</li>
+<li>恢复条件：该草稿子场景完成；不替代中心保存、去重、CLI参数及重启回读。</li>
+</ul>
+<h5 id="heading-13">子场景：中心保存、重复去重和CLI持久化完整流程</h5>
+<ul>
+<li>结果：受阻</li>
+<li>执行类型：业务验收前提核实</li>
+<li>时间：2026-10-05</li>
+<li>实际观察：尚无获准保留的正式记忆样本、本人执行目录和真实CLI会话。未点击保存，也未执行原三个完整步骤。</li>
+<li>核对结果：草稿校验通过不证明成功写入或去重；原无写入证据限制继续保留，整点未通过。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E6%A0%B8%E5%AE%9E.json">当前环境与空记忆计数</a></li>
+<li>截图要求：完整流程仍待采集</li>
+<li>恢复条件：本人PERSONAL记忆的中心保存、重复输入和刷新回读，先恢复登录并明确合成事实数量及留存范围，不要求Runner或执行目录；沿同一ID、作用域、条数和核实时间取证。原/save参数、项目记忆和CLI重启回读分支另准备可信宿主、目录与CLI会话，不能用中心保存替代。</li>
+</ul>
+</div></details><details class="case" data-result="未执行" data-search="### 74. 记忆冲突的拒绝、替换与共存 - **验收前提**：已有明确验证“项目使用 java 17”；出处 memory/memoryconflictdetector、memorywriteresult、memorycommandargs、longtermmemory。 - **操作步骤**：保存“项目使用 java 21”但不选解决方案；再用 `/memory replace &lt;id&gt; 项目使用 java 21`；重置样本后显式选择 keep_both 或 `/save --force` 共存语义；对缺 id/空新事实作对照。 - **预期结果**：未决定不修改已验证旧条；替换明确指向旧 id 并留下版本来源；强制共存是用户明确决定且两条可区分，不假装自动消解冲突。缺 id/参数拒绝且无变化。 - **证据要求**：冲突/选择截图、旧新版本/内容、共存条数、拒绝不变。 - **适用边界**：原冲突与显式覆盖/共存已有；网页按同一规则，不能静默自动替换。 #### 逐步验收 1. **操作**：提交冲突但不作决定。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：已验证java 17；保存java 21。 **预期及核对**：截图冲突选择与原列表，未决定时旧验证事实/时间不变。 **本步交付**：等待用户决定的明确冲突。 2. **操作**：分别执行替换与共存。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/memory replace &lt;旧id&gt; 项目使用java 21；重置后keep_both或/save --force。 **预期及核对**：截图两种决定后列表，替换指向旧id有来源，两条共存可区别，不假装自动消解。 **本步交付**：按明确决定处理的记忆版本。 3. **操作**：提交无效替换再回读旧资料。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：缺id、空新事实、不存在目标。 **预期及核对**：截图拒绝和列表，非法输入无修改，核原条内容/版本保持。 **本步交付**：可继续使用的有效事实及拒绝记录。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">74</span><span>记忆冲突的拒绝、替换与共存</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：已有明确验证“项目使用 Java 17”；出处 memory/MemoryConflictDetector、MemoryWriteResult、MemoryCommandArgs、LongTermMemory。</li>
+<li><strong>操作步骤</strong>：保存“项目使用 Java 21”但不选解决方案；再用 <code>/memory replace &lt;id&gt; 项目使用 Java 21</code>；重置样本后显式选择 keep_both 或 <code>/save --force</code> 共存语义；对缺 ID/空新事实作对照。</li>
+<li><strong>预期结果</strong>：未决定不修改已验证旧条；替换明确指向旧 ID 并留下版本来源；强制共存是用户明确决定且两条可区分，不假装自动消解冲突。缺 ID/参数拒绝且无变化。</li>
+<li><strong>证据要求</strong>：冲突/选择截图、旧新版本/内容、共存条数、拒绝不变。</li>
+<li><strong>适用边界</strong>：原冲突与显式覆盖/共存已有；网页按同一规则，不能静默自动替换。</li>
+</ul>
+<h4 id="heading-14">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：提交冲突但不作决定。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：已验证Java 17；保存Java 21。<br>
+<strong>预期及核对</strong>：截图冲突选择与原列表，未决定时旧验证事实/时间不变。<br>
+<strong>本步交付</strong>：等待用户决定的明确冲突。</p>
+</li>
+<li>
+<p><strong>操作</strong>：分别执行替换与共存。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/memory replace &lt;旧id&gt; 项目使用Java 21；重置后keep_both或/save --force。<br>
+<strong>预期及核对</strong>：截图两种决定后列表，替换指向旧ID有来源，两条共存可区别，不假装自动消解。<br>
+<strong>本步交付</strong>：按明确决定处理的记忆版本。</p>
+</li>
+<li>
+<p><strong>操作</strong>：提交无效替换再回读旧资料。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：缺ID、空新事实、不存在目标。<br>
+<strong>预期及核对</strong>：截图拒绝和列表，非法输入无修改，核原条内容/版本保持。<br>
+<strong>本步交付</strong>：可继续使用的有效事实及拒绝记录。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 75. 记忆搜索与相关事实注入 - **验收前提**：三条稳定事实，含“java 17”“数据库 mysql”“默认中文”；当前用户新请求不是已存事实。出处 memory/memoryretriever、main memory_search。 - **操作步骤**：`/memory search java`、无命中、空关键词；问“本项目 java 版本？”；检查模型请求的相关记忆部分，切 r2 重复。 - **预期结果**：搜索返回匹配事实且 scope 正确，空参数提示；相关注入有时间/来源，不把当前请求或未存短期消息重复包装为长期事实。相关度排序不成为确定性业务真相；无结果明确。 - **证据要求**：搜索截图、已存独立清单、模型实际记忆上下文、跨目录对照。 - **适用边界**：原关键词/类型/时间衰减已有；用户隔离按中心实施。 #### 逐步验收 1. **操作**：搜索已存事实及空/无命中。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/memory search java；无命中词；空关键词。 **预期及核对**：截图结果与提示，匹配事实和作用域正确，空参数不静默成功。 **本步交付**：可供当前任务引用的真实稳定事实。 2. **操作**：询问版本并查看相关事实注入。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“本项目java版本？”；冻结java 17/mysql/中文三条。 **预期及核对**：截图答复，脱敏核相关部分的时间/来源；当前请求和未存短期消息不重复包装为长期事实。 **本步交付**：有来源的版本答复和实际注入记录。 3. **操作**：切r2再查和问同样问题。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：r2目录与其独立事实范围。 **预期及核对**：截图r2结果，不能带入r1项目事实；相关度不当最终真相，无结果明确。 **本步交付**：当前目录范围内的检索与问答结论。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">75</span><span>记忆搜索与相关事实注入</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：三条稳定事实，含“Java 17”“数据库 MySQL”“默认中文”；当前用户新请求不是已存事实。出处 memory/MemoryRetriever、Main MEMORY_SEARCH。</li>
+<li><strong>操作步骤</strong>：<code>/memory search Java</code>、无命中、空关键词；问“本项目 Java 版本？”；检查模型请求的相关记忆部分，切 R2 重复。</li>
+<li><strong>预期结果</strong>：搜索返回匹配事实且 scope 正确，空参数提示；相关注入有时间/来源，不把当前请求或未存短期消息重复包装为长期事实。相关度排序不成为确定性业务真相；无结果明确。</li>
+<li><strong>证据要求</strong>：搜索截图、已存独立清单、模型实际记忆上下文、跨目录对照。</li>
+<li><strong>适用边界</strong>：原关键词/类型/时间衰减已有；用户隔离按中心实施。</li>
+</ul>
+<h4 id="heading-15">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：搜索已存事实及空/无命中。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/memory search Java；无命中词；空关键词。<br>
+<strong>预期及核对</strong>：截图结果与提示，匹配事实和作用域正确，空参数不静默成功。<br>
+<strong>本步交付</strong>：可供当前任务引用的真实稳定事实。</p>
+</li>
+<li>
+<p><strong>操作</strong>：询问版本并查看相关事实注入。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“本项目Java版本？”；冻结Java 17/MySQL/中文三条。<br>
+<strong>预期及核对</strong>：截图答复，脱敏核相关部分的时间/来源；当前请求和未存短期消息不重复包装为长期事实。<br>
+<strong>本步交付</strong>：有来源的版本答复和实际注入记录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：切R2再查和问同样问题。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：R2目录与其独立事实范围。<br>
+<strong>预期及核对</strong>：截图R2结果，不能带入R1项目事实；相关度不当最终真相，无结果明确。<br>
+<strong>本步交付</strong>：当前目录范围内的检索与问答结论。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 76. 记忆核实与过时提醒 - **验收前提**：最后核实分别距冻结时钟 29 天/30 天以上/31 天的资料，配置 stale.days 默认 30；出处 memory/memoryretriever、longtermmemory、memoryfreshnesstest。 - **操作步骤**：查看注入/列表标识；对过时条执行 `/memory verify &lt;id&gt;` 再查询；对不存在/他人 id 操作。 - **预期结果**：超过有效阈值显示“可能已过时”，不能作为已验证当前事实直接断言；verify 更新核实时间后去除相应提示，不改原事实正文/归属。边界以冻结 clock 和源码 duration 判定核对，不凭日历四舍五入；无效 id/越权不变。 - **证据要求**：冻结时钟、核实前后时间/标识、命令反馈与越权记录。 - **适用边界**：原已有 30 天默认；没有可冻结时钟的环境时数值边界需受控测试另证。 #### 逐步验收 1. **操作**：按冻结时钟查看不同新鲜度。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：默认30天；距核实29天、30天阈值附近、31天样本。 **预期及核对**：截图列表/注入标识，依据原duration和固定clock比较，不四舍五入；过时提示不作为当前已验证事实。 **本步交付**：需要再次核实的事实清单。 2. **操作**：明确核实过时条并再次查看。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/memory verify &lt;本人过时id&gt;。 **预期及核对**：截图核实反馈与新提示，时间更新、正文/归属不变，对应过时标志消除。 **本步交付**：已重新核实且可供使用的原事实。 3. **操作**：核不存在与他人id的拒绝。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：缺失id、乙操作甲id。 **预期及核对**：截图拒绝，核所有原时间/内容不被错误刷新。 **本步交付**：核实权限与异常参数的保护记录。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">76</span><span>记忆核实与过时提醒</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：最后核实分别距冻结时钟 29 天/30 天以上/31 天的资料，配置 stale.days 默认 30；出处 memory/MemoryRetriever、LongTermMemory、MemoryFreshnessTest。</li>
+<li><strong>操作步骤</strong>：查看注入/列表标识；对过时条执行 <code>/memory verify &lt;id&gt;</code> 再查询；对不存在/他人 ID 操作。</li>
+<li><strong>预期结果</strong>：超过有效阈值显示“可能已过时”，不能作为已验证当前事实直接断言；verify 更新核实时间后去除相应提示，不改原事实正文/归属。边界以冻结 Clock 和源码 Duration 判定核对，不凭日历四舍五入；无效 ID/越权不变。</li>
+<li><strong>证据要求</strong>：冻结时钟、核实前后时间/标识、命令反馈与越权记录。</li>
+<li><strong>适用边界</strong>：原已有 30 天默认；没有可冻结时钟的环境时数值边界需受控测试另证。</li>
+</ul>
+<h4 id="heading-16">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：按冻结时钟查看不同新鲜度。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：默认30天；距核实29天、30天阈值附近、31天样本。<br>
+<strong>预期及核对</strong>：截图列表/注入标识，依据原Duration和固定Clock比较，不四舍五入；过时提示不作为当前已验证事实。<br>
+<strong>本步交付</strong>：需要再次核实的事实清单。</p>
+</li>
+<li>
+<p><strong>操作</strong>：明确核实过时条并再次查看。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/memory verify &lt;本人过时id&gt;。<br>
+<strong>预期及核对</strong>：截图核实反馈与新提示，时间更新、正文/归属不变，对应过时标志消除。<br>
+<strong>本步交付</strong>：已重新核实且可供使用的原事实。</p>
+</li>
+<li>
+<p><strong>操作</strong>：核不存在与他人ID的拒绝。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：缺失ID、乙操作甲ID。<br>
+<strong>预期及核对</strong>：截图拒绝，核所有原时间/内容不被错误刷新。<br>
+<strong>本步交付</strong>：核实权限与异常参数的保护记录。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 77. 删除单条与清空记忆的范围 - **验收前提**：a/r1 三条、a/r2 一条、b 一条；出处 main memory_delete/memory_clear、memorymanager 与当前中心范围/批准规则。 - **操作步骤**：`/memory delete &lt;a/r1 id&gt;`；删除不存在和 b id；执行 `/memory clear` 前查看明确目标/数量并拒绝，再批准仅测试范围；刷新各目录列表。 - **预期结果**：单条删除只影响目标；不存在/越权不误删。清空作用域在操作前明确，拒绝不变；批准仅清说明范围，a/r2/b 不因同库被清。正式审计按保留政策可追溯，不因删除内容消失。 - **证据要求**：删除/清空确认截图、各范围前后条数、回读与审计。 - **适用边界**：原命令已有；原本地 global 清空语义须显式映射当前个人范围，不能按旧共享工作区清库。 #### 逐步验收 1. **操作**：删除本人单条并核剩余集合。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：甲r1三条中的一条；冻结r2及乙基线。 **预期及核对**：截图删除反馈和剩余列表，只有目标消失，其他目录/用户保持。 **本步交付**：本人剩余记忆与删除审计。 2. **操作**：测试非法删除并审阅清空范围后拒绝。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：不存在/乙id；/memory clear显示明确作用域及数量。 **预期及核对**：截图越权/不存在和清空预览、拒绝，原集合不变，不能隐藏全库清除影响。 **本步交付**：未执行的清空申请及准确目标范围。 3. **操作**：批准限定测试范围清空后跨目录回读。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步合法当前范围，明确批准。 **预期及核对**：截图当前空列表及r2/乙正常资料，核只清说明范围，审计仍可追溯。 **本步交付**：正确清空结果及保留的其他个人资料。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">77</span><span>删除单条与清空记忆的范围</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：A/R1 三条、A/R2 一条、B 一条；出处 Main MEMORY_DELETE/MEMORY_CLEAR、MemoryManager 与当前中心范围/批准规则。</li>
+<li><strong>操作步骤</strong>：<code>/memory delete &lt;A/R1 id&gt;</code>；删除不存在和 B ID；执行 <code>/memory clear</code> 前查看明确目标/数量并拒绝，再批准仅测试范围；刷新各目录列表。</li>
+<li><strong>预期结果</strong>：单条删除只影响目标；不存在/越权不误删。清空作用域在操作前明确，拒绝不变；批准仅清说明范围，A/R2/B 不因同库被清。正式审计按保留政策可追溯，不因删除内容消失。</li>
+<li><strong>证据要求</strong>：删除/清空确认截图、各范围前后条数、回读与审计。</li>
+<li><strong>适用边界</strong>：原命令已有；原本地 global 清空语义须显式映射当前个人范围，不能按旧共享工作区清库。</li>
+</ul>
+<h4 id="heading-17">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：删除本人单条并核剩余集合。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：甲R1三条中的一条；冻结R2及乙基线。<br>
+<strong>预期及核对</strong>：截图删除反馈和剩余列表，只有目标消失，其他目录/用户保持。<br>
+<strong>本步交付</strong>：本人剩余记忆与删除审计。</p>
+</li>
+<li>
+<p><strong>操作</strong>：测试非法删除并审阅清空范围后拒绝。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：不存在/乙ID；/memory clear显示明确作用域及数量。<br>
+<strong>预期及核对</strong>：截图越权/不存在和清空预览、拒绝，原集合不变，不能隐藏全库清除影响。<br>
+<strong>本步交付</strong>：未执行的清空申请及准确目标范围。</p>
+</li>
+<li>
+<p><strong>操作</strong>：批准限定测试范围清空后跨目录回读。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步合法当前范围，明确批准。<br>
+<strong>预期及核对</strong>：截图当前空列表及R2/乙正常资料，核只清说明范围，审计仍可追溯。<br>
+<strong>本步交付</strong>：正确清空结果及保留的其他个人资料。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 78. 自动抽取事实的上限与原文校验 - **验收前提**：明确打开受控自动抽取设置；用户原话含四个稳定事实；模型返回原话三条、伪造 quote、空/不合法 json、秘密样本；出处 memory/autofactextractor、agentautofactextractiontest。 - **操作步骤**：逐个提交样本；观察候选条和核实状态；再关闭自动抽取重复。不得输入真实秘密。 - **预期结果**：最多三条，quote 必须逐字出现在用户原话；伪造/无效结果不保存，不刷新既有核实时间或替换冲突条。自动候选标待核实，关闭时不抽取；人造秘密/个人标识过滤后不发抽取请求或不保存。 - **证据要求**：原话/受控抽取响应、保存条数与待核实标识、实际调用计数和过滤记录。 - **适用边界**：原交互 cli 有自动抽取，嵌入 agent 需显式开启；当前功能是否默认启用须以有效配置核对，不假定通道一致。 #### 逐步验收 1. **操作**：开启受控抽取后提交四事实原话。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：用户四个稳定事实；模型回原话三条。 **预期及核对**：截图候选及待核实状态，最多3条，quote逐字包含在原话，不当已验证事实。 **本步交付**：有用户来源的有限候选记忆。 2. **操作**：逐个播放伪造和非法输出。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：伪quote、空/非法json、冲突内容、人造秘密/个人标识。 **预期及核对**：留脱敏请求/响应，截图拒绝或未保存；不保存伪事实，不更新旧核实时间、不替换冲突条；秘密不请求或不保存。 **本步交付**：不污染已有记忆的拒绝记录。 3. **操作**：关闭抽取后重复同输入并读回。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：关闭设置，上步同原话。 **预期及核对**：截图设置和记忆列表，核无新抽取请求/候选，已有正确资料不丢。 **本步交付**：关闭时无隐式保存的当前记忆状态。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">78</span><span>自动抽取事实的上限与原文校验</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：明确打开受控自动抽取设置；用户原话含四个稳定事实；模型返回原话三条、伪造 quote、空/不合法 JSON、秘密样本；出处 memory/AutoFactExtractor、AgentAutoFactExtractionTest。</li>
+<li><strong>操作步骤</strong>：逐个提交样本；观察候选条和核实状态；再关闭自动抽取重复。不得输入真实秘密。</li>
+<li><strong>预期结果</strong>：最多三条，quote 必须逐字出现在用户原话；伪造/无效结果不保存，不刷新既有核实时间或替换冲突条。自动候选标待核实，关闭时不抽取；人造秘密/个人标识过滤后不发抽取请求或不保存。</li>
+<li><strong>证据要求</strong>：原话/受控抽取响应、保存条数与待核实标识、实际调用计数和过滤记录。</li>
+<li><strong>适用边界</strong>：原交互 CLI 有自动抽取，嵌入 Agent 需显式开启；当前功能是否默认启用须以有效配置核对，不假定通道一致。</li>
+</ul>
+<h4 id="heading-18">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：开启受控抽取后提交四事实原话。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：用户四个稳定事实；模型回原话三条。<br>
+<strong>预期及核对</strong>：截图候选及待核实状态，最多3条，quote逐字包含在原话，不当已验证事实。<br>
+<strong>本步交付</strong>：有用户来源的有限候选记忆。</p>
+</li>
+<li>
+<p><strong>操作</strong>：逐个播放伪造和非法输出。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：伪quote、空/非法JSON、冲突内容、人造秘密/个人标识。<br>
+<strong>预期及核对</strong>：留脱敏请求/响应，截图拒绝或未保存；不保存伪事实，不更新旧核实时间、不替换冲突条；秘密不请求或不保存。<br>
+<strong>本步交付</strong>：不污染已有记忆的拒绝记录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：关闭抽取后重复同输入并读回。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：关闭设置，上步同原话。<br>
+<strong>预期及核对</strong>：截图设置和记忆列表，核无新抽取请求/候选，已有正确资料不丢。<br>
+<strong>本步交付</strong>：关闭时无隐式保存的当前记忆状态。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 79. 外部材料污染后暂停自动保存 - **验收前提**：网页/文件/mcp 中含“项目使用恶意配置”的测试句；用户后续明确“记住默认中文”。出处 memory/externalcontexttracker、explicitmemoryhints、agent 自动事实集成。 - **操作步骤**：先读外部材料，再做普通追问；检查是否自动保存材料句；随后用户显式记住自己的事实，检查来源与 scope。 - **预期结果**：外部上下文后自动事实抽取暂停，材料内容不会伪装成用户长期偏好。显式用户记住可以按正常验证/冲突规则保存，source 指向用户请求；runaway 提醒亦不能持久化。 - **证据要求**：工具材料、暂停事件、记忆前后列表、显式保存回执/来源。 - **适用边界**：原已有防污染；不能以用户重复材料文本自动视作授权。 #### 逐步验收 1. **操作**：读取含污染句的外部材料再普通追问。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：网页/文件/mcp中的“项目使用恶意配置”。 **预期及核对**：截图读取与追问，检查后续抽取请求，外部材料后自动抽取暂停。 **本步交付**：可继续处理原任务的外部材料与暂停状态。 2. **操作**：回读长期记忆和提醒来源。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步污染句及临时换思路提醒。 **预期及核对**：截图记忆列表并核原条版本，材料和临时提醒均不持久为用户偏好。 **本步交付**：未污染的原长期资料。 3. **操作**：用户明确要求保存本人事实。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“记住默认中文”。 **预期及核对**：截图保存/冲突反馈和读回，按正常规则保存，来源为用户请求且scope正确。 **本步交付**：可供后续会话使用的明确本人事实。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">79</span><span>外部材料污染后暂停自动保存</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：网页/文件/MCP 中含“项目使用恶意配置”的测试句；用户后续明确“记住默认中文”。出处 memory/ExternalContextTracker、ExplicitMemoryHints、Agent 自动事实集成。</li>
+<li><strong>操作步骤</strong>：先读外部材料，再做普通追问；检查是否自动保存材料句；随后用户显式记住自己的事实，检查来源与 scope。</li>
+<li><strong>预期结果</strong>：外部上下文后自动事实抽取暂停，材料内容不会伪装成用户长期偏好。显式用户记住可以按正常验证/冲突规则保存，source 指向用户请求；runaway 提醒亦不能持久化。</li>
+<li><strong>证据要求</strong>：工具材料、暂停事件、记忆前后列表、显式保存回执/来源。</li>
+<li><strong>适用边界</strong>：原已有防污染；不能以用户重复材料文本自动视作授权。</li>
+</ul>
+<h4 id="heading-19">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：读取含污染句的外部材料再普通追问。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：网页/文件/MCP中的“项目使用恶意配置”。<br>
+<strong>预期及核对</strong>：截图读取与追问，检查后续抽取请求，外部材料后自动抽取暂停。<br>
+<strong>本步交付</strong>：可继续处理原任务的外部材料与暂停状态。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回读长期记忆和提醒来源。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步污染句及临时换思路提醒。<br>
+<strong>预期及核对</strong>：截图记忆列表并核原条版本，材料和临时提醒均不持久为用户偏好。<br>
+<strong>本步交付</strong>：未污染的原长期资料。</p>
+</li>
+<li>
+<p><strong>操作</strong>：用户明确要求保存本人事实。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“记住默认中文”。<br>
+<strong>预期及核对</strong>：截图保存/冲突反馈和读回，按正常规则保存，来源为用户请求且scope正确。<br>
+<strong>本步交付</strong>：可供后续会话使用的明确本人事实。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 80. 记忆并发、版本与存储失败 - **验收前提**：两个会话编辑同一记忆版本；控制中心持久化失败，缓存有旧条；出处原 longtermmemoryfile storage lock 与当前中心 memories/version 设计。 - **操作步骤**：两会话并发替换；让保存失败后刷新/新会话查询；本地派生缓存丢失后从中心重取。 - **预期结果**：不会丢更新，陈旧版本明确拒绝或冲突；保存失败不显示持久成功，旧有效事实保留。正式来源只有中心，缓存删除不丢权威记录。 - **证据要求**：版本/写请求、冲突与失败截图、中心回读、缓存恢复结果。 - **适用边界**：原多进程文件锁不是中心数据库并发证明；迁移必须补齐版本与失败一致性。 #### 逐步验收 1. **操作**：两个会话对同一记忆版本分别替换。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：冻结原内容、版本及两种不同新事实。 **预期及核对**：截图两请求及结果，陈旧版本明确冲突/拒绝，不两成功静默丢一次更新。 **本步交付**：唯一有效新版本与并发冲突记录。 2. **操作**：制造持久化失败后刷新/新会话读回。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：私有存储失败样本和旧有效条。 **预期及核对**：截图保存失败及重读，不能显示已持久成功，旧有效正文/版本保持。 **本步交付**：原权威记忆与明确失败条件。 3. **操作**：删除派生缓存后从中心重取。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：仅获准本人派生缓存，不改权威记录。 **预期及核对**：截图/记录重新获取结果，与中心版本一致，不从本地旧缓存建立第二正式来源。 **本步交付**：可继续使用且不依赖缓存保存的正式事实。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">80</span><span>记忆并发、版本与存储失败</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：两个会话编辑同一记忆版本；控制中心持久化失败，缓存有旧条；出处原 LongTermMemoryFile storage lock 与当前中心 memories/version 设计。</li>
+<li><strong>操作步骤</strong>：两会话并发替换；让保存失败后刷新/新会话查询；本地派生缓存丢失后从中心重取。</li>
+<li><strong>预期结果</strong>：不会丢更新，陈旧版本明确拒绝或冲突；保存失败不显示持久成功，旧有效事实保留。正式来源只有中心，缓存删除不丢权威记录。</li>
+<li><strong>证据要求</strong>：版本/写请求、冲突与失败截图、中心回读、缓存恢复结果。</li>
+<li><strong>适用边界</strong>：原多进程文件锁不是中心数据库并发证明；迁移必须补齐版本与失败一致性。</li>
+</ul>
+<h4 id="heading-20">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：两个会话对同一记忆版本分别替换。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：冻结原内容、版本及两种不同新事实。<br>
+<strong>预期及核对</strong>：截图两请求及结果，陈旧版本明确冲突/拒绝，不两成功静默丢一次更新。<br>
+<strong>本步交付</strong>：唯一有效新版本与并发冲突记录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：制造持久化失败后刷新/新会话读回。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：私有存储失败样本和旧有效条。<br>
+<strong>预期及核对</strong>：截图保存失败及重读，不能显示已持久成功，旧有效正文/版本保持。<br>
+<strong>本步交付</strong>：原权威记忆与明确失败条件。</p>
+</li>
+<li>
+<p><strong>操作</strong>：删除派生缓存后从中心重取。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：仅获准本人派生缓存，不改权威记录。<br>
+<strong>预期及核对</strong>：截图/记录重新获取结果，与中心版本一致，不从本地旧缓存建立第二正式来源。<br>
+<strong>本步交付</strong>：可继续使用且不依赖缓存保存的正式事实。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 81. 上下文预算、能力与已知/未知 usage - **验收前提**：确定上下文窗口的模型，受控 usage 含合法 input/output/cache、缺失值、非法负数/小数/矛盾值；出处 memory/tokenbudget、context/contextprofile、当前模型能力设计。 - **操作步骤**：cli `/context`/`/ctx` 与知识上下文页查看预算；发送新增消息/工具 schema/推理历史；切换不同窗口模型后重新查看；回放各 usage。 - **预期结果**：预算计入实际新增消息、工具定义和能力影响，切模型更新容量；供应商实际 usage 与估计值区分。缺失/不合法不能显示真实消耗 0；缓存不重复算入输入；费用归属和未知状态可解释。 - **证据要求**：上下文截图、模型窗口与协议 usage、预算明细/切换前后对照。 - **适用边界**：原主要估算；供应商 usage 校正与账单一致性为迁移补齐，不能以估算当实耗。 #### 逐步验收 1. **操作**：先读固定模型窗口预算。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/context或/ctx及当前上下文入口。 **预期及核对**：截图预算与容量，独立按既定窗口和预留规则复核，估算值不冒真实usage。 **本步交付**：发送前可核对的上下文容量。 2. **操作**：加入消息、工具定义及推理历史后切模型。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：固定新增输入、工具schema、推理历史；另一不同窗口型号。 **预期及核对**：截图前后预算，实际新增部分与能力影响计入，切模型更新容量。 **本步交付**：与真实请求相符的新上下文预算。 3. **操作**：回放合法、缺失及矛盾usage并读归属。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：input/output/cache合法；缺失、负数、小数、互相矛盾。 **预期及核对**：截图真实/估计/未知标识，缓存不重复算输入，非法不当真实零消耗，用量属于原任务。 **本步交付**：可解释的计量与剩余容量状态。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">81</span><span>上下文预算、能力与已知/未知 usage</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：确定上下文窗口的模型，受控 usage 含合法 input/output/cache、缺失值、非法负数/小数/矛盾值；出处 memory/TokenBudget、context/ContextProfile、当前模型能力设计。</li>
+<li><strong>操作步骤</strong>：CLI <code>/context</code>/<code>/ctx</code> 与知识上下文页查看预算；发送新增消息/工具 schema/推理历史；切换不同窗口模型后重新查看；回放各 usage。</li>
+<li><strong>预期结果</strong>：预算计入实际新增消息、工具定义和能力影响，切模型更新容量；供应商实际 usage 与估计值区分。缺失/不合法不能显示真实消耗 0；缓存不重复算入输入；费用归属和未知状态可解释。</li>
+<li><strong>证据要求</strong>：上下文截图、模型窗口与协议 usage、预算明细/切换前后对照。</li>
+<li><strong>适用边界</strong>：原主要估算；供应商 usage 校正与账单一致性为迁移补齐，不能以估算当实耗。</li>
+</ul>
+<h4 id="heading-21">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：先读固定模型窗口预算。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/context或/ctx及当前上下文入口。<br>
+<strong>预期及核对</strong>：截图预算与容量，独立按既定窗口和预留规则复核，估算值不冒真实usage。<br>
+<strong>本步交付</strong>：发送前可核对的上下文容量。</p>
+</li>
+<li>
+<p><strong>操作</strong>：加入消息、工具定义及推理历史后切模型。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：固定新增输入、工具schema、推理历史；另一不同窗口型号。<br>
+<strong>预期及核对</strong>：截图前后预算，实际新增部分与能力影响计入，切模型更新容量。<br>
+<strong>本步交付</strong>：与真实请求相符的新上下文预算。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回放合法、缺失及矛盾usage并读归属。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：input/output/cache合法；缺失、负数、小数、互相矛盾。<br>
+<strong>预期及核对</strong>：截图真实/估计/未知标识，缓存不重复算输入，非法不当真实零消耗，用量属于原任务。<br>
+<strong>本步交付</strong>：可解释的计量与剩余容量状态。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 82. 清理旧工具正文而不破坏协议配对 - **验收前提**：至少四轮含 tool_call/tool_result 的历史，其中旧工具正文有大段固定内容；出处 memory/toolresultclearer、autocompactionmanager。 - **操作步骤**：达到已配置清理条件后继续一轮；核对实际模型 history 与原始账本；最近一轮工具和关键错误做对照。 - **预期结果**：只按规则清旧正文并保留可定位占位/结果引用；tool_call_id 配对不破坏，最近需保留的消息可用。原始账本完整，不把清理后的提示当原始工具证据。 - **证据要求**：清理前后请求消息、调用配对、原始账本和 artifact 回读。 - **适用边界**：原已有；中心元数据/原始消息引用按当前设计。 #### 逐步验收 1. **操作**：建立至少四轮带完整工具配对的历史。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：旧工具正文固定长内容、最近轮与关键错误。 **预期及核对**：留原始消息基线，有界面截图最近活动，核配对id供后续比较。 **本步交付**：可清理的旧正文和必须保留的近期资料。 2. **操作**：达到明确清理条件后继续一轮。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：当前配置清理阈值和保留规则。 **预期及核对**：截图清理提示/当前上下文，脱敏核只清旧正文，有占位/引用，工具调用与结果仍配对。 **本步交付**：已减少旧正文且可继续使用的有效上下文。 3. **操作**：回读原账本和近期结果。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步原始记录、最近工具与关键错误。 **预期及核对**：截图/记录原账本完整与近期仍可用，不能将清理后占位当原始证据。 **本步交付**：可追溯原始证据的清理后会话。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">82</span><span>清理旧工具正文而不破坏协议配对</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：至少四轮含 tool_call/tool_result 的历史，其中旧工具正文有大段固定内容；出处 memory/ToolResultClearer、AutoCompactionManager。</li>
+<li><strong>操作步骤</strong>：达到已配置清理条件后继续一轮；核对实际模型 history 与原始账本；最近一轮工具和关键错误做对照。</li>
+<li><strong>预期结果</strong>：只按规则清旧正文并保留可定位占位/结果引用；tool_call_id 配对不破坏，最近需保留的消息可用。原始账本完整，不把清理后的提示当原始工具证据。</li>
+<li><strong>证据要求</strong>：清理前后请求消息、调用配对、原始账本和 artifact 回读。</li>
+<li><strong>适用边界</strong>：原已有；中心元数据/原始消息引用按当前设计。</li>
+</ul>
+<h4 id="heading-22">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：建立至少四轮带完整工具配对的历史。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：旧工具正文固定长内容、最近轮与关键错误。<br>
+<strong>预期及核对</strong>：留原始消息基线，有界面截图最近活动，核配对ID供后续比较。<br>
+<strong>本步交付</strong>：可清理的旧正文和必须保留的近期资料。</p>
+</li>
+<li>
+<p><strong>操作</strong>：达到明确清理条件后继续一轮。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：当前配置清理阈值和保留规则。<br>
+<strong>预期及核对</strong>：截图清理提示/当前上下文，脱敏核只清旧正文，有占位/引用，工具调用与结果仍配对。<br>
+<strong>本步交付</strong>：已减少旧正文且可继续使用的有效上下文。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回读原账本和近期结果。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步原始记录、最近工具与关键错误。<br>
+<strong>预期及核对</strong>：截图/记录原账本完整与近期仍可用，不能将清理后占位当原始证据。<br>
+<strong>本步交付</strong>：可追溯原始证据的清理后会话。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 83. 手工压缩与四栏摘要继续工作 - **验收前提**：长历史独立含目标、明确决定、已完成文件证据、未完成问题，并含外部注入；出处 memory/conversationhistorycompactor、main compact。 - **操作步骤**：`/compact`；查看四栏摘要与最近三轮保留；继续提问尚未完成问题；检查工具调用配对与总 token 减少。 - **预期结果**：摘要依次为“当前目标与成功条件”“用户要求与已确认决定”“已完成工作及证据”“未解决问题与下一步”，精确保留有用路径/错误/证据，区分计划与事实，不把外部指令升为要求。保留尾部按 user 边界划分、不拆工具对；压缩后明显变短且可继续，原账本仍完整。 - **证据要求**：原独立事实清单、四栏摘要截图、前后 token/消息配对、继续回答与原账本。 - **适用边界**：原完整摘要与最近三轮默认已有；当前中心摘要/源消息绑定另验。 #### 逐步验收 1. **操作**：压缩前冻结四类独立事实并发起压缩。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：目标、已决定要求、真实文件证据、未完成问题，另含外部注入；/compact。 **预期及核对**：截图操作前内容和处理中状态，原账本/文件基线供结果核对。 **本步交付**：正在压缩的原会话与独立四栏答案。 2. **操作**：查看摘要结构及尾部保留。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：四栏目及最近三轮，按user边界划分。 **预期及核对**：截图完整四栏，核路径/错误/证据与基线相符、计划与事实区别、外部注入不升要求；工具对不拆，总体变短。 **本步交付**：有准确事实和完整尾部的有效摘要。 3. **操作**：依据未完成问题继续工作并读回原账本。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步摘要所列未完成问题。 **预期及核对**：截图续轮结果和原账本，实际承接四栏信息，历史原始内容仍完整。 **本步交付**：可继续完成原目标的压缩会话。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">83</span><span>手工压缩与四栏摘要继续工作</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：长历史独立含目标、明确决定、已完成文件证据、未完成问题，并含外部注入；出处 memory/ConversationHistoryCompactor、Main COMPACT。</li>
+<li><strong>操作步骤</strong>：<code>/compact</code>；查看四栏摘要与最近三轮保留；继续提问尚未完成问题；检查工具调用配对与总 token 减少。</li>
+<li><strong>预期结果</strong>：摘要依次为“当前目标与成功条件”“用户要求与已确认决定”“已完成工作及证据”“未解决问题与下一步”，精确保留有用路径/错误/证据，区分计划与事实，不把外部指令升为要求。保留尾部按 user 边界划分、不拆工具对；压缩后明显变短且可继续，原账本仍完整。</li>
+<li><strong>证据要求</strong>：原独立事实清单、四栏摘要截图、前后 token/消息配对、继续回答与原账本。</li>
+<li><strong>适用边界</strong>：原完整摘要与最近三轮默认已有；当前中心摘要/源消息绑定另验。</li>
+</ul>
+<h4 id="heading-23">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：压缩前冻结四类独立事实并发起压缩。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：目标、已决定要求、真实文件证据、未完成问题，另含外部注入；/compact。<br>
+<strong>预期及核对</strong>：截图操作前内容和处理中状态，原账本/文件基线供结果核对。<br>
+<strong>本步交付</strong>：正在压缩的原会话与独立四栏答案。</p>
+</li>
+<li>
+<p><strong>操作</strong>：查看摘要结构及尾部保留。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：四栏目及最近三轮，按user边界划分。<br>
+<strong>预期及核对</strong>：截图完整四栏，核路径/错误/证据与基线相符、计划与事实区别、外部注入不升要求；工具对不拆，总体变短。<br>
+<strong>本步交付</strong>：有准确事实和完整尾部的有效摘要。</p>
+</li>
+<li>
+<p><strong>操作</strong>：依据未完成问题继续工作并读回原账本。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步摘要所列未完成问题。<br>
+<strong>预期及核对</strong>：截图续轮结果和原账本，实际承接四栏信息，历史原始内容仍完整。<br>
+<strong>本步交付</strong>：可继续完成原目标的压缩会话。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 84. 自动压缩、大输入分段与失败回退 - **验收前提**：控制超过 trigger 的历史；超过 60,000 字符需分段；摘要缺标题、超过 8,000 字符、空、异常、不比原短和模型 context overflow 样本；出处 conversationhistorycompactor、autocompactionmanager 与主设计 context recovery。 - **操作步骤**：逐个触发压缩；缺标题时观察结构修复；模拟修复仍失败；模拟上下文超限后再次失败。 - **预期结果**：分段按原时间顺序合并，最终有四栏且有上限；空/超限/无效/不减少的摘要不替换有效历史。摘要失败保留原数据并清楚提示；上下文超限的补救压缩至多按批准策略一次，不无界重复/静默丢消息。 - **证据要求**：分段/合并请求、修复次数、摘要与失败截图、失败前后历史哈希、重试计数。 - **适用边界**：原已有分段和失败保护；overflow 有限恢复属于迁移验收要求。 #### 逐步验收 1. **操作**：达到触发阈值并用大输入分段。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：超trigger历史、超过60000字符的冻结时间序列。 **预期及核对**：留分段输入及处理记录，截图压缩状态，顺序不颠倒，最终按规定四栏/上限合并。 **本步交付**：按时间承接的候选摘要。 2. **操作**：逐项触发无效摘要并检查修复/回退。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：缺标题、&gt;8000字符、空、异常、不比原短；修复仍失败。 **预期及核对**：截图修复或失败反馈，非法摘要不替换有效历史，原消息与证据不丢，不能静默截去内容。 **本步交付**：原有效历史或经规则验证的新摘要。 3. **操作**：制造上下文超限后再次失败。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：受控context overflow与一次补救仍失败。 **预期及核对**：截图最终故障，按批准策略最多一次补救，不无界重复/收费或丢消息。 **本步交付**：有恢复条件的原会话与明确未完成结果。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">84</span><span>自动压缩、大输入分段与失败回退</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：控制超过 trigger 的历史；超过 60,000 字符需分段；摘要缺标题、超过 8,000 字符、空、异常、不比原短和模型 context overflow 样本；出处 ConversationHistoryCompactor、AutoCompactionManager 与主设计 context recovery。</li>
+<li><strong>操作步骤</strong>：逐个触发压缩；缺标题时观察结构修复；模拟修复仍失败；模拟上下文超限后再次失败。</li>
+<li><strong>预期结果</strong>：分段按原时间顺序合并，最终有四栏且有上限；空/超限/无效/不减少的摘要不替换有效历史。摘要失败保留原数据并清楚提示；上下文超限的补救压缩至多按批准策略一次，不无界重复/静默丢消息。</li>
+<li><strong>证据要求</strong>：分段/合并请求、修复次数、摘要与失败截图、失败前后历史哈希、重试计数。</li>
+<li><strong>适用边界</strong>：原已有分段和失败保护；overflow 有限恢复属于迁移验收要求。</li>
+</ul>
+<h4 id="heading-24">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：达到触发阈值并用大输入分段。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：超trigger历史、超过60000字符的冻结时间序列。<br>
+<strong>预期及核对</strong>：留分段输入及处理记录，截图压缩状态，顺序不颠倒，最终按规定四栏/上限合并。<br>
+<strong>本步交付</strong>：按时间承接的候选摘要。</p>
+</li>
+<li>
+<p><strong>操作</strong>：逐项触发无效摘要并检查修复/回退。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：缺标题、&gt;8000字符、空、异常、不比原短；修复仍失败。<br>
+<strong>预期及核对</strong>：截图修复或失败反馈，非法摘要不替换有效历史，原消息与证据不丢，不能静默截去内容。<br>
+<strong>本步交付</strong>：原有效历史或经规则验证的新摘要。</p>
+</li>
+<li>
+<p><strong>操作</strong>：制造上下文超限后再次失败。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：受控context overflow与一次补救仍失败。<br>
+<strong>预期及核对</strong>：截图最终故障，按批准策略最多一次补救，不无界重复/收费或丢消息。<br>
+<strong>本步交付</strong>：有恢复条件的原会话与明确未完成结果。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 85. 实验会话摘要的默认关闭与异步失效 - **验收前提**：sessionmemorycompactor 默认关闭；受控开启样本可延迟摘要完成，react/plan/team 各有不同独立 history；出处 memory/sessionmemorycompactor。 - **操作步骤**：默认运行确认不走实验路径；开启后让三个 history 并行；摘要运行中清上下文/取消/切换会话，再交付旧摘要；使快速摘要不可用。 - **预期结果**：默认不自动启用；摘要状态按各 history 隔离，旧 generation 不覆盖新会话；清除后迟到结果丢弃。快速摘要不可用回退完整摘要，保留原历史，不能跨用户/子任务污染。 - **证据要求**：配置、generation/会话关联、异步顺序、旧摘要未写入和回退请求记录。 - **适用边界**：原实验能力已有不等于默认生产启用；当前配置未开放时记录未启用边界，不能报实际快路径通过。 #### 逐步验收 1. **操作**：默认关闭状态运行普通任务。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：未开启实验会话摘要的当前配置。 **预期及核对**：截图设置/会话状态或留路径调用记录，核没有实验摘要请求，正常历史保留。 **本步交付**：未隐式启用的正常会话。 2. **操作**：受控开启后并行处理不同历史。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：react/plan/team各自独立内容，延迟摘要完成。 **预期及核对**：截图各自摘要状态并对照独立内容，历史间不串会话/用户/子任务。 **本步交付**：与各历史绑定的在途摘要。 3. **操作**：清理/取消/切会话后送迟到摘要并核回退。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：摘要运行时改变generation；快速摘要不可用。 **预期及核对**：截图丢弃/回退状态，旧结果不覆盖新历史，必要完整摘要仍保留原数据。 **本步交付**：没有异步污染的当前历史和恢复策略。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">85</span><span>实验会话摘要的默认关闭与异步失效</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：SessionMemoryCompactor 默认关闭；受控开启样本可延迟摘要完成，ReAct/Plan/Team 各有不同独立 history；出处 memory/SessionMemoryCompactor。</li>
+<li><strong>操作步骤</strong>：默认运行确认不走实验路径；开启后让三个 history 并行；摘要运行中清上下文/取消/切换会话，再交付旧摘要；使快速摘要不可用。</li>
+<li><strong>预期结果</strong>：默认不自动启用；摘要状态按各 history 隔离，旧 generation 不覆盖新会话；清除后迟到结果丢弃。快速摘要不可用回退完整摘要，保留原历史，不能跨用户/子任务污染。</li>
+<li><strong>证据要求</strong>：配置、generation/会话关联、异步顺序、旧摘要未写入和回退请求记录。</li>
+<li><strong>适用边界</strong>：原实验能力已有不等于默认生产启用；当前配置未开放时记录未启用边界，不能报实际快路径通过。</li>
+</ul>
+<h4 id="heading-25">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：默认关闭状态运行普通任务。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：未开启实验会话摘要的当前配置。<br>
+<strong>预期及核对</strong>：截图设置/会话状态或留路径调用记录，核没有实验摘要请求，正常历史保留。<br>
+<strong>本步交付</strong>：未隐式启用的正常会话。</p>
+</li>
+<li>
+<p><strong>操作</strong>：受控开启后并行处理不同历史。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：ReAct/Plan/Team各自独立内容，延迟摘要完成。<br>
+<strong>预期及核对</strong>：截图各自摘要状态并对照独立内容，历史间不串会话/用户/子任务。<br>
+<strong>本步交付</strong>：与各历史绑定的在途摘要。</p>
+</li>
+<li>
+<p><strong>操作</strong>：清理/取消/切会话后送迟到摘要并核回退。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：摘要运行时改变generation；快速摘要不可用。<br>
+<strong>预期及核对</strong>：截图丢弃/回退状态，旧结果不覆盖新历史，必要完整摘要仍保留原数据。<br>
+<strong>本步交付</strong>：没有异步污染的当前历史和恢复策略。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 86. 清当前上下文、清输入历史与正式记录区别 - **验收前提**：会话有原始消息、摘要、记忆，终端有输入 history；出处 main clear/history_clear、conversationledger 与当前保留政策。 - **操作步骤**：`/clear` 后发新请求；再 `/history clear` 后检查终端上键历史；查看原始对话/审批审计/长期记忆；对带历史图片的会话核对新有效上下文能力。 - **预期结果**：clear 清当前有效对话上下文及本轮临时批准状态，不删除正式审计/原始账本/长期记忆；history clear 只清 jline 输入历史，不等同于清会话。有效历史图片清除后能力要求按实际新上下文重算，不因 ui 隐藏而遗漏仍有效的图片。 - **证据要求**：操作前后上下文/终端历史截图、原记录可查、模型实际请求与图片要求变化。 - **适用边界**：原两个清理入口已有；中心保留与图片冻结按当前设计。 #### 逐步验收 1. **操作**：清当前会话后发送新请求。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/clear；原消息、摘要、记忆和输入历史基线。 **预期及核对**：截图新有效上下文，临时批准状态清除；原账本/审计/长期记忆不删除。 **本步交付**：可按新上下文继续的同一正式会话。 2. **操作**：再清输入历史并查正式记录。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：/history clear，终端上键回看。 **预期及核对**：截图真实终端历史与正式记录，jline历史清理不等于清会话，审计与记忆仍在。 **本步交付**：已清本地输入历史且正式资料完整的状态。 3. **操作**：用曾带图会话核新有效能力。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：清理前后图片历史/摘要与新纯文字请求。 **预期及核对**：截图能力门控，确实去图才重算为纯文字；仅界面隐藏仍有效的图不能遗漏。 **本步交付**：与真实有效上下文相符的后续模型请求。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">86</span><span>清当前上下文、清输入历史与正式记录区别</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：会话有原始消息、摘要、记忆，终端有输入 history；出处 Main CLEAR/HISTORY_CLEAR、ConversationLedger 与当前保留政策。</li>
+<li><strong>操作步骤</strong>：<code>/clear</code> 后发新请求；再 <code>/history clear</code> 后检查终端上键历史；查看原始对话/审批审计/长期记忆；对带历史图片的会话核对新有效上下文能力。</li>
+<li><strong>预期结果</strong>：clear 清当前有效对话上下文及本轮临时批准状态，不删除正式审计/原始账本/长期记忆；history clear 只清 JLine 输入历史，不等同于清会话。有效历史图片清除后能力要求按实际新上下文重算，不因 UI 隐藏而遗漏仍有效的图片。</li>
+<li><strong>证据要求</strong>：操作前后上下文/终端历史截图、原记录可查、模型实际请求与图片要求变化。</li>
+<li><strong>适用边界</strong>：原两个清理入口已有；中心保留与图片冻结按当前设计。</li>
+</ul>
+<h4 id="heading-26">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：清当前会话后发送新请求。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/clear；原消息、摘要、记忆和输入历史基线。<br>
+<strong>预期及核对</strong>：截图新有效上下文，临时批准状态清除；原账本/审计/长期记忆不删除。<br>
+<strong>本步交付</strong>：可按新上下文继续的同一正式会话。</p>
+</li>
+<li>
+<p><strong>操作</strong>：再清输入历史并查正式记录。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：/history clear，终端上键回看。<br>
+<strong>预期及核对</strong>：截图真实终端历史与正式记录，JLine历史清理不等于清会话，审计与记忆仍在。<br>
+<strong>本步交付</strong>：已清本地输入历史且正式资料完整的状态。</p>
+</li>
+<li>
+<p><strong>操作</strong>：用曾带图会话核新有效能力。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：清理前后图片历史/摘要与新纯文字请求。<br>
+<strong>预期及核对</strong>：截图能力门控，确实去图才重算为纯文字；仅界面隐藏仍有效的图不能遗漏。<br>
+<strong>本步交付</strong>：与真实有效上下文相符的后续模型请求。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details></section></main></div><footer>来源：完整业务验收记录.md · 更新日期2026-10-05 · 本页由正文生成，阅读检查不计作产品验收。</footer><script>
+const cases=[...document.querySelectorAll('.case')];const input=document.querySelector('#search');const status=document.querySelector('#status');input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let n=0;cases.forEach(el=>{const hit=!q||el.dataset.search.includes(q);el.classList.toggle('hidden',!hit);if(hit){n++;if(q)el.open=true;}});document.querySelectorAll('.module').forEach(el=>{const items=[...el.querySelectorAll('.case')];el.classList.toggle('hidden',items.length>0&&!items.some(x=>!x.classList.contains('hidden')));});status.textContent=q?'匹配 '+n+' / '+cases.length+' 点':'共 '+cases.length+' 点';});document.querySelector('#expand').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=true));document.querySelector('#collapse').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=false));
+</script></body></html>

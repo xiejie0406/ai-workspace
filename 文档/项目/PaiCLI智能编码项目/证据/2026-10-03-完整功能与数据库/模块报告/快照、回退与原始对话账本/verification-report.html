@@ -1,0 +1,168 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PaiCLI 快照、回退与原始对话账本验收报告</title><style>
+:root{--bg:#f3f6fb;--paper:#fff;--text:#243247;--muted:#617089;--line:#dce4ef;--blue:#215fd3;--soft:#edf3ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.85 system-ui,"Microsoft YaHei",sans-serif}header{padding:35px max(24px,calc((100vw - 1380px)/2));background:#163254;color:#fff}header h1{margin:0 0 8px;font-size:30px}header p{margin:8px 0;max-width:1040px;color:#dce6f5}.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.stat{background:#ffffff12;border:1px solid #ffffff30;border-radius:9px;padding:7px 13px}.layout{max-width:1430px;margin:auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:25px;padding:24px}nav{position:sticky;top:18px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px}nav a{display:block;padding:7px 5px;line-height:1.5;color:var(--muted);text-decoration:none;font-size:14px}nav a:hover{color:var(--blue);background:var(--soft)}main{min-width:0}.toolbar{position:sticky;top:0;z-index:2;background:var(--bg);padding:9px 0 14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:12px;font:inherit;color:inherit;background:var(--paper)}button{font:inherit;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;color:var(--text)}button:hover{border-color:var(--blue);color:var(--blue)}.module,.introduction{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:24px;margin-bottom:20px}.introduction>h1{font-size:26px}.module h2{font-size:23px;color:#15385c;margin:0 0 18px;scroll-margin-top:90px}h3{font-size:19px;margin-top:23px}p{margin:10px 0}li{margin:7px 0}a{color:var(--blue);overflow-wrap:anywhere}code{font:0.88em/1.6 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;background:var(--soft);padding:2px 5px;border-radius:4px}pre{white-space:pre-wrap;background:var(--soft);padding:15px}blockquote{margin:10px 0;border-left:4px solid #84a6e6;padding:8px 16px;background:#f5f8fd;color:var(--muted)}.case{border:1px solid var(--line);border-radius:10px;margin:12px 0;background:var(--paper)}.case>summary{cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;font-weight:600;list-style:none}.case>summary:before{content:'▸';color:var(--blue)}.case[open]>summary:before{content:'▾'}.number{background:var(--soft);color:var(--blue);border-radius:6px;padding:1px 9px;flex:none}.label{font-size:12px;font-weight:400;margin-left:auto;white-space:nowrap;color:#705c18;background:#fbf5df;border-radius:5px;padding:1px 7px}.case-body{padding:0 23px 17px}.case-body ul{padding-left:22px}.case-body li>strong:first-child{color:#15385c}.annex>summary{cursor:pointer;font-size:20px;font-weight:600}.annex>div{padding-top:20px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.7;margin:18px 0;min-width:550px}th,td{padding:9px 11px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft)}tr:nth-child(even){background:#fafcff}.module{overflow-x:auto}.hidden{display:none!important}.search-status{color:var(--muted);font-size:14px}footer{padding:24px;color:var(--muted);text-align:center;font-size:13px}.notice{font-size:14px;color:var(--muted)}@media(max-width:950px){.layout{grid-template-columns:1fr;padding:15px}nav{position:static;max-height:260px}.module,.introduction{padding:18px}header{padding:25px 20px}}@media(max-width:500px){header h1{font-size:24px}.label{display:none}.case>summary{padding:12px;font-size:15px}.case-body{padding:0 13px 15px}.toolbar{position:static}.layout{padding:10px}}@media print{header{background:white;color:black}header p{color:black}.layout{display:block}nav,.toolbar,.label{display:none}.case-body{display:block!important}.case,.module{break-inside:avoid}details:not([open])>*:not(summary){display:block!important}}
+.case[data-result="通过"] .label{color:#166534;background:#dcfce7}.case[data-result="未通过"] .label{color:#991b1b;background:#fee2e2}.case[data-result="受阻"] .label{color:#92400e;background:#fef3c7}.case[data-result="未执行"] .label{color:#475569;background:#e2e8f0}.result-warning{color:#92400e;background:#fffbeb;border-left:4px solid #d97706;padding:10px}.module-summary,.current-position{border:1px solid var(--line);background:var(--soft);padding:12px;margin-bottom:15px}.actual-image{margin:16px 0}.actual-image img,.module img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}.actual-image figcaption{font-size:13px;color:var(--muted);line-height:1.65}.case-body ol{padding-left:26px}</style></head><body><header><h1>PaiCLI 快照、回退与原始对话账本验收报告</h1><p>本页完整覆盖唯一验收正文第10章的8个业务点；按下面的实际结果与继续条件核对，不以子流程通过替代模块完整结论。</p><p>验收准备。当前本模块业务点结果：通过0，未通过0，受阻0，未执行8，不适用0；已登记0个前提核实或执行子场景。本页由唯一正文对应模块生成，完整流程和未完成项全部保留；已有有效子场景按正文沿用，本次报告生成不计新执行业务。技术检查、业务结果及截图完整度分别记录；用户接受：待确认。</p><div class="stats"><span class="stat">通过 0</span><span class="stat">未通过 0</span><span class="stat">受阻 0</span><span class="stat">未执行 8</span><span class="stat">不适用 0</span><span class="stat">8 个详细验收点</span><span class="stat">1 个业务模块</span></div></header><div class="layout"><nav aria-label="文档目录"><strong>本模块完整流程</strong><a href="#heading-1">10. 快照、回退与原始对话账本</a><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%8C%E6%95%B4%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E8%AE%B0%E5%BD%95.md">查看唯一 Markdown 正文</a></nav><main><div class="toolbar"><input id="search" type="search" placeholder="搜索验收点，例如：图片、恢复、MCP、重试" aria-label="搜索详细验收点"><button id="expand">展开全部</button><button id="collapse">收起全部</button><span class="search-status" id="status">共 8 点</span></div><p class="notice">报告视觉检查未执行：当前浏览器安全策略限制 file:// 页面；静态核对不代替实际布局、图片加载和搜索交互检查。</p><p class="notice">点击验收点标题查看操作。搜索匹配标题、步骤、预期及源码名称；追溯表和已有实际记录可单独展开。</p><section class="module" data-module="10. 快照、回退与原始对话账本"><h2 id="heading-1">10. 快照、回退与原始对话账本</h2>
+<p><strong>模块完整流程</strong>：冻结轮前文件和消息 → 执行有限变更 → 核对轮后快照、账本与导出 → 展开恢复影响并确认 → 恢复获准范围 → 再次读取文件字节和会话 → 检查后续修改、软链接、冲突与补偿分支。</p>
+<p><strong>当前完成位置与续验</strong>：目前没有轮前/轮后真实快照或对话账本，恢复、冲突与补偿分支尚未开始。下一步由本人在智能编码的快照与恢复入口，先在获准A目录完成有限文件变更，核同一对话、本轮与轮前后文件基线，再执行明确范围的恢复；没有原快照时重新准备本分支，不能复用不相干文件图。</p>
+<p class="module-summary">通过 0 · 未通过 0 · 受阻 0 · 未执行 8 · 不适用 0；模块截图：尚未登记；完整结论：尚未全部完成</p><details class="case" data-result="未执行" data-search="### 98. 每轮开始前和结束后的文件快照 - **验收前提**：启用快照，仅 r 内批准的文件；已有用户 git 工作树可只读观察；出处 snapshot/sidegitmanager、snapshotservice、history/conversationledger。 - **操作步骤**：执行一轮修改 value.txt 的任务；`/snapshot list`、`/snapshot status`；核对 pre/post 快照 id、轮次与文件清单；失败/取消任务也查真实阶段。 - **预期结果**：pre-turn 是任务前内容，post-turn 是实际任务后内容，阶段和 id 可追溯；失败不伪“完成后”。side-git 不提交/重置用户真实 git 分支；中心只持有元数据，实际内容哈希可回核。 - **证据要求**：列表/状态截图、两阶段哈希、中心元数据、本地 side-git 与用户 git 差异只读核对。 - **适用边界**：原 jgit side-git 已有；中心元数据与用户 git 保护为迁移要求，未经明确授权不执行真实仓库 git 写操作。 #### 逐步验收 1. **操作**：冻结任务前文件后执行一轮。**输入**：批准根内value.txt；启用快照。**预期及核对**：任务前与任务后分别形成pre/post；截修改及阶段状态，独立核两份内容哈希。**本步交付**：两阶段真实快照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：回读快照与中心元数据。**输入**：/snapshot list、/snapshot status及该轮编号。**预期及核对**：id、阶段、文件清单与内容对应；只读核用户git未被提交/重置。**本步交付**：可用于恢复的快照关联。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：对失败或取消轮核阶段。**输入**：受控失败/取消任务。**预期及核对**：保留真实快照阶段，不称已完成；截状态并回核元数据。**本步交付**：失败轮真实恢复起点。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">98</span><span>每轮开始前和结束后的文件快照</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：启用快照，仅 R 内批准的文件；已有用户 Git 工作树可只读观察；出处 snapshot/SideGitManager、SnapshotService、history/ConversationLedger。</li>
+<li><strong>操作步骤</strong>：执行一轮修改 value.txt 的任务；<code>/snapshot list</code>、<code>/snapshot status</code>；核对 pre/post 快照 ID、轮次与文件清单；失败/取消任务也查真实阶段。</li>
+<li><strong>预期结果</strong>：pre-turn 是任务前内容，post-turn 是实际任务后内容，阶段和 ID 可追溯；失败不伪“完成后”。Side-Git 不提交/重置用户真实 Git 分支；中心只持有元数据，实际内容哈希可回核。</li>
+<li><strong>证据要求</strong>：列表/状态截图、两阶段哈希、中心元数据、本地 Side-Git 与用户 Git 差异只读核对。</li>
+<li><strong>适用边界</strong>：原 JGit Side-Git 已有；中心元数据与用户 Git 保护为迁移要求，未经明确授权不执行真实仓库 Git 写操作。</li>
+</ul>
+<h4 id="heading-2">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：冻结任务前文件后执行一轮。<strong>输入</strong>：批准根内value.txt；启用快照。<strong>预期及核对</strong>：任务前与任务后分别形成pre/post；截修改及阶段状态，独立核两份内容哈希。<strong>本步交付</strong>：两阶段真实快照。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回读快照与中心元数据。<strong>输入</strong>：/snapshot list、/snapshot status及该轮编号。<strong>预期及核对</strong>：ID、阶段、文件清单与内容对应；只读核用户Git未被提交/重置。<strong>本步交付</strong>：可用于恢复的快照关联。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：对失败或取消轮核阶段。<strong>输入</strong>：受控失败/取消任务。<strong>预期及核对</strong>：保留真实快照阶段，不称已完成；截状态并回核元数据。<strong>本步交付</strong>：失败轮真实恢复起点。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 99. 恢复指定序号与新增/删除文件 - **验收前提**：两轮任务先修改 a.txt、新增 b.txt，再删除 c.txt；pre-turn 内容清单独立冻结；出处 sidegitmanager restorepreturn、main restore_snapshot。 - **操作步骤**：`/restore 1` 查看影响清单，先拒绝再批准；重置测试资料后 `/restore 2`；无序号/不存在序号作对照。 - **预期结果**：1 为最近 pre-turn，2 为再前一次；恢复对应文件内容、删除快照后新建文件、恢复快照中存在的删除文件，仅限批准范围。拒绝/无效序号不变，有恢复前保护快照与真实恢复回执。 - **证据要求**：预览/批准截图、三文件前后存在性/哈希、序号与快照对应、拒绝不变。 - **适用边界**：原 restore 语义已有；必须先预览批准，不能把终端输入视作无限回滚授权。 #### 逐步验收 1. **操作**：准备两轮变化并预览最近恢复。**输入**：a.txt修改、b.txt新增、c.txt删除；/restore 1。**预期及核对**：1对应最近pre-turn，预览含准确增删改；截影响清单并核冻结字节。**本步交付**：待批准恢复范围。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：拒绝后再批准该范围。**输入**：同一恢复预览，先拒绝再批准。**预期及核对**：拒绝哈希不变；批准恢复a/c、删除快照后b，并有保护快照和回执；截前后结果。**本步交付**：受范围保护的实际恢复结果。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：重置样本验证更早及无效序号。**输入**：/restore 2、缺序号、不存在序号。**预期及核对**：2对应再前pre-turn；无效不写；截反馈并核文件存在性/哈希。**本步交付**：序号语义与安全错误记录。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">99</span><span>恢复指定序号与新增/删除文件</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：两轮任务先修改 a.txt、新增 b.txt，再删除 c.txt；pre-turn 内容清单独立冻结；出处 SideGitManager restorePreTurn、Main RESTORE_SNAPSHOT。</li>
+<li><strong>操作步骤</strong>：<code>/restore 1</code> 查看影响清单，先拒绝再批准；重置测试资料后 <code>/restore 2</code>；无序号/不存在序号作对照。</li>
+<li><strong>预期结果</strong>：1 为最近 pre-turn，2 为再前一次；恢复对应文件内容、删除快照后新建文件、恢复快照中存在的删除文件，仅限批准范围。拒绝/无效序号不变，有恢复前保护快照与真实恢复回执。</li>
+<li><strong>证据要求</strong>：预览/批准截图、三文件前后存在性/哈希、序号与快照对应、拒绝不变。</li>
+<li><strong>适用边界</strong>：原 restore 语义已有；必须先预览批准，不能把终端输入视作无限回滚授权。</li>
+</ul>
+<h4 id="heading-3">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：准备两轮变化并预览最近恢复。<strong>输入</strong>：a.txt修改、b.txt新增、c.txt删除；/restore 1。<strong>预期及核对</strong>：1对应最近pre-turn，预览含准确增删改；截影响清单并核冻结字节。<strong>本步交付</strong>：待批准恢复范围。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：拒绝后再批准该范围。<strong>输入</strong>：同一恢复预览，先拒绝再批准。<strong>预期及核对</strong>：拒绝哈希不变；批准恢复a/c、删除快照后b，并有保护快照和回执；截前后结果。<strong>本步交付</strong>：受范围保护的实际恢复结果。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：重置样本验证更早及无效序号。<strong>输入</strong>：/restore 2、缺序号、不存在序号。<strong>预期及核对</strong>：2对应再前pre-turn；无效不写；截反馈并核文件存在性/哈希。<strong>本步交付</strong>：序号语义与安全错误记录。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 100. 快照中的权限位、软链与冲突 - **验收前提**：平台支持的可执行权限文件、r 内安全软链、外部链接和恢复后人工变更；出处 sidegitmanager 与主设计恢复差距。 - **操作步骤**：冻结合法文件模式/链接后变更，尝试恢复；在批准后改当前文件哈希、交换软链目标；查看拒绝和保持现状。 - **预期结果**：合法恢复正确处理文件类型/模式，不把软链错误写成普通文件；外部链接及身份冲突拒绝，不覆盖人工新改动。平台不支持权限位/软链测试时记录非适用或受阻原因，不假定通过。 - **证据要求**：文件类型/模式/目标与哈希前后、冲突拒绝截图、o 不变。 - **适用边界**：原模式/软链保护有缺口；迁移必须补齐，依据主设计而非原行为降标准。 #### 逐步验收 1. **操作**：冻结并变更合法模式和链接。**输入**：平台支持的可执行文件与根内软链。**预期及核对**：恢复后模式、文件类型、链接目标匹配冻结值；截结果并核模式/目标/哈希。**本步交付**：合法文件类型恢复结果。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：模拟批准后的冲突。**输入**：人工修改当前hash、交换链接至根外。**预期及核对**：拒绝覆盖或越界，根外保护文件不变；截冲突并核现状。**本步交付**：保留用户改动的拒绝记录。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：确认平台不支持的子场景。**输入**：实际权限位/软链能力探查记录。**预期及核对**：不能把无法建立样本算通过；据平台事实列不适用或受阻及替代记录。**本步交付**：明确的适用范围。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">100</span><span>快照中的权限位、软链与冲突</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：平台支持的可执行权限文件、R 内安全软链、外部链接和恢复后人工变更；出处 SideGitManager 与主设计恢复差距。</li>
+<li><strong>操作步骤</strong>：冻结合法文件模式/链接后变更，尝试恢复；在批准后改当前文件哈希、交换软链目标；查看拒绝和保持现状。</li>
+<li><strong>预期结果</strong>：合法恢复正确处理文件类型/模式，不把软链错误写成普通文件；外部链接及身份冲突拒绝，不覆盖人工新改动。平台不支持权限位/软链测试时记录非适用或受阻原因，不假定通过。</li>
+<li><strong>证据要求</strong>：文件类型/模式/目标与哈希前后、冲突拒绝截图、O 不变。</li>
+<li><strong>适用边界</strong>：原模式/软链保护有缺口；迁移必须补齐，依据主设计而非原行为降标准。</li>
+</ul>
+<h4 id="heading-4">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：冻结并变更合法模式和链接。<strong>输入</strong>：平台支持的可执行文件与根内软链。<strong>预期及核对</strong>：恢复后模式、文件类型、链接目标匹配冻结值；截结果并核模式/目标/哈希。<strong>本步交付</strong>：合法文件类型恢复结果。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：模拟批准后的冲突。<strong>输入</strong>：人工修改当前hash、交换链接至根外。<strong>预期及核对</strong>：拒绝覆盖或越界，根外保护文件不变；截冲突并核现状。<strong>本步交付</strong>：保留用户改动的拒绝记录。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：确认平台不支持的子场景。<strong>输入</strong>：实际权限位/软链能力探查记录。<strong>预期及核对</strong>：不能把无法建立样本算通过；据平台事实列不适用或受阻及替代记录。<strong>本步交付</strong>：明确的适用范围。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 101. 恢复中途失败的补偿与未知状态 - **验收前提**：三个目标文件，第二个受控写失败；已有恢复前保护快照；出处主设计失败恢复、receipt/reconcile 与 sidegitmanager 目标迁移。 - **操作步骤**：提交批准恢复并触发中途失败；核对所有文件，重新连接后查看状态；模拟回执丢失但本地可能完成的样本。 - **预期结果**：不能标恢复完成。按批准设计补偿回恢复前状态，或明确列实际已恢复/未恢复与人工处理所需；回执未知不盲目重放。真实副作用与中心状态对账一致后才终结。 - **证据要求**：保护快照、每文件实际字节、失败/补偿回执、重新连接状态和对账结果。 - **适用边界**：迁移补齐；不可只捕获异常后显示失败而忽略部分文件已经变化。 #### 逐步验收 1. **操作**：冻结保护快照并触发恢复中途失败。**输入**：三个目标文件，第二个受控写失败。**预期及核对**：不能报完成；截失败状态，逐文件回读实际字节。**本步交付**：部分恢复清单与保护快照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：核补偿或人工处置路径。**输入**：批准设计中的补偿规则与上步实际清单。**预期及核对**：补偿恢复前状态，或明确已恢复/未恢复；核文件和补偿回执，不只看异常。**本步交付**：有据可查的失败处理结果。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：模拟回执丢失后重连对账。**输入**：本地可能完成而中心未知的样本。**预期及核对**：不盲目重放；截重新连接状态，副作用与中心对账一致才终结。**本步交付**：已对账状态或仍需处理的未知项。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">101</span><span>恢复中途失败的补偿与未知状态</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：三个目标文件，第二个受控写失败；已有恢复前保护快照；出处主设计失败恢复、receipt/reconcile 与 SideGitManager 目标迁移。</li>
+<li><strong>操作步骤</strong>：提交批准恢复并触发中途失败；核对所有文件，重新连接后查看状态；模拟回执丢失但本地可能完成的样本。</li>
+<li><strong>预期结果</strong>：不能标恢复完成。按批准设计补偿回恢复前状态，或明确列实际已恢复/未恢复与人工处理所需；回执未知不盲目重放。真实副作用与中心状态对账一致后才终结。</li>
+<li><strong>证据要求</strong>：保护快照、每文件实际字节、失败/补偿回执、重新连接状态和对账结果。</li>
+<li><strong>适用边界</strong>：迁移补齐；不可只捕获异常后显示失败而忽略部分文件已经变化。</li>
+</ul>
+<h4 id="heading-5">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：冻结保护快照并触发恢复中途失败。<strong>输入</strong>：三个目标文件，第二个受控写失败。<strong>预期及核对</strong>：不能报完成；截失败状态，逐文件回读实际字节。<strong>本步交付</strong>：部分恢复清单与保护快照。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：核补偿或人工处置路径。<strong>输入</strong>：批准设计中的补偿规则与上步实际清单。<strong>预期及核对</strong>：补偿恢复前状态，或明确已恢复/未恢复；核文件和补偿回执，不只看异常。<strong>本步交付</strong>：有据可查的失败处理结果。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：模拟回执丢失后重连对账。<strong>输入</strong>：本地可能完成而中心未知的样本。<strong>预期及核对</strong>：不盲目重放；截重新连接状态，副作用与中心对账一致才终结。<strong>本步交付</strong>：已对账状态或仍需处理的未知项。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 102. 快照清理、排除项与作用范围 - **验收前提**：r1/r2 各有测试快照，配置排除敏感/缓存目录；出处 sidegitmanager cleansnapshots、snapshotconfig、main snapshot。 - **操作步骤**：`/snapshot status` 核对启用、根、side-git、保留/展示数和排除；`/snapshot clean` 查看范围，拒绝/批准；查看 r2、源文件与中心原审计。 - **预期结果**：排除项不进入内容快照；清理只删除确认的当前根快照存储，不删用户源文件/其他根；拒绝不变。旧恢复入口不可再宣称可用，元数据按当前失效/清理规则可追溯；不能把显示数当真实完整保留政策。 - **证据要求**：状态/清理确认截图、存储清单、源文件/r2 哈希与元数据变化。 - **适用边界**：原 clean 删除当前 side-git；中心清理元数据和确认范围属于迁移要求。 #### 逐步验收 1. **操作**：核启用状态及排除范围。**输入**：r1/r2快照；敏感/缓存排除项；/snapshot status。**预期及核对**：根、side-git、保留/展示数清楚；排除内容不进快照；截状态并核存储。**本步交付**：批准清理前的准确范围。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：先拒绝再批准当前根清理。**输入**：/snapshot clean与确认范围。**预期及核对**：拒绝不变；批准仅删r1快照，不删源文件/r2；截确认/结果并核哈希。**本步交付**：已清理存储及未变源文件。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：回读旧恢复入口与审计。**输入**：已清理快照id和中心元数据。**预期及核对**：旧入口不再称可恢复，失效可追溯；截状态，不把展示数当完整保留政策。**本步交付**：真实失效状态和保留边界。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">102</span><span>快照清理、排除项与作用范围</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：R1/R2 各有测试快照，配置排除敏感/缓存目录；出处 SideGitManager cleanSnapshots、SnapshotConfig、Main SNAPSHOT。</li>
+<li><strong>操作步骤</strong>：<code>/snapshot status</code> 核对启用、根、Side-Git、保留/展示数和排除；<code>/snapshot clean</code> 查看范围，拒绝/批准；查看 R2、源文件与中心原审计。</li>
+<li><strong>预期结果</strong>：排除项不进入内容快照；清理只删除确认的当前根快照存储，不删用户源文件/其他根；拒绝不变。旧恢复入口不可再宣称可用，元数据按当前失效/清理规则可追溯；不能把显示数当真实完整保留政策。</li>
+<li><strong>证据要求</strong>：状态/清理确认截图、存储清单、源文件/R2 哈希与元数据变化。</li>
+<li><strong>适用边界</strong>：原 clean 删除当前 Side-Git；中心清理元数据和确认范围属于迁移要求。</li>
+</ul>
+<h4 id="heading-6">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：核启用状态及排除范围。<strong>输入</strong>：R1/R2快照；敏感/缓存排除项；/snapshot status。<strong>预期及核对</strong>：根、Side-Git、保留/展示数清楚；排除内容不进快照；截状态并核存储。<strong>本步交付</strong>：批准清理前的准确范围。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：先拒绝再批准当前根清理。<strong>输入</strong>：/snapshot clean与确认范围。<strong>预期及核对</strong>：拒绝不变；批准仅删R1快照，不删源文件/R2；截确认/结果并核哈希。<strong>本步交付</strong>：已清理存储及未变源文件。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回读旧恢复入口与审计。<strong>输入</strong>：已清理快照ID和中心元数据。<strong>预期及核对</strong>：旧入口不再称可恢复，失效可追溯；截状态，不把展示数当完整保留政策。<strong>本步交付</strong>：真实失效状态和保留边界。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 103. 原始消息账本的追加、角色与压缩独立性 - **验收前提**：一个会话含 user、assistant、tool、react/plan/team 不同 actor 和 source；出处 history/conversationledger、agentconversationledgertest。 - **操作步骤**：完成两轮、压缩、clear，再继续；检查 raw jsonl 与中心原始消息/事件投影，按 sequence、时间、模式/actor/source 对账；模拟保存失败。 - **预期结果**：原消息按顺序追加，不被上下文压缩/clear 覆写或删成摘要；工具结果与 id 配对，不同角色来源可辨。账本失败明确，不能声称完整可审计；秘密仍按脱敏/权限规则，原始并非可公开全部内容。 - **证据要求**：追加前后行数/sequence、原始消息对账、压缩/clear 后可追溯截图、失败告警。 - **适用边界**：原 append-only jsonl 已有；中心权威/本地缓存与失败闭合按迁移设计核对，不把 jsonl 变成第二套正式任务状态。 #### 逐步验收 1. **操作**：完成带多角色的两轮并冻结账本。**输入**：user/assistant/tool及react/plan/team actor/source。**预期及核对**：原消息按sequence追加，工具id配对；截原消息投影并核jsonl行序。**本步交付**：完整原始消息基线。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：压缩、clear后继续一轮。**输入**：同一会话原始账本与新输入。**预期及核对**：摘要/clear不覆写旧消息；核行数、sequence及中心投影；截可追溯原记录。**本步交付**：追加而不替换的后续账本。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：模拟账本保存失败并核秘密边界。**输入**：受控保存失败、合成秘密。**预期及核对**：明确完整审计受损，不伪称完整；截告警，核脱敏/读取权限。**本步交付**：失败告警与真实审计范围。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">103</span><span>原始消息账本的追加、角色与压缩独立性</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：一个会话含 user、assistant、tool、ReAct/Plan/Team 不同 actor 和 source；出处 history/ConversationLedger、AgentConversationLedgerTest。</li>
+<li><strong>操作步骤</strong>：完成两轮、压缩、clear，再继续；检查 raw JSONL 与中心原始消息/事件投影，按 sequence、时间、模式/actor/source 对账；模拟保存失败。</li>
+<li><strong>预期结果</strong>：原消息按顺序追加，不被上下文压缩/clear 覆写或删成摘要；工具结果与 id 配对，不同角色来源可辨。账本失败明确，不能声称完整可审计；秘密仍按脱敏/权限规则，原始并非可公开全部内容。</li>
+<li><strong>证据要求</strong>：追加前后行数/sequence、原始消息对账、压缩/clear 后可追溯截图、失败告警。</li>
+<li><strong>适用边界</strong>：原 append-only JSONL 已有；中心权威/本地缓存与失败闭合按迁移设计核对，不把 JSONL 变成第二套正式任务状态。</li>
+</ul>
+<h4 id="heading-7">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：完成带多角色的两轮并冻结账本。<strong>输入</strong>：user/assistant/tool及ReAct/Plan/Team actor/source。<strong>预期及核对</strong>：原消息按sequence追加，工具id配对；截原消息投影并核JSONL行序。<strong>本步交付</strong>：完整原始消息基线。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：压缩、clear后继续一轮。<strong>输入</strong>：同一会话原始账本与新输入。<strong>预期及核对</strong>：摘要/clear不覆写旧消息；核行数、sequence及中心投影；截可追溯原记录。<strong>本步交付</strong>：追加而不替换的后续账本。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：模拟账本保存失败并核秘密边界。<strong>输入</strong>：受控保存失败、合成秘密。<strong>预期及核对</strong>：明确完整审计受损，不伪称完整；截告警，核脱敏/读取权限。<strong>本步交付</strong>：失败告警与真实审计范围。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 104. 会话导出、可读快照与跨用户权限 - **验收前提**：会话含 markdown、代码、工具/diff、审批、图片引用和失败阶段；出处 main export、tui/history/conversationsnapshot、conversationledger 及当前中心产物策略。 - **操作步骤**：`/export` 及页面导出；核对产物模式/范围与图像引用；b 下载 a 产物、无权限身份直接访问 url；撤权后重试。对 html 导出中的脚本/危险 url 进行安全样本核对。 - **预期结果**：导出保留正确角色、顺序、阶段与可读代码/证据，范围明确；不泄秘密，不把未执行写成已完成。图片引用只有授权用户可读取；越权/撤权拒绝，html 不执行材料脚本或危险链接。 - **证据要求**：页面导出截图、导出文件回读、与原记录逐段对照、拒绝请求及危险内容结果。 - **适用边界**：原终端导出/conversationsnapshot 已有；中心权限、安全 markdown/附件和正式结果投影属于迁移补齐。 #### 逐步验收 1. **操作**：按明确范围导出完整会话。**输入**：/export及页面导出；代码、diff、审批、图片、失败阶段。**预期及核对**：角色顺序/阶段正确；截导出反馈，逐段对照原记录与产物。**本步交付**：可读且范围明确的导出文件。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：回读导出和图片引用。**输入**：下载文件及本人授权图片引用。**预期及核对**：代码、证据与实际状态一致，不含秘密或伪完成；截图回读结果。**本步交付**：有据可用的个人导出。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：验证权限与危险内容。**输入**：乙下载甲产物、直连url、撤权；html脚本/危险url样本。**预期及核对**：越权拒绝，导出不执行材料脚本；截拒绝/安全页面并核访问状态。**本步交付**：私有访问与安全展示证据。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">104</span><span>会话导出、可读快照与跨用户权限</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：会话含 Markdown、代码、工具/diff、审批、图片引用和失败阶段；出处 Main EXPORT、tui/history/ConversationSnapshot、ConversationLedger 及当前中心产物策略。</li>
+<li><strong>操作步骤</strong>：<code>/export</code> 及页面导出；核对产物模式/范围与图像引用；B 下载 A 产物、无权限身份直接访问 URL；撤权后重试。对 HTML 导出中的脚本/危险 URL 进行安全样本核对。</li>
+<li><strong>预期结果</strong>：导出保留正确角色、顺序、阶段与可读代码/证据，范围明确；不泄秘密，不把未执行写成已完成。图片引用只有授权用户可读取；越权/撤权拒绝，HTML 不执行材料脚本或危险链接。</li>
+<li><strong>证据要求</strong>：页面导出截图、导出文件回读、与原记录逐段对照、拒绝请求及危险内容结果。</li>
+<li><strong>适用边界</strong>：原终端导出/ConversationSnapshot 已有；中心权限、安全 Markdown/附件和正式结果投影属于迁移补齐。</li>
+</ul>
+<h4 id="heading-8">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：按明确范围导出完整会话。<strong>输入</strong>：/export及页面导出；代码、diff、审批、图片、失败阶段。<strong>预期及核对</strong>：角色顺序/阶段正确；截导出反馈，逐段对照原记录与产物。<strong>本步交付</strong>：可读且范围明确的导出文件。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回读导出和图片引用。<strong>输入</strong>：下载文件及本人授权图片引用。<strong>预期及核对</strong>：代码、证据与实际状态一致，不含秘密或伪完成；截图回读结果。<strong>本步交付</strong>：有据可用的个人导出。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：验证权限与危险内容。<strong>输入</strong>：乙下载甲产物、直连URL、撤权；HTML脚本/危险URL样本。<strong>预期及核对</strong>：越权拒绝，导出不执行材料脚本；截拒绝/安全页面并核访问状态。<strong>本步交付</strong>：私有访问与安全展示证据。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 105. 文件回退与外部副作用的真实边界 - **验收前提**：获准安全样本产生文件变化并向受控测试端点发送一次事件，仅记录人造标记；出处 snapshot 设计及主设计副作用边界。 - **操作步骤**：回退文件任务，核对文件和测试端点事件记录；查看回退说明与审计。 - **预期结果**：文件恢复不会声称撤销外部请求、数据库写入、发出的消息或第三方费用。外部事件仍存在且可追溯，界面明确文件回退范围；不得通过再发送反向业务操作冒充原快照恢复。 - **证据要求**：恢复文件哈希、受控外部事件回执、范围提示截图与审计。 - **适用边界**：原 side-git 仅文件内容；真实业务外部调用必须另获授权，未授权时本项只做受控协议边界准备。 #### 逐步验收 1. **操作**：冻结文件和受控外部事件记录。**输入**：批准的样本文件变化与一次人造事件。**预期及核对**：保存实际文件哈希和事件回执；截任务结果。**本步交付**：文件与外部副作用分别可核的基线。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 2. **操作**：执行文件回退。**输入**：上述批准快照与范围。**预期及核对**：文件恢复但事件仍存在；截范围说明，核文件和事件记录。**本步交付**：仅文件已恢复的事实。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 3. **操作**：回读说明和审计。**输入**：文件恢复回执、仍存外部事件。**预期及核对**：不声称撤销消息/费用/数据库，不反向发送冒充回退；截说明；未授权真实外呼则保持准备。**本步交付**：外部副作用未撤销的明确边界。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。 "><summary><span class="number">105</span><span>文件回退与外部副作用的真实边界</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：获准安全样本产生文件变化并向受控测试端点发送一次事件，仅记录人造标记；出处 snapshot 设计及主设计副作用边界。</li>
+<li><strong>操作步骤</strong>：回退文件任务，核对文件和测试端点事件记录；查看回退说明与审计。</li>
+<li><strong>预期结果</strong>：文件恢复不会声称撤销外部请求、数据库写入、发出的消息或第三方费用。外部事件仍存在且可追溯，界面明确文件回退范围；不得通过再发送反向业务操作冒充原快照恢复。</li>
+<li><strong>证据要求</strong>：恢复文件哈希、受控外部事件回执、范围提示截图与审计。</li>
+<li><strong>适用边界</strong>：原 Side-Git 仅文件内容；真实业务外部调用必须另获授权，未授权时本项只做受控协议边界准备。</li>
+</ul>
+<h4 id="heading-9">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：冻结文件和受控外部事件记录。<strong>输入</strong>：批准的样本文件变化与一次人造事件。<strong>预期及核对</strong>：保存实际文件哈希和事件回执；截任务结果。<strong>本步交付</strong>：文件与外部副作用分别可核的基线。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：执行文件回退。<strong>输入</strong>：上述批准快照与范围。<strong>预期及核对</strong>：文件恢复但事件仍存在；截范围说明，核文件和事件记录。<strong>本步交付</strong>：仅文件已恢复的事实。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回读说明和审计。<strong>输入</strong>：文件恢复回执、仍存外部事件。<strong>预期及核对</strong>：不声称撤销消息/费用/数据库，不反向发送冒充回退；截说明；未授权真实外呼则保持准备。<strong>本步交付</strong>：外部副作用未撤销的明确边界。 <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。</p>
+</li>
+</ol>
+<p>现有执行位置：本点尚无逐步业务执行记录，保持未执行；上述内容是待执行清单，本次补正文不产生通过结论。原有暂停、平台或授权边界仍按本点前提执行。</p>
+</div></details></section></main></div><footer>来源：完整业务验收记录.md · 更新日期2026-10-05 · 本页由正文生成，阅读检查不计作产品验收。</footer><script>
+const cases=[...document.querySelectorAll('.case')];const input=document.querySelector('#search');const status=document.querySelector('#status');input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let n=0;cases.forEach(el=>{const hit=!q||el.dataset.search.includes(q);el.classList.toggle('hidden',!hit);if(hit){n++;if(q)el.open=true;}});document.querySelectorAll('.module').forEach(el=>{const items=[...el.querySelectorAll('.case')];el.classList.toggle('hidden',items.length>0&&!items.some(x=>!x.classList.contains('hidden')));});status.textContent=q?'匹配 '+n+' / '+cases.length+' 点':'共 '+cases.length+' 点';});document.querySelector('#expand').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=true));document.querySelector('#collapse').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=false));
+</script></body></html>

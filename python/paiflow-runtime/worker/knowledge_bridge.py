@@ -18,8 +18,8 @@ async def retrieve(config, payload_factory, span):
             raise WorkerError("RESOURCE_UNAVAILABLE", "知识节点缺少中心固定资源绑定")
         if config.url:
             raise WorkerError("TOOL_POLICY_DENIED", "知识客户端不接受旧URL/env任意目标")
-        if config.history:
-            raise WorkerError("RESOURCE_UNAVAILABLE", "知识检索正式历史scope尚未接通")
+        if config.history and context.execution_context is None:
+            raise WorkerError("RESOURCE_UNAVAILABLE", "知识检索历史必须绑定中心正式会话")
         snapshot = context.assignment.resources.get(config.resource_id)
         if not isinstance(snapshot, dict):
             raise WorkerError("TOOL_POLICY_DENIED", "知识资源不属于运行固定快照")

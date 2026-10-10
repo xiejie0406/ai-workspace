@@ -32,6 +32,10 @@ public final class PureIterationPolicy {
 
     /** 静态QA的整图结构检查复用原路径/变量池规则；不改变既有迭代准入。 */
     static Budget validateTopLevel(JSONObject execution,Set<String> allowed) {
+        return validateTopLevel(execution,allowed,false);
+    }
+    /** 原Chains可有多个终End；V4复用结构边界，但不改变旧静态QA的唯一End规则。 */
+    static Budget validateTopLevel(JSONObject execution,Set<String> allowed,boolean multipleEnds) {
         if(execution==null)throw invalid("静态问答图必须为对象");
         JSONArray rawNodes=array(execution,"nodes"),rawEdges=array(execution,"edges");
         if(rawNodes.isEmpty() || rawNodes.size()>MAX_NODES)throw budget("静态问答图节点数超过128");
@@ -43,13 +47,21 @@ public final class PureIterationPolicy {
             JSONObject values=object(node,"data");rejectNestedResources(values);checkRetry(values);next.put(id,new LinkedHashSet<>());
             if(type.equals("node-start"))starts.add(id);if(type.equals("node-end"))ends.add(id);
         }
-        if(starts.size()!=1 || ends.size()!=1)throw invalid("静态问答须有唯一主开始和结束");
+        if(starts.size()!=1 || ends.isEmpty() || !multipleEnds && ends.size()!=1)throw invalid(multipleEnds?"执行图须有唯一主开始及结束节点":"静态问答须有唯一主开始和结束");
         for(Object raw:rawEdges){JSONObject edge=entry(raw);String from=text(edge.get("sourceNodeId")),to=text(edge.get("targetNodeId"));if(!nodes.containsKey(from) || !nodes.containsKey(to))throw invalid("连线指向不存在节点");next.get(from).add(to);}
-        checkPoolKeys(nodes);var order=topological(next);var root=scope("main",starts.get(0),ends.get(0),next,nodes);
-        if(root.nodes().size()!=nodes.size())throw invalid("静态问答图含孤儿节点");var metrics=paths(root,order,next);
+        checkPoolKeys(nodes);var order=topological(next);
+        var root=multipleEnds?topLevelScope(starts.get(0),Set.copyOf(ends),next):scope("main",starts.get(0),ends.get(0),next,nodes);
+        if(root.nodes().size()!=nodes.size())throw invalid("执行图含孤儿节点");var metrics=paths(root,order,next,multipleEnds?Set.copyOf(ends):Set.of(root.end()));
         if(metrics.count()>MAX_PATHS || metrics.longest()>MAX_PATH_LEN)throw budget("静态问答路径数量或长度超过预算");
         Map<String,String> owner=new HashMap<>();assign(root,owner);checkReferences(nodes,next,owner,starts.get(0),List.of());
         return new Budget(nodes.size(),metrics.count(),metrics.longest(),Map.of());
+    }
+    private static Scope topLevelScope(String start,Set<String> ends,Map<String,Set<String>> next) {
+        Set<String> members=reachable(start,next);
+        for(String end:ends)if(!members.contains(end) || !next.get(end).isEmpty())throw invalid("结束节点不可达或仍有出边");
+        for(String id:members)if(next.get(id).isEmpty() && !ends.contains(id))throw invalid("执行路径必须到达原End节点");
+        for(var targets:next.values())if(targets.contains(start))throw invalid("主开始节点不能有入边");
+        return new Scope("main",start,ends.iterator().next(),Set.copyOf(members));
     }
 
     public static Budget validate(JSONObject execution,JSONObject input) {
@@ -169,8 +181,11 @@ public final class PureIterationPolicy {
         if(order.size()!=next.size())throw invalid("迭代普通连线存在循环");return order;
     }
     private static Paths paths(Scope scope,List<String> order,Map<String,Set<String>> next) {
-        Map<String,Integer> count=new HashMap<>(),length=new HashMap<>();count.put(scope.end(),1);length.put(scope.end(),1);
-        for(int i=order.size()-1;i>=0;i--) {String id=order.get(i);if(!scope.nodes().contains(id) || id.equals(scope.end()))continue;
+        return paths(scope,order,next,Set.of(scope.end()));
+    }
+    private static Paths paths(Scope scope,List<String> order,Map<String,Set<String>> next,Set<String> ends) {
+        Map<String,Integer> count=new HashMap<>(),length=new HashMap<>();for(String end:ends){count.put(end,1);length.put(end,1);}
+        for(int i=order.size()-1;i>=0;i--) {String id=order.get(i);if(!scope.nodes().contains(id) || ends.contains(id))continue;
             int paths=0,longest=0;for(String target:next.get(id)){paths=Math.min(MAX_PATHS+1,paths+count.getOrDefault(target,0));longest=Math.max(longest,length.getOrDefault(target,0));}
             if(paths==0)throw invalid("迭代节点无法到达作用域结束");count.put(id,paths);length.put(id,longest+1);
         }

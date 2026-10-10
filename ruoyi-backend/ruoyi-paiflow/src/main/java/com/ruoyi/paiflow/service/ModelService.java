@@ -33,7 +33,31 @@ public class ModelService {
     public interface CredentialReferencePort { Authorization authorize(Candidate candidate); boolean current(Authorization authorization); }
     /** 真正供应商调用及脱敏证据；本模块没有默认实现。 */
     public interface ProviderValidationPort { ProbeReceipt hello(Candidate candidate,Authorization authorization,JSONObject body); }
-    public interface LocalDeploymentPort { ProbeReceipt deploy(Candidate candidate,Authorization authorization); }
+    public interface LocalDeploymentPort {
+        ProbeReceipt deploy(Candidate candidate,Authorization authorization);
+        default JSONArray list(long space,long user){throw fail("受控本地模型目录尚未接通",503);}
+        default ProbeReceipt status(Candidate candidate,Authorization authorization,String serviceId){throw fail("受控本地模型状态尚未接通",503);}
+    }
+    public JSONArray localModelList(Long space){long selected=space==null?requireDefault("paiflow:model:query"):space;access.requireSpace(selected,"paiflow:model:query",3,false);var port=deployers==null?null:deployers.getIfAvailable();if(port==null)throw fail("受控本地模型目录尚未接通",503);return port.list(selected,identities.current().getUserId());}
+    /** 按原部署状态轮询协议回读；网络在事务外，状态保存重新核对空间/主体/revision。 */
+    public JSONObject refreshDeployment(long id,Long space,Long expected){
+        if(TransactionSynchronizationManager.isActualTransactionActive())throw fail("本地部署状态回读不能持有业务事务",500);
+        var row=require(id,space,"paiflow:model:edit",false,true);revision(row,expected);if(row.getType()!=2)throw fail("该模型不是本地部署模型",400);
+        String service=ManagedModelValidation.deploymentId(row.getReceiptJson());if(service==null)throw fail("模型缺少实际部署标识",409);
+        var config=config(row);var c=new Candidate(row.getSpaceId(),row.getOwnerUserId(),row.getId(),row.getRevision(),2,row.getConfigurationJson(),candidateHash(row.getSpaceId(),row.getOwnerUserId(),row.getId(),row.getRevision(),2,config),config.getString("endpoint"),config.getString("provider"),config.getString("credentialRef"));
+        var ports=requirePorts(true);var a=ports.reference().authorize(c);checkAuthorization(c,a);var receipt=ports.deployer().status(c,a,service);
+        var proxy=selves==null?null:selves.getIfAvailable();if(proxy==null)throw fail("模型状态事务入口未装配",503);return proxy.commitDeploymentStatus(c,a,receipt);
+    }
+    @Transactional(rollbackFor=Exception.class,isolation=Isolation.READ_COMMITTED)
+    public JSONObject commitDeploymentStatus(Candidate c,Authorization a,ProbeReceipt r){
+        checkAuthorization(c,a);if(r==null || !Objects.equals(c.candidateHash(),r.candidateHash()) || !Objects.equals(a.authorizationId(),r.authorizationId()) || !Objects.equals(a.credentialVersion(),r.credentialVersion()) || !Objects.equals(c.endpoint(),r.endpoint()) || !Objects.equals(c.provider(),r.provider()) || r.observedAt()==null || r.observedAt().isBefore(Instant.now().minusSeconds(300)) || r.responseSha256()==null || !r.responseSha256().matches("[0-9a-f]{64}"))throw fail("本地部署状态回执绑定无效",409);
+        var evidence=JSON.parseObject(r.evidenceJson());if(evidence==null || !(evidence.get("deploymentId") instanceof String) || !Set.of("PENDING","READY","FAILED").contains(r.state()))throw fail("本地部署状态回执无效",409);
+        var row=require(c.modelId(),c.spaceId(),"paiflow:model:edit",true,true);revision(row,c.expectedRevision());
+        var ref=references==null?null:references.getIfAvailable();if(ref==null || !ref.current(a))throw fail("部署状态保存前用途已变化",409);checkAuthorization(c,a);
+        if("READY".equals(r.state()) && (!(evidence.get("inferenceEndpoint") instanceof String) || number(evidence.get("helloHttpStatus"),"helloHttpStatus")!=200 || !(evidence.get("usage") instanceof JSONObject)))throw fail("本地模型尚未取得实际推理Hello回执",422);
+        row.setState("READY".equals(r.state())?"VALIDATED":"FAILED".equals(r.state())?"DEPLOYED_FAILED":"DEPLOYED_PENDING");row.setEnabled("READY".equals(r.state())?1:0);row.setCandidateHash(c.candidateHash());row.setCredentialVersion(a.credentialVersion());row.setReceiptJson(JSONObject.of("authorization",a,"receipt",r).toJSONString(JSONWriter.Feature.WriteMapNullValue));row.setUpdateBy(identities.current().getUsername());
+        if(mapper.update(row)!=1)throw fail("模型状态版本已变化",409);row=mapper.find(row.getId());snapshot(row);return view(mapper.find(row.getId()));
+    }
     private final ModelMapper mapper;
     private final ResourceAccessService access;
     private final IdentityMappingService identities;
@@ -224,7 +248,7 @@ public class ModelService {
     private static void checkReceipt(Candidate c,Authorization a,ProbeReceipt r) {
         if(r==null || !Objects.equals(r.candidateHash(),c.candidateHash()) || !Objects.equals(r.endpoint(),c.endpoint()) || !Objects.equals(r.provider(),c.provider()) || !Objects.equals(r.credentialVersion(),a.credentialVersion()) || !Objects.equals(r.authorizationId(),a.authorizationId()) || r.responseSha256()==null || !r.responseSha256().matches("[0-9a-f]{64}") || r.observedAt()==null || r.observedAt().isAfter(Instant.now().plusSeconds(5)) || r.observedAt().isBefore(Instant.now().minusSeconds(300)))throw fail("模型真实回执与候选版本不一致或已经过期",409);
         JSONObject evidence;try{evidence=JSON.parseObject(r.evidenceJson());}catch(RuntimeException error){throw fail("模型回执缺少真实脱敏证据",409);}if(evidence==null)throw fail("模型回执缺少真实脱敏证据",409);WorkflowJsonBoundary.check(evidence,"model/receipt",65536);
-        if(c.type()==1) {if(!"READY".equals(r.state()) || number(evidence.get("httpStatus"),"httpStatus")!=200 || number(evidence.get("choicesCount"),"choicesCount")<1 || !(evidence.get("usage") instanceof JSONObject))throw fail("Provider Hello没有确认兼容成功",422);}
+        if(c.type()==1) {boolean wire="xinghuo".equals(evidence.getString("protocol"))?number(evidence.get("providerCode"),"providerCode")==0 && number(evidence.get("providerStatus"),"providerStatus")==2:number(evidence.get("httpStatus"),"httpStatus")==200 && number(evidence.get("choicesCount"),"choicesCount")>=1;if(!"READY".equals(r.state()) || !wire || !(evidence.get("usage") instanceof JSONObject))throw fail("Provider Hello没有确认兼容成功",422);}
         else if(!"PENDING".equals(r.state()) || !(evidence.get("deploymentId") instanceof String deployment) || deployment.isBlank())throw fail("本地模型缺少实际部署回执",422);
     }
     private JSONObject view(ModelRecord row) {
@@ -249,7 +273,7 @@ public class ModelService {
     private static Comparator<JSONObject> categoryOrder(){return Comparator.comparingInt((JSONObject value)->value.getIntValue("sortOrder")).reversed().thenComparing(value->value.getLong("id"),Comparator.reverseOrder());}
     private static boolean hasCustomCategories(JSONObject c){var categories=c.getJSONObject("modelCategoryReq");return categories!=null && (categories.get("categoryCustom")!=null || categories.get("sceneCustom")!=null);}
     public static String reference(String value){String text=text(value,132,true,"凭据引用");if(!text.startsWith("env:"))text="env:"+text;if(!text.matches("env:[A-Z][A-Z0-9_]{2,127}"))throw fail("只能提交受控env别名，不能提交秘密或RSA密文",400);return text;}
-    public static String endpoint(String value) {try{var uri=URI.create(text(value,2048,true,"endpoint"));if(uri.getScheme()==null || !Set.of("http","https").contains(uri.getScheme()) || uri.getHost()==null || uri.getRawUserInfo()!=null || uri.getRawQuery()!=null || uri.getRawFragment()!=null)throw new IllegalArgumentException();String path=Objects.toString(uri.getRawPath(),"").replaceAll("/+$","");if(path.contains("..") || path.contains("//") || path.contains("%"))throw new IllegalArgumentException();if(!path.endsWith("/chat/completions"))path+=path.matches(".*/v\\d+")?"/chat/completions":"/v1/chat/completions";return new URI(uri.getScheme(),null,uri.getHost(),uri.getPort(),path,null,null).toASCIIString();}catch(Exception error){throw fail("模型endpoint无效",400);}}
+    public static String endpoint(String value) {try{var uri=URI.create(text(value,2048,true,"endpoint"));if("wss".equals(uri.getScheme()))return ManagedModelRuntime.sparkEndpoint(value).toString();if(uri.getScheme()==null || !Set.of("http","https").contains(uri.getScheme()) || uri.getHost()==null || uri.getRawUserInfo()!=null || uri.getRawQuery()!=null || uri.getRawFragment()!=null)throw new IllegalArgumentException();String path=Objects.toString(uri.getRawPath(),"").replaceAll("/+$","");if(path.contains("..") || path.contains("//") || path.contains("%"))throw new IllegalArgumentException();if(!path.endsWith("/chat/completions"))path+=path.matches(".*/v\\d+")?"/chat/completions":"/v1/chat/completions";return new URI(uri.getScheme(),null,uri.getHost(),uri.getPort(),path,null,null).toASCIIString();}catch(Exception error){throw fail("模型endpoint无效",400);}}
     public static Long optionalRevision(Object value){return value==null?null:nonnegative(value,"revision");}
     public static long positive(Object value,String field){long result=number(value,field);if(result<1)throw fail(field+"须为正整数",400);return result;}
     private static long nonnegative(Object value,String field){long result=number(value,field);if(result<0)throw fail(field+"不能为负数",400);return result;}

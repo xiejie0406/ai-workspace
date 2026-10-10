@@ -26,6 +26,8 @@ export function handleLoginRedirect(): void {
     sessionStorage.setItem('postLoginRedirect', window.location.pathname + window.location.search);
   }
   clearPlatformTokens();
+  // 登录页的初始化请求也可能返回401，避免整页跳回自身形成刷新循环。
+  if (window.location.pathname.replace(/\/+$/, '') === '/login') return;
   window.location.href = '/login';
 }
 

@@ -8,8 +8,18 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpCenterCommandGatewayTest {
+    @Test void firstPersonalConversationUsesCenterDefaultsWithoutRunnerSelection()throws Exception{
+        try(var server=new MockWebServer()){
+            server.start();server.enqueue(data(SESSION));
+            try(var gateway=new HttpCenterCommandGateway(new CenterHttpClient(server.url("/").toString(),"jwt",false))){
+                var session=gateway.open(new CenterCommandGateway.OpenSession(null,null,null));assertEquals("1",session.directoryContextId());
+                var request=server.takeRequest();JsonNode body=CanonicalJson.MAPPER.readTree(request.getBody().readUtf8());
+                assertEquals("/paicli/v1/sessions",request.getPath());assertFalse(body.has("directoryContextId"));assertFalse(body.has("runnerId"));assertFalse(body.has("workspaceId"));
+            }
+        }
+    }
     private static MockResponse data(String body){return new MockResponse().setHeader("Content-Type","application/json").setBody("{\"code\":200,\"data\":"+body+"}");}
-    private static final String SESSION="{\"id\":\"2\",\"workspaceId\":\"1\",\"runnerId\":\"3\",\"version\":7,\"mode\":\"REACT\",\"approvalMode\":\"ASK\",\"eventCursor\":12}";
+    private static final String SESSION="{\"id\":\"2\",\"directoryContextId\":\"1\",\"runnerId\":\"3\",\"version\":7,\"mode\":\"REACT\",\"approvalMode\":\"ASK\",\"eventCursor\":12}";
     @Test void openingExistingSessionUsesRealEventCursorAndWorkspaceBinding()throws Exception{
         try(MockWebServer server=new MockWebServer()){server.start();server.enqueue(data(SESSION));
             try(var gateway=new HttpCenterCommandGateway(new CenterHttpClient(server.url("/").toString(),"jwt",false))){

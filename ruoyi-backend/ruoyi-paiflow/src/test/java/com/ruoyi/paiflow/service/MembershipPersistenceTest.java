@@ -6,6 +6,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.framework.web.service.PermissionService;
 import com.ruoyi.paiflow.domain.SpaceRecord;
 import com.ruoyi.paiflow.mapper.SpaceMapper;
+import com.ruoyi.paiflow.mapper.NotificationMapper;
 import com.ruoyi.system.service.ISysUserService;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +41,7 @@ public class MembershipPersistenceTest {
     private JdbcDataSource data;
     private java.sql.Connection schemaConnection;
     private SpaceMapper mapper;
+    private NotificationMapper notifications;
     private SpaceService spaces;
     private MembershipService members;
     private IdentityMappingService identities;
@@ -47,6 +49,7 @@ public class MembershipPersistenceTest {
     private final ThreadLocal<Long> actor=ThreadLocal.withInitial(()->42L);
     private volatile int capacity=20;
     public static Timestamp utcNow() { return Timestamp.from(Instant.now()); }
+    public static Timestamp utcNow(int precision) { if(precision!=3)throw new IllegalArgumentException("fixture precision");return utcNow(); }
     private SysUser user(long id) {
         var value=new SysUser();value.setUserId(id);value.setUserName("fixture-"+id);value.setNickName("成员"+id);value.setStatus("0");value.setDelFlag("0");return value;
     }
@@ -76,7 +79,7 @@ public class MembershipPersistenceTest {
         schemaConnection=data.getConnection();
         try(var sql=schemaConnection.createStatement()) {
             sql.execute("CREATE ALIAS UTC_TIMESTAMP FOR 'com.ruoyi.paiflow.service.MembershipPersistenceTest.utcNow'");
-            for(String file:List.of("sql/001-paiflow-schema.sql","sql/004-paiflow-membership.sql")) {
+            for(String file:List.of("sql/001-paiflow-schema.sql","sql/004-paiflow-membership.sql","sql/020-paiflow-notifications.sql")) {
                 String ddl=Files.readString(Path.of(file),StandardCharsets.UTF_8).replaceAll("(?m)^--.*$","").replace(" STORED","").replace(" ENGINE=InnoDB DEFAULT CHARSET=utf8mb4","");
                 // H2增量ALTER语法不同，保留同一新增列/唯一约束含义，不改正式DDL。
                 ddl=ddl.replace("ALTER TABLE paiflow_space_member ADD COLUMN id BIGINT NOT NULL AUTO_INCREMENT,\n  ADD UNIQUE KEY uq_paiflow_space_member_id (id)","ALTER TABLE paiflow_space_member ADD COLUMN id BIGINT AUTO_INCREMENT UNIQUE");
@@ -87,10 +90,11 @@ public class MembershipPersistenceTest {
             sql.execute("INSERT INTO sys_user VALUES(42,'成员42'),(43,'成员43'),(44,'成员44'),(45,'成员45'),(46,'成员46')");
         }
         var config=new Configuration(new Environment("membership-isolated",new SpringManagedTransactionFactory(),data));
-        try(InputStream xml=getClass().getClassLoader().getResourceAsStream("mapper/paiflow/SpaceMapper.xml")) {
-            assertNotNull(xml);new XMLMapperBuilder(xml,config,"mapper/paiflow/SpaceMapper.xml",config.getSqlFragments()).parse();
+        for(String resource:List.of("mapper/paiflow/SpaceMapper.xml","mapper/paiflow/NotificationMapper.xml"))try(InputStream xml=getClass().getClassLoader().getResourceAsStream(resource)) {
+            assertNotNull(xml);new XMLMapperBuilder(xml,config,resource,config.getSqlFragments()).parse();
         }
         var currentTemplate=new SqlSessionTemplate(new SqlSessionFactoryBuilder().build(config));mapper=currentTemplate.getMapper(SpaceMapper.class);
+        notifications=currentTemplate.getMapper(NotificationMapper.class);
         users=mock(ISysUserService.class);when(users.selectUserById(anyLong())).thenAnswer(a->user(a.getArgument(0)));
         when(users.selectUserList(any())).thenReturn(List.of(user(42),user(43),user(44),user(45)));
         identities=mock(IdentityMappingService.class);
@@ -104,7 +108,8 @@ public class MembershipPersistenceTest {
             public int maximumMembers(long owner,Long team) { return capacity; }
         });
         spaces=transaction(target,SpaceService.class);
-        var membership=new MembershipService(access,identities,mapper);membership.usePlatformServices(spaces,users);members=transaction(membership,MembershipService.class);
+        var membership=new MembershipService(access,identities,mapper);membership.usePlatformServices(spaces,users);
+        membership.useNotifications(new NotificationService(notifications,access,identities));members=transaction(membership,MembershipService.class);
     }
     @AfterEach void closeSchemaSession() throws Exception {
         actor.remove();
@@ -120,6 +125,7 @@ public class MembershipPersistenceTest {
     private long personal() { actor.set(42L);return spaces.createPersonal("个人空间",null,null); }
     private MembershipService.PageQuery query(Integer role,Integer status) { return new MembershipService.PageQuery(1,10,null,role,status); }
     private int error(Runnable operation) { return assertThrows(ServiceException.class,operation::run).getCode(); }
+    private long count(String table) throws Exception {try(var c=data.getConnection();var s=c.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){r.next();return r.getLong(1);}}
     private void fixtureFailure(String constraint,Runnable operation) {
         var failure=assertThrows(RuntimeException.class,operation::run);
         assertTrue(failure.getMessage().toUpperCase(java.util.Locale.ROOT).contains(constraint),"回滚必须来自指定故障约束，不能由其他SQL错误冒充");
@@ -153,7 +159,12 @@ public class MembershipPersistenceTest {
         assertEquals(0,mapper.countInvitations(1,id,null,0));
         long invitation=members.invite(1,id,List.of(new MembershipService.InviteAdd("ruoyi:44",3))).get(0);
         assertEquals(409,error(()->members.invite(1,id,List.of(new MembershipService.InviteAdd("ruoyi:44",3)))));
-        assertEquals("not_connected",mapper.invitation(invitation).getNotificationStatus());
+        assertEquals("stored_in_center",mapper.invitation(invitation).getNotificationStatus());
+        assertEquals(1,notifications.count(44,"PERSONAL",true));assertEquals(0,notifications.count(45,null,false));
+        try(var c=data.getConnection();var s=c.createStatement();var row=s.executeQuery("SELECT n.template_code,n.payload_json,r.user_id,r.is_read FROM paiflow_notification n JOIN paiflow_notification_recipient r ON n.id=r.notification_id")) {
+            assertTrue(row.next());assertEquals("paiflow.membership.invite",row.getString(1));
+            assertEquals(invitation,com.alibaba.fastjson2.JSON.parseObject(row.getString(2)).getLongValue("inviteId"));assertEquals(44,row.getLong(3));assertEquals(0,row.getInt(4));assertFalse(row.next());
+        }
         assertTrue(mapper.invitation(invitation).getExpireTime().isAfter(LocalDateTime.now(java.time.Clock.systemUTC()).plusDays(6)));
         try(var c=data.getConnection();var sql=c.createStatement()) { sql.execute("UPDATE paiflow_membership_invite SET expire_time=DATEADD('DAY',-1,UTC_TIMESTAMP()) WHERE id="+invitation); }
         actor.set(44L);assertEquals(409,error(()->members.respondInvitation(invitation,true,null)));assertNull(mapper.member(id,44));
@@ -177,6 +188,18 @@ public class MembershipPersistenceTest {
         try(var c=data.getConnection();var sql=c.createStatement()) { sql.execute("ALTER TABLE paiflow_membership_invite ADD CONSTRAINT fixture_batch_failure CHECK(invitee_user_id<>46)"); }
         fixtureFailure("FIXTURE_BATCH_FAILURE",()->members.invite(1,id,List.of(new MembershipService.InviteAdd("ruoyi:45",3),new MembershipService.InviteAdd("ruoyi:46",3))));
         assertEquals(0,mapper.pendingInvitation(1,id,45));assertEquals(1,mapper.countInvitations(1,id,null,0));
+        assertEquals(1,count("paiflow_notification"));assertEquals(1,count("paiflow_notification_recipient"));
+    }
+    @Test void failedNotificationRecipientRollsBackInvitationAndNotificationTogether() throws Exception {
+        long id=personal();try(var c=data.getConnection();var s=c.createStatement()){s.execute("ALTER TABLE paiflow_notification_recipient ADD CONSTRAINT fixture_notification_recipient CHECK(user_id<>45)");}
+        fixtureFailure("FIXTURE_NOTIFICATION_RECIPIENT",()->members.invite(1,id,List.of(new MembershipService.InviteAdd("ruoyi:45",3))));
+        assertEquals(0,mapper.countInvitations(1,id,null,0));assertEquals(0,count("paiflow_notification"));assertEquals(0,count("paiflow_notification_recipient"));
+    }
+    @Test void absentNotificationServiceFailsBeforeAnyInvitationOrNotificationWrite() throws Exception {
+        long id=personal();
+        // 复用已装配实例的权限入口，只撤销通知依赖，验证正式服务失败关闭。
+        members.useNotifications(null);assertEquals(503,error(()->members.invite(1,id,List.of(new MembershipService.InviteAdd("ruoyi:45",3)))));
+        assertEquals(0,mapper.countInvitations(1,id,null,0));assertEquals(0,count("paiflow_notification"));assertEquals(0,count("paiflow_notification_recipient"));
     }
     @Test void capacityReservationSerializesConcurrentInvitationsAndUnconfiguredPolicyIs503() throws Exception {
         long id=personal();capacity=2;

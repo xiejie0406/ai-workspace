@@ -8,6 +8,12 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CenterCliTest {
+    @Test void personalStartDoesNotRequireWorkspaceRunnerOrDirectoryParameters(){
+        assertDoesNotThrow(()->CenterCli.Options.parse(new String[0]));
+        var options=CenterCli.Options.parse(new String[]{"--directory","11","--prompt","解释这个项目"});
+        assertEquals("11",options.directoryContext);assertEquals("解释这个项目",options.input);
+        assertThrows(IllegalArgumentException.class,()->CenterCli.Options.parse(new String[]{"--workspace","11"}));
+    }
     @Test void currentCleanWaitsForRealPreviewThenResubmitsSameCommandAtMostOnce()throws Exception {
         var gateway=new FakeGateway();gateway.response=new CenterCommandGateway.CommandResult(true,"preview queued",Map.of("cleanPreviewRequired",true,"taskId","99"));
         gateway.responses.add(new CenterCommandGateway.CommandResult(true,"clean queued",Map.of("taskId","100")));
@@ -18,14 +24,14 @@ class CenterCliTest {
         try(var renderer=renderer()){assertFalse(cli(changed).dispatch("/snapshot clean current",renderer));}assertEquals(2,changed.commands.size());
     }
     @Test void allCleanUsesIndependentTaskCursorsAndNeverCurrentSessionEventsForOtherWorkspaces()throws Exception {
-        var gateway=new FakeGateway();var rows=List.of(Map.of("id","51","sessionId","21","workspaceId","31","cleanPreviewRequired",true),Map.of("id","52","sessionId","22","workspaceId","32","cleanPreviewRequired",true));
+        var gateway=new FakeGateway();var rows=List.of(Map.of("id","51","sessionId","21","directoryContextId","31","cleanPreviewRequired",true),Map.of("id","52","sessionId","22","directoryContextId","32","cleanPreviewRequired",true));
         gateway.response=new CenterCommandGateway.CommandResult(true,"previews",Map.of("tasks",rows,"blocked",List.of()));
-        gateway.responses.add(new CenterCommandGateway.CommandResult(true,"cleanup",Map.of("tasks",List.of(Map.of("id","61","sessionId","21","workspaceId","31"),Map.of("id","62","sessionId","22","workspaceId","32")),"blocked",List.of())));
+        gateway.responses.add(new CenterCommandGateway.CommandResult(true,"cleanup",Map.of("tasks",List.of(Map.of("id","61","sessionId","21","directoryContextId","31"),Map.of("id","62","sessionId","22","directoryContextId","32")),"blocked",List.of())));
         try(var renderer=renderer()){assertTrue(cli(gateway).dispatch("/snapshot clean all",renderer));}
         assertEquals(List.of("51:0","51:1","52:0","52:1","61:0","61:1","62:0","62:1"),gateway.taskPolls);assertEquals(0,gateway.polls);assertEquals(List.of("clean all","clean all"),gateway.arguments);
     }
     @Test void partiallyQueuedCleanDisplaysBlockedWorkspaceAndDoesNotRepeatAllAsIfCompleted()throws Exception {
-        var gateway=new FakeGateway();gateway.response=new CenterCommandGateway.CommandResult(true,"partial",Map.of("tasks",List.of(Map.of("id","51","sessionId","21","workspaceId","31","cleanPreviewRequired",true)),"blocked",List.of(Map.of("workspaceId","32","reason","offline"))));var output=new ByteArrayOutputStream();
+        var gateway=new FakeGateway();gateway.response=new CenterCommandGateway.CommandResult(true,"partial",Map.of("tasks",List.of(Map.of("id","51","sessionId","21","directoryContextId","31","cleanPreviewRequired",true)),"blocked",List.of(Map.of("directoryContextId","32","reason","offline"))));var output=new ByteArrayOutputStream();
         try(var renderer=new PlainRenderer(new PrintStream(output),new BufferedReader(new StringReader("")))){assertFalse(cli(gateway).dispatch("/snapshot clean all",renderer));}
         assertEquals(1,gateway.commands.size());assertEquals(0,gateway.polls);assertTrue(output.toString().contains("offline"));assertTrue(output.toString().contains("32"));
     }

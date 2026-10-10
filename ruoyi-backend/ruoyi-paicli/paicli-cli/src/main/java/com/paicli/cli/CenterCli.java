@@ -51,7 +51,7 @@ public final class CenterCli {
     private boolean hitlEnabled;
     private volatile String activeTurn;
     private CenterCompletionData completion;
-    private final PaiCliHistory inputHistory = new PaiCliHistory();
+    private org.jline.reader.History inputHistory = new PaiCliHistory();
     private String model;
     private long contextWindow;
     private boolean exitRequested;
@@ -59,10 +59,17 @@ public final class CenterCli {
     private Terminal interactiveTerminal;
     private LineReader interactiveReader;
     private boolean interactiveApprovals;
+    private String restoredTurn;
+    private String retryInput;
+    private volatile boolean terminalClosing;
+    private String estimatedCost;
+    private String runtimeMcpSummary,runtimeSkillSummary;
+    private long turnStartedNanos;
     private long contextTokens, inputTokens, outputTokens, cachedTokens;
 
     CenterCli(CenterCommandGateway gateway, CenterCommandGateway.Session session) {
         this.gateway = gateway;
+        gateway.cancellationSignal(cancellation::get);
         this.session = session;
         this.cursor = session.lastSequence();
         this.mode = session.mode() == null ? "auto" : session.mode();
@@ -74,7 +81,7 @@ public final class CenterCli {
         try {
             Options options = Options.parse(args);
             if (options.help) {
-                System.out.println("PaiCLI 若依联机终端\n用法: paicli --workspace <id> [--runner <id>] [--session <id>] [--prompt <文本>|--command <命令>]\nPAICLI_MODEL_ID 必须指定中心登记模型ID。登录与设备凭证沿用若依；中心不可用时不会回退本机执行。\n原斜杠命令、@image:<路径> 和 @clipboard 均保留。PAICLI_RENDERER=inline|lanterna|plain。");
+                System.out.println("PaiCLI 个人智能编码终端\n用法: paicli [--session <id>] [--directory <目录ID>] [--prompt <文本>|--command <命令>]\n未选目录和模型时沿用中心本人默认设置，执行宿主由中心路由。登录凭证沿用若依；中心不可用时不会回退本机执行。\n原斜杠命令、@image:<路径> 和 @clipboard 均保留。PAICLI_RENDERER=inline|lanterna|plain。");
                 return 0;
             }
             CenterCommandGateway gateway = ServiceLoader.load(CenterCommandGateway.class).findFirst()
@@ -82,6 +89,8 @@ public final class CenterCli {
             try (gateway) {
                 return run(options, gateway);
             }
+        } catch (java.io.UncheckedIOException historyFailure) {
+            System.err.println("PaiCLI 私有输入历史保存失败，当前输入尚未提交中心；请核对私有权限或支持限额。");return 2;
         } catch (IOException | IllegalArgumentException | java.util.ServiceConfigurationError e) {
             System.err.println("PaiCLI 联机失败: " + e.getMessage());
             return 2;
@@ -90,10 +99,15 @@ public final class CenterCli {
 
     static int run(Options options, CenterCommandGateway gateway) throws IOException {
         CenterCommandGateway.Session session = gateway.open(new CenterCommandGateway.OpenSession(
-                options.workspace, options.runner, options.session));
+                options.directoryContext, options.runner, options.session));
         CenterCli cli = new CenterCli(gateway, session);
+        if(gateway.browserHosted()){cli.inputHistory=HostedInputHistory.fromEnvironment();cli.inputHistory.load();}
         var presentation = gateway.command(session.id(), "status", "");
-        if (presentation.successful()) cli.updatePresentation(presentation.data());
+        if (presentation.successful()) {
+            cli.updatePresentation(presentation.data());
+            Object active=presentation.data().get("activeTaskId");
+            if(active!=null&&!String.valueOf(active).isBlank())cli.restoredTurn=String.valueOf(active);
+        }
         if (options.input != null) {
             try (Renderer renderer = new PlainRenderer()) {
                 renderer.start();
@@ -117,11 +131,18 @@ public final class CenterCli {
         LineReader reader = LineReaderBuilder.builder().terminal(terminal)
                 .completer(completion)
                 .history(inputHistory).highlighter(new PaiCliHighlighter()).build();
+        if(inputHistory instanceof HostedInputHistory)inputHistory.load();
         interactiveTerminal = terminal; interactiveReader = reader; interactiveApprovals = true;
         reader.option(LineReader.Option.BRACKETED_PASTE, true);
         Main.configureJLineInteractiveWidgets(reader);
         Main.configureSlashCommandHint(reader);
-        Main.bindCtrlVToClipboardImage(reader);
+        if(gateway.browserHosted()) {
+            reader.getWidgets().put("paicli-browser-image",()->{reader.getBuffer().write(" @clipboard ");reader.callWidget(LineReader.REDRAW_LINE);return true;});
+            for(String keyMap:List.of(LineReader.MAIN,LineReader.EMACS,LineReader.VIINS)) {
+                KeyMap<org.jline.reader.Binding> keys=reader.getKeyMaps().get(keyMap);
+                if(keys!=null)keys.bind(new Reference("paicli-browser-image"),KeyMap.ctrl('V'));
+            }
+        } else Main.bindCtrlVToClipboardImage(reader);
         Main.bindEscToClearInput(reader);
         org.jline.reader.Widget clearInput = reader.getWidgets().get("paicli-clear-input");
         reader.getWidgets().put("paicli-clear-input", () -> { pendingExecution = null; return clearInput.apply(); });
@@ -135,18 +156,19 @@ public final class CenterCli {
                 try { cycleMode(renderer); } catch (IOException e) { renderer.stream().println("模式切换失败: " + e.getMessage()); }
             });
             terminal.handle(Terminal.Signal.INT, signal -> cancellation.set(true));
-            renderer.stream().println("PaiCLI 已联机，会话 " + session.id() + "；工作区 " + session.workspaceId());
+            renderer.stream().println("PaiCLI 已联机，会话 " + session.id() + "；文件目录 " + session.directoryContextId());
+            followRestoredTurn(renderer);
             while (true) {
                 renderer.updateStatus(status());
                 renderer.beforeInput();
                 String input;
-                try { input = reader.readLine(renderer.inputPrompt()); }
+                try { input = reader.readLine(renderer.inputPrompt(),renderer.inputRightPrompt(),(Character)null,retryInput); retryInput=null; }
                 catch (EndOfFileException e) { return; }
                 catch (UserInterruptException e) { cancellation.set(false); continue; }
                 finally { renderer.afterInput(); }
                 if (input == null) return;
-                try { dispatch(input, renderer); }
-                catch (IOException | IllegalArgumentException e) { renderer.stream().println("操作失败: " + e.getMessage()); }
+                try { if(!dispatch(input, renderer)&&gateway.browserHosted())retryInput=input; }
+                catch (IOException | IllegalArgumentException e) { renderer.stream().println("操作失败: " + e.getMessage()); if(gateway.browserHosted())retryInput=input; }
                 if (exitRequested) return;
             }
         }
@@ -163,29 +185,61 @@ public final class CenterCli {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(1), runnable -> { Thread t = new Thread(runnable, "paicli-center-tui"); t.setDaemon(true); return t; });
         try (Renderer renderer = new LanternaRenderer(window)) {
+            completion=new CenterCompletionData();completion.refresh(gateway,session.id());
             renderer.start();
             interactiveApprovals = true;
             window.getRootPane().setCentralPresentation(true);
             window.getRootPane().setModeChangeHandler(() -> enqueue(executor, renderer, () -> cycleMode(renderer)));
             window.getRootPane().setCancelHandler(() -> cancellation.set(true));
+            window.getRootPane().setHistoryHandler(() -> enqueue(executor,renderer,()->showCenterHistory(renderer)));
             window.getRootPane().setMessageHandler(input -> {
                 if (Set.of("/quit", "/exit").contains(input.trim())) { window.close(); return; }
-                enqueue(executor, renderer, () -> { dispatch(input, renderer); if (exitRequested) window.close(); });
+                enqueue(executor, renderer, () -> {
+                    try { if(!dispatch(input,renderer)&&gateway.browserHosted())window.runOnGuiThread(()->window.getRootPane().getInputBar().restoreFailedInput(input)); }
+                    catch(IOException|IllegalArgumentException failure){if(gateway.browserHosted())window.runOnGuiThread(()->window.getRootPane().getInputBar().restoreFailedInput(input));throw failure;}
+                    if (exitRequested) window.close();
+                });
             });
             window.setCloseHook(() -> {
-                cancellation.set(true);
-                if (activeTurn != null) {
+                terminalClosing=true;
+                if(!gateway.browserHosted())cancellation.set(true);
+                if (activeTurn != null && !gateway.browserHosted()) {
                     try { gateway.cancel(session.id(), activeTurn); } catch (IOException e) { /* 中心租约回收仍生效。 */ }
                 }
                 executor.shutdownNow();
             });
             renderer.updateStatus(status());
-            enqueue(executor, renderer, () -> dispatch("/files .", renderer));
+            enqueue(executor, renderer, () -> { followRestoredTurn(renderer); dispatch("/files .", renderer); });
             window.start();
         } finally { executor.shutdownNow(); }
     }
 
     @FunctionalInterface private interface IoTask { void run() throws IOException; }
+
+    private void followRestoredTurn(Renderer renderer)throws IOException {
+        if(restoredTurn==null)return;
+        String existing=restoredTurn;restoredTurn=null;cursor=0;
+        renderer.stream().println("连接已有中心任务 "+existing+"，仅续接输出，不重复提交。");
+        awaitTurn(existing,renderer);
+    }
+
+    private void showCenterHistory(Renderer renderer)throws IOException {
+        var result=gateway.command(session.id(),"export","");
+        if(!result.successful())throw new IOException(result.message());
+        Map<String,Object> data=result.data();long end=data.get("endSequence") instanceof Number n?n.longValue():0;
+        long after=0;
+        do {
+            var page=gateway.readLedger(session.id(),after,end,100);
+            if(!page.successful())throw new IOException(page.message());
+            Object entries=page.data().get("entries");
+            renderer.stream().println(JSON.writerWithDefaultPrettyPrinter().writeValueAsString(entries));
+            long next=page.data().get("cursor") instanceof Number n?n.longValue():after;
+            if(!Boolean.TRUE.equals(page.data().get("hasMore")))return;
+            if(next<=after)throw new IOException("历史账本游标未推进");
+            after=next;
+            if(renderer.openPalette("中心历史",List.of("继续读取下一页","返回终端"))!=0)return;
+        }while(true);
+    }
 
     private void enqueue(ThreadPoolExecutor executor, Renderer renderer, IoTask task) {
         try {
@@ -210,6 +264,7 @@ public final class CenterCli {
     private boolean dispatch(String raw, Renderer renderer, boolean mayRequestRestorePreview) throws IOException {
         String input = raw == null ? "" : raw.trim();
         if (input.isEmpty()) return true;
+        if(inputHistory instanceof HostedInputHistory&&interactiveReader==null)inputHistory.add(java.time.Instant.now(),raw);
         CliCommandParser.ParsedCommand parsed = CliCommandParser.parse(input);
         if (parsed.type() == CliCommandParser.CommandType.EXIT) {
             exitRequested = true; renderer.stream().println("已退出终端，中心任务和账本保留。"); return true;
@@ -241,6 +296,7 @@ public final class CenterCli {
                 renderer.updateStatus(status());
                 return result.successful();
             }
+            cancellation.set(false);
             CenterCommandGateway.CommandResult result = gateway.command(session.id(), name, arguments);
             renderer.stream().println(result.message());
             if (result.successful()) updatePresentation(result.data());
@@ -276,20 +332,32 @@ public final class CenterCli {
             }
             return result.successful();
         }
-        LlmClient.Message message = ImageReferenceParser.userMessage(input, Path.of(System.getProperty("user.dir")));
         List<CenterCommandGateway.Attachment> attachments = new ArrayList<>();
+        boolean browserClipboard=gateway.browserHosted()&&java.util.regex.Pattern.compile("@clipboard(?![\\p{L}\\p{N}_])").matcher(input).find();
+        String imageInput=input;
+        if(browserClipboard) {
+            cancellation.set(false);
+            renderer.stream().println("请在网页主动确认剪贴板/上传图片；等待期间保留输入，取消不会提交任务。");
+            attachments.addAll(gateway.browserAttachments(session.id(),cancellation::get));
+            imageInput=input.replaceAll("@clipboard(?![\\p{L}\\p{N}_])","").trim();
+            if(imageInput.isBlank())imageInput="请分析以下图片。";
+        }
+        LlmClient.Message message = ImageReferenceParser.userMessage(imageInput, Path.of(System.getProperty("user.dir")),gateway.browserHosted());
         if (message.contentParts() != null) {
             int index = 1;
             for (LlmClient.ContentPart part : message.contentParts()) {
                 if (part.isImage()) attachments.add(new CenterCommandGateway.Attachment("image-" + index++, part.mimeType(), part.imageBase64()));
             }
         }
-        if ((input.contains("@image:") || input.contains("@clipboard")) && attachments.isEmpty()) {
+        if ((input.contains("@image:") || input.contains("@clipboard")) && (attachments.isEmpty()
+                ||gateway.browserHosted()&&message.content()!=null&&message.content().contains("[图片引用无效:"))) {
             renderer.stream().println(message.content());
             return false;
         }
         String execution = pendingExecution == null ? mode : pendingExecution;
-        CenterCommandGateway.Turn turn = gateway.submit(session.id(), message.content(), execution, List.copyOf(attachments));
+        String submitText=message.content();
+        if(browserClipboard)submitText+="\n[图片已作为本轮用户确认附件附加；请直接观察图片，不要从路径或历史猜测图片内容。]";
+        CenterCommandGateway.Turn turn = gateway.submit(session.id(), submitText, execution, List.copyOf(attachments));
         pendingExecution = null;
         return awaitTurn(turn.id(), renderer);
     }
@@ -300,13 +368,13 @@ public final class CenterCli {
 
     private boolean awaitCommandTasks(List<?> tasks,Object blocked,Renderer renderer)throws IOException {
         boolean complete=true;
-        if(blocked instanceof List<?> failures&&!failures.isEmpty()){renderer.stream().println("部分工作区未能排队: "+JSON.writeValueAsString(failures));complete=false;}
+        if(blocked instanceof List<?> failures&&!failures.isEmpty()){renderer.stream().println("部分文件目录未能排队: "+JSON.writeValueAsString(failures));complete=false;}
         if(tasks.isEmpty()){renderer.stream().println("没有可确认完成的清理任务。");return false;}
         for(Object value:tasks) {
             if(!(value instanceof Map<?,?> row))throw new IOException("中心多任务响应缺少任务对象");
             Object id=row.get("taskId")==null?row.get("id"):row.get("taskId"),scope=row.get("sessionId");
             if(id==null||scope==null)throw new IOException("中心多任务响应缺少任务和会话归属");
-            renderer.stream().println("工作区 "+row.get("workspaceId")+"，任务 "+id+"；等待该任务实际终态，副作用仍须中心批准。");
+            renderer.stream().println("文件目录 "+row.get("directoryContextId")+"，任务 "+id+"；等待该任务实际终态，副作用仍须中心批准。");
             complete=awaitTask(String.valueOf(id),String.valueOf(scope),true,renderer)&&complete;
         }
         return complete;
@@ -314,6 +382,7 @@ public final class CenterCli {
 
     private boolean awaitTask(String turnId,String taskSession,boolean taskScoped, Renderer renderer) throws IOException {
         activeTurn = turnId;
+        turnStartedNanos=System.nanoTime();
         cancellation.set(false);
         long taskCursor=0;
         long deadline = System.nanoTime() + Duration.ofMinutes(30).toNanos();
@@ -321,6 +390,7 @@ public final class CenterCli {
         org.jline.terminal.Attributes attributes = interactiveTerminal == null ? null : interactiveTerminal.enterRawMode();
         try {
             while (System.nanoTime() < deadline) {
+                if(terminalClosing&&gateway.browserHosted())throw new IOException("终端已分离，后台任务保留");
                 if (Main.readEscCancel(interactiveTerminal)) cancellation.set(true);
                 if (cancellation.compareAndSet(true, false)) gateway.cancel(taskSession, turnId);
                 List<CenterCommandGateway.Event> events = taskScoped?gateway.taskEvents(turnId,taskCursor,200):gateway.events(session.id(), cursor, 200);
@@ -350,20 +420,22 @@ public final class CenterCli {
                 try { Thread.sleep(200L); }
                 catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    gateway.cancel(taskSession, turnId);
-                    throw new IOException("已请求取消当前任务", e);
+                    if(!gateway.browserHosted())gateway.cancel(taskSession, turnId);
+                    throw new IOException(gateway.browserHosted()?"终端等待已中断，后台任务保留":"已请求取消当前任务", e);
                 }
             }
             throw new IOException("等待事件超时，会话可按ID重新连接；不自动重交任务");
         } finally {
             if (attributes != null) interactiveTerminal.setAttributes(attributes);
-            activeTurn = null; renderer.updateStatus(status());
+            activeTurn = null;turnStartedNanos=0; renderer.updateStatus(status());
         }
     }
 
     StatusInfo status() {
-        return StatusInfo.tokens(model, contextWindow, contextTokens, inputTokens, outputTokens, cachedTokens, null,
-                hitlEnabled, 0, activeTurn == null ? "idle" : "running").withSessionMode(mode.toUpperCase(java.util.Locale.ROOT) + " shift+tab to cycle");
+        return StatusInfo.tokens(model, contextWindow, contextTokens, inputTokens, outputTokens, cachedTokens, estimatedCost,
+                hitlEnabled, turnStartedNanos==0?0:TimeUnit.NANOSECONDS.toMillis(System.nanoTime()-turnStartedNanos), activeTurn == null ? "idle" : "running")
+                .withEnvironment(runtimeMcpSummary!=null?runtimeMcpSummary:completion==null?"MCP 未读取":completion.mcpSummary(),runtimeSkillSummary!=null?runtimeSkillSummary:completion==null?"Skill 未读取":completion.skillSummary())
+                .withSessionMode(mode.toUpperCase(java.util.Locale.ROOT) + " shift+tab to cycle");
     }
 
     boolean presentEvent(String type, Map<String, Object> payload, Renderer renderer) throws IOException {
@@ -381,7 +453,12 @@ public final class CenterCli {
                 case "ASSISTANT_DELTA", "ASSISTANT_END" -> { /* 正文已从原stream输出；独立事件供微信等远程文本通道。 */ }
                 case "TOOL_CALLS" -> renderer.appendToolCalls(JSON.convertValue(payload.get("toolCalls"), new com.fasterxml.jackson.core.type.TypeReference<List<LlmClient.ToolCall>>() {}));
                 case "DIFF" -> renderer.appendDiff((String) payload.get("path"), (String) payload.get("before"), (String) payload.get("after"));
-                case "STATUS" -> renderer.updateStatus(JSON.convertValue(payload.get("status"), StatusInfo.class));
+                case "STATUS" -> {
+                    StatusInfo current=JSON.convertValue(payload.get("status"),StatusInfo.class);
+                    estimatedCost=current.estimatedCost();runtimeMcpSummary=current.mcpSummary();runtimeSkillSummary=current.skillSummary();
+                    contextTokens=current.totalTokens();inputTokens=current.inputTokens();outputTokens=current.outputTokens();cachedTokens=current.cachedInputTokens();
+                    renderer.updateStatus(current);
+                }
                 default -> throw new IOException("未知终端呈现事件: " + presentation);
             }
             return true;
@@ -411,12 +488,14 @@ public final class CenterCli {
             var decided = gateway.command(session.id(), "approval", "decide " + id + " " + decision + (feedback.isEmpty() ? "" : " " + JSON.writeValueAsString(feedback)));
             if (!decided.successful()) throw new IOException(decided.message()); renderer.stream().println(decided.message()); return true;
         }
-        if ("PLAN_CREATED".equals(type) && interactiveTerminal != null && interactiveReader != null) {
+        if ("PLAN_CREATED".equals(type) && (renderer instanceof LanternaRenderer ||interactiveTerminal != null && interactiveReader != null)) {
             var plan = new com.paicli.plan.ExecutionPlan(String.valueOf(payload.get("planId")), String.valueOf(payload.getOrDefault("goal", "中心计划")));
             List<Map<String, Object>> steps = JSON.convertValue(payload.get("steps"), new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {});
             for (var step : steps) plan.addTask(new com.paicli.plan.Task(String.valueOf(step.get("id")), String.valueOf(step.get("description")), com.paicli.plan.Task.TaskType.ANALYSIS,
                     JSON.convertValue(step.getOrDefault("dependencies", List.of()), new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {})));
-            var choice = Main.reviewPlan(interactiveTerminal, interactiveReader, renderer.stream(), plan);
+            var choice = renderer instanceof LanternaRenderer
+                    ? reviewLanternaPlan(plan,(LanternaRenderer)renderer)
+                    : Main.reviewPlan(interactiveTerminal, interactiveReader, renderer.stream(), plan);
             if (choice.action() == com.paicli.agent.PlanExecuteAgent.PlanReviewAction.CANCEL) { gateway.cancel(session.id(), activeTurn); return true; }
             String argument = choice.action() == com.paicli.agent.PlanExecuteAgent.PlanReviewAction.EXECUTE ? "execute " + payload.get("planId")
                     : "revise " + payload.get("planId") + " " + choice.feedback();
@@ -425,10 +504,48 @@ public final class CenterCli {
         return false;
     }
 
+    private com.paicli.agent.PlanExecuteAgent.PlanReviewDecision reviewLanternaPlan(com.paicli.plan.ExecutionPlan plan,LanternaRenderer renderer)throws IOException {
+        renderer.stream().println(plan.visualize());
+        int choice=renderer.openPalette("审阅中心计划",List.of("执行当前计划","补充要求并重新规划","取消计划"));
+        if(choice==0)return com.paicli.agent.PlanExecuteAgent.PlanReviewDecision.execute();
+        if(choice!=1)return com.paicli.agent.PlanExecuteAgent.PlanReviewDecision.cancel();
+        String feedback=renderer.inputText("补充计划要求","反馈会生成新计划版本；取消返回终端","");
+        return feedback==null||feedback.isBlank()?com.paicli.agent.PlanExecuteAgent.PlanReviewDecision.cancel():com.paicli.agent.PlanExecuteAgent.PlanReviewDecision.supplement(feedback);
+    }
+
     private void renderCommandData(String name, String arguments, Map<String, Object> data, Renderer renderer) throws IOException {
         if (Set.of("mode", "hitl", "cancel", "approve", "reject", "approval").contains(name)) return;
+        if("task".equals(name)&&arguments.trim().matches("log\\s+[1-9][0-9]*")){
+            renderer.stream().println(JSON.writerWithDefaultPrettyPrinter().writeValueAsString(data));
+            String taskId=arguments.trim().split("\\s+")[1];long end=Long.parseLong(String.valueOf(data.get("endSequence")));
+            long after=Long.parseLong(String.valueOf(data.getOrDefault("eventsCursor",0)));boolean more=Boolean.TRUE.equals(data.get("eventsHasMore"));
+            while(more){
+                var page=gateway.readTaskLog(taskId,after,end,200);if(!page.successful())throw new IOException(page.message());
+                long next=Long.parseLong(String.valueOf(page.data().get("cursor")));
+                if(next<=after||next>end||end!=Long.parseLong(String.valueOf(page.data().get("endSequence"))))throw new IOException("任务日志分页未推进或截止改变");
+                renderer.stream().println(JSON.writerWithDefaultPrettyPrinter().writeValueAsString(page.data().get("events")));
+                after=next;more=Boolean.TRUE.equals(page.data().get("hasMore"));
+            }
+            if(data.get("artifacts") instanceof List<?> artifacts)for(Object value:artifacts)if(value instanceof Map<?,?> artifact&&"TOOL_OUTPUT".equals(artifact.get("kind")))
+                CenterArtifactText.showTask(gateway,taskId,String.valueOf(data.get("sessionId")),String.valueOf(artifact.get("id")),renderer.stream());
+            renderer.stream().println("任务日志已读取至冻结截止序列 "+end+"；之后的新输出另行查询。");return;
+        }
         if ("export".equals(name)) {
             var result = CenterSessionExporter.export(gateway, session.id(), data, Path.of(System.getProperty("user.home"), ".paicli", "exports"));
+            if(gateway.browserHosted()){
+                List<Map<String,Object>> files=new ArrayList<>();
+                for(Path path:List.of(result.markdown(),result.bundle()))files.add(Map.of("name",path.getFileName().toString(),"mimeType",path.equals(result.markdown())?"text/markdown":"application/json","base64Data",java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(path))));
+                var published=gateway.publishExport(session.id(),files);if(!published.successful())throw new IOException(published.message());
+                if(!(published.data().get("artifacts") instanceof List<?> artifacts)||artifacts.size()!=2)throw new IOException("中心未确认两份原导出文件，保留本机文件等待核对");
+                for(Path path:List.of(result.markdown(),result.bundle())){
+                    String hash=com.paicli.runner.CanonicalJson.sha256(java.nio.file.Files.readAllBytes(path));long size=java.nio.file.Files.size(path);
+                    boolean matched=artifacts.stream().anyMatch(value->value instanceof Map<?,?> artifact&&path.getFileName().toString().equals(artifact.get("fileName"))&&hash.equals(artifact.get("sha256"))&&artifact.get("size") instanceof Number n&&n.longValue()==size);
+                    if(!matched)throw new IOException("中心导出摘要与本机原文件不符，保留原文件等待核对");
+                }
+                // 中心已持久化且摘要一致，删除仅本次创建的私有中间文件，避免长期TTY反复导出堆积。
+                for(Path path:List.of(result.markdown(),result.bundle())){com.paicli.runner.RunnerPrivateDirectory.requireRegularFile(path);java.nio.file.Files.delete(path);}
+                renderer.stream().println("导出完成：在网页终端下载区保存Markdown和完整证据包；消息 "+result.messages()+" 条，账本 "+result.ledgerEntries()+" 条");return;
+            }
             renderer.stream().println("对话已导出: " + result.markdown() + "；完整证据包: " + result.bundle() + "；消息 " + result.messages() + " 条，账本 " + result.ledgerEntries() + " 条"); return;
         }
         if ("config".equals(name) && arguments.isBlank() && interactiveApprovals) {
@@ -463,7 +580,7 @@ public final class CenterCli {
 
     void updatePresentation(Map<String, Object> data) {
         if (data == null) return;
-        Object value = data.get("model"); if (value instanceof String selected && !selected.isBlank()) model = selected;
+        Object value = data.get("model"); if (value instanceof String selected && !selected.isBlank()) {if(!selected.equals(model))estimatedCost=null;model = selected;}
         value = data.get("contextWindow"); if (value instanceof Number window && window.longValue() > 0) contextWindow = window.longValue();
         value=data.get("approvalMode");if(value instanceof String approval)hitlEnabled="ASK".equalsIgnoreCase(approval);
         value = data.get("mode");
@@ -476,12 +593,13 @@ public final class CenterCli {
             value = usage.get("inputTokens"); if (value instanceof Number n) inputTokens = n.longValue();
             value = usage.get("outputTokens"); if (value instanceof Number n) outputTokens = n.longValue();
             value = usage.get("cachedInputTokens"); if (value instanceof Number n) cachedTokens = n.longValue();
+            value=usage.get("estimatedCost");if(value instanceof String cost&&!cost.isBlank())estimatedCost=cost;
         }
         value = data.get("contextTokens"); if (value instanceof Number n) contextTokens = n.longValue();
     }
 
     static final class Options {
-        String workspace = setting("paicli.workspace", "PAICLI_WORKSPACE_ID");
+        String directoryContext = setting("paicli.directory", "PAICLI_DIRECTORY_CONTEXT_ID");
         String runner = setting("paicli.runner", "PAICLI_RUNNER_ID");
         String session;
         String input;
@@ -491,10 +609,10 @@ public final class CenterCli {
             for (int i = 0; i < args.length; i++) {
                 String value = args[i];
                 if ("--help".equals(value) || "-h".equals(value)) { options.help = true; continue; }
-                if (Set.of("--workspace", "--runner", "--session", "--prompt", "--command").contains(value)) {
+                if (Set.of("--directory", "--runner", "--session", "--prompt", "--command").contains(value)) {
                     if (++i >= args.length) throw new IllegalArgumentException(value + " 缺少参数");
                     switch (value) {
-                        case "--workspace" -> options.workspace = args[i];
+                        case "--directory" -> options.directoryContext = args[i];
                         case "--runner" -> options.runner = args[i];
                         case "--session" -> options.session = args[i];
                         case "--prompt" -> options.input = args[i];
@@ -508,7 +626,6 @@ public final class CenterCli {
                     throw new IllegalArgumentException("旧独立serve不作为生产入口；Runtime兼容API由中心受控提供");
                 } else throw new IllegalArgumentException("未知启动参数: " + value);
             }
-            if (!options.help && (options.workspace == null || options.workspace.isBlank())) throw new IllegalArgumentException("请指定 --workspace 或 PAICLI_WORKSPACE_ID");
             return options;
         }
         private static String setting(String property, String environment) {

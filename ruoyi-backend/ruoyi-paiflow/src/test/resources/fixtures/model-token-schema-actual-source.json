@@ -1,0 +1,294 @@
+{
+  "scope": "actual original PE FC token business schema, no provider",
+  "cases": [
+    {
+      "name": "pe-fc-token-business-schema",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T19:09:00.742610+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "fc_schema_params": {
+                    "default": {
+                      "token": "业务对象默认值"
+                    },
+                    "properties": {
+                      "token": {
+                        "default": "业务默认槽位",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "token"
+                    ],
+                    "type": "object"
+                  },
+                  "modelResourceId": "model-1",
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsImZjX3NjaGVtYV9wYXJhbXMiOnsiZGVmYXVsdCI6eyJ0b2tlbiI6IuS4muWKoeWvueixoem7mOiupOWAvCJ9LCJwcm9wZXJ0aWVzIjp7InRva2VuIjp7ImRlZmF1bHQiOiLkuJrliqHpu5jorqTmp73kvY0iLCJ0eXBlIjoic3RyaW5nIn19LCJyZXF1aXJlZCI6WyJ0b2tlbiJdLCJ0eXBlIjoib2JqZWN0In0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImFuc3dlciIsIm5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "4c363423c374fa579cbae042f99b5386e88f276ecfbe16001f5e2b641be22052",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "fc_schema_params": {
+            "default": {
+              "token": "业务对象默认值"
+            },
+            "properties": {
+              "token": {
+                "default": "业务默认槽位",
+                "type": "string"
+              }
+            },
+            "required": [
+              "token"
+            ],
+            "type": "object"
+          },
+          "modelResourceId": "model-1",
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "function_call",
+        "messages": [
+          {
+            "role": "user",
+            "content": "真实算法输入"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {},
+          "questionType": "not_knowledge",
+          "functionChoice": "extractor_parameter"
+        },
+        "functions": [
+          {
+            "name": "extractor_parameter",
+            "description": "Extract corresponding parameters based on user's question",
+            "parameters": {
+              "default": {
+                "token": "业务对象默认值"
+              },
+              "properties": {
+                "token": {
+                  "default": "业务默认槽位",
+                  "type": "string"
+                },
+                "answer": {
+                  "type": "integer",
+                  "description": null
+                }
+              },
+              "required": [
+                "token",
+                "answer"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    }
+  ]
+}

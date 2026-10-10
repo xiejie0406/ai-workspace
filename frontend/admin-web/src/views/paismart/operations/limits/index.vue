@@ -33,15 +33,34 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted,ref } from 'vue'
+import { onBeforeUnmount,onMounted,ref,watch } from 'vue'
 import { getLimits,saveLimits } from '@/api/paismart/operations'
 import type { RateLimits } from '@/types/paismart'
 import { errorText } from '../../composables/usePage'
 import '../../common.css'
 const form=ref<RateLimits>(),loading=ref(false),saving=ref(false),error=ref(''),result=ref('')
 const budgetRules=[{key:'llmGlobalToken',label:'全局对话 Token 预算',unit:'Token'},{key:'embeddingUploadToken',label:'上传向量 Token 预算',unit:'Token'},{key:'embeddingQueryRequest',label:'检索向量请求窗口',unit:'请求数'},{key:'embeddingQueryGlobalToken',label:'全局检索向量 Token 预算',unit:'Token'}] as const
-async function load(){loading.value=true;error.value='';try{form.value=(await getLimits()).data}catch(e){error.value=errorText(e)}finally{loading.value=false}}
-async function save(){if(!form.value?.rules)return;saving.value=true;error.value='';result.value='';try{form.value=(await saveLimits(form.value)).data;result.value='全部政策已保存'}catch(e){error.value=errorText(e)}finally{saving.value=false}}
+let requestSerial=0,formSerial=0,active=true
+watch(form,()=>{formSerial++;result.value=''},{deep:true,flush:'sync'})
+async function load(){
+  if(!active)return
+  const current=++requestSerial,revision=formSerial,sameForm=()=>active&&current===requestSerial&&revision===formSerial
+  loading.value=true;error.value='';result.value=''
+  try{const response=await getLimits();if(sameForm())form.value=response.data}
+  catch(e){if(sameForm())error.value=errorText(e)}
+  finally{if(active&&current===requestSerial)loading.value=false}
+}
+async function save(){
+  if(saving.value||loading.value||!active||!form.value?.rules)return
+  const current=++requestSerial,revision=formSerial
+  const input={...form.value,rules:Object.fromEntries(Object.entries(form.value.rules).map(([key,value])=>[key,{...value}])) as RateLimits['rules']}
+  const sameForm=()=>active&&current===requestSerial&&revision===formSerial
+  saving.value=true;error.value='';result.value=''
+  try{const response=await saveLimits(input);if(sameForm()){form.value=response.data;result.value='全部政策已保存'}}
+  catch(e){if(sameForm())error.value=errorText(e)}
+  finally{if(active)saving.value=false}
+}
+onBeforeUnmount(()=>{active=false;requestSerial++})
 onMounted(()=>void load())
 </script>
 <style scoped>.budget-rule{padding:8px 0;border-top:1px solid var(--el-border-color-lighter)}</style>

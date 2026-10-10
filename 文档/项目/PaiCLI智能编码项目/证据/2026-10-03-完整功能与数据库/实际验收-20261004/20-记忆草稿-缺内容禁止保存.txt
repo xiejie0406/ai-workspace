@@ -1,0 +1,124 @@
+- link "AI 面试教练管理后台":
+  - /url: /
+  - heading "AI 面试教练管理后台" [level=1]
+- menubar:
+  - link "首页":
+    - /url: /index
+    - menuitem "首页":
+      - generic: 首页
+  - menuitem "AI 面试管理":
+    - generic "AI 面试管理"
+  - menuitem "系统管理":
+    - generic: 系统管理
+  - menuitem "系统监控":
+    - generic: 系统监控
+  - menuitem "系统工具":
+    - generic: 系统工具
+  - link "若依官网":
+    - /url: http://ruoyi.vip
+    - menuitem "若依官网":
+      - generic: 若依官网
+  - menuitem "生产排产系统":
+    - generic "生产排产系统"
+  - menuitem "PaiCLI智能编码" [expanded]:
+    - generic "PaiCLI智能编码"
+    - menu:
+      - link "智能编码":
+        - /url: /paicli/workbench
+        - menuitem "智能编码":
+          - generic: 智能编码
+      - link "我的文件":
+        - /url: /paicli/knowledge
+        - menuitem "我的文件":
+          - generic: 我的文件
+      - link "模型与设置":
+        - /url: /paicli/connections
+        - menuitem "模型与设置":
+          - generic: 模型与设置
+  - menuitem "AI 基础设施":
+    - generic "AI 基础设施"
+  - menuitem "智能选品":
+    - generic: 智能选品
+  - menuitem "AI 图片编辑":
+    - generic "AI 图片编辑"
+  - menuitem "AI 演示文稿":
+    - generic "AI 演示文稿"
+  - menuitem "PaiSmart 知识库":
+    - generic "PaiSmart 知识库"
+- navigation "面包屑":
+  - link "首页"
+  - text: /
+  - link "PaiCLI智能编码"
+  - text: /
+  - link "我的文件"
+- button:
+- generic: "3"
+- button "若依":
+  - text: 若依
+- link "首页":
+  - /url: /index
+- link "我的文件":
+  - /url: /paicli/knowledge
+  - text: 我的文件
+- button:
+- generic "刷新页面":
+  - text: 刷新
+- main:
+  - heading "我的文件" [level=1]
+  - paragraph: 管理个人资料和成果，按需搜索代码、查看规则与记忆。
+  - button "刷新":
+    - generic: 刷新
+  - button "收起代码与知识能力":
+    - generic: 收起代码与知识能力
+  - alert:
+    - generic: 个人执行目录尚未准备
+    - paragraph: 执行环境尚未准备，请管理员连接该用户的可信宿主。资料按本人账号保存，交给助手分析或生成文件时需要可用的执行环境。
+  - tablist:
+    - tab "文件与成果"
+    - tab "仓库检索与关系图"
+    - tab "长期记忆与冲突" [selected]
+    - tab "PAI 项目规则"
+    - tab "提示词覆盖"
+    - tab "会话上下文 / PAI / 提示层"
+  - tabpanel "长期记忆与冲突":
+    - alert:
+      - generic: 个人记忆归当前用户所有；目录规则仅用于当前项目的处理，不会与其他用户共享。
+    - generic: 范围
+    - combobox "范围"
+    - generic: 当前用户个人偏好
+    - generic: 查找内容
+    - textbox "查找内容"
+    - button "查询":
+      - generic: 查询
+    - button "明确记住一条":
+      - generic: 明确记住一条
+    - table:
+      - rowgroup:
+        - row "记忆内容 来源 核实状态 最后核实 操作":
+          - columnheader "记忆内容":
+            - generic: 记忆内容
+          - columnheader "来源":
+            - generic: 来源
+          - columnheader "核实状态":
+            - generic: 核实状态
+          - columnheader "最后核实":
+            - generic: 最后核实
+          - columnheader "操作":
+            - generic: 操作
+    - table:
+      - rowgroup
+    - generic: 暂无数据
+    - paragraph: 当前范围没有记忆
+  - dialog "明确记住一条（待核实）":
+    - heading "明确记住一条（待核实）" [level=2]
+    - button "关闭此对话框":
+    - generic: 候选记忆
+    - textbox "候选记忆"
+    - generic: 核对来源
+    - textbox "核对来源" [active]:
+      - /placeholder: 写出用户原话或可核实文档来源
+      - text: 验收合成草稿，未提交
+    - button "取消，保留原条目":
+      - generic: 取消，保留原条目
+    - button "保存待核实记忆" [disabled]:
+      - generic: 保存待核实记忆

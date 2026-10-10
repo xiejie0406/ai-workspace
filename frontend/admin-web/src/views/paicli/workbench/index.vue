@@ -1,85 +1,166 @@
 <template>
-  <main class="app-container pc-page">
-    <h1>编码工作台</h1><p class="pc-muted">在授权工作区执行、计划、批准与恢复；所有执行状态来自若依中心。</p>
-    <el-alert v-if="pageError || operation.error.value || session.error.value" :title="pageError || operation.error.value || session.error.value" type="error" :closable="false" />
-    <div class="pc-toolbar">
-      <label for="pc-workspace">工作区</label><el-select id="pc-workspace" v-model="workspaceId" filterable :disabled="session.sending.value" @change="changeWorkspace"><el-option v-for="workspace in workspaces" :key="workspace.id" :value="workspace.id" :label="workspace.name" /></el-select>
-      <label for="pc-runner">Runner</label><el-select id="pc-runner" v-model="runnerId" :disabled="!!session.detail.value" placeholder="选择已批准在线设备"><el-option v-for="runner in runners" :key="runner.id" :value="runner.id" :label="`${runner.name} · ${stateName(runner.status)}`" :disabled="runner.status !== 'ONLINE'" /></el-select>
-      <el-button v-hasPermi="['paicli:session:write']" type="primary" :disabled="!workspaceId || (historical ? !runners.some(item => item.status === 'ONLINE') || !models.some(item => item.enabled) : !runnerId || !selectedModel)" @click="prepareNewSession">新建会话</el-button><el-button :loading="loading" @click="reload">刷新</el-button><el-button v-hasPermi="['paicli:approval:decide']" :disabled="!workspaceId" @click="workspaceApprovalsOpen=true">工作区待批准</el-button>
-    </div>
-    <el-empty v-if="!loading && !workspaces.length" description="当前没有授权工作区。请到连接与模型页登记工作区并分配成员。" />
-    <div v-else class="pc-grid">
-      <aside class="pc-panel"><h2>工作区会话</h2><button v-for="item in sessions" :key="item.id" class="pc-session" :aria-current="session.detail.value?.id === item.id" :disabled="session.sending.value" @click="chooseSession(item.id)"><strong>{{ item.title }}</strong><p class="pc-muted">{{ modeName(item.mode) }} · {{ stateName(item.status) }}</p></button><el-empty v-if="!sessions.length" description="尚无会话" :image-size="60" /><Pagination v-if="sessionTotal > sessionSize" v-model:page="sessionPage" v-model:limit="sessionSize" :total="sessionTotal" layout="prev, pager, next" :auto-scroll="false" @pagination="loadSessions" /></aside>
-      <div class="pc-stack">
-        <section class="pc-panel">
-          <div class="pc-card-title"><h2>{{ session.detail.value?.title || '新会话设置' }}</h2><el-tag>{{ stateName(session.detail.value?.status) }}</el-tag></div>
-          <div class="pc-toolbar"><label for="pc-model">完整模型 ID</label><el-select id="pc-model" v-model="modelId" filterable :disabled="historical || session.active.value || session.sending.value || !checkPermi(['paicli:session:write'])" @change="changeModel"><el-option v-for="model in models" :key="model.id" :value="model.id" :label="`${model.modelId} · ${(model.contextWindow == null ? '未核实' : model.contextWindow.toLocaleString())} Token${model.supportsImages ? ' · 图片' : ''}`" :disabled="!model.enabled" /></el-select><label for="pc-mode">执行模式</label><el-select id="pc-mode" v-model="mode" :disabled="historical || session.active.value"><el-option label="直接执行" value="REACT" /><el-option label="计划执行" value="PLAN" /><el-option label="团队协作" value="TEAM" /></el-select><label for="pc-approval-mode">批准模式</label><el-select id="pc-approval-mode" v-model="approvalMode" :disabled="historical || session.active.value"><el-option label="自动（仍受硬策略与批准约束）" value="AUTO" /><el-option label="逐次询问" value="ASK" /><el-option label="先计划" value="PLAN" /></el-select></div>
-          <el-alert v-if="historical" title="此会话是只读历史归档，旧任务与旧批准不能恢复执行。请新建会话绑定当前 Runner 与模型后继续工作。" type="info" :closable="false" /><el-alert v-else-if="offline" title="当前 Runner 离线。停止发送新任务，已有结果保留；请刷新并核对设备状态。" type="warning" :closable="false" /><p v-if="currentRunner && !currentRunner.sandboxVerified" class="pc-muted">隔离环境未验证，命令执行不可用；可继续授权的只读代码能力。</p>
-          <el-alert v-if="['DISCONNECTED','EXPIRED'].includes(session.streamState.value)" type="warning" :closable="false"><template #title>事件续取中断，内容可能未完成</template><el-button @click="reconnect">{{ session.streamState.value === 'EXPIRED' ? '重新加载完整会话' : '从已确认位置重连' }}</el-button></el-alert><p v-if="session.detail.value" class="pc-muted" role="status">事件连接：{{ streamLabels[session.streamState.value] }} · 已确认位置 {{ session.cursor.value || '起点' }}</p>
-        </section>
-        <section v-if="session.detail.value" class="pc-panel"><p class="pc-muted">当前显示中心最近确认的最多 200 条消息；完整历史、工具与批准记录可分页查看。<span v-if="session.detail.value.earlierMessagesAvailable">还有较早消息。</span></p><SessionHistory :session-id="session.detail.value.id" /></section><ConversationPane :messages="session.detail.value?.messages ?? []" :session-id="session.detail.value?.id" :tool-calls="session.detail.value?.toolCalls" :events="session.events.value" :loading="session.loading.value" @approval="openApproval" />
-        <section class="pc-panel" aria-label="输入编码任务"><label class="pc-label" for="pc-turn-text">任务与补充要求</label><el-input id="pc-turn-text" v-model="text" type="textarea" :rows="5" :disabled="historical || session.sending.value" placeholder="说明任务和可核对的正确结果；支持 @路径、@MCP 资源和粘贴图片。" @paste="imageAttachments?.paste($event)" />
-          <ImageAttachments ref="imageAttachments" v-model="attachments" :workspace-id="workspaceId" :supports-images="!!selectedModel?.supportsImages" :disabled="historical || session.active.value || session.sending.value" />
-          <div class="pc-actions"><el-button v-hasPermi="['paicli:session:write']" type="primary" :loading="session.sending.value || operation.busy.value" :disabled="!canSend" @click="send">发送任务</el-button><el-button v-hasPermi="['paicli:task:cancel']" type="danger" :disabled="!session.active.value" :loading="operation.busy.value" @click="cancel">取消执行</el-button><el-button v-hasPermi="['paicli:snapshot:read']" :disabled="historical || !session.detail.value" @click="snapshotsOpen = true">快照与恢复</el-button><el-button v-hasPermi="['paicli:connection:read']" :disabled="!workspaceId" @click="toolsOpen = true; loadTools()">工具能力与输入协议</el-button></div>
-          <p class="pc-muted">已发生的文件或外部副作用须根据回执核对，取消不等于撤销。未知命令不应被当作权限。</p>
-        </section>
+  <main class="app-container pc-page pc-coding">
+    <header class="pc-card-title"><div><h1>智能编码</h1><p class="pc-muted">读懂代码、实现功能、排查错误；在一个对话里查看执行和成果。</p></div><div class="pc-actions"><el-button v-hasPermi="['paicli:terminal:use']" :loading="openingTerminal" :disabled="historical || session.sending.value || operation.busy.value" @click="openTerminal">打开终端</el-button><el-button :loading="personal.loading.value" @click="reload">刷新</el-button></div></header>
+    <el-alert v-if="pageError || personal.error.value || operation.error.value || session.error.value" :title="personal.error.value || pageError || operation.error.value || session.error.value" type="error" :closable="false" />
+    <el-alert v-if="personal.context.value && !personal.context.value.canChat" type="warning" :closable="false"><template #title>{{readinessMessage}}</template><el-button v-hasPermi="['paicli:session:write']" :loading="personal.loading.value" @click="prepare">重试准备</el-button><el-button v-hasPermi="['paicli:connection:read']" link @click="router.push('/paicli/connections')">模型与设置</el-button></el-alert>
+    <div class="pc-coding-grid" :class="{'has-results': showResults}">
+      <aside class="pc-panel pc-history"><div class="pc-card-title"><h2>我的对话</h2><el-button v-hasPermi="['paicli:session:write']" link type="primary" :disabled="session.sending.value || operation.busy.value || openingTerminal" @click="newConversation">新对话</el-button></div><el-select v-model="historyFilter" aria-label="筛选对话" class="pc-wide"><el-option label="全部对话" value="ALL" /><el-option label="进行中" value="ACTIVE" /><el-option label="待确认" value="WAITING_APPROVAL" /></el-select><button v-for="item in visibleSessions" :key="item.id" class="pc-session" :aria-current="session.detail.value?.id === item.id" :disabled="session.sending.value || operation.busy.value || openingTerminal" @click="chooseSession(item.id)"><strong>{{item.title}}</strong><p class="pc-muted">{{stateName(item.status)}}</p></button><el-empty v-if="!visibleSessions.length" description="从右侧开始第一次对话" :image-size="50" /><Pagination v-if="sessionTotal > sessionSize" v-model:page="sessionPage" v-model:limit="sessionSize" :total="sessionTotal" layout="prev, pager, next" :auto-scroll="false" @pagination="loadSessions" /></aside>
+      <div class="pc-stack pc-conversation">
+        <section v-if="!session.detail.value?.messages.length && !session.loading.value" class="pc-panel pc-welcome"><h2>你想完成什么？</h2><p class="pc-muted">直接描述目标，或选择一个起点。文件保存在个人目录；处理已有代码时再更换文件位置。</p><div class="pc-starters"><button v-for="starter in starters" :key="starter.title" @click="text = starter.prompt"><strong>{{starter.title}}</strong><span>{{starter.description}}</span></button></div></section>
+        <el-alert v-if="historical" title="这是只读历史。原记录和成果保留，新建对话后继续处理。" type="info" :closable="false" />
+        <el-alert v-if="['DISCONNECTED','EXPIRED'].includes(session.streamState.value)" title="连接已中断，当前内容可能未完成。" type="warning" :closable="false"><el-button @click="reconnect">重新获取实际进度</el-button></el-alert>
+        <section v-if="hasExecution" class="pc-panel pc-execution" aria-label="本次执行" aria-live="polite"><div class="pc-card-title"><h2>本次执行</h2><el-tag>{{stateName(session.detail.value?.latestTaskStatus || session.detail.value?.status)}}</el-tag></div><p>{{executionSummary}}</p><div v-for="tool in recentTools" :key="tool.id" class="pc-execution-step"><span>{{tool.toolName}}<span v-if="tool.role"> · {{tool.role}}</span></span><el-tag size="small">{{stateName(tool.status)}}</el-tag></div><p v-if="!recentTools.length && session.active.value" class="pc-muted">等待中心返回实际执行步骤。</p><PlanPanel v-if="currentPlan" :readonly="historical" :plan="currentPlan" :active="session.active.value" @refresh="refreshSession" @cancel="cancel" /><div v-for="approval in pendingApprovals" :key="approval.id" class="pc-inline-approval"><h3>需要你确认：{{approval.toolName}}</h3><p>{{approval.impact}}</p><el-button v-hasPermi="['paicli:approval:decide']" type="primary" @click="openApproval(approval.id)">查看影响并确认</el-button></div><div class="pc-actions"><el-button v-hasPermi="['paicli:task:cancel']" :disabled="!session.active.value" :loading="operation.busy.value" @click="cancel">停止本次执行</el-button><el-button v-if="hasResults" link @click="resultsVisible = !resultsVisible">{{resultsVisible ? '收起成果' : '查看成果'}}</el-button></div></section>
+        <ConversationPane v-if="session.detail.value?.messages.length || session.loading.value" :messages="session.detail.value?.messages ?? []" :session-id="session.detail.value?.id" :tool-calls="session.detail.value?.toolCalls" :events="session.events.value" :loading="session.loading.value" @approval="openApproval" />
+        <el-alert v-if="personal.context.value?.canChat && currentDirectory?.state !== 'VERIFIED'" title="现在可以进行文字问答。文件读写和终端需要等待个人目录准备完成。" type="info" :closable="false" /><section class="pc-panel pc-composer" aria-label="输入要求"><label class="pc-label" for="pc-turn-text">{{session.active.value ? '补充要求（本次执行结束后发送）' : '描述你的要求'}}</label><el-input id="pc-turn-text" v-model="text" type="textarea" :rows="4" :disabled="historical || session.sending.value" placeholder="例如：分析项目启动方式；实现登录页面；定位并修复报错…" @paste="imageAttachments?.paste($event)" /><ImageAttachments ref="imageAttachments" v-model="attachments" :directory-context-id="personal.directoryContextId.value" :supports-images="!!selectedModel?.supportsImages" :disabled="historical || session.sending.value || !personal.directoryContextId.value" /><div v-if="selectedFiles.length" class="pc-actions"><el-tag v-for="file in selectedFiles" :key="file.id" closable :disable-transitions="true" @close="selectedFiles = selectedFiles.filter(item => item.id !== file.id)">资料：{{file.name}}（发送后读取实际正文）</el-tag></div><div class="pc-composer-options"><el-select v-model="modelId" aria-label="选择模型" :disabled="historical || session.active.value || session.sending.value" placeholder="请选择模型" @change="changeModel"><el-option v-for="model in models" :key="model.id" :value="model.id" :label="model.displayName || model.modelId" :disabled="!model.enabled" /></el-select><el-select v-model="handling" aria-label="处理方式" :disabled="historical || session.active.value"><el-option label="只分析" value="ANALYSE" /><el-option label="直接处理" value="REACT" /><el-option label="先出方案" value="PLAN" /><el-option label="AI 协作" value="TEAM" /></el-select><el-button :disabled="session.active.value || session.sending.value || operation.busy.value || openingTerminal || terminalHasInstance || historical" link @click="directoryOpen = true">文件位置：{{currentDirectory?.label || '个人默认目录'}}</el-button></div><div class="pc-card-title"><p class="pc-muted">{{session.active.value ? '草稿会保留，不会自动发送。' : currentDirectory?.path || '未指定目录时使用个人默认目录。'}}</p><el-button v-hasPermi="['paicli:session:write']" type="primary" :loading="session.sending.value || operation.busy.value" :disabled="!canSend" @click="send">发送</el-button></div></section>
+        <WebTerminalPane v-if="terminalEnabled && session.detail.value" :key="session.detail.value.id" v-show="terminalVisible" ref="terminalPane" :session-id="session.detail.value.id" :directory-context-id="personal.directoryContextId.value" :supports-images="!!selectedModel?.supportsImages" :disabled="historical || !personal.context.value?.canOpenTerminal" :disabled-reason="terminalMessage" :active-task="session.active.value" :visible="terminalVisible" :initial-terminal-id="initialTerminalId" :cancel-task="cancelTerminalTask" @opened="terminalOpened" @refresh="refreshSession" /><el-button v-if="terminalEnabled" link @click="terminalVisible = !terminalVisible">{{terminalVisible ? '收起终端' : '展开终端'}}</el-button>
+        <el-collapse v-if="session.detail.value"><el-collapse-item title="对话记录、上下文与恢复" name="details"><SessionHistory :session-id="session.detail.value.id" /><LedgerReader :session-id="session.detail.value.id" /><ContextPanel :context="session.detail.value.context" :active="session.active.value" :readonly="historical" @refresh="refreshSession" /><el-button v-hasPermi="['paicli:snapshot:read']" :disabled="historical" @click="snapshotsOpen = true">快照与恢复</el-button></el-collapse-item></el-collapse>
       </div>
-      <aside class="pc-stack pc-detail"><PlanPanel :readonly="historical" :plan="session.detail.value?.plan" :active="session.active.value" @refresh="refreshSession" @cancel="cancel" /><section class="pc-panel"><h2>待批准操作</h2><div v-for="approval in session.detail.value?.approvals" :key="approval.id"><p>{{ approval.toolName }} · {{ stateName(approval.status) }}</p><el-button v-hasPermi="['paicli:approval:decide']" @click="openApproval(approval.id)">查看完整影响</el-button></div><p v-if="!session.detail.value?.approvals.length" class="pc-muted">没有待处理申请</p></section><ContextPanel :context="session.detail.value?.context" :active="session.active.value" :readonly="historical" @refresh="refreshSession" /></aside>
+      <ExecutionResults v-if="showResults && session.detail.value" :session-id="session.detail.value.id" :artifacts="session.detail.value.context?.artifacts ?? []" :tools="session.detail.value.toolCalls ?? []" />
     </div>
-    <el-drawer v-model="workspaceApprovalsOpen" title="工作区待批准申请" size="850px"><PendingApprovals v-if="workspaceApprovalsOpen" :workspace-id="workspaceId" @decided="refreshSession" /></el-drawer><ApprovalDrawer v-model="approvalOpen" :approval="selectedApproval" @decided="refreshSession" /><SnapshotDialog v-model="snapshotsOpen" :readonly="historical" :session-id="session.detail.value?.id ?? ''" @refresh="refreshSession" />
-    <el-dialog v-model="newSessionOpen" title="新建编码会话" width="600px" class="pc-dialog"><el-form label-width="110px"><el-form-item label="会话标题"><el-input v-model="title" maxlength="120" show-word-limit /></el-form-item><el-form-item label="工作区">{{ workspaces.find(item => item.id === workspaceId)?.name }}</el-form-item><el-form-item label="Runner">{{ currentRunner?.name }}</el-form-item><el-form-item label="模型">{{ selectedModel?.modelId }}</el-form-item><el-form-item label="执行模式">{{ modeName(mode) }}</el-form-item></el-form><el-alert v-if="operation.error.value" :title="operation.error.value" type="error" :closable="false" /><template #footer><el-button @click="newSessionOpen = false">取消</el-button><el-button type="primary" :loading="operation.busy.value" :disabled="!title.trim() || offline" @click="newSession">创建会话</el-button></template></el-dialog>
-    <el-drawer v-model="toolsOpen" title="工作区工具与动态 MCP 能力" size="700px"><el-alert title="此列表来自中心能力快照，工具正文与外部资料不能授予执行权限。" type="info" :closable="false" /><el-collapse><el-collapse-item v-for="tool in tools" :key="tool.name" :title="`${tool.name} · ${tool.source} · ${tool.enabled ? '已登记' : '未信任 / 不可用'}`"><p>{{ tool.description }}</p><p>能力：{{ tool.capability || '外部工具' }} · {{ tool.readOnly ? '读取资料' : '产生影响须核对策略' }} · {{ tool.approvalRequired ? '须申请批准' : '仍受中心策略控制' }}<span v-if="tool.schemaVersion"> · 协议版本 {{ tool.schemaVersion }}</span></p><p v-if="tool.unavailableReason">{{ tool.unavailableReason }}</p><pre class="pc-pre">{{ safeText(tool.inputSchema) }}</pre></el-collapse-item></el-collapse><el-empty v-if="!tools.length" description="没有已登记工具；请核对 Runner 能力" /></el-drawer>
+    <PersonalDirectoryPicker v-model="directoryOpen" :directories="personal.directories.value" :current-id="personal.directoryContextId.value" :active="session.active.value || session.sending.value || operation.busy.value || openingTerminal || terminalHasInstance" @refresh="personal.load" @select="chooseDirectory" /><ApprovalDrawer v-model="approvalOpen" :approval="selectedApproval" @decided="refreshSession" /><SnapshotDialog v-model="snapshotsOpen" :readonly="historical" :session-id="session.detail.value?.id ?? ''" @refresh="refreshSession" />
   </main>
 </template>
 <script setup lang="ts">
-import { computed, onActivated, onDeactivated, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Pagination from '@/components/Pagination/index.vue'
 import { checkPermi } from '@/utils/permission'
-import { listRunners, listWorkspaces } from '@/api/paicli/workspaces'
 import { createSession, listSessions } from '@/api/paicli/sessions'
-import { listModels, listTools, switchModel } from '@/api/paicli/connections'
+import { switchModel } from '@/api/paicli/connections'
 import { cancelTask, getTask } from '@/api/paicli/tasks'
-import type { PcApprovalMode, PcAttachment, PcMode, PcModel, PcRunner, PcSession, PcToolDefinition, PcWorkspace } from '@/types/paicli'
+import type { PcApprovalMode, PcAttachment, PcMode, PcSession } from '@/types/paicli'
 import ApprovalDrawer from '../components/ApprovalDrawer.vue'
-import PendingApprovals from '../components/PendingApprovals.vue'
 import ContextPanel from '../components/ContextPanel.vue'
 import ConversationPane from '../components/ConversationPane.vue'
 import SessionHistory from '../components/SessionHistory.vue'
+import LedgerReader from '../components/LedgerReader.vue'
 import ImageAttachments from '../components/ImageAttachments.vue'
 import PlanPanel from '../components/PlanPanel.vue'
 import SnapshotDialog from '../components/SnapshotDialog.vue'
+import PersonalDirectoryPicker from '../components/PersonalDirectoryPicker.vue'
+import ExecutionResults from '../components/ExecutionResults.vue'
+import { executionEvidence } from '../shared/executionEvidence'
+import { usePersonalContext } from '../usePersonalContext'
 import { useSession } from '../useSession'
 import { useOperations } from '../useOperations'
-import { errorText, modeName, operationKeys, safeText, stateName } from '../model'
+import { errorText, isHistoricalSession, operationKeys, stateName, terminalTaskStates } from '../model'
 import '../page.css'
-defineOptions({ name: 'PaicliWorkbench' })
-const route = useRoute(), session = useSession(), operation = useOperations(), keys = operationKeys()
-const workspaces = ref<PcWorkspace[]>([]), runners = ref<PcRunner[]>([]), models = ref<PcModel[]>([]), sessions = ref<PcSession[]>([]), tools = ref<PcToolDefinition[]>([])
-const workspaceId = ref(''), runnerId = ref(''), modelId = ref(''), mode = ref<PcMode>('REACT'), approvalMode = ref<PcApprovalMode>('ASK'), title = ref(''), text = ref(''), attachments = ref<PcAttachment[]>([])
-const pageError = ref(''), loading = ref(false), newSessionOpen = ref(false), workspaceApprovalsOpen=ref(false), approvalOpen = ref(false), approvalId = ref(''), snapshotsOpen = ref(false), toolsOpen = ref(false), sessionPage = ref(1), sessionSize = ref(20), sessionTotal = ref(0), imageAttachments = ref<InstanceType<typeof ImageAttachments>>()
-let workspaceGeneration = 0, firstLoad = true, lastSelectedId = ''
-const drafts = new Map<string, { text: string; attachments: PcAttachment[] }>()
-const selectedModel = computed(() => models.value.find(item => item.id === modelId.value)), currentRunner = computed(() => runners.value.find(item => item.id === runnerId.value)), offline = computed(() => currentRunner.value?.status !== 'ONLINE')
-const historical = computed(() => !!session.detail.value && (session.detail.value.status === 'HISTORICAL' || !session.detail.value.runnerId))
-const selectedApproval = computed(() => session.detail.value?.approvals.find(item => item.id === approvalId.value)), canSend = computed(() => !!session.detail.value && !historical.value && !!text.value.trim() && !offline.value && !!selectedModel.value?.enabled && !session.active.value && !session.sending.value && !imageAttachments.value?.uploading && (attachments.value.length === 0 || !!selectedModel.value?.supportsImages))
-const streamLabels = { IDLE: '未连接', CONNECTING: '正在续取', CONNECTED: '已连接', DISCONNECTED: '中断', EXPIRED: '游标过期' }
-async function reload() { loading.value = true; pageError.value = ''; try { workspaces.value = (await listWorkspaces({ pageNum:1,pageSize:100 })).rows; if (!workspaceId.value) { const requested = typeof route.query.workspaceId === 'string' ? route.query.workspaceId : ''; workspaceId.value = workspaces.value.some(item => item.id === requested) ? requested : workspaces.value[0]?.id ?? '' }; if (workspaceId.value) await loadWorkspace() } catch(cause) { pageError.value = errorText(cause) } finally { loading.value = false } }
-async function loadWorkspace() { const id = workspaceId.value, generation = ++workspaceGeneration; if (!id) return; const [rs, ss, ms] = await Promise.allSettled([checkPermi(['paicli:runner:list'])?listRunners(id):Promise.resolve({data:[]}), listSessions(id, sessionPage.value, sessionSize.value), checkPermi(['paicli:connection:read'])?listModels(id):Promise.resolve({data:[]})]); if (generation !== workspaceGeneration || id !== workspaceId.value) return; if (rs.status === 'fulfilled') { runners.value = rs.value.data; if (!runnerId.value) runnerId.value = runners.value.find(item => item.status === 'ONLINE')?.id ?? '' } else pageError.value = errorText(rs.reason); if (ss.status === 'fulfilled') { sessions.value = ss.value.rows; sessionTotal.value = ss.value.total } else pageError.value = errorText(ss.reason); if (ms.status === 'fulfilled') { models.value = ms.value.data; if (!models.value.some(item => item.id === modelId.value)) modelId.value = models.value.find(item => item.enabled)?.id ?? '' } else pageError.value = errorText(ms.reason) }
-function storeDraft() { if (session.detail.value) drafts.set(session.detail.value.id, { text: text.value, attachments: attachments.value }) }
-async function changeWorkspace() { storeDraft(); session.dispose(); lastSelectedId = ''; runnerId.value = ''; modelId.value = ''; models.value = []; text.value = ''; attachments.value = []; sessions.value = []; runners.value = []; sessionPage.value = 1; pageError.value = ''; await loadWorkspace() }
-async function loadSessions() { await loadWorkspace() }
-async function chooseSession(id: string) { storeDraft(); lastSelectedId = id; await session.select(id); if (!session.detail.value || session.detail.value.id !== id) return; runnerId.value = session.detail.value.runnerId ?? ''; modelId.value = session.detail.value.modelId; mode.value = session.detail.value.mode; approvalMode.value = session.detail.value.approvalMode; text.value = drafts.get(id)?.text ?? ''; attachments.value = drafts.get(id)?.attachments ?? [] }
-function prepareNewSession() { if (historical.value) { storeDraft(); session.dispose(); lastSelectedId = ''; runnerId.value = runners.value.find(item => item.status === 'ONLINE')?.id ?? ''; modelId.value = models.value.find(item => item.enabled)?.id ?? ''; approvalMode.value = 'ASK'; text.value = ''; attachments.value = [] }; newSessionOpen.value = true }
-async function newSession() { const data = { title: title.value.trim(), workspaceId: workspaceId.value, runnerId: runnerId.value, modelId: modelId.value, mode: mode.value, approvalMode: approvalMode.value }; await operation.run(async () => { const result = await createSession(data, keys.get(data)); keys.done(data); newSessionOpen.value = false; title.value = ''; await loadWorkspace(); await chooseSession(result.data.id) }) }
-async function send() { const detail = session.detail.value; if (!detail || !canSend.value) return; if (new TextEncoder().encode(text.value).length > 65536) { pageError.value = '单次输入超过 64KB，请缩减正文并使用路径引用。'; return }; const ok = await session.send({ text: text.value, mode: mode.value, approvalMode: approvalMode.value, modelId: modelId.value, attachments: attachments.value.map(item => item.id), version: detail.version }); if (ok) { text.value = ''; attachments.value = []; drafts.delete(detail.id); await loadWorkspace() } }
-async function cancel() { const detail = session.detail.value; if (!detail?.activeTaskId) return; await operation.run(async () => { const task = (await getTask(detail.activeTaskId!)).data, intent = { action:'cancel', taskId:task.id, version:task.version }; await cancelTask(task.id, task.version, keys.get(intent)); keys.done(intent); ElMessage.info('已提交取消请求，请等待进程停止回执并核对已发生操作。'); await refreshSession() }) }
-async function changeModel(value: string) { const detail = session.detail.value; if (!detail || historical.value || !checkPermi(['paicli:session:write']) || detail.modelId === value) return; const previous = detail.modelId, intent = { action:'model', sessionId:detail.id, version:detail.version, modelId:value }; await operation.run(async () => { try { await switchModel(detail.id, value, detail.version, keys.get(intent)); keys.done(intent); await refreshSession() } catch(cause) { modelId.value = previous; throw cause } }) }
-async function refreshSession() { try { await session.refresh(); void session.subscribe() } catch(cause) { pageError.value = errorText(cause) } }
+const WebTerminalPane = defineAsyncComponent(() => import('../components/WebTerminalPane.vue'))
+defineOptions({ name: 'Workbench' })
+const route = useRoute(), router = useRouter(), personal = usePersonalContext(), session = useSession(), operation = useOperations(), keys = operationKeys()
+const sessions = ref<PcSession[]>([]), modelId = ref(''), handling = ref<PcMode | 'ANALYSE'>('REACT'), approvalMode = ref<PcApprovalMode>('ASK'), text = ref(''), attachments = ref<PcAttachment[]>([]), selectedFiles = ref<{id:string;name:string}[]>([]), pageError = ref('')
+const sessionPage = ref(1), sessionSize = ref(20), sessionTotal = ref(0), historyFilter = ref('ALL'), approvalOpen = ref(false), approvalId = ref(''), directoryOpen = ref(false), snapshotsOpen = ref(false), resultsVisible = ref(true), imageAttachments = ref<InstanceType<typeof ImageAttachments>>()
+const terminalEnabled = ref(false), terminalVisible = ref(false), terminalHasInstance = ref(false), openingTerminal = ref(false), terminalPane = ref<InstanceType<typeof WebTerminalPane>>(), initialTerminalId = ref(typeof route.query.terminalId === 'string' ? route.query.terminalId : '')
+let alive = true, terminalGeneration = 0, directoryExplicit = false, awaitTerminalOpen = false, firstLoad = true, lastSelectedId = '', generation = 0
+let viewActive = true, fileHandoffGeneration = 0, fileHandoffPending = '', selectionGeneration = 0, displayedDraftId = 'new'
+const drafts = new Map<string, {text: string; attachments: PcAttachment[]; files: {id:string;name:string}[]}>()
+const models = computed(() => personal.context.value?.models ?? []), selectedModel = computed(() => models.value.find(item => item.id === modelId.value))
+const mode = computed<PcMode>(()=>handling.value === 'ANALYSE' ? 'REACT' : handling.value), readOnly = computed(()=>handling.value === 'ANALYSE')
+const currentDirectory = computed(()=>session.detail.value ? session.detail.value.directoryContext : personal.directory.value)
+const historical = computed(() => isHistoricalSession(session.detail.value))
+const terminalMessage=computed(()=>personal.context.value?.terminal?.message || personal.context.value?.terminalMessage || '终端尚未准备。请等待文件位置核对并确认终端能力已启用。')
+const readinessMessage = computed(() => personal.context.value?.runtime.message || (!models.value.some(item => item.enabled) ? '尚未配置可用模型，请在模型与设置中添加模型。' : '个人环境正在准备。'))
+const visibleSessions = computed(() => sessions.value.filter(item => historyFilter.value === 'ALL' || (historyFilter.value === 'ACTIVE' ? !!item.activeTaskId && !terminalTaskStates.has(item.status) : item.status === historyFilter.value)))
+const pendingApprovals = computed(() => session.detail.value?.approvals.filter(item => ['PENDING','WAITING_APPROVAL'].includes(item.status)) ?? []), selectedApproval = computed(() => session.detail.value?.approvals.find(item => item.id === approvalId.value))
+const executionId = computed(()=>session.detail.value?.latestTaskId || session.detail.value?.activeTaskId), currentPlan = computed(()=> {const plan=session.detail.value?.plan; return plan && executionId.value && (plan.taskId || plan.parentId) === executionId.value ? plan : undefined}), recentTools = computed(() => (session.detail.value?.toolCalls ?? []).filter(tool=>!!executionId.value && (tool.taskId || tool.parentId) === executionId.value).slice(-4))
+const hasExecution = computed(() => !!session.detail.value?.activeTaskId || !!currentPlan.value || !!recentTools.value.length || !!pendingApprovals.value.length)
+const evidence = computed(() => executionEvidence(session.detail.value?.toolCalls ?? [])), hasResults = computed(() => !!session.detail.value?.context?.artifacts.length || !!evidence.value.diffs.length || !!evidence.value.checks.length), showResults = computed(() => hasResults.value && resultsVisible.value)
+const executionSummary = computed(() => pendingApprovals.value.length ? '执行暂停，等待你确认具体影响。' : session.active.value ? '正在按当前要求处理，步骤和状态来自实际执行记录。' : (session.detail.value?.latestTaskStatus || session.detail.value?.status) === 'COMPLETED' ? '本次执行已结束。请查看文件和实际检查结果。' : '本次执行记录已保留，未完成事项请核对实际回执。')
+const canSend = computed(() => !historical.value && !!text.value.trim() && !!selectedModel.value?.enabled && !!personal.context.value?.canChat && !session.active.value && !session.sending.value && !operation.busy.value && !openingTerminal.value && !personal.loading.value && !imageAttachments.value?.uploading && (attachments.value.length === 0 || !!selectedModel.value?.supportsImages))
+function storeDraft() { drafts.set(displayedDraftId, {text: text.value, attachments: [...attachments.value],files:[...selectedFiles.value]}) }
+async function loadSessions() { const g = ++generation; try { const result = await listSessions(undefined, sessionPage.value, sessionSize.value); if (g === generation) { sessions.value = result.rows; sessionTotal.value = result.total } } catch(cause) { if (g === generation) pageError.value = errorText(cause) } }
+async function reload() { await personal.load(); if (!models.value.some(item => item.id === modelId.value)) modelId.value = personal.context.value?.modelId ?? models.value.find(item => item.enabled)?.id ?? ''; await loadSessions() }
+async function prepare() { await personal.prepare(); if (!modelId.value) modelId.value = personal.context.value?.modelId ?? ''; }
+async function chooseSession(id: string, isCurrent = () => alive && viewActive, syncRoute = true) { if (openingTerminal.value || session.sending.value || operation.busy.value) return false; storeDraft(); const attempt = ++selectionGeneration; await session.select(id); const detail = session.detail.value; if (attempt !== selectionGeneration || !isCurrent() || !detail || detail.id !== id) return false; lastSelectedId = id; displayedDraftId = id; modelId.value = detail.modelId; handling.value = detail.readOnly ? 'ANALYSE' : detail.mode; approvalMode.value = detail.approvalMode; personal.directoryContextId.value = detail.directoryContextId ?? ''; selectedFiles.value = drafts.get(id)?.files ?? []; text.value = drafts.get(id)?.text ?? ''; attachments.value = drafts.get(id)?.attachments ?? []; terminalHasInstance.value = false; initialTerminalId.value = ''; terminalEnabled.value = false; if (syncRoute) await router.replace({query:{...route.query,sessionId:id,terminalId:undefined,workspaceId:undefined}}); return true }
+function newConversation() { if (session.sending.value || operation.busy.value || openingTerminal.value) return; storeDraft(); selectionGeneration++; directoryExplicit = false; session.dispose(); lastSelectedId = ''; displayedDraftId = 'new'; selectedFiles.value = drafts.get('new')?.files ?? []; text.value = drafts.get('new')?.text ?? ''; attachments.value = drafts.get('new')?.attachments ?? []; personal.directoryContextId.value = personal.context.value?.directoryContext?.id ?? ''; modelId.value = personal.context.value?.modelId ?? models.value.find(item => item.enabled)?.id ?? ''; terminalEnabled.value = false; terminalHasInstance.value = false; initialTerminalId.value = ''; void router.replace({query:{...route.query,sessionId:undefined,terminalId:undefined,workspaceId:undefined}}) }
+function chooseDirectory(id: string) { if (session.active.value || session.sending.value || operation.busy.value || openingTerminal.value || terminalHasInstance.value) return; if (session.detail.value) { storeDraft(); selectionGeneration++; session.dispose(); lastSelectedId = ''; displayedDraftId = 'new'; void router.replace({query:{...route.query,sessionId:undefined,terminalId:undefined}}) }; personal.directoryContextId.value = id; directoryExplicit = true; attachments.value = []; }
+async function ensureSession(title: string, terminal = false) {
+  if (session.detail.value) return true
+  if(lastSelectedId){await session.select(lastSelectedId);if(!session.detail.value)throw new Error(session.error.value || '对话已建立，但未取得完整内容，请重试加载。');displayedDraftId=lastSelectedId;return true}
+  const context = await personal.prepare(); if (!context) return false
+  if (!(terminal ? context.runtime.ready : context.canChat)) { pageError.value = readinessMessage.value; return false }
+  const data = {title:title.trim().slice(0,60) || '终端对话',directoryContextId:directoryExplicit ? personal.directoryContextId.value || undefined : undefined,modelId:modelId.value || context.modelId || undefined,mode:mode.value,readOnly:readOnly.value,approvalMode:approvalMode.value}
+  const result = await createSession(data,keys.get(data)); keys.done(data); lastSelectedId = result.data.id; await session.select(result.data.id); if (session.detail.value) displayedDraftId = result.data.id; if (result.data.directoryContextId) personal.directoryContextId.value = result.data.directoryContextId; await loadSessions(); await router.replace({query:{...route.query,sessionId:result.data.id,workspaceId:undefined}}); return !!session.detail.value
+}
+async function send() {
+  if (!canSend.value || !checkPermi(['paicli:session:write'])) return
+  if (new TextEncoder().encode(text.value).length > 65536) { pageError.value = '输入超过 64KB，请缩减正文并使用文件引用。'; return }
+  const input = text.value, images = [...attachments.value], files = selectedFiles.value.map(item=>item.id); pageError.value = ''
+  await operation.run(async () => { if (!await ensureSession(input)) return; const detail = session.detail.value!; const ok = await session.send({text:input,mode:mode.value,readOnly:readOnly.value,approvalMode:approvalMode.value,modelId:modelId.value || detail.modelId,attachments:images.map(item=>item.id),files,version:detail.version}); if (ok) { text.value = ''; attachments.value = []; selectedFiles.value = []; drafts.delete('new'); drafts.delete(detail.id); await loadSessions() } })
+}
+async function cancelTerminalTask() { const id = session.detail.value?.activeTaskId; if (!id || !checkPermi(['paicli:task:cancel'])) return !id; let requested = false; await operation.run(async () => { const task = (await getTask(id)).data, intent = {action:'cancel',taskId:id,version:task.version}; await cancelTask(id,task.version,keys.get(intent)); keys.done(intent); requested = true; ElMessage.info('已请求停止，请等待实际停止回执。'); await refreshSession() }); return requested }
+async function cancel() { await cancelTerminalTask() }
+async function openTerminal() {
+  if (historical.value || openingTerminal.value || session.sending.value || operation.busy.value || !checkPermi(['paicli:terminal:use'])) return
+  const terminalAttempt = ++terminalGeneration; openingTerminal.value = true; pageError.value = ''
+  try {
+    if (!session.detail.value && !await ensureSession('终端对话',true)) return
+    const targetId = session.detail.value?.id
+    const isCurrent = () => alive && terminalAttempt === terminalGeneration && !!targetId && session.detail.value?.id === targetId
+    for (let attempt = 0; attempt < 20 && currentDirectory.value?.state !== 'VERIFIED'; attempt++) {
+      await new Promise(resolve => setTimeout(resolve,1000)); if (!isCurrent()) return; await session.refresh()
+    }
+    if (!isCurrent()) return
+    await personal.load(); if (!isCurrent()) return
+    if (!personal.context.value?.canOpenTerminal || currentDirectory.value?.state !== 'VERIFIED') {
+      pageError.value = currentDirectory.value?.state !== 'VERIFIED' ? '文件位置尚未完成核对，终端暂不可用；已有对话和草稿保留。' : terminalMessage.value; return
+    }
+    awaitTerminalOpen = true; terminalEnabled.value = true; terminalVisible.value = true; await nextTick()
+    if (isCurrent() && terminalPane.value) { awaitTerminalOpen = false; await terminalPane.value.open() }
+  } catch(cause) { if (alive && terminalAttempt === terminalGeneration) pageError.value = errorText(cause) }
+  finally { if (terminalAttempt === terminalGeneration) openingTerminal.value = false }
+}
+function terminalOpened(id: string) { terminalHasInstance.value = true; initialTerminalId.value = id; void router.replace({query:{...route.query,sessionId:session.detail.value?.id,terminalId:id,view:'terminal'}}) }
+async function changeModel(value: string) { const detail = session.detail.value; if (!detail || historical.value || session.active.value || !checkPermi(['paicli:session:write']) || detail.modelId === value) return; const previous = detail.modelId, intent = {action:'model',sessionId:detail.id,version:detail.version,modelId:value}; await operation.run(async () => { try { await switchModel(detail.id,value,detail.version,keys.get(intent)); keys.done(intent); await refreshSession() } catch(cause) { modelId.value = previous; throw cause } }) }
+async function refreshSession() { try { await session.refresh(); await loadSessions(); void session.subscribe() } catch(cause) { pageError.value = errorText(cause) } }
 async function reconnect() { if (session.streamState.value === 'EXPIRED' && session.detail.value) await session.select(session.detail.value.id); else void session.subscribe() }
 function openApproval(id: string) { approvalId.value = id; approvalOpen.value = true }
-async function loadTools() { await operation.run(async () => { tools.value = (await listTools(workspaceId.value)).data }) }
-onMounted(async () => { await reload(); if (typeof route.query.sessionId === 'string') await chooseSession(route.query.sessionId); firstLoad = false }); onActivated(() => { if (!firstLoad && lastSelectedId) void chooseSession(lastSelectedId) }); onDeactivated(storeDraft)
+async function consumeFileHandoff() {
+  const fileId = route.query.fileId
+  if (typeof fileId !== 'string' || !/^\d+$/.test(fileId)) {
+    if (fileHandoffPending) {
+      const entryPath = route.fullPath, restoreId = typeof route.query.sessionId === 'string' ? route.query.sessionId : lastSelectedId
+      fileHandoffGeneration++; selectionGeneration++; fileHandoffPending = ''
+      // 同页取消也必须使底层选择失效，不能留下旧详情与原草稿混用。
+      session.dispose()
+      if (restoreId) await chooseSession(restoreId,()=>alive && viewActive && route.fullPath === entryPath)
+    }
+    return false
+  }
+  const entryPath = route.fullPath
+  if (fileHandoffPending === entryPath) return true
+  const attempt = ++fileHandoffGeneration
+  fileHandoffPending = ''
+  if (session.sending.value || operation.busy.value || openingTerminal.value) { pageError.value = '当前操作尚未结束，请完成后重新从我的文件选择资料。'; return true }
+  const fileName = typeof route.query.fileName === 'string' ? route.query.fileName : '已选资料'
+  const targetId = typeof route.query.sessionId === 'string' ? route.query.sessionId : lastSelectedId
+  const isCurrent = () => alive && viewActive && attempt === fileHandoffGeneration && route.fullPath === entryPath
+  fileHandoffPending = entryPath
+  try {
+    // 文件页未指定会话时回到原对话；没有原对话则使用当前个人新草稿。
+    // 新路由意图立即替代等待中的旧选择，沿用useSession的取消与代际保护；旧选择不写路由。
+    if (targetId && (targetId !== session.detail.value?.id || !firstLoad) && !await chooseSession(targetId,isCurrent,false)) return true
+    if (!isCurrent() || (targetId && session.detail.value?.id !== targetId)) return true
+    if (!checkPermi(['paicli:session:write']) || historical.value || session.active.value) {
+      pageError.value = historical.value ? '只读历史不能加入资料，请新建对话后重新选择资料。' : session.active.value ? '当前对话正在执行，请等待结束后重新选择资料。' : '当前账号没有发送要求的权限，不能加入资料。'
+    } else {
+      pageError.value = ''
+      if (!selectedFiles.value.some(file => file.id === fileId)) selectedFiles.value = [...selectedFiles.value, {id:fileId,name:fileName}]
+      if (!text.value.trim()) text.value = '分析这份资料，说明关键内容和可以继续处理的事项。'
+      storeDraft()
+    }
+    fileHandoffPending = ''
+    await router.replace({query:{...route.query,sessionId:targetId || undefined,fileId:undefined,fileName:undefined,terminalId:undefined,workspaceId:undefined}})
+    return true
+  } finally { if (attempt === fileHandoffGeneration) fileHandoffPending = '' }
+}
+watch(() => session.detail.value?.directoryContextId, id => { if (session.detail.value) personal.directoryContextId.value = id ?? '' })
+watch(terminalPane, pane=>{if(pane && awaitTerminalOpen){awaitTerminalOpen = false; void pane.open()}})
+watch(() => session.detail.value?.status, () => { void loadSessions() })
+watch(() => [route.query.fileId, route.query.fileName, route.query.sessionId], async () => { if ((!firstLoad || fileHandoffPending) && viewActive && !await consumeFileHandoff() && typeof route.query.sessionId === 'string' && route.query.sessionId !== lastSelectedId) { const entryPath = route.fullPath; await chooseSession(route.query.sessionId,()=>alive && viewActive && route.fullPath === entryPath) } })
+onMounted(async () => { await personal.prepare(); await reload(); firstLoad = false; const entryPath = route.fullPath; if (await consumeFileHandoff()) return; if (typeof route.query.sessionId === 'string') { const terminalId = initialTerminalId.value; if (!await chooseSession(route.query.sessionId,()=>alive && viewActive && route.fullPath === entryPath)) return; initialTerminalId.value = terminalId }; if (alive && viewActive && route.query.view === 'terminal') await openTerminal() })
+onActivated(async () => { viewActive = true; if (!firstLoad && !await consumeFileHandoff()) { const id = typeof route.query.sessionId === 'string' ? route.query.sessionId : lastSelectedId, entryPath = route.fullPath; if (id) await chooseSession(id,()=>alive && viewActive && route.fullPath === entryPath) } }); onDeactivated(() => { viewActive = false; fileHandoffGeneration++; selectionGeneration++; fileHandoffPending = ''; storeDraft(); terminalGeneration++; openingTerminal.value = false; awaitTerminalOpen = false }); onBeforeUnmount(() => { alive = false; viewActive = false; fileHandoffGeneration++; selectionGeneration++; terminalGeneration++; awaitTerminalOpen = false })
+const starters = [{title:'读懂代码',description:'了解结构、入口与业务逻辑',prompt:'分析当前目录的项目结构，说明启动入口和主要业务流程。'},{title:'实现功能',description:'从目标到文件和代码改动',prompt:'我想实现一个功能：\n预期结果：\n请先说明处理范围，再完成实现和检查。'},{title:'排查错误',description:'定位原因，修复并核对结果',prompt:'请帮助定位并修复这个问题：\n复现步骤：\n错误信息：'},{title:'审查改动',description:'检查差异、风险和测试证据',prompt:'审查当前目录的代码改动，指出有依据的问题和需要补充的检查。'}]
 </script>
 

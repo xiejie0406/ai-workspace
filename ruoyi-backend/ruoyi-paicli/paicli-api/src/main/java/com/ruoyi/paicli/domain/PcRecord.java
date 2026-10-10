@@ -4,12 +4,13 @@ import java.time.Instant;
 
 /** 中心资源账本。可索引归属、状态、版本、关联、序号和哈希为列；类型化内容在受限 JSON 中。 */
 public class PcRecord {
-    private Long id, workspaceId, ownerId, parentId, sessionId, runnerId;
+    private Long id, workspaceId, directoryContextId, ownerId, parentId, sessionId, runnerId;
     private String kind, state, uniqueKey, contentHash, payload;
     private long version = 1, sequenceNumber, fencingToken;
     private Instant createdAt, updatedAt, expiresAt;
     public Long getId() { return id; } public void setId(Long v) { id=v; }
     public Long getWorkspaceId() { return workspaceId; } public void setWorkspaceId(Long v) { workspaceId=v; }
+    public Long getDirectoryContextId() { return directoryContextId; } public void setDirectoryContextId(Long v) { directoryContextId=v; }
     public Long getOwnerId() { return ownerId; } public void setOwnerId(Long v) { ownerId=v; }
     public Long getParentId() { return parentId; } public void setParentId(Long v) { parentId=v; }
     public Long getSessionId() { return sessionId; } public void setSessionId(Long v) { sessionId=v; }

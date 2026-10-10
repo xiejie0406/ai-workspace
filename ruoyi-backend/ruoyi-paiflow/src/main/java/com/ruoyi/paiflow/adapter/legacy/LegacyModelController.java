@@ -48,7 +48,11 @@ public class LegacyModelController {
     public LegacyResult<Boolean> delete(@RequestParam long modelId,@RequestParam(required=false) Long spaceId,@RequestParam(required=false) String revision,@RequestHeader(value="space-id",required=false) String space,@RequestHeader(value="If-Match",required=false) String match) {Long selected=scope(space,spaceId);Long expected=ModelController.condition(modelId,revision,match);if(selected==null)models.legacyDefaultDelete(modelId,expected);else models.delete(modelId,selected,expected);return LegacyResult.success(true);}
     @GetMapping("/category-tree")
     public LegacyResult<List<JSONObject>> categories(@RequestHeader(value="space-id",required=false) String space) {Long selected=scope(space,null);return LegacyResult.success(selected==null?models.legacyDefaultCategories():models.categoryTree(selected));}
-    @GetMapping({"/rsa/public-key","/local-model/list","/off-model","/check-model-base"})
+    @GetMapping("/local-model/list")
+    public LegacyResult<List<JSONObject>> localFiles(@RequestHeader(value="space-id",required=false) String space){var values=models.localModelList(scope(space,null));return LegacyResult.success(values.toJavaList(JSONObject.class));}
+    @PostMapping("/local-model/status")
+    public LegacyResult<JSONObject> deploymentStatus(@RequestBody JSONObject body,@RequestHeader(value="space-id",required=false) String space,@RequestHeader(value="If-Match",required=false) String match,HttpServletResponse response){long id=ModelService.positive(body.get("id"),"id");var value=models.refreshDeployment(id,scope(space,body.get("spaceId")),ModelController.condition(id,body.get("revision"),match));ModelController.headers(value,response);return LegacyResult.success(value);}
+    @GetMapping({"/rsa/public-key","/off-model","/check-model-base"})
     public LegacyResult<Void> unavailable(@RequestHeader(value="space-id",required=false) String space) {Long selected=scope(space,null);if(selected==null)models.legacyDefaultUnavailable("原RSA/模型部署目录/下架绑定端口");else models.unavailable(selected,"原RSA/模型部署目录/下架绑定端口");return LegacyResult.success(null);}
     private static Long expected(JSONObject body,String header) {
         if(body.get("id")==null){if(header!=null || body.get("revision")!=null)throw new ServiceException("新建模型不能携带已有版本条件",400);return null;}

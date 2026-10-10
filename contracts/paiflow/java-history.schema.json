@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:java-history:v1",
+  "title": "PaiFlow Java原模型历史开轮与固定快照",
+  "description": "中心按固定节点和可信上游输入冻结旧历史，再保存当前SYSTEM/USER半轮；Worker不能声明会话、轮数或答案。完整回填来自同次已许可模型账本和全部原帧。该契约不证明真实环境已启用或业务已通过。",
+  "$defs": {
+    "OpenRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["leaseId", "attempt", "nodeId"],
+      "properties": {
+        "leaseId": {"type": "string", "minLength": 1, "maxLength": 64},
+        "attempt": {"type": "integer", "minimum": 1},
+        "nodeId": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    },
+    "ChatMessage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "content", "timestamp"],
+      "properties": {
+        "role": {"enum": ["SYSTEM", "USER", "ASSISTANT", "THINKING"]},
+        "content": {"type": "string"},
+        "timestamp": {"type": "integer", "minimum": 0}
+      }
+    },
+    "ChatItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chatId", "nodeId", "userInputs", "llmThinking", "llmResponses"],
+      "properties": {
+        "chatId": {"type": "string", "maxLength": 128},
+        "nodeId": {"type": "string", "minLength": 1, "maxLength": 255},
+        "userInputs": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/ChatMessage"}, {"properties": {"role": {"enum": ["SYSTEM", "USER"]}}}]}},
+        "llmThinking": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/ChatMessage"}, {"properties": {"role": {"const": "THINKING"}}}]}},
+        "llmResponses": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/ChatMessage"}, {"properties": {"role": {"const": "ASSISTANT"}}}]}}
+      }
+    },
+    "History": {"type": "array", "maxItems": 10, "items": {"$ref": "#/$defs/ChatItem"}},
+    "Snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "leaseId", "attempt", "nodeId", "engineProfile", "spaceId", "workflowId", "ownerUserId", "workflowVersionId", "dslHash", "appId", "chatId", "history", "messages", "inputHash"],
+      "properties": {
+        "runId": {"type": "string", "minLength": 1},
+        "leaseId": {"type": "string", "minLength": 1, "maxLength": 64},
+        "attempt": {"type": "integer", "minimum": 1},
+        "nodeId": {"type": "string", "minLength": 1, "maxLength": 255},
+        "engineProfile": {"const": "java"},
+        "spaceId": {"type": "integer", "minimum": 0},
+        "workflowId": {"type": "integer", "minimum": 1},
+        "ownerUserId": {"type": "integer", "minimum": 1},
+        "workflowVersionId": {"type": "integer", "minimum": 1},
+        "dslHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "appId": {"type": "string", "minLength": 1},
+        "chatId": {"type": "string", "maxLength": 128},
+        "history": {"$ref": "#/$defs/History"},
+        "messages": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["role", "content"], "properties": {"role": {"enum": ["system", "user", "assistant"]}, "content": {"type": "string"}}}},
+        "inputHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "OpenAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "nodeId", "runId", "leaseId", "attempt", "chatId", "historyRef", "historyHash", "history", "snapshot"],
+      "properties": {
+        "kind": {"const": "conversation-history"},
+        "nodeId": {"type": "string", "minLength": 1, "maxLength": 255},
+        "runId": {"type": "string", "minLength": 1},
+        "leaseId": {"type": "string", "minLength": 1, "maxLength": 64},
+        "attempt": {"type": "integer", "minimum": 1},
+        "chatId": {"type": "string", "maxLength": 128},
+        "historyRef": {"type": "string", "pattern": "^[1-9][0-9]*$"},
+        "historyHash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "history": {"$ref": "#/$defs/History"},
+        "snapshot": {"$ref": "#/$defs/Snapshot"}
+      },
+      "$comment": "字段相等关系由Worker和中心实际校核：顶层绑定与snapshot一致，history逐值一致，historyHash为中心V2递归键排序、WriteMapNullValue JSON UTF8 SHA256。完整资源响应最多1800KiB；首次超限事务回滚，不能截断历史。"
+    }
+  }
+}

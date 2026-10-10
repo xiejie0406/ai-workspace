@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { baseURL } from '@/utils/http';
+import type { TemplateVariableOption } from '@/components/workflow/types';
 
 export const getFixedUrl = (path: string): string => {
   return `${baseURL}${path}`;
@@ -55,7 +56,7 @@ export const handleFlowExport = (currentFlow: unknown): void => {
   });
 };
 
-export const findPathToNode = (tree, key, path = []): unknown => {
+export const findPathToNode = (tree: readonly TemplateVariableOption[], key: string, path: string[] = []): string[] | null => {
   for (const node of tree) {
     const label =
       node?.type === 'array-object' ? node?.label + '[0]' : node?.label;
@@ -73,7 +74,7 @@ export const findPathToNode = (tree, key, path = []): unknown => {
   return null;
 };
 
-export const findNodeByKey = (data, key): unknown => {
+export const findNodeByKey = <T extends { id?: string; children?: T[] }>(data: readonly T[], key: string): T | null => {
   for (const node of data) {
     if (node.id === key) {
       return node;
@@ -226,7 +227,7 @@ export const handleReplaceSpan = (isComposingRef): void => {
   }
 };
 
-export const findNodeByValue = (value, nodes): unknown | null => {
+export const findNodeByValue = <T extends { value?: string; children?: T[]; references?: T[] }>(value: string | undefined, nodes: readonly T[]): (T & { id: string }) | null => {
   for (const node of nodes) {
     // 检查当前节点的值是否匹配
     if (node.value === value) {

@@ -127,7 +127,9 @@ public class CheckpointService {
         var value=new CheckpointRecord();value.setId(UUID.randomUUID().toString());value.setRunId(runId);value.setLeaseId(leaseId);value.setAttempt(attempt);
         value.setNodeId(nodeId);value.setIterationId(iterationId);value.setOrdinal((int)ordinal);value.setNeedReply(body.getBooleanValue("needReply")?1:0);
         value.setState("WAITING");value.setRequestKey(requestKey);value.setRequestHash(hash);value.setQuestionJson(RunJsonBoundary.canonical(body.getJSONObject("question")));value.setRevision(0L);
-        var until=now().plusSeconds(timeout);value.setDeadline(until.isBefore(run.getDeadline())?until:run.getDeadline());
+        var until=now().plusSeconds(timeout);
+        // 正式deadline列为DATETIME(6)；创建ACK与Mapper回读必须是同一时刻/字符串。
+        value.setDeadline((until.isBefore(run.getDeadline())?until:run.getDeadline()).truncatedTo(java.time.temporal.ChronoUnit.MICROS));
         if(checkpoints.insert(value)!=1)throw new ServiceException("检查点保存失败",500);return view(value);
     }
     @Transactional(rollbackFor=Exception.class,isolation=Isolation.READ_COMMITTED)

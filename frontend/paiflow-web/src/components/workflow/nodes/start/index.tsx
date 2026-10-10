@@ -2,8 +2,9 @@ import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import OutputParams from '@/components/workflow/nodes/components/outputs';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
+import type { InputsProps } from '@/components/workflow/types';
 
-export const StartDetail = memo(props => {
+export const StartDetail = memo((props: Pick<InputsProps, 'id' | 'data'>) => {
   const { id, data } = props;
   const { isIteratorStart } = useNodeCommon({ id, data });
   const { t } = useTranslation();

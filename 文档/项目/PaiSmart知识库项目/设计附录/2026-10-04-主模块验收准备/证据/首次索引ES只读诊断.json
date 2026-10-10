@@ -1,0 +1,112 @@
+{
+  "checkedAt": "2026-10-04T22:56:15.453255+08:00",
+  "readonly": true,
+  "tlsVerifiedWithExistingCA": true,
+  "scope": "限定本次首次索引和正式别名的只读诊断，沿用ES本机服务现有SSL校验",
+  "results": [
+    {
+      "path": "/paismart-knowledge-9bf596a5-456b-4c36-8084-67e3808e9b06",
+      "http": 200,
+      "response": {
+        "paismart-knowledge-9bf596a5-456b-4c36-8084-67e3808e9b06": {
+          "aliases": {},
+          "mappings": {
+            "_meta": {
+              "indexRevision": "9bf596a5-456b-4c36-8084-67e3808e9b06",
+              "project": "paismart",
+              "model": "text-embedding-v4",
+              "dimension": 1024,
+              "providerRevision": 3,
+              "providerId": "cf912fc1-59b1-4e3b-b89c-ef6317cad8f7"
+            },
+            "properties": {
+              "content_version": {
+                "type": "integer"
+              },
+              "document_id": {
+                "type": "keyword"
+              },
+              "embedding": {
+                "type": "dense_vector",
+                "dims": 1024,
+                "index": true,
+                "similarity": "cosine",
+                "index_options": {
+                  "type": "bbq_hnsw",
+                  "m": 16,
+                  "ef_construction": 100,
+                  "rescore_vector": {
+                    "oversample": 3.0
+                  }
+                }
+              },
+              "embedding_revision": {
+                "type": "keyword"
+              },
+              "owner_id": {
+                "type": "long"
+              },
+              "search_text": {
+                "type": "text",
+                "analyzer": "standard"
+              },
+              "space_id": {
+                "type": "keyword"
+              },
+              "state": {
+                "type": "keyword"
+              },
+              "text_content": {
+                "type": "text",
+                "analyzer": "standard"
+              },
+              "visibility": {
+                "type": "keyword"
+              }
+            }
+          },
+          "settings": {
+            "index": {
+              "routing": {
+                "allocation": {
+                  "include": {
+                    "_tier_preference": "data_content"
+                  }
+                }
+              },
+              "number_of_shards": "1",
+              "provided_name": "paismart-knowledge-9bf596a5-456b-4c36-8084-67e3808e9b06",
+              "creation_date": "1791125450134",
+              "number_of_replicas": "1",
+              "uuid": "sSoP2JlBRqOX3hAyayIqvA",
+              "version": {
+                "created": "9060000"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "/paismart-knowledge-9bf596a5-456b-4c36-8084-67e3808e9b06/_count",
+      "http": 200,
+      "response": {
+        "count": 0,
+        "_shards": {
+          "total": 1,
+          "successful": 1,
+          "skipped": 0,
+          "failed": 0
+        }
+      }
+    },
+    {
+      "path": "/_alias/paismart-knowledge",
+      "http": 404,
+      "response": {
+        "error": "alias [paismart-knowledge] missing",
+        "status": 404
+      }
+    }
+  ]
+}

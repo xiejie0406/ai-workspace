@@ -1,0 +1,489 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://paicli.local/contracts/terminal-v1.schema.json",
+  "title": "PaiCLI 网页原终端双向协议 v1",
+  "description": "浏览器只显示Runner托管的原CLI。outputSeq为逐帧+1，bytes为UTF8实际字节。平台JWT不进入Runner或CLI。首尾完整VT回放不执行命令。",
+  "type": "object",
+  "required": [
+    "type"
+  ],
+  "properties": {
+    "type": {
+      "enum": [
+        "HOST_HELLO",
+        "START",
+        "READY",
+        "INPUT",
+        "INPUT_ACK",
+        "INPUT_REJECTED",
+        "OUTPUT",
+        "OUTPUT_ACK",
+        "RESIZE",
+        "STOP",
+        "EXIT",
+        "FAILURE",
+        "CAPABILITY",
+        "RENEW",
+        "REPLAY",
+        "REPLAY_COMPLETE",
+        "HELLO",
+        "REPLAY_START",
+        "REPLAY_END",
+        "STATE",
+        "ATTACHMENT_REQUEST",
+        "PING",
+        "PONG",
+        "ERROR",
+        "AUTHORIZATION_REQUEST",
+        "EXPORT_READY"
+      ]
+    },
+    "terminalId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$"
+    },
+    "sessionId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$"
+    },
+    "workspaceId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$"
+    },
+    "runnerId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$"
+    },
+    "hostEpoch": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "writerEpoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "inputSeq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "outputSeq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "afterOutputSeq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65536
+    },
+    "data": {
+      "type": "string"
+    },
+    "encoding": {
+      "enum": [
+        "utf8",
+        "base64"
+      ]
+    },
+    "dataBase64": {
+      "type": "string",
+      "maxLength": 22000,
+      "contentEncoding": "base64"
+    },
+    "cols": {
+      "type": "integer",
+      "minimum": 20,
+      "maximum": 400
+    },
+    "rows": {
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 120
+    },
+    "renderer": {
+      "enum": [
+        "inline",
+        "lanterna",
+        "plain"
+      ]
+    },
+    "startNonce": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 128
+    },
+    "bootId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "capabilityToken": {
+      "type": "string",
+      "pattern": "^pctc_[A-Za-z0-9_-]{43}$"
+    },
+    "capabilityExpiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "requestId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "canWrite": {
+      "type": "boolean"
+    },
+    "state": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "ownerId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$",
+      "description": "仅中心生成可信终端创建者；Runner按ownerId+workspaceId隔离持久输入历史"
+    },
+    "operation": {
+      "enum": [
+        "SNAPSHOT_CLEAN_ALL",
+        "APPROVAL_DECISION",
+        "TASK_LOG",
+        "TASK_CANCEL"
+      ]
+    },
+    "permission": {
+      "type": "string"
+    },
+    "taskId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$"
+    },
+    "taskSessionId": {
+      "type": "string",
+      "description": "原任务会话ID；原无会话CONTROL任务为null字符串"
+    },
+    "taskVersion": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "preview": {
+      "type": "object"
+    },
+    "frozenTargets": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "required": [
+          "workspaceId",
+          "workspaceVersion",
+          "workspaceState",
+          "status"
+        ],
+        "properties": {
+          "workspaceId": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$"
+          },
+          "workspaceVersion": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "workspaceName": {
+            "type": "string"
+          },
+          "workspaceState": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "READY",
+              "BLOCKED"
+            ]
+          },
+          "runnerId": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$"
+          },
+          "runnerConfigurationHash": {
+            "type": "string"
+          },
+          "rootFingerprint": {},
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "enum": [
+              "START",
+              "READY",
+              "INPUT",
+              "INPUT_ACK",
+              "INPUT_REJECTED",
+              "OUTPUT",
+              "OUTPUT_ACK",
+              "RESIZE",
+              "STOP",
+              "EXIT",
+              "FAILURE",
+              "CAPABILITY",
+              "RENEW",
+              "REPLAY",
+              "REPLAY_COMPLETE",
+              "REPLAY_START",
+              "REPLAY_END",
+              "STATE",
+              "ATTACHMENT_REQUEST",
+              "AUTHORIZATION_REQUEST",
+              "EXPORT_READY"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "terminalId",
+          "hostEpoch"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "INPUT"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "writerEpoch",
+          "inputSeq"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "data"
+            ],
+            "not": {
+              "required": [
+                "dataBase64"
+              ]
+            }
+          },
+          {
+            "required": [
+              "dataBase64",
+              "encoding"
+            ],
+            "properties": {
+              "encoding": {
+                "const": "base64"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "OUTPUT"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "outputSeq",
+          "data"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "enum": [
+              "OUTPUT_ACK",
+              "REPLAY_END",
+              "REPLAY_COMPLETE"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "outputSeq"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "START"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "sessionId",
+          "workspaceId",
+          "runnerId",
+          "renderer",
+          "cols",
+          "rows",
+          "startNonce",
+          "capabilityToken",
+          "capabilityExpiresAt",
+          "ownerId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "RESIZE"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "cols",
+          "rows"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "ATTACHMENT_REQUEST"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "requestId",
+          "writerEpoch"
+        ]
+      }
+    }
+  ],
+  "x-rest": {
+    "create": "POST /paicli/v1/terminals {sessionId,renderer,cols,rows}",
+    "read": "GET /paicli/v1/terminals/{id}",
+    "ticket": "POST /paicli/v1/terminals/{id}/tickets {clientId}",
+    "claim": "POST /paicli/v1/terminals/{id}/claim {clientId,expectedWriterEpoch}",
+    "stop": "POST /paicli/v1/terminals/{id}/stop {cancelTask:false}",
+    "attachments": "POST /paicli/v1/terminals/{id}/attachments {clientId,writerEpoch,requestId,state,artifactIds}",
+    "authorizations": "POST /paicli/v1/terminals/{id}/authorizations {clientId,writerEpoch,requestId,decision:APPROVE|REJECT}"
+  },
+  "x-auth": {
+    "browser": "WS /paicli/v1/terminal-stream; Sec-WebSocket-Protocol: paicli-terminal, paicli-ticket.<单次30秒票据>; exact Origin whitelist; 原若依登录每帧重核",
+    "runner": "WS /paicli/runner/v1/terminal-stream; X-PaiCLI-Runner-Token; 原SESSION用途; 每帧重核撤销/账号/工作区",
+    "cli": "POST /paicli/terminal-client/v1/gateway; X-PaiCLI-Terminal-Capability; body {op,params}; 90秒单terminal/session委托; 响应AjaxResult.data",
+    "permissions": [
+      "paicli:terminal:read",
+      "paicli:terminal:use"
+    ]
+  },
+  "x-cli-operations": [
+    "open",
+    "submit",
+    "command",
+    "events",
+    "taskEvents",
+    "cancel",
+    "readLedger",
+    "readArtifactText",
+    "attachmentRequest",
+    "attachmentPoll",
+    "attachmentCancel",
+    "attachmentContent",
+    "authorizationPoll",
+    "authorizationCancel",
+    "readExportSection",
+    "exportPublish",
+    "taskLog",
+    "readTaskArtifactText"
+  ],
+  "x-replay": "HELLO(reset:true,afterOutputSeq:0) => REPLAY_START => 有序OUTPUT/OUTPUT_ACK => REPLAY_END。回放期间输入和自动DSR应答关闭。断线不重发未确认INPUT。",
+  "x-resource-limits": {
+    "exportSingleBytes": 16777216,
+    "outputBytes": 16777216,
+    "turnAttachments": 10,
+    "inputBytes": 16384,
+    "outputFrames": 65536,
+    "outputChunkBytes": 65536,
+    "exportTotalBytes": 25165824,
+    "browserAttachments": 8,
+    "activeGlobalDefault": 32,
+    "activeGlobalConfigRange": [
+      1,
+      128
+    ],
+    "endedReplayGlobal": 32,
+    "endedReplayPerOwner": 8,
+    "associatedTasks": 128,
+    "pendingRequestTtlSeconds": 300,
+    "completedRequestsPerType": 64,
+    "storedRequestsPerType": 128,
+    "completedRequestTtlSeconds": 600,
+    "outboundConnections": 128,
+    "outboundQueueFrames": 128,
+    "outboundQueueBytes": 524288,
+    "socketSendTimeoutMillis": 5000
+  },
+  "x-authorizations": {
+    "operations": [
+      "SNAPSHOT_CLEAN_ALL",
+      "APPROVAL_DECISION",
+      "TASK_LOG",
+      "TASK_CANCEL"
+    ],
+    "approvalPreviewFields": [
+      "preview",
+      "approvalId",
+      "workspaceId",
+      "version",
+      "decision",
+      "feedback",
+      "revisedArguments",
+      "inputHash"
+    ],
+    "singleUse": "冻结参数；原JWT主动确认执行原服务；CLI能力只轮询结果，绑定创建的关联任务",
+    "taskPreviewFields": [
+      "permission",
+      "taskId",
+      "taskSessionId",
+      "taskVersion",
+      "preview"
+    ],
+    "snapshotPreviewFields": [
+      "frozenTargets",
+      "workspaceId",
+      "workspaceVersion",
+      "runnerId",
+      "runnerConfigurationHash",
+      "rootFingerprint",
+      "status",
+      "reason"
+    ],
+    "taskScope": "TASK_LOG只授予该任务日志与正文读取；控制路径仅绑定会话或本终端创建任务，其他本人同工作区任务取消每次须独立TASK_CANCEL网页JWT确认；任意跨workspace任务拒绝。"
+  },
+  "x-input-confirmation": "ACK/REJECTED须当前writerEpoch且1<=inputSeq<=已转发inputSeq；REJECTED禁写且不重发，核账本后重开；重复OUTPUT须内容相同，0/负数及不连续序号拒绝",
+  "x-request-expiry": "附件PENDING/READY及授权PENDING满5分钟成为EXPIRED并明确返回；执行中授权不丢弃，完成记录最多64条，超过128条拒绝创建429。"
+}

@@ -6,10 +6,10 @@ from typing import Any, cast
 import aiohttp
 from pydantic import BaseModel, Field
 
-from common_imports import Span
-from exceptions.plugin_exc import GetMcpPluginExc, RunMcpPluginExc
-from infra import agent_config
-from service.plugin.base import BasePlugin, PluginResponse
+from agent.common_imports import Span
+from agent.exceptions.plugin_exc import GetMcpPluginExc, RunMcpPluginExc
+from agent.infra import agent_config
+from agent.service.plugin.base import BasePlugin, PluginResponse
 
 
 class McpPlugin(BasePlugin):

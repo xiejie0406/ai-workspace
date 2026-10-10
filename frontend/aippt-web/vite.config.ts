@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  cacheDir: process.env.PROJECT_VITE_CACHE_DIR || 'node_modules/.vite',
   base: '/aippt-web/',
   plugins: [react(), tailwindcss()],
   resolve: {

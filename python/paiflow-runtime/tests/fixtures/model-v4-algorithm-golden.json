@@ -1,0 +1,4662 @@
+{
+  "scope": "actual original algorithm after whole assignment sorted JSON parse; isolated model/checkpoint fixtures",
+  "cases": [
+    {
+      "name": "pe-prompt-xinghuo",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "extractor-parameter::model"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "extractor-parameter::model",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "extractor-parameter::model",
+                "nodeType": "extractor-parameter"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "modelResourceId": "model-1",
+                "reasonMode": 1,
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "extractor-parameter::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "content": {
+                        "name": "answer",
+                        "nodeId": "extractor-parameter::model"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "node-end::e"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n真实算法输入\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-prompt-xinghuo",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "reasonMode": 1,
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n### 工作职责描述\n    你是一个文本分类引擎，需要分析文本数据，并根据用户的输入和分类的描述认真思考并确定分配类别。\n\n### 任务\n    你的任务是只给输入文本分配一个类别，并且只能在输出中返回一个类别。此外，您需要从文本中提取与分类相关的关键字，若完全没有相关性可以为空。\n\n### 输入格式\n    输入文本在变量input_text中。类别是一个列表，变量Categories中包含字段category_id、category_name、category_desc。严格按照分类说明认真思考，以提高分类精度。\n\n### 历史记忆\n    这是人类和助手之间的聊天历史记录，在<histories></histories> XML标签中。\n\n    <histories>\n        \n    </histories>\n\n### 约束\n    不要在响应中包含JSON数组以外的任何内容。\n\n### 输出格式\n    ```json\n{\"category_name\": \"\"}\n```\n\n### 以下是需要分析的文本数据\n    {\"input_text\": \"真实算法输入\", \"categories\": [{\"category_id\": \"intent-one-of::accept\", \"category_name\": \"accept\", \"category_desc\": \"Accept intent\"}, {\"category_id\": \"intent-one-of::default\", \"category_name\": \"DEFAULT\", \"category_desc\": \"Default intent when no other intent matches\"}], \"classification_instructions\": [\"classify {{question}}\"]}\n\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-prompt-object-xinghuo",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "object",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": {
+          "a": 2,
+          "z": 1
+        }
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "object",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "reasonMode": 1,
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n### 工作职责描述\n    你是一个文本分类引擎，需要分析文本数据，并根据用户的输入和分类的描述认真思考并确定分配类别。\n\n### 任务\n    你的任务是只给输入文本分配一个类别，并且只能在输出中返回一个类别。此外，您需要从文本中提取与分类相关的关键字，若完全没有相关性可以为空。\n\n### 输入格式\n    输入文本在变量input_text中。类别是一个列表，变量Categories中包含字段category_id、category_name、category_desc。严格按照分类说明认真思考，以提高分类精度。\n\n### 历史记忆\n    这是人类和助手之间的聊天历史记录，在<histories></histories> XML标签中。\n\n    <histories>\n        \n    </histories>\n\n### 约束\n    不要在响应中包含JSON数组以外的任何内容。\n\n### 输出格式\n    ```json\n{\"category_name\": \"\"}\n```\n\n### 以下是需要分析的文本数据\n    {\"input_text\": \"{'a': 2, 'z': 1}\", \"categories\": [{\"category_id\": \"intent-one-of::accept\", \"category_name\": \"accept\", \"category_desc\": \"Accept intent\"}, {\"category_id\": \"intent-one-of::default\", \"category_name\": \"DEFAULT\", \"category_desc\": \"Default intent when no other intent matches\"}], \"classification_instructions\": [\"classify {{question}}\"]}\n\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-normal-xinghuo",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}",
+          "useFunctionCall": false
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}",
+                "useFunctionCall": false
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "classify {{question}}\n现提供如下候选插件，插件的名称和使用描述均已给出\n\n<< 候选插件 >>\naccept: Accept intent\n\n你需要根据用户的输入和插件的使用描述认真思考需要使用哪个插件，当没有合适插件，使用 DEFAULT 值，并将思考的结果按照如下格式输出\n\n<< 输出格式 >>\n输出的格式必须是markdown模式下的一段json代码\n```json\n{\n    \"destination\": string  \\  必须是候选插件名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n    \"next_inputs\": string  \\  必须是用户的输入\n}\n```\n请注意：\n1、\"destination\" 的值必须是候选插件的名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n2、\"next_inputs\" 的值必须是用户的输入内容\n\n<< 用户输入 >>\n真实算法输入\n\n<< OUTPUT (你的回复必须以```json开始) >>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-normal-object-xinghuo",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "object",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}",
+          "useFunctionCall": false
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": {
+          "a": 2,
+          "z": 1
+        }
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "object",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}",
+                "useFunctionCall": false
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "classify {{question}}\n现提供如下候选插件，插件的名称和使用描述均已给出\n\n<< 候选插件 >>\naccept: Accept intent\n\n你需要根据用户的输入和插件的使用描述认真思考需要使用哪个插件，当没有合适插件，使用 DEFAULT 值，并将思考的结果按照如下格式输出\n\n<< 输出格式 >>\n输出的格式必须是markdown模式下的一段json代码\n```json\n{\n    \"destination\": string  \\  必须是候选插件名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n    \"next_inputs\": string  \\  必须是用户的输入\n}\n```\n请注意：\n1、\"destination\" 的值必须是候选插件的名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n2、\"next_inputs\" 的值必须是用户的输入内容\n\n<< 用户输入 >>\n{'a': 2, 'z': 1}\n\n<< OUTPUT (你的回复必须以```json开始) >>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-prompt-custom-xinghuo",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "fc_schema_params": {
+            "description": "自定义多字段",
+            "properties": {
+              "a_custom": {
+                "description": "首字段",
+                "type": "integer"
+              },
+              "z_custom": {
+                "description": "末字段",
+                "type": "string"
+              }
+            },
+            "required": [
+              "z_custom",
+              "a_custom"
+            ],
+            "type": "object"
+          },
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "extractor-parameter::model"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "extractor-parameter::model",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "extractor-parameter::model",
+                "nodeType": "extractor-parameter"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "fc_schema_params": {
+                  "description": "自定义多字段",
+                  "properties": {
+                    "a_custom": {
+                      "description": "首字段",
+                      "type": "integer"
+                    },
+                    "z_custom": {
+                      "description": "末字段",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "z_custom",
+                    "a_custom"
+                  ],
+                  "type": "object"
+                },
+                "modelResourceId": "model-1",
+                "reasonMode": 1,
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "extractor-parameter::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "content": {
+                        "name": "answer",
+                        "nodeId": "extractor-parameter::model"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "node-end::e"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"description\": \"自定义多字段\", \"properties\": {\"a_custom\": {\"description\": \"首字段\", \"type\": \"integer\"}, \"z_custom\": {\"description\": \"末字段\", \"type\": \"string\"}, \"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"z_custom\", \"a_custom\", \"answer\"], \"type\": \"object\"}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n真实算法输入\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-prompt-openai",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "openai",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "extractor-parameter::model"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "extractor-parameter::model",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "extractor-parameter::model",
+                "nodeType": "extractor-parameter"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "modelResourceId": "model-1",
+                "reasonMode": 1,
+                "source": "openai",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "extractor-parameter::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "content": {
+                        "name": "answer",
+                        "nodeId": "extractor-parameter::model"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "node-end::e"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "openai",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n真实算法输入\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-prompt-openai",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "reasonMode": 1,
+          "source": "openai",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "reasonMode": 1,
+                "source": "openai",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "openai",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n### 工作职责描述\n    你是一个文本分类引擎，需要分析文本数据，并根据用户的输入和分类的描述认真思考并确定分配类别。\n\n### 任务\n    你的任务是只给输入文本分配一个类别，并且只能在输出中返回一个类别。此外，您需要从文本中提取与分类相关的关键字，若完全没有相关性可以为空。\n\n### 输入格式\n    输入文本在变量input_text中。类别是一个列表，变量Categories中包含字段category_id、category_name、category_desc。严格按照分类说明认真思考，以提高分类精度。\n\n### 历史记忆\n    这是人类和助手之间的聊天历史记录，在<histories></histories> XML标签中。\n\n    <histories>\n        \n    </histories>\n\n### 约束\n    不要在响应中包含JSON数组以外的任何内容。\n\n### 输出格式\n    ```json\n{\"category_name\": \"\"}\n```\n\n### 以下是需要分析的文本数据\n    {\"input_text\": \"真实算法输入\", \"categories\": [{\"category_id\": \"intent-one-of::accept\", \"category_name\": \"accept\", \"category_desc\": \"Accept intent\"}, {\"category_id\": \"intent-one-of::default\", \"category_name\": \"DEFAULT\", \"category_desc\": \"Default intent when no other intent matches\"}], \"classification_instructions\": [\"classify {{question}}\"]}\n\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-prompt-object-openai",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "object",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "reasonMode": 1,
+          "source": "openai",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": {
+          "a": 2,
+          "z": 1
+        }
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "object",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "reasonMode": 1,
+                "source": "openai",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "openai",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n### 工作职责描述\n    你是一个文本分类引擎，需要分析文本数据，并根据用户的输入和分类的描述认真思考并确定分配类别。\n\n### 任务\n    你的任务是只给输入文本分配一个类别，并且只能在输出中返回一个类别。此外，您需要从文本中提取与分类相关的关键字，若完全没有相关性可以为空。\n\n### 输入格式\n    输入文本在变量input_text中。类别是一个列表，变量Categories中包含字段category_id、category_name、category_desc。严格按照分类说明认真思考，以提高分类精度。\n\n### 历史记忆\n    这是人类和助手之间的聊天历史记录，在<histories></histories> XML标签中。\n\n    <histories>\n        \n    </histories>\n\n### 约束\n    不要在响应中包含JSON数组以外的任何内容。\n\n### 输出格式\n    ```json\n{\"category_name\": \"\"}\n```\n\n### 以下是需要分析的文本数据\n    {\"input_text\": \"{'a': 2, 'z': 1}\", \"categories\": [{\"category_id\": \"intent-one-of::accept\", \"category_name\": \"accept\", \"category_desc\": \"Accept intent\"}, {\"category_id\": \"intent-one-of::default\", \"category_name\": \"DEFAULT\", \"category_desc\": \"Default intent when no other intent matches\"}], \"classification_instructions\": [\"classify {{question}}\"]}\n\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-normal-openai",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "source": "openai",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}",
+          "useFunctionCall": false
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "source": "openai",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}",
+                "useFunctionCall": false
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "openai",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "classify {{question}}\n现提供如下候选插件，插件的名称和使用描述均已给出\n\n<< 候选插件 >>\naccept: Accept intent\n\n你需要根据用户的输入和插件的使用描述认真思考需要使用哪个插件，当没有合适插件，使用 DEFAULT 值，并将思考的结果按照如下格式输出\n\n<< 输出格式 >>\n输出的格式必须是markdown模式下的一段json代码\n```json\n{\n    \"destination\": string  \\  必须是候选插件名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n    \"next_inputs\": string  \\  必须是用户的输入\n}\n```\n请注意：\n1、\"destination\" 的值必须是候选插件的名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n2、\"next_inputs\" 的值必须是用户的输入内容\n\n<< 用户输入 >>\n真实算法输入\n\n<< OUTPUT (你的回复必须以```json开始) >>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-normal-object-openai",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "object",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "source": "openai",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}",
+          "useFunctionCall": false
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": {
+          "a": 2,
+          "z": 1
+        }
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "object",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "source": "openai",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}",
+                "useFunctionCall": false
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "openai",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "classify {{question}}\n现提供如下候选插件，插件的名称和使用描述均已给出\n\n<< 候选插件 >>\naccept: Accept intent\n\n你需要根据用户的输入和插件的使用描述认真思考需要使用哪个插件，当没有合适插件，使用 DEFAULT 值，并将思考的结果按照如下格式输出\n\n<< 输出格式 >>\n输出的格式必须是markdown模式下的一段json代码\n```json\n{\n    \"destination\": string  \\  必须是候选插件名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n    \"next_inputs\": string  \\  必须是用户的输入\n}\n```\n请注意：\n1、\"destination\" 的值必须是候选插件的名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n2、\"next_inputs\" 的值必须是用户的输入内容\n\n<< 用户输入 >>\n{'a': 2, 'z': 1}\n\n<< OUTPUT (你的回复必须以```json开始) >>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-prompt-custom-openai",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "fc_schema_params": {
+            "description": "自定义多字段",
+            "properties": {
+              "a_custom": {
+                "description": "首字段",
+                "type": "integer"
+              },
+              "z_custom": {
+                "description": "末字段",
+                "type": "string"
+              }
+            },
+            "required": [
+              "z_custom",
+              "a_custom"
+            ],
+            "type": "object"
+          },
+          "modelResourceId": "model-1",
+          "reasonMode": 1,
+          "source": "openai",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "extractor-parameter::model"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "extractor-parameter::model",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "extractor-parameter::model",
+                "nodeType": "extractor-parameter"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "fc_schema_params": {
+                  "description": "自定义多字段",
+                  "properties": {
+                    "a_custom": {
+                      "description": "首字段",
+                      "type": "integer"
+                    },
+                    "z_custom": {
+                      "description": "末字段",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "z_custom",
+                    "a_custom"
+                  ],
+                  "type": "object"
+                },
+                "modelResourceId": "model-1",
+                "reasonMode": 1,
+                "source": "openai",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "extractor-parameter::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "content": {
+                        "name": "answer",
+                        "nodeId": "extractor-parameter::model"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "node-end::e"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "openai",
+        "modelName": "model-fixture",
+        "mode": "chat",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"description\": \"自定义多字段\", \"properties\": {\"a_custom\": {\"description\": \"首字段\", \"type\": \"integer\"}, \"z_custom\": {\"description\": \"末字段\", \"type\": \"string\"}, \"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"z_custom\", \"a_custom\", \"answer\"], \"type\": \"object\"}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n真实算法输入\n</text>\n"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {}
+        },
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-fc-default",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "extractor-parameter::model"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "extractor-parameter::model",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "extractor-parameter::model",
+                "nodeType": "extractor-parameter"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "modelResourceId": "model-1",
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "extractor-parameter::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "content": {
+                        "name": "answer",
+                        "nodeId": "extractor-parameter::model"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "node-end::e"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "function_call",
+        "messages": [
+          {
+            "role": "user",
+            "content": "真实算法输入"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {},
+          "questionType": "not_knowledge",
+          "functionChoice": "extractor_parameter"
+        },
+        "functions": [
+          {
+            "name": "extractor_parameter",
+            "description": "Extract corresponding parameters based on user's question",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "integer",
+                  "description": null
+                }
+              },
+              "required": [
+                "answer"
+              ]
+            }
+          }
+        ],
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 11
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-fc-default",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "function_call",
+        "messages": [
+          {
+            "role": "user",
+            "content": "classify 真实算法输入"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {},
+          "questionType": "not_knowledge",
+          "functionChoice": ""
+        },
+        "functions": [
+          {
+            "name": "accept",
+            "description": "Accept intent",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "next_inputs": {
+                  "type": "string",
+                  "description": "User input content"
+                }
+              },
+              "required": [
+                "next_inputs"
+              ]
+            }
+          },
+          {
+            "name": "fallback",
+            "description": "Default intent",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "next_inputs": {
+                  "type": "string",
+                  "description": "User input content"
+                }
+              },
+              "required": [
+                "next_inputs"
+              ]
+            }
+          }
+        ],
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "pe-fc-custom",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "extractor-parameter::model",
+          "nodeType": "extractor-parameter"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "fc_schema_params": {
+            "properties": {
+              "tag": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tag"
+            ],
+            "type": "object"
+          },
+          "modelResourceId": "model-1",
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "extractor-parameter::model"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "extractor-parameter::model",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "extractor-parameter::model",
+                "nodeType": "extractor-parameter"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "fc_schema_params": {
+                  "properties": {
+                    "tag": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "tag"
+                  ],
+                  "type": "object"
+                },
+                "modelResourceId": "model-1",
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "extractor-parameter::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "answer",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "content": {
+                        "name": "answer",
+                        "nodeId": "extractor-parameter::model"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "node-end::e"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "function_call",
+        "messages": [
+          {
+            "role": "user",
+            "content": "真实算法输入"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {},
+          "questionType": "not_knowledge",
+          "functionChoice": "extractor_parameter"
+        },
+        "functions": [
+          {
+            "name": "extractor_parameter",
+            "description": "Extract corresponding parameters based on user's question",
+            "parameters": {
+              "properties": {
+                "tag": {
+                  "type": "string"
+                },
+                "answer": {
+                  "type": "integer",
+                  "description": null
+                }
+              },
+              "required": [
+                "tag",
+                "answer"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "answer": 11
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "decision-fc-custom",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "decision-making::model",
+          "nodeType": "decision-making"
+        },
+        "nodeParam": {
+          "appId": "legacy-label",
+          "domain": "model-fixture",
+          "fs_params": {
+            "properties": {
+              "scope": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "scope"
+            ],
+            "type": "object"
+          },
+          "intentChains": [
+            {
+              "description": "Accept intent",
+              "id": "intent-one-of::accept",
+              "intentType": 2,
+              "name": "accept"
+            },
+            {
+              "description": "Default intent",
+              "id": "intent-one-of::default",
+              "intentType": 1,
+              "name": "fallback"
+            }
+          ],
+          "modelResourceId": "model-1",
+          "promptPrefix": "classify {{question}}",
+          "source": "xinghuo",
+          "systemTemplate": "original system",
+          "template": "ask={{question}}"
+        },
+        "outputs": [
+          {
+            "name": "answer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "真实算法输入"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "decision-making::model"
+          },
+          {
+            "sourceHandle": "intent-one-of::accept",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::accept"
+          },
+          {
+            "sourceHandle": "intent-one-of::default",
+            "sourceNodeId": "decision-making::model",
+            "targetNodeId": "text-joiner::fallback"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::accept",
+            "targetNodeId": "node-end::e"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "text-joiner::fallback",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "decision-making::model",
+                "nodeType": "decision-making"
+              },
+              "nodeParam": {
+                "appId": "legacy-label",
+                "domain": "model-fixture",
+                "fs_params": {
+                  "properties": {
+                    "scope": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "scope"
+                  ],
+                  "type": "object"
+                },
+                "intentChains": [
+                  {
+                    "description": "Accept intent",
+                    "id": "intent-one-of::accept",
+                    "intentType": 2,
+                    "name": "accept"
+                  },
+                  {
+                    "description": "Default intent",
+                    "id": "intent-one-of::default",
+                    "intentType": 1,
+                    "name": "fallback"
+                  }
+                ],
+                "modelResourceId": "model-1",
+                "promptPrefix": "classify {{question}}",
+                "source": "xinghuo",
+                "systemTemplate": "original system",
+                "template": "ask={{question}}"
+              },
+              "outputs": [
+                {
+                  "name": "answer",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "decision-making::model"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "chosen",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::accept"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                },
+                {
+                  "id": "",
+                  "name": "fallback",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "value",
+                        "nodeId": "text-joiner::fallback"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::accept",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "selected"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::accept"
+          },
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "text-joiner::fallback",
+                "nodeType": "text-joiner"
+              },
+              "nodeParam": {
+                "mode": 0,
+                "prompt": "fallback"
+              },
+              "outputs": [
+                {
+                  "name": "value",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "text-joiner::fallback"
+          }
+        ]
+      },
+      "parameters": {
+        "resourceId": "model-1",
+        "provider": "xinghuo",
+        "modelName": "model-fixture",
+        "mode": "function_call",
+        "messages": [
+          {
+            "role": "user",
+            "content": "classify 真实算法输入"
+          }
+        ],
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 2048,
+          "topK": 3,
+          "patchId": [],
+          "respFormat": 0,
+          "searchDisable": true,
+          "extraParams": {},
+          "questionType": "not_knowledge",
+          "functionChoice": ""
+        },
+        "functions": [
+          {
+            "name": "accept",
+            "description": "Accept intent",
+            "parameters": {
+              "properties": {
+                "scope": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope"
+              ],
+              "type": "object"
+            }
+          },
+          {
+            "name": "fallback",
+            "description": "Default intent",
+            "parameters": {
+              "properties": {
+                "scope": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "resourceVersion": "model-version-1"
+      },
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      },
+      "centerRunAdmission": false
+    },
+    {
+      "name": "dynamic-qa-two-rounds-offline-algorithm",
+      "nodeData": {
+        "inputs": [
+          {
+            "id": "",
+            "name": "question",
+            "schema": {
+              "type": "string",
+              "value": {
+                "content": {
+                  "name": "question",
+                  "nodeId": "node-start::s"
+                },
+                "type": "ref"
+              }
+            }
+          }
+        ],
+        "nodeMeta": {
+          "aliasName": "question-answer::qa",
+          "nodeType": "question-answer"
+        },
+        "nodeParam": {
+          "answerType": "direct",
+          "appId": "legacy-app-label",
+          "directAnswer": {
+            "handleResponse": true,
+            "maxRetryCounts": 3
+          },
+          "domain": "model-fixture",
+          "modelResourceId": "model-1",
+          "needReply": true,
+          "question": "请回答{{question}}",
+          "source": "xinghuo",
+          "timeout": 1
+        },
+        "outputs": [
+          {
+            "name": "content",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "age",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "input": {
+        "question": "中心检查点问题"
+      },
+      "dsl": {
+        "edges": [
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "node-start::s",
+            "targetNodeId": "question-answer::qa"
+          },
+          {
+            "sourceHandle": "",
+            "sourceNodeId": "question-answer::qa",
+            "targetNodeId": "node-end::e"
+          }
+        ],
+        "nodes": [
+          {
+            "data": {
+              "inputs": [],
+              "nodeMeta": {
+                "aliasName": "node-start::s",
+                "nodeType": "node-start"
+              },
+              "nodeParam": {},
+              "outputs": [
+                {
+                  "name": "question",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "id": "node-start::s"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "question",
+                  "schema": {
+                    "type": "string",
+                    "value": {
+                      "content": {
+                        "name": "question",
+                        "nodeId": "node-start::s"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "question-answer::qa",
+                "nodeType": "question-answer"
+              },
+              "nodeParam": {
+                "answerType": "direct",
+                "appId": "legacy-app-label",
+                "directAnswer": {
+                  "handleResponse": true,
+                  "maxRetryCounts": 3
+                },
+                "domain": "model-fixture",
+                "modelResourceId": "model-1",
+                "needReply": true,
+                "question": "请回答{{question}}",
+                "source": "xinghuo",
+                "timeout": 1
+              },
+              "outputs": [
+                {
+                  "name": "content",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "name": "query",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "name": "age",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "id": "question-answer::qa"
+          },
+          {
+            "data": {
+              "inputs": [
+                {
+                  "id": "",
+                  "name": "age",
+                  "schema": {
+                    "type": "integer",
+                    "value": {
+                      "content": {
+                        "name": "age",
+                        "nodeId": "question-answer::qa"
+                      },
+                      "type": "ref"
+                    }
+                  }
+                }
+              ],
+              "nodeMeta": {
+                "aliasName": "node-end::e",
+                "nodeType": "node-end"
+              },
+              "nodeParam": {
+                "outputMode": 0
+              },
+              "outputs": []
+            },
+            "id": "node-end::e"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n## 角色设定\n你是一个专业的结构化信息抽取助手，擅长从非结构化的文本或对话中精准提取数据。你不参与普通对话，只专注于信息识别与结构化提取。你必须始终严格遵循下方格式输出结果。\n\n## 任务说明\n从用户提供的“文本”和“对话历史”中，提取符合“字段结构定义”的内容。\n\n抽取规则如下：\n- 所有字段（无论 required 为 true 或 false）都应尝试提取；\n- 抽取成功的字段，加入 `completed`，包含字段名和值；\n- 对于 required: true 且抽取失败的字段：\n  - 加入 `incomplete`，值设为 null；\n  - 在 `content` 中生成一条礼貌、简洁的请求语句，提醒用户补充；\n- 对于 required: false 且抽取失败的字段：\n  - 不加入 `incomplete`，也不在 `content` 中提示；\n- 当所有 required 字段均已提取成功时，`content` 应为 \"\"。\n\n## 输入内容\n以下为模型可参考的输入：\n\n### 聊天历史\n<histories>\n[{\"role\": \"assistant\", \"content\": \"请回答中心检查点问题\"}, {\"role\": \"user\", \"content\": \"还没年龄\"}]\n</histories>\n\n### 当前用户指令\n<instruction>\n\n</instruction>\n\n### 字段结构定义（提取目标）\n<structure>\n{\"type\": \"object\", \"properties\": {\"age\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"age\"]}\n</structure>\n\n### 当前用户文本输入\n<text>\n还没年龄\n</text>\n\n## 处理流程（请严格按顺序执行）\n1. 仔细阅读 <instruction> 中的目标任务；\n2. 理解 <histories> 所提供的上下文内容；\n3. 分析 <text> 文本，与上下文结合，尝试提取所有字段信息；\n4. 对每个字段（包含 required: true 和 false）执行以下判断：\n   - 若成功提取 → 加入 `completed`\n   - 若提取失败：\n     - 且字段为 required: true → 加入 `incomplete`，并生成提示语\n     - 且字段为 required: false → 忽略，不放入 `incomplete`，也不提示\n5. 整理输出为符合规范的 JSON 结构：\n   - role: 固定为 \"assistant\"\n   - content: 所有 required 且缺失字段的提示语，若无缺失则为 \"\"\n   - completed: 提取成功的字段及其值\n   - incomplete: 所有缺失但 required 的字段，值设为 null\n\n## 输出格式（必须严格遵守）\n```json\n{\n  \"role\": \"assistant\",\n  \"content\": \"<补充请求语句，若无缺失则为空字符串>\",\n  \"completed\": {\n    \"<字段名1>\": <提取到的值1>,\n    \"<字段名2>\": <提取到的值2>\n  },\n  \"incomplete\": {\n    \"<缺失字段名1>\": null,\n    ...\n  }\n}\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        },
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n## 角色设定\n你是一个专业的结构化信息抽取助手，擅长从非结构化的文本或对话中精准提取数据。你不参与普通对话，只专注于信息识别与结构化提取。你必须始终严格遵循下方格式输出结果。\n\n## 任务说明\n从用户提供的“文本”和“对话历史”中，提取符合“字段结构定义”的内容。\n\n抽取规则如下：\n- 所有字段（无论 required 为 true 或 false）都应尝试提取；\n- 抽取成功的字段，加入 `completed`，包含字段名和值；\n- 对于 required: true 且抽取失败的字段：\n  - 加入 `incomplete`，值设为 null；\n  - 在 `content` 中生成一条礼貌、简洁的请求语句，提醒用户补充；\n- 对于 required: false 且抽取失败的字段：\n  - 不加入 `incomplete`，也不在 `content` 中提示；\n- 当所有 required 字段均已提取成功时，`content` 应为 \"\"。\n\n## 输入内容\n以下为模型可参考的输入：\n\n### 聊天历史\n<histories>\n[{\"role\": \"assistant\", \"content\": \"请回答中心检查点问题\"}, {\"role\": \"user\", \"content\": \"还没年龄\"}, {\"role\": \"assistant\", \"content\": \"请补充年龄\"}, {\"role\": \"user\", \"content\": \"年龄8\"}]\n</histories>\n\n### 当前用户指令\n<instruction>\n\n</instruction>\n\n### 字段结构定义（提取目标）\n<structure>\n{\"type\": \"object\", \"properties\": {\"age\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"age\"]}\n</structure>\n\n### 当前用户文本输入\n<text>\n年龄8\n</text>\n\n## 处理流程（请严格按顺序执行）\n1. 仔细阅读 <instruction> 中的目标任务；\n2. 理解 <histories> 所提供的上下文内容；\n3. 分析 <text> 文本，与上下文结合，尝试提取所有字段信息；\n4. 对每个字段（包含 required: true 和 false）执行以下判断：\n   - 若成功提取 → 加入 `completed`\n   - 若提取失败：\n     - 且字段为 required: true → 加入 `incomplete`，并生成提示语\n     - 且字段为 required: false → 忽略，不放入 `incomplete`，也不提示\n5. 整理输出为符合规范的 JSON 结构：\n   - role: 固定为 \"assistant\"\n   - content: 所有 required 且缺失字段的提示语，若无缺失则为 \"\"\n   - completed: 提取成功的字段及其值\n   - incomplete: 所有缺失但 required 的字段，值设为 null\n\n## 输出格式（必须严格遵守）\n```json\n{\n  \"role\": \"assistant\",\n  \"content\": \"<补充请求语句，若无缺失则为空字符串>\",\n  \"completed\": {\n    \"<字段名1>\": <提取到的值1>,\n    \"<字段名2>\": <提取到的值2>\n  },\n  \"incomplete\": {\n    \"<缺失字段名1>\": null,\n    ...\n  }\n}\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [
+        [
+          [
+            "run-1",
+            "lease-1",
+            1,
+            "question-answer::qa",
+            1,
+            {
+              "type": "direct",
+              "content": "请回答中心检查点问题"
+            },
+            true,
+            60,
+            "checkpoint_c6f0a95816f9bb521cc46075b16838cc3d073da7c5d22d0e81bdc101870bd2d3"
+          ],
+          {
+            "iteration_id": null
+          }
+        ],
+        [
+          [
+            "run-1",
+            "lease-1",
+            1,
+            "question-answer::qa",
+            2,
+            {
+              "type": "direct",
+              "content": "请补充年龄"
+            },
+            true,
+            60,
+            "checkpoint_fca41a4f948ee57bac91889ce3ca0581099d2f89ffc0eca4aa7a995c0290ccf4"
+          ],
+          {
+            "iteration_id": null
+          }
+        ]
+      ],
+      "output": {
+        "outputs": {
+          "age": 8
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 0,
+          "prompt_tokens": 0,
+          "total_tokens": 0
+        }
+      },
+      "centerRunAdmission": false
+    }
+  ]
+}

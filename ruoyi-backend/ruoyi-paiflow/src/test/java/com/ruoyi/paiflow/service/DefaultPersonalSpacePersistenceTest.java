@@ -8,6 +8,7 @@ import com.ruoyi.paiflow.adapter.legacy.LegacySpaceController;
 import com.ruoyi.paiflow.domain.MembershipInvitation;
 import com.ruoyi.paiflow.domain.SpaceRecord;
 import com.ruoyi.paiflow.mapper.SpaceMapper;
+import com.ruoyi.paiflow.mapper.NotificationMapper;
 import com.ruoyi.system.service.ISysUserService;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -65,7 +66,7 @@ public class DefaultPersonalSpacePersistenceTest {
         data=new JdbcDataSource();data.setURL("jdbc:h2:mem:"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1;NON_KEYWORDS=ROLE;LOCK_TIMEOUT=5000");schema=data.getConnection();
         try(var sql=schema.createStatement()){
             sql.execute("CREATE ALIAS UTC_TIMESTAMP FOR 'com.ruoyi.paiflow.service.DefaultPersonalSpacePersistenceTest.utcNow'");
-            for(String file:List.of("sql/001-paiflow-schema.sql","sql/004-paiflow-membership.sql","sql/010-paiflow-default-personal.sql")){
+            for(String file:List.of("sql/001-paiflow-schema.sql","sql/004-paiflow-membership.sql","sql/010-paiflow-default-personal.sql","sql/020-paiflow-notifications.sql")){
                 String ddl=Files.readString(Path.of(file),StandardCharsets.UTF_8).replaceAll("(?m)^--.*$","").replace(" STORED","").replace(" ENGINE=InnoDB DEFAULT CHARSET=utf8mb4","");
                 // 只转换H2不支持的MySQL ALTER/IF语法，保留生成列、唯一键及所有CHECK。
                 ddl=ddl.replace("ALTER TABLE paiflow_space_member ADD COLUMN id BIGINT NOT NULL AUTO_INCREMENT,\n  ADD UNIQUE KEY uq_paiflow_space_member_id (id)","ALTER TABLE paiflow_space_member ADD COLUMN id BIGINT AUTO_INCREMENT UNIQUE");
@@ -75,14 +76,14 @@ public class DefaultPersonalSpacePersistenceTest {
             sql.execute("CREATE TABLE sys_user(user_id BIGINT PRIMARY KEY,nick_name VARCHAR(200))");sql.execute("INSERT INTO sys_user VALUES(42,'用户42'),(43,'用户43'),(44,'用户44')");
         }
         var c=new Configuration(new Environment("default-personal-isolated",new SpringManagedTransactionFactory(),data));
-        try(InputStream xml=getClass().getClassLoader().getResourceAsStream("mapper/paiflow/SpaceMapper.xml")){assertNotNull(xml);new XMLMapperBuilder(xml,c,"mapper/paiflow/SpaceMapper.xml",c.getSqlFragments()).parse();}
+        for(String resource:List.of("mapper/paiflow/SpaceMapper.xml","mapper/paiflow/NotificationMapper.xml"))try(InputStream xml=getClass().getClassLoader().getResourceAsStream(resource)){assertNotNull(xml);new XMLMapperBuilder(xml,c,resource,c.getSqlFragments()).parse();}
         var currentTemplate=new SqlSessionTemplate(new SqlSessionFactoryBuilder().build(c));mapper=currentTemplate.getMapper(SpaceMapper.class);
         var identities=mock(IdentityMappingService.class);when(identities.current()).thenAnswer(a->new LoginUser(actor.get(),8L,user(actor.get()),Set.of()));when(identities.resolveReference(anyString())).thenAnswer(a->Long.parseLong(a.<String>getArgument(0).substring(6)));
         permissions=mock(PermissionService.class);when(permissions.hasPermi(anyString())).thenReturn(true);access=new ResourceAccessService(identities,permissions,mapper);access.useCurrentSession(currentTemplate);
         defaults=transactional(new DefaultPersonalSpaceService(mapper,identities,access),DefaultPersonalSpaceService.class);
         var users=mock(ISysUserService.class);when(users.selectUserById(anyLong())).thenAnswer(a->user(a.getArgument(0)));
         var s=new SpaceService(mapper,access,identities,users);s.useDefaultSpaces(defaults);s.useCapacityPolicy(new SpaceService.CapacityPolicy(){public SpaceService.TeamEntitlement teamCreation(long id){return new SpaceService.TeamEntitlement(2,LocalDateTime.now(java.time.Clock.systemUTC()).plusDays(30),20);}public int maximumMembers(long owner,Long team){return 20;}});spaces=transactional(s,SpaceService.class);
-        var m=new MembershipService(access,identities,mapper);m.usePlatformServices(spaces,users);members=transactional(m,MembershipService.class);
+        var m=new MembershipService(access,identities,mapper);m.usePlatformServices(spaces,users);m.useNotifications(new NotificationService(currentTemplate.getMapper(NotificationMapper.class),access,identities));members=transactional(m,MembershipService.class);
     }
     @AfterEach void close() throws Exception {actor.remove();clock.remove();if(schema!=null){try(var sql=schema.createStatement()){sql.execute("SHUTDOWN");}finally{schema.close();}}}
     private long count(String table)throws Exception{try(var c=data.getConnection();var s=c.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){r.next();return r.getLong(1);}}
@@ -142,7 +143,7 @@ public class DefaultPersonalSpacePersistenceTest {
         long id=materialize();var page=new MembershipService.PageQuery(1,10,null,0,0);
         for(Runnable operation:List.<Runnable>of(()->members.memberPage(id,page),()->members.memberList(id),()->members.members(id),()->members.userLimit(1,id),()->members.invitations(1,id,page),()->members.searchUsers(1,id,"fixture-43",false),()->members.invite(1,id,List.of(new MembershipService.InviteAdd("ruoyi:43",3))),()->members.updateRole(id,"ruoyi:43",3),()->members.remove(id,"ruoyi:43"),()->members.leave(id),()->members.transfer(id,"ruoyi:43")))assertEquals(400,error(operation));assertEquals(1,count("paiflow_space_member"));assertEquals(0,count("paiflow_membership_invite"));
     }
-    private long dirtyInvitation(long id){var i=new MembershipInvitation();i.setType(1);i.setSpaceId(id);i.setOwnerUserId(42L);i.setInviteeUserId(44L);i.setInviterUserId(42L);i.setRole(3);i.setExpireTime(LocalDateTime.now(java.time.Clock.systemUTC()).plusDays(1));mapper.insertInvitation(i);return i.getId();}
+    private long dirtyInvitation(long id){var i=new MembershipInvitation();i.setType(1);i.setSpaceId(id);i.setOwnerUserId(42L);i.setInviteeUserId(44L);i.setInviterUserId(42L);i.setRole(3);i.setNotificationStatus("not_connected");i.setExpireTime(LocalDateTime.now(java.time.Clock.systemUTC()).plusDays(1));mapper.insertInvitation(i);return i.getId();}
     @Test void hiddenOwnerAndDirtyDefaultInvitationsDoNotConsumeNamedPersonalCapacity()throws Exception{
         long id=materialize();assertEquals(0,mapper.countCapacityMembers(42,null));long invite=dirtyInvitation(id);assertEquals(0,mapper.countCapacityInvites(42,null));actor.set(44L);assertEquals(400,error(()->members.respondInvitation(invite,true,0L)));assertEquals(1,mapper.invitation(invite).getStatus());assertNull(mapper.member(id,44));actor.set(42L);long named=spaces.createPersonal("具名",null,null);mapper.insertMember(named,43,3,"fixture");assertEquals(2,mapper.countCapacityMembers(42,null));
     }

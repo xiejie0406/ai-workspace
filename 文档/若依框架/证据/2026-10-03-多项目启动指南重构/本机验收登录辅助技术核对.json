@@ -1,0 +1,164 @@
+{
+  "核对时间": "2026-10-05T08:59:54.399467+08:00",
+  "范围": "全部九项目本机技术验证与浏览器验收；共享登录辅助技术核对，不计业务验收通过",
+  "全部配置覆盖": [
+    "面试",
+    "智能选品",
+    "智能体桌面端",
+    "生产排产",
+    "AI图片编辑",
+    "AI演示文稿",
+    "PaiSmart",
+    "PaiFlow",
+    "PaiCLI"
+  ],
+  "源码摘要": {
+    "ruoyi-backend/ruoyi-admin/src/main/java/com/ruoyi/web/controller/common/LocalCaptchaDebugService.java": "861cf0037eb1f0c35ddd0c8798899ed850509093261949f10fc28fb48e9b1f24",
+    "ruoyi-backend/ruoyi-admin/src/main/java/com/ruoyi/web/controller/common/CaptchaController.java": "747741affffb021d2344127b7588d5fbed54bd118a316a35f00f0668417e1f2e",
+    "ruoyi-backend/ruoyi-admin/src/main/java/com/ruoyi/web/controller/system/SysLoginController.java": "0cca3efc4e32432fed09d572aa924a8bd031f1731ab855dd1cd5cb44f52632ce",
+    "ruoyi-backend/ruoyi-admin/src/main/resources/application.yml": "68ed3c236309bda19e5bce3a999a6d431f6f7826a1bceee5146c5cd38b0ec893",
+    "ruoyi-backend/ruoyi-admin/src/main/resources/application-local.yml": "9d452cfbd81eeccd64ed6afd331e8e8f3458e9437fbc384b250dcfada0dca0ed",
+    "scripts/dev/read-local-captcha.ps1": "4d8fbeb66b51014eafce8ee28b8a53832f3b46f41ea70677458a2170d6c5ad7e",
+    "scripts/aipicture/启动图片本地通道.ps1": "1f81a9f91f032d8753fd096acd59eb14874f9e6361c022ae10d210a3c6f12c4c",
+    "scripts/aippt/启动演示本机通道.ps1": "c4049ec05282f0012e5c6b9b2f993d11f2e57de7f0d5eec77f99183c226f84d6"
+  },
+  "构建": {
+    "命令": "mvn -f ruoyi-backend/pom.xml -pl ruoyi-admin -am -Dmaven.test.skip=true package -q",
+    "退出码": 0,
+    "范围": "共享主包及依赖聚合构建；不证明业务通过"
+  },
+  "定向检查": {
+    "Java": {
+      "通过": 11,
+      "失败": 0,
+      "错误": 0,
+      "跳过": 0,
+      "说明": "隔离测试工程复用主聚合实际编译的三个认证class，包含Windows文件占用清理及Java至PowerShell 5.1/7元信息互读"
+    },
+    "读取脚本": {
+      "PowerShell5.1": 14,
+      "PowerShell7": 14,
+      "合计": 28
+    },
+    "启动开关": {
+      "脚本数": 2,
+      "每版本每脚本场景": 8,
+      "PowerShell版本数": 2,
+      "合计": 32
+    },
+    "独立代码复核": "通过；原两个P2修复后关闭"
+  },
+  "实际运行通道": [
+    {
+      "project": "paicli",
+      "port": 18095,
+      "oldPid": 40096,
+      "newPid": 32924,
+      "oldSHA256": "84d9bbfdc3c1fa23e429f902a736cdf871af403ac6066769ce1d24621df04188",
+      "newSHA256": "76efe086f56e4fcdb2755e75a8682419156e7c9295e259c4beb9b1342ee688e5",
+      "backup": "C:\\Users\\admin\\paicli-local-20261003T123101-ed12e6a6cb174b07bfd8db55753e8ac5\\code-candidate-38ddbd4473908248-20261005T011705836\\local-captcha-update\\original-84d9bbfdc3c1fa23e429f902a736cdf871af403ac6066769ce1d24621df04188.jar",
+      "activeTasks": 0,
+      "phase": "Verified",
+      "actualHelperVerified": true,
+      "normalCaptchaApiHasNoAnswer": true,
+      "changedEntries": [
+        "BOOT-INF/classes/application-local.yml",
+        "BOOT-INF/classes/application.yml",
+        "BOOT-INF/classes/com/ruoyi/web/controller/common/CaptchaController.class",
+        "BOOT-INF/classes/com/ruoyi/web/controller/system/SysLoginController.class"
+      ],
+      "addedEntries": [
+        "BOOT-INF/classes/com/ruoyi/web/controller/common/LocalCaptchaDebugService.class"
+      ],
+      "allOtherEntriesUnchanged": true
+    },
+    {
+      "project": "paismart",
+      "port": 18096,
+      "oldPid": 43452,
+      "newPid": 17160,
+      "oldSHA256": "5d3a87991850726640a32d017ecaac5233c8567f7a89e1ef41543be00c47d605",
+      "newSHA256": "e0dfe6dee037ed38c01b7821adc5689ecd282237d9552eb3a22fddbe42e50592",
+      "backup": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart\\local-captcha-update\\original-5d3a87991850726640a32d017ecaac5233c8567f7a89e1ef41543be00c47d605.jar",
+      "activeTasks": 0,
+      "phase": "Verified",
+      "actualHelperVerified": true,
+      "normalCaptchaApiHasNoAnswer": true,
+      "changedEntries": [
+        "BOOT-INF/classes/application-local.yml",
+        "BOOT-INF/classes/application.yml",
+        "BOOT-INF/classes/com/ruoyi/web/controller/common/CaptchaController.class",
+        "BOOT-INF/classes/com/ruoyi/web/controller/system/SysLoginController.class"
+      ],
+      "addedEntries": [
+        "BOOT-INF/classes/com/ruoyi/web/controller/common/LocalCaptchaDebugService.class"
+      ],
+      "allOtherEntriesUnchanged": true
+    },
+    {
+      "project": "paiflow",
+      "port": 18098,
+      "oldPid": 40136,
+      "newPid": 26252,
+      "oldSHA256": "80876ed2b09979c0c391e87d557083a108fc4d3e9d206eea617532abefa0a7ff",
+      "newSHA256": "7908691e5a83fa3a0ae174ad1e327311ce1042e411ae9d17d878873f83982534",
+      "backup": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paiflow\\local-captcha-update\\original-80876ed2b09979c0c391e87d557083a108fc4d3e9d206eea617532abefa0a7ff.jar",
+      "activeTasks": 0,
+      "phase": "Verified",
+      "actualHelperVerified": true,
+      "normalCaptchaApiHasNoAnswer": true,
+      "changedEntries": [
+        "BOOT-INF/classes/application-local.yml",
+        "BOOT-INF/classes/application.yml",
+        "BOOT-INF/classes/com/ruoyi/web/controller/common/CaptchaController.class",
+        "BOOT-INF/classes/com/ruoyi/web/controller/system/SysLoginController.class"
+      ],
+      "addedEntries": [
+        "BOOT-INF/classes/com/ruoyi/web/controller/common/LocalCaptchaDebugService.class"
+      ],
+      "allOtherEntriesUnchanged": true
+    }
+  ],
+  "前端代理核对": [
+    {
+      "前端端口": 15176,
+      "后端端口": 18095,
+      "路径": "/dev-api/captchaImage",
+      "正常验证码与精确UUID元信息": true
+    },
+    {
+      "前端端口": 15177,
+      "后端端口": 18096,
+      "路径": "/dev-api/captchaImage",
+      "正常验证码与精确UUID元信息": true
+    },
+    {
+      "前端端口": 3000,
+      "后端端口": 18098,
+      "路径": "/captchaImage",
+      "正常验证码与精确UUID元信息": true
+    }
+  ],
+  "其余六项目": "当前未运行，本轮不新启动；下一次使用包含新共享代码的所属项目运行包，沿用原配置、数据库和共享基础服务",
+  "限制": {
+    "真实账号登录": "未执行；本轮只核对匿名验证码与私有元信息",
+    "业务数据写入": 0,
+    "原业务验收判定": "保留",
+    "聚合定向测试": "被其他任务AI图片测试构造签名不匹配阻断；未修改无关测试，改用隔离定向工程验证共享改动",
+    "全量文档检查": "check-docs.ps1 不支持现有 PaiCLI HTML 的 file:/// 绝对链接，GetFullPath 将其作为相对路径解析后报非法字符；未宣称全量通过。本轮新增引用与唯一锚点定向检查通过，原生成器14项解析及21项正文检查通过。"
+  },
+  "保密": "本证据不保存答案、UUID、账号、密码、token或验证码图片；辅助文件两分钟过期并按登录尝试/退出清理",
+  "报告技术核对": {
+    "原生成器链接": 272,
+    "缺失": 0,
+    "解析检查": 14,
+    "正文检查": 21,
+    "原点级判定": {
+      "通过": 0,
+      "未通过": 0,
+      "受阻": 28,
+      "未执行": 149
+    },
+    "说明": "从唯一正文重新生成两份既有HTML，不增加业务通过"
+  }
+}

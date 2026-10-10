@@ -38,11 +38,29 @@ const diagnosisGuide=computed(()=>Object.entries(report.value?.diagnosisGuide??{
 function counts(key:string){const source=report.value?.summary[key];return source&&typeof source==='object'?Object.entries(source).map(([name,count])=>({name:key==='diagnosisCounts'?diagnosisLabel(name):name,count})):[]}
 const modeCounts=computed(()=>counts('retrievalModeCounts')),diagnosisCounts=computed(()=>counts('diagnosisCounts')),visibleCases=computed(()=>report.value?.cases.filter(row=>(!caseKeyword.value||row.question.includes(caseKeyword.value))&&(!caseDiagnosis.value||row.diagnosis===caseDiagnosis.value)&&(!onlyReview.value||row.needsHumanReview))??[]),judgeScore=computed(()=>selected.value?.judgeScore??selected.value?.judge?.score??null),judgeCorrect=computed(()=>selected.value?.judgeCorrect??selected.value?.judge?.correct)
 let serial=0,reviewSerial=0
-async function load(){if(!evaluationId.value.trim()){error.value='请输入评测记录 ID';return}const current=++serial;loading.value=true;error.value='';try{const response=await evaluationReport(evaluationId.value);if(current===serial)report.value=response.data}catch(e){if(current===serial)error.value=errorText(e)}finally{if(current===serial)loading.value=false}}
-async function select(row:EvaluationCase|null){if(!row)return;const current=++reviewSerial;selected.value=row;reviews.value=[];formError.value='';reason.value='';humanScore.value=undefined;conclusion.value='NEEDS_EVIDENCE';open.value=true;try{const response=await listReviews(evaluationId.value,row.id);if(current===reviewSerial)reviews.value=response.rows}catch(e){if(current===reviewSerial)formError.value=errorText(e)}}
+async function load(){if(!evaluationId.value.trim()){error.value='请输入评测记录 ID';return}const current=++serial;loading.value=true;error.value='';try{const response=await evaluationReport(evaluationId.value);if(current===serial){if(String(report.value?.id)!==String(response.data.id)){reviewSerial++;selected.value=undefined;reviews.value=[];open.value=false;formError.value=''}report.value=response.data}}catch(e){if(current===serial)error.value=errorText(e)}finally{if(current===serial)loading.value=false}}
+async function select(row:EvaluationCase|null){if(!row||!report.value)return;const id=report.value.id,current=++reviewSerial;selected.value=row;reviews.value=[];formError.value='';reason.value='';humanScore.value=undefined;conclusion.value='NEEDS_EVIDENCE';open.value=true;try{const response=await listReviews(id,row.id);if(current===reviewSerial&&String(report.value?.id)===String(id))reviews.value=response.rows}catch(e){if(current===reviewSerial&&String(report.value?.id)===String(id))formError.value=errorText(e)}}
 function selectById(id:Id){const row=report.value?.cases.find(row=>String(row.id)===String(id));if(row)void select(row)}
-async function save(){if(!selected.value)return;if(!reason.value.trim()){formError.value='请填写独立判定理由';return}const caseId=selected.value.id;saving.value=true;formError.value='';try{await saveReview(evaluationId.value,{caseId,conclusion:conclusion.value,reason:reason.value,expectedVersion:selected.value.rowVersion,score:humanScore.value});const response=await listReviews(evaluationId.value,caseId);if(String(selected.value?.id)===String(caseId))reviews.value=response.rows;await load();selected.value=report.value?.cases.find(row=>String(row.id)===String(caseId))}catch(e){formError.value=errorText(e)}finally{saving.value=false}}
-function download(){if(!report.value)return;const url=URL.createObjectURL(new Blob([JSON.stringify(report.value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`评测报告-${evaluationId.value}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),0)}
+async function save(){
+  if(saving.value||!selected.value||!report.value)return
+  if(!reason.value.trim()){formError.value='请填写独立判定理由';return}
+  const id=report.value.id,caseId=selected.value.id,current=reviewSerial,reportSerial=serial
+  const input={caseId,conclusion:conclusion.value,reason:reason.value,expectedVersion:selected.value.rowVersion,score:humanScore.value}
+  const sameSelection=()=>current===reviewSerial&&String(report.value?.id)===String(id)&&String(selected.value?.id)===String(caseId)
+  saving.value=true;formError.value=''
+  try{
+    await saveReview(id,input)
+    const response=await listReviews(id,caseId)
+    if(sameSelection())reviews.value=response.rows
+    const refreshed=await evaluationReport(id)
+    if(reportSerial===serial&&String(report.value?.id)===String(id)){
+      report.value=refreshed.data
+      if(sameSelection())selected.value=report.value.cases.find(row=>String(row.id)===String(caseId))
+    }
+  }catch(e){if(sameSelection())formError.value=errorText(e)}
+  finally{saving.value=false}
+}
+function download(){if(!report.value)return;const url=URL.createObjectURL(new Blob([JSON.stringify(report.value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`评测报告-${report.value.id}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),0)}
 function showReference(value:Reference){reference.value=value;referenceOpen.value=true}
 onMounted(()=>{if(evaluationId.value)void load()})
 </script>

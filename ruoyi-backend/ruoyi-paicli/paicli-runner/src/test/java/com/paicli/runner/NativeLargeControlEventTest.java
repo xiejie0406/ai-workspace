@@ -31,7 +31,7 @@ class NativeLargeControlEventTest {
                 return ok(body);
             }catch(IOException failed){throw new UncheckedIOException(failed);}}});server.start();
             try(var center=new CenterHttpClient(server.url("/").toString(),"fixture",true)) {
-                var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","10").put("workspaceId","7").put("leaseId","2").put("fencingToken",3).put("version",4).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(90).toString());
+                var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","10").put("directoryContextId","7").put("leaseId","2").put("fencingToken",3).put("version",4).put("policyVersion",1).put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint()).put("expiresAt",Instant.now().plusSeconds(90).toString());
                 var lease=new RunnerLease(claim);var tools=new CenterToolRegistry(center,lease,new ReceiptSpool(state.resolve("receipts")),root);tools.setToolResultOffloader(new HttpToolResultOffloader(center,lease,tools,state.resolve("tool-outputs")));
                 var payload=CanonicalJson.MAPPER.createObjectNode().put("snapshotMetadataId","5").put("snapshotId","a".repeat(40));var proof=payload.putObject("preview");proof.put("currentFingerprint","b".repeat(64)).put("canRestore",true).put("targetManifestHash","c".repeat(64));proof.putArray("conflicts");
                 proof.putArray("files").addObject().put("path","actual.txt").put("status","MODIFY").put("currentHash","d".repeat(64)).put("targetHash","e".repeat(64)).put("currentMode",33188).put("targetMode",33188).put("diff",diff);
@@ -47,7 +47,7 @@ class NativeLargeControlEventTest {
     }
     private void run(boolean badAck,boolean cleanPreview) throws Exception {
         Path root=RunnerPrivateDirectory.createDirectories(container.resolve("workspace")); Path state=RunnerPrivateDirectory.createDirectories(container.resolve("state"));
-        String content="完整实际结果:"+"中".repeat(4*1024*1024); var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","10").put("workspaceId","7").put("leaseId","2").put("fencingToken",3).put("version",4).put("policyVersion",1).put("rootFingerprint","a".repeat(64)).put("expiresAt",Instant.now().plusSeconds(120).toString());
+        String content="完整实际结果:"+"中".repeat(4*1024*1024); var claim=CanonicalJson.MAPPER.createObjectNode().put("taskId","1").put("sessionId","10").put("directoryContextId","7").put("leaseId","2").put("fencingToken",3).put("version",4).put("policyVersion",1).put("rootFingerprint","a".repeat(64)).put("expiresAt",Instant.now().plusSeconds(120).toString());
         claim.put("rootFingerprint",new ResourceFingerprint(root).rootFingerprint());
         AtomicInteger events=new AtomicInteger(),receipts=new AtomicInteger(),chunks=new AtomicInteger(); ByteArrayOutputStream actual=new ByteArrayOutputStream(); ObjectNode[] begin=new ObjectNode[1];
         try(MockWebServer server=new MockWebServer()) {

@@ -17,7 +17,25 @@ public final class ModelOperationJson {
         if(value instanceof List<?> list)return list.stream().map(ModelOperationJson::ordered).toList();return value;
     }
     public static String canonical(Object value,int bytes) {
-        RunJsonBoundary.check(value,bytes);String result=JSON.toJSONString(ordered(value),JSONWriter.Feature.WriteMapNullValue);
+        RunJsonBoundary.checkModel(value,bytes);return encoded(value,bytes);
+    }
+    static String canonicalFunctions(Object value,int bytes) {
+        RunJsonBoundary.checkFunctions(value,bytes);return encoded(value,bytes);
+    }
+    static JSONObject copySchema(JSONObject value) {
+        RunJsonBoundary.checkSchema(value,REQUEST_BYTES);return JSON.parseObject(encoded(value,REQUEST_BYTES));
+    }
+    static String canonicalNode(JSONObject value,int bytes) {
+        RunJsonBoundary.checkNode(value,bytes);return encoded(value,bytes);
+    }
+    static String canonicalWorkflow(JSONObject value,int bytes) {
+        RunJsonBoundary.checkSchemaAware(value,bytes);return encoded(value,bytes);
+    }
+    static String canonicalSparkWire(JSONObject value,int bytes) {
+        RunJsonBoundary.checkSparkWire(value,bytes);return encoded(value,bytes);
+    }
+    private static String encoded(Object value,int bytes) {
+        String result=JSON.toJSONString(ordered(value),JSONWriter.Feature.WriteMapNullValue);
         if(result.getBytes(StandardCharsets.UTF_8).length>bytes)throw error("模型协议JSON超出允许大小",413);return result;
     }
     public static JSONObject copy(JSONObject value) {return JSON.parseObject(canonical(value,REQUEST_BYTES));}

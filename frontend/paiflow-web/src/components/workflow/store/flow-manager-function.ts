@@ -18,6 +18,8 @@ import useFlowStore from './use-flow-store';
 import useIteratorFlowStore from './use-iterator-flow-store';
 import { FlowStoreType } from '../types/zustand/flow';
 import { UseBoundStore, StoreApi } from 'zustand';
+import type { FlowsManagerStoreType } from '../types/zustand/flowsManager';
+import type { TextNodeConfig, TextNodeConfigListChange } from '../types';
 
 // 导入工作流节点图标
 import startNodeIcon from '@/assets/imgs/workflow/start-node-icon.png';
@@ -239,12 +241,25 @@ export const addModelParamsToNode = (currentModel, get): void => {
   );
 };
 
+export const parseTextNodeConfigList = (value: unknown): TextNodeConfig[] => {
+  if (!Array.isArray(value)) throw new TypeError('分隔符目录必须为数组');
+  const items: unknown[] = value;
+  if (!items.every((item: unknown): item is TextNodeConfig =>
+    item !== null && typeof item === 'object' && !Array.isArray(item)
+    && 'id' in item && (typeof item.id === 'string' || (typeof item.id === 'number' && Number.isFinite(item.id)))
+    && 'uid' in item && (typeof item.uid === 'string' || (typeof item.uid === 'number' && Number.isFinite(item.uid)))
+    && 'separator' in item && typeof item.separator === 'string'
+    && (!('comment' in item) || item.comment == null || typeof item.comment === 'string')
+  )) throw new TypeError('分隔符目录字段不符合原记录结构');
+  return items;
+};
+
 export const addTextNodeConfig = async (
-  params: unknown,
-  get
-): Promise<void> => {
+  params: { separator: string },
+  get: () => Pick<FlowsManagerStoreType, 'setTextNodeConfigList'>
+): Promise<unknown> => {
   const res = await textNodeConfigSaveAPI(params);
-  const textNodeConfigList = await textNodeConfigListAPI();
+  const textNodeConfigList = parseTextNodeConfigList(await textNodeConfigListAPI());
   get().setTextNodeConfigList(textNodeConfigList);
   return res;
 };
@@ -312,11 +327,11 @@ export const setModels = (appId: string, set): void => {
 };
 
 export const removeTextNodeConfig = async (
-  id: string,
-  get
-): Promise<unknown> => {
+  id: string | number,
+  get: () => Pick<FlowsManagerStoreType, 'setTextNodeConfigList'>
+): Promise<TextNodeConfig[]> => {
   await textNodeConfigClearAPI(id);
-  const textNodeConfigList = await textNodeConfigListAPI();
+  const textNodeConfigList = parseTextNodeConfigList(await textNodeConfigListAPI());
   get().setTextNodeConfigList(textNodeConfigList);
   return textNodeConfigList;
 };
@@ -413,7 +428,7 @@ export const initFlowData = async (id: string, set): Promise<void> => {
     },
     isLoading: false,
     nodeList: modifiedNodeTemplate,
-    textNodeConfigList,
+    textNodeConfigList: parseTextNodeConfigList(textNodeConfigList),
     agentStrategy,
     knowledgeProStrategy,
     controlMode: window.localStorage.getItem('controlMode') || 'mouse',
@@ -503,11 +518,15 @@ export const setFlowResult = (flowResult, set): void => {
   });
 };
 
-export const setTextNodeConfigList = (change, get, set): void => {
+export const setTextNodeConfigList = (
+  change: TextNodeConfigListChange,
+  get: () => Pick<FlowsManagerStoreType, 'textNodeConfigList'>,
+  set: (update: Pick<FlowsManagerStoreType, 'textNodeConfigList'>) => void
+): void => {
   const textNodeConfigList =
     typeof change === 'function' ? change(get().textNodeConfigList) : change;
   set({
-    textNodeConfigList,
+    textNodeConfigList: parseTextNodeConfigList(textNodeConfigList),
   });
 };
 

@@ -18,7 +18,8 @@ def main():
         from app.worker.catalog import catalog_readiness
         from app.core.config import get_settings
         cfg = get_settings()
-        print(json.dumps({"status": "ready", **catalog_readiness(), "provider_configured": bool(cfg.llm_api_key),
+        print(json.dumps({"status": "ready", **catalog_readiness(), "text_transport": "center",
+                          "text_provider_verified": False, "claim_types": cfg.claim_types,
                           "center_configured": bool(cfg.worker_key.get_secret_value()),
                           "image_enabled": cfg.image_enabled}, ensure_ascii=False)); return
     if args.command == "prepare-import":

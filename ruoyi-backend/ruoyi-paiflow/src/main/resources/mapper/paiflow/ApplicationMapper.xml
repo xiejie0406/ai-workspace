@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.ApplicationMapper">
+ <resultMap id="requestRow" type="java.util.HashMap">
+  <result column="run_id" property="runId"/><result column="workflow_version_id" property="workflowVersionId"/>
+  <result column="application_revision" property="applicationRevision"/><result column="request_hash" property="requestHash"/>
+ </resultMap>
+ <sql id="columns">id,space_id AS spaceId,owner_user_id AS ownerUserId,name,description,state,agent_id AS agentId,workflow_id AS workflowId,workflow_version_id AS workflowVersionId,dsl_hash AS dslHash,engine_profile AS engineProfile,revision,deleted,create_by AS createBy,update_by AS updateBy,create_time AS createTime,update_time AS updateTime</sql>
+ <select id="find" resultType="com.ruoyi.paiflow.domain.ApplicationRecord">SELECT <include refid="columns"/> FROM paiflow_application WHERE id=#{id} AND deleted=0</select>
+ <select id="lock" resultType="com.ruoyi.paiflow.domain.ApplicationRecord">SELECT <include refid="columns"/> FROM paiflow_application WHERE id=#{id} AND deleted=0 FOR UPDATE</select>
+ <select id="list" resultType="com.ruoyi.paiflow.domain.ApplicationRecord">SELECT <include refid="columns"/> FROM paiflow_application WHERE space_id=#{spaceId} AND owner_user_id=#{owner} AND deleted=0 ORDER BY create_time DESC,id DESC LIMIT #{limit} OFFSET #{offset}</select>
+ <select id="count" resultType="long">SELECT COUNT(*) FROM paiflow_application WHERE space_id=#{spaceId} AND owner_user_id=#{owner} AND deleted=0</select>
+ <insert id="insert">INSERT INTO paiflow_application(id,space_id,owner_user_id,name,description,state,revision,deleted,create_by,update_by,create_time,update_time) VALUES(#{id},#{spaceId},#{ownerUserId},#{name},#{description},'UNBOUND',0,0,#{createBy},#{updateBy},UTC_TIMESTAMP(),UTC_TIMESTAMP())</insert>
+ <update id="update">UPDATE paiflow_application SET name=#{name},description=#{description},state=#{state},agent_id=#{agentId},workflow_id=#{workflowId},workflow_version_id=#{workflowVersionId},dsl_hash=#{dslHash},engine_profile=#{engineProfile},revision=revision+1,update_by=#{updateBy},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision} AND deleted=0</update>
+ <update id="delete">UPDATE paiflow_application SET deleted=1,state='DISABLED',revision=revision+1,update_by=#{actor},update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision} AND deleted=0</update>
+ <select id="request" resultMap="requestRow">SELECT run_id,workflow_version_id,application_revision,request_hash FROM paiflow_application_run WHERE application_id=#{id} AND owner_user_id=#{owner} AND request_key=#{key}</select>
+ <insert id="link">INSERT INTO paiflow_application_run(run_id,application_id,owner_user_id,workflow_version_id,application_revision,request_key,request_hash,create_time) VALUES(#{runId},#{id},#{owner},#{version},#{revision},#{key},#{hash},UTC_TIMESTAMP())</insert>
+</mapper>

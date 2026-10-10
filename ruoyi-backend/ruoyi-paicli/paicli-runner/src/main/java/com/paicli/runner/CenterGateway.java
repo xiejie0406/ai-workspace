@@ -21,27 +21,31 @@ public final class CenterGateway {
     }
     private static int runRunner(String[] args) throws Exception {
         if (args.length == 2 && ("--help".equals(args[1]) || "-h".equals(args[1]))) {
-            System.out.println("用法：paicli runner [--once]");
-            System.out.println("必需环境：PAICLI_CENTER_URL、PAICLI_WORKSPACE_ROOT、PAICLI_RUNNER_STATE；首次绑定使用 PAICLI_RUNNER_TOKEN。");
-            System.out.println("--once：连接中心后只处理一轮；状态目录必须位于工作区外。");
+            System.out.println("用法：paicli runner [--once | --prove-directory <本人现有子目录>]");
+            System.out.println("部署环境：PAICLI_CENTER_URL、PAICLI_PERSONAL_ROOT、PAICLI_OWNER_USER_ID、PAICLI_RUNNER_STATE；首次可信宿主绑定使用 PAICLI_RUNNER_TOKEN。");
+            System.out.println("--once：连接中心后只处理一轮；状态目录必须位于文件目录外。");
+            System.out.println("网页原终端：在同包CLI分发中显式设置PAICLI_WEB_TERMINAL_ENABLED=true；默认关闭，不启动Shell，托管不占任务槽。");
             return 0;
         }
-        if (args.length > 2 || args.length == 2 && !"--once".equals(args[1])) throw new IllegalArgumentException("用法：paicli runner [--once]");
+        boolean directoryProof=args.length==3&&"--prove-directory".equals(args[1]);
+        if (!directoryProof&&(args.length > 2 || args.length == 2 && !"--once".equals(args[1]))) throw new IllegalArgumentException("用法：paicli runner [--once | --prove-directory <本人现有子目录>]");
         String centerUrl = HttpCenterCommandGateway.requiredEnv("PAICLI_CENTER_URL");
-        Path root = Path.of(HttpCenterCommandGateway.requiredEnv("PAICLI_WORKSPACE_ROOT"));
+        PersonalDirectoryContext directories=new PersonalDirectoryContext(Path.of(HttpCenterCommandGateway.requiredEnv("PAICLI_PERSONAL_ROOT")),HttpCenterCommandGateway.requiredEnv("PAICLI_OWNER_USER_ID"));
+        Path root=directories.runtime();
         // 指定缓存位置，不能隐式写原项目 ~/.paicli 正式数据。
         Path state = Path.of(HttpCenterCommandGateway.requiredEnv("PAICLI_RUNNER_STATE"));
         ResourceFingerprint resources=new ResourceFingerprint(root);
-        if(state.toAbsolutePath().normalize().startsWith(resources.root()))throw new IOException("Runner缓存必须位于工作区外");
+        if(state.toAbsolutePath().normalize().startsWith(resources.root()))throw new IOException("Runner缓存必须位于文件目录外");
         state=RunnerPrivateDirectory.createDirectories(state).toRealPath();
-        if(state.toRealPath().startsWith(resources.root()))throw new IOException("Runner缓存必须位于工作区外");
+        if(state.toRealPath().startsWith(resources.root()))throw new IOException("Runner缓存必须位于文件目录外");
         DeviceCredentialCache credentials=new DeviceCredentialCache(state,centerUrl,resources.rootFingerprint());
         String deviceToken=credentials.select(System.getenv("PAICLI_RUNNER_TOKEN"));
         CenterHttpClient client = new CenterHttpClient(centerUrl, deviceToken, true);
         RunnerEngine.TaskExecutor executor = (RunnerEngine.TaskExecutor) Class.forName("com.paicli.runner.NativeTaskExecutor")
             .getConstructor(CenterHttpClient.class,Path.class).newInstance(client,state);
-        try (RunnerEngine engine = new RunnerEngine(client, root, state, executor,deviceToken,credentials)) {
+        try (RunnerEngine engine = new RunnerEngine(client, state, executor,deviceToken,credentials,directories)) {
             engine.connect();
+            if(directoryProof){engine.proveDirectory(Path.of(args[2]));System.out.println("本人现有目录已经由真实宿主核验并登记。");return 0;}
             do {
                 boolean claimed = engine.runOnce();
                 if (args.length == 2) return 0;

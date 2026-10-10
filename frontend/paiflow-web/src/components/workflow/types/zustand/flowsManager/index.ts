@@ -2,6 +2,7 @@ import { Node } from 'reactflow';
 import { FlowType, ErrNodeType } from '../..';
 import { FlowStoreType } from '../flow';
 import { UseBoundStore, StoreApi } from 'zustand';
+import type { TextNodeConfig, TextNodeConfigListChange } from '../../nodes/components';
 
 export type FlowsManagerStoreType = {
   singleNodeDebuggingInfo: {
@@ -107,7 +108,7 @@ export type FlowsManagerStoreType = {
   }) => void;
   setCurrentStore: (iteratorStore: string) => void;
   getCurrentStore: () => UseBoundStore<StoreApi<FlowStoreType>>;
-  removeTextNodeConfig: (id: string) => void;
+  removeTextNodeConfig: (id: string | number) => Promise<TextNodeConfig[]>;
   sparkLlmModels: unknown[];
   decisionMakingModels: unknown[];
   extractorParameterModels: unknown[];
@@ -121,7 +122,7 @@ export type FlowsManagerStoreType = {
   flows: Array<FlowType>;
   setFlows: (flows: FlowType[]) => void;
   errNodes: Array<ErrNodeType>;
-  setErrNodes: (node: Node | null, string?) => void;
+  setErrNodes: (errNodes: ErrNodeType[]) => void;
   currentFlowId: string;
   showNodeList: boolean;
   setShowNodeList: (showNodeList: boolean) => void;
@@ -150,13 +151,13 @@ export type FlowsManagerStoreType = {
   ) => void;
   nodeTemplate: unknown;
   setNodeTemplate: (nodeTemplate: unknown) => void;
-  textNodeConfigList: unknown;
-  setTextNodeConfigList: (textNodeConfigList: unknown) => void;
+  textNodeConfigList: TextNodeConfig[];
+  setTextNodeConfigList: (change: TextNodeConfigListChange) => void;
   agentStrategy: unknown;
   setAgentStrategy: (agentStrategy: unknown) => void;
   knowledgeProStrategy: unknown;
   setKnowledgeProStrategy: (knowledgeProStrategy: unknown) => void;
-  addTextNodeConfig: (params: unknown) => Promise<void>;
+  addTextNodeConfig: (params: { separator: string }) => Promise<unknown>;
   autoSaveCurrentFlow: () => void;
   canPublishSetNot: () => void;
   checkFlow: () => boolean;

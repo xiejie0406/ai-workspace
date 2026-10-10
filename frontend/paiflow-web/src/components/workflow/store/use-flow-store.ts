@@ -39,16 +39,16 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
   setZoom: (zoom: number): void => setZoom(zoom, set),
   undo: (): void => undo(get),
   takeSnapshot: (): void => takeSnapshot(get),
-  setHistorys: (change: unknown): void => setHistorys(change, get, set),
-  moveToPosition: (viewport: unknown): void => moveToPosition(viewport),
-  setReactFlowInstance: (newState: unknown): void =>
+  setHistorys: (change): void => setHistorys(change, get, set),
+  moveToPosition: (viewport): void => moveToPosition(viewport),
+  setReactFlowInstance: (newState): void =>
     setReactFlowInstance(newState, set),
   onNodesChange: (changes: NodeChange[]): void =>
     onNodesChange(changes, get, set),
   onEdgesChange: (changes: EdgeChange[]): void =>
     onEdgesChange(changes, get, set),
-  setNodes: (change: unknown): void => setNodes(change, get, set),
-  setEdges: (change: unknown): void => setEdges(change, get, set),
+  setNodes: (change): void => setNodes(change, get, set),
+  setEdges: (change): void => setEdges(change, get, set),
   setNode: (id: string, change: Node | ((oldState: Node) => Node)): void =>
     setNode(id, change, get, set),
   delayCheckNode: (nodeId: string): void => delayCheckNode(nodeId, get, set),
@@ -71,7 +71,7 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
   ): void => removeNodeRef(souceId, targetId, inputEdges, get),
   deleteNodeRef: (id: string, outputId: string): void =>
     deleteNodeRef(id, outputId, get),
-  switchNodeRef: (connection: Connection, oldEdge: Edge, get): void =>
+  switchNodeRef: (connection: Connection, oldEdge: Edge): void =>
     switchNodeRef(connection, oldEdge, get),
   addIntentId: (connection: Edge): void => addIntentId(connection, get),
   onConnect: (connection: Connection): void => onConnect(connection, get),

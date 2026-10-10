@@ -28,6 +28,8 @@ mvn -o -f ruoyi-backend/ruoyi-aipicture/pom.xml test
 
 完整源接口对应：assets / library → `AssetService`；sessions / patch / history / undo / redo / selection → `SessionService`、`RunService`；generations / runs / events → `RunService`；messages / confirm / cancel / retry → `PlanService`；batches / 单项恢复 / export、session exports、Web evaluation → `BatchExportEvaluationService`；health / capabilities → 私有 Worker 能力回读。原账号 API 由共享若依替代。源 SSE 进度在当前客户端改为鉴权轮询及持久事件查询，不在业务前缀开放匿名 SSE。
 
+本机验收登录恢复统一见[共用操作说明](../../文档/若依框架/多项目并行开发启动指南.md#本机验收登录恢复)。全部本机验收通道启用辅助能力；先复用有效会话，失效时仅用已授权账号凭据辅助填写当前验证码并正常登录。浏览器无法控制或账号凭据未获授权时单独报告所需条件；恢复登录后回到待验步骤，既有业务结果与证据保持原判定。
+
 ## 一次性原数据导入
 
 `migration/ImportManifest.java`、`ImportVerifier.java` 和 `AiPictureImportTool.java` 是独立人工工具，不注册 Spring Bean、HTTP 接口或启动任务。它读取人工导出的本地 JSON 包和同根图片，默认 `verify` 不构造数据源、不复制文件。源业务表完整对应为：

@@ -1,0 +1,1315 @@
+{
+  "schemaVersion": "paiflow.data.actual-consumer-fixtures.v1",
+  "cases": [
+    {
+      "name": "mode-1-env-1",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 1,
+        "tableName": "items",
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 3,
+        "cases": [
+          {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "varIndex": "question",
+                "selectCondition": "like"
+              },
+              {
+                "fieldName": "count",
+                "varIndex": "ignored",
+                "selectCondition": "null",
+                "fieldType": "integer"
+              }
+            ]
+          },
+          {
+            "logicalOperator": "and",
+            "conditions": []
+          }
+        ],
+        "orderData": []
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 1,
+          "table": "items",
+          "values": {
+            "question": "原查询",
+            "bundle": {
+              "nested": [
+                {
+                  "business": "原透传"
+                }
+              ]
+            }
+          },
+          "where": {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "operator": "like",
+                "value": "%原查询%"
+              },
+              {
+                "fieldName": "count",
+                "operator": "null",
+                "zeroEquivalent": 0
+              }
+            ]
+          },
+          "columns": [],
+          "order": [],
+          "limit": null,
+          "returning": "last_inserted_row",
+          "execDev": 1
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "mode-2-env-1",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 2,
+        "tableName": "items",
+        "assignmentList": [
+          "question"
+        ],
+        "limit": 3,
+        "cases": [
+          {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "varIndex": "question",
+                "selectCondition": "like"
+              },
+              {
+                "fieldName": "count",
+                "varIndex": "ignored",
+                "selectCondition": "null",
+                "fieldType": "integer"
+              }
+            ]
+          },
+          {
+            "logicalOperator": "and",
+            "conditions": []
+          }
+        ],
+        "orderData": []
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 2,
+          "table": "items",
+          "values": {
+            "question": "原查询"
+          },
+          "where": {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "operator": "like",
+                "value": "%原查询%"
+              },
+              {
+                "fieldName": "count",
+                "operator": "null",
+                "zeroEquivalent": 0
+              }
+            ]
+          },
+          "columns": [],
+          "order": [],
+          "limit": null,
+          "returning": "matched_rows",
+          "execDev": 1
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "mode-3-env-1",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 3,
+        "tableName": "items",
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 3,
+        "cases": [
+          {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "varIndex": "question",
+                "selectCondition": "like"
+              },
+              {
+                "fieldName": "count",
+                "varIndex": "ignored",
+                "selectCondition": "null",
+                "fieldType": "integer"
+              }
+            ]
+          },
+          {
+            "logicalOperator": "and",
+            "conditions": []
+          }
+        ],
+        "orderData": [
+          {
+            "fieldName": "name",
+            "order": "desc"
+          }
+        ]
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.query",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 3,
+          "table": "items",
+          "values": {},
+          "where": {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "operator": "like",
+                "value": "%原查询%"
+              },
+              {
+                "fieldName": "count",
+                "operator": "null",
+                "zeroEquivalent": 0
+              }
+            ]
+          },
+          "columns": [
+            "name"
+          ],
+          "order": [
+            {
+              "fieldName": "name",
+              "order": "desc"
+            }
+          ],
+          "limit": 3,
+          "returning": "exec_success",
+          "execDev": 1
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "mode-4-env-1",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 4,
+        "tableName": "items",
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 3,
+        "cases": [
+          {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "varIndex": "question",
+                "selectCondition": "like"
+              },
+              {
+                "fieldName": "count",
+                "varIndex": "ignored",
+                "selectCondition": "null",
+                "fieldType": "integer"
+              }
+            ]
+          },
+          {
+            "logicalOperator": "and",
+            "conditions": []
+          }
+        ],
+        "orderData": []
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 4,
+          "table": "items",
+          "values": {},
+          "where": {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "operator": "like",
+                "value": "%原查询%"
+              },
+              {
+                "fieldName": "count",
+                "operator": "null",
+                "zeroEquivalent": 0
+              }
+            ]
+          },
+          "columns": [],
+          "order": [],
+          "limit": null,
+          "returning": "exec_success",
+          "execDev": 1
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "custom-SELECT-env-1",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 0,
+        "tableName": null,
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 0,
+        "sql": "SELECT name, count FROM items WHERE name = '{{question}}'"
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.query",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 0,
+          "sql": "SELECT name, count FROM items WHERE name = '原查询'",
+          "execDev": 1
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "custom-INSERT-env-1",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 0,
+        "tableName": null,
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 0,
+        "sql": "INSERT INTO items(name) VALUES ('{{question}}')"
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 0,
+          "sql": "INSERT INTO items(name) VALUES ('原查询')",
+          "execDev": 1
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "custom-UPDATE-env-1",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 0,
+        "tableName": null,
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 0,
+        "sql": "UPDATE items SET name='{{question}}' WHERE count=2"
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 0,
+          "sql": "UPDATE items SET name='原查询' WHERE count=2",
+          "execDev": 1
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "custom-DELETE-env-1",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 0,
+        "tableName": null,
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 0,
+        "sql": "DELETE FROM items WHERE count=2"
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 0,
+          "sql": "DELETE FROM items WHERE count=2",
+          "execDev": 1
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "mode-1-env-2",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 1,
+        "tableName": "items",
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 3,
+        "cases": [
+          {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "varIndex": "question",
+                "selectCondition": "like"
+              },
+              {
+                "fieldName": "count",
+                "varIndex": "ignored",
+                "selectCondition": "null",
+                "fieldType": "integer"
+              }
+            ]
+          },
+          {
+            "logicalOperator": "and",
+            "conditions": []
+          }
+        ],
+        "orderData": []
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 1,
+          "table": "items",
+          "values": {
+            "question": "原查询",
+            "bundle": {
+              "nested": [
+                {
+                  "business": "原透传"
+                }
+              ]
+            }
+          },
+          "where": {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "operator": "like",
+                "value": "%原查询%"
+              },
+              {
+                "fieldName": "count",
+                "operator": "null",
+                "zeroEquivalent": 0
+              }
+            ]
+          },
+          "columns": [],
+          "order": [],
+          "limit": null,
+          "returning": "last_inserted_row",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "mode-2-env-2",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 2,
+        "tableName": "items",
+        "assignmentList": [
+          "question"
+        ],
+        "limit": 3,
+        "cases": [
+          {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "varIndex": "question",
+                "selectCondition": "like"
+              },
+              {
+                "fieldName": "count",
+                "varIndex": "ignored",
+                "selectCondition": "null",
+                "fieldType": "integer"
+              }
+            ]
+          },
+          {
+            "logicalOperator": "and",
+            "conditions": []
+          }
+        ],
+        "orderData": []
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 2,
+          "table": "items",
+          "values": {
+            "question": "原查询"
+          },
+          "where": {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "operator": "like",
+                "value": "%原查询%"
+              },
+              {
+                "fieldName": "count",
+                "operator": "null",
+                "zeroEquivalent": 0
+              }
+            ]
+          },
+          "columns": [],
+          "order": [],
+          "limit": null,
+          "returning": "matched_rows",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "mode-3-env-2",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 3,
+        "tableName": "items",
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 3,
+        "cases": [
+          {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "varIndex": "question",
+                "selectCondition": "like"
+              },
+              {
+                "fieldName": "count",
+                "varIndex": "ignored",
+                "selectCondition": "null",
+                "fieldType": "integer"
+              }
+            ]
+          },
+          {
+            "logicalOperator": "and",
+            "conditions": []
+          }
+        ],
+        "orderData": [
+          {
+            "fieldName": "name",
+            "order": "desc"
+          }
+        ]
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.query",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 3,
+          "table": "items",
+          "values": {},
+          "where": {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "operator": "like",
+                "value": "%原查询%"
+              },
+              {
+                "fieldName": "count",
+                "operator": "null",
+                "zeroEquivalent": 0
+              }
+            ]
+          },
+          "columns": [
+            "name"
+          ],
+          "order": [
+            {
+              "fieldName": "name",
+              "order": "desc"
+            }
+          ],
+          "limit": 3,
+          "returning": "exec_success",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "mode-4-env-2",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 4,
+        "tableName": "items",
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 3,
+        "cases": [
+          {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "varIndex": "question",
+                "selectCondition": "like"
+              },
+              {
+                "fieldName": "count",
+                "varIndex": "ignored",
+                "selectCondition": "null",
+                "fieldType": "integer"
+              }
+            ]
+          },
+          {
+            "logicalOperator": "and",
+            "conditions": []
+          }
+        ],
+        "orderData": []
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 4,
+          "table": "items",
+          "values": {},
+          "where": {
+            "logicalOperator": "or",
+            "conditions": [
+              {
+                "fieldName": "name",
+                "operator": "like",
+                "value": "%原查询%"
+              },
+              {
+                "fieldName": "count",
+                "operator": "null",
+                "zeroEquivalent": 0
+              }
+            ]
+          },
+          "columns": [],
+          "order": [],
+          "limit": null,
+          "returning": "exec_success",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "custom-SELECT-env-2",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 0,
+        "tableName": null,
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 0,
+        "sql": "SELECT name, count FROM items WHERE name = '{{question}}'"
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.query",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 0,
+          "sql": "SELECT name, count FROM items WHERE name = '原查询'",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "custom-INSERT-env-2",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 0,
+        "tableName": null,
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 0,
+        "sql": "INSERT INTO items(name) VALUES ('{{question}}')"
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 0,
+          "sql": "INSERT INTO items(name) VALUES ('原查询')",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "custom-UPDATE-env-2",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 0,
+        "tableName": null,
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 0,
+        "sql": "UPDATE items SET name='{{question}}' WHERE count=2"
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 0,
+          "sql": "UPDATE items SET name='原查询' WHERE count=2",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      }
+    },
+    {
+      "name": "custom-DELETE-env-2",
+      "node": {
+        "dataResourceId": "data:7:revision:2",
+        "dbId": 7,
+        "spaceId": null,
+        "mode": 0,
+        "tableName": null,
+        "assignmentList": [
+          "name"
+        ],
+        "limit": 0,
+        "sql": "DELETE FROM items WHERE count=2"
+      },
+      "nodeInputs": [
+        {
+          "id": "",
+          "name": "question",
+          "schema": {
+            "type": "string",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "question"
+              }
+            }
+          }
+        },
+        {
+          "id": "",
+          "name": "bundle",
+          "schema": {
+            "type": "object",
+            "value": {
+              "type": "ref",
+              "content": {
+                "nodeId": "node-start::s",
+                "name": "bundle"
+              }
+            }
+          }
+        }
+      ],
+      "operation": "data.mutate",
+      "parameters": {
+        "resourceId": "data:7:revision:2",
+        "resourceVersion": "2",
+        "kind": "database",
+        "provider": "center-data",
+        "legacyPayload": {
+          "mode": 0,
+          "sql": "DELETE FROM items WHERE count=2",
+          "execDev": 2
+        },
+        "resourceBindings": {}
+      }
+    }
+  ]
+}

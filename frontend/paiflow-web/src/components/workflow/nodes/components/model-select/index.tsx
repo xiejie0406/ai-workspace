@@ -1,4 +1,4 @@
-import React, { useState, useMemo, memo } from 'react';
+import React, { useState, useMemo, useRef, memo } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { cloneDeep } from 'lodash';
 import { Tooltip } from 'antd';
@@ -6,7 +6,11 @@ import { v4 as uuid } from 'uuid';
 import { useTranslation } from 'react-i18next';
 import { FlowSelect } from '@/components/workflow/ui';
 import useFlowsManager from '@/components/workflow/store/use-flows-manager';
-import ModelParams from '../model-params';
+import ModelParams, { readModelInfo, readModelFields, serviceModelFields, modelParameterKey, modelRecord } from '../model-params';
+import type { ModelInfo } from '../model-params';
+import type { NodeDataType, NodeParameters, InputsProps } from '@/components/workflow/types';
+import type { WorkflowModelSummary } from '@/components/workflow/types/hooks';
+import type { TFunction } from 'i18next';
 import useUserStore from '@/store/user-store';
 import {
   getCustomModelConfigDetail,
@@ -24,7 +28,7 @@ import debuggerIcon from '@/assets/imgs/workflow/debugger-icon.png';
 import inputErrorMsg from '@/assets/imgs/plugin/input_error_msg.svg';
 
 // 模型标签
-const ModelTags = ({ tags = [] }): React.ReactElement => {
+const ModelTags = ({ tags = [] }: { tags?: string[] }): React.ReactElement | null => {
   if (!tags?.length) return null;
   return (
     <div className="text-sm flex items-center gap-2">
@@ -64,7 +68,7 @@ const ModelTags = ({ tags = [] }): React.ReactElement => {
 };
 
 // ========== 提取逻辑函数 ==========
-const getTooltipTitle = (model, nodeParam, t): string => {
+const getTooltipTitle = (model: ModelInfo, nodeParam: NodeParameters, t: TFunction): string => {
   if (nodeParam?.modelEnabled === false && model?.llmId === nodeParam?.llmId) {
     return t('workflow.nodes.modelSelect.modelOffShelf');
   }
@@ -76,7 +80,8 @@ const getTooltipTitle = (model, nodeParam, t): string => {
   return '';
 };
 
-const ModelStatusBlock = ({ model, nodeParam, t }): React.ReactElement => {
+interface ModelItemProps { model: ModelInfo; nodeParam: NodeParameters; t: TFunction }
+const ModelStatusBlock = ({ model, nodeParam, t }: ModelItemProps): React.ReactElement | null => {
   const isOffShelf =
     model?.shelfStatus === 1 ||
     (nodeParam?.modelEnabled === false && model?.llmId === nodeParam?.llmId);
@@ -96,7 +101,7 @@ const ModelStatusBlock = ({ model, nodeParam, t }): React.ReactElement => {
 };
 
 // ========== 主渲染 ==========
-const ModelItem = ({ model, nodeParam, t }): React.ReactElement => (
+const ModelItem = ({ model, nodeParam, t }: ModelItemProps): React.ReactElement => (
   <Tooltip
     title={getTooltipTitle(model, nodeParam, t)}
     overlayClassName="black-tooltip"
@@ -115,7 +120,7 @@ const ModelItem = ({ model, nodeParam, t }): React.ReactElement => (
                   : '',
             }}
           >
-            {model.name || nodeParam?.modelName}
+            {model.name || (typeof nodeParam.modelName === 'string' ? nodeParam.modelName : '')}
           </span>
           <ModelStatusBlock model={model} nodeParam={nodeParam} t={t} />
         </div>
@@ -126,9 +131,10 @@ const ModelItem = ({ model, nodeParam, t }): React.ReactElement => (
 );
 
 const useModelSelect = (
-  id,
-  models
-): { handleModelChange: (data: unknown, value: unknown) => void } => {
+  id: string,
+  models: WorkflowModelSummary[]
+): { handleModelChange: (data: NodeDataType, value: string | number) => void } => {
+  const selectionGeneration = useRef(0);
   const { currentNode } = useNodeCommon({
     id,
   });
@@ -140,73 +146,64 @@ const useModelSelect = (
   );
   const updateNodeRef = currentStore(state => state.updateNodeRef);
   const setNode = currentStore(state => state.setNode);
-  const handleResetModelParams = useMemoizedFn(currentSelectModel => {
+  const handleResetModelParams = useMemoizedFn((currentSelectModel: ModelInfo, generation: number) => {
     if (currentSelectModel?.llmSource === 0) {
       getCustomModelConfigDetail(
-        currentSelectModel.id,
-        currentSelectModel.llmSource
+        String(currentSelectModel.id),
+        String(currentSelectModel.llmSource)
       ).then(data => {
+        if (selectionGeneration.current !== generation) return;
+        const config = readModelFields(data).filter(item =>
+          item.constraintType === 'range' || item.constraintType === 'switch');
+        let applied = false;
         setNode(id, old => {
-          const config = data?.filter(
-            (item: unknown) =>
-              item.constraintType === 'range' ||
-              item.constraintType === 'switch'
-          );
-          const extraParams = {};
+          if (old.data.nodeParam.llmId !== currentSelectModel.llmId || old.data.nodeParam.modelId !== currentSelectModel.id) return old;
+          const extraParams: Record<string, unknown> = {};
           config.forEach(item => {
             extraParams[item?.key] = item?.default;
             Reflect.deleteProperty(old.data.nodeParam, item.key);
           });
           old.data.nodeParam.extraParams = extraParams;
+          applied = true;
           return {
             ...cloneDeep(old),
           };
         });
-        autoSaveCurrentFlow();
+        if (applied) autoSaveCurrentFlow();
       });
     } else {
       getModelConfigDetail(
-        currentSelectModel.llmId,
-        currentSelectModel.llmSource
+        String(currentSelectModel.llmId),
+        String(currentSelectModel.llmSource)
       ).then(modelDetail => {
-        const configs = (
-          modelDetail?.config?.serviceBlock?.[currentSelectModel.serviceId]?.[0]
-            ?.fields ||
-          modelDetail?.config?.serviceBlock?.['@@serviceId@@']?.[0]?.fields ||
-          []
-        )?.filter(
-          (item: unknown) =>
+        if (selectionGeneration.current !== generation) return;
+        const configs = serviceModelFields(modelRecord(modelDetail) ? modelDetail.config : undefined, currentSelectModel.serviceId).filter(
+          item =>
             item.constraintType === 'range' || item.constraintType === 'switch'
         );
+        let applied = false;
         setNode(id, old => {
+          if (old.data.nodeParam.llmId !== currentSelectModel.llmId || old.data.nodeParam.modelId !== currentSelectModel.id) return old;
           configs.forEach(item => {
-            if (item.key === 'max_tokens') {
-              item.key = 'maxTokens';
-            }
-            if (item.key === 'top_k') {
-              item.key = 'topK';
-            }
-            if (item.key === 'search_disable') {
-              item.key = 'searchDisable';
-            }
-            old.data.nodeParam[item.key] = item.default;
+            old.data.nodeParam[modelParameterKey(item.key)] = item.default;
           });
+          applied = true;
           return {
             ...cloneDeep(old),
           };
         });
-        autoSaveCurrentFlow();
+        if (applied) autoSaveCurrentFlow();
       });
     }
   });
-  const handleSparkLLMOutputs = useMemoizedFn((data, value) => {
+  const handleSparkLLMOutputs = useMemoizedFn((data: NodeDataType, value: ModelInfo) => {
     if (
       (data.nodeParam.serviceId === 'xdeepseekr1' ||
         data?.nodeParam?.isThink) &&
       !value?.isThink
     ) {
       data.outputs = data?.outputs?.filter(
-        (item: unknown) => item.customParameterType !== 'deepseekr1'
+        item => item.customParameterType !== 'deepseekr1'
       );
     }
 
@@ -225,12 +222,13 @@ const useModelSelect = (
             type: 'string',
           },
         },
-        ...data.outputs,
+        ...(data.outputs ?? []),
       ];
     }
   });
 
-  const handleSparkLLMInputs = useMemoizedFn((data, value) => {
+  const handleSparkLLMInputs = useMemoizedFn((data: NodeDataType, value: ModelInfo) => {
+    data.inputs ??= [];
     if (value.serviceId === 'image_understanding' || value?.multiMode) {
       data.inputs.unshift({
         id: uuid(),
@@ -250,19 +248,19 @@ const useModelSelect = (
     }
   });
 
-  const handleRetryConfig = useMemoizedFn(data => {
+  const handleRetryConfig = useMemoizedFn((data: NodeDataType) => {
     if (data?.retryConfig?.errorStrategy !== 1) return;
 
-    if (!checkedNodeOutputData(data?.outputs, currentNode)) {
+    if (!checkedNodeOutputData(data.outputs ?? [], currentNode)) {
       data.retryConfig.customOutput = JSON.stringify({ output: '' }, null, 2);
       data.nodeParam.setAnswerContentErrMsg =
         '输出中变量名校验不通过,自动生成JSON失败';
     } else {
       data.retryConfig.customOutput = JSON.stringify(
         generateOrUpdateObject(
-          data?.outputs,
-          isJSON(data?.retryConfig.customOutput)
-            ? JSON.parse(data?.retryConfig.customOutput)
+          data.outputs ?? [],
+          isJSON(data.retryConfig.customOutput ?? '')
+            ? JSON.parse(data.retryConfig.customOutput ?? '')
             : null
         ),
         null,
@@ -272,7 +270,7 @@ const useModelSelect = (
     }
   });
 
-  const updateNodeParams = useMemoizedFn((data, value) => {
+  const updateNodeParams = useMemoizedFn((data: NodeDataType, value: ModelInfo) => {
     data.nodeParam.uid = user?.uid?.toString();
     data.nodeParam.llmId = value.llmId;
     data.nodeParam.domain = value.domain;
@@ -294,8 +292,11 @@ const useModelSelect = (
     }
   });
 
-  const handleModelChange = useMemoizedFn((data, value) => {
-    const currentModel = models.find(model => model.llmId === value);
+  const handleModelChange = useMemoizedFn((data: NodeDataType, value: string | number) => {
+    const selectedModel = models.find(model => model.llmId === value);
+    if (!selectedModel) return;
+    const currentModel = readModelInfo(selectedModel);
+    const generation = ++selectionGeneration.current;
     if (id?.startsWith('spark-llm')) {
       handleSparkLLMOutputs(data, currentModel);
       handleSparkLLMInputs(data, currentModel);
@@ -313,7 +314,7 @@ const useModelSelect = (
         }),
       };
     });
-    handleResetModelParams(currentModel);
+    handleResetModelParams(currentModel, generation);
   });
 
   return {
@@ -321,11 +322,12 @@ const useModelSelect = (
   };
 };
 
-function index({ id, data }): React.ReactElement {
-  const { handleChangeNodeParam, nodeParam, models } = useNodeCommon({
+function index({ id, data }: Pick<InputsProps, 'id' | 'data'>): React.ReactElement {
+  const { handleChangeNodeParam, nodeParam, models: modelSummaries } = useNodeCommon({
     id,
     data,
   });
+  const models = useMemo(() => modelSummaries.map(readModelInfo), [modelSummaries]);
   const { handleModelChange } = useModelSelect(id, models);
   const { t } = useTranslation();
   const canvasesDisabled = useFlowsManager(state => state.canvasesDisabled);
@@ -341,9 +343,9 @@ function index({ id, data }): React.ReactElement {
         <div className="flex-1">
           <FlowSelect
             popupClassName="overscroll-contain flow-model-select-dropdown"
-            getPopupContainer={triggerNode => triggerNode.parentNode}
-            value={currentSelectModel ? nodeParam?.llmId : nodeParam?.modelName}
-            onChange={value => handleModelChange(data, value)}
+            getPopupContainer={(triggerNode: HTMLElement) => triggerNode.parentElement ?? triggerNode}
+            value={currentSelectModel ? nodeParam.llmId : typeof nodeParam.modelName === 'string' ? nodeParam.modelName : undefined}
+            onChange={(value: string | number) => handleModelChange(data, value)}
           >
             {models.map(model => (
               <FlowSelect.Option key={model.llmId} value={model.llmId}>
@@ -372,7 +374,7 @@ function index({ id, data }): React.ReactElement {
           />
         )}
       </div>
-      {nodeParam?.llmIdErrMsg && (
+      {typeof nodeParam.llmIdErrMsg === 'string' && nodeParam.llmIdErrMsg && (
         <p className="text-xs text-[#F74E43]">{nodeParam?.llmIdErrMsg}</p>
       )}
     </div>

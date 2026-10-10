@@ -1,5 +1,5 @@
-from common_imports import BaseExc
-from exceptions.codes import c_40050, c_40051, c_40052, c_40053
+from agent.common_imports import BaseExc
+from agent.exceptions.codes import c_40050, c_40051, c_40052, c_40053
 
 
 class BotConfigMgrExc(BaseExc):

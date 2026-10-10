@@ -3,22 +3,22 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from api.schemas.bot_config import (
+from agent.api.schemas.bot_config import (
     BotConfig,
     BotKnowledgeConfig,
     BotModelConfig,
     BotRegularConfig,
 )
 from api.utils.snowfake import get_snowflake_id
-from cache.redis_client import BaseRedisClient, create_redis_client
+from agent.cache.redis_client import BaseRedisClient, create_redis_client
 
 # pylint: disable=no-member
-from common_imports import Span
-from domain.models.bot_config_table import TbBotConfig
-from exceptions.agent_exc import AgentExc
-from exceptions.bot_config_exc import BotConfigMgrExc
-from infra import agent_config
-from repository.mysql_client import MysqlClient
+from agent.common_imports import Span
+from agent.domain.models.bot_config_table import TbBotConfig
+from agent.exceptions.agent_exc import AgentExc
+from agent.exceptions.bot_config_exc import BotConfigMgrExc
+from agent.infra import agent_config
+from agent.repository.mysql_client import MysqlClient
 
 
 class BotConfigClient(BaseModel):

@@ -69,4 +69,19 @@ class CanvasExecutionCompilerTest {
         var d=data();d.getJSONArray("outputs").add(output("top",JSONObject.of("type","array-")));assertEquals("object",compiled(graph(d)).getJSONArray("outputs").getJSONObject(0).getJSONObject("schema").getJSONObject("items").get("type"));
         d.getJSONArray("outputs").add(output("nested",JSONObject.of("type","object","properties",JSONArray.of(JSONObject.of("name","broken","type","array-")))));assertEquals(422,assertThrows(ServiceException.class,()->compiled(graph(d))).getCode());
     }
+    @Test void v4KeepsOriginalCanvasConversionAndCanonicalBytesWithoutReinterpretingOldVersions(){
+        var d=data();d.getJSONObject("nodeParam").put("explicitNull",null);
+        d.getJSONArray("outputs").add(output("batch",JSONObject.of("type","array-string","description","","default",JSONArray.of("原值"))));
+        var source=graph(d);source.put("futureNull",null);String before=source.toJSONString(com.alibaba.fastjson2.JSONWriter.Feature.WriteMapNullValue);
+        var codec=new DslCodec();var old=codec.normalizeV1(source);var v2=codec.normalize(source,DslCodec.V2);var v3=codec.normalize(source,DslCodec.V3);var v4=codec.normalize(source,DslCodec.V4);
+        assertEquals(before,source.toJSONString(com.alibaba.fastjson2.JSONWriter.Feature.WriteMapNullValue));
+        assertEquals(v2.execution(),v4.execution());assertEquals(v3.execution(),v4.execution());
+        String fixed=DslCodec.canonicalDslBase64(v4.execution(),DslCodec.V4);
+        assertEquals(DslCodec.canonicalDslBase64(v2.execution(),DslCodec.V2),fixed);assertEquals(DslCodec.canonicalDslBase64(v3.execution(),DslCodec.V3),fixed);
+        assertEquals(v4.executionHash(),DslCodec.fixedExecutionHash(v4.execution(),DslCodec.V4));
+        assertEquals(v4.execution(),JSON.parseObject(new String(java.util.Base64.getDecoder().decode(fixed),java.nio.charset.StandardCharsets.UTF_8)));
+        assertNotEquals(old.executionHash(),v4.executionHash());assertEquals(old.execution(),codec.normalize(source,null).execution());
+        assertEquals(v4.execution(),codec.normalize(v4.execution(),DslCodec.V4).execution());
+        assertTrue(v4.original().containsKey("futureNull"));assertTrue(v4.execution().getJSONArray("nodes").getJSONObject(0).getJSONObject("data").getJSONObject("nodeParam").containsKey("explicitNull"));
+    }
 }

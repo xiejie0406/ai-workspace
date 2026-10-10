@@ -16,6 +16,60 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LegacyWorkflowStreamCodecTest {
+    private JSONObject originalJava() throws Exception {
+        try(var source=getClass().getResourceAsStream("/fixtures/legacy-java-original-node-frames.json")) {
+            assertNotNull(source);return JSON.parseObject(new String(source.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
+        }
+    }
+    private RunRecord javaRun(String id) {
+        var run=run();run.setId(id);run.setEngineProfile("java");run.setLastEventSeq(12L);
+        run.setAssignmentJson(JSONObject.of("dsl",JSONObject.of("nodes",JSONArray.of(JSONObject.of("id","node-start::1"),JSONObject.of("id","node-end::3"))),
+            "input",new JSONObject(),"resourceSnapshots",new JSONObject()).toJSONString());return run;
+    }
+    @Test void actualJavaEmptyStartsAndStopsPreserveOriginalNodeFieldsAndIgnoreMapFacts() throws Exception {
+        var run=javaRun("java-run");int projectedCount=0;
+        for(Object raw:originalJava().getJSONArray("events")) {
+            var event=(JSONObject)raw;if("plugin::2".equals(event.getString("nodeId")))continue;
+            event.put("leaseId",run.getLeaseId());
+            var frame=event.getJSONObject("payload").getJSONObject("legacyFrame");
+            if(frame==null) {assertNull(LegacyWorkflowStreamCodec.project(run,event,null));continue;}
+            String before=RunJsonBoundary.canonicalFull(frame);
+            var projected=LegacyWorkflowStreamCodec.project(run,event,null);projectedCount++;
+            assertEquals(run.getId(),projected.get("id"));assertEquals(frame.get("workflow_step"),projected.get("workflow_step"));
+            assertEquals(frame.get("usage"),projected.get("usage"));assertTrue(projected.containsKey("event_data"));
+            assertNull(projected.getJSONArray("choices").getJSONObject(0).get("finish_reason"));
+            assertEquals(before,RunJsonBoundary.canonicalFull(frame));
+        }
+        assertEquals(4,projectedCount);
+    }
+    @Test void actualJavaFailureCodeSurvivesButRawFlowEndCannotReplaceCentreTerminal() throws Exception {
+        var run=javaRun("java-run");var frames=originalJava().getJSONArray("failureFrames");
+        var failure=frames.getJSONObject(4);failure.getJSONObject("workflow_step").getJSONObject("node").put("id","node-start::1");
+        var event=event(run,"text.delta",failure);event.put("nodeId","node-start::1");
+        var projected=LegacyWorkflowStreamCodec.project(run,event,null);assertEquals(1001,projected.getIntValue("code"));
+        assertEquals(failure.get("message"),projected.get("message"));assertNull(projected.getJSONArray("choices").getJSONObject(0).get("finish_reason"));
+        var stopped=frames.getJSONObject(5);event.getJSONObject("payload").put("legacyFrame",stopped);event.put("nodeId","flow_obj");
+        assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(run,event,null));
+        failure.getJSONObject("workflow_step").getJSONObject("node").put("finish_reason",null);event.put("nodeId","node-start::1");
+        event.getJSONObject("payload").put("legacyFrame",failure);assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(run,event,null));
+    }
+    @Test void javaSidCompatibilityDoesNotRelaxOuterScopeNodeOrPythonIdentity() throws Exception {
+        var run=javaRun("java-run");var raw=originalJava().getJSONArray("events").getJSONObject(6);
+        raw.put("leaseId",run.getLeaseId());
+        for(String field:new String[]{"runId","leaseId","attempt","nodeId","seq"}) {
+            var changed=JSON.parseObject(RunJsonBoundary.canonicalFull(raw));
+            changed.put(field,"attempt".equals(field)?2:"seq".equals(field)?13L:"wrong");
+            assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(run,changed,null),field);
+        }
+        var frame=raw.getJSONObject("payload").getJSONObject("legacyFrame");
+        for(Object sid: new Object[]{null,""," ",42,"bad\nsource","x".repeat(513)}) {
+            frame.put("id",sid);assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(run,raw,null));
+        }
+        frame.put("id","original-java-sid");run.setEngineProfile("python");
+        assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(run,raw,null));
+        run.setEngineProfile("java");frame.getJSONObject("workflow_step").getJSONObject("node").put("id","node-end::3");
+        assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(run,raw,null));
+    }
     private static final String NODE="question-answer::fixture";
     private JSONObject golden(int index) throws Exception {
         return JSON.parseObject(Files.readString(Path.of("../../contracts/paiflow/fixtures/legacy-workflow-stream.json")))
@@ -115,8 +169,8 @@ class LegacyWorkflowStreamCodecTest {
         assertNull(LegacyWorkflowStreamCodec.project(run(),event(run(),"reasoning.delta",null),null));
         assertNull(LegacyWorkflowStreamCodec.project(run(),event(run(),"usage",null),null));
     }
-    @Test void wholeFixedGraphRejectsIterationEvenWhenTopLevelWorkerOmitsIterationId() throws Exception {
-        for(String type:new String[]{"iteration","iteration-node-start","iteration-node-end","spark-llm","node-variable"}) {
+    @Test void wholeFixedGraphRejectsUnadmittedMixedNodesEvenWhenTopLevelWorkerOmitsIterationId() throws Exception {
+        for(String type:new String[]{"iteration","iteration-node-start","iteration-node-end","spark-llm"}) {
             var run=run();var assignment=JSON.parseObject(run.getAssignmentJson());
             assignment.getJSONObject("dsl").getJSONArray("nodes").add(JSONObject.of("id",type+"::fixture"));
             run.setAssignmentJson(assignment.toJSONString());
@@ -126,11 +180,39 @@ class LegacyWorkflowStreamCodecTest {
             // 本夹具含QA，与迭代混合仍未准入；真实纯迭代输入门另有正反检查。
             assertEquals(503,assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(run,value,null)).getCode(),type);
         }
+        // 变量已迁入顶层页流能力；此处只核许可后投影，不把合成图当作变量联机证据。
+        var variableRun=run();var assignment=JSON.parseObject(variableRun.getAssignmentJson());
+        assignment.getJSONObject("dsl").getJSONArray("nodes").add(JSONObject.of("id","node-variable::fixture",
+            "data",JSONObject.of("nodeParam",JSONObject.of("method","get"))));
+        variableRun.setAssignmentJson(assignment.toJSONString(JSONWriter.Feature.WriteMapNullValue));
+        var original=golden(0);String before=original.toJSONString(JSONWriter.Feature.WriteMapNullValue);
+        var legal=event(variableRun,"node.started",original);
+        assertEquals(before,LegacyWorkflowStreamCodec.project(variableRun,legal,null).toJSONString(JSONWriter.Feature.WriteMapNullValue));
+        assertEquals(before,original.toJSONString(JSONWriter.Feature.WriteMapNullValue));
+        var wrongScope=event(variableRun,"node.started",golden(0));wrongScope.put("iterationId","iteration::other:0");
+        assertEquals(409,assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(variableRun,wrongScope,null)).getCode());
+        var missingNode=event(variableRun,"node.started",golden(0));missingNode.put("nodeId","node-variable::not-in-fixed-graph");
+        assertEquals(409,assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.project(variableRun,missingNode,null)).getCode());
     }
     private RunRecord iterationRun() throws Exception {
         var baseline=JSON.parseObject(Files.readString(Path.of("../../contracts/paiflow/fixtures/pure-iteration.json"))).getJSONObject("baseline");
         var run=run();run.setAssignmentJson(JSONObject.of("dsl",baseline.getJSONObject("dsl"),"input",baseline.getJSONObject("input"),
             "resourceSnapshots",new JSONObject()).toJSONString(JSONWriter.Feature.WriteMapNullValue));return run;
+    }
+    @Test void pinnedTopLevelModelFramesPreserveOriginalBodyAndRejectMissingChangedOrUnusedResources() throws Exception {
+        for(String type:new String[]{"spark-llm","extractor-parameter","decision-making","question-answer"}) {
+            String nodeId=type+"::model";String resourceId="model:7:version:2";
+            var params=JSONObject.of("modelResourceId",resourceId,"source","xinghuo","domain","generalv3.5","answerType","direct","directAnswer",JSONObject.of("handleResponse",true));
+            var descriptor=JSONObject.of("kind","model","provider","xinghuo","version","2","modelName","generalv3.5","enabled",true,"capabilities",JSONArray.of("chat","function_call"));
+            var execution=JSONObject.of("nodes",JSONArray.of(JSONObject.of("id",nodeId,"data",JSONObject.of("nodeParam",params))));
+            var resources=JSONObject.of(resourceId,descriptor);var run=run();run.setAssignmentJson(JSONObject.of("dsl",execution,"resourceSnapshots",resources).toJSONString(JSONWriter.Feature.WriteMapNullValue));
+            var frame=golden(3);frame.getJSONObject("workflow_step").getJSONObject("node").put("id",nodeId);
+            var value=event(run,"node.completed",frame);value.put("nodeId",nodeId);String before=frame.toJSONString(JSONWriter.Feature.WriteMapNullValue);
+            assertEquals(before,LegacyWorkflowStreamCodec.project(run,value,null).toJSONString(JSONWriter.Feature.WriteMapNullValue));assertEquals(before,frame.toJSONString(JSONWriter.Feature.WriteMapNullValue));
+            resources.clear();assertEquals(503,assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.requireSupportedExecution(execution,resources)).getCode());
+            resources.put(resourceId,descriptor);params.put("domain","forged");assertEquals(409,assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.requireSupportedExecution(execution,resources)).getCode());
+            params.put("domain","generalv3.5");resources.put("model:8:version:2",descriptor);assertEquals(503,assertThrows(ServiceException.class,()->LegacyWorkflowStreamCodec.requireSupportedExecution(execution,resources)).getCode());
+        }
     }
     private JSONObject iterationEvent(RunRecord run,String nodeId,String iterationId) throws Exception {
         var frame=golden(0);frame.getJSONObject("workflow_step").getJSONObject("node").put("id",nodeId);

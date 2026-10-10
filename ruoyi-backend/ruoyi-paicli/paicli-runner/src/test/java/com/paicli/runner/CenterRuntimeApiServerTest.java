@@ -16,6 +16,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class CenterRuntimeApiServerTest {
     private static final String KEY="fixture-runtime-key-32-bytes";
     private final HttpClient client=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
+    @Test void runtimeArgumentsPreserveOriginalHttpFlag() {
+        assertEquals(8080,CenterRuntimeApiServer.parsePort(new String[]{"serve","--http"}));
+        assertEquals(24081,CenterRuntimeApiServer.parsePort(new String[]{"serve","--http","--port","24081"}));
+        assertEquals(24082,CenterRuntimeApiServer.parsePort(new String[]{"serve","--port","24082","--HTTP"}));
+    }
+    @Test void runtimeArgumentsPreserveCurrentPortForms() {
+        assertEquals(8080,CenterRuntimeApiServer.parsePort(new String[]{"serve"}));
+        assertEquals(24083,CenterRuntimeApiServer.parsePort(new String[]{"serve","--port","24083"}));
+        assertEquals(24085,CenterRuntimeApiServer.parsePort(new String[]{"serve","--port","24084","--port","24085"}));
+        // 端口范围仍由原构造边界裁决，参数提取不增加另一套限制。
+        assertEquals(-1,CenterRuntimeApiServer.parsePort(new String[]{"serve","--port","-1"}));
+        assertEquals(65536,CenterRuntimeApiServer.parsePort(new String[]{"serve","--port","65536"}));
+    }
+    @Test void runtimeArgumentsRejectMalformedInputBeforeConfiguration() {
+        for(String[] args:List.of(new String[]{"serve","--unknown"},new String[]{"serve","--port"},
+                new String[]{"serve","--port","not-a-number"},new String[]{"serve","--port","2147483648"},
+                new String[]{"serve","--http","--port"}))
+            assertThrows(IllegalArgumentException.class,()->CenterRuntimeApiServer.parsePort(args));
+    }
     @Test void threadTurnAndSnapshotSseUseCenterIdsAndConfirmedEvents()throws Exception{
         FakeGateway gateway=new FakeGateway();try(var server=server(gateway)){
             server.start();assertTrue(server.address().getAddress().isLoopbackAddress());

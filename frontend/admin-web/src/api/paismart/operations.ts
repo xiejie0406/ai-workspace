@@ -1,11 +1,16 @@
 import { call, get, list, newKey, pathId, post, put, remove } from './client'
-import type { Activity, Id, Invite, Job, Message, OperationPlan, OperationStatus, Provider, Query, RateLimits, Result } from '@/types/paismart'
+import type { Activity, Id, Invite, Job, Message, OperationPlan, OperationStatus, Provider, ProviderSaved, ProviderTestInput, ProviderTestResult, Query, RateLimits, Result } from '@/types/paismart'
 import {normalizeJob} from './adapters'
 export const operationStatus = () => get<OperationStatus>('/operations/status')
 export const listProviders = () => list<Provider>('/providers', { pageNum: 1, pageSize: 100 })
 export const getProvider = (scope: string) => get<Provider>(`/providers/${pathId(scope)}`)
-export const saveProvider = (row: Provider) => call<Result<Provider>>(`/providers/${pathId(row.scope)}`, { method: 'put', data: row, headers: { 'If-Match': String(row.rowVersion), repeatSubmit: false } })
-export const testProvider = (scope: string,id?:Id) => post<{ latencyMs: number; state: string; reason?: string }>(`/providers/${pathId(scope)}/test`, {id}, newKey())
+export const saveProvider = (row: Provider) => {
+  const { compatibilityValid, activationBlockedReason, canStartNewVerification, ...input } = row
+  const config = { ...row.config }
+  delete config.compatibility
+  return call<Result<ProviderSaved>>(`/providers/${pathId(row.scope)}`, { method: 'put', data: { ...input, config }, headers: { 'If-Match': String(row.rowVersion), repeatSubmit: false } })
+}
+export const testProvider = (scope: string, input: ProviderTestInput = {}, key: string = newKey()) => call<Result<ProviderTestResult>>(`/providers/${pathId(scope)}/test`, { method: 'post', data: input, headers: { 'Idempotency-Key': key, repeatSubmit: false }, timeout: input.mode === 'compatibility' ? 360000 : undefined })
 export const getLimits = () => get<RateLimits>('/rate-limits')
 export const saveLimits = (data: RateLimits) => put<RateLimits>('/rate-limits', data, data.rowVersion)
 export const listInvites = (params: Query) => list<Invite>('/invites', params)

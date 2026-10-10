@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, TypedDict, Union
 
 import requests
 
-from common.http_request import HttpRequest
+from plugin.aitools.common.http_request import HttpRequest
 
 
 class ErrorResponse(TypedDict):

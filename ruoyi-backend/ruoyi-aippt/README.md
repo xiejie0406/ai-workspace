@@ -5,11 +5,25 @@
 
 本模块实现批准迁移方案的正式 MySQL 中心。Spring 启动复用若依用户、菜单权限、`dynamicDataSource`、MyBatis 和平台事务，业务 Mapper 扫描只覆盖本模块。用户 API 位于 `/aippt`，Worker API 位于 `/internal/aippt/tasks`。共享 API、内容和导入清单位于仓库 `contracts/aippt/`；结构 Schema 是第一层，中心进一步核对所有者、版本、租约、稳定引用和对象字节。
 
+本机验收登录恢复统一见[共用操作说明](../../文档/若依框架/多项目并行开发启动指南.md#本机验收登录恢复)。全部本机验收通道启用辅助能力；先复用有效会话，失效时仅用已授权账号凭据辅助填写当前验证码并正常登录。浏览器无法控制或账号凭据未获授权时单独报告所需条件；恢复登录后回到待验步骤，既有业务结果与证据保持原判定。
+
 ## 默认关闭与运行前提
 
 `aippt.enabled`、`worker.enabled`、`provider.enabled`、`image.enabled`、`cleanup.enabled` 均默认 false。关闭时不注册业务持久层或定时任务，独立 internal 安全链始终拒绝访问。启用 Worker 必须设置至少32字符的 `X-Aippt-Worker-Key`，用户 JWT 不能访问该机器通道。图片 Provider 同时需要中心任务 `image_enabled=true` 和 Worker 自身图片开关，不影响私有上传图片读取。
 
 目录唯一源为 `contracts/aippt/catalog`，Maven复制进制品，启动按 `catalog-manifest.json` 的版本、数量、大小、SHA-256逐文件校验。受控外部 `catalog-path` 必须在其同级提供 manifest。Worker和中心目录版本均为 `aippt-1-90c52568ea7d`。
+
+## Sub2API 文本出口
+
+文本模型由本模块中心调用。`provider.enabled` 与 `provider.text-enabled`（`AIPPT_TEXT_ENABLED`）均需显式开启；开启前须核实并配置 `AIPPT_TEXT_BASE_URL`（HTTPS根路径或 `/v1`，固定443）、`AIPPT_TEXT_ALLOWED_HOSTS`（精确域名列表）、`AIPPT_TEXT_WIRE_API`（`chat_completions` 或 `responses`）、`AIPPT_TEXT_MODEL` 及 `AIPPT_TEXT_SECRET_REF`。默认用途 `ai.aippt.sub2api.text` 必须在既有托管密钥中具有 `AI/aippt/sub2api/text` 元数据、有效版本及 `api-key`/`bearer` 认证模式；配置和Worker都不保存长期模型密钥。未配置时默认关闭，不自动测试、选择模型或使用其他项目密钥。
+
+`POST /internal/aippt/tasks/{id}/text` 只接受 `attempt/leaseToken/fencingToken/callId/system/user/purpose`；`callId` 为完整UUID，正文总UTF-8预算2MiB。请求使用原机器认证与任务租约；用户JWT及任意URL/model/key字段不能进入文本出口。只有提纲、页面生成、AI编辑、重排四类任务允许调用。领取时把路由及托管密钥版本冻结到原任务body；旧运行任务缺少快照时拒绝文本调用，不静默改用新配置。
+
+每任务最多8次逻辑调用，单次输出默认8192 token；中心传输默认60秒、最高80秒、上游响应最高4MiB，返回Worker的JSON响应总UTF-8预算2MiB（中心预留512字节平台信封），任务内保存的文本调用结果账本总预算4MiB。Worker文本HTTP等待需至少90秒且无重试。Chat使用经核实的 `max_tokens`/`max_completion_tokens`（`AIPPT_TEXT_OUTPUT_TOKEN_PARAMETER`），Responses使用 `max_output_tokens`；两者要求JSON对象输出，拒绝拒答、工具原生响应、不完整终态与截断。原工具循环由Worker薄适配为JSON选择信封，不将原生工具协议响应当成JSON正文。真实协议/模型兼容和办公软件结果仍需联机验证。
+
+短事务预占调用ID与正文摘要，HTTP在事务外执行并持续核对租约/取消/路由版本；成功再核对后保存可回读结果。同ID同正文已完成时回读，不重复外呼；在途、未知或不同正文拒绝重送。失败、取消、密钥轮换或响应异常保留未知状态，已收到且合法的token用量单独保留；缺用量不能写实际0。已有文本调用的任务不自动恢复为新尝试，避免Worker崩溃后换ID重复计费，须核对后显式创建新任务。
+
+出口复用现有Apache HttpClient依赖：HTTPS正常证书校验、实际建连处白名单和DNS公网地址校验、不继承环境代理、不跟随重定向、不自动传输重试、有界线程和响应读取。取消关闭所属请求仅证明本机停止等待，不能证明上游停止生成或没有费用。账本不保存Prompt、密钥或底层异常；正式任务、权限及数据仍归原中心。本次代码实现不启用真实Provider、不录入密钥、不修改数据库，也未据编译宣称真实接入成功。
 
 本地存储需要显式私有 `storage-path`，拒绝平台公开 profile 子目录、非法对象键和符号链接。COS 使用官方 `cos_api:5.6.227`，对象 ACL 显式 Private；秘密通过现有环境管理注入。用户读取要求 Bearer 与所属权限；5分钟下载票据还核对 owner/project/asset/到期。PNG/JPEG/WebP先魔数再完整解码；WebP使用 `imageio-webp:3.13.1`，大小8MiB、最多四千万像素。文档10MiB，PPTX100MiB，ZIP遍历/数量/解压总量均受限。
 

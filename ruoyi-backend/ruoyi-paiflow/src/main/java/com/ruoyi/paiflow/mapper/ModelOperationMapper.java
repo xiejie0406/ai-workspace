@@ -9,6 +9,7 @@ public interface ModelOperationMapper {
     ModelOperationRecord find(@Param("id") String id);
     ModelOperationRecord lock(@Param("id") String id);
     ModelOperationRecord byRequest(@Param("runId") String runId,@Param("attempt") int attempt,@Param("requestKeyHash") String requestKeyHash);
+    List<ModelOperationRecord> forRunResource(@Param("runId") String runId,@Param("resourceId") String resourceId);
     int insert(ModelOperationRecord row);
     int update(ModelOperationRecord row);
     ModelFrameRecord frame(@Param("operationId") String id,@Param("seq") long seq);

@@ -48,20 +48,30 @@ class TaskHandlers:
 
     def generator(self, kind: str):
         if kind not in self.generators:
-            from app.llm.client import create_chat_model
+            from app.llm.center import CenterStructuredChatClient, CenterToolChatModel
             from app.llm.deepseek import DeepSeekOutlineGenerator
             from app.llm.slide import DeepSeekSlideGenerator
             from app.llm.slide_edit import DeepSeekSlideEditGenerator
             from app.llm.relayout import DeepSeekRelayoutGenerator
-            cfg = get_settings()
             classes = {"outline": DeepSeekOutlineGenerator, "slide": DeepSeekSlideGenerator,
                        "edit": DeepSeekSlideEditGenerator, "relayout": DeepSeekRelayoutGenerator}
-            self.generators[kind] = classes[kind](model=create_chat_model(cfg), api_key=cfg.llm_api_key)
+            chat = CenterStructuredChatClient(self.center)
+            if kind == "edit":
+                # 原工具循环只检查api_key非空；此固定标记不是供应商凭据。
+                self.generators[kind] = classes[kind](model=CenterToolChatModel(chat), api_key="center-task-transport")
+            else:
+                self.generators[kind] = classes[kind](chat=chat)
         return self.generators[kind]
 
     async def run(self, task: ClaimedTask) -> tuple[dict, list[dict]]:
+        import os
+        # 中心文本出口不改变原有禁止材料旁送追踪平台的边界。
+        os.environ["LANGCHAIN_TRACING_V2"] = "false"
+        os.environ["LANGSMITH_TRACING"] = "false"
         from app.worker.execution import begin_execution,end_execution
         stats,token=begin_execution(get_settings(),task.type)
+        from app.llm.center import bind_text_task, unbind_text_task
+        text_token = bind_text_task(task)
         font_token = None
         font_identity = {}
         try:
@@ -76,6 +86,7 @@ class TaskHandlers:
                 unbind_font_faces(font_token)
             task._execution=stats.summary()
             end_execution(token)
+            unbind_text_task(text_token)
         return {**output,**font_identity,"execution":task._execution},assets
 
     async def parse_source(self, task):

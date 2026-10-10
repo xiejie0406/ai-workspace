@@ -5,21 +5,21 @@ import ChatMessage from '@/views/paismart/chat/components/ChatMessage.vue'
 import Chat from '@/views/paismart/chat/index.vue'
 import SearchDialog from '@/views/paismart/documents/components/SearchDialog.vue'
 import Spaces from '@/views/paismart/spaces/index.vue'
-const mocks=vi.hoisted(()=>({hybridSearch:vi.fn(),listSpaces:vi.fn(),myMembership:vi.fn(),setPrimarySpace:vi.fn(),conversationMessages:vi.fn(),getActiveGeneration:vi.fn(),sendFeedback:vi.fn(),success:vi.fn()}))
+const mocks=vi.hoisted(()=>({hybridSearch:vi.fn(),listSpaces:vi.fn(),myMembership:vi.fn(),setPrimarySpace:vi.fn(),conversationMessages:vi.fn(),conversationAction:vi.fn(),getActiveGeneration:vi.fn(),sendFeedback:vi.fn(),success:vi.fn()}))
 vi.mock('@/api/paismart/search',()=>mocks)
 vi.mock('@/api/paismart/spaces',()=>({...mocks,deleteSpace:vi.fn(),saveSpace:vi.fn()}))
 vi.mock('@/api/paismart/chat',()=>mocks)
-vi.mock('@/api/paismart/conversations',()=>({...mocks,createConversation:vi.fn(),conversationAction:vi.fn()}))
+vi.mock('@/api/paismart/conversations',()=>({...mocks,createConversation:vi.fn()}))
 vi.mock('@/api/paismart/client',()=>({newKey:()=> 'local-key',pathId:String,get:vi.fn(),list:vi.fn(),post:vi.fn(),put:vi.fn(),remove:vi.fn()}))
 vi.mock('element-plus',()=>({ElMessage:{success:mocks.success},ElMessageBox:{}}))
 vi.mock('vue-router',()=>({useRoute:()=>({query:{}})}))
-vi.mock('@/views/paismart/composables/useChatStream',()=>({useChatStream:()=>({state:ref('idle'),text:ref(''),error:ref(''),generationId:ref(),tools:ref([]),references:ref([]),resume:vi.fn(),stop:vi.fn(),send:vi.fn()})}))
+vi.mock('@/views/paismart/composables/useChatStream',()=>({useChatStream:()=>({state:ref('idle'),text:ref(''),error:ref(''),generationId:ref(),conversationId:ref(),tools:ref([]),references:ref([]),resume:vi.fn(),stop:vi.fn(),send:vi.fn(),reset:vi.fn()})}))
 const slots={template:'<div><slot name="header"/><slot/><slot name="footer"/></div>'}
 const global={stubs:{...Object.fromEntries(['el-dialog','el-form','el-form-item','el-input-number','el-select','el-option'].map(name=>[name,slots])),'el-table-column':true,'el-alert':{props:['title'],template:'<div>{{title}}</div>'},'el-input':{props:['modelValue'],template:'<input :value="modelValue" @input="$emit(\'update:modelValue\',$event.target.value)"/>'},'el-button':{emits:['click'],template:'<button @click="$emit(\'click\')"><slot/></button>'},'el-table':{props:['data'],template:'<div>{{JSON.stringify(data)}}<slot/></div>'},'el-empty':true,'el-pagination':true,ReferencePreview:true,ConversationList:{template:'<button @click="$emit(\'select\',{id:\'c1\',title:\'历史会话\',rowVersion:1,archived:false})">读取历史会话</button>'}},directives:{loading:()=>{},hasPermi:()=>{}}}
 const reference={id:'r1',documentId:'d1',title:'引用合同',contentVersion:1,verification:{supported:false,reason:'期限与该句不同'}}
 const result=(title:string)=>({data:{hits:[{...reference,title}],degraded:false,indexRevision:'v1',scoreType:'RRF'}})
 const button=(wrapper:ReturnType<typeof mount>,label:string)=>wrapper.findAll('button').find(item=>item.text()===label)!
-beforeEach(()=>{vi.resetAllMocks();mocks.getActiveGeneration.mockResolvedValue({data:null});mocks.listSpaces.mockResolvedValue({rows:[{id:'a',name:'主空间甲'},{id:'b',name:'空间乙'}],total:2});mocks.myMembership.mockResolvedValue({data:{eligible:true,primarySpaceId:'a'}});mocks.setPrimarySpace.mockResolvedValue({data:null})})
+beforeEach(()=>{vi.resetAllMocks();mocks.getActiveGeneration.mockResolvedValue({data:null});mocks.conversationAction.mockResolvedValue({data:{id:'c1',title:'历史会话',rowVersion:1,archived:false,spaceId:null}});mocks.listSpaces.mockResolvedValue({rows:[{id:'a',name:'主空间甲'},{id:'b',name:'空间乙'}],total:2});mocks.myMembership.mockResolvedValue({data:{eligible:true,primarySpaceId:'a',visibleSpaces:[{id:'a',name:'主空间甲'},{id:'b',name:'空间乙'}]}});mocks.setPrimarySpace.mockResolvedValue({data:null})})
 describe('原引用、检索和主空间反馈',()=>{
  it('回答与历史引用显式提示待核实，理由是安全文本且点击保留引用身份',async()=>{const reason='<img src=x onerror=alert(1)> 不支持该句';const wrapper=mount(ChatMessage,{props:{message:{id:'m1',role:'assistant',content:'回答[1]',references:[{...reference,verification:{supported:false,reason}}]}},global});expect(wrapper.text()).toContain('待核实');expect(wrapper.text()).toContain(reason);expect(wrapper.find('img').exists()).toBe(false);await wrapper.findAll('button').find(item=>item.text().includes('引用合同'))!.trigger('click');expect(wrapper.emitted('reference')?.[0]?.[0]).toMatchObject({id:'r1'});wrapper.unmount()})
  it.each([{verification:undefined,verified:undefined,label:'未核验'},{verification:undefined,verified:false,label:'待核实'},{verification:{status:'SUSPICIOUS'},verified:true,label:'待核实'},{verification:{supported:true},verified:undefined,label:'已核验'}])('核验字段缺失或兼容字段不伪装结论：$label',entry=>{const wrapper=mount(ChatMessage,{props:{message:{id:'m',role:'assistant',content:'回答',references:[{...reference,...entry}]}},global});expect(wrapper.text()).toContain(entry.label);if(entry.label!=='已核验')expect(wrapper.text()).not.toContain('已核验');wrapper.unmount()})

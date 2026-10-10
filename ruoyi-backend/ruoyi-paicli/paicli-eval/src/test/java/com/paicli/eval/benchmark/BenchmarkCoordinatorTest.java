@@ -6,7 +6,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -92,7 +91,7 @@ class BenchmarkCoordinatorTest {
     void localCommandProfileFlowsUnchangedIntoWorkerRequestAndManifest(@TempDir Path tempDir)
             throws Exception {
         Path suitePath = writeSuite(tempDir.resolve("suite"));
-        BenchmarkCoordinatorMain.Options options = new BenchmarkCoordinatorMain.Options(
+        BenchmarkCoordinatorMain.Options options = options(
                 suitePath,
                 "glm",
                 "glm-5.3-flash",
@@ -100,8 +99,7 @@ class BenchmarkCoordinatorTest {
                 tempDir.resolve("results"),
                 "run-local-command-profile",
                 Set.of(),
-                BenchmarkToolProfile.LOCAL_COMMAND,
-                Duration.ofSeconds(5));
+                BenchmarkToolProfile.LOCAL_COMMAND);
         BenchmarkCoordinatorMain.WorkerExecutor worker = (request, workspace, home, timeout) -> {
             assertEquals(BenchmarkToolProfile.LOCAL_COMMAND, request.toolProfile());
             Files.writeString(workspace.resolve("done.txt"), "done");
@@ -127,7 +125,7 @@ class BenchmarkCoordinatorTest {
         Files.writeString(candidateJar, "candidate-build");
         Path runnerJar = BenchmarkRunnerTestArtifact.create(
                 tempDir.resolve("private-runner.jar").toAbsolutePath());
-        Path dockerExecutable = Path.of("/usr/local/bin/docker");
+        Path dockerExecutable = tempDir.resolve("not-executed-docker-fixture").toAbsolutePath();
         BenchmarkCoordinatorMain.Options options = new BenchmarkCoordinatorMain.Options(
                 suitePath,
                 "glm",
@@ -408,6 +406,60 @@ class BenchmarkCoordinatorTest {
     }
 
     @Test
+    void devSafePermissionProofFailureIsUnscoredAndRetainsRealVerifierArtifact(@TempDir Path tempDir)
+            throws Exception {
+        Path suitePath = writeDevSafeSuite(tempDir.resolve("suite"));
+        var report = BenchmarkCoordinatorMain.run(
+                options(suitePath, "glm", "glm-5.3-flash", 1, tempDir.resolve("results"), "devsafe-infra"),
+                provider -> new BenchmarkCoordinatorMain.ProviderSettings(API_KEY, null),
+                (request, workspace, home, timeout) -> successfulWorker(request, "done"),
+                devSafePermissionFailureVerifier(false), CLOCK);
+        assertEquals(1, report.aggregate().infraErrorEpisodes());
+        assertEquals(0.0, report.aggregate().scoredEpisodeCoveragePercent(), 0.001);
+        assertNull(report.aggregate().diagnosticMeanWeightedScore());
+        assertEquals(ScoreAggregator.ResultStatus.INFRA_ERROR, report.outcomes().get(0).score().status());
+        Path episode = onlyEpisode(report.runDirectory());
+        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        var run = mapper.readTree(Files.readString(episode.resolve("run.json")));
+        assertEquals("INFRA_ERROR", run.path("status").asText());
+        assertEquals("FAILED", run.path("verifierStatus").asText());
+        var verifier = mapper.readTree(Files.readString(episode.resolve("verifier.json")));
+        assertEquals("FAILED", verifier.path("status").asText());
+        assertEquals(2, verifier.path("exitCode").asInt());
+        assertTrue(verifier.path("stderr").asText().contains("cannot prove forbidden-file read denial"));
+    }
+
+    @Test
+    void devSafeDiagnosticFromAnotherRegisteredVerifierStillScoresZero(@TempDir Path tempDir)
+            throws Exception {
+        Path suitePath = writeSuite(tempDir.resolve("suite"));
+        var report = BenchmarkCoordinatorMain.run(
+                options(suitePath, "glm", "glm-5.3-flash", 1, tempDir.resolve("results"), "other-exit-two"),
+                provider -> new BenchmarkCoordinatorMain.ProviderSettings(API_KEY, null),
+                (request, workspace, home, timeout) -> successfulWorker(request, "done"),
+                devSafePermissionFailureVerifier(false), CLOCK);
+        assertEquals(0, report.aggregate().infraErrorEpisodes());
+        assertEquals(100.0, report.aggregate().scoredEpisodeCoveragePercent(), 0.001);
+        assertEquals(0.0, report.aggregate().diagnosticMeanWeightedScore(), 0.001);
+        assertEquals(ScoreAggregator.ResultStatus.SCORED, report.outcomes().get(0).score().status());
+    }
+
+    @Test
+    void credentialCanaryStillWinsOverDevSafeInfrastructureDiagnostic(@TempDir Path tempDir)
+            throws Exception {
+        Path suitePath = writeDevSafeSuite(tempDir.resolve("suite"));
+        var report = BenchmarkCoordinatorMain.run(
+                options(suitePath, "glm", "glm-5.3-flash", 1, tempDir.resolve("results"), "devsafe-canary"),
+                provider -> new BenchmarkCoordinatorMain.ProviderSettings(API_KEY, null),
+                (request, workspace, home, timeout) -> successfulWorker(request, "done"),
+                devSafePermissionFailureVerifier(true), CLOCK);
+        assertEquals(0, report.aggregate().infraErrorEpisodes());
+        assertTrue(report.aggregate().hardGateViolation());
+        assertEquals(0.0, report.aggregate().diagnosticMeanWeightedScore(), 0.001);
+        assertFalse(BenchmarkSecretCanary.containsInTree(report.runDirectory(), API_KEY));
+    }
+
+    @Test
     void dockerVerifierLifecycleFailureIsInfraNotCandidateZero(@TempDir Path tempDir)
             throws Exception {
         Path suitePath = writeSuite(tempDir.resolve("suite-docker-infra"));
@@ -476,19 +528,12 @@ class BenchmarkCoordinatorTest {
         BenchmarkCoordinatorMain.Options options = options(
                 suitePath, "deepseek", "deepseek-v4-flash", 1,
                 tempDir.resolve("results"), "run-canary-purge-failure");
-        AtomicReference<Path> episodePath = new AtomicReference<>();
+        AtomicReference<EpisodePathObstruction> obstruction = new AtomicReference<>();
         BenchmarkCoordinatorMain.WorkerExecutor worker = (request, workspace, home, timeout) -> {
             Files.writeString(workspace.resolve("leak.txt"), API_KEY);
-            Path episode = workspace.getParent();
-            episodePath.set(episode);
-            try {
-                com.paicli.eval.benchmark.SecureFiles.setPosixFilePermissions(
-                        episode, PosixFilePermissions.fromString("r-x------"));
-            } catch (UnsupportedOperationException | IOException error) {
-                org.junit.jupiter.api.Assumptions.abort(
-                        "POSIX permissions unavailable on this test host");
-            }
-            return successfulWorker(request, "done");
+            // 真实根路径替换使 purge 的捕获目录校验抛 IOException，不依赖 chmod/unlink 平台语义。
+            obstruction.set(EpisodePathObstruction.install(tempDir, workspace.getParent()));
+            return successfulWorker(request, "done " + API_KEY);
         };
 
         BenchmarkCoordinatorMain.RunReport report;
@@ -500,15 +545,7 @@ class BenchmarkCoordinatorTest {
                     successfulVerifier(),
                     CLOCK);
         } finally {
-            Path episode = episodePath.get();
-            if (episode != null && Files.exists(episode)) {
-                try {
-                    com.paicli.eval.benchmark.SecureFiles.setPosixFilePermissions(
-                            episode, PosixFilePermissions.fromString("rwx------"));
-                } catch (UnsupportedOperationException | IOException ignored) {
-                    // Best effort so a skipped capability test is not masked during cleanup.
-                }
-            }
+            if (obstruction.get() != null) obstruction.get().close();
         }
 
         assertEquals(0, report.aggregate().infraErrorEpisodes());
@@ -520,6 +557,27 @@ class BenchmarkCoordinatorTest {
         String aggregate = Files.readString(report.runDirectory().resolve("aggregate.json"));
         assertTrue(aggregate.contains("\"hardGateViolation\" : true"));
         assertTrue(aggregate.contains("purge failed"));
+    }
+
+    @Test
+    void replacingCapturedEpisodeRootReallyFailsPurgeAndRestoringItAllowsPurge(@TempDir Path tempDir)
+            throws Exception {
+        var store = BenchmarkArtifactStore.create(tempDir.resolve("purge-probe"), "root-replaced");
+        var episode = store.episode("case-purge", "fixture-model", 1);
+        Path payload = Files.writeString(episode.directory().resolve("payload.txt"), "purge fixture");
+        try (var obstruction = EpisodePathObstruction.install(tempDir, episode.directory())) {
+            IOException failure = assertThrows(IOException.class, episode::purgeContentsForSecurityFailure);
+            assertTrue(failure.getMessage().startsWith(
+                    "benchmark episode directory is not a safe non-symlink directory:"), failure.getMessage());
+            System.out.println("purge 根路径替换负对照：" + failure.getClass().getSimpleName()
+                    + ": " + failure.getMessage());
+            assertEquals("purge fixture", Files.readString(obstruction.displaced.resolve("payload.txt")));
+            assertEquals(EpisodePathObstruction.MARKER, Files.readString(episode.directory()));
+        }
+        // 同一生产对象重新核对原目录身份；恢复后应真实清理合成 payload。
+        episode.purgeContentsForSecurityFailure();
+        assertFalse(Files.exists(payload));
+        assertTrue(Files.isDirectory(episode.directory()));
     }
 
     @Test
@@ -597,7 +655,7 @@ class BenchmarkCoordinatorTest {
     void explicitCaseSelectionIsDiagnosticAndCannotPopulateOverall(@TempDir Path tempDir)
             throws Exception {
         Path suitePath = writeSuite(tempDir.resolve("suite"));
-        BenchmarkCoordinatorMain.Options options = new BenchmarkCoordinatorMain.Options(
+        BenchmarkCoordinatorMain.Options options = options(
                 suitePath,
                 "glm",
                 "glm-5.3-flash",
@@ -605,7 +663,7 @@ class BenchmarkCoordinatorTest {
                 tempDir.resolve("results"),
                 "run-subset",
                 Set.of("case-one"),
-                Duration.ofSeconds(5));
+                BenchmarkToolProfile.FILE_ONLY);
         BenchmarkCoordinatorMain.WorkerExecutor worker = (request, workspace, home, timeout) -> {
             Files.writeString(workspace.resolve("done.txt"), "done");
             return successfulWorker(request, "done");
@@ -656,6 +714,30 @@ class BenchmarkCoordinatorTest {
             assertEquals(100.0, report.aggregate().diagnosticMeanWeightedScore(), 0.001);
             assertEquals(0, report.aggregate().infraErrorEpisodes());
         }
+    }
+
+    @Test
+    void teamWorkerWithoutScopedRequestProofIsInfraAndCannotReachVerifier(@TempDir Path tempDir)
+            throws Exception {
+        Path suitePath = writeSuite(tempDir.resolve("suite-team-unscoped"), "team");
+        var report = BenchmarkCoordinatorMain.run(
+                options(suitePath, "glm", "glm-5.3-flash", 1,
+                        tempDir.resolve("results"), "run-team-unscoped"),
+                provider -> new BenchmarkCoordinatorMain.ProviderSettings(API_KEY, null),
+                (request, workspace, home, timeout) -> {
+                    assertEquals("team", request.mode());
+                    return successfulWorker(request, "done", null);
+                },
+                (invocation, workspace, home, evidence, timeout) -> {
+                    org.junit.jupiter.api.Assertions.fail("unscoped TEAM evidence must not dispatch verifier");
+                    return null;
+                }, CLOCK);
+        assertEquals(1, report.aggregate().infraErrorEpisodes());
+        assertEquals(0.0, report.aggregate().scoredEpisodeCoveragePercent(), 0.001);
+        assertNull(report.aggregate().diagnosticMeanWeightedScore());
+        assertEquals(BenchmarkProviderEvidenceGate.REQUEST_FINGERPRINT_UNPROVEN,
+                report.outcomes().get(0).failureType());
+        assertEquals(ScoreAggregator.ResultStatus.INFRA_ERROR, report.outcomes().get(0).score().status());
     }
 
     @Test
@@ -829,6 +911,20 @@ class BenchmarkCoordinatorTest {
     private static BenchmarkCoordinatorMain.WorkerExecution successfulWorker(
             BenchmarkProtocol.WorkerRequest request,
             String answer) {
+        // 模式转发的正例使用合成的单次请求证据，不表示真实 Provider / Team 执行已通过。
+        ScopedRequestFingerprints scoped = "team".equalsIgnoreCase(request.mode())
+                ? new ScopedRequestFingerprints(2, "TEAM", java.util.List.of(
+                        new ScopedRequestFingerprints.Request(1,
+                                new ScopedRequestFingerprints.Binding(
+                                        "team:00000000-0000-0000-0000-000000000001",
+                                        "c".repeat(64), "d".repeat(64)),
+                                "a".repeat(64), "b".repeat(64))))
+                : null;
+        return successfulWorker(request, answer, scoped);
+    }
+
+    private static BenchmarkCoordinatorMain.WorkerExecution successfulWorker(
+            BenchmarkProtocol.WorkerRequest request, String answer, ScopedRequestFingerprints scoped) {
         BenchmarkProtocol.AgentLimits limits = request.agentLimits();
         return BenchmarkCoordinatorMain.WorkerExecution.completed(
                 BenchmarkProtocol.WorkerResponse.success(
@@ -839,7 +935,7 @@ class BenchmarkCoordinatorTest {
                                 limits.contextWindowCapTokens(),
                                 limits.contextWindowCapTokens(),
                                 limits.maxOutputTokensPerCall(),
-                                10, 15, true)),
+                                10, 15, true, scoped)),
                 0, 20, "");
     }
 
@@ -857,12 +953,106 @@ class BenchmarkCoordinatorTest {
                 "test-profile");
     }
 
+    private static BenchmarkCoordinatorMain.VerifierExecutor devSafePermissionFailureVerifier(boolean leak) {
+        return (invocation, workspace, home, evidence, timeout) -> {
+            if (leak) Files.writeString(workspace.getParent().resolve("synthetic-leak.txt"), API_KEY);
+            return new BenchmarkVerifier.Result(BenchmarkVerifier.Status.FAILED, 2, 1,
+                    invocation.materialize(workspace, evidence).arguments(), "",
+                    "dev-secret-safe-bundle: INFRA_ERROR: cannot prove forbidden-file read denial\n",
+                    false, false, true, "test-profile");
+        };
+    }
+
+    /** 仅替换本次 @TempDir 中的合成 episode；每次移动前验证绝对路径归属，结束恢复原身份。 */
+    private static final class EpisodePathObstruction implements AutoCloseable {
+        private static final String MARKER = "paicli-purge-episode-path-obstruction\n";
+        private final Path temporaryRoot;
+        private final Path original;
+        private final Path displaced;
+        private final Object identity;
+        private boolean moved;
+        private boolean replacementCreated;
+
+        private EpisodePathObstruction(Path temporaryRoot, Path original) throws IOException {
+            this.temporaryRoot = temporaryRoot.toRealPath();
+            this.original = original.toAbsolutePath().normalize();
+            this.displaced = this.temporaryRoot.resolve("displaced-episode-" + java.util.UUID.randomUUID());
+            requireContained(this.original);
+            requireContained(this.displaced);
+            if (!this.original.equals(this.original.toRealPath()))
+                throw new IOException("test episode path must not resolve through a link");
+            this.identity = SecureFiles.identity(this.original, Files.readAttributes(this.original,
+                    java.nio.file.attribute.BasicFileAttributes.class, java.nio.file.LinkOption.NOFOLLOW_LINKS));
+        }
+
+        private static EpisodePathObstruction install(Path temporaryRoot, Path original) throws IOException {
+            var obstruction = new EpisodePathObstruction(temporaryRoot, original);
+            obstruction.requireContained(obstruction.original);
+            obstruction.requireContained(obstruction.displaced);
+            Files.move(obstruction.original, obstruction.displaced);
+            obstruction.moved = true;
+            try {
+                SecureFiles.createFile(obstruction.original);
+                obstruction.replacementCreated = true;
+                Files.writeString(obstruction.original, MARKER);
+                return obstruction;
+            } catch (IOException | RuntimeException failure) {
+                try { obstruction.close(); } catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+                throw failure;
+            }
+        }
+
+        private void requireContained(Path path) throws IOException {
+            Path normalized = path.toAbsolutePath().normalize();
+            if (!normalized.equals(path) || normalized.equals(temporaryRoot)
+                    || !normalized.startsWith(temporaryRoot)
+                    || !normalized.getParent().toRealPath().startsWith(temporaryRoot))
+                throw new IOException("test filesystem mutation escapes this @TempDir");
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (!moved) return;
+            requireContained(original);
+            requireContained(displaced);
+            if (replacementCreated) {
+                if (!Files.isRegularFile(original, java.nio.file.LinkOption.NOFOLLOW_LINKS)
+                        || Files.isSymbolicLink(original) || !MARKER.equals(Files.readString(original)))
+                    throw new IOException("test obstruction file changed; refusing to remove another object");
+                Files.delete(original);
+            }
+            requireContained(displaced);
+            requireContained(original);
+            Files.move(displaced, original);
+            moved = false;
+            Object restored = SecureFiles.identity(original, Files.readAttributes(original,
+                    java.nio.file.attribute.BasicFileAttributes.class, java.nio.file.LinkOption.NOFOLLOW_LINKS));
+            if (!identity.equals(restored)) throw new IOException("test episode identity was not restored");
+        }
+    }
+
+    private static Path writeDevSafeSuite(Path directory) throws Exception {
+        Path suite = writeSuite(directory);
+        Path validators = com.paicli.eval.benchmark.SecureFiles.createDirectories(directory.resolve("validators/dev"));
+        Files.copy(directory.resolve("validators/check.sh"), validators.resolve("dev-secret-safe-bundle.sh"));
+        Files.writeString(suite, Files.readString(suite).replace("case-one", "dev-secret-safe-bundle")
+                .replace("validators/check.sh", "validators/dev/dev-secret-safe-bundle.sh"));
+        return suite;
+    }
+
     private static BenchmarkCoordinatorMain.Options options(Path suite,
                                                             String provider,
                                                             String model,
                                                             int repeats,
                                                             Path output,
                                                             String runId) {
+        return options(suite, provider, model, repeats, output, runId, Set.of(), BenchmarkToolProfile.FILE_ONLY);
+    }
+
+    private static BenchmarkCoordinatorMain.Options options(Path suite, String provider, String model,
+                                                            int repeats, Path output, String runId,
+                                                            Set<String> caseIds, BenchmarkToolProfile profile) {
+        // 本类注入 synthetic Worker/Verifier；显式本机绝对路径不代表安装或运行了 Docker。
         return new BenchmarkCoordinatorMain.Options(
                 suite,
                 provider,
@@ -870,7 +1060,12 @@ class BenchmarkCoordinatorTest {
                 repeats,
                 output,
                 runId,
-                Set.of(),
+                caseIds,
+                profile,
+                BenchmarkCoordinatorMain.WorkerIsolation.HOST_DEV,
+                null, null, null, null, null, null,
+                BenchmarkCoordinatorMain.VerifierIsolation.SEATBELT,
+                null, suite.toAbsolutePath().getParent().resolve("not-executed-docker-fixture"),
                 Duration.ofSeconds(5));
     }
 

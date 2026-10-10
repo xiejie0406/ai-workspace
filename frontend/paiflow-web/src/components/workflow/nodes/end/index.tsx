@@ -9,13 +9,15 @@ import {
   FlowTemplateEditor,
 } from '@/components/workflow/ui';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
+import type { EndDetailProps } from '@/components/workflow/types';
 
-export const EndDetail = memo(props => {
+export const EndDetail = memo((props: EndDetailProps) => {
   const { id, data } = props;
-  const { handleChangeNodeParam, nodeParam, isEndNode } = useNodeCommon({
+  const { handleChangeNodeParam, isEndNode } = useNodeCommon({
     id,
     data,
   });
+  const nodeParam = data.nodeParam;
   const { t } = useTranslation();
   const getCurrentStore = useFlowsManager(state => state.getCurrentStore);
   const currentStore = getCurrentStore();
@@ -48,7 +50,7 @@ export const EndDetail = memo(props => {
                         value: 1,
                       },
                     ]}
-                    onChange={value =>
+                    onChange={(value: number) =>
                       handleChangeNodeParam(
                         (data, value) => (data.nodeParam.outputMode = value),
                         value
@@ -73,7 +75,7 @@ export const EndDetail = memo(props => {
                     id={id}
                     data={data}
                     value={nodeParam?.reasoningTemplate}
-                    onChange={value =>
+                    onChange={(value: string) =>
                       handleChangeNodeParam(
                         (data, value) =>
                           (data.nodeParam.reasoningTemplate = value),
@@ -122,7 +124,7 @@ export const EndDetail = memo(props => {
                     data={data}
                     onBlur={() => delayCheckNode(id)}
                     value={nodeParam?.template}
-                    onChange={value =>
+                    onChange={(value: string) =>
                       handleChangeNodeParam(
                         (data, value) => (data.nodeParam.template = value),
                         value

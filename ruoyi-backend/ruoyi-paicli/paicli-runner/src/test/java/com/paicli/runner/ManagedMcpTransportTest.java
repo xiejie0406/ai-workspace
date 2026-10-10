@@ -14,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ManagedMcpTransportTest {
     private RunnerLease lease() throws IOException { return new RunnerLease(CanonicalJson.MAPPER.createObjectNode()
-            .put("taskId","1").put("workspaceId","7").put("leaseId","2").put("fencingToken",3).put("version",4)
+            .put("taskId","1").put("directoryContextId","7").put("leaseId","2").put("fencingToken",3).put("version",4)
             .put("policyVersion",1).put("rootFingerprint","a".repeat(64)).put("expiresAt",Instant.now().plusSeconds(90).toString())); }
-    private ObjectNode config() { var c=CanonicalJson.MAPPER.createObjectNode().put("id","5").put("workspaceId","7").put("version",6)
+    private ObjectNode config() { var c=CanonicalJson.MAPPER.createObjectNode().put("id","5").put("directoryContextId","7").put("version",6)
             .put("configHash","b".repeat(64)).put("trustedHash","b".repeat(64)).put("transport","STDIO"); c.putObject("envSecretRefs").put("SERVICE_TOKEN","ai.paicli.7.service");c.putObject("headerSecretRefs"); return c; }
     private ObjectNode response(RunnerLease lease) { var c=config();var r=lease.identity();r.put("configId","5").put("configVersion",6).put("configHash","b".repeat(64));
         r.set("envSecretRefs",c.get("envSecretRefs"));r.set("headerSecretRefs",c.get("headerSecretRefs"));r.putObject("secretVersions").put("env.SERVICE_TOKEN",1);

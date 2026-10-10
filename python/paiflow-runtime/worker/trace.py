@@ -28,7 +28,7 @@ class WorkerSpan:
         finally:
             child.add_event("scope.end", {"function": func_name})
 
-    def set_attribute(self, key, value):
+    def set_attribute(self, key, value, node_log=None):
         self.attributes.update(redact_sensitive_data({key: value}))
 
     def set_attributes(self, attributes):
@@ -50,15 +50,16 @@ class WorkerSpan:
         safe = redact_sensitive_data(attributes or {})
         self.records.append({"name": name, "timestamp": datetime.now(timezone.utc).isoformat(), "attributes": safe})
 
-    def add_info_event(self, value, node_log=None):
+    def add_info_event(self, value=None, node_log=None, *, attributes=None):
         # 原 engine 会把 config/输入序列化成不透明字符串；避免绕过结构化脱敏。
         self.add_event("info", {"valueType": type(value).__name__})
 
-    def add_info_events(self, value, node_log=None):
-        self.add_event("info", value if isinstance(value, dict) else {"valueType": type(value).__name__})
+    def add_info_events(self, value=None, node_log=None, *, attributes=None):
+        data = attributes if attributes is not None else value
+        self.add_event("info", data if isinstance(data, dict) else {"valueType": type(data).__name__})
 
-    def add_error_event(self, value, node_log=None):
+    def add_error_event(self, value=None, node_log=None, *, attributes=None):
         self.add_event("error", {"valueType": type(value).__name__})
 
-    def add_error_events(self, value, node_log=None):
-        self.add_error_event(value, node_log)
+    def add_error_events(self, value=None, node_log=None, *, attributes=None):
+        self.add_error_event(attributes if attributes is not None else value, node_log)

@@ -137,7 +137,7 @@ class NativeExecutionTest {
     }
     @Test void incompleteMcpStructureRetainsAllSafeRpcBlocksInPrivateEvidenceWithoutReceipt() throws Exception {
         var receipts = new AtomicInteger();
-        var config = CanonicalJson.MAPPER.createObjectNode().put("id", "5").put("workspaceId", "7").put("version", 6)
+        var config = CanonicalJson.MAPPER.createObjectNode().put("id", "5").put("directoryContextId", "7").put("version", 6)
                 .put("configHash", "b".repeat(64)).put("trustedHash", "b".repeat(64)).put("transport", "STDIO");
         config.putObject("envSecretRefs").put("SERVICE_TOKEN", "ai.paicli.7.service"); config.putObject("headerSecretRefs");
         try (var server = new MockWebServer()) {
@@ -155,7 +155,7 @@ class NativeExecutionTest {
                 if (request.getPath().endsWith("/receipts")) receipts.incrementAndGet(); return ok(body);
             } catch (IOException failure) { throw new java.io.UncheckedIOException(failure); } } }); server.start();
             try (var center = new CenterHttpClient(server.url("/").toString(), "fixture", true)) {
-                var lease = new RunnerLease(claim().put("workspaceId", "7")); Path state = state("mcp-structure"); var spool = new ReceiptSpool(state.resolve("receipts"));
+                var lease = new RunnerLease(claim().put("directoryContextId", "7")); Path state = state("mcp-structure"); var spool = new ReceiptSpool(state.resolve("receipts"));
                 var tools = new CenterToolRegistry(center, lease, spool, temp);
                 var result = tools.executeControl("MCP_READ_RESOURCE", "{}", () -> {
                     class Raw implements com.paicli.mcp.transport.McpTransport {

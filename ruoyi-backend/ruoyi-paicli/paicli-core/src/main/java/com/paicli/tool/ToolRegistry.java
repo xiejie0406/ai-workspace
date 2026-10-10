@@ -728,11 +728,21 @@ public class ToolRegistry {
                 args -> {
                     String name = args.get("name");
                     String type = args.get("type");
+                    // 先校验完整输入，再触碰目录；模板只允许创建全新的单层项目目录。
+                    if (name == null || !name.matches("[\\p{L}\\p{N}][\\p{L}\\p{N}._-]*")) {
+                        return "创建项目失败: 项目名称只能包含文字、数字、点、下划线和连字符，且必须以文字或数字开头";
+                    }
+                    if (type == null || !Set.of("java", "python", "node").contains(type.toLowerCase(Locale.ROOT))) {
+                        return "创建项目失败: 不支持的项目类型，仅支持 java、python、node";
+                    }
                     Path projectRoot = pathGuard.resolveSafe(name);
+                    boolean projectCreated = false;
                     try {
-                        Files.createDirectories(projectRoot);
+                        // createDirectory 的存在检查与创建是原子的，避免检查后被其他会话抢先创建。
+                        Files.createDirectory(projectRoot);
+                        projectCreated = true;
 
-                        switch (type.toLowerCase()) {
+                        switch (type.toLowerCase(Locale.ROOT)) {
                             case "java" -> {
                                 Files.createDirectories(projectRoot.resolve("src/main/java"));
                                 Files.createDirectories(projectRoot.resolve("src/main/resources"));
@@ -757,7 +767,8 @@ public class ToolRegistry {
                         }
                         return "项目已创建: " + name + " (类型: " + type + ")";
                     } catch (Exception e) {
-                        return "创建项目失败: " + e.getMessage();
+                        return "创建项目失败: " + e.getMessage()
+                                + (projectCreated ? "；项目目录已创建，可能存在部分模板，请检查后再处理，不会自动删除目录" : "");
                     }
                 }
         ));
@@ -1414,6 +1425,10 @@ public class ToolRegistry {
             }
 
             JsonNode args = mapper.readTree(argumentsJson);
+            if ("create_project".equals(name) && (args == null || !args.isObject()
+                    || !args.path("name").isTextual() || !args.path("type").isTextual())) {
+                throw new IllegalArgumentException("创建项目的 name 和 type 必须是非空文本参数");
+            }
             Map<String, String> argMap = new HashMap<>();
             args.fields().forEachRemaining(entry ->
                     argMap.put(entry.getKey(), entry.getValue().asText()));
@@ -1473,6 +1488,7 @@ public class ToolRegistry {
                 || value.startsWith("未知工具")
                 || value.startsWith("MCP 工具返回错误")
                 || value.startsWith("MCP 工具调用失败")
+                || value.startsWith("创建项目失败")
                 || value.startsWith("搜索关键词不能为空")
                 || value.startsWith("搜索失败")
                 || value.startsWith("抓取失败")

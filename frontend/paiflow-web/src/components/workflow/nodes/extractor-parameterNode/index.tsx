@@ -5,8 +5,9 @@ import OutputParams from './components/OutputParams';
 import ModelSelect from '@/components/workflow/nodes/components/model-select';
 import { useTranslation } from 'react-i18next';
 import ExceptionHandling from '@/components/workflow/nodes/components/exception-handling';
+import type { ExtractorParameterDetailProps } from '@/components/workflow/types';
 
-export const ExtractorParameterDetail = memo(props => {
+export const ExtractorParameterDetail = memo((props: ExtractorParameterDetailProps) => {
   const { id, data } = props;
   const { t } = useTranslation();
 

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /** 固定地址白名单、TLS、无重定向、超时和响应预算；不记录供应商原报文。 */
 @Component
@@ -40,19 +41,32 @@ public class ControlledHttp implements AutoCloseable {
             try(InputStream in=response.body()) {long remaining=deadline-System.nanoTime();if(remaining<=0)throw new IllegalStateException("供应商响应超过时间预算");var timeout=watchdog.schedule(()->{try{in.close();}catch(java.io.IOException ignored){}},remaining,java.util.concurrent.TimeUnit.NANOSECONDS);try{byte[] bytes=in.readNBytes(8*1024*1024+1);if(System.nanoTime()>deadline)throw new IllegalStateException("供应商响应超过时间预算");if(bytes.length>8*1024*1024)throw new IllegalStateException("供应商响应超过预算");if(response.statusCode()<200||response.statusCode()>=300)throw new HttpStatusFailure(response.statusCode());return bytes.length==0?Map.of():Jsons.map(new String(bytes,StandardCharsets.UTF_8));}finally{timeout.cancel(false);}}
         }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("供应商调用已中断");}catch(java.io.IOException e){throw new IllegalStateException("PROVIDER_UNAVAILABLE:网络请求失败");}
     }
+    public record SseFrame(String event,String data) {}
+    /** 原 Chat 消费者保留 [DONE] 策略；Responses 使用独立语义终态。 */
     public void sse(String url,String key,Object body,Consumer<Map<String,Object>> onData,java.util.function.BooleanSupplier cancelled) {
+        sseFrames(url,key,body,frame->{if("[DONE]".equals(frame.data().trim()))return true;onData.accept(Jsons.map(frame.data()));return false;},cancelled);
+    }
+    /** 按空行提交完整、有界 SSE 帧；回调返回 true 仅表示已核对协议终态。 */
+    public void sseFrames(String url,String key,Object body,Function<SseFrame,Boolean> onFrame,java.util.function.BooleanSupplier cancelled) {
         settings.requireExternal();
         HttpRequest request=HttpRequest.newBuilder(validated(url)).timeout(Duration.ofSeconds(120)).header("Content-Type","application/json").header("Authorization","Bearer "+key).POST(HttpRequest.BodyPublishers.ofString(Jsons.write(body))).build();
         long deadline=System.nanoTime()+Duration.ofSeconds(120).toNanos();
         try {HttpResponse<InputStream> r=awaitStreamHeaders(request,cancelled,deadline);
             try(InputStream in=r.body();java.io.BufferedReader reader=new java.io.BufferedReader(new java.io.InputStreamReader(in,StandardCharsets.UTF_8))) {
-                if(r.statusCode()!=200)throw new IllegalStateException("PROVIDER_UNAVAILABLE:HTTP "+r.statusCode());
+                if(r.statusCode()!=200)throw new HttpStatusFailure(r.statusCode());
                 var stopped=new java.util.concurrent.atomic.AtomicBoolean();var guardFailure=new java.util.concurrent.atomic.AtomicReference<RuntimeException>();
                 var timeout=watchdog.scheduleWithFixedDelay(()->{boolean close=false;try{boolean cancel=cancelled.getAsBoolean();stopped.set(cancel);close=cancel||System.nanoTime()>deadline;}catch(RuntimeException invalidated){guardFailure.compareAndSet(null,invalidated);close=true;}if(close)try{in.close();}catch(java.io.IOException ignored){}},500,500,java.util.concurrent.TimeUnit.MILLISECONDS);
-                try {String line;int budget=0;while((line=limitedLine(reader,524288))!=null){
+                try {String line;int budget=0;String event="";StringBuilder data=new StringBuilder();boolean hasData=false;while((line=limitedLine(reader,524288))!=null){
                     if(guardFailure.get()!=null)throw guardFailure.get();if(cancelled.getAsBoolean())throw new java.util.concurrent.CancellationException("用户停止生成");
-                    if(System.nanoTime()>deadline||(budget+=line.length())>2*1024*1024)throw new IllegalStateException("生成时间或输出超过预算");
-                    if(line.startsWith("data:")){String data=line.substring(5).trim();if("[DONE]".equals(data))return;if(!data.isBlank())onData.accept(Jsons.map(data));}
+                    if(System.nanoTime()>deadline||(budget+=line.length()+1)>2*1024*1024)throw new IllegalStateException("生成时间或输出超过预算");
+                    if(line.isEmpty()){
+                        if(hasData){String payload=data.substring(0,data.length()-1);if(Boolean.TRUE.equals(onFrame.apply(new SseFrame(event,payload)))){if(cancelled.getAsBoolean())throw new java.util.concurrent.CancellationException("用户停止生成");return;}}
+                        event="";data.setLength(0);hasData=false;continue;
+                    }
+                    if(line.charAt(0)==':')continue;
+                    int colon=line.indexOf(':');String field=colon<0?line:line.substring(0,colon),value=colon<0?"":line.substring(colon+1);if(value.startsWith(" "))value=value.substring(1);
+                    if("data".equals(field)){if((long)data.length()+value.length()+1>524288)throw new IllegalStateException("供应商流事件超过预算");data.append(value).append('\n');hasData=true;}
+                    else if("event".equals(field)){if(value.length()>200)throw new IllegalStateException("供应商事件名称超过预算");event=value;}
                 }
                     if(guardFailure.get()!=null)throw guardFailure.get();if(stopped.get())throw new java.util.concurrent.CancellationException("用户停止生成");if(System.nanoTime()>deadline)throw new IllegalStateException("生成超时");
                     throw new IllegalStateException("PROVIDER_UNAVAILABLE:流式连接在完成标记前关闭，结果待核对");

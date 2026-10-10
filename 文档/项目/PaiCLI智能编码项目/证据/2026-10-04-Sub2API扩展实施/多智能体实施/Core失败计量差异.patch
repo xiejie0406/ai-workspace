@@ -1,0 +1,387 @@
+--- beforeP1/src/main/java/com/paicli/llm/BudgetedLlmClient.java
++++ current/src/main/java/com/paicli/llm/BudgetedLlmClient.java
+@@ -8,13 +8,21 @@
+ 
+ /** 三条路径、压缩、事实提取共享中心剩余额度；并行请求先预留再记账。 */
+ public final class BudgetedLlmClient implements LlmClient {
++    public record ReportedUsage(int inputTokens, int outputTokens, int cachedInputTokens, long totalTokens,
++                                String status) {}
+     public record Usage(int inputTokens, int outputTokens, int cachedInputTokens, long totalTokens,
+-                        int reserved, boolean usagePresent, String status) {}
++                        int reserved, boolean usagePresent, String status, ReportedUsage reportedUsage) {
++        public Usage(int inputTokens, int outputTokens, int cachedInputTokens, long totalTokens,
++                     int reserved, boolean usagePresent, String status) {
++            this(inputTokens, outputTokens, cachedInputTokens, totalTokens, reserved, usagePresent, status, null);
++        }
++    }
+     private final LlmClient delegate;
+     private final int maxOutput;
+     private final Consumer<Usage> observer;
+     private long remaining;
+     private long spent;
++    private boolean sub2ApiFailed;
+     public BudgetedLlmClient(LlmClient delegate, long availableTokens, int maxOutput, Consumer<Usage> observer) {
+         if (availableTokens <= 0 || maxOutput <= 0) throw new IllegalArgumentException("中心预算必须为正");
+         this.delegate = java.util.Objects.requireNonNull(delegate); this.remaining = availableTokens;
+@@ -27,17 +35,33 @@
+         if (tools != null) for (Tool tool : tools) input += Math.max(1, (tool.name().length() + tool.description().length() + tool.parameters().toString().length()) / 2);
+         int output; int reserved;
+         synchronized (this) {
++            if (sub2ApiFailed) throw new IOException("Sub2API 上次调用失败，后续模型回合已停止");
+             if (remaining <= input) throw new IOException("中心Token剩余额度不足，停止模型和后续工具调用");
+             output = (int) Math.min(maxOutput, remaining - input); reserved = input + output; remaining -= reserved;
+         }
+         ChatResponse response;
+         try (var limit = LlmRequestLimit.bind(output)) { response = delegate.chat(messages, tools, listener); }
+         catch (IOException | RuntimeException failure) {
+-            synchronized (this) { spent += reserved; observer.accept(new Usage(input, output, 0, reserved, reserved, false, "UNCERTAIN")); }
++            synchronized (this) {
++                ReportedUsage reported = null;
++                if ("sub2api".equals(delegate.getProviderName())) {
++                    sub2ApiFailed = true;
++                    if (failure instanceof Sub2ApiRequestException sub2 && sub2.reportedUsage() != null) {
++                        var known = sub2.reportedUsage();
++                        reported = new ReportedUsage(known.inputTokens(), known.outputTokens(), known.cachedInputTokens(),
++                                known.totalTokens(), sub2.cancelled() ? "CANCELLED" : "FAILED");
++                    }
++                }
++                // 已报告用量可能是部分计数；失败继续扣留全部预留，不把它当最终收费释放差额。
++                long charged = reported == null ? reserved : Math.max(reserved, reported.totalTokens());
++                spent += charged;
++                remaining -= charged - reserved;
++                observer.accept(new Usage(input, output, 0, charged, reserved, false, "UNCERTAIN", reported));
++            }
+             throw failure;
+         }
+         if (response == null) {
+-            synchronized (this) { spent += reserved; observer.accept(new Usage(input, output, 0, reserved, reserved, false, "UNCERTAIN")); }
++            synchronized (this) { if ("sub2api".equals(delegate.getProviderName())) sub2ApiFailed = true; spent += reserved; observer.accept(new Usage(input, output, 0, reserved, reserved, false, "UNCERTAIN")); }
+             throw new IOException("供应商返回空响应");
+         }
+         int actualInput = response.usagePresent() ? Math.max(0, response.inputTokens()) : Math.max(input, response.inputTokens());
+@@ -57,7 +81,7 @@
+     public <T> T externalInputOnly(int estimatedInput, ExternalCall<T> call) throws IOException {
+         if (CancellationContext.isCancelled()) throw new IOException("中心任务已取消");
+         int reserved = Math.max(1, estimatedInput);
+-        synchronized (this) { if (remaining < reserved) throw new IOException("中心Token剩余额度不足"); remaining -= reserved; }
++        synchronized (this) { if (sub2ApiFailed) throw new IOException("Sub2API 上次调用失败，当前任务的后续模型调用已停止"); if (remaining < reserved) throw new IOException("中心Token剩余额度不足"); remaining -= reserved; }
+         ExternalResponse<T> response;
+         try { response = call.run(); }
+         catch (IOException | RuntimeException failure) { synchronized (this) { spent += reserved; observer.accept(new Usage(reserved, 0, 0, reserved, reserved, false, "UNCERTAIN")); } throw failure; }
+@@ -69,7 +93,7 @@
+     public <T> T external(int estimatedInput, ExternalCall<T> call) throws IOException {
+         if (CancellationContext.isCancelled()) throw new IOException("中心任务已取消");
+         int input = Math.max(1, estimatedInput), output, reserved;
+-        synchronized (this) { if (remaining <= input) throw new IOException("中心Token剩余额度不足"); output = (int) Math.min(maxOutput, remaining - input); reserved = input + output; remaining -= reserved; }
++        synchronized (this) { if (sub2ApiFailed) throw new IOException("Sub2API 上次调用失败，当前任务的后续模型调用已停止"); if (remaining <= input) throw new IOException("中心Token剩余额度不足"); output = (int) Math.min(maxOutput, remaining - input); reserved = input + output; remaining -= reserved; }
+         ExternalResponse<T> response;
+         try (var cap = LlmRequestLimit.bind(output)) { response = call.run(); }
+         catch (IOException | RuntimeException failure) { synchronized (this) { spent += reserved; observer.accept(new Usage(input, output, 0, reserved, reserved, false, "UNCERTAIN")); } throw failure; }
+--- beforeP1/src/main/java/com/paicli/llm/Sub2ApiRequestException.java
++++ current/src/main/java/com/paicli/llm/Sub2ApiRequestException.java
+@@ -0,0 +1,27 @@
++package com.paicli.llm;
++
++import java.io.IOException;
++
++/** 失败或取消前已收到的合法计量是证据，不表示上游最终结算或退款。 */
++public final class Sub2ApiRequestException extends IOException {
++    private static final long serialVersionUID = 1L;
++
++    public record TokenUsage(int inputTokens, int outputTokens, int cachedInputTokens) {
++        public TokenUsage {
++            if (inputTokens < 0 || outputTokens < 0 || cachedInputTokens < 0 || cachedInputTokens > inputTokens)
++                throw new IllegalArgumentException("Sub2API 已报告用量非法");
++        }
++        public long totalTokens() { return (long) inputTokens + outputTokens; }
++    }
++
++    private final TokenUsage reportedUsage;
++    private final boolean cancelled;
++
++    Sub2ApiRequestException(TokenUsage reportedUsage, boolean cancelled) {
++        super(cancelled ? "Sub2API 请求已取消，最终结果与收费尚未确认" : "Sub2API 请求失败或结果未知，最终收费尚未确认");
++        this.reportedUsage = reportedUsage;
++        this.cancelled = cancelled;
++    }
++    public TokenUsage reportedUsage() { return reportedUsage; }
++    public boolean cancelled() { return cancelled; }
++}
+--- beforeP1/src/main/java/com/paicli/llm/Sub2ApiChatClient.java
++++ current/src/main/java/com/paicli/llm/Sub2ApiChatClient.java
+@@ -11,6 +11,8 @@
+     private final String key, model, url;
+     private final OkHttpClient http = SHARED_HTTP_CLIENT.newBuilder().dispatcher(new Dispatcher()).build();
+     private final ThreadLocal<Boolean> terminal = ThreadLocal.withInitial(() -> false);
++    private final ThreadLocal<Sub2ApiRequestException.TokenUsage> reportedUsage = new ThreadLocal<>();
++    private final java.util.concurrent.atomic.AtomicBoolean cancelled = new java.util.concurrent.atomic.AtomicBoolean();
+ 
+     public Sub2ApiChatClient(String key, String model, String root) {
+         if (model == null || !ModelCatalog.validModelId(model)) throw new IllegalArgumentException("Sub2API 缺少有效的精确模型 ID");
+@@ -25,12 +27,16 @@
+     protected OkHttpClient httpClient() { return http; }
+     @Override LlmRetryPolicy retryPolicy() { return LlmRetryPolicy.singleAttempt(); }
+     @Override protected boolean requireCompleteToolCalls() { return true; }
++    @Override public void cancelInFlightCalls() { cancelled.set(true); super.cancelInFlightCalls(); }
+ 
+     @Override public ChatResponse chat(List<Message> messages, List<Tool> tools, StreamListener listener) throws IOException {
+         if (messages.stream().anyMatch(Message::hasImageContent)) throw new IOException("Sub2API 本期仅支持文本，请移除图片附件后再发送");
+         terminal.set(false);
++        reportedUsage.remove();
+         try (var watch = new Sub2ApiCancellation(this::cancelInFlightCalls)) {
+             ChatResponse result = super.chat(messages, tools, listener);
++            if (cancelled.get() || com.paicli.runtime.CancellationContext.isCancelled() || Thread.currentThread().isInterrupted())
++                throw new IOException("Sub2API 请求已取消");
+             if (!terminal.get()) throw new IOException("Sub2API Chat Completions 缺少真实终态");
+             if(result.cachedInputTokens()>result.inputTokens())throw new IOException("Sub2API缓存用量不能超过输入用量");
+             java.util.Set<String> ids = new java.util.HashSet<>();
+@@ -40,11 +46,10 @@
+                         || arguments == null || !arguments.isObject()) throw new IOException("Sub2API 工具调用非法");
+             }
+             return result;
+-        } catch (IOException failure) {
+-            if (failure instanceof LlmHttpException httpFailure) throw new IOException("Sub2API 请求失败，HTTP " + httpFailure.statusCode());
++        } catch (IOException | RuntimeException failure) {
+             // 上游错误体可能含凭据或提示正文，不转交到用户页和任务日志。
+-            throw new IOException("Sub2API Chat Completions 响应失败、已取消或结果未知");
+-        } finally { terminal.remove(); }
++            throw new Sub2ApiRequestException(reportedUsage.get(), cancelled.get() || com.paicli.runtime.CancellationContext.isCancelled() || Thread.currentThread().isInterrupted());
++        } finally { terminal.remove(); reportedUsage.remove(); }
+     }
+ 
+     @Override protected void finalizeRequestBody(ObjectNode body) {
+@@ -73,6 +78,12 @@
+                         ||total.longValue()!=(long)usage.path("prompt_tokens").intValue()+usage.path("completion_tokens").intValue())
+                     throw new IOException("Sub2API总用量非法或不一致");
+             }
++            int cached=0;
++            for(String field:List.of("cached_tokens","prompt_cache_hit_tokens","input_cache_hit_tokens"))
++                if(usage.has(field))cached=usage.path(field).intValue();
++            for(String field:List.of("prompt_tokens_details","input_tokens_details"))
++                if(usage.path(field).has("cached_tokens"))cached=usage.path(field).path("cached_tokens").intValue();
++            reportedUsage.set(new Sub2ApiRequestException.TokenUsage(usage.path("prompt_tokens").intValue(),usage.path("completion_tokens").intValue(),cached));
+         }
+         for (var choice : frame.path("choices")) {
+             if(choice.has("index")&&(!choice.path("index").isIntegralNumber()||!choice.path("index").canConvertToInt()||choice.path("index").intValue()!=0))
+--- beforeP1/src/main/java/com/paicli/llm/Sub2ApiResponsesClient.java
++++ current/src/main/java/com/paicli/llm/Sub2ApiResponsesClient.java
+@@ -12,6 +12,7 @@
+     private final String key,model,url;
+     private final OkHttpClient http=SHARED_HTTP_CLIENT.newBuilder().dispatcher(new Dispatcher()).build();
+     private final AtomicBoolean cancelled=new AtomicBoolean();
++    private final ThreadLocal<Sub2ApiRequestException.TokenUsage> reportedUsage=new ThreadLocal<>();
+ 
+     public Sub2ApiResponsesClient(String key,String model,String root) {
+         if (!ModelCatalog.validModelId(model)) throw new IllegalArgumentException("Sub2API 缺少有效的精确模型 ID");
+@@ -23,6 +24,15 @@
+     @Override public void cancelInFlightCalls(){cancelled.set(true);http.dispatcher().cancelAll();}
+ 
+     @Override public ChatResponse chat(List<Message> messages,List<Tool> tools,StreamListener listener) throws IOException {
++        reportedUsage.remove();
++        try {
++            return execute(messages,tools,listener);
++        } catch(IOException | RuntimeException failure) {
++            throw new Sub2ApiRequestException(reportedUsage.get(),cancelled.get() || com.paicli.runtime.CancellationContext.isCancelled() || Thread.currentThread().isInterrupted());
++        } finally { reportedUsage.remove(); }
++    }
++
++    private ChatResponse execute(List<Message> messages,List<Tool> tools,StreamListener listener) throws IOException {
+         if(cancelled.get())throw new IOException("Sub2API 请求已取消");
+         var body=Sub2ApiResponsesCodec.request(model,messages,tools,modelProfile());
+         Request request=new Request.Builder().url(url).header("Authorization","Bearer "+effectiveApiKey())
+@@ -36,7 +46,8 @@
+             if(type.toLowerCase(java.util.Locale.ROOT).contains("application/json")){
+                 byte[] bytes=response.body().byteStream().readNBytes(MAX_RESPONSE_BYTES+1);
+                 if(bytes.length>MAX_RESPONSE_BYTES)throw new IOException("Sub2API 响应超过限制");
+-                ChatResponse result=Sub2ApiResponsesCodec.response(mapper.readTree(bytes));
++                JsonNode root=mapper.readTree(bytes);rememberUsage(root==null?null:root.get("usage"));
++                ChatResponse result=Sub2ApiResponsesCodec.response(root);
+                 if(cancelled.get())throw new IOException("Sub2API 请求已取消");
+                 return result;
+             }
+@@ -65,6 +76,7 @@
+     private ChatResponse event(String data,StreamListener sink,StringBuilder emitted)throws IOException{
+         if(data.equals("[DONE]"))throw new IOException("Sub2API Responses 缺少真实完成事件");
+         JsonNode event=mapper.readTree(data);if(event==null)throw new IOException("Sub2API SSE空事件");
++        if(event.path("response").isObject())rememberUsage(event.path("response").get("usage"));
+         return switch(event.path("type").asText()){
+             case "response.output_text.delta"->{String delta=event.path("delta").asText();emitted.append(delta);sink.onContentDelta(delta);yield null;}
+             case "response.reasoning_summary_text.delta"->{sink.onReasoningDelta(event.path("delta").asText());yield null;}
+@@ -74,4 +86,7 @@
+             default->null;
+         };
+     }
++    private void rememberUsage(JsonNode usage)throws IOException{
++        var known=Sub2ApiResponsesCodec.tokenUsage(usage);if(known!=null)reportedUsage.set(known);
++    }
+ }
+--- beforeP1/src/main/java/com/paicli/llm/Sub2ApiResponsesCodec.java
++++ current/src/main/java/com/paicli/llm/Sub2ApiResponsesCodec.java
+@@ -79,9 +79,17 @@
+             items.add(item.deepCopy());
+         }
+         if (content.isEmpty() && calls.isEmpty()) throw new IOException("Sub2API Responses 返回空文本结果");
+-        JsonNode usage=root.path("usage");
++        var usage=tokenUsage(root.path("usage"));
++        return new LlmClient.ChatResponse("assistant",content.toString(),reasoning.toString(),List.copyOf(calls),
++                usage==null?0:usage.inputTokens(),usage==null?0:usage.outputTokens(),usage==null?0:usage.cachedInputTokens(),
++                root.path("model").isTextual()?root.path("model").asText():null,usage!=null,List.copyOf(items));
++    }
++
++    /** 终态与计量分别核对，失败响应中的合法计量仍可作为部分用量证据保留。 */
++    static Sub2ApiRequestException.TokenUsage tokenUsage(JsonNode usage) throws IOException {
++        if (usage==null || usage.isMissingNode() || usage.isNull()) return null;
+         boolean known=counter(usage.get("input_tokens")) && counter(usage.get("output_tokens"));
+-        if (!usage.isMissingNode() && !usage.isNull() && !known) throw new IOException("Sub2API Responses 用量字段非法或不完整");
++        if (!known) throw new IOException("Sub2API Responses 用量字段非法或不完整");
+         int cached=0;
+         if (known && usage.path("input_tokens_details").has("cached_tokens")) {
+             JsonNode value=usage.path("input_tokens_details").get("cached_tokens");
+@@ -97,9 +105,7 @@
+             if (!counter(total) || total.longValue()!=(long)usage.path("input_tokens").intValue()+usage.path("output_tokens").intValue())
+                 throw new IOException("Sub2API 总用量非法或不一致");
+         }
+-        return new LlmClient.ChatResponse("assistant",content.toString(),reasoning.toString(),List.copyOf(calls),
+-                known?usage.path("input_tokens").intValue():0,known?usage.path("output_tokens").intValue():0,cached,
+-                root.path("model").isTextual()?root.path("model").asText():null,known,List.copyOf(items));
++        return new Sub2ApiRequestException.TokenUsage(usage.path("input_tokens").intValue(),usage.path("output_tokens").intValue(),cached);
+     }
+ 
+     private static boolean counter(JsonNode value) { return value!=null && value.isIntegralNumber() && value.canConvertToInt() && value.intValue()>=0; }
+--- beforeP1/src/test/java/com/paicli/llm/Sub2ApiUsageFailureTest.java
++++ current/src/test/java/com/paicli/llm/Sub2ApiUsageFailureTest.java
+@@ -0,0 +1,134 @@
++package com.paicli.llm;
++
++import okhttp3.mockwebserver.MockResponse;
++import okhttp3.mockwebserver.MockWebServer;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.params.ParameterizedTest;
++import org.junit.jupiter.params.provider.ValueSource;
++
++import java.io.IOException;
++import java.util.ArrayList;
++import java.util.List;
++
++import static org.junit.jupiter.api.Assertions.*;
++
++/** 失败前已报用量必须留下证据，但不能把部分计量当最终收费退还预留。 */
++class Sub2ApiUsageFailureTest {
++    private static final List<LlmClient.Message> HELLO=List.of(LlmClient.Message.user("probe"));
++    private static final String RESPONSE_USAGE="{\"input_tokens\":5,\"output_tokens\":2,\"total_tokens\":7,\"input_tokens_details\":{\"cached_tokens\":1}}";
++    private static final String CHAT_USAGE="{\"prompt_tokens\":5,\"completion_tokens\":2,\"total_tokens\":7,\"prompt_tokens_details\":{\"cached_tokens\":1}}";
++
++    @ParameterizedTest @ValueSource(strings={"responses","chat_completions"})
++    void receivedUsageSurvivesInterruptedStreamAndFailedBudgetClosesNextRound(String api)throws Exception{
++        try(var server=new MockWebServer()){
++            server.enqueue(sse(prefix(api,true)+delta(api)));
++            var usages=new ArrayList<BudgetedLlmClient.Usage>();
++            var client=new BudgetedLlmClient(transport(server,api),1000,256,usages::add);
++            var failure=assertThrows(Sub2ApiRequestException.class,()->client.chat(HELLO,null));
++            assertFalse(failure.cancelled());assertNotNull(failure.reportedUsage());
++            assertUncertainReservation(client,usages,"FAILED");
++            assertThrows(IOException.class,()->client.chat(HELLO,null));
++            assertThrows(IOException.class,()->client.external(1,()->{throw new AssertionError("失败后不能继续外部模型请求");}));
++            assertThrows(IOException.class,()->client.externalInputOnly(1,()->{throw new AssertionError("失败后不能继续共享预算的输入模型请求");}));
++            assertEquals(1,server.getRequestCount());assertEquals(1,usages.size());
++        }
++    }
++
++    @ParameterizedTest @ValueSource(strings={"responses","chat_completions"})
++    void receivedUsageSurvivesExplicitCancellationWithoutRefundOrSecondRequest(String api)throws Exception{
++        try(var server=new MockWebServer()){
++            server.enqueue(sse(prefix(api,true)+delta(api)));
++            LlmClient transport=transport(server,api);var usages=new ArrayList<BudgetedLlmClient.Usage>();
++            var client=new BudgetedLlmClient(transport,1000,256,usages::add);
++            var failure=assertThrows(Sub2ApiRequestException.class,()->client.chat(HELLO,null,new LlmClient.StreamListener(){
++                @Override public void onContentDelta(String text){transport.cancelInFlightCalls();}
++            }));
++            assertTrue(failure.cancelled());assertUncertainReservation(client,usages,"CANCELLED");
++            assertThrows(IOException.class,()->client.chat(HELLO,null));assertEquals(1,server.getRequestCount());
++        }
++    }
++
++    @ParameterizedTest @ValueSource(strings={"responses","chat_completions"})
++    void alreadyReportedUsageAboveReservationIsTheMinimumConservativeCharge(String api)throws Exception{
++        try(var server=new MockWebServer()){
++            server.enqueue(sse(prefix(api,true).replace("tokens\":5","tokens\":500").replace("total_tokens\":7","total_tokens\":502")+delta(api)));
++            var usages=new ArrayList<BudgetedLlmClient.Usage>();var client=new BudgetedLlmClient(transport(server,api),1000,256,usages::add);
++            assertThrows(Sub2ApiRequestException.class,()->client.chat(HELLO,null));
++            var usage=usages.get(0);assertFalse(usage.usagePresent());assertEquals("UNCERTAIN",usage.status());
++            assertTrue(usage.reserved()<502,"保留原预留数值而非改写历史预留");assertEquals(502,usage.totalTokens());assertEquals(498,client.remainingTokens());
++            assertEquals(500,usage.reportedUsage().inputTokens());assertEquals(2,usage.reportedUsage().outputTokens());
++            assertEquals(502,usage.reportedUsage().totalTokens());assertEquals("FAILED",usage.reportedUsage().status());
++            assertThrows(IOException.class,()->client.chat(HELLO,null));assertEquals(1,server.getRequestCount());assertEquals(1,usages.size());
++        }
++    }
++
++    @ParameterizedTest @ValueSource(strings={"failed","incomplete"})
++    void responsesFailureTerminalRetainsItsValidatedUsageInJsonAndSse(String status)throws Exception{
++        for(boolean streaming:List.of(false,true))try(var server=new MockWebServer()){
++            String response="{\"status\":\""+status+"\",\"output\":[],\"usage\":"+RESPONSE_USAGE+",\"error\":{\"message\":\"synthetic-sensitive-body\"}}";
++            server.enqueue(streaming?sse("data: {\"type\":\"response."+status+"\",\"response\":"+response+"}\n\n")
++                    :new MockResponse().setHeader("Content-Type","application/json").setBody(response));
++            var usages=new ArrayList<BudgetedLlmClient.Usage>();
++            var client=new BudgetedLlmClient(transport(server,"responses"),1000,256,usages::add);
++            var failure=assertThrows(Sub2ApiRequestException.class,()->client.chat(HELLO,null));
++            assertFalse(failure.toString().contains("synthetic-sensitive-body"));assertNull(failure.getCause());
++            assertUncertainReservation(client,usages,"FAILED");assertEquals(1,server.getRequestCount());
++        }
++    }
++
++    @ParameterizedTest @ValueSource(strings={"responses","chat_completions"})
++    void absentUsageKeepsConservativeReservationAndNoReportedEvidence(String api)throws Exception{
++        try(var server=new MockWebServer()){
++            server.enqueue(sse(delta(api)));var usages=new ArrayList<BudgetedLlmClient.Usage>();
++            var client=new BudgetedLlmClient(transport(server,api),1000,256,usages::add);
++            var failure=assertThrows(Sub2ApiRequestException.class,()->client.chat(HELLO,null));
++            assertNull(failure.reportedUsage());assertNull(usages.get(0).reportedUsage());
++            assertFalse(usages.get(0).usagePresent());assertEquals("UNCERTAIN",usages.get(0).status());
++            assertEquals(1000-usages.get(0).reserved(),client.remainingTokens());
++            assertThrows(IOException.class,()->client.chat(HELLO,null));assertEquals(1,server.getRequestCount());
++        }
++    }
++
++    @ParameterizedTest @ValueSource(strings={"responses","chat_completions"})
++    void invalidUsageCannotBeSavedAsReportedEvidence(String api)throws Exception{
++        try(var server=new MockWebServer()){
++            server.enqueue(sse(prefix(api,true).replace("tokens\":5","tokens\":-1")+delta(api)));
++            var usages=new ArrayList<BudgetedLlmClient.Usage>();var client=new BudgetedLlmClient(transport(server,api),1000,256,usages::add);
++            var failure=assertThrows(Sub2ApiRequestException.class,()->client.chat(HELLO,null));
++            assertNull(failure.reportedUsage());assertNull(usages.get(0).reportedUsage());assertFalse(usages.get(0).usagePresent());
++            assertEquals(1000-usages.get(0).reserved(),client.remainingTokens());assertEquals(1,server.getRequestCount());
++        }
++    }
++
++    @ParameterizedTest @ValueSource(strings={"responses","chat_completions"})
++    void reportedEvidenceIsScopedToOneRequest(String api)throws Exception{
++        try(var server=new MockWebServer()){
++            server.enqueue(sse(prefix(api,true)+delta(api)));server.enqueue(sse(delta(api)));
++            var client=transport(server,api);
++            assertNotNull(assertThrows(Sub2ApiRequestException.class,()->client.chat(HELLO,null)).reportedUsage());
++            assertNull(assertThrows(Sub2ApiRequestException.class,()->client.chat(HELLO,null)).reportedUsage());
++            assertEquals(2,server.getRequestCount());
++        }
++    }
++
++    @Test void originalUsageConstructorKeepsOtherProviderPayloadCompatible(){
++        var usage=new BudgetedLlmClient.Usage(5,2,1,7,30,true,"COMPLETED");assertNull(usage.reportedUsage());assertTrue(usage.usagePresent());
++    }
++
++    private static void assertUncertainReservation(BudgetedLlmClient client,List<BudgetedLlmClient.Usage> usages,String status){
++        assertEquals(1,usages.size());var usage=usages.get(0);assertFalse(usage.usagePresent());assertEquals("UNCERTAIN",usage.status());
++        assertEquals(usage.reserved(),usage.totalTokens());assertEquals(1000-usage.reserved(),client.remainingTokens());
++        var reported=usage.reportedUsage();assertNotNull(reported);assertEquals(5,reported.inputTokens());assertEquals(2,reported.outputTokens());
++        assertEquals(1,reported.cachedInputTokens());assertEquals(7,reported.totalTokens());assertEquals(status,reported.status());
++        assertNull(LlmRequestLimit.current());
++    }
++    private static LlmClient transport(MockWebServer server,String api){return api.equals("responses")
++            ?new Sub2ApiResponsesClient("synthetic-key","fixture-model",server.url("/v1").toString())
++            :new Sub2ApiChatClient("synthetic-key","fixture-model",server.url("/v1").toString());}
++    private static MockResponse sse(String text){return new MockResponse().setHeader("Content-Type","text/event-stream").setBody(text);}
++    private static String prefix(String api,boolean known){return api.equals("responses")
++            ?"data: {\"type\":\"response.in_progress\",\"response\":{\"status\":\"in_progress\""+(known?",\"usage\":"+RESPONSE_USAGE:"")+"}}\n\n"
++            :"data: {\"choices\":[]"+(known?",\"usage\":"+CHAT_USAGE:"")+"}\n\n";}
++    private static String delta(String api){return api.equals("responses")?"data: {\"type\":\"response.output_text.delta\",\"delta\":\"partial\"}\n\n"
++            :"data: {\"choices\":[{\"index\":0,\"delta\":{\"content\":\"partial\"}}]}\n\n";}
++}

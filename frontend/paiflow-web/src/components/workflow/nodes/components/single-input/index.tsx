@@ -10,8 +10,9 @@ import {
   ErrorMessages,
 } from '@/components/workflow/nodes/components/inputs';
 import useFlowsManagerStore from '@/components/workflow/store/use-flows-manager';
+import type { InputsProps } from '@/components/workflow/types';
 
-export const EnabledChatHistory = ({ id, data }): React.ReactElement | null => {
+export const EnabledChatHistory = ({ id, data }: Pick<InputsProps, 'id' | 'data'>): React.ReactElement | null => {
   const { handleChangeNodeParam, nodeType, nodeParam } = useNodeCommon({
     id,
     data,
@@ -58,7 +59,7 @@ export const EnabledChatHistory = ({ id, data }): React.ReactElement | null => {
   );
 };
 
-function index({ id, data }): React.ReactElement {
+function index({ id, data }: Pick<InputsProps, 'id' | 'data'>): React.ReactElement {
   const { inputs } = useNodeCommon({
     id,
     data,

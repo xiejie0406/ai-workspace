@@ -1,0 +1,1170 @@
+{
+  "date": "2026-10-04",
+  "scope": "源码及业务逻辑静态核对；不进行API/服务/Provider/数据库/业务测试",
+  "method": "阅读原处理分支和新前端/中心/计算输出链；符号与SHA仅定位证据，不能单独证明功能完整",
+  "businessMapping": [
+    {
+      "business": "项目创建、列表、内容设置与删除",
+      "reviewedLogic": "创建5–20/正式1–40，title/audience/tone/content_density/layout_mode；分页筛选、owner、确认锁、幂等及软删除清理。",
+      "entries": [
+        {
+          "path": "参考项目/ai-ppt-generator-main/backend/app/api/v1/projects.py",
+          "symbol": "async def update_project",
+          "line": 107,
+          "sha256": "0b06dea9ebdb11769c7549d1fd447d4d0cdf61040680c0de3fcf9939a7c4dfd3"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject update",
+          "line": 102,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject deleteProject",
+          "line": 125,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/projects/api.ts",
+          "symbol": "useCreateDraft",
+          "line": 143,
+          "sha256": "cce50ea4f2a209df5ad01ad13d13858712417b8af3b2ce4d9401c451a985d8db"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "主题/文字/多文档材料",
+      "reviewedLogic": "文字上限与TXT/MD/DOCX/PDF解析；小节层级/定位/warnings，稳定ID、部分失败保留、补传删除与材料指纹。",
+      "entries": [
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "symbol": "async def parse_source",
+          "line": 81,
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject addSource",
+          "line": 158,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/projects/ProjectMaterialsDialog.tsx",
+          "symbol": "ProjectMaterialsDialog",
+          "line": 32,
+          "sha256": "b10329f3698cefa94c0af3f20e35177a59cde37bb739766534347fbb4ee05d7f"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "提纲生成与逐页编辑",
+      "reviewedLogic": "来源预算12000/单节2000、标题/目的/要点/来源/角色/视觉提示/布局；串行保存、页面增删排序、确认/取消。",
+      "entries": [
+        {
+          "path": "参考项目/ai-ppt-generator-main/backend/app/api/v1/outlines.py",
+          "symbol": "async def confirm_outline",
+          "line": 152,
+          "sha256": "edf4328e10117b55fec1b37a896dd315083c9a829e1f5e881e84564e43aa1efc"
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "symbol": "async def generate_outline",
+          "line": 94,
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject saveOutline",
+          "line": 257,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "private JSONObject confirm",
+          "line": 277,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/outline/OutlineWorkspace.tsx",
+          "symbol": "OutlineWorkspace",
+          "line": 27,
+          "sha256": "22d33e524373dcc3c698c73988331baa7991694143a2e83ee7b65c57a4ace366"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "并行生成、续跑、重新生成、单页重试与软取消",
+      "reviewedLogic": "持久任务/租约、输入与页版本、旧页快照；默认保留已好页、重试选择失败页，中心完成/失败回写。",
+      "entries": [
+        {
+          "path": "参考项目/ai-ppt-generator-main/backend/app/api/v1/deck/generation.py",
+          "symbol": "async def",
+          "line": 37,
+          "sha256": "6ba4d3106acfd4207d614de7025c860d86e94c4acb9061ac335527b1ac04a5e3"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "private JSONObject generate",
+          "line": 391,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject retrySlide",
+          "line": 477,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject cancel",
+          "line": 497,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public void completeOutput",
+          "line": 1172,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "单页生成与一次修复",
+      "reviewedLogic": "fixed/flex、邻页标题、6000/1500来源预算、文字量、页面角色/节奏、八类块、结构问题最多修复一次。",
+      "entries": [
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "symbol": "async def generate_slide",
+          "line": 114,
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e"
+        },
+        {
+          "path": "python/aippt-worker/app/workflows/slide.py",
+          "symbol": "def build_slide_workflow",
+          "line": 63,
+          "sha256": "95bc91b9f5dee9027bbaf4abafd1ee0c4e48e7be24b40be276748ef167736a74"
+        },
+        {
+          "path": "python/aippt-worker/app/domain/slide_draft.py",
+          "symbol": "def",
+          "line": 191,
+          "sha256": "3e99898d1a95484546ccea41e8297a3d8edc018bc35579279172e1b988a11262"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/useDeckProgress.ts",
+          "symbol": "export",
+          "line": 9,
+          "sha256": "187d51f49e9813cda206486fe4a2dfa39de8bad926963b5e8803d31d4e2baaec"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "插入、复制、删除与排序页",
+      "reviewedLogic": "1–40页与最后页门禁，同步项目页数/提纲/页序，复制重分块/树/提纲ID并保留原资料引用。",
+      "entries": [
+        {
+          "path": "参考项目/ai-ppt-generator-main/backend/app/api/v1/deck/pages.py",
+          "symbol": "async def duplicate_slide",
+          "line": 103,
+          "sha256": "a057c7c41024df54fb0ea30668ec9cfc243573c85d02f2dc60afa940787b9dd2"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject pages",
+          "line": 558,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "private void syncPages",
+          "line": 642,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/Filmstrip.tsx",
+          "symbol": "Filmstrip",
+          "line": 25,
+          "sha256": "9d3ca23c27fdaced3f8faf479f4ce5ec4e15201e80760fd53d192c2f8bd70ca9"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "八类块编辑、图表与单块样式",
+      "reviewedLogic": "text/bullets/image/chart/table/kpi/cards/callout与四图表；locked人工内容保护、style不改锁，图表元素样式原不开放。",
+      "entries": [
+        {
+          "path": "参考项目/ai-ppt-generator-main/backend/app/api/v1/deck/blocks.py",
+          "symbol": "async def update_slide_block",
+          "line": 108,
+          "sha256": "a03bf9a011b09093ab2e6cbb2e4e16a079fcfaba1cae7c6f82d3ceb613d0de81"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject edit",
+          "line": 666,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/AipptRules.java",
+          "symbol": "public static void block",
+          "line": 104,
+          "sha256": "4239d39954591c962d3c90cd9a62b7f7c4064066fa27a8b33e1a32d0f906aec6"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/ChartDataEditor.tsx",
+          "symbol": "ChartDataEditor",
+          "line": 16,
+          "sha256": "7c40d040d2c6bbaa746476db7a3e7d7fd4b9378f3f87fd48fd6aa7a3cbfc82ab"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "保存队列、撤销重做和冲突",
+      "reviewedLogic": "所有人工/结构编辑共用每页串行队列、保留命令key/body、失败草稿、未知回执、50条历史、离页等待。",
+      "entries": [
+        {
+          "path": "参考项目/ai-ppt-generator-main/frontend/src/features/deck/useSlideSaveQueue.ts",
+          "symbol": "export",
+          "line": 30,
+          "sha256": "53046d44c8abb0e1d137d996b64bdfd21566efc9d77ca29e790e5bedd75b6065"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/useSlideSaveQueue.ts",
+          "symbol": "const commitFlex",
+          "line": 404,
+          "sha256": "5bcc5786365fbbd66d093d085df5919278f3f33ce90023938d0277ed87dd3bf3"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/slideSaveBridge.ts",
+          "symbol": "flushProjectSlides",
+          "line": 82,
+          "sha256": "158ab19939cafaf581facebfad3e4ccc0540f2f7644c9cb95c1c32848083ad51"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "四主题、十一固定布局与解锁",
+      "reviewedLogic": "四主题覆盖、白名单字体、主题revision、样式/图色；容量匹配分配槽位；fixed解锁按槽位几何保首帧。",
+      "entries": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject theme",
+          "line": 317,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/CatalogService.java",
+          "symbol": "public",
+          "line": 13,
+          "sha256": "8b388cc9e977c4d2f57578fab42c4ae93149a21c008ab287f0f92a74a41cc5d4"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+          "symbol": "public static JSONObject fromFixed",
+          "line": 187,
+          "sha256": "64b3e49887fb38ec6a29084a09e4e7c6d23a84f4aea7e30c09e97f05f85660be"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/ThemePanel.tsx",
+          "symbol": "ThemePanel",
+          "line": 39,
+          "sha256": "f2fe6848975ade849be098a4f667d5ced2e14779c3d81be6a143a2f558c54011"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "灵活布局编辑与归一",
+      "reviewedLogic": "拖分隔/边/跨容器/留白/offset/bleed/皮肤/两三列；原增删、树写回/恢复、解锁及换排布归一已补中心持久入口。",
+      "entries": [
+        {
+          "path": "参考项目/ai-ppt-generator-main/backend/app/api/v1/deck/layout.py",
+          "symbol": "def _apply_flex_tree",
+          "line": 43,
+          "sha256": "febd457f1dbf41b6669d25ed0f9d39315c56fff400bb9074f56ace0fcb0649e4"
+        },
+        {
+          "path": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_normalize.py",
+          "symbol": "def normalize",
+          "line": 20,
+          "sha256": "cdcfad33fd6a2e4deddbdf356ca171319a245d9f22e8860485fb16c1d7d0c5ff"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+          "symbol": "public static JSONObject normalize",
+          "line": 12,
+          "sha256": "64b3e49887fb38ec6a29084a09e4e7c6d23a84f4aea7e30c09e97f05f85660be"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "先验证输入",
+          "line": 759,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/useFlexPointerSession.ts",
+          "symbol": "export",
+          "line": 76,
+          "sha256": "29df9beff1e9c2c5286c9da309ab8394f1f18d7c7ca55dc4542f6f421e8decc3"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "换排布与结构化AI提案采纳/撤回",
+      "reviewedLogic": "三候选去同构；AI历史、六替换及三结构工具、一轮修复、discarded；逐项采纳/撤回不复制整树；新增权重拆分补齐。",
+      "entries": [
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "symbol": "async def ai_edit",
+          "line": 170,
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e"
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "symbol": "async def relayout",
+          "line": 196,
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject apply",
+          "line": 837,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/ProposalOperations.java",
+          "symbol": "FlexEditing.insertLeaf",
+          "line": 59,
+          "sha256": "701aff64b306502d75f0056c5043cdcf2dafc1534ccaf37f97b342b404452c67"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/AiEditPanel.tsx",
+          "symbol": "AiEditPanel",
+          "line": 47,
+          "sha256": "910d76a4228fb5f1c3fa7ce9f65dbcd74e3117bc00e279ac98d0eea30cc62375"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "图源管线、换图与私有资产",
+      "reviewedLogic": "OpenAI兼容/百炼生成→Unsplash→占位；署名、URL/base64、cover；手动图锁定，私有读写许可、中心local/COS与补偿。",
+      "entries": [
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "symbol": "async def _resolve_images",
+          "line": 137,
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e"
+        },
+        {
+          "path": "python/aippt-worker/app/images/pipeline.py",
+          "symbol": "def create_image_pipeline",
+          "line": 40,
+          "sha256": "6a3efc2fa5e7c9a108ccf1b6ed36ae60bbc3bbd15cb33e89d3442764f52b7f6f"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AssetService.java",
+          "symbol": "public",
+          "line": 20,
+          "sha256": "8f714289d5adc79947952108c6e5921de22a38756dc569708ee1c10bdc235672"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/infrastructure/storage/CosAipptStorage.java",
+          "symbol": "public",
+          "line": 13,
+          "sha256": "3d6eff7e39b9ad7ca7f635e0b058ad5a1cb173b789088195dcd7d8fb58f870dc"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/ImagePanel.tsx",
+          "symbol": "ImagePanel",
+          "line": 16,
+          "sha256": "8c91b2436eec3e5040372158ef576dff986927a2f036e268c5a8bc36c0617890"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "质量检查与原生PPTX导出回读",
+      "reviewedLogic": "一致snapshot含theme/notes/roles/sources/字体身份，错误阻断/警告确认；原生文字/表/图/图像/备注，verify通过后中心登记才下载。",
+      "entries": [
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "symbol": "async def quality",
+          "line": 241,
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e"
+        },
+        {
+          "path": "python/aippt-worker/app/worker/handlers.py",
+          "symbol": "async def export",
+          "line": 250,
+          "sha256": "f8899560d75cb146bdf45b9b56affc327967017fcb690d4ef38074f82d2af54e"
+        },
+        {
+          "path": "python/aippt-worker/app/render/pptx.py",
+          "symbol": "def render_deck_to_pptx",
+          "line": 783,
+          "sha256": "60bdc22b8b109c837663a040ed57b7cb2b517b05bcdbd80b5f6d356887de2a77"
+        },
+        {
+          "path": "python/aippt-worker/app/render/verify.py",
+          "symbol": "def verify_pptx",
+          "line": 73,
+          "sha256": "25501ba2db046802c68468a362f303713535c7f51436a43e884df0d0fa5f7d3d"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "case \"export\"",
+          "line": 1083,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/api.ts",
+          "symbol": "useExportDeck",
+          "line": 435,
+          "sha256": "ad79815efb68a34e2462b62159c522ae29ab1b32cdf2e4b1f84e94e6c48a4002"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "懒渲染、缩放与浏览器放映",
+      "reviewedLogic": "缩略图/预览同源渲染、可见页与40页编辑；浏览器放映键盘点击/全屏、退出恢复选页焦点。",
+      "entries": [
+        {
+          "path": "frontend/aippt-web/src/features/deck/Filmstrip.tsx",
+          "symbol": "export",
+          "line": 25,
+          "sha256": "9d3ca23c27fdaced3f8faf479f4ce5ec4e15201e80760fd53d192c2f8bd70ca9"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/SlideStage.tsx",
+          "symbol": "export",
+          "line": 9,
+          "sha256": "48b3ebd7968e46581ab4beb5c618f720a5331b7995353bd15aa584f6df45f6c5"
+        },
+        {
+          "path": "frontend/aippt-web/src/features/deck/PresentMode.tsx",
+          "symbol": "export",
+          "line": 16,
+          "sha256": "0d165c49db4444a3baa1a1021310d0e3d82d78716722040e07b9224683847b98"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    },
+    {
+      "business": "事件恢复、样例目录和原工具",
+      "reviewedLogic": "持久事件序号/快照/心跳/恢复，主题布局目录/样例质量与导出，迁入字体计划/度量/回归/容器与导入CLI。",
+      "entries": [
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/EventService.java",
+          "symbol": "public",
+          "line": 15,
+          "sha256": "8debcda5b746e483ae54b490863d325b68f97c4077245a6bb1c01bf7a7675ad7"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/RedisDeliveryService.java",
+          "symbol": "public",
+          "line": 33,
+          "sha256": "f453e4595fe1af3d18eeec858b99415b0cf91c9b6ca75971c0ea50bb5db98aeb"
+        },
+        {
+          "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+          "symbol": "public JSONObject sampleIssues",
+          "line": 925,
+          "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+        },
+        {
+          "path": "python/aippt-worker/app/worker/cli.py",
+          "symbol": "def",
+          "line": 8,
+          "sha256": "84d163f71d8694fd546d3f31b4988cb1911c83d27a08bd1a8f9c83c7f78c7441"
+        },
+        {
+          "path": "python/aippt-worker/scripts/compare_deck_metrics.py",
+          "symbol": "def main",
+          "line": 122,
+          "sha256": "b7ac4f4cfeb99e57b9b03e2d89fc101a807d5488b7e95dc3e5facb9377dc45f9"
+        }
+      ],
+      "conclusion": "已核对对应处理分支；未执行功能测试"
+    }
+  ],
+  "notMigratedByDesign": "原独立认证、正式数据库/API/队列控制面由若依承接；PPT原Java与Python是替代实现，算法以Python保留",
+  "remaining": "本轮未执行功能测试与运行联通；真实权重/字体/Provider质量和用户数据迁移属于后续运行步骤。",
+  "pythonFunctionInventory": [
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/ambient.py",
+      "target": "python/aippt-worker/app/domain/ambient.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 16,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/block_style.py",
+      "target": "python/aippt-worker/app/domain/block_style.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 10,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/color.py",
+      "target": "python/aippt-worker/app/domain/color.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 3,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/content.py",
+      "target": "python/aippt-worker/app/domain/content.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 1,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/content_density.py",
+      "target": "python/aippt-worker/app/domain/content_density.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 8,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/edit_ops.py",
+      "target": "python/aippt-worker/app/domain/edit_ops.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 7,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/export_check.py",
+      "target": "python/aippt-worker/app/domain/export_check.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "_image_size",
+        "check_images"
+      ],
+      "sourceFunctionCount": 9,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_edit.py",
+      "target": "python/aippt-worker/app/domain/flex_edit.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "build_flex_tree_from_fixed"
+      ],
+      "sourceFunctionCount": 3,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_fit.py",
+      "target": "python/aippt-worker/app/domain/flex_fit.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 16,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_layout.py",
+      "target": "python/aippt-worker/app/domain/flex_layout.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "move_leaf_preserve_size"
+      ],
+      "sourceFunctionCount": 19,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_normalize.py",
+      "target": "python/aippt-worker/app/domain/flex_normalize.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 14,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_presets.py",
+      "target": "python/aippt-worker/app/domain/flex_presets.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 13,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_skin.py",
+      "target": "python/aippt-worker/app/domain/flex_skin.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 7,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_solve.py",
+      "target": "python/aippt-worker/app/domain/flex_solve.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "_solve_node"
+      ],
+      "sourceFunctionCount": 12,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/flex_width.py",
+      "target": "python/aippt-worker/app/domain/flex_width.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 18,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/geometry.py",
+      "target": "python/aippt-worker/app/domain/geometry.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 5,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/layout.py",
+      "target": "python/aippt-worker/app/domain/layout.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 3,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/layout_switch.py",
+      "target": "python/aippt-worker/app/domain/layout_switch.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 10,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/outline.py",
+      "target": "python/aippt-worker/app/domain/outline.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/page_rhythm.py",
+      "target": "python/aippt-worker/app/domain/page_rhythm.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 2,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/quality.py",
+      "target": "python/aippt-worker/app/domain/quality.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 16,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/sample.py",
+      "target": "python/aippt-worker/app/domain/sample.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 1,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/slide_draft.py",
+      "target": "python/aippt-worker/app/domain/slide_draft.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 5,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/slide_geometry.py",
+      "target": "python/aippt-worker/app/domain/slide_geometry.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 2,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/slide_pages.py",
+      "target": "python/aippt-worker/app/domain/slide_pages.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 6,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/slide_patch.py",
+      "target": "python/aippt-worker/app/domain/slide_patch.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 7,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/text_metrics.py",
+      "target": "python/aippt-worker/app/domain/text_metrics.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "fonts_available",
+        "_load_face",
+        "measure_text"
+      ],
+      "sourceFunctionCount": 11,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/theme.py",
+      "target": "python/aippt-worker/app/domain/theme.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "resolve_project_theme"
+      ],
+      "sourceFunctionCount": 16,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/validation.py",
+      "target": "python/aippt-worker/app/domain/validation.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 9,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/domain/__init__.py",
+      "target": "python/aippt-worker/app/domain/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/base.py",
+      "target": "python/aippt-worker/app/ingest/base.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 1,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/docx.py",
+      "target": "python/aippt-worker/app/ingest/docx.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 4,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/markdown.py",
+      "target": "python/aippt-worker/app/ingest/markdown.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 6,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/models.py",
+      "target": "python/aippt-worker/app/ingest/models.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 5,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/pdf.py",
+      "target": "python/aippt-worker/app/ingest/pdf.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "parse"
+      ],
+      "sourceFunctionCount": 10,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/plain.py",
+      "target": "python/aippt-worker/app/ingest/plain.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 3,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/registry.py",
+      "target": "python/aippt-worker/app/ingest/registry.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 1,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/upload.py",
+      "target": "python/aippt-worker/app/ingest/upload.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "_reject_disguised_docx"
+      ],
+      "sourceFunctionCount": 3,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/ingest/__init__.py",
+      "target": "python/aippt-worker/app/ingest/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/base.py",
+      "target": "python/aippt-worker/app/llm/base.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 1,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/client.py",
+      "target": "python/aippt-worker/app/llm/client.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "create_chat_model",
+        "complete"
+      ],
+      "sourceFunctionCount": 3,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/deepseek.py",
+      "target": "python/aippt-worker/app/llm/deepseek.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 5,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/edit_tools.py",
+      "target": "python/aippt-worker/app/llm/edit_tools.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "build_edit_tools",
+        "add_block_tool",
+        "delete_block_tool",
+        "change_type_tool"
+      ],
+      "sourceFunctionCount": 15,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/errors.py",
+      "target": "python/aippt-worker/app/llm/errors.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/relayout.py",
+      "target": "python/aippt-worker/app/llm/relayout.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 6,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/slide.py",
+      "target": "python/aippt-worker/app/llm/slide.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 13,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/slide_edit.py",
+      "target": "python/aippt-worker/app/llm/slide_edit.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "generate"
+      ],
+      "sourceFunctionCount": 10,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/llm/__init__.py",
+      "target": "python/aippt-worker/app/llm/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/workflows/outline.py",
+      "target": "python/aippt-worker/app/workflows/outline.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 5,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/workflows/slide.py",
+      "target": "python/aippt-worker/app/workflows/slide.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "build_slide_workflow",
+        "route"
+      ],
+      "sourceFunctionCount": 9,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/workflows/slide_edit.py",
+      "target": "python/aippt-worker/app/workflows/slide_edit.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "build_slide_edit_workflow",
+        "route"
+      ],
+      "sourceFunctionCount": 10,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/workflows/__init__.py",
+      "target": "python/aippt-worker/app/workflows/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/images/bailian.py",
+      "target": "python/aippt-worker/app/images/bailian.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "fetch"
+      ],
+      "sourceFunctionCount": 6,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/images/base.py",
+      "target": "python/aippt-worker/app/images/base.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 2,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/images/generated.py",
+      "target": "python/aippt-worker/app/images/generated.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "fetch",
+        "_read_first"
+      ],
+      "sourceFunctionCount": 5,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/images/pipeline.py",
+      "target": "python/aippt-worker/app/images/pipeline.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "create_image_pipeline",
+        "fetch"
+      ],
+      "sourceFunctionCount": 4,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/images/unsplash.py",
+      "target": "python/aippt-worker/app/images/unsplash.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "fetch",
+        "_track_download"
+      ],
+      "sourceFunctionCount": 8,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/images/validate.py",
+      "target": "python/aippt-worker/app/images/validate.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "validate_image"
+      ],
+      "sourceFunctionCount": 1,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/images/__init__.py",
+      "target": "python/aippt-worker/app/images/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/render/chart.py",
+      "target": "python/aippt-worker/app/render/chart.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 8,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/render/color.py",
+      "target": "python/aippt-worker/app/render/color.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 1,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/render/pptx.py",
+      "target": "python/aippt-worker/app/render/pptx.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "_render_image",
+        "_add_cover_picture"
+      ],
+      "sourceFunctionCount": 33,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/render/table.py",
+      "target": "python/aippt-worker/app/render/table.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 2,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/render/text.py",
+      "target": "python/aippt-worker/app/render/text.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 11,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/render/verify.py",
+      "target": "python/aippt-worker/app/render/verify.py",
+      "missingFunctions": [],
+      "changedFunctions": [
+        "_check_slide",
+        "_check_native_charts",
+        "_check_content_integrity"
+      ],
+      "sourceFunctionCount": 17,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/render/__init__.py",
+      "target": "python/aippt-worker/app/render/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/regression/corpus.py",
+      "target": "python/aippt-worker/app/regression/corpus.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 2,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/regression/runner.py",
+      "target": "python/aippt-worker/app/regression/runner.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 7,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    },
+    {
+      "source": "参考项目/ai-ppt-generator-main/backend/app/regression/__init__.py",
+      "target": "python/aippt-worker/app/regression/__init__.py",
+      "missingFunctions": [],
+      "changedFunctions": [],
+      "sourceFunctionCount": 0,
+      "note": "比较函数名称/AST结构；业务迁入Java的服务不适用此文件比较，改写函数已经按映射逐分支阅读。"
+    }
+  ],
+  "changes": [
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+      "addedLines": 122,
+      "removedLines": 0,
+      "sha256": "64b3e49887fb38ec6a29084a09e4e7c6d23a84f4aea7e30c09e97f05f85660be"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/ProposalOperations.java",
+      "addedLines": 5,
+      "removedLines": 5,
+      "sha256": "701aff64b306502d75f0056c5043cdcf2dafc1534ccaf37f97b342b404452c67"
+    },
+    {
+      "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+      "addedLines": 9,
+      "removedLines": 0,
+      "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b"
+    }
+  ],
+  "compile": {
+    "command": "mvn -o -f ruoyi-backend/ruoyi-aippt/pom.xml compile -Dmaven.test.skip=true --no-transfer-progress",
+    "exitCode": 0,
+    "log": "布局归一编译.log",
+    "productTestsExecuted": false
+  },
+  "closeout": {
+    "time": "2026-10-04T16:53:58.619934+08:00",
+    "reason": "用户要求暂停迁移核对并收口",
+    "compile": {
+      "command": "mvn -o -f <私有共享源码pom> -pl ruoyi-aippt -am '-Dmaven.test.skip=true' compile",
+      "exitCode": 0,
+      "sourceFiles": 33,
+      "log": ".runtime/reference-migration-audit-20261004/共享源码编译/compile-ppt-closeout.log",
+      "productTestsExecuted": false
+    },
+    "currentSources": [
+      {
+        "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/FlexEditing.java",
+        "sha256": "6aa0cb477af0cc42f20ff367a6c043ca47bfe450c88bd9a67d6b2fb11ae6e34c",
+        "physicalLines": 244,
+        "addedLines": 141,
+        "removedLines": 0,
+        "overflowIdLine": 25
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/domain/ProposalOperations.java",
+        "sha256": "701aff64b306502d75f0056c5043cdcf2dafc1534ccaf37f97b342b404452c67",
+        "physicalLines": 133
+      },
+      {
+        "path": "ruoyi-backend/ruoyi-aippt/src/main/java/com/ruoyi/aippt/application/AipptService.java",
+        "sha256": "8b4777bce6cb5dfd00f0c9b850cf5f3f493d8ce9115b05af7af89e3a75a43a7b",
+        "physicalLines": 1390
+      }
+    ]
+  }
+}

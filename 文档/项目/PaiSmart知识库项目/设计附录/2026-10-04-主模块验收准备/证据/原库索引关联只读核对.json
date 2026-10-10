@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-10-04T23:07:35.6124720+08:00",
+  "readonly": true,
+  "database": "ry-vue",
+  "queries": {
+    "schema": {
+      "sql": "SELECT TABLE_NAME,COLUMN_NAME,COLLATION_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='ry-vue' AND ((TABLE_NAME='ps_document' AND COLUMN_NAME='id') OR (TABLE_NAME='ps_document_chunk' AND COLUMN_NAME='document_id'))",
+      "rows": [
+        "TABLE_NAME\tCOLUMN_NAME\tCOLLATION_NAME",
+        "ps_document\tid\tutf8mb4_general_ci",
+        "ps_document_chunk\tdocument_id\tutf8mb4_0900_ai_ci"
+      ],
+      "exitCode": 0
+    },
+    "original": {
+      "sql": "SELECT COUNT(*) FROM ps_document_chunk c JOIN ps_document d ON d.id=c.document_id AND d.version=c.content_version WHERE d.deleted_at IS NULL AND d.status='READY'",
+      "rows": [
+        "ERROR 1267 (HY000) at line 1: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_0900_ai_ci,IMPLICIT) for operation '='"
+      ],
+      "exitCode": 1
+    },
+    "corrected": {
+      "sql": "SELECT COUNT(*) FROM ps_document_chunk c JOIN ps_document d ON CAST(d.id AS BINARY(144))=CAST(c.document_id AS BINARY(144)) AND d.version=c.content_version WHERE d.deleted_at IS NULL AND d.status='READY'",
+      "rows": [
+        "COUNT(*)",
+        "0"
+      ],
+      "exitCode": 0
+    },
+    "identity": {
+      "sql": "SELECT CAST('9bf596a5-456b-4c36-8084-67e3808e9b01' AS BINARY(144))=CAST('9bf596a5-456b-4c36-8084-67e3808e9b02' AS BINARY(144)) AS different_last_byte_equal,LENGTH(CAST('9bf596a5-456b-4c36-8084-67e3808e9b01' AS BINARY(144))) AS binary_length",
+      "rows": [
+        "different_last_byte_equal\tbinary_length",
+        "0\t144"
+      ],
+      "exitCode": 0
+    }
+  }
+}

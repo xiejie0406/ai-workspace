@@ -17,14 +17,14 @@ import { getPromptTemplate,listPromptTemplates,savePromptTemplate } from '@/api/
 import type { PcPromptTemplate } from '@/types/paicli'
 import { errorText,operationKeys } from '../model'
 import { useOperations } from '../useOperations'
-const props=defineProps<{workspaceId:string}>(),{busy,error,run}=useOperations(),keys=operationKeys(),templates=ref<PcPromptTemplate[]>([]),loading=ref(false),localError=ref(''),open=ref(false),form=reactive<Partial<PcPromptTemplate>>({})
+const props=defineProps<{directoryContextId:string}>(),{busy,error,run}=useOperations(),keys=operationKeys(),templates=ref<PcPromptTemplate[]>([]),loading=ref(false),localError=ref(''),open=ref(false),form=reactive<Partial<PcPromptTemplate>>({})
 const canRead=computed(()=>checkPermi(['paicli:connection:read'])),canManage=computed(()=>checkPermi(['paicli:connection:manage']))
 let generation=0
-async function load(){const id=props.workspaceId,g=++generation;if(!id||!canRead.value)return;loading.value=true;localError.value='';try{const response=await listPromptTemplates(id);if(g===generation&&id===props.workspaceId)templates.value=response.data}catch(cause){if(g===generation)localError.value=errorText(cause)}finally{if(g===generation)loading.value=false}}
+async function load(){const id=props.directoryContextId,g=++generation;if(!canRead.value)return;loading.value=true;localError.value='';try{const response=await listPromptTemplates(id);if(g===generation&&id===props.directoryContextId)templates.value=response.data}catch(cause){if(g===generation)localError.value=errorText(cause)}finally{if(g===generation)loading.value=false}}
 function replace(data:Partial<PcPromptTemplate>){for(const key of Object.keys(form))delete(form as Record<string,unknown>)[key];Object.assign(form,data);localError.value='';error.value=''}
 function create(){if(!canManage.value)return;replace({scope:'PERSONAL',relativePath:'',content:'',enabled:true,version:0});open.value=true}
 async function read(row:PcPromptTemplate){if(!checkPermi(['paicli:context:raw']))return;const g=generation;await run(async()=>{const response=await getPromptTemplate(row.id);if(g===generation){replace(response.data);open.value=true}})}
-async function save(){if(!canManage.value)return;if(new TextEncoder().encode(form.content||'').length>65536){localError.value='正文超过 65536 UTF-8 字节';return};const data={...form,workspaceId:form.scope==='PROJECT'?props.workspaceId:undefined};await run(async()=>{await savePromptTemplate(data,keys.get(data));keys.done(data);open.value=false;await load()})}
+async function save(){if(!canManage.value)return;if(new TextEncoder().encode(form.content||'').length>65536){localError.value='正文超过 65536 UTF-8 字节';return};const data={...form,directoryContextId:form.scope==='PROJECT'?props.directoryContextId:undefined};await run(async()=>{await savePromptTemplate(data,keys.get(data));keys.done(data);open.value=false;await load()})}
 async function toggle(row:PcPromptTemplate){if(!canManage.value)return;if(!checkPermi(['paicli:context:raw'])){localError.value='修改现有模板须先取得原始正文读取权限，不能以空正文覆盖';return};await run(async()=>{const full=(await getPromptTemplate(row.id)).data;const data={...full,enabled:!row.enabled};await savePromptTemplate(data,keys.get(data));keys.done(data);await load()})}
-watch(()=>props.workspaceId,()=>{generation++;templates.value=[];open.value=false;void load()},{immediate:true});onBeforeUnmount(()=>{generation++})
+watch(()=>props.directoryContextId,()=>{generation++;templates.value=[];open.value=false;void load()},{immediate:true});onBeforeUnmount(()=>{generation++})
 </script>

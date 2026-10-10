@@ -1,0 +1,4347 @@
+{
+  "scope": "actual original Factory and CenterClient requests; isolated HTTP fixture, no real centre/provider",
+  "cases": [
+    {
+      "name": "pe-prompt-custom-xinghuo",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:10.850433+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "fc_schema_params": {
+                    "description": "自定义多字段",
+                    "properties": {
+                      "a_custom": {
+                        "description": "首字段",
+                        "type": "integer"
+                      },
+                      "z_custom": {
+                        "description": "末字段",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "z_custom",
+                      "a_custom"
+                    ],
+                    "type": "object"
+                  },
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsImZjX3NjaGVtYV9wYXJhbXMiOnsiZGVzY3JpcHRpb24iOiLoh6rlrprkuYnlpJrlrZfmrrUiLCJwcm9wZXJ0aWVzIjp7ImFfY3VzdG9tIjp7ImRlc2NyaXB0aW9uIjoi6aaW5a2X5q61IiwidHlwZSI6ImludGVnZXIifSwiel9jdXN0b20iOnsiZGVzY3JpcHRpb24iOiLmnKvlrZfmrrUiLCJ0eXBlIjoic3RyaW5nIn19LCJyZXF1aXJlZCI6WyJ6X2N1c3RvbSIsImFfY3VzdG9tIl0sInR5cGUiOiJvYmplY3QifSwibW9kZWxSZXNvdXJjZUlkIjoibW9kZWwtMSIsInJlYXNvbk1vZGUiOjEsInNvdXJjZSI6InhpbmdodW8iLCJzeXN0ZW1UZW1wbGF0ZSI6Im9yaWdpbmFsIHN5c3RlbSIsInRlbXBsYXRlIjoiYXNrPXt7cXVlc3Rpb259fSJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciJ9fV19LCJpZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoiYW5zd2VyIiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoiYW5zd2VyIiwibm9kZUlkIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwifSwidHlwZSI6InJlZiJ9fX1dLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLWVuZDo6ZSIsIm5vZGVUeXBlIjoibm9kZS1lbmQifSwibm9kZVBhcmFtIjp7Im91dHB1dE1vZGUiOjB9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciJ9fV19LCJpZCI6Im5vZGUtZW5kOjplIn1dfQ==",
+        "dslHash": "ce5e65295842faa8a5644ae8c64c82d00fadbb8ff011e4115ef90d09ee40b3de",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"description\": \"自定义多字段\", \"properties\": {\"a_custom\": {\"description\": \"首字段\", \"type\": \"integer\"}, \"z_custom\": {\"description\": \"末字段\", \"type\": \"string\"}, \"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"z_custom\", \"a_custom\", \"answer\"], \"type\": \"object\"}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n真实算法输入\n</text>\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-prompt-object-xinghuo",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:10.895796+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "object",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJjaG9zZW4iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LCJ0eXBlIjoicmVmIn19fSx7ImlkIjoiIiwibmFtZSI6ImZhbGxiYWNrIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJ2YWx1ZSIsIm5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6Im5vZGUtZW5kOjplIiwibm9kZVR5cGUiOiJub2RlLWVuZCJ9LCJub2RlUGFyYW0iOnsib3V0cHV0TW9kZSI6MH0sIm91dHB1dHMiOltdfSwiaWQiOiJub2RlLWVuZDo6ZSJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0Iiwibm9kZVR5cGUiOiJ0ZXh0LWpvaW5lciJ9LCJub2RlUGFyYW0iOnsibW9kZSI6MCwicHJvbXB0Ijoic2VsZWN0ZWQifSwib3V0cHV0cyI6W3sibmFtZSI6InZhbHVlIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJmYWxsYmFjayJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2sifV19",
+        "dslHash": "e992257e21e2962efe813c29e5a5317bf03eceecc3b8ee1e525cdea80a3428a2",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": {
+            "a": 2,
+            "z": 1
+          }
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n### 工作职责描述\n    你是一个文本分类引擎，需要分析文本数据，并根据用户的输入和分类的描述认真思考并确定分配类别。\n\n### 任务\n    你的任务是只给输入文本分配一个类别，并且只能在输出中返回一个类别。此外，您需要从文本中提取与分类相关的关键字，若完全没有相关性可以为空。\n\n### 输入格式\n    输入文本在变量input_text中。类别是一个列表，变量Categories中包含字段category_id、category_name、category_desc。严格按照分类说明认真思考，以提高分类精度。\n\n### 历史记忆\n    这是人类和助手之间的聊天历史记录，在<histories></histories> XML标签中。\n\n    <histories>\n        \n    </histories>\n\n### 约束\n    不要在响应中包含JSON数组以外的任何内容。\n\n### 输出格式\n    ```json\n{\"category_name\": \"\"}\n```\n\n### 以下是需要分析的文本数据\n    {\"input_text\": \"{'a': 2, 'z': 1}\", \"categories\": [{\"category_id\": \"intent-one-of::accept\", \"category_name\": \"accept\", \"category_desc\": \"Accept intent\"}, {\"category_id\": \"intent-one-of::default\", \"category_name\": \"DEFAULT\", \"category_desc\": \"Default intent when no other intent matches\"}], \"classification_instructions\": [\"classify {{question}}\"]}\n\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-normal-object-xinghuo",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:10.942925+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "object",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}",
+                  "useFunctionCall": false
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0iLCJ1c2VGdW5jdGlvbkNhbGwiOmZhbHNlfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJjaG9zZW4iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LCJ0eXBlIjoicmVmIn19fSx7ImlkIjoiIiwibmFtZSI6ImZhbGxiYWNrIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJ2YWx1ZSIsIm5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6Im5vZGUtZW5kOjplIiwibm9kZVR5cGUiOiJub2RlLWVuZCJ9LCJub2RlUGFyYW0iOnsib3V0cHV0TW9kZSI6MH0sIm91dHB1dHMiOltdfSwiaWQiOiJub2RlLWVuZDo6ZSJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0Iiwibm9kZVR5cGUiOiJ0ZXh0LWpvaW5lciJ9LCJub2RlUGFyYW0iOnsibW9kZSI6MCwicHJvbXB0Ijoic2VsZWN0ZWQifSwib3V0cHV0cyI6W3sibmFtZSI6InZhbHVlIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJmYWxsYmFjayJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2sifV19",
+        "dslHash": "caf1c5f09c7b6ae50048c17f1ca9d036eef680bd355f7a12330e2ea39e3f38a4",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": {
+            "a": 2,
+            "z": 1
+          }
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "classify {{question}}\n现提供如下候选插件，插件的名称和使用描述均已给出\n\n<< 候选插件 >>\naccept: Accept intent\n\n你需要根据用户的输入和插件的使用描述认真思考需要使用哪个插件，当没有合适插件，使用 DEFAULT 值，并将思考的结果按照如下格式输出\n\n<< 输出格式 >>\n输出的格式必须是markdown模式下的一段json代码\n```json\n{\n    \"destination\": string  \\  必须是候选插件名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n    \"next_inputs\": string  \\  必须是用户的输入\n}\n```\n请注意：\n1、\"destination\" 的值必须是候选插件的名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n2、\"next_inputs\" 的值必须是用户的输入内容\n\n<< 用户输入 >>\n{'a': 2, 'z': 1}\n\n<< OUTPUT (你的回复必须以```json开始) >>\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "pe-prompt-custom-openai",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:10.995620+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "fc_schema_params": {
+                    "description": "自定义多字段",
+                    "properties": {
+                      "a_custom": {
+                        "description": "首字段",
+                        "type": "integer"
+                      },
+                      "z_custom": {
+                        "description": "末字段",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "z_custom",
+                      "a_custom"
+                    ],
+                    "type": "object"
+                  },
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "openai",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsImZjX3NjaGVtYV9wYXJhbXMiOnsiZGVzY3JpcHRpb24iOiLoh6rlrprkuYnlpJrlrZfmrrUiLCJwcm9wZXJ0aWVzIjp7ImFfY3VzdG9tIjp7ImRlc2NyaXB0aW9uIjoi6aaW5a2X5q61IiwidHlwZSI6ImludGVnZXIifSwiel9jdXN0b20iOnsiZGVzY3JpcHRpb24iOiLmnKvlrZfmrrUiLCJ0eXBlIjoic3RyaW5nIn19LCJyZXF1aXJlZCI6WyJ6X2N1c3RvbSIsImFfY3VzdG9tIl0sInR5cGUiOiJvYmplY3QifSwibW9kZWxSZXNvdXJjZUlkIjoibW9kZWwtMSIsInJlYXNvbk1vZGUiOjEsInNvdXJjZSI6Im9wZW5haSIsInN5c3RlbVRlbXBsYXRlIjoib3JpZ2luYWwgc3lzdGVtIiwidGVtcGxhdGUiOiJhc2s9e3txdWVzdGlvbn19In0sIm91dHB1dHMiOlt7Im5hbWUiOiJhbnN3ZXIiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIn19XX0sImlkIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJhbnN3ZXIiLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIiLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJhbnN3ZXIiLCJub2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6Im5vZGUtZW5kOjplIiwibm9kZVR5cGUiOiJub2RlLWVuZCJ9LCJub2RlUGFyYW0iOnsib3V0cHV0TW9kZSI6MH0sIm91dHB1dHMiOlt7Im5hbWUiOiJhbnN3ZXIiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIn19XX0sImlkIjoibm9kZS1lbmQ6OmUifV19",
+        "dslHash": "0c6f850bc9429a73d05ae688af9f5eec7b54edfa81ef93d65e60b4949bd0a787",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "openai",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "openai",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"description\": \"自定义多字段\", \"properties\": {\"a_custom\": {\"description\": \"首字段\", \"type\": \"integer\"}, \"z_custom\": {\"description\": \"末字段\", \"type\": \"string\"}, \"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"z_custom\", \"a_custom\", \"answer\"], \"type\": \"object\"}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n真实算法输入\n</text>\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-prompt-object-openai",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.029259+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "object",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "reasonMode": 1,
+                  "source": "openai",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJvcGVuYWkiLCJzeXN0ZW1UZW1wbGF0ZSI6Im9yaWdpbmFsIHN5c3RlbSIsInRlbXBsYXRlIjoiYXNrPXt7cXVlc3Rpb259fSJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImNob3NlbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoidmFsdWUiLCJub2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0sInR5cGUiOiJyZWYifX19LHsiaWQiOiIiLCJuYW1lIjoiZmFsbGJhY2siLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmZhbGxiYWNrIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W119LCJpZCI6Im5vZGUtZW5kOjplIn0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjphY2NlcHQiLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJzZWxlY3RlZCJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjpmYWxsYmFjayIsIm5vZGVUeXBlIjoidGV4dC1qb2luZXIifSwibm9kZVBhcmFtIjp7Im1vZGUiOjAsInByb21wdCI6ImZhbGxiYWNrIn0sIm91dHB1dHMiOlt7Im5hbWUiOiJ2YWx1ZSIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9XX0=",
+        "dslHash": "70989e23bc4a426b992fa8dab2f69cd060faec922f926623afe4901fc79ff0c9",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": {
+            "a": 2,
+            "z": 1
+          }
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "openai",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "openai",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n### 工作职责描述\n    你是一个文本分类引擎，需要分析文本数据，并根据用户的输入和分类的描述认真思考并确定分配类别。\n\n### 任务\n    你的任务是只给输入文本分配一个类别，并且只能在输出中返回一个类别。此外，您需要从文本中提取与分类相关的关键字，若完全没有相关性可以为空。\n\n### 输入格式\n    输入文本在变量input_text中。类别是一个列表，变量Categories中包含字段category_id、category_name、category_desc。严格按照分类说明认真思考，以提高分类精度。\n\n### 历史记忆\n    这是人类和助手之间的聊天历史记录，在<histories></histories> XML标签中。\n\n    <histories>\n        \n    </histories>\n\n### 约束\n    不要在响应中包含JSON数组以外的任何内容。\n\n### 输出格式\n    ```json\n{\"category_name\": \"\"}\n```\n\n### 以下是需要分析的文本数据\n    {\"input_text\": \"{'a': 2, 'z': 1}\", \"categories\": [{\"category_id\": \"intent-one-of::accept\", \"category_name\": \"accept\", \"category_desc\": \"Accept intent\"}, {\"category_id\": \"intent-one-of::default\", \"category_name\": \"DEFAULT\", \"category_desc\": \"Default intent when no other intent matches\"}], \"classification_instructions\": [\"classify {{question}}\"]}\n\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-normal-object-openai",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.070934+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "object",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "source": "openai",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}",
+                  "useFunctionCall": false
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJvYmplY3QifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6Im9iamVjdCIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJzb3VyY2UiOiJvcGVuYWkiLCJzeXN0ZW1UZW1wbGF0ZSI6Im9yaWdpbmFsIHN5c3RlbSIsInRlbXBsYXRlIjoiYXNrPXt7cXVlc3Rpb259fSIsInVzZUZ1bmN0aW9uQ2FsbCI6ZmFsc2V9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImNob3NlbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoidmFsdWUiLCJub2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0sInR5cGUiOiJyZWYifX19LHsiaWQiOiIiLCJuYW1lIjoiZmFsbGJhY2siLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmZhbGxiYWNrIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W119LCJpZCI6Im5vZGUtZW5kOjplIn0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjphY2NlcHQiLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJzZWxlY3RlZCJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjpmYWxsYmFjayIsIm5vZGVUeXBlIjoidGV4dC1qb2luZXIifSwibm9kZVBhcmFtIjp7Im1vZGUiOjAsInByb21wdCI6ImZhbGxiYWNrIn0sIm91dHB1dHMiOlt7Im5hbWUiOiJ2YWx1ZSIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9XX0=",
+        "dslHash": "98d21f7577bdca9aef9209c732dd35edfd7b87463fb2fdceedf04c93de061ebd",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": {
+            "a": 2,
+            "z": 1
+          }
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "openai",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "openai",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "classify {{question}}\n现提供如下候选插件，插件的名称和使用描述均已给出\n\n<< 候选插件 >>\naccept: Accept intent\n\n你需要根据用户的输入和插件的使用描述认真思考需要使用哪个插件，当没有合适插件，使用 DEFAULT 值，并将思考的结果按照如下格式输出\n\n<< 输出格式 >>\n输出的格式必须是markdown模式下的一段json代码\n```json\n{\n    \"destination\": string  \\  必须是候选插件名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n    \"next_inputs\": string  \\  必须是用户的输入\n}\n```\n请注意：\n1、\"destination\" 的值必须是候选插件的名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n2、\"next_inputs\" 的值必须是用户的输入内容\n\n<< 用户输入 >>\n{'a': 2, 'z': 1}\n\n<< OUTPUT (你的回复必须以```json开始) >>\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-fc-default",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.129104+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJjaG9zZW4iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LCJ0eXBlIjoicmVmIn19fSx7ImlkIjoiIiwibmFtZSI6ImZhbGxiYWNrIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJ2YWx1ZSIsIm5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6Im5vZGUtZW5kOjplIiwibm9kZVR5cGUiOiJub2RlLWVuZCJ9LCJub2RlUGFyYW0iOnsib3V0cHV0TW9kZSI6MH0sIm91dHB1dHMiOltdfSwiaWQiOiJub2RlLWVuZDo6ZSJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0Iiwibm9kZVR5cGUiOiJ0ZXh0LWpvaW5lciJ9LCJub2RlUGFyYW0iOnsibW9kZSI6MCwicHJvbXB0Ijoic2VsZWN0ZWQifSwib3V0cHV0cyI6W3sibmFtZSI6InZhbHVlIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJmYWxsYmFjayJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2sifV19",
+        "dslHash": "121de128bb1de38fc8b59d85886a0c9c9bbfb9cdeb7f0eb2f93b8e6d0c86954c",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "function_call",
+          "messages": [
+            {
+              "role": "user",
+              "content": "classify 真实算法输入"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {},
+            "questionType": "not_knowledge",
+            "functionChoice": ""
+          },
+          "functions": [
+            {
+              "name": "accept",
+              "description": "Accept intent",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "next_inputs": {
+                    "type": "string",
+                    "description": "User input content"
+                  }
+                },
+                "required": [
+                  "next_inputs"
+                ]
+              }
+            },
+            {
+              "name": "fallback",
+              "description": "Default intent",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "next_inputs": {
+                    "type": "string",
+                    "description": "User input content"
+                  }
+                },
+                "required": [
+                  "next_inputs"
+                ]
+              }
+            }
+          ],
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-fc-custom",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.172190+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "fs_params": {
+                    "properties": {
+                      "scope": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "scope"
+                    ],
+                    "type": "object"
+                  },
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiZnNfcGFyYW1zIjp7InByb3BlcnRpZXMiOnsic2NvcGUiOnsidHlwZSI6InN0cmluZyJ9fSwicmVxdWlyZWQiOlsic2NvcGUiXSwidHlwZSI6Im9iamVjdCJ9LCJpbnRlbnRDaGFpbnMiOlt7ImRlc2NyaXB0aW9uIjoiQWNjZXB0IGludGVudCIsImlkIjoiaW50ZW50LW9uZS1vZjo6YWNjZXB0IiwiaW50ZW50VHlwZSI6MiwibmFtZSI6ImFjY2VwdCJ9LHsiZGVzY3JpcHRpb24iOiJEZWZhdWx0IGludGVudCIsImlkIjoiaW50ZW50LW9uZS1vZjo6ZGVmYXVsdCIsImludGVudFR5cGUiOjEsIm5hbWUiOiJmYWxsYmFjayJ9XSwibW9kZWxSZXNvdXJjZUlkIjoibW9kZWwtMSIsInByb21wdFByZWZpeCI6ImNsYXNzaWZ5IHt7cXVlc3Rpb259fSIsInNvdXJjZSI6InhpbmdodW8iLCJzeXN0ZW1UZW1wbGF0ZSI6Im9yaWdpbmFsIHN5c3RlbSIsInRlbXBsYXRlIjoiYXNrPXt7cXVlc3Rpb259fSJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImNob3NlbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoidmFsdWUiLCJub2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0sInR5cGUiOiJyZWYifX19LHsiaWQiOiIiLCJuYW1lIjoiZmFsbGJhY2siLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmZhbGxiYWNrIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W119LCJpZCI6Im5vZGUtZW5kOjplIn0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjphY2NlcHQiLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJzZWxlY3RlZCJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjpmYWxsYmFjayIsIm5vZGVUeXBlIjoidGV4dC1qb2luZXIifSwibm9kZVBhcmFtIjp7Im1vZGUiOjAsInByb21wdCI6ImZhbGxiYWNrIn0sIm91dHB1dHMiOlt7Im5hbWUiOiJ2YWx1ZSIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9XX0=",
+        "dslHash": "b6b168cc68b6bf7793ba2d1512b88c6c2c6e260ff38b0559adef966d6a10902a",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "function_call",
+          "messages": [
+            {
+              "role": "user",
+              "content": "classify 真实算法输入"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {},
+            "questionType": "not_knowledge",
+            "functionChoice": ""
+          },
+          "functions": [
+            {
+              "name": "accept",
+              "description": "Accept intent",
+              "parameters": {
+                "properties": {
+                  "scope": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "scope"
+                ],
+                "type": "object"
+              }
+            },
+            {
+              "name": "fallback",
+              "description": "Default intent",
+              "parameters": {
+                "properties": {
+                  "scope": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "scope"
+                ],
+                "type": "object"
+              }
+            }
+          ],
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-prompt-xinghuo",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.220718+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJjaG9zZW4iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LCJ0eXBlIjoicmVmIn19fSx7ImlkIjoiIiwibmFtZSI6ImZhbGxiYWNrIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJ2YWx1ZSIsIm5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6Im5vZGUtZW5kOjplIiwibm9kZVR5cGUiOiJub2RlLWVuZCJ9LCJub2RlUGFyYW0iOnsib3V0cHV0TW9kZSI6MH0sIm91dHB1dHMiOltdfSwiaWQiOiJub2RlLWVuZDo6ZSJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0Iiwibm9kZVR5cGUiOiJ0ZXh0LWpvaW5lciJ9LCJub2RlUGFyYW0iOnsibW9kZSI6MCwicHJvbXB0Ijoic2VsZWN0ZWQifSwib3V0cHV0cyI6W3sibmFtZSI6InZhbHVlIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJmYWxsYmFjayJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2sifV19",
+        "dslHash": "bc25991986e50359c69911aa94cde1de7d5cb15b3f2c4e7dc40f5bbdcf6f0c6b",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n### 工作职责描述\n    你是一个文本分类引擎，需要分析文本数据，并根据用户的输入和分类的描述认真思考并确定分配类别。\n\n### 任务\n    你的任务是只给输入文本分配一个类别，并且只能在输出中返回一个类别。此外，您需要从文本中提取与分类相关的关键字，若完全没有相关性可以为空。\n\n### 输入格式\n    输入文本在变量input_text中。类别是一个列表，变量Categories中包含字段category_id、category_name、category_desc。严格按照分类说明认真思考，以提高分类精度。\n\n### 历史记忆\n    这是人类和助手之间的聊天历史记录，在<histories></histories> XML标签中。\n\n    <histories>\n        \n    </histories>\n\n### 约束\n    不要在响应中包含JSON数组以外的任何内容。\n\n### 输出格式\n    ```json\n{\"category_name\": \"\"}\n```\n\n### 以下是需要分析的文本数据\n    {\"input_text\": \"真实算法输入\", \"categories\": [{\"category_id\": \"intent-one-of::accept\", \"category_name\": \"accept\", \"category_desc\": \"Accept intent\"}, {\"category_id\": \"intent-one-of::default\", \"category_name\": \"DEFAULT\", \"category_desc\": \"Default intent when no other intent matches\"}], \"classification_instructions\": [\"classify {{question}}\"]}\n\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-normal-xinghuo",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.265857+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}",
+                  "useFunctionCall": false
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0iLCJ1c2VGdW5jdGlvbkNhbGwiOmZhbHNlfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJjaG9zZW4iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LCJ0eXBlIjoicmVmIn19fSx7ImlkIjoiIiwibmFtZSI6ImZhbGxiYWNrIiwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6eyJjb250ZW50Ijp7Im5hbWUiOiJ2YWx1ZSIsIm5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6Im5vZGUtZW5kOjplIiwibm9kZVR5cGUiOiJub2RlLWVuZCJ9LCJub2RlUGFyYW0iOnsib3V0cHV0TW9kZSI6MH0sIm91dHB1dHMiOltdfSwiaWQiOiJub2RlLWVuZDo6ZSJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0Iiwibm9kZVR5cGUiOiJ0ZXh0LWpvaW5lciJ9LCJub2RlUGFyYW0iOnsibW9kZSI6MCwicHJvbXB0Ijoic2VsZWN0ZWQifSwib3V0cHV0cyI6W3sibmFtZSI6InZhbHVlIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCJ9LHsiZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJmYWxsYmFjayJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2sifV19",
+        "dslHash": "7a054f22edc638c2568dc59682fb2059b2b1c7b81c96dd057c70fa9c9c8f635a",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "classify {{question}}\n现提供如下候选插件，插件的名称和使用描述均已给出\n\n<< 候选插件 >>\naccept: Accept intent\n\n你需要根据用户的输入和插件的使用描述认真思考需要使用哪个插件，当没有合适插件，使用 DEFAULT 值，并将思考的结果按照如下格式输出\n\n<< 输出格式 >>\n输出的格式必须是markdown模式下的一段json代码\n```json\n{\n    \"destination\": string  \\  必须是候选插件名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n    \"next_inputs\": string  \\  必须是用户的输入\n}\n```\n请注意：\n1、\"destination\" 的值必须是候选插件的名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n2、\"next_inputs\" 的值必须是用户的输入内容\n\n<< 用户输入 >>\n真实算法输入\n\n<< OUTPUT (你的回复必须以```json开始) >>\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-prompt-openai",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.311203+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "reasonMode": 1,
+                  "source": "openai",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJvcGVuYWkiLCJzeXN0ZW1UZW1wbGF0ZSI6Im9yaWdpbmFsIHN5c3RlbSIsInRlbXBsYXRlIjoiYXNrPXt7cXVlc3Rpb259fSJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImNob3NlbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoidmFsdWUiLCJub2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0sInR5cGUiOiJyZWYifX19LHsiaWQiOiIiLCJuYW1lIjoiZmFsbGJhY2siLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmZhbGxiYWNrIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W119LCJpZCI6Im5vZGUtZW5kOjplIn0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjphY2NlcHQiLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJzZWxlY3RlZCJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjpmYWxsYmFjayIsIm5vZGVUeXBlIjoidGV4dC1qb2luZXIifSwibm9kZVBhcmFtIjp7Im1vZGUiOjAsInByb21wdCI6ImZhbGxiYWNrIn0sIm91dHB1dHMiOlt7Im5hbWUiOiJ2YWx1ZSIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9XX0=",
+        "dslHash": "e6a34cfc4112179c85a78bc74846bb6974a1e448ae3a29547e835abf6c2ddb31",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "openai",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "openai",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n### 工作职责描述\n    你是一个文本分类引擎，需要分析文本数据，并根据用户的输入和分类的描述认真思考并确定分配类别。\n\n### 任务\n    你的任务是只给输入文本分配一个类别，并且只能在输出中返回一个类别。此外，您需要从文本中提取与分类相关的关键字，若完全没有相关性可以为空。\n\n### 输入格式\n    输入文本在变量input_text中。类别是一个列表，变量Categories中包含字段category_id、category_name、category_desc。严格按照分类说明认真思考，以提高分类精度。\n\n### 历史记忆\n    这是人类和助手之间的聊天历史记录，在<histories></histories> XML标签中。\n\n    <histories>\n        \n    </histories>\n\n### 约束\n    不要在响应中包含JSON数组以外的任何内容。\n\n### 输出格式\n    ```json\n{\"category_name\": \"\"}\n```\n\n### 以下是需要分析的文本数据\n    {\"input_text\": \"真实算法输入\", \"categories\": [{\"category_id\": \"intent-one-of::accept\", \"category_name\": \"accept\", \"category_desc\": \"Accept intent\"}, {\"category_id\": \"intent-one-of::default\", \"category_name\": \"DEFAULT\", \"category_desc\": \"Default intent when no other intent matches\"}], \"classification_instructions\": [\"classify {{question}}\"]}\n\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "decision-normal-openai",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.359847+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "decision-making::model"
+            },
+            {
+              "sourceHandle": "intent-one-of::accept",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::accept"
+            },
+            {
+              "sourceHandle": "intent-one-of::default",
+              "sourceNodeId": "decision-making::model",
+              "targetNodeId": "text-joiner::fallback"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::accept",
+              "targetNodeId": "node-end::e"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "text-joiner::fallback",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "decision-making::model",
+                  "nodeType": "decision-making"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "intentChains": [
+                    {
+                      "description": "Accept intent",
+                      "id": "intent-one-of::accept",
+                      "intentType": 2,
+                      "name": "accept"
+                    },
+                    {
+                      "description": "Default intent",
+                      "id": "intent-one-of::default",
+                      "intentType": 1,
+                      "name": "fallback"
+                    }
+                  ],
+                  "modelResourceId": "model-1",
+                  "promptPrefix": "classify {{question}}",
+                  "source": "openai",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}",
+                  "useFunctionCall": false
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "decision-making::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "chosen",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::accept"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  },
+                  {
+                    "id": "",
+                    "name": "fallback",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "value",
+                          "nodeId": "text-joiner::fallback"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::accept",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "selected"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::accept"
+            },
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "text-joiner::fallback",
+                  "nodeType": "text-joiner"
+                },
+                "nodeParam": {
+                  "mode": 0,
+                  "prompt": "fallback"
+                },
+                "outputs": [
+                  {
+                    "name": "value",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "text-joiner::fallback"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwifSx7InNvdXJjZUhhbmRsZSI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsInNvdXJjZU5vZGVJZCI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJ0YXJnZXROb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJzb3VyY2VIYW5kbGUiOiJpbnRlbnQtb25lLW9mOjpkZWZhdWx0Iiwic291cmNlTm9kZUlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCIsInRhcmdldE5vZGVJZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9LHsic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoidGV4dC1qb2luZXI6OmFjY2VwdCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJ0ZXh0LWpvaW5lcjo6ZmFsbGJhY2siLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6ImRlY2lzaW9uLW1ha2luZzo6bW9kZWwiLCJub2RlVHlwZSI6ImRlY2lzaW9uLW1ha2luZyJ9LCJub2RlUGFyYW0iOnsiYXBwSWQiOiJsZWdhY3ktbGFiZWwiLCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwiaW50ZW50Q2hhaW5zIjpbeyJkZXNjcmlwdGlvbiI6IkFjY2VwdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmFjY2VwdCIsImludGVudFR5cGUiOjIsIm5hbWUiOiJhY2NlcHQifSx7ImRlc2NyaXB0aW9uIjoiRGVmYXVsdCBpbnRlbnQiLCJpZCI6ImludGVudC1vbmUtb2Y6OmRlZmF1bHQiLCJpbnRlbnRUeXBlIjoxLCJuYW1lIjoiZmFsbGJhY2sifV0sIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJwcm9tcHRQcmVmaXgiOiJjbGFzc2lmeSB7e3F1ZXN0aW9ufX0iLCJzb3VyY2UiOiJvcGVuYWkiLCJzeXN0ZW1UZW1wbGF0ZSI6Im9yaWdpbmFsIHN5c3RlbSIsInRlbXBsYXRlIjoiYXNrPXt7cXVlc3Rpb259fSIsInVzZUZ1bmN0aW9uQ2FsbCI6ZmFsc2V9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19XX0sImlkIjoiZGVjaXNpb24tbWFraW5nOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImNob3NlbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoidmFsdWUiLCJub2RlSWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0sInR5cGUiOiJyZWYifX19LHsiaWQiOiIiLCJuYW1lIjoiZmFsbGJhY2siLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InZhbHVlIiwibm9kZUlkIjoidGV4dC1qb2luZXI6OmZhbGxiYWNrIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W119LCJpZCI6Im5vZGUtZW5kOjplIn0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjphY2NlcHQiLCJub2RlVHlwZSI6InRleHQtam9pbmVyIn0sIm5vZGVQYXJhbSI6eyJtb2RlIjowLCJwcm9tcHQiOiJzZWxlY3RlZCJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoidmFsdWUiLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJ0ZXh0LWpvaW5lcjo6YWNjZXB0In0seyJkYXRhIjp7ImlucHV0cyI6W10sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InRleHQtam9pbmVyOjpmYWxsYmFjayIsIm5vZGVUeXBlIjoidGV4dC1qb2luZXIifSwibm9kZVBhcmFtIjp7Im1vZGUiOjAsInByb21wdCI6ImZhbGxiYWNrIn0sIm91dHB1dHMiOlt7Im5hbWUiOiJ2YWx1ZSIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6InRleHQtam9pbmVyOjpmYWxsYmFjayJ9XX0=",
+        "dslHash": "eded3ce13763325586a89907947d37784512945b2c495abba4b3a412139f5dee",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "openai",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "openai",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "classify {{question}}\n现提供如下候选插件，插件的名称和使用描述均已给出\n\n<< 候选插件 >>\naccept: Accept intent\n\n你需要根据用户的输入和插件的使用描述认真思考需要使用哪个插件，当没有合适插件，使用 DEFAULT 值，并将思考的结果按照如下格式输出\n\n<< 输出格式 >>\n输出的格式必须是markdown模式下的一段json代码\n```json\n{\n    \"destination\": string  \\  必须是候选插件名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n    \"next_inputs\": string  \\  必须是用户的输入\n}\n```\n请注意：\n1、\"destination\" 的值必须是候选插件的名字或者 \"DEFAULT\" ，当没有合适插件，使用 DEFAULT 值\n2、\"next_inputs\" 的值必须是用户的输入内容\n\n<< 用户输入 >>\n真实算法输入\n\n<< OUTPUT (你的回复必须以```json开始) >>\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "chosen": "selected",
+          "fallback": ""
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "dynamic-qa-two-rounds-offline-algorithm",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.532904+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "question-answer::qa"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "question-answer::qa",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "question-answer::qa",
+                  "nodeType": "question-answer"
+                },
+                "nodeParam": {
+                  "answerType": "direct",
+                  "appId": "legacy-app-label",
+                  "directAnswer": {
+                    "handleResponse": true,
+                    "maxRetryCounts": 3
+                  },
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "needReply": true,
+                  "question": "请回答{{question}}",
+                  "source": "xinghuo",
+                  "timeout": 1
+                },
+                "outputs": [
+                  {
+                    "name": "content",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "query",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "age",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "question-answer::qa"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "age",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "age",
+                          "nodeId": "question-answer::qa"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": []
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6InF1ZXN0aW9uLWFuc3dlcjo6cWEifSx7InNvdXJjZUhhbmRsZSI6IiIsInNvdXJjZU5vZGVJZCI6InF1ZXN0aW9uLWFuc3dlcjo6cWEiLCJ0YXJnZXROb2RlSWQiOiJub2RlLWVuZDo6ZSJ9XSwibm9kZXMiOlt7ImRhdGEiOnsiaW5wdXRzIjpbXSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1zdGFydDo6cyIsIm5vZGVUeXBlIjoibm9kZS1zdGFydCJ9LCJub2RlUGFyYW0iOnt9LCJvdXRwdXRzIjpbeyJuYW1lIjoicXVlc3Rpb24iLCJyZXF1aXJlZCI6dHJ1ZSwic2NoZW1hIjp7InR5cGUiOiJzdHJpbmcifX1dfSwiaWQiOiJub2RlLXN0YXJ0OjpzIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoicXVlc3Rpb24iLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6InF1ZXN0aW9uIiwibm9kZUlkIjoibm9kZS1zdGFydDo6cyJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6InF1ZXN0aW9uLWFuc3dlcjo6cWEiLCJub2RlVHlwZSI6InF1ZXN0aW9uLWFuc3dlciJ9LCJub2RlUGFyYW0iOnsiYW5zd2VyVHlwZSI6ImRpcmVjdCIsImFwcElkIjoibGVnYWN5LWFwcC1sYWJlbCIsImRpcmVjdEFuc3dlciI6eyJoYW5kbGVSZXNwb25zZSI6dHJ1ZSwibWF4UmV0cnlDb3VudHMiOjN9LCJkb21haW4iOiJtb2RlbC1maXh0dXJlIiwibW9kZWxSZXNvdXJjZUlkIjoibW9kZWwtMSIsIm5lZWRSZXBseSI6dHJ1ZSwicXVlc3Rpb24iOiLor7flm57nrZR7e3F1ZXN0aW9ufX0iLCJzb3VyY2UiOiJ4aW5naHVvIiwidGltZW91dCI6MX0sIm91dHB1dHMiOlt7Im5hbWUiOiJjb250ZW50IiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19LHsibmFtZSI6InF1ZXJ5IiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIn19LHsibmFtZSI6ImFnZSIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJxdWVzdGlvbi1hbnN3ZXI6OnFhIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoiYWdlIiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoiYWdlIiwibm9kZUlkIjoicXVlc3Rpb24tYW5zd2VyOjpxYSJ9LCJ0eXBlIjoicmVmIn19fV0sIm5vZGVNZXRhIjp7ImFsaWFzTmFtZSI6Im5vZGUtZW5kOjplIiwibm9kZVR5cGUiOiJub2RlLWVuZCJ9LCJub2RlUGFyYW0iOnsib3V0cHV0TW9kZSI6MH0sIm91dHB1dHMiOltdfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "1850d61513871146789baef2928c88baf5c09c29c27fd07c3bafb16d5d8d7a7f",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "center-fixture-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "中心检查点问题"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n## 角色设定\n你是一个专业的结构化信息抽取助手，擅长从非结构化的文本或对话中精准提取数据。你不参与普通对话，只专注于信息识别与结构化提取。你必须始终严格遵循下方格式输出结果。\n\n## 任务说明\n从用户提供的“文本”和“对话历史”中，提取符合“字段结构定义”的内容。\n\n抽取规则如下：\n- 所有字段（无论 required 为 true 或 false）都应尝试提取；\n- 抽取成功的字段，加入 `completed`，包含字段名和值；\n- 对于 required: true 且抽取失败的字段：\n  - 加入 `incomplete`，值设为 null；\n  - 在 `content` 中生成一条礼貌、简洁的请求语句，提醒用户补充；\n- 对于 required: false 且抽取失败的字段：\n  - 不加入 `incomplete`，也不在 `content` 中提示；\n- 当所有 required 字段均已提取成功时，`content` 应为 \"\"。\n\n## 输入内容\n以下为模型可参考的输入：\n\n### 聊天历史\n<histories>\n[{\"role\": \"assistant\", \"content\": \"请回答中心检查点问题\"}, {\"role\": \"user\", \"content\": \"还没年龄\"}]\n</histories>\n\n### 当前用户指令\n<instruction>\n\n</instruction>\n\n### 字段结构定义（提取目标）\n<structure>\n{\"type\": \"object\", \"properties\": {\"age\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"age\"]}\n</structure>\n\n### 当前用户文本输入\n<text>\n还没年龄\n</text>\n\n## 处理流程（请严格按顺序执行）\n1. 仔细阅读 <instruction> 中的目标任务；\n2. 理解 <histories> 所提供的上下文内容；\n3. 分析 <text> 文本，与上下文结合，尝试提取所有字段信息；\n4. 对每个字段（包含 required: true 和 false）执行以下判断：\n   - 若成功提取 → 加入 `completed`\n   - 若提取失败：\n     - 且字段为 required: true → 加入 `incomplete`，并生成提示语\n     - 且字段为 required: false → 忽略，不放入 `incomplete`，也不提示\n5. 整理输出为符合规范的 JSON 结构：\n   - role: 固定为 \"assistant\"\n   - content: 所有 required 且缺失字段的提示语，若无缺失则为 \"\"\n   - completed: 提取成功的字段及其值\n   - incomplete: 所有缺失但 required 的字段，值设为 null\n\n## 输出格式（必须严格遵守）\n```json\n{\n  \"role\": \"assistant\",\n  \"content\": \"<补充请求语句，若无缺失则为空字符串>\",\n  \"completed\": {\n    \"<字段名1>\": <提取到的值1>,\n    \"<字段名2>\": <提取到的值2>\n  },\n  \"incomplete\": {\n    \"<缺失字段名1>\": null,\n    ...\n  }\n}\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "checkpointId": "checkpoint-1",
+          "resourceVersion": "model-version-1"
+        },
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n## 角色设定\n你是一个专业的结构化信息抽取助手，擅长从非结构化的文本或对话中精准提取数据。你不参与普通对话，只专注于信息识别与结构化提取。你必须始终严格遵循下方格式输出结果。\n\n## 任务说明\n从用户提供的“文本”和“对话历史”中，提取符合“字段结构定义”的内容。\n\n抽取规则如下：\n- 所有字段（无论 required 为 true 或 false）都应尝试提取；\n- 抽取成功的字段，加入 `completed`，包含字段名和值；\n- 对于 required: true 且抽取失败的字段：\n  - 加入 `incomplete`，值设为 null；\n  - 在 `content` 中生成一条礼貌、简洁的请求语句，提醒用户补充；\n- 对于 required: false 且抽取失败的字段：\n  - 不加入 `incomplete`，也不在 `content` 中提示；\n- 当所有 required 字段均已提取成功时，`content` 应为 \"\"。\n\n## 输入内容\n以下为模型可参考的输入：\n\n### 聊天历史\n<histories>\n[{\"role\": \"assistant\", \"content\": \"请回答中心检查点问题\"}, {\"role\": \"user\", \"content\": \"还没年龄\"}, {\"role\": \"assistant\", \"content\": \"请补充年龄\"}, {\"role\": \"user\", \"content\": \"年龄8\"}]\n</histories>\n\n### 当前用户指令\n<instruction>\n\n</instruction>\n\n### 字段结构定义（提取目标）\n<structure>\n{\"type\": \"object\", \"properties\": {\"age\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"age\"]}\n</structure>\n\n### 当前用户文本输入\n<text>\n年龄8\n</text>\n\n## 处理流程（请严格按顺序执行）\n1. 仔细阅读 <instruction> 中的目标任务；\n2. 理解 <histories> 所提供的上下文内容；\n3. 分析 <text> 文本，与上下文结合，尝试提取所有字段信息；\n4. 对每个字段（包含 required: true 和 false）执行以下判断：\n   - 若成功提取 → 加入 `completed`\n   - 若提取失败：\n     - 且字段为 required: true → 加入 `incomplete`，并生成提示语\n     - 且字段为 required: false → 忽略，不放入 `incomplete`，也不提示\n5. 整理输出为符合规范的 JSON 结构：\n   - role: 固定为 \"assistant\"\n   - content: 所有 required 且缺失字段的提示语，若无缺失则为 \"\"\n   - completed: 提取成功的字段及其值\n   - incomplete: 所有缺失但 required 的字段，值设为 null\n\n## 输出格式（必须严格遵守）\n```json\n{\n  \"role\": \"assistant\",\n  \"content\": \"<补充请求语句，若无缺失则为空字符串>\",\n  \"completed\": {\n    \"<字段名1>\": <提取到的值1>,\n    \"<字段名2>\": <提取到的值2>\n  },\n  \"incomplete\": {\n    \"<缺失字段名1>\": null,\n    ...\n  }\n}\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "checkpointId": "checkpoint-2",
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [
+        [
+          [
+            "run-1",
+            "lease-1",
+            1,
+            "question-answer::qa",
+            1,
+            {
+              "type": "direct",
+              "content": "请回答中心检查点问题"
+            },
+            true,
+            60,
+            "checkpoint_c6f0a95816f9bb521cc46075b16838cc3d073da7c5d22d0e81bdc101870bd2d3"
+          ],
+          {
+            "iteration_id": null
+          }
+        ],
+        [
+          [
+            "run-1",
+            "lease-1",
+            1,
+            "question-answer::qa",
+            2,
+            {
+              "type": "direct",
+              "content": "请补充年龄"
+            },
+            true,
+            60,
+            "checkpoint_fca41a4f948ee57bac91889ce3ca0581099d2f89ffc0eca4aa7a995c0290ccf4"
+          ],
+          {
+            "iteration_id": null
+          }
+        ]
+      ],
+      "output": {
+        "outputs": {
+          "age": 8
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 0,
+          "prompt_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    },
+    {
+      "name": "pe-fc-default",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.620233+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImFuc3dlciIsIm5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "9e98abf317f8efc442a08e42760b3fce90ad3c3c3db6fb1d341775bb9ab23d5d",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "function_call",
+          "messages": [
+            {
+              "role": "user",
+              "content": "真实算法输入"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {},
+            "questionType": "not_knowledge",
+            "functionChoice": "extractor_parameter"
+          },
+          "functions": [
+            {
+              "name": "extractor_parameter",
+              "description": "Extract corresponding parameters based on user's question",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "answer": {
+                    "type": "integer",
+                    "description": null
+                  }
+                },
+                "required": [
+                  "answer"
+                ]
+              }
+            }
+          ],
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "answer": 11
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "pe-fc-custom",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.656812+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "fc_schema_params": {
+                    "properties": {
+                      "tag": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "tag"
+                    ],
+                    "type": "object"
+                  },
+                  "modelResourceId": "model-1",
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsImZjX3NjaGVtYV9wYXJhbXMiOnsicHJvcGVydGllcyI6eyJ0YWciOnsidHlwZSI6InN0cmluZyJ9fSwicmVxdWlyZWQiOlsidGFnIl0sInR5cGUiOiJvYmplY3QifSwibW9kZWxSZXNvdXJjZUlkIjoibW9kZWwtMSIsInNvdXJjZSI6InhpbmdodW8iLCJzeXN0ZW1UZW1wbGF0ZSI6Im9yaWdpbmFsIHN5c3RlbSIsInRlbXBsYXRlIjoiYXNrPXt7cXVlc3Rpb259fSJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciJ9fV19LCJpZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoiYW5zd2VyIiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoiYW5zd2VyIiwibm9kZUlkIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwifSwidHlwZSI6InJlZiJ9fX1dLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLWVuZDo6ZSIsIm5vZGVUeXBlIjoibm9kZS1lbmQifSwibm9kZVBhcmFtIjp7Im91dHB1dE1vZGUiOjB9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciJ9fV19LCJpZCI6Im5vZGUtZW5kOjplIn1dfQ==",
+        "dslHash": "cec7dfe86b6283016faa9c071c66769ae42547d58c8156aa03bf09a3cd281d8d",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "function_call",
+          "messages": [
+            {
+              "role": "user",
+              "content": "真实算法输入"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {},
+            "questionType": "not_knowledge",
+            "functionChoice": "extractor_parameter"
+          },
+          "functions": [
+            {
+              "name": "extractor_parameter",
+              "description": "Extract corresponding parameters based on user's question",
+              "parameters": {
+                "properties": {
+                  "tag": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "integer",
+                    "description": null
+                  }
+                },
+                "required": [
+                  "tag",
+                  "answer"
+                ],
+                "type": "object"
+              }
+            }
+          ],
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "answer": 11
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "pe-prompt-xinghuo",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.735009+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "xinghuo",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJ4aW5naHVvIiwic3lzdGVtVGVtcGxhdGUiOiJvcmlnaW5hbCBzeXN0ZW0iLCJ0ZW1wbGF0ZSI6ImFzaz17e3F1ZXN0aW9ufX0ifSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCJ9LHsiZGF0YSI6eyJpbnB1dHMiOlt7ImlkIjoiIiwibmFtZSI6ImFuc3dlciIsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciIsInZhbHVlIjp7ImNvbnRlbnQiOnsibmFtZSI6ImFuc3dlciIsIm5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoibm9kZS1lbmQ6OmUiLCJub2RlVHlwZSI6Im5vZGUtZW5kIn0sIm5vZGVQYXJhbSI6eyJvdXRwdXRNb2RlIjowfSwib3V0cHV0cyI6W3sibmFtZSI6ImFuc3dlciIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6ImludGVnZXIifX1dfSwiaWQiOiJub2RlLWVuZDo6ZSJ9XX0=",
+        "dslHash": "a654928abc92cdd2bd7a8ec89509fe148430908eeb775ba22e3d888cff0e56ed",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat",
+              "function_call"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "xinghuo",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "xinghuo",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n真实算法输入\n</text>\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    },
+    {
+      "name": "pe-prompt-openai",
+      "assignment": {
+        "attempt": 1,
+        "deadline": "2026-10-04T18:50:11.792639+00:00",
+        "dsl": {
+          "edges": [
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "node-start::s",
+              "targetNodeId": "extractor-parameter::model"
+            },
+            {
+              "sourceHandle": "",
+              "sourceNodeId": "extractor-parameter::model",
+              "targetNodeId": "node-end::e"
+            }
+          ],
+          "nodes": [
+            {
+              "data": {
+                "inputs": [],
+                "nodeMeta": {
+                  "aliasName": "node-start::s",
+                  "nodeType": "node-start"
+                },
+                "nodeParam": {},
+                "outputs": [
+                  {
+                    "name": "question",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "id": "node-start::s"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "question",
+                    "schema": {
+                      "type": "string",
+                      "value": {
+                        "content": {
+                          "name": "question",
+                          "nodeId": "node-start::s"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "extractor-parameter::model",
+                  "nodeType": "extractor-parameter"
+                },
+                "nodeParam": {
+                  "appId": "legacy-label",
+                  "domain": "model-fixture",
+                  "modelResourceId": "model-1",
+                  "reasonMode": 1,
+                  "source": "openai",
+                  "systemTemplate": "original system",
+                  "template": "ask={{question}}"
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "extractor-parameter::model"
+            },
+            {
+              "data": {
+                "inputs": [
+                  {
+                    "id": "",
+                    "name": "answer",
+                    "schema": {
+                      "type": "integer",
+                      "value": {
+                        "content": {
+                          "name": "answer",
+                          "nodeId": "extractor-parameter::model"
+                        },
+                        "type": "ref"
+                      }
+                    }
+                  }
+                ],
+                "nodeMeta": {
+                  "aliasName": "node-end::e",
+                  "nodeType": "node-end"
+                },
+                "nodeParam": {
+                  "outputMode": 0
+                },
+                "outputs": [
+                  {
+                    "name": "answer",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              },
+              "id": "node-end::e"
+            }
+          ]
+        },
+        "dslCanonicalBase64": "eyJlZGdlcyI6W3sic291cmNlSGFuZGxlIjoiIiwic291cmNlTm9kZUlkIjoibm9kZS1zdGFydDo6cyIsInRhcmdldE5vZGVJZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJzb3VyY2VIYW5kbGUiOiIiLCJzb3VyY2VOb2RlSWQiOiJleHRyYWN0b3ItcGFyYW1ldGVyOjptb2RlbCIsInRhcmdldE5vZGVJZCI6Im5vZGUtZW5kOjplIn1dLCJub2RlcyI6W3siZGF0YSI6eyJpbnB1dHMiOltdLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLXN0YXJ0OjpzIiwibm9kZVR5cGUiOiJub2RlLXN0YXJ0In0sIm5vZGVQYXJhbSI6e30sIm91dHB1dHMiOlt7Im5hbWUiOiJxdWVzdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJzY2hlbWEiOnsidHlwZSI6InN0cmluZyJ9fV19LCJpZCI6Im5vZGUtc3RhcnQ6OnMifSx7ImRhdGEiOnsiaW5wdXRzIjpbeyJpZCI6IiIsIm5hbWUiOiJxdWVzdGlvbiIsInNjaGVtYSI6eyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoicXVlc3Rpb24iLCJub2RlSWQiOiJub2RlLXN0YXJ0OjpzIn0sInR5cGUiOiJyZWYifX19XSwibm9kZU1ldGEiOnsiYWxpYXNOYW1lIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwiLCJub2RlVHlwZSI6ImV4dHJhY3Rvci1wYXJhbWV0ZXIifSwibm9kZVBhcmFtIjp7ImFwcElkIjoibGVnYWN5LWxhYmVsIiwiZG9tYWluIjoibW9kZWwtZml4dHVyZSIsIm1vZGVsUmVzb3VyY2VJZCI6Im1vZGVsLTEiLCJyZWFzb25Nb2RlIjoxLCJzb3VyY2UiOiJvcGVuYWkiLCJzeXN0ZW1UZW1wbGF0ZSI6Im9yaWdpbmFsIHN5c3RlbSIsInRlbXBsYXRlIjoiYXNrPXt7cXVlc3Rpb259fSJ9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciJ9fV19LCJpZCI6ImV4dHJhY3Rvci1wYXJhbWV0ZXI6Om1vZGVsIn0seyJkYXRhIjp7ImlucHV0cyI6W3siaWQiOiIiLCJuYW1lIjoiYW5zd2VyIiwic2NoZW1hIjp7InR5cGUiOiJpbnRlZ2VyIiwidmFsdWUiOnsiY29udGVudCI6eyJuYW1lIjoiYW5zd2VyIiwibm9kZUlkIjoiZXh0cmFjdG9yLXBhcmFtZXRlcjo6bW9kZWwifSwidHlwZSI6InJlZiJ9fX1dLCJub2RlTWV0YSI6eyJhbGlhc05hbWUiOiJub2RlLWVuZDo6ZSIsIm5vZGVUeXBlIjoibm9kZS1lbmQifSwibm9kZVBhcmFtIjp7Im91dHB1dE1vZGUiOjB9LCJvdXRwdXRzIjpbeyJuYW1lIjoiYW5zd2VyIiwicmVxdWlyZWQiOnRydWUsInNjaGVtYSI6eyJ0eXBlIjoiaW50ZWdlciJ9fV19LCJpZCI6Im5vZGUtZW5kOjplIn1dfQ==",
+        "dslHash": "3a71c84ed0be8692f30983478f2cc10511d127c5c497034bc84845c779d3648b",
+        "effectPolicy": {
+          "allowedOperations": [
+            "model.invoke"
+          ],
+          "approvalRef": "test-center-approval",
+          "mode": "approved_write"
+        },
+        "engineProfile": "python",
+        "executionCodec": "paiflow.execution.v4",
+        "input": {
+          "question": "真实算法输入"
+        },
+        "lastEventSeq": 3,
+        "leaseId": "lease-1",
+        "resourceSnapshots": {
+          "model-1": {
+            "capabilities": [
+              "chat"
+            ],
+            "enabled": true,
+            "kind": "model",
+            "modelName": "model-fixture",
+            "provider": "openai",
+            "version": "model-version-1"
+          }
+        },
+        "runId": "run-1",
+        "schemaVersion": "paiflow.worker.v1",
+        "workflowVersionId": "version-1"
+      },
+      "parameters": [
+        {
+          "resourceId": "model-1",
+          "provider": "openai",
+          "modelName": "model-fixture",
+          "mode": "chat",
+          "messages": [
+            {
+              "role": "user",
+              "content": "\n## 角色\n您是一个高效协作助手，负责根据提供的特定标准提取结构化信息。遵循以下指导方针以确保一致性和准确性。\n\n## 任务\n总是使用正确的参数调用`extract_parameters`函数。确保信息提取是上下文相关的，并且与提供的标准一致。\n\n## 历史对话\n这是人类和助手之间的聊天记录，提供在<histories>标签中：\n<histories>\n\n</histories>\n\n## 说明：\n下面提供了一些额外的信息。始终尽可能严格地遵循这些指令：\n<instruction>\n\n</instruction>\n\nSteps:\n1. 查看在<histories>标签中提供的聊天历史记录。\n2. 根据给定的标准提取相关信息，如果给定文本中有多个匹配标准的相关信息，则输出多个值。\n3. 使用定义的函数和参数生成格式良好的输出。\n4. 使用`extract_parameter`函数创建具有适当参数的结构化输出。\n5. 不要在输出中包含任何XML标记。\n\n## 举例说明\n如果任务涉及提取用户名及其请求，则函数调用可能如下所示：确保输出遵循与示例相似的结构。\n\n## 最终输出\n以json格式生成格式良好的函数调用，不带XML标记，如示例所示\n\n## 示例\n### 示例一\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The location to get the weather information\", \"required\": true}}, \"required\": [\"location\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n今天旧金山的天气怎么样？\n</text>\n\n#### 输出\n```json\n{\"location\": \"San Francisco\"}\n```\n\n### 示例二\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"food\": {\"type\": \"string\", \"description\": \"The food to eat\", \"required\": true}}, \"required\": [\"food\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\nI want to eat some apple pie.\n</text>\n\n#### 输出\n```json\n{\"result\": \"apple pie\"}\n```\n\n##以下是需要分析的文本数据\n#### 结构\n以下是JSON对象的结构，您应该始终遵循该结构。\n<structure>\n{\"type\": \"object\", \"properties\": {\"answer\": {\"type\": \"integer\", \"description\": null}}, \"required\": [\"answer\"]}\n</structure>\n\n#### 要转换为JSON的文本\n在<text></text> XML标记中，有一个文本，您应该将其转换为JSON对象。\n<text>\n真实算法输入\n</text>\n"
+            }
+          ],
+          "options": {
+            "temperature": 1.0,
+            "maxTokens": 2048,
+            "topK": 3,
+            "patchId": [],
+            "respFormat": 0,
+            "searchDisable": true,
+            "extraParams": {}
+          },
+          "resourceVersion": "model-version-1"
+        }
+      ],
+      "checkpoints": [],
+      "output": {
+        "outputs": {
+          "answer": 9
+        },
+        "content": "",
+        "reasoningContent": "",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 2,
+          "total_tokens": 5
+        }
+      }
+    }
+  ]
+}

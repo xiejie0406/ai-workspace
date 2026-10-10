@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import DATETIME, JSON, SMALLINT, BigInteger, Column, String
 from sqlalchemy.orm import declarative_base
 
-from repository.mysql_client import MysqlClient
+from agent.repository.mysql_client import MysqlClient
 
 Base = declarative_base()
 

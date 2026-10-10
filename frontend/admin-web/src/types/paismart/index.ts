@@ -9,13 +9,14 @@ export interface Document extends Versioned { title: string; filename?: string; 
 export interface Upload { uploadId: Id; chunkSize: number; completedChunks: number[]; totalChunks?: number; sha256?: string; state?: string; filename?: string; byteSize?: number; progress?: number; estimatedTokens?: number; jobId?: Id; documentId?: Id;spaceId?:Id;visibility?:string;createdAt?:string;expiresAt?:string }
 export interface Reference { id: Id; documentId: Id; title: string; contentVersion: string|number; page?: number; anchor?: string; text?: string; score?: number; verified?: boolean;verification?:{status?:string;supported?:boolean;reason?:string};chunkId?:Id;query?:string;retrievalMode?:string;scoreType?:string;evidenceSnippet?:string;matchedChunkText?:string;parentContext?:string;parentKey?:string;context?:string }
 export interface SearchResult { hits: Reference[]; degraded: boolean; scoreType: string; indexRevision: string; reason?: string }
-export interface Message { id: Id; role: 'user' | 'assistant' | 'tool'; content: string; state?: string; references?: Reference[]; createdAt?: string; generationId?: Id; rating?: string }
-export interface Conversation extends Versioned { title: string; archived: boolean; updatedAt?: string }
+export interface Message { id: Id; role: 'user' | 'assistant' | 'tool'; content: string; state?: string; references?: Reference[]; createdAt?: string; generationId?: Id|null; rating?: 'GOOD'|'BAD'|null; feedbackVersion?: number; feedbackEligible?: boolean }
+export interface FeedbackResult { messageId: Id; generationId: Id; conversationId: Id; rating: 'GOOD'|'BAD'; rowVersion: number; changed: boolean }
+export interface Conversation extends Versioned { title: string; archived: boolean; updatedAt?: string; spaceId?: Id | null }
 export interface StreamEvent { type?: string; kind?: string; generationId: Id; conversationId?: Id; messageId?: Id; sequence: number; text?: string; content?: string; references?: Reference[]; tool?: string; state?: string; errorMessage?: string; errorCode?: string }
 export interface Generation { generationId: Id; conversationId: Id; messageId?: Id; state: string; lastSequence: number; text?: string; references?: Reference[] }
-export interface Member extends Versioned { userId: Id; userName: string; nickName?: string; enabled: boolean; spaceIds: Id[]; assignments?: {spaceId:Id;uploadAllowed:boolean;managerAllowed:boolean}[]; primarySpaceId?: Id; eligible?: boolean; status?: string;platformStatus?:string; chatTokens?: number; embeddingTokens?: number; usage?:QuotaSnapshot; createdAt?:string }
+export interface Member extends Versioned { userId: Id; userName: string; nickName?: string; enabled: boolean; spaceIds: Id[]; visibleSpaces?: {id: Id; name: string}[]; assignments?: {spaceId:Id;uploadAllowed:boolean;managerAllowed:boolean}[]; primarySpaceId?: Id; eligible?: boolean; status?: string;platformStatus?:string; chatTokens?: number; embeddingTokens?: number; usage?:QuotaSnapshot; createdAt?:string }
 export interface Conflict extends Versioned { oldDocumentId: Id; newDocumentId: Id; oldTitle?: string; newTitle?: string; oldText?: string; newText?: string; reason: string; state: string; similarity?: number; action?: string; note?: string }
-export interface IndexRevision extends Versioned { name: string; state: string; provider: string; model?: string; dimension?: number; documentCount?: number; checkpoint?: string; active: boolean; createdAt?: string;sourceWatermark?:string;validation?:Record<string,unknown>;validationJson?:string|Record<string,unknown> }
+export interface IndexRevision extends Versioned { name: string; state: string; provider: string; model?: string; dimension?: number; documentCount?: number; processedCount?: number; checkpoint?: string; active: boolean; createdAt?: string;sourceWatermark?:string;validation?:Record<string,unknown>;validationJson?:string|Record<string,unknown> }
 export interface Evaluation extends Versioned { label: string; state: string; jobId?: Id;jobState?:string;jobResult?:Record<string,unknown>; datasetId?: Id; topK?: number; createdAt?: string }
 export interface EvaluationDataset { id: string; label: string; source: 'UPLOAD' | 'RESOURCE'; ownerId: number|null; sha256: string; byteSize: number; caseCount: number; createdAt?: string }
 export type EvaluationRequest = { label: string; topK: number; spaceId?: Id; seed: number } & ({ inlineJsonl: string; datasetId?: never } | { datasetId: string; inlineJsonl?: never })
@@ -34,7 +35,36 @@ export interface UsageOverview {days:number;today:UsageTrend;trends:UsageTrend[]
 export interface UsageRecord { id: Id; userId?: Id; userName?: string; scope:string;action:string; tokens: number; availableAfter?: number;frozenAfter?:number;debtAfter?:number; reason?: string; createdAt: string; correlationId?: string }
 export interface RechargePackage extends Versioned { name: string; amountFen: number; llmTokens: number; embeddingTokens: number; enabled: boolean;description?:string;benefit?:string;sortOrder?:number }
 export interface Order { id?:Id; tradeNo:string; state:string; amountFen:number; llmTokens?:number; embeddingTokens?:number; codeUrl?:string; qrImageDataUrl?:string; expiresAt?:string; errorMessage?:string; snapshot?:Record<string,unknown> }
-export interface Provider { id?:Id;scope: string; provider: string; model: string; address: string; dimension?: number; secretRef?: string; configured?: boolean; enabled: boolean;active?:boolean;config?:Record<string,unknown>; rowVersion: number; degradedReason?: string }
+export type TextApiProtocol = 'responses' | 'chat_completions'
+export type OutputTokenParameter = 'max_tokens' | 'max_completion_tokens'
+export interface ProviderCompatibility {
+  state: 'PASSED' | 'FAILED' | 'PENDING_RECONCILIATION'
+  providerVersion: number
+  configFingerprint: string
+  secretActiveVersion: number
+  secretRowVersion: number
+  checkedAt: string
+  attemptId?: string
+  attemptExpiresAt?: string
+  checks: { text: boolean; stream: boolean; tool: boolean }
+  usageSource: 'SUPPLIER' | 'ESTIMATED' | 'UNKNOWN'
+  reason?: string
+  operationKey?: string
+  initiatorUserId?: number
+}
+export interface ProviderConfig extends Record<string, unknown> {
+  providerCode?: string
+  capabilityCode?: 'llm' | 'embedding' | 'rerank'
+  apiProtocol?: TextApiProtocol
+  maxOutputTokens?: number
+  outputTokenParameter?: OutputTokenParameter
+  reasoningEffort?: 'low'
+  compatibility?: ProviderCompatibility
+}
+export interface Provider { id?:Id;scope: string; provider: string; model: string; address: string; dimension?: number; secretRef?: string; configured?: boolean; enabled: boolean;active?:boolean;config?:ProviderConfig; rowVersion: number; degradedReason?: string; compatibilityValid?: boolean; activationBlockedReason?: string; canStartNewVerification?: boolean }
+export interface ProviderSaved { id: Id; scope: string; rowVersion: number }
+export interface ProviderTestInput { id?: Id; mode?: 'compatibility'; expectedVersion?: number }
+export interface ProviderTestResult { state: 'READY' | ProviderCompatibility['state']; latencyMs: number; reason?: string; reachable?: boolean; responsePresent?: boolean; compatibility?: ProviderCompatibility }
 export interface TokenWindowRule {minuteMax:number;minuteWindowSeconds:number;dayMax:number;dayWindowSeconds:number}
 export interface RateLimits { chatPerMinute: number; uploadPerMinute: number; dailyChatTokens: number; maxFileBytes: number; rowVersion: number; rules?:{chatMessage:{max:number;windowSeconds:number};llmGlobalToken:TokenWindowRule;embeddingUploadToken:TokenWindowRule;embeddingQueryRequest:TokenWindowRule;embeddingQueryGlobalToken:TokenWindowRule} }
 export interface Invite extends Versioned { code: string; spaceId?: Id; maxUses: number; usedCount: number; expiresAt?: string|null; enabled: boolean; initialLlmTokens: number; initialEmbeddingTokens: number }

@@ -149,6 +149,32 @@ class RunLeasePolicyTest {
         var valid=event(1);valid.getJSONObject("payload").put("legacyFrame",JSONObject.of("id",id,"workflow_step",JSONObject.of("node",JSONObject.of("id","node-start::a"))));
         assertTrue(service.append(id,worker,valid).getBooleanValue("accepted"));assertEquals(1L,run.getLastEventSeq());
     }
+    @Test void javaOriginalSessionFramePersistsWithoutChangingSourceAndStillRequiresBoundLease() {
+        run.setEngineProfile("java");var javaWorker=new WorkerIdentityService.Principal("worker-a","java");
+        var value=event(1);value.put("eventType","text.delta");
+        var frame=JSONObject.of("id","workflow#原流程-1791168653315","workflow_step",JSONObject.of("node",JSONObject.of("id","node-start::a","outputs",JSONObject.of("answer","原结果"))));
+        value.getJSONObject("payload").put("legacyFrame",frame);
+        assertTrue(service.append(id,javaWorker,value).getBooleanValue("accepted"));
+        var captured=org.mockito.ArgumentCaptor.forClass(String.class);verify(mapper).insertEvent(eq(id),eq(1L),captured.capture());
+        assertEquals(frame,JSON.parseObject(captured.getValue()).getJSONObject("payload").getJSONObject("legacyFrame"));
+        when(mapper.event(id,1)).thenReturn(captured.getValue());assertTrue(service.append(id,javaWorker,value).getBooleanValue("accepted"));
+        assertEquals(409,assertThrows(ServiceException.class,()->service.append(id,new WorkerIdentityService.Principal("worker-b","java"),value)).getCode());
+        var wrongLease=event(2);wrongLease.put("leaseId","other-lease");wrongLease.getJSONObject("payload").put("legacyFrame",frame);
+        assertEquals(409,assertThrows(ServiceException.class,()->service.append(id,javaWorker,wrongLease)).getCode());
+        verify(mapper,times(1)).insertEvent(anyString(),anyLong(),anyString());assertEquals(1L,run.getLastEventSeq());
+    }
+    @Test void javaOriginalSessionCannotAuthorizeInvalidFrameShapeNodeRunOrSequence() {
+        run.setEngineProfile("java");var javaWorker=new WorkerIdentityService.Principal("worker-a","java");
+        for(Object sid:new Object[]{null,123,""," ","x\n","x".repeat(513)}){
+            var value=event(1);value.getJSONObject("payload").put("legacyFrame",JSONObject.of("id",sid,"workflow_step",JSONObject.of("node",JSONObject.of("id","node-start::a"))));
+            assertEquals(400,assertThrows(ServiceException.class,()->service.append(id,javaWorker,value)).getCode());
+        }
+        var frame=JSONObject.of("id","workflow#原流程","workflow_step",JSONObject.of("node",JSONObject.of("id","node-start::other")));
+        var wrongNode=event(1);wrongNode.getJSONObject("payload").put("legacyFrame",frame);assertEquals(400,assertThrows(ServiceException.class,()->service.append(id,javaWorker,wrongNode)).getCode());
+        var otherRun=event(1);otherRun.put("runId","other-run");assertEquals(400,assertThrows(ServiceException.class,()->service.append(id,javaWorker,otherRun)).getCode());
+        assertEquals(409,assertThrows(ServiceException.class,()->service.append(id,javaWorker,event(2))).getCode());
+        verify(mapper,never()).insertEvent(anyString(),anyLong(),anyString());verify(mapper,never()).update(any());assertEquals(0L,run.getLastEventSeq());
+    }
     @Test void runWideAuxiliaryWithoutNodeOrFrameRemainsValidButTagAloneCannotAcquireScope() {
         var value=event(1);value.remove("nodeId");value.put("eventType","usage");
         assertTrue(service.append(id,worker,value).getBooleanValue("accepted"));

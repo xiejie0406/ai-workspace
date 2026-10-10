@@ -1,0 +1,61 @@
+{
+  "listeners": [
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 18096,
+      "OwningProcess": 35800
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 15177,
+      "OwningProcess": 37516
+    }
+  ],
+  "capturedAt": "2026-10-04T16:09:52.9203280+08:00",
+  "scope": "本机启动与只读检查，未登录、提交任务或调用Provider",
+  "limits": [
+    "知识库菜单未登记",
+    "Provider及项目用途为空",
+    "MinIO身份与桶未确认",
+    "Kafka及ES原配置未具备",
+    "完整知识业务未验收"
+  ],
+  "startupSuccess": "16:03:12.946 [main] INFO  c.r.RuoYiApplication - [logStarted,60] - Started RuoYiApplication in 191.683 seconds (process running for 209.675)",
+  "captchaProxy": {
+    "businessCode": 200,
+    "httpStatus": 200,
+    "imagePresent": true,
+    "captchaEnabled": true
+  },
+  "actuatorHealth": {
+    "httpStatus": 200,
+    "body": "{\"msg\":\"请求访问：/actuator/health，认证失败，无法访问系统资源\",\"code\":401}"
+  },
+  "processes": [
+    {
+      "ProcessId": 35800,
+      "ExecutablePath": "C:\\Users\\admin\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe",
+      "CreationDate": "2026-10-04T15:59:42.753182+08:00",
+      "CommandLine": "\"C:\\Users\\admin\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe\" -Xms128m -Xmx768m -jar \"D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart\\ruoyi-admin-startupfix.jar\" --server.address=127.0.0.1 --server.port=18096 --spring.profiles.active=druid,local --interview.enabled=false --fashion.enabled=false --aden.enabled=false --aps.enabled=false --aipicture.enabled=false --aippt.enabled=false --paismart.enabled=true --paiflow.enabled=false --paicli.enabled=false --spring.data.redis.host=127.0.0.1 --spring.data.redis.port=6379 --spring.data.redis.database=0 --spring.flyway.enabled=false --spring.quartz.auto-startup=false --aden.collection.enabled=false --aps.datasource.enabled=false --aps.persistence.enabled=false --aps.flyway.enabled=false --interview.flyway.enabled=false --interview.foundation-safety.background-jobs-enabled=false --fashion.image.worker-enabled=false --fashion.ai-runtime.worker-enabled=false --fashion.migration.enabled=false --paismart.object-store.enabled=false --paismart.object-store.writes-enabled=false --paismart.object-store.probe-enabled=false --paismart.jobs.kafka-enabled=false --paismart.intelligence.external-calls-enabled=false --paismart.intelligence.parse.process-enabled=false --paismart.intelligence.parse.ocr-enabled=false --paismart.intelligence.ocr.aliyun-enabled=false --paismart.payment.enabled=false --paismart.operations.execute-enabled=false --paismart.operations.legacy-source.enabled=false --paismart.intelligence.chat.allowed-origins=http://127.0.0.1:15177 --logging.level.com.ruoyi=INFO --logging.level.org.springframework=INFO --logging.file.path=.runtime/paismart/logs --logging.config=file:D:/2025Ai/26-05-23/java-workspace/.runtime/paismart/logback-local.xml"
+    },
+    {
+      "ProcessId": 37516,
+      "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+      "CreationDate": "2026-10-04T15:59:42.939011+08:00",
+      "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" \"D:\\2025Ai\\26-05-23\\java-workspace\\frontend\\admin-web\\node_modules\\vite\\bin\\vite.js\" --host 127.0.0.1 --port 15177 --strictPort"
+    }
+  ],
+  "httpChecks": [
+    {
+      "url": "http://127.0.0.1:18096/",
+      "status": 200,
+      "body": "欢迎使用RuoYi后台管理框架，当前版本：v3.9.2，请通过前端地址访问。"
+    },
+    {
+      "url": "http://127.0.0.1:15177/dev-api/paismart/operations/status",
+      "status": 200,
+      "body": "{\"msg\":\"请求访问：/paismart/operations/status，认证失败，无法访问系统资源\",\"code\":401}"
+    }
+  ],
+  "browser": "内置浏览器实际显示登录页，中心就绪后刷新未出现500提示；未登录、未解验证码"
+}

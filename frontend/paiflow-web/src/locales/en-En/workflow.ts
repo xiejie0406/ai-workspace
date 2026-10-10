@@ -850,6 +850,17 @@ const translation = {
     warning: 'Warning',
     // WorkflowImportModal component translations
     importWorkflow: 'Import Workflow',
+    importPreview: 'Preview import',
+    importConfirmDraft: 'Confirm draft',
+    importGraphSummary: '{{nodes}} nodes, {{edges}} edges',
+    importDraftOnly: 'Import creates a draft; execution has not been verified',
+    importResourceNotice: 'Review conversion differences. Rebind old resources and credentials in the current space. Import does not publish or execute.',
+    importDifferences: 'Conversion differences',
+    importUnresolved: 'Resources to rebind',
+    importStructureIssues: 'Structure and engine checks',
+    importContextChanged: 'Account or space changed. Preview the file again.',
+    importConfirmUncertain: 'If the save result is unknown, check the draft list before retrying to avoid duplicate creation.',
+    importFailed: 'Import failed',
     uploadFileSizeExceeded: 'Upload file size cannot exceed 20M!',
     pleaseUploadYmlYamlFormat: 'Please upload yml, yaml format files!',
     fileFormatYmlYaml:

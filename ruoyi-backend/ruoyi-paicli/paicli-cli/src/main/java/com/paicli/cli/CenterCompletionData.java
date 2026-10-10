@@ -21,6 +21,9 @@ final class CenterCompletionData implements Completer {
     }
     private static final ObjectMapper JSON = new ObjectMapper();
     private volatile Snapshot snapshot = Snapshot.empty();
+    private volatile String mcpSummary="MCP 未读取",skillSummary="Skill 未读取";
+    String mcpSummary(){return mcpSummary;}
+    String skillSummary(){return skillSummary;}
     private final PaiCliCompleter base = new PaiCliCompleter(() -> snapshot.resources());
 
     void refresh(CenterCommandGateway gateway, String sessionId) {
@@ -34,7 +37,9 @@ final class CenterCompletionData implements Completer {
         for (JsonNode provider : read(gateway, sessionId, "config", "", "connections")) {
             String name = label(provider, "provider", "name"); if (safe(name)) providers.add(new Choice(name, "中心登记供应商"));
         }
-        for (JsonNode server : read(gateway, sessionId, "mcp", "list", "connections")) {
+        JsonNode serverRows=read(gateway,sessionId,"mcp","list","connections");long ready=0;
+        for (JsonNode server : serverRows) {
+            if("READY".equalsIgnoreCase(server.path("status").asText()))ready++;
             String name = server.path("name").asText(); if (!safe(name)) continue;
             servers.add(new Choice(name, "中心登记MCP连接"));
             if (!"READY".equalsIgnoreCase(server.path("status").asText())
@@ -45,18 +50,22 @@ final class CenterCompletionData implements Completer {
                 if (descriptor != null && safe(descriptor.uri())) resources.add(new McpResourceDescriptor(name, descriptor.uri(), printable(descriptor.name()), printable(descriptor.title()), printable(descriptor.description()), printable(descriptor.mimeType()), descriptor.size()));
             }
         }
-        for (JsonNode skill : read(gateway, sessionId, "skill", "list", "connections")) {
+        JsonNode skillRows=read(gateway,sessionId,"skill","list","connections");long enabled=0;
+        for (JsonNode skill : skillRows) {
+            if(skill.path("enabled").asBoolean(false)&&skill.path("effective").asBoolean(true))enabled++;
             String name = skill.path("name").asText(); if (safe(name)) skills.add(new Choice(name, "中心登记Skill"));
         }
         snapshot = new Snapshot(List.copyOf(models), List.copyOf(providers), List.copyOf(servers), List.copyOf(skills), List.copyOf(resources));
+        mcpSummary=serverRows.isArray()?"MCP "+ready+"/"+serverRows.size():"MCP 未核实";
+        skillSummary=skillRows.isArray()?"Skill "+enabled+"/"+skillRows.size():"Skill 未核实";
     }
     private JsonNode read(CenterCommandGateway gateway, String sessionId, String command, String args, String field) {
         try {
             var result = gateway.command(sessionId, command, args);
-            if (!result.successful() || result.data() == null) return JSON.createArrayNode();
+            if (!result.successful() || result.data() == null) return JSON.nullNode();
             JsonNode values = JSON.valueToTree(result.data()).path(field);
-            return values.isArray() ? values : JSON.createArrayNode();
-        } catch (IOException | RuntimeException denied) { return JSON.createArrayNode(); }
+            return values.isArray() ? values : JSON.nullNode();
+        } catch (IOException | RuntimeException denied) { return JSON.nullNode(); }
     }
     private static boolean safe(String value) { return value != null && !value.isBlank() && value.length() <= 2048 && value.codePoints().noneMatch(c -> Character.isISOControl(c) || Character.isWhitespace(c)); }
     private static String label(JsonNode node, String field, String fallback) { String value = node.path(field).asText(); return value.isBlank() ? node.path(fallback).asText() : value; }
@@ -74,10 +83,13 @@ final class CenterCompletionData implements Completer {
             if (command.equals("model")) {
                 if (parts.length == 2) { add(candidates, word, choices("list", "info", "refresh", "add")); add(candidates, word, data.models()); }
                 else if (parts.length == 3 && parts[1].equals("info")) add(candidates, word, data.models());
-                else if (parts.length == 3 && List.of("refresh", "add").contains(parts[1])) add(candidates, word, data.providers());
+                else if (parts.length == 3 && List.of("list", "refresh", "add").contains(parts[1])) add(candidates, word, data.providers());
             } else if (command.equals("config")) {
                 if (parts.length == 2) add(candidates, word, choices("provider"));
                 else if (parts.length == 3 && parts[1].equals("provider")) add(candidates, word, data.providers());
+                else if(parts.length>=4&&parts[1].equals("provider"))
+                    add(candidates,word,List.of(new Choice("--base-url","供应商地址"),new Choice("--secret-ref","中心托管密钥引用"),
+                            new Choice("--model","模型名"),new Choice("--lora-id","讯飞资源标识"),new Choice("--default","设为默认供应商")));
             } else if (command.equals("mcp")) {
                 if (parts.length == 2) add(candidates, word, choices("list", "status", "start", "stop", "restart", "logs", "disable", "enable", "resources", "prompts"));
                 else if (parts.length == 3) add(candidates, word, data.servers());

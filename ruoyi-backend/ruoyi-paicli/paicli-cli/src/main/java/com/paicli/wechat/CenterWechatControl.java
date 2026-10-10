@@ -57,8 +57,8 @@ public final class CenterWechatControl implements NativeControlExecutor.Extensio
                 JsonNode resolved = center.post("/paicli/runner/v1/wechat/context", binding(args, tools), UUID.randomUUID().toString());
                 Bridge bridge = new Bridge(center.withRunnerToken(required(resolved, "bridgeKey")), resolved, version);
                 JsonNode account = resolved.path("account");
-                String workspaceId = required(account, "workspaceId");
-                if (!workspaceId.equals(context.path("workspace").path("id").asText(context.path("workspaceId").asText()))) { bridge.close(); throw new IOException("微信中心绑定工作区不符"); }
+                String directoryContextId = required(account, "directoryContextId");
+                if (!directoryContextId.equals(context.path("directoryContext").path("id").asText(context.path("directoryContextId").asText()))) { bridge.close(); throw new IOException("微信中心绑定工作区不符"); }
                 WechatAccount delegated = new WechatAccount(required(account, "token"), required(account, "accountId"), required(account, "baseUrl"), required(account, "boundUserId"), tools.getProjectPath(), account.path("syncBuf").asText(""), Instant.now().toString());
                 IlinkClient client = new IlinkClient() {
                     @Override public WechatUpdate getUpdates(WechatAccount value, long timeout) throws IOException { bridge.ensureActive(); return super.getUpdates(value, timeout); }

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.ModelOperationMapper">
+  <sql id="columns">id AS id,
+    run_id AS runId,
+    lease_id AS leaseId,
+    worker_id AS workerId,
+    node_id AS nodeId,
+    iteration_id AS iterationId,
+    dsl_hash AS dslHash,
+    resource_id AS resourceId,
+    resource_version AS resourceVersion,
+    provider AS provider,
+    request_key AS requestKey,
+    request_key_hash AS requestKeyHash,
+    request_hash AS requestHash,
+    parameters_json AS parametersJson,
+    approval_json AS approvalJson,
+    approval_ref AS approvalRef,
+    state AS state,
+    grant_id AS grantId,
+    grant_token_hash AS grantTokenHash,
+    failure_kind AS failureKind,
+    finish_reason AS finishReason,
+    stop_proof_id AS stopProofId,
+    usage_json AS usageJson,
+    workflow_version_id AS workflowVersionId,
+    space_id AS spaceId,
+    owner_user_id AS ownerUserId,
+    last_seq AS lastSeq,
+    finish_seq AS finishSeq,
+    response_bytes AS responseBytes,
+    revision AS revision,
+    attempt AS attempt,
+    dispatch_started AS dispatchStarted,
+    grant_acquired AS grantAcquired,
+    stop_confirmed AS stopConfirmed,
+    approval_expires_at AS approvalExpiresAt,
+    deadline AS deadline,
+    create_time AS createTime,
+    update_time AS updateTime</sql>
+  <select id="find" resultType="com.ruoyi.paiflow.domain.ModelOperationRecord">SELECT <include refid="columns"/> FROM paiflow_model_operation WHERE id=#{id}</select>
+  <select id="lock" resultType="com.ruoyi.paiflow.domain.ModelOperationRecord">SELECT <include refid="columns"/> FROM paiflow_model_operation WHERE id=#{id} FOR UPDATE</select>
+  <select id="byRequest" resultType="com.ruoyi.paiflow.domain.ModelOperationRecord">SELECT <include refid="columns"/> FROM paiflow_model_operation WHERE run_id=#{runId} AND attempt=#{attempt} AND request_key_hash=#{requestKeyHash}</select>
+  <insert id="insert">INSERT INTO paiflow_model_operation(id, run_id, lease_id, worker_id, node_id, iteration_id, dsl_hash, resource_id, resource_version, provider, request_key, request_key_hash, request_hash, parameters_json, approval_json, approval_ref, state, grant_id, grant_token_hash, failure_kind, finish_reason, stop_proof_id, usage_json, workflow_version_id, space_id, owner_user_id, last_seq, finish_seq, response_bytes, revision, attempt, dispatch_started, grant_acquired, stop_confirmed, approval_expires_at, deadline, create_time, update_time) VALUES(#{id}, #{runId}, #{leaseId}, #{workerId}, #{nodeId}, #{iterationId}, #{dslHash}, #{resourceId}, #{resourceVersion}, #{provider}, #{requestKey}, #{requestKeyHash}, #{requestHash}, #{parametersJson}, #{approvalJson}, #{approvalRef}, #{state}, #{grantId}, #{grantTokenHash}, #{failureKind}, #{finishReason}, #{stopProofId}, #{usageJson}, #{workflowVersionId}, #{spaceId}, #{ownerUserId}, #{lastSeq}, #{finishSeq}, #{responseBytes}, #{revision}, #{attempt}, #{dispatchStarted}, #{grantAcquired}, #{stopConfirmed}, #{approvalExpiresAt}, #{deadline}, UTC_TIMESTAMP(), UTC_TIMESTAMP())</insert>
+  <update id="update">UPDATE paiflow_model_operation SET state=#{state},grant_id=#{grantId},grant_token_hash=#{grantTokenHash},failure_kind=#{failureKind},finish_reason=#{finishReason},stop_proof_id=#{stopProofId},usage_json=#{usageJson},last_seq=#{lastSeq},finish_seq=#{finishSeq},response_bytes=#{responseBytes},dispatch_started=#{dispatchStarted},grant_acquired=#{grantAcquired},stop_confirmed=#{stopConfirmed},revision=revision+1,update_time=UTC_TIMESTAMP() WHERE id=#{id} AND revision=#{revision}</update>
+  <select id="frame" resultType="com.ruoyi.paiflow.domain.ModelFrameRecord">SELECT operation_id AS operationId,seq,frame_json AS frameJson,frame_hash AS frameHash,frame_bytes AS frameBytes FROM paiflow_model_frame WHERE operation_id=#{operationId} AND seq=#{seq}</select>
+  <select id="frames" resultType="com.ruoyi.paiflow.domain.ModelFrameRecord">SELECT operation_id AS operationId,seq,frame_json AS frameJson,frame_hash AS frameHash,frame_bytes AS frameBytes FROM paiflow_model_frame WHERE operation_id=#{operationId} AND seq &gt; #{after} ORDER BY seq LIMIT #{limit}</select>
+  <insert id="insertFrame">INSERT INTO paiflow_model_frame(operation_id,seq,frame_json,frame_hash,frame_bytes,create_time) VALUES(#{operationId},#{seq},#{frameJson},#{frameHash},#{frameBytes},UTC_TIMESTAMP())</insert>
+</mapper>

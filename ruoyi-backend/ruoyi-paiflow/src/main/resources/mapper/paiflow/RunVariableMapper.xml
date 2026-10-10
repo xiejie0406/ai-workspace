@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.RunVariableMapper">
+  <sql id="projection">revision,IF(expires_at&gt;UTC_TIMESTAMP(3),values_json,'{}') AS valuesJson</sql>
+  <resultMap id="state" type="java.util.LinkedHashMap"><result column="revision" property="revision"/><result column="valuesJson" property="valuesJson"/></resultMap>
+  <resultMap id="requestReceipt" type="java.util.LinkedHashMap"><result column="requestHash" property="requestHash"/><result column="scopeKey" property="scopeKey"/><result column="revision" property="revision"/></resultMap>
+  <select id="find" resultMap="state">SELECT <include refid="projection"/> FROM paiflow_runtime_variable WHERE scope_key=#{scope}</select>
+  <select id="lock" resultMap="state">SELECT <include refid="projection"/> FROM paiflow_runtime_variable WHERE scope_key=#{scope} FOR UPDATE</select>
+  <insert id="initialize">
+    INSERT INTO paiflow_runtime_variable(scope_key,values_json,revision,expires_at)
+    VALUES(#{scope},'{}',0,UTC_TIMESTAMP(3)) ON DUPLICATE KEY UPDATE scope_key=scope_key
+  </insert>
+  <update id="update">
+    UPDATE paiflow_runtime_variable SET values_json=#{json},revision=revision+1,expires_at=UTC_TIMESTAMP(3)+INTERVAL 7 DAY
+    WHERE scope_key=#{scope} AND revision=#{revision}
+  </update>
+  <select id="request" resultMap="requestReceipt">
+    SELECT request_hash AS requestHash,scope_key AS scopeKey,revision FROM paiflow_variable_request
+    WHERE run_id=#{run} AND attempt=#{attempt} AND request_key_hash=#{key}
+  </select>
+  <insert id="record">
+    INSERT INTO paiflow_variable_request(run_id,attempt,request_key_hash,request_hash,scope_key,revision)
+    VALUES(#{run},#{attempt},#{key},#{hash},#{scope},#{revision})
+  </insert>
+  <resultMap id="source" type="java.util.LinkedHashMap">
+    <result column="run_id" property="runId"/><result column="lease_id" property="leaseId"/><result column="attempt" property="attempt"/><result column="node_id" property="nodeId"/>
+    <result column="snapshot_key" property="snapshotKey"/><result column="operation" property="operation"/><result column="scope_key" property="scopeKey"/><result column="node_hash" property="nodeHash"/>
+    <result column="request_json" property="requestJson"/><result column="response_json" property="responseJson"/><result column="response_hash" property="responseHash"/>
+  </resultMap>
+  <select id="snapshot" resultMap="source">SELECT * FROM paiflow_variable_source WHERE run_id=#{run} AND lease_id=#{lease} AND attempt=#{attempt} AND node_id=#{node} AND snapshot_key=#{key}</select>
+  <select id="snapshots" resultMap="source">SELECT * FROM paiflow_variable_source WHERE run_id=#{run} AND lease_id=#{lease} AND attempt=#{attempt} AND node_id=#{node} LIMIT 1025</select>
+  <insert id="recordSnapshot">INSERT INTO paiflow_variable_source(run_id,lease_id,attempt,node_id,snapshot_key,operation,scope_key,node_hash,request_json,response_json,response_hash) VALUES(#{run},#{lease},#{attempt},#{node},#{key},#{operation},#{scope},#{nodeHash},#{requestJson},#{responseJson},#{responseHash})</insert>
+</mapper>

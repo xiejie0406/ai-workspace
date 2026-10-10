@@ -15,6 +15,34 @@ import ExceptionHandling from '@/components/workflow/nodes/components/exception-
 import { ModelSection } from '@/components/workflow/nodes/node-common';
 import { useNodeCommon } from '@/components/workflow/hooks/use-node-common';
 import FixedOutputs from '@/components/workflow/nodes/components/fixed-outputs';
+import type { NodeDataType } from '@/components/workflow/types';
+import type { ModelNodeParameters } from '@/components/workflow/types/nodes/components';
+import type { UseNodeFuncReturn } from '@/components/workflow/types/hooks';
+import type { FlowStoreType } from '@/components/workflow/types/zustand/flow';
+
+interface IntentChain {
+  id: string;
+  intentType: number;
+  name: string;
+  description: string;
+  nameErrMsg?: string;
+  descriptionErrMsg?: string;
+}
+interface DecisionParameters extends ModelNodeParameters {
+  intentChains?: IntentChain[];
+  promptPrefix?: string;
+  promptPrefixErrMsg?: string;
+}
+type DecisionData = NodeDataType<DecisionParameters>;
+interface DecisionProps { id: string; data: DecisionData }
+type ChangeIntent = (intentId: string, update: (intent: IntentChain, value: string) => void, value: string) => void;
+type AdvancedConfigProps = DecisionProps & Pick<UseNodeFuncReturn, 'handleChangeNodeParam'> & Pick<FlowStoreType, 'delayCheckNode'>;
+type IntentSectionProps = Pick<DecisionProps, 'id'> & Pick<FlowStoreType, 'setNode' | 'setEdges' | 'takeSnapshot' | 'removeNodeRef' | 'edges' | 'delayCheckNode'> & {
+  intentChains: IntentChain[];
+  canPublishSetNot: () => void;
+  handleChangeParam: ChangeIntent;
+  canvasesDisabled: boolean;
+};
 
 import remove from '@/assets/imgs/workflow/input-remove-icon.png';
 
@@ -23,7 +51,7 @@ const AdvancedConfigSection = ({
   data,
   handleChangeNodeParam,
   delayCheckNode,
-}): React.ReactElement => {
+}: AdvancedConfigProps): React.ReactElement => {
   const { t } = useTranslation();
 
   return (
@@ -71,7 +99,7 @@ const IntentSection = ({
   handleChangeParam,
   canvasesDisabled,
   delayCheckNode,
-}): React.ReactElement => {
+}: IntentSectionProps): React.ReactElement => {
   const { t } = useTranslation();
   const intentOrderList = t('workflow.nodes.flow.intentNumbers', {
     returnObjects: true,
@@ -80,8 +108,10 @@ const IntentSection = ({
   const handleAddIntent = useCallback(() => {
     takeSnapshot();
     setNode(id, old => {
-      old.data.nodeParam.intentChains.splice(
-        old.data.nodeParam.intentChains.length - 1,
+      const params = (old.data as DecisionData).nodeParam;
+      const chains = (params.intentChains ??= []);
+      chains.splice(
+        chains.length - 1,
         0,
         {
           intentType: 2,
@@ -96,11 +126,11 @@ const IntentSection = ({
   }, [id, setNode, takeSnapshot, canPublishSetNot]);
 
   const handleRemoveIntent = useCallback(
-    intentChainId => {
+    (intentChainId: string) => {
       takeSnapshot();
       setNode(id, old => {
         old.data.nodeParam.intentChains =
-          old.data.nodeParam.intentChains.filter(i => i.id !== intentChainId);
+          ((old.data as DecisionData).nodeParam.intentChains ?? []).filter(i => i.id !== intentChainId);
         return { ...cloneDeep(old) };
       });
       const edge = edges.find(edge => edge.sourceHandle === intentChainId);
@@ -159,7 +189,7 @@ const IntentSection = ({
                           nodeId={id}
                           value={intent.name}
                           className="flex-1"
-                          onChange={value =>
+                          onChange={(value: string) =>
                             handleChangeParam(
                               intent.id,
                               (d, v) => (d.name = v),
@@ -180,7 +210,7 @@ const IntentSection = ({
                           adaptiveHeight={true}
                           readOnly={canvasesDisabled}
                           value={intent.description}
-                          onChange={value =>
+                          onChange={(value: string) =>
                             handleChangeParam(
                               intent.id,
                               (d, v) => (d.description = v),
@@ -230,7 +260,7 @@ const IntentSection = ({
   );
 };
 
-export const DecisionMakingDetail = memo(props => {
+export const DecisionMakingDetail = memo((props: DecisionProps) => {
   const { id, data } = props;
   const { handleChangeNodeParam } = useNodeCommon({
     id,
@@ -250,13 +280,13 @@ export const DecisionMakingDetail = memo(props => {
   const removeNodeRef = currentStore(state => state.removeNodeRef);
   const canPublishSetNot = useFlowsManager(state => state.canPublishSetNot);
 
-  const handleChangeParam = useCallback(
+  const handleChangeParam: ChangeIntent = useCallback(
     (intentId, fn, value) => {
       setNode(id, old => {
-        const currentIntent = old.data.nodeParam.intentChains.find(
+        const currentIntent = (old.data as DecisionData).nodeParam.intentChains?.find(
           item => item.id === intentId
         );
-        fn(currentIntent, value);
+        if (currentIntent) fn(currentIntent, value);
         return {
           ...cloneDeep(old),
         };
@@ -304,7 +334,7 @@ export const DecisionMakingDetail = memo(props => {
   );
 });
 
-export const DecisionMaking = memo(({ id, data }) => {
+export const DecisionMaking = memo(({ id, data }: DecisionProps) => {
   const { t } = useTranslation();
   const intentOrderList = t('workflow.nodes.flow.intentNumbers', {
     returnObjects: true,

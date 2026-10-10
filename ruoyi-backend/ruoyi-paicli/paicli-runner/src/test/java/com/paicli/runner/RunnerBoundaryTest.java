@@ -346,6 +346,10 @@ class RunnerBoundaryTest {
             }
             JsonNode sent=CanonicalJson.MAPPER.readTree(server.takeRequest().getBody().readUtf8());assertEquals(System.getProperty("os.name"),sent.path("platform").asText());
             assertFalse(sent.path("distributionVersion").asText().isBlank());assertEquals(1,sent.path("capacity").asInt());
+            assertTrue(java.util.stream.StreamSupport.stream(sent.path("capabilities").spliterator(),false)
+                    .anyMatch(value->"sub2api.responses.v1".equals(value.asText())));
+            assertTrue(java.util.stream.StreamSupport.stream(sent.path("capabilities").spliterator(),false)
+                    .anyMatch(value->"sub2api.chat_completions.v1".equals(value.asText())));
         }
     }
     @Test void changedOversizedResourceAfterExecutionKeepsFullResultForReconciliation()throws Exception{

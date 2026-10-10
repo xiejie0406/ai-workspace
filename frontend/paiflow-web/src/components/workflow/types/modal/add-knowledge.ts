@@ -1,4 +1,6 @@
 import React, { SetStateAction } from 'react';
+import type { OrderByType } from './add-flow';
+export type { OrderByType } from './add-flow';
 
 // Add Knowledge Modal 相关类型定义
 
@@ -39,7 +41,6 @@ export interface GetKnowledgesResponse {
 }
 
 // 排序类型
-export type OrderByType = 'create_time' | 'update_time';
 
 // 版本类型
 export type VersionType = 'AIUI-RAG2' | 'CBG-RAG' | 'SparkDesk-RAG';

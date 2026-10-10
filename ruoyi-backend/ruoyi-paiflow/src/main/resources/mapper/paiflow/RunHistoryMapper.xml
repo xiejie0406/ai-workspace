@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.paiflow.mapper.RunHistoryMapper">
+  <resultMap id="pythonSnapshotRow" type="java.util.HashMap">
+    <id column="history_ref" property="historyRef"/><result column="run_id" property="runId"/>
+    <result column="lease_id" property="leaseId"/><result column="attempt" property="attempt"/>
+    <result column="snapshot_json" property="snapshotJson"/><result column="snapshot_hash" property="snapshotHash"/>
+  </resultMap>
+  <select id="pythonSnapshot" resultMap="pythonSnapshotRow">
+    SELECT * FROM paiflow_python_history_snapshot WHERE run_id=#{run} AND attempt=#{attempt}
+  </select>
+  <insert id="freezePython">
+    INSERT INTO paiflow_python_history_snapshot(history_ref,run_id,lease_id,attempt,snapshot_json,snapshot_hash)
+    VALUES(#{ref},#{run},#{lease},#{attempt},#{snapshot},#{hash})
+  </insert>
+  <resultMap id="pythonEvidenceRow" type="java.util.HashMap">
+    <result column="model_operation_id" property="modelOperationId"/>
+    <result column="evidence_json" property="evidenceJson"/><result column="evidence_hash" property="evidenceHash"/>
+  </resultMap>
+  <select id="pythonEvidence" resultMap="pythonEvidenceRow">
+    SELECT model_operation_id,evidence_json,evidence_hash FROM paiflow_python_history_evidence
+    WHERE run_id=#{run} AND attempt=#{attempt} AND request_key_hash=#{key}
+  </select>
+  <select id="pythonEvidenceByOperation" resultMap="pythonEvidenceRow">
+    SELECT model_operation_id,evidence_json,evidence_hash FROM paiflow_python_history_evidence WHERE model_operation_id=#{operation}
+  </select>
+  <insert id="recordPythonEvidence">
+    INSERT INTO paiflow_python_history_evidence(run_id,attempt,request_key_hash,model_operation_id,evidence_json,evidence_hash)
+    VALUES(#{run},#{attempt},#{key},#{operation},#{evidence},#{hash})
+  </insert>
+  <resultMap id="pythonRecentRow" type="java.util.HashMap">
+    <id column="id" property="id"/><result column="run_id" property="runId"/><result column="attempt" property="attempt"/>
+    <result column="node_id" property="nodeId"/><result column="request_key_hash" property="requestKeyHash"/>
+    <result column="request_hash" property="requestHash"/><result column="question_bytes" property="questionBytes"/>
+    <result column="answer_bytes" property="answerBytes"/>
+  </resultMap>
+  <select id="pythonRecent" resultMap="pythonRecentRow">
+    SELECT id,run_id,attempt,node_id,request_key_hash,request_hash,question_bytes,answer_bytes FROM (
+      SELECT h.id,h.run_id,h.attempt,h.node_id,h.request_key_hash,h.request_hash,h.create_time,
+        OCTET_LENGTH(h.question_json) AS question_bytes,OCTET_LENGTH(h.answer_json) AS answer_bytes,
+        ROW_NUMBER() OVER(PARTITION BY h.node_id ORDER BY h.create_time DESC,h.id DESC) AS node_position
+      FROM paiflow_node_history h INNER JOIN paiflow_run_context c ON c.run_id=h.run_id
+      WHERE c.space_id=#{space} AND c.workflow_id=#{workflow} AND c.owner_user_id=#{owner}
+        AND c.app_id=#{app} AND c.chat_id=#{chat}
+        AND h.node_id IN <foreach collection="nodes" item="node" open="(" separator="," close=")">#{node}</foreach>
+    ) scoped WHERE node_position&lt;=10 ORDER BY create_time DESC,id DESC LIMIT 1001
+  </select>
+  <resultMap id="pythonItemRow" type="java.util.HashMap">
+    <result column="question_json" property="questionJson"/><result column="answer_json" property="answerJson"/>
+  </resultMap>
+  <select id="pythonItem" resultMap="pythonItemRow">SELECT question_json,answer_json FROM paiflow_node_history WHERE id=#{id}</select>
+  <resultMap id="pythonCostRow" type="java.util.HashMap">
+    <result column="bytes" property="bytes"/><result column="row_count" property="count"/>
+  </resultMap>
+  <!-- 读取前按实际数据库字符串字节计费，不相信Worker可写的response_bytes/frame_bytes。 -->
+  <select id="pythonRunCost" resultMap="pythonCostRow">
+    SELECT COALESCE(OCTET_LENGTH(r.assignment_json),0)+COALESCE((SELECT SUM(OCTET_LENGTH(e.event_json)) FROM paiflow_run_event e WHERE e.run_id=r.id),0)
+      +COALESCE((SELECT SUM(OCTET_LENGTH(s.snapshot_json)) FROM paiflow_python_history_snapshot s WHERE s.run_id=r.id),0) AS bytes,
+      (SELECT COUNT(*) FROM paiflow_run_event e WHERE e.run_id=r.id) AS row_count FROM paiflow_run r WHERE r.id=#{run}
+  </select>
+  <select id="pythonOperationCost" resultMap="pythonCostRow">
+    SELECT OCTET_LENGTH(m.parameters_json)+OCTET_LENGTH(m.approval_json)+COALESCE((SELECT SUM(OCTET_LENGTH(f.frame_json)) FROM paiflow_model_frame f WHERE f.operation_id=m.id),0) AS bytes,
+      (SELECT COUNT(*) FROM paiflow_model_frame f WHERE f.operation_id=m.id) AS row_count FROM paiflow_model_operation m WHERE m.id=#{operation}
+  </select>
+  <select id="pythonOperations" resultType="string">SELECT id FROM paiflow_model_operation WHERE run_id=#{run} LIMIT 1001</select>
+  <select id="pythonToolCost" resultMap="pythonCostRow">
+    SELECT COALESCE(SUM(OCTET_LENGTH(request_json)+OCTET_LENGTH(binding_json)+COALESCE(OCTET_LENGTH(response_json),0)),0) AS bytes,COUNT(*) AS row_count
+    FROM paiflow_tool_operation WHERE run_id=#{run}
+  </select>
+  <select id="pythonDataCost" resultMap="pythonCostRow">
+    SELECT COALESCE((SELECT SUM(OCTET_LENGTH(response_json)) FROM paiflow_data_request WHERE run_id=#{run}),0)+COALESCE(SUM(OCTET_LENGTH(completion_json)),0) AS bytes,COUNT(*) AS row_count
+    FROM paiflow_data_completion WHERE run_id=#{run}
+  </select>
+  <select id="pythonVariableCost" resultMap="pythonCostRow">
+    SELECT COALESCE(SUM(OCTET_LENGTH(request_json)+OCTET_LENGTH(response_json)),0) AS bytes,COUNT(*) AS row_count
+    FROM paiflow_variable_source WHERE run_id=#{run}
+  </select>
+  <resultMap id="contextRow" type="java.util.HashMap">
+    <id column="run_id" property="runId"/><result column="space_id" property="spaceId"/>
+    <result column="workflow_id" property="workflowId"/><result column="owner_user_id" property="ownerUserId"/>
+    <result column="flow_id" property="flowId"/><result column="app_id" property="appId"/><result column="chat_id" property="chatId"/>
+  </resultMap>
+  <select id="context" resultMap="contextRow">
+    SELECT run_id,space_id,workflow_id,owner_user_id,flow_id,app_id,chat_id FROM paiflow_run_context WHERE run_id=#{run}
+  </select>
+  <insert id="bind">
+    INSERT INTO paiflow_run_context(run_id,space_id,workflow_id,owner_user_id,flow_id,app_id,chat_id)
+    VALUES(#{run},#{space},#{workflow},#{owner},#{flow},#{app},#{chat})
+  </insert>
+  <resultMap id="pythonRequestRow" type="java.util.HashMap">
+    <result column="request_hash" property="requestHash"/><result column="revision" property="revision"/>
+  </resultMap>
+  <select id="byRequest" resultMap="pythonRequestRow">
+    SELECT request_hash,revision FROM paiflow_node_history
+    WHERE run_id=#{run} AND attempt=#{attempt} AND request_key_hash=#{key}
+  </select>
+  <insert id="append">
+    INSERT INTO paiflow_node_history(run_id,attempt,node_id,request_key_hash,request_hash,question_json,answer_json,revision,create_time)
+    VALUES(#{run},#{attempt},#{node},#{key},#{hash},#{question},#{answer},1,UTC_TIMESTAMP(3))
+  </insert>
+  <resultMap id="pythonHistoryRow" type="java.util.HashMap">
+    <id column="id" property="id"/><result column="nodeId" property="nodeId"/>
+    <result column="questionJson" property="questionJson"/><result column="answerJson" property="answerJson"/>
+  </resultMap>
+  <select id="recent" resultMap="pythonHistoryRow">
+    SELECT id,nodeId,questionJson,answerJson FROM (
+      SELECT h.id,h.node_id AS nodeId,h.question_json AS questionJson,h.answer_json AS answerJson,
+        ROW_NUMBER() OVER(PARTITION BY h.node_id ORDER BY h.id DESC) AS nodePosition
+      FROM paiflow_node_history h INNER JOIN paiflow_run_context c ON c.run_id=h.run_id
+      WHERE c.space_id=#{space} AND c.workflow_id=#{workflow} AND c.owner_user_id=#{owner}
+        AND c.app_id=#{app} AND c.chat_id=#{chat}
+        AND h.node_id IN <foreach collection="nodes" item="node" open="(" separator="," close=")">#{node}</foreach>
+    ) scoped WHERE nodePosition&lt;=10 ORDER BY id DESC LIMIT 1001
+  </select>
+  <resultMap id="javaHistoryRow" type="java.util.HashMap">
+    <id column="id" property="id"/><result column="run_id" property="runId"/>
+    <result column="lease_id" property="leaseId"/><result column="attempt" property="attempt"/>
+    <result column="node_id" property="nodeId"/><result column="workflow_version_id" property="workflowVersionId"/>
+    <result column="dsl_hash" property="dslHash"/><result column="input_hash" property="inputHash"/>
+    <result column="snapshot_json" property="snapshotJson"/><result column="snapshot_hash" property="snapshotHash"/>
+    <result column="item_json" property="itemJson"/><result column="item_hash" property="itemHash"/>
+    <result column="model_operation_id" property="modelOperationId"/><result column="state" property="state"/>
+    <result column="revision" property="revision"/>
+  </resultMap>
+  <select id="javaRound" resultMap="javaHistoryRow">
+    SELECT * FROM paiflow_java_node_history WHERE run_id=#{run} AND attempt=#{attempt} AND node_id=#{node}
+  </select>
+  <select id="javaRecent" resultMap="javaHistoryRow">
+    SELECT h.* FROM paiflow_java_node_history h INNER JOIN paiflow_run_context c ON c.run_id=h.run_id
+    WHERE c.space_id=#{space} AND c.workflow_id=#{workflow} AND c.owner_user_id=#{owner}
+      AND c.app_id=#{app} AND c.chat_id=#{chat} AND h.node_id=#{node}
+    ORDER BY h.id DESC LIMIT 10
+  </select>
+  <insert id="openJava">
+    INSERT INTO paiflow_java_node_history(run_id,lease_id,attempt,node_id,workflow_version_id,dsl_hash,input_hash,
+      snapshot_json,snapshot_hash,item_json,item_hash,state,revision)
+    VALUES(#{run},#{lease},#{attempt},#{node},#{version},#{dslHash},#{inputHash},#{snapshot},#{snapshotHash},#{item},#{itemHash},'OPEN',1)
+  </insert>
+  <update id="completeJava">
+    UPDATE paiflow_java_node_history SET item_json=#{item},item_hash=#{itemHash},model_operation_id=#{operation},
+      state='COMPLETED',revision=revision+1
+    WHERE run_id=#{run} AND attempt=#{attempt} AND node_id=#{node} AND state='OPEN' AND revision=#{revision}
+  </update>
+</mapper>

@@ -37,7 +37,10 @@ public class CodeRetriever implements AutoCloseable {
      * 语义检索：用自然语言查询最相关的代码块
      */
     public List<VectorStore.SearchResult> semanticSearch(String query, int topK) throws Exception {
+        if (embeddingClient == null) throw new java.io.IOException("未配置向量模型，精确搜索仍可用");
+        VectorStore.IndexMetadata metadata = vectorStore.requireIdentity(embeddingClient.getIdentity());
         float[] queryEmbedding = embeddingClient.embed(query);
+        EmbeddingClient.validateVector(queryEmbedding, metadata.actualDimensions());
         return vectorStore.search(queryEmbedding, topK);
     }
 

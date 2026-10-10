@@ -1,0 +1,497 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paiflow:data-operations:v1",
+  "title": "中心数据节点固定资源与同步操作回执",
+  "$ref": "#/$defs/DataOperationRequest",
+  "description": "对应当前DataRuntimeCatalog和DataWorkerOperationService；Java同一租约事务执行逻辑行并保存幂等回执，原Python数据库节点消费。真实MySQL增量及页面业务验收尚未完成。",
+  "x-invariants": [
+    "只有同一固定database节点/版本/资源和当前有效身份、租约、一次begin登记可以访问；资源公开逻辑表列，不公开物理连接或密钥。",
+    "schema不能替代中心实际归属、模式、列、环境、SQL重解析及approved_write核对；整请求JSON UTF8预算2MiB由运行边界执行。",
+    "当前成功ACK是同步COMPLETED，无operationId/frames/status/cancel端点；异常由标准AjaxResult错误返回，不伪造Provider终态。",
+    "CUSTOM仅已实现单逻辑表白名单解析；PG联表/子查询等完整迁移缺口保留。",
+    "迭代数据节点未获正式中心迭代实例准入。schema integer拒绝bool；legacySpaceId=null表示原默认个人域。",
+    "同请求key同内容回读同事务已保存回执，不凭Worker重复请求重新写入。绑定完整性和响应值由Java/Python各自实际检查。"
+  ],
+  "$defs": {
+    "DataResourceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^data:[1-9][0-9]*:revision:[0-9]+$"
+    },
+    "DataRevision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[0-9]+$"
+    },
+    "DataTableGrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tableId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "schemaHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "columns": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          }
+        },
+        "allowedModes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          }
+        },
+        "execEnvs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          }
+        }
+      },
+      "required": [
+        "tableId",
+        "revision",
+        "schemaHash",
+        "columns",
+        "allowedModes",
+        "execEnvs"
+      ]
+    },
+    "DataResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "database"
+        },
+        "provider": {
+          "const": "center-data"
+        },
+        "enabled": {
+          "const": true
+        },
+        "version": {
+          "$ref": "#/$defs/DataRevision"
+        },
+        "legacyDbId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "legacySpaceId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 1
+            }
+          ]
+        },
+        "tables": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/DataTableGrant"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "enabled",
+        "version",
+        "legacyDbId",
+        "legacySpaceId",
+        "tables"
+      ]
+    },
+    "DataCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fieldName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "operator": {
+          "enum": [
+            "=",
+            "!=",
+            "<>",
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "like",
+            "not like",
+            "in",
+            "not in",
+            "null",
+            "not null"
+          ]
+        },
+        "value": {},
+        "zeroEquivalent": {}
+      },
+      "required": [
+        "fieldName",
+        "operator"
+      ]
+    },
+    "DataWhere": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "logicalOperator": {
+          "enum": [
+            "and",
+            "or"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/DataCondition"
+          }
+        }
+      },
+      "required": [
+        "logicalOperator",
+        "conditions"
+      ]
+    },
+    "DataOrder": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fieldName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "order": {
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      "required": [
+        "fieldName",
+        "order"
+      ]
+    },
+    "DataStructuredPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "table": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "values": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          }
+        },
+        "where": {
+          "$ref": "#/$defs/DataWhere"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          }
+        },
+        "order": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataOrder"
+          }
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000
+            }
+          ]
+        },
+        "returning": {
+          "enum": [
+            "last_inserted_row",
+            "matched_rows",
+            "exec_success"
+          ]
+        },
+        "execDev": {
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
+        }
+      },
+      "required": [
+        "mode",
+        "table",
+        "values",
+        "where",
+        "columns",
+        "order",
+        "limit",
+        "returning",
+        "execDev"
+      ]
+    },
+    "DataCustomPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "integer",
+          "const": 0
+        },
+        "sql": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "execDev": {
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
+        }
+      },
+      "required": [
+        "mode",
+        "sql",
+        "execDev"
+      ]
+    },
+    "DataParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "database"
+        },
+        "provider": {
+          "const": "center-data"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/DataResourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/DataRevision"
+        },
+        "resourceBindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {},
+          "required": []
+        },
+        "legacyPayload": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/DataStructuredPayload"
+            },
+            {
+              "$ref": "#/$defs/DataCustomPayload"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "legacyPayload"
+      ]
+    },
+    "DataOperationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "leaseId": {
+          "$ref": "worker.schema.json#/properties/leaseId"
+        },
+        "attempt": {
+          "$ref": "worker.schema.json#/properties/attempt"
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^database::"
+        },
+        "iterationId": {
+          "type": "null"
+        },
+        "operation": {
+          "enum": [
+            "data.query",
+            "data.mutate"
+          ]
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "parameters": {
+          "$ref": "#/$defs/DataParameters"
+        }
+      },
+      "required": [
+        "leaseId",
+        "attempt",
+        "nodeId",
+        "operation",
+        "idempotencyKey",
+        "parameters"
+      ]
+    },
+    "DataLegacyResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "integer",
+          "const": 0
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "exec_success": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "exec_success"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "data"
+      ]
+    },
+    "DataOperationAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "database"
+        },
+        "provider": {
+          "const": "center-data"
+        },
+        "resourceId": {
+          "$ref": "#/$defs/DataResourceId"
+        },
+        "resourceVersion": {
+          "$ref": "#/$defs/DataRevision"
+        },
+        "resourceBindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {},
+          "required": []
+        },
+        "state": {
+          "const": "COMPLETED"
+        },
+        "failureKind": {
+          "type": "null"
+        },
+        "legacyResponse": {
+          "$ref": "#/$defs/DataLegacyResponse"
+        }
+      },
+      "required": [
+        "kind",
+        "provider",
+        "resourceId",
+        "resourceVersion",
+        "resourceBindings",
+        "state",
+        "failureKind",
+        "legacyResponse"
+      ]
+    }
+  }
+}

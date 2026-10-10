@@ -12,7 +12,18 @@ public final class WorkerProtocol {
     public record Assignment(String schemaVersion, String runId, String workflowVersionId, String dslHash, String dslCanonicalBase64,
             String engineProfile, Map<String, Object> input, Map<String, Map<String, Object>> resourceSnapshots,
             int attempt, String leaseId, Instant deadline, EffectPolicy effectPolicy, Map<String, Object> dsl,
-            long lastEventSeq) { }
+            long lastEventSeq, Map<String, Object> executionContext) {
+        public Assignment {
+            executionContext = executionContext == null ? null : java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(executionContext));
+        }
+        /** 旧零历史任务与内存消费者保持原构造形状。 */
+        public Assignment(String schemaVersion, String runId, String workflowVersionId, String dslHash, String dslCanonicalBase64,
+                String engineProfile, Map<String, Object> input, Map<String, Map<String, Object>> resourceSnapshots,
+                int attempt, String leaseId, Instant deadline, EffectPolicy effectPolicy, Map<String, Object> dsl, long lastEventSeq) {
+            this(schemaVersion, runId, workflowVersionId, dslHash, dslCanonicalBase64, engineProfile, input, resourceSnapshots,
+                    attempt, leaseId, deadline, effectPolicy, dsl, lastEventSeq, null);
+        }
+    }
     public record Heartbeat(boolean valid, boolean cancelRequested) { }
     public record Event(String schemaVersion, String runId, String leaseId, int attempt, long seq, String nodeId,
             String iterationId, String eventType, Instant timestamp, Object payload) { }

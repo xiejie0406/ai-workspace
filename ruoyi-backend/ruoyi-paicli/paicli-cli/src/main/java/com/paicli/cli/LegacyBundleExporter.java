@@ -61,7 +61,7 @@ public final class LegacyBundleExporter {
             if(!files.equals(exporter.inventory()))throw new IOException("来源在导出期间变化，请停止原PaiCLI写入后重试");
             var manifest=files.stream().map(file->{Map<String,Object> item=new LinkedHashMap<>();item.put("name",file.name());item.put("sha256",file.sha256());item.put("size",file.size());return item;}).toList();
             String fingerprint=digest(JSON.writeValueAsBytes(manifest));
-            exporter.warnings.add("原本机资料所有者为 local；必须在中心显式映射为当前工作区成员，未映射资料不能导入。");
+            exporter.warnings.add("原本机资料所有者为 local；必须在中心显式映射为当前登录用户本人，未映射资料不能导入。");
             exporter.warnings.add("旧批准不导入；旧执行任务待核对、旧排队任务暂停，导入不创建派发任务。");
             Map<String,Object> bundle=new LinkedHashMap<>();bundle.put("schemaVersion",SCHEMA);bundle.put("sourceFingerprint",fingerprint);bundle.put("exportedAt",clock.instant().toString());bundle.put("records",exporter.records);bundle.put("warnings",List.copyOf(exporter.warnings));bundle.put("sourceFiles",manifest);
             byte[] bytes=JSON.writerWithDefaultPrettyPrinter().writeValueAsBytes(bundle);if(bytes.length>BUNDLE_LIMIT)throw new IOException("脱敏资料包超过中心16MB上限，请按来源子目录拆分导出");

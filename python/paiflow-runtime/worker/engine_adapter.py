@@ -62,6 +62,9 @@ class _CenterFrames:
                 if self.stream_bytes > 2 * 1024 * 1024:
                     raise WorkerError("DSL_INVALID", "原输出流超过中心结果预算，须改为 artifact")
             if node.finish_reason == "stop":
+                if frame.code == 0:
+                    from .python_history import check_completed_inputs
+                    check_completed_inputs(self.context, node_id, node.inputs)
                 await self.context.emit("node.completed" if frame.code == 0 else "node.failed", payload, **identifiers)
                 self.started.discard(key)
             elif key not in self.started:
@@ -88,6 +91,7 @@ class OriginalWorkflowEngine:
         from workflow.engine.dsl_engine import WorkflowEngineFactory
         from workflow.engine.entities.variable_pool import ParamKey
         from workflow.engine.entities.workflow_dsl import WorkflowDSL
+        from workflow.domain.entities.chat import HistoryItem
         from workflow.engine.nodes.entities.node_run_result import WorkflowNodeExecutionStatus
         from workflow.extensions.otlp.log_trace.workflow_log import WorkflowLog
         from workflow.extensions.otlp.trace.span import Span
@@ -97,6 +101,8 @@ class OriginalWorkflowEngine:
             raise WorkerError("ENGINE_UNSUPPORTED", "该原节点的中心资源客户端尚未就绪")
         if "node-variable" in types and context.execution_context is None:
             raise WorkerError("RESOURCE_UNAVAILABLE", "中心正式变量作用域尚未绑定")
+        if "database" in types and (type(assignment.data_environment) is not int or assignment.data_environment not in {1, 2}):
+            raise WorkerError("DSL_INVALID", "数据节点缺少中心固定运行环境")
         binding = context.execution_context or {}
         span = Span(app_id=binding.get("appId", ""), uid=binding.get("userId", ""),
                     chat_id=binding.get("chatId"), sid=assignment.run_id)
@@ -107,7 +113,8 @@ class OriginalWorkflowEngine:
             raise WorkerError("DSL_INVALID", "原引擎未通过 DSL/节点参数/链依赖校验") from None
         pool = engine.engine_ctx.variable_pool
         pool.system_params.set(ParamKey.FlowId, binding.get("flowId", ""))
-        pool.system_params.set(ParamKey.IsRelease, True)
+        pool.system_params.set(ParamKey.IsRelease, assignment.data_environment == 2)
+        uses_history = False
         for output_id, dependencies in engine.engine_ctx.msg_or_end_node_deps.items():
             for source_id in dependencies.data_dep:
                 if source_id.split("::")[0] in {"spark-llm", "agent", "knowledge-pro-base", "flow"}:
@@ -122,8 +129,33 @@ class OriginalWorkflowEngine:
             instance = engine.engine_ctx.built_nodes[entry["id"]].node_instance
             history_v2 = getattr(instance, "enableChatHistoryV2", None)
             if (getattr(instance, "enableChatHistory", False)
+                    or (entry['id'].split('::', 1)[0] in {'spark-llm', 'decision-making'}
+                        and bool(params.get('enableChatHistory', False)))
                     or (history_v2 is not None and history_v2.is_enabled)):
-                raise WorkerError("RESOURCE_UNAVAILABLE", "模型正式历史快照尚未接通，不降级为空记忆")
+                if context.execution_context is None:
+                    raise WorkerError("RESOURCE_UNAVAILABLE", "历史必须绑定中心正式会话作用域")
+                if history_v2 is not None and history_v2.is_enabled:
+                    raise WorkerError('ENGINE_UNSUPPORTED', 'Python V2历史权威来源尚未接通')
+                if not entry['id'].startswith('spark-llm::'):
+                    raise WorkerError('ENGINE_UNSUPPORTED', '本片只接顶层普通LLM旧历史')
+                uses_history = True
+        history, history_v2 = [], []
+        if uses_history:
+            if context.execution_context is None:
+                raise WorkerError("RESOURCE_UNAVAILABLE", "历史必须绑定中心正式会话作用域")
+            from .python_history import read_snapshot
+            persisted = await read_snapshot(context)
+            try:
+                history = persisted['history']
+                if any(not isinstance(item, dict) or set(item) != {'nodeID', 'chat_history'}
+                       or item['nodeID'] not in context.node_ids or not isinstance(item['chat_history'], list)
+                       or any(not isinstance(message, dict) or set(message) != {'role', 'content'}
+                              or message['role'] not in {'user', 'assistant'} or not isinstance(message['content'], str)
+                              for message in item['chat_history']) for item in history):
+                    raise ValueError('invalid scoped history')
+                history_v2 = [HistoryItem.model_validate(item) for item in persisted['historyV2']]
+            except (KeyError, TypeError, ValueError):
+                raise WorkerError("DSL_INVALID", "中心历史不满足原节点消息结构") from None
         frames = _CenterFrames(context)
         ordered = asyncio.Queue(maxsize=128)
         node_order = asyncio.Queue(maxsize=128)
@@ -139,12 +171,12 @@ class OriginalWorkflowEngine:
         callbacks = CenterCallbacks(sid=assignment.run_id, stream_queue=frames,
             end_node_output_mode=engine.end_node_output_mode, support_stream_node_ids=engine.support_stream_node_ids,
             need_order_stream_result_q=ordered, chains=engine.engine_ctx.chains,
-            event_id=assignment.lease_id, flow_id=assignment.version_id)
+            event_id=assignment.lease_id, flow_id=binding.get("flowId", ""))
         trace = WorkflowLog(sid=assignment.run_id, service_id=assignment.version_id,
                             flow_id=binding.get("flowId", ""), uid=binding.get("userId", ""),
                             app_id=binding.get("appId", ""))
         consumers = [asyncio.create_task(callback_consumer.consume()), asyncio.create_task(structured_consumer.consume())]
-        execution = asyncio.create_task(engine.async_run(assignment.input, span, callbacks, [], [], trace))
+        execution = asyncio.create_task(engine.async_run(assignment.input, span, callbacks, history, history_v2, trace))
         try:
             remaining = {execution, *consumers}
             while execution in remaining:

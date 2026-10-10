@@ -1,0 +1,295 @@
+{
+  "date": "2026-10-04T17:30:49.088957+08:00",
+  "project": "PaiSmart知识库",
+  "factsSource": "../../完整迁移设计.md#610-继续完成本机连接日常入口与模块核对",
+  "userAccepted": false,
+  "published": false,
+  "gitWrites": false,
+  "businessPassed": 0,
+  "original31Baseline": "历史31项真实业务验收保持原状态；本轮不重置或冒充新执行。",
+  "database": {
+    "database": "ry-vue",
+    "managedPurposes": {
+      "platform.paismart.minio.access-key": true,
+      "platform.paismart.minio.secret-key": true,
+      "platform.paismart.elasticsearch.api-key": true,
+      "ai.paismart.sub2api.llm": false,
+      "ai.paismart.aliyun.embedding": false
+    },
+    "providers": [],
+    "pendingJobs": 0,
+    "pendingJobTypes": [],
+    "legacyPendingTextJobs": 0,
+    "activeIndexes": 0,
+    "documents": 0,
+    "quotaPolicies": 0,
+    "tokenAccounts": 0,
+    "availableTokens": 0,
+    "menus": 33,
+    "modelCallsTested": false
+  },
+  "daily": {
+    "checkedAt": "2026-10-04T17:30:30.3895145+08:00",
+    "mode": "复用或恢复",
+    "project": "PaiSmart",
+    "items": [
+      {
+        "name": "原MySQL及项目配置",
+        "state": "就绪",
+        "detail": "原库可读；知识库菜单33项",
+        "checkedAt": "2026-10-04T17:29:06.9037560+08:00"
+      },
+      {
+        "name": "共享Redis",
+        "state": "就绪",
+        "detail": "复用127.0.0.1:6379/0",
+        "checkedAt": "2026-10-04T17:29:06.9696954+08:00"
+      },
+      {
+        "name": "MinIO",
+        "state": "就绪",
+        "detail": "通过本机身份与连接检查；正常进程复用，未重新初始化资源",
+        "checkedAt": "2026-10-04T17:29:36.8961716+08:00"
+      },
+      {
+        "name": "Kafka",
+        "state": "就绪",
+        "detail": "通过本机身份与连接检查；正常进程复用，未重新初始化资源",
+        "checkedAt": "2026-10-04T17:29:57.8687518+08:00"
+      },
+      {
+        "name": "ES",
+        "state": "就绪",
+        "detail": "通过本机身份与连接检查；正常进程复用，未重新初始化资源",
+        "checkedAt": "2026-10-04T17:30:08.0462036+08:00"
+      },
+      {
+        "name": "存储与检索托管连接",
+        "state": "就绪",
+        "detail": "三个固定用途可由原根密钥解密，未回显秘密",
+        "checkedAt": "2026-10-04T17:30:14.9610575+08:00"
+      },
+      {
+        "name": "任务消费前提",
+        "state": "就绪",
+        "detail": "当前在途任务0项；无未知类型或旧文字策略任务",
+        "checkedAt": "2026-10-04T17:30:14.9687018+08:00"
+      },
+      {
+        "name": "解析Worker",
+        "state": "已配置",
+        "detail": "固定Java解析JAR及240依赖存在；业务样本另行验证",
+        "checkedAt": "2026-10-04T17:30:14.9746582+08:00"
+      },
+      {
+        "name": "Java生产存储与ES连接",
+        "state": "就绪",
+        "detail": "原托管用途解密；生产MinIO桶HEAD和Java私有TLS ES健康真实响应；未写业务对象/索引",
+        "checkedAt": "2026-10-04T17:30:21.2845779+08:00"
+      },
+      {
+        "name": "中心进程",
+        "state": "已复用",
+        "detail": "现有PID=43444",
+        "checkedAt": "2026-10-04T17:30:23.8945502+08:00"
+      },
+      {
+        "name": "前端进程",
+        "state": "已运行",
+        "detail": "本项目Vite PID=37516",
+        "checkedAt": "2026-10-04T17:30:26.9140790+08:00"
+      },
+      {
+        "name": "中心与前端HTTP",
+        "state": "就绪",
+        "detail": "中心200、同源代理正常；未登录及业务功能单独验证",
+        "checkedAt": "2026-10-04T17:30:30.3863466+08:00"
+      },
+      {
+        "name": "文字模型",
+        "state": "未就绪",
+        "detail": "缺唯一启用/激活的真实Provider或本项目有效密钥",
+        "checkedAt": "2026-10-04T17:30:30.3869066+08:00"
+      },
+      {
+        "name": "向量模型",
+        "state": "未就绪",
+        "detail": "缺唯一启用/激活的真实Provider或本项目有效密钥",
+        "checkedAt": "2026-10-04T17:30:30.3875698+08:00"
+      },
+      {
+        "name": "正式索引",
+        "state": "未就绪",
+        "detail": "尚无唯一活动版本；不能用空索引伪装知识检索通过",
+        "checkedAt": "2026-10-04T17:30:30.3893625+08:00"
+      }
+    ],
+    "configurationReady": false,
+    "completeBusinessVerified": false,
+    "startupModelProbeMade": false,
+    "backgroundModelCallsNotMeasured": true,
+    "businessSamplesSubmitted": false,
+    "sharedServicesStopped": false,
+    "manifest": "D:\\2025Ai\\26-05-23\\java-workspace\\.runtime\\paismart\\processes.json",
+    "frontend": "http://127.0.0.1:15177"
+  },
+  "productionConnections": {
+    "minio": {
+      "scope": "仅PaiSmart已配置桶HEAD；未核对文档对象或写入能力",
+      "probeEnabled": true,
+      "configured": true,
+      "state": "READY",
+      "reason": "配置桶HEAD成功",
+      "enabled": true,
+      "tested": true
+    },
+    "elasticsearchReady": true,
+    "scope": "原托管用途解密、生产MinIO桶HEAD、生产ControlledHttp及Java私有TLS的ES健康；不写对象或索引、不调用模型"
+  },
+  "parser": {
+    "pages": [
+      {
+        "number": 1,
+        "text": "蓝杉项目文件归档截止时间为每周五17:30；归档负责人为林知；超期文件在下周一09:00补交。"
+      }
+    ],
+    "modelCallsMade": false,
+    "scope": "实际生产解析适配器启动独立Worker处理已知TXT；未验证上传、分块、向量、索引或问答",
+    "threeExpectedFactsPreserved": true,
+    "businessUploadPerformed": false
+  },
+  "processes": {
+    "backendPid": 43444,
+    "frontendPid": 37516
+  },
+  "modules": [
+    {
+      "name": "知识文档",
+      "logic": "文件/文字上传、分片续传、合并、预览下载、版本、重建、软删除与恢复。原文件进MinIO，摘要、权限、版本和状态在MySQL。",
+      "example": "例如上传制度PDF后经历上传→解析→向量→可检索；失败保留任务原因。",
+      "status": "存储连接与TXT解析技术通过；正式上传未执行。"
+    },
+    {
+      "name": "知识空间",
+      "logic": "个人/组织空间、父子层级、主空间和成员读写/上传/管理资格，由后端统一裁决可见范围。",
+      "example": "部门成员可读指定空间；兄弟或未授权下级空间不自动开放。",
+      "status": "源码已核对；真实成员与空间边界未验收。"
+    },
+    {
+      "name": "知识问答",
+      "logic": "冻结模型及知识范围，流式生成、检索/摘要/统计/反馈工具、停止与断线恢复，保存消息及引用。",
+      "example": "问归档规定时先找可读文档，再回答并给来源；停止后不继续重送请求。",
+      "status": "真实文字/向量模型和索引缺失，完整问答受阻。"
+    },
+    {
+      "name": "会话历史",
+      "logic": "按标题/日期查询历史、继续会话、归档恢复；生成事件持久化，引用绑定内容版本并重新核权限。",
+      "example": "断线后接续原生成；打开旧引用仍检查文档现在是否可读。",
+      "status": "源码已核对；实际历史和断线接续未验收。"
+    },
+    {
+      "name": "用量余额",
+      "logic": "LLM/Embedding额度、冻结/消耗、趋势、请求账本；余额/每日政策预留→结算→释放，未知用量进入核对。",
+      "example": "请求前冻结预算，成功按实际用量结算，供应商结果不明时保留核对状态。",
+      "status": "账本实现已核对；额度政策/账户均0，首次调用前需配置测试账号额度；没有真实消费结算。"
+    },
+    {
+      "name": "充值订单",
+      "logic": "套餐/自定义金额、订单状态及历史；固定订单价格权益，验证支付回调商户/金额/唯一流水后幂等入账。",
+      "example": "重复支付通知只能增加一次额度。",
+      "status": "源码已有；真实支付未接入，当前关闭。"
+    },
+    {
+      "name": "成员资格",
+      "logic": "复用若依账户与数据范围，维护知识库资格、主空间、管理上传权限、额度政策和追加额度。",
+      "example": "平台用户存在后，业务资格决定能否使用知识库；管理额度还要核对用户数据范围。",
+      "status": "原root资格沿用；其他成员和额度操作未验收。"
+    },
+    {
+      "name": "邀请资格",
+      "logic": "单个/批量邀请码，空间、有效期、次数、初始额度及启停；事务与幂等消费，不替代平台角色体系。",
+      "example": "限一次邀请使用成功后不能再次领取额度。",
+      "status": "源码已核对；实际领取与并发未验收。"
+    },
+    {
+      "name": "知识冲突",
+      "logic": "新文档与可读候选进行向量和关键值比较，可保留新/旧或忽略；淘汰文档退出检索，支持恢复。",
+      "example": "两份制度的归档时间不同，管理员确认采用哪一份。",
+      "status": "确定性逻辑已有；真实候选/处置未验收，可选LLM确认关闭。"
+    },
+    {
+      "name": "索引版本与回滚",
+      "logic": "冻结向量模型/维度，重建、续跑、追平、校验、切换、回滚与恢复；检查点、水位、租约和收据保留。",
+      "example": "更换向量模型先建新版本，校验后切换；失败保留旧活动索引。",
+      "status": "ES接通；活动索引0，正式版本与切换未验证。"
+    },
+    {
+      "name": "检索评测与诊断",
+      "logic": "受控JSONL样本，冻结索引/空间/TopK/模型，计算召回、MRR、覆盖和NDCG，生成/裁判错误分别记录。",
+      "example": "用一批已知正确资料检查是否被检索到；没有标注时不把缺失当零分。",
+      "status": "源码已核对；真实样本评测未执行。"
+    },
+    {
+      "name": "评测人工复核",
+      "logic": "逐样本人工答案及裁判一致性、历史和一致性统计，受最少样本约束。",
+      "example": "人工检查自动评测是否误判，并留下修订记录。",
+      "status": "源码已有；无真实评测/人工样本。"
+    },
+    {
+      "name": "模型供应商",
+      "logic": "管理LLM/Embedding/Rerank地址、模型、维度、托管用途、版本及启停；Sub2API兼容验证后才能激活。",
+      "example": "保存模型配置不发请求；文字、流式和工具三项通过后才供业务使用。",
+      "status": "安全录入/托管/出口已准备；真实密钥和Provider未配置。"
+    },
+    {
+      "name": "限流政策",
+      "logic": "上传/问答次数、请求/token时间窗、每日及文件预算；Redis原子计数和MySQL用量预算，依赖异常拒绝放行。",
+      "example": "连续请求超过政策时提示限流，不能因为Redis故障绕过。",
+      "status": "原Redis已连接；真实超限及故障场景未验收。"
+    },
+    {
+      "name": "充值套餐",
+      "logic": "价格、文字/向量额度权益、说明、排序及启停；版本并发控制，已创建订单沿冻结权益结算。",
+      "example": "套餐今天调价不改变昨天订单已约定的额度。",
+      "status": "源码已有；支付及套餐操作未验收。"
+    },
+    {
+      "name": "运行状态与受控作业",
+      "logic": "依赖状态、任务重试/取消、审计、未知费用核对；清理/迁移/导入使用批准、冻结摘要、租约和逐项收据。",
+      "example": "解析失败可查任务原因后重试；有风险的清理不会自动执行。",
+      "status": "中心/Kafka消费真实运行；业务作业未验证，运维执行与旧数据导入关闭。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "本机配套与安全",
+      "result": "技术通过",
+      "detail": "原目录/身份复用；MinIO项目范围、ES严格TLS和认证/权限、Kafka项目主题实际检查通过。无业务页面，截图不适用。"
+    },
+    {
+      "name": "菜单与项目连接",
+      "result": "部分完成，页面受阻",
+      "detail": "原库33项菜单与3个平台用途已写入回读；生产Java连接真实通过。页面当前未登录，无菜单/供应商/索引/任务页截图，不能记业务通过。"
+    },
+    {
+      "name": "文字和向量模型",
+      "result": "受阻",
+      "detail": "尚无两份真实密钥及有效Provider；阿里云实际地域/API根地址待提供。未调用模型、未跳过兼容或维度门禁。"
+    },
+    {
+      "name": "上传、解析和正式索引",
+      "result": "部分技术通过，业务受阻",
+      "detail": "生产解析适配器实际一页TXT保留三事实，中心取得Kafka分区。尚未上传正式文档、运行正式任务或建立活动索引；缺业务页面截图。"
+    },
+    {
+      "name": "回答及可打开引用",
+      "result": "受阻",
+      "detail": "依赖真实模型、正式文档和索引；本轮未执行，未生成回答或引用截图。"
+    },
+    {
+      "name": "统一日常入口",
+      "result": "技术部分通过",
+      "detail": "真实配置恢复、运行归属、HTTP、重复执行复用及仅检查模式已核对；基础服务PID保持。未人为停止健康服务做断进程演练；模型/索引未就绪时整体明确未就绪。"
+    }
+  ]
+}

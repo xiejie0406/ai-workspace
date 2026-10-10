@@ -22,6 +22,8 @@ SSE可选`delivery`对象如实说明通知通道：`connected/REDIS_CONNECTED`�
 
 Worker 成功及失败回执可携带 `execution` 摘要，字段由 OpenAPI 的 `ExecutionSummary` 限定。用量只取实际供应商响应，缺失或超过上限时省略并给出 `usage_status` 和固定原因；不将缺失用量补零、不计算费用，也不在摘要保存正文、提示词或凭据。
 
+Worker文本请求沿 `POST /internal/aippt/tasks/{taskId}/text` 和原机器安全链，使用 `WorkerTextRequest/WorkerTextResponse`。四类文本任务领取时冻结中心路由及本项目托管密钥版本；最多8次逻辑调用、完整请求UTF-8最多2MiB。相同callId/正文的完成调用仅回读，在途或未知结果禁止重发；曾调用文本的失败任务不自动重排。中心显式适配Chat Completions或Responses，Worker不能自选模型、地址、凭据；真实配置缺失时不外呼。AI编辑客户端将原历史与工具Schema编码成JSON工具选择请求，严格解析后交给原工具循环，业务工具及候选副本规则保持原实现。资源/编译通过不能证明真实模型兼容或费用已验证。
+
 PPTX 回读失败仍阻止文件上传及下载，`export` 任务可在 `code=PPTX_VERIFY_FAILED`、`retryable=false` 的失败回执携带 `verification_failure`。字段沿用原回读报告的 `passed/issues/slide_count/expected_slide_count`，每个问题保留检查项、原1起页号、形状和消息；另给出 `diagnostics_truncated/total_issues`，明确是否因条数或字符串上限只展示部分诊断。检查项限原11类、问题最多2000条、消息1000字符、形状200字符，字符按Unicode码点计算。中心再核实际导出类型、租约、快照页数及计数，将失败报告留在任务和对应导出记录；浏览器展示具体页/检查/原因。报告可能含用户正文，读取沿用本人权限，不进入审计摘要、日志或SSE。旧的普通失败回执可省略此字段。
 
 生成页面、AI改稿、换排布、质量和导出任务绑定 `font_manifest_hash`。未核定字体使用 `unavailable`，Worker强制估算；配置实际hash后，按[字体清单结构](schemas/font-manifest.schema.json)核对两文件实际大小、字节哈希及可解析性，任务内使用字节快照。输出 `font_manifest_hash/font_mode` 由中心再核对，`verified` 只表示资源身份通过，不能冒称全部字形精确或字体许可已批准。`fixtures/font-manifest-metadata.json` 仅验证结构及canonical hash；其中大小/hash为虚构值，不含可用字体，不可直接用于真实任务。

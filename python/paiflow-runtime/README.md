@@ -2,9 +2,9 @@
 
 本工程已经引入原 `core/workflow`、`agent`、`plugin/link`、`plugin/aitools`、`common` 中 427 个算法及 DTO 源文件，原 21 类节点注册表和各节点类均保留。没有引入原服务 `main.py`、管理 API 路由、部署脚本、env 或原外部联机测试；完整来源、引入 hash、13 处剥离的可执行示例和 130 个排除文件的理由在 `import-manifest.json`。Apache 2.0 `LICENSE`、`NOTICE` 沿用原项目。
 
-真实原 `WorkflowEngineFactory` 已通过 `worker/engine_adapter.py` 接入 `TaskRunner`。原 `WorkflowDSL`、`Chains`、`VariablePool`、节点工厂、DFS/并行、分支、迭代引擎及原 callback 排序算法实际参与离线运行；没有编写替代的四节点引擎。当前恢复 9 类纯节点路径：Start、End、if-else、text-joiner、node-variable、iteration、iteration-node-start/end、message；增加 12 类受控消费者：ifly-code、spark-llm、extractor-parameter、decision-making、question-answer、knowledge-base、flow、plugin、knowledge-pro-base、agent、database、rpa。完整 21 类均由原类和原 Factory 注册；这只表示原节点算法与中心协议消费者已接入，不代表 21 类正式能力已就绪。变量要求真实持久作用域，模型/代码/知识/子流程/插件/Agent/数据/RPA 要求中心受控端口和真实 Producer，缺失时明确拒绝。问答当前仅适配顶层节点；子流程及新五类操作缺中心实际迭代实例归属时拒绝。数据库 CUSTOM SQL、原 Agent 的独立 ReAct Producer 等仍未恢复，不以部分算法代替这些范围。
+真实原 `WorkflowEngineFactory` 已通过 `worker/engine_adapter.py` 接入 `TaskRunner`。原 `WorkflowDSL`、`Chains`、`VariablePool`、节点工厂、DFS/并行、分支、迭代引擎及原 callback 排序算法实际参与隔离运行；没有编写替代的四节点引擎。当前保留 9 类纯节点路径及 12 类受控消费者，完整 21 类由原类和原 Factory 注册；消费者存在不代表正式能力已就绪。变量要求真实持久作用域，模型/代码/知识/子流程/插件/Agent/数据/RPA 要求中心受控端口和真实 Producer，缺失时明确拒绝。顶层 Spark/OpenAI chat沿用旧准入；V4固定任务新增参数提取Prompt/FunctionCall、决策三模式及动态问答连续检查点的受控HTTP消费，保留原算法。仅函数parameters明确Schema域允许业务属性名和default，普通事件凭据边界不放宽。旧静态问答V3/无V4标记仍保留限制，混合资源迭代、历史V2、多模态、主动重试及未绑定外部Schema引用仍未准入；Agent ReAct等继续接线。数据库结构模式及 CUSTOM 原占位符替换已接中心受控操作，环境由 assignment.dataEnvironment 固定为1/2；中心当前支持单逻辑表语法，任意原PG SQL仍有兼容缺口，不宣称全部恢复。最新技术检查和实际业务状态只在[项目核对记录开头](../../文档/项目/PaiFlow工作流项目/设计资料核对记录.md)维护。
 
-注册入口是 `create_task_runner(center, ...)`；没有启动原管理 API、业务服务或 Worker 常驻领取循环。构造 `TaskRunner(center, None)` 仍会拒绝。离线测试和源文件存在不能证明完整 21 节点已联机运行。
+引擎注册入口是 `create_task_runner(center, ...)`，常驻领取源码入口为 `python -m worker`／`paiflow-worker`；尚未配置身份并启动实际 Worker，没有启动原管理 API。构造 `TaskRunner(center, None)` 仍会拒绝。隔离测试和源文件存在不能证明完整 21 节点已联机运行。
 
 ## 已实现行为
 
@@ -25,6 +25,8 @@
 - `worker/flow_bridge.py` 对接原 FlowNode，保留输入、SSE delta/reasoning/usage、三种输出模式与原错误码。中心固定 flowResourceId/子版本/hash/输出模式，持有正式 childRunId、父子关系和操作状态；旧数据库 App 凭据/HTTP 入口封禁。子终帧必须等待中心完成，取消须确认 stopped=true，否则 EFFECT_UNKNOWN；缺 workflow.invoke 不在本地递归造子run。
 - `knowledge/processor.py` 实际抽取 UTF-8 文本、Markdown、HTML，剥离 HTML script/style 等内容，保存可回查的规范化文本 offset 和原文档 hash。PDF、Office、OCR、任意 URL/磁盘读取未接通，明确拒绝。
 - `knowledge/index_store.py` 对实际传入 embedding 做规范化和余弦检索，保存不可变版本派生文件。没有随机或固定 embedding 假响应；检索需要中心当前授权文档版本、索引版本和内容 hash，撤权/删除后旧文件仍在也不能返回对应片段。索引文件不保存中心资源/索引任务状态。
+
+Agent原工厂额外依赖按原Agent uv.lock恢复为本工程的[必要Builder锁](requirements-agent-builder.lock)，[恢复记录](verification/agent-builder-restoration.json)保存九个新增包的官方wheel/SHA256、版本及许可，未升级原25运行包；当前共34运行包。恢复导入不表示Agent模型/工具/MCP/知识/子流程已迁通，实际原Factory到达中心Agent模型准入后仍明确拒绝。新增专属消费者技术检查与当前全量证据分别维护于项目核对记录，不将回放Link夹具当真实中心生产端调用通过。
 
 ## 离线检查
 
@@ -191,6 +193,8 @@ SDK客户端固定`max_retries=0`、`follow_redirects=False`、`trust_env=False`
 
 Frames回执明确state是分页交付投影、operationState是中心正式操作状态；nextCursor=afterCursor+原帧数，每批最多64，单帧64KiB、总10000帧/8MiB，响应还受Worker2MiB信封上限。读到lastSeq前完整成功或合法Provider终帧失败仍投影RUNNING/done=false；到末页才交正式终态，并允许无帧的最终ACK。finishSeq/failureKind显式nullable，不能省略。实际COMPLETED必须引用真实finish；finish之后的合法usage-only原帧保全，bridge直到绑定终态与最后序号核对才交原finish一次。授权/租约/预算/取消/传输/期限/协议或无合法原结束帧失败即刻粘性拒绝，即使这一页投影RUNNING，不进入原Decision DEFAULT。公开failureKind保留provider/authorization/protocol/transport/deadline/lease/cancelled/budget；冻结内部Producer的原`cancel`由未来真实私有桥明确映射中心`cancelled`。
 
+中心保存并返回 Provider 原始 OpenAI 帧；Worker 解码时只复制当前帧，在私有副本中恢复原 SDK 的 usage=None、首 choice.finish_reason=None 和 delta.content=None 缺省，再委托原 OpenAIChatAI.decode_message。显式字段不覆盖，原帧不修改，不补用量数字或成功结束标记；空 choices 仍必须是合法用量帧，未知 finish 仍拒绝。
+
 停止回执必须完整绑定、terminal state、stopped=true与实际proofId；未派发由中心真实未签发事实生成proof，已经派发而无真实Provider证据仍stopped=false/EFFECT_UNKNOWN。Worker可拒绝false但不能篡改它，本地stream/client关闭不等于Provider停流。取消清理可在本次sticky failure后向中心请求停止，不重建本地许可或运行真相。
 
 共享PrivateBinding/PrivateParameters仅描述未装配内部桥的绑定和中心WriteMapNull原规范字节：parametersCanonicalBase64、parametersSha256、optionsCanonicalBase64、deadline。未来内部桥严格核SHA原字节、绑定与固定profile后映射冻结OpenAIGrant的parameters_json/options_json/deadline_epoch；私有endpoint/key仍只经CredentialMaterialPort的受控内存材料，未增加私有Grant HTTP或默认网络。冻结SDK端口返回的FrameCommit/StreamFinishCommit/StopConfirmation字段少于HTTP完整绑定，真实内部桥须先核对中心完整回执再形成这些SDK结构，不能因此省略中心run/node/版本校验。Java中心的InvocationPolicy、CredentialMaterialPort、ProducerBridge与Runtime Profile均没有默认能力；缺固定资源、动态messages来源、审批或真实transport/SDK桥必须503且零操作写入。
@@ -242,3 +246,17 @@ Worker 在中心租约与完整 Assignment 一致性核对之后、`execution/be
 本轮局部修正TaskRunner异常停止顺序：一般异常与WorkerError均先失活、取消并限时等待实际Engine任务退出，未确认退出或批准写入/边界已有未知事实时保留EFFECT_UNKNOWN。没有改变原节点专业算法或用运行私有变量替代App/session/history绑定；这些正式中心链路仍未完成。
 
 本轮没有编写或运行测试、真实业务样本、Provider调用、服务或故障演练。仅462个生产Python文件语法编译成功，字节码在工作区私有目录；历史271等测试结果仍属于原冻结版本，不能证明本次TaskRunner修改后通过。唯一实际事实、全范围中文报告、当前源与私有制品SHA256见[项目核对记录第27节](../../文档/项目/PaiFlow工作流项目/设计资料核对记录.md#27-2026-10-03-通知运行查询停止确认与源码逻辑报告)。
+
+## 2026-10-04 原项目迁移代码核对与补齐
+
+本次按用户要求核对源码和业务逻辑，未运行产品测试、真实 API、Provider、数据库或服务，也未安装依赖。前文各阶段测试计数属于各自历史版本，不能证明本轮修改后的业务通过。当前 Worker 的完整机器对应、实际文本行数、21 类节点的方法对比和源码 SHA256 统一在[Worker迁移代码核对](../../文档/项目/PaiFlow工作流项目/证据/2026-10-04-参考项目迁移核对/Worker迁移代码核对.json)，修改前当前原文保存在同目录的 `修改前原文/worker/`。
+
+实际补齐了 Python 任务领取与常驻入口：`python -m worker` / `paiflow-worker`，通过 `PAIFLOW_CENTER_URL`、`PAIFLOW_WORKER_SERVICE_TOKEN` 使用既有中心服务身份；容量、轮询和心跳有上限，不生成本地正式任务。模型客户端保留固定资源和审批规则，支持原 Spark chat/function_call 及 OpenAI chat 消费协议，覆盖顶层模型、参数提取、决策和 direct 问答填槽；中心仍须从固定 DSL 验证分支并提供真实 Producer，客户端放宽不代表业务闭环。
+
+顶层普通 LLM 的旧历史由正式 verify 顶层 `executionContext` 和中心 `history/python/read` 冻结快照读取后交给原引擎；兼容的 `history/read` 两数组端口保留。新端口只提交 leaseId/attempt，严格核对五字段回执、十五字段快照、整数固定版本、当前主体/空间/会话、节点归属、原 user/assistant 顺序、每节点十轮窗口、1800KiB 字节预算及完整 canonical SHA256。当前执行上下文仅缓存本租约快照的私有副本，不复制旧库，也不承担第二套历史真相。 原读取采用 Pydantic bool 的有效值，成功追加保留原节点协议字段的 Python truthiness；例如字符串 false/0 不展示旧历史但仍追加成功问答，因此也先冻结空窗口，不将两个原判断合并。原旧历史仍只显示为节点输入 chatHistory（包括原 content_type），不追加到 Provider 消息；模型继续发送原当前 SYSTEM/USER。成功节点仍按原算法在完成回调前请求中心 append，失败、取消及未知停止不补写半轮。中心读写生产端及实际多轮联调由对应模块核对记录判断，Worker 隔离技术夹具不能代替中心闭环。原 V2 正式消息/对象仍未完成中心迁移，新端口非空 V2、嵌套历史及其它节点旧历史明确拒绝；中心空集不能冒称旧消息已搬。callbacks、全局变量和 trace 的 `flowId` 统一使用正式工作流标识，版本 ID 单独保留，不混用作用域。Worker 消费者可处理无迭代的受控顶层图中的静态问答、原动态 direct 填槽和变量节点，这不表示中心已经准入这些模型/历史分支。中心本轮 history/variables 源码虽保留，但默认 `paiflow.runtime-state.enabled=false`，021/022 DDL 草案未执行；缺正式状态表时不得放行。迭代仍仅准入单层纯图，未有正式迭代实例归属的资源、历史和副作用继续拒绝。原 option 动态选择方法本身是未实现的 `pass`，不计作本次丢失的原功能。
+
+独立 Agent、Link、AITools 的 33 个文件原有 112 处裸导入被修为各自包内路径，原方法算法保留，逐项记录见同目录 `Worker包内导入修正.json`。Agent 公共 DTO、原 BaseLLMModel 与 Builder 可安全导入，旧数据库、配置和初始化仍封禁。`worker/agent_factory.py` 实际使用原 WorkflowAgentRunnerBuilder、Chat、CoT、ReAct、步骤解析、scratchpad、schema 提示与消息投影；固定 Agent 资源必须显式选择 `executionMode=worker-original`，并提供 `agentModelOptions` 七项模型配置，避免把 Agent 的历史预算 `maxTokens` 当作模型生成预算。每个工具、MCP、子流程和知识选择逐项固定版本，原 schema 只保留所选 operationId；调用均委托中心对应能力。缺资源、固定 schema、逐子操作许可或真实 Producer 时明确失败，此分支尚未作为完整 Agent 生产准入。
+
+Java Worker 的 Start、End、LLM、Plugin 四执行器和原 AITools schema/参数组装保留。本次将 AITools 的旧 `/versions`、`/http_run` 生产调用改接运行范围内的中心 resource/operation，验证固定工具版本、schema、读写分类、审批及终态 ACK；旧地址不再授予生产调用。独立 Java Worker 实际执行 `mvn -o -DskipTests compile`，87 份源文件编译成功；Python 实际仅 AST 解析 460 份生产源文件，无语法错误，21 原节点的直接方法均有对应。编译和方法保留不能证明真实调用完成。
+
+知识、专业 RAG、工具/MCP、父子流程、正式数据表事务、RPA 与隔离代码执行仍需中心的完整实体、受控资源和实际 Producer；数据库 CUSTOM SQL 的完整原语法兼容仍有缺口。原上游已经缺失的服务不伪造为已补功能，明确拒绝亦不能归为单纯配置/测试失败。完整独立 Agent/Link/AITools 依赖锁继续分别保留，不混装版本。[Worker收口与模型接线交接](../../文档/项目/PaiFlow工作流项目/证据/2026-10-04-参考项目迁移核对/Worker收口与模型接线交接.md)只保留当时暂停及候选撤回范围；源码迁移现已继续，中心模型和工具接线的最新事实、检查及待验步骤唯一见[项目核对记录开头](../../文档/项目/PaiFlow工作流项目/设计资料核对记录.md#当前接续与登录循环修复)。当前仍不启动项目服务，不把隔离技术检查计为完整节点或页面业务验收。

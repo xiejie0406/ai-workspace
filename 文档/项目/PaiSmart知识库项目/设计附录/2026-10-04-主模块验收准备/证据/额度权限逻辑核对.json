@@ -1,0 +1,96 @@
+{
+  "date": "2026-10-04",
+  "reviewKind": "源码与契约只读核对",
+  "businessAcceptanceExecuted": false,
+  "scope": [
+    "管理员资格与原权限",
+    "余额及DAILY额度政策",
+    "追加幂等",
+    "模型调用预留和结算",
+    "供应商保存、启用、验证、激活",
+    "用量展示"
+  ],
+  "restrictionsRespected": {
+    "realDatabaseAccess": false,
+    "businessApiCalls": false,
+    "modelCalls": false,
+    "browserOperations": false,
+    "privateKeysRead": false,
+    "sourceModified": false
+  },
+  "conclusion": "本次已批准管理员BALANCE额度与候选模型流程未发现源码阻断；实际身份、权限、配置、余额、页面和真实模型结果待主对话执行核对。",
+  "facts": [
+    {
+      "subject": "管理员资格",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/MembershipService.java:16",
+      "result": "SecurityUtils.isAdmin仅userId=1豁免ps_member业务资格；平台停用/删除仍在ModelCallService.begin身份行检查；不豁免权限、额度或限流。实际登录ID不得由用户名猜测。"
+    },
+    {
+      "subject": "权限",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java:121",
+      "result": "成员列表和空间资格paismart:space:member；追加额度/额度策略paismart:usage:adjust并checkUserDataScope。Provider list/edit/test与usage list/audit使用原PreAuthorize；不新建账号或修改角色。"
+    },
+    {
+      "subject": "无额度政策或账户",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java:125",
+      "result": "无policy读取BALANCE/rowVersion=0；只读snapshot不创建账户，余额视图0；credit/reserve经lockAccount按原userId+scope创建缺少账本账户，不创建平台账号。"
+    },
+    {
+      "subject": "政策新建与更新",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java:131",
+      "result": "BALANCE/DAILY精确白名单；If-Match版本由MemberController传递；初建0，DB默认row_version=1；更新WHERE row_version并+1，冲突拒绝。DAILY依据今日used+reserved与日限额，余额追加不提升DAILY剩余。"
+    },
+    {
+      "subject": "BALANCE额度补差额",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/billing/QuotaService.java:106",
+      "result": "先读取available/frozen/debt与当前policy，账户目标LLM=50000、Embedding=10000。debt=0时max(0,target-available)；debt>0时credit先还欠额，达到目标需debt+max(0,target-available)，不能忽略欠额。未知冻结用量先核账，不自动释放。"
+    },
+    {
+      "subject": "追加幂等",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/MemberController.java:128",
+      "result": "POST credits使用Idempotency-Key；分别admin:key:userId:LLM与EMBEDDING；原外层事务覆盖两scope。QuotaService.credit核对同key的user/scope/tokens/reason并复用，差异拒绝；旧key重试必须沿原数值，不能用重算后的0改写原输入。"
+    },
+    {
+      "subject": "供应商保存",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/IntelligenceController.java:59",
+      "result": "scope来自路径；provider适配name、address适配endpoint，config保留；secretRef留空仅已有配置保留原ref，fresh必须ai.paismart.*。rowVersion参与乐观锁。URL受ControlledHttp校验。config拒绝内联Key、compatibility和_内部字段，Sub2仅批准参数。前端API去除兼容摘要及只读门禁；我参与前端实现，该部分不作为独立实现充分性结论。"
+    },
+    {
+      "subject": "启用与激活",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java:94",
+      "result": "Sub2初建false/false，回读后启用候选仍active=false；按candidate id+expectedVersion+mode=compatibility验证三项，通过且当前指纹/密钥版有效后保存active=true；配置变化旧证据失效。Embedding按已启用候选id测试，尚无活动索引时激活；已有活动索引拒绝普通模型切换，需原索引重建流程。"
+    },
+    {
+      "subject": "最多三次文字与一次向量测试",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ProviderService.java:137",
+      "result": "文字sequence text/tool/feedback固定最多3个operation，各输出最多128；低推理不放大预算。向量原test embed一条连通短文本一次请求并检查1024维；向量test走查询限流，不是上传批量。"
+    },
+    {
+      "subject": "预留与结算",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/application/intelligence/ModelCallService.java:26",
+      "result": "模型begin身份/资格→额度预留→STARTED；Sub2预留估算request输入+实际输出上限，每次供应商usage完整时SETTLE实际值；少于预留返还、多于余额形成debt且下次reserve拒绝。有完整响应但无usage使用估算并标estimated；未知请求保留UNCERTAIN及冻结，原模型用量核对处理，禁止自动重送。供应商前缀可能使实际输入超估算，384仅三次输出上限之和，不是总Token费用上限。"
+    },
+    {
+      "subject": "用量页面",
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java:25",
+      "result": "个人/me需资格和usage:list；overview/audit独立权限；跨userId流水需usage:audit。snapshot含mode、available/frozen/consumed/debt与today剩余；records有scope/action/tokens/余额/冻结/欠额，可核对追加、预留、结算。"
+    }
+  ],
+  "blockingDefects": [],
+  "nonBlockingObservations": [
+    {
+      "source": "ruoyi-backend/ruoyi-paismart/src/main/java/com/ruoyi/paismart/api/UsageController.java:31",
+      "finding": "流水SELECT未返回userName或correlationId，现用量页面这两个表格列会空；不阻断管理员自身余额/Token核算，但页面不能直接关联模型operation。",
+      "minimumFollowUp": "验收用原正式调用/预留及ledger的operation_key读取证据关联；如要求页面关联，另按现有契约定向增加脱敏关联字段，不伪造前端关联。"
+    }
+  ],
+  "pendingActualChecks": [
+    "从既有登录/getInfo读取实际userId与权限",
+    "回读原账户policy/available/frozen/debt，按已批准范围补差额后回读",
+    "候选启用及rowVersion回读",
+    "真实文字最多三次和Embedding一次，逐次核账",
+    "保存/验证/激活页面操作与实际截图",
+    "业务问答及引用；本记录不认定这些已通过"
+  ],
+  "reviewer": "implement_frontend（后端逻辑独立只读；前端本人修改明确排除独立通过）"
+}

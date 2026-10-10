@@ -3,8 +3,9 @@ import Inputs from '@/components/workflow/nodes/components/inputs';
 import Outputs from '@/components/workflow/nodes/components/outputs';
 import FLowContainer from './components/flow-container';
 import { useTranslation } from 'react-i18next';
+import type { IteratorDetailProps } from '@/components/workflow/types';
 
-export const IteratorDetail = memo(props => {
+export const IteratorDetail = memo((props: IteratorDetailProps) => {
   const { id, data } = props;
 
   const { t } = useTranslation();
@@ -29,7 +30,7 @@ export const IteratorDetail = memo(props => {
   );
 });
 
-export const Iterator = memo(({ id }) => {
+export const Iterator = memo(({ id }: Pick<IteratorDetailProps, 'id'>) => {
   return (
     <>
       <span className="text-xs text-[#333]">子节点</span>

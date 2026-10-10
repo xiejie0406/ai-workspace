@@ -1,0 +1,458 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PaiCLI 智能体执行、计划与内部团队验收报告</title><style>
+:root{--bg:#f3f6fb;--paper:#fff;--text:#243247;--muted:#617089;--line:#dce4ef;--blue:#215fd3;--soft:#edf3ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.85 system-ui,"Microsoft YaHei",sans-serif}header{padding:35px max(24px,calc((100vw - 1380px)/2));background:#163254;color:#fff}header h1{margin:0 0 8px;font-size:30px}header p{margin:8px 0;max-width:1040px;color:#dce6f5}.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.stat{background:#ffffff12;border:1px solid #ffffff30;border-radius:9px;padding:7px 13px}.layout{max-width:1430px;margin:auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:25px;padding:24px}nav{position:sticky;top:18px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px}nav a{display:block;padding:7px 5px;line-height:1.5;color:var(--muted);text-decoration:none;font-size:14px}nav a:hover{color:var(--blue);background:var(--soft)}main{min-width:0}.toolbar{position:sticky;top:0;z-index:2;background:var(--bg);padding:9px 0 14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:12px;font:inherit;color:inherit;background:var(--paper)}button{font:inherit;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;color:var(--text)}button:hover{border-color:var(--blue);color:var(--blue)}.module,.introduction{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:24px;margin-bottom:20px}.introduction>h1{font-size:26px}.module h2{font-size:23px;color:#15385c;margin:0 0 18px;scroll-margin-top:90px}h3{font-size:19px;margin-top:23px}p{margin:10px 0}li{margin:7px 0}a{color:var(--blue);overflow-wrap:anywhere}code{font:0.88em/1.6 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;background:var(--soft);padding:2px 5px;border-radius:4px}pre{white-space:pre-wrap;background:var(--soft);padding:15px}blockquote{margin:10px 0;border-left:4px solid #84a6e6;padding:8px 16px;background:#f5f8fd;color:var(--muted)}.case{border:1px solid var(--line);border-radius:10px;margin:12px 0;background:var(--paper)}.case>summary{cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;font-weight:600;list-style:none}.case>summary:before{content:'▸';color:var(--blue)}.case[open]>summary:before{content:'▾'}.number{background:var(--soft);color:var(--blue);border-radius:6px;padding:1px 9px;flex:none}.label{font-size:12px;font-weight:400;margin-left:auto;white-space:nowrap;color:#705c18;background:#fbf5df;border-radius:5px;padding:1px 7px}.case-body{padding:0 23px 17px}.case-body ul{padding-left:22px}.case-body li>strong:first-child{color:#15385c}.annex>summary{cursor:pointer;font-size:20px;font-weight:600}.annex>div{padding-top:20px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.7;margin:18px 0;min-width:550px}th,td{padding:9px 11px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft)}tr:nth-child(even){background:#fafcff}.module{overflow-x:auto}.hidden{display:none!important}.search-status{color:var(--muted);font-size:14px}footer{padding:24px;color:var(--muted);text-align:center;font-size:13px}.notice{font-size:14px;color:var(--muted)}@media(max-width:950px){.layout{grid-template-columns:1fr;padding:15px}nav{position:static;max-height:260px}.module,.introduction{padding:18px}header{padding:25px 20px}}@media(max-width:500px){header h1{font-size:24px}.label{display:none}.case>summary{padding:12px;font-size:15px}.case-body{padding:0 13px 15px}.toolbar{position:static}.layout{padding:10px}}@media print{header{background:white;color:black}header p{color:black}.layout{display:block}nav,.toolbar,.label{display:none}.case-body{display:block!important}.case,.module{break-inside:avoid}details:not([open])>*:not(summary){display:block!important}}
+.case[data-result="通过"] .label{color:#166534;background:#dcfce7}.case[data-result="未通过"] .label{color:#991b1b;background:#fee2e2}.case[data-result="受阻"] .label{color:#92400e;background:#fef3c7}.case[data-result="未执行"] .label{color:#475569;background:#e2e8f0}.result-warning{color:#92400e;background:#fffbeb;border-left:4px solid #d97706;padding:10px}.module-summary,.current-position{border:1px solid var(--line);background:var(--soft);padding:12px;margin-bottom:15px}.actual-image{margin:16px 0}.actual-image img,.module img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}.actual-image figcaption{font-size:13px;color:var(--muted);line-height:1.65}.case-body ol{padding-left:26px}</style></head><body><header><h1>PaiCLI 智能体执行、计划与内部团队验收报告</h1><p>本页完整覆盖唯一验收正文第4章的14个业务点；按下面的实际结果与继续条件核对，不以子流程通过替代模块完整结论。</p><p>验收受阻。当前本模块业务点结果：通过0，未通过0，受阻1，未执行13，不适用0；已登记1个前提核实或执行子场景。本页由唯一正文对应模块生成，完整流程和未完成项全部保留；已有有效子场景按正文沿用，本次报告生成不计新执行业务。技术检查、业务结果及截图完整度分别记录；用户接受：待确认。</p><div class="stats"><span class="stat">通过 0</span><span class="stat">未通过 0</span><span class="stat">受阻 1</span><span class="stat">未执行 13</span><span class="stat">不适用 0</span><span class="stat">14 个详细验收点</span><span class="stat">1 个业务模块</span></div></header><div class="layout"><nav aria-label="文档目录"><strong>本模块完整流程</strong><a href="#heading-1">4. 智能体执行、计划与内部团队</a><a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%8C%E6%95%B4%E4%B8%9A%E5%8A%A1%E9%AA%8C%E6%94%B6%E8%AE%B0%E5%BD%95.md">查看唯一 Markdown 正文</a></nav><main><div class="toolbar"><input id="search" type="search" placeholder="搜索验收点，例如：图片、恢复、MCP、重试" aria-label="搜索详细验收点"><button id="expand">展开全部</button><button id="collapse">收起全部</button><span class="search-status" id="status">共 14 点</span></div><p class="notice">报告视觉检查未执行：当前浏览器安全策略限制 file:// 页面；静态核对不代替实际布局、图片加载和搜索交互检查。</p><p class="notice">点击验收点标题查看操作。搜索匹配标题、步骤、预期及源码名称；追溯表和已有实际记录可单独展开。</p><section class="module" data-module="4. 智能体执行、计划与内部团队"><h2 id="heading-1">4. 智能体执行、计划与内部团队</h2>
+<p>本节源码出处均以 <code>参考项目/paicli-main/src/main/java/com/paicli/</code> 为根；原功能追溯见《原功能与目标对应表》第 1 节第 1–12、22–24 项及第 2 节。以下为准备执行的验收方法，不表示参考项目或迁移实现已经通过。模型自然语言任务使用真实已验证模型做体验验收；轮次、异常、并发与数值边界使用可控制的协议样本做技术边界核对，两类证据分别记录。控制样本不得替代真实模型联机结论。</p>
+<p>统一测试资料：由执行者在明确允许的个人验收目录 <code>R</code> 中准备独立样本并冻结 SHA256 清单。<code>lines.txt</code> 为 UTF-8、LF，五行依次为 <code>alpha</code>、<code>中文行</code>、<code>gamma</code>、<code>alpha</code>、<code>omega</code>；另有 2,101 行 <code>large.txt</code>，第 n 行固定为 <code>ROW-n</code>。<code>重复.txt</code> 包含两行 <code>旧值</code>；<code>crlf.txt</code> 是相同内容的 CRLF 副本。<code>src/AuthService.java</code> 定义类 AuthService 和方法 login，login 调用 TokenService.issue；<code>src/TokenService.java</code> 定义 TokenService.issue；<code>src/BaseService.java</code> 定义 BaseService；AuthService 继承 BaseService。<code>src/ui/中文.js</code> 固定含字符串 <code>LOGIN_TOKEN</code>；<code>target/ignored.java</code> 与 <code>node_modules/ignored.js</code> 是索引排除哨兵。安全边界资料为 R 外的测试目录 <code>O</code>、两个授权测试用户 A/B、仅指向 O 的测试软链、只在 R 中写入的无害命令标记文件。截图不包含真实密钥；用户目录、数据库与外部服务样本仅在另行允许的验收范围中准备。</p>
+<p><strong>模块完整流程</strong>：提交任务 → 观察智能体读取和选择工具 → 形成计划并审阅依赖 → 执行冻结计划或内部团队分工 → 核对工具回执与审查结果 → 对照成果判断完成、失败、取消或恢复。并行和故障分支必须保留独立预期，不能仅凭最终完成文字放行。</p>
+<p><strong>当前完成位置与续验</strong>：当前没有真实会话任务，计划、执行、确认、内部团队和取消/恢复分支尚未开始；本章前提核实不等于智能体运行。下一步由本人在智能编码使用获准模型及目录提交原计划/Team独立样本，持续核同一对话、本轮、计划节点与工具回执；先达到可执行状态，再验失败与停止。协议样本仅是输入前提，不是已建立计划。</p>
+<p class="module-summary">通过 0 · 未通过 0 · 受阻 1 · 未执行 13 · 不适用 0；模块截图：尚未登记；完整结论：尚未全部完成</p><details class="case" data-result="受阻" data-search="### 29. 连续对话与工具驱动的正常结束 - **验收前提**：用户 a 有个人目录 r、在线执行设备和可调用工具的文字模型。规则出处：`agent/agent.java`、`agent/agentbudget.java`、主设计第 3 节及个人目录功能的当前设计。 - **操作步骤**：在编码实践的新会话发送“读取 lines.txt，告诉我第三行，不修改文件”；随后发送“第四行与第一行是否相同”。在任务详情展开本轮工具记录。 - **预期结果**：第三行为 gamma，第四行与第一行均为 alpha；同一会话保留第一轮上下文，工具读取结果参与回答。模型回复不再请求工具后自然结束，无无依据的后续循环；r 内文件字节和哈希均不变。 - **证据要求**：截取两轮对话、完成状态和 read_file 回执；保存会话/轮次 id、原始请求和工具结果，核对冻结文件清单。 - **适用边界**：原 react 已有；中心会话连续性和个人目录是迁移目标，不使用旧工作区、成员准备流程。 #### 实际完成编码修复：关联子场景操作前清单（业务尚未执行，准备基线已冻结） 本场景承接当前“先完成真实编码主流程”的方向，补验实际读取→模型分析→只修改实现→原检查→差异/成果回读；第29点原两轮lines.txt输入、独立答案及文件不变要求完全保留，不被替换。当前运行前提不足，以下仅保存待执行清单；不发送、调用模型、运行宿主命令或写入正式业务。 1. **操作**：冻结合成python标准库样本与独立检查。 **输入**：只含实现calc.py和检查check_sum.py的获准独立合成目录；calc.py有闭区间求和少包含右端点的缺陷。独立期望在模型任务前冻结：1..3=6、5..5=5、-2..2=0、0..0=0；起点&gt;终点必须明确拒绝，不能静默返回成功。 **预期及核对**：记录样本路径、原始字节及两个文件sha；check_sum.py的预期来自上述固定算例，不从模型输出复制。保留原检查产生的失败内容/非零退出基线，原输出及本地解释器现已由128实际登记；此准备命令不是未来受支持宿主中的agent命令，不伪造已发任务。 **实际与准备进度**：本地私有acceptance-samples/coding-mainflow/closed-sum样本已准备；2026-10-05 10:22用现有python312执行-b check_sum.py，五组3失败/2通过、退出1，与事前缺陷预期一致。1..3实际3（期望6）、5..5实际0（期望5）、-2..2实际-2（期望0）；0..0=0及2&gt;1抛valueerror两组通过。两个文件执行前后sha一致，calc.py未修，check_sum.py冻结；完整摘要及准确命令只见附件，不在主报告粘贴。主对话已逐字回读json与日志，独立复核已实际读原样本两文件、日志及json并核摘要一致；无paicli session/task、模型或runner调用。 **准备证据**：[样本独立答案及原缺陷基线128](实际验收-20261004/128-编码主流程样本-独立答案与基线.json)；[原缺陷检查日志128](实际验收-20261004/128-编码主流程样本-原缺陷检查日志.txt)。 **本步交付**：已冻结的独立预期、不可修改check_sum.py摘要和真实原缺陷基线；仅本地输入准备完成，不计agent业务通过。 2. **操作**：在实际可支持的可信宿主、同一本人会话/任务中读取和分析。 **输入**：要求“读取calc.py和check_sum.py，说明闭区间求和错误，只修改calc.py；保持check_sum.py不变，再运行python3 -b check_sum.py并给出真实检查、差异和成果”。当前实际命令固定为python3 -b check_sum.py，-b避免生成__pycache__字节码缓存，五组断言及不可变检查标准不改；128保存时未来命令未带-b的计划字段保留原值，不篡改历史回执。目录归属本人；宿主是否支持此命令先核实。 **预期及核对**：记录本人session/task/本轮标识、两个read_file实际回执及模型分析依据；不能只把文件内容粘贴或预写答案当实际读取。需要真实可用模型与工具宿主；没有可用环境时停在本步并如实受阻，不以本机直接脚本或合成provider冒充agent操作。 **本步交付**：同一任务内的真实读取/分析与允许范围；仅授权修改calc.py，其他文件不能作为修复目标。 3. **操作**：由模型实际修改实现文件并执行冻结检查。 **输入**：仅calc.py可变；check_sum.py原sha不可变；同一任务在受支持宿主运行python3 -b check_sum.py。 **预期及核对**：保留实际写文件/命令工具回执与真实退出码，独立五组断言满足且退出0；核check_sum.py逐字节/sha未变，不能改检查或降低断言取得通过。明确联系“原失败→模型修改→同一原检查通过”，缺宿主、命令或模型回执则不通过此步。 **本步交付**：真实calc.py变更、原检查退出0及不变检查程序的关联证据，不能用模型口头“完成”代替。 4. **操作**：回读差异、成果及正常终态。 **输入**：同一session/task/本轮的读取、修改、检查、工具活动与执行账本；calc.py最终实际字节及原/新sha。 **预期及核对**：核diff只涉及calc.py、闭区间包含右端点且非法范围明确拒绝；check_sum.py不变、检查日志与命令回执/同一任务一致。截图应覆盖实际要求、模型/工具活动、检查结果、完成状态和成果差异，每张保存回读；必要宿主纯命令证据另存脱敏日志，不伪造页面。模型没有新工具请求后正常结束，不多启任务；账本只记实际对应任务，不据页面截图推全部后台计费。 **本步交付**：真实编码修复的有限业务子事实与缺口；原lines.txt两轮、其他审批/团队/工具模块仍按各自清单，不能扩展整点或全模块通过。 #### 逐步验收 1. **操作**：新会话读取固定第三行。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“读取lines.txt，告诉我第三行，不修改文件”；甲目录r。 **预期及核对**：截图要求、工具记录和回复，独立答案gamma，核读取回执与文件摘要不变。 **本步交付**：原会话内已真实读取的五行资料。 2. **操作**：在同会话继续对比。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“第四行与第一行是否相同”。 **预期及核对**：截图续轮回复及读取内容，独立答案两行均alpha；有效历史承接上一轮，不换会话。 **本步交付**：已完成两轮的连续上下文。 3. **操作**：等待无工具请求的正常终态并回读文件。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步模型自然回复结束；不再追加输入。 **预期及核对**：截图终态和工具活动，核没有无依据继续循环，无修改，文件仍与原摘要相同。 **本步交付**：可继续追问且保留真实两轮证据的会话。 **当前执行位置**：原lines.txt两轮尚未执行；新增真实编码修复关联场景的操作前清单已保存。共用凭据/本人运行条件事实唯一归第12点：paismart来源用途有active元数据，但paicli用途0，123/126承接canchat=false、模型0、runtime.ready=false且无目录。当前未发送/调用模型/运行宿主命令或业务写；停在前提，整点受阻。样本原失败基线已由128冻结并完成本地准备，后续同一任务读取/模型修复/宿主原检查仍未执行；主对话及本文维护者此前核对私有cli与当时target整包sha一致（73255f…e2d45）；该时点未运行或复制新包。当前因第175点只读导出归属提示修复已构建并同步私有379a，唯一分发事实见第175点；单class变化不证明宿主就绪。当前平台策略经实际源码核对要求linux/bubblewrap或macos/seatbelt并完成真实沙箱核验，windows不在支持范围。下一步缺具体获准linux/macos可信宿主，以及该宿主通往同一中心的可达https或明确本机回环安全连接；远程linux的localhost不等于windows中心。已登记服务器专题不构成本项目部署许可，执行机选择待用户决定；不改隔离/连接策略、不虚报sandbox，暂不安装或连接新宿主。 #### 执行记录 ##### 子场景：真实编码主流程的当前运行前提（引用共同事实） - 结果：受阻 - 执行类型：业务验收前提引用（本点未开展任务执行，不重复计共同前提通过） - 时间：2026-10-05；用途观察与本人context的各自原时点见第12点及126 - 实际观察：共用事实归第12点；paicli用途0、本人可用模型0，运行环境未准备且无目录。关联清单与合成输入准备已完成，128是本地python原缺陷基线；没有实际agent发送、模型修改或宿主检查结果，不能把设计的合成缺陷当项目bug。 - 核对结果：真实编码主流程缺执行前提，保留受阻；原lines.txt两轮及新增修复都没有业务通过，不从存在其他项目用途借用权限。 - 证据：[脱敏用途及本人前提126](实际验收-20261004/126-编码主流程前提-脱敏用途与本人条件核对.json)；[样本独立答案及原缺陷基线128](实际验收-20261004/128-编码主流程样本-独立答案与基线.json)；[原缺陷检查日志128](实际验收-20261004/128-编码主流程样本-原缺陷检查日志.txt) - 截图要求：共同前提图引用第12点，不登记为本点另一轮页面执行；任务/工具/差异页面仍待实际采集 - 恢复条件：合法paicli用途、可用精确模型及具体获准linux/macos本人可信宿主/目录，完成真实bubblewrap/seatbelt隔离核验，并有该宿主到同一中心可达的https或明确本机回环安全连接；执行机选择待用户决定，未授权安装/连接新宿主。固定样本及原检查基线，再按本清单同一会话任务运行python3 -b check_sum.py；不产生字节码缓存、不修改冻结检查。 "><summary><span class="number">29</span><span>连续对话与工具驱动的正常结束</span><span class="label">受阻</span></summary><div class="case-body"><div class="current-position"><strong>当前完成位置与承接条件</strong><p><strong>真实编码主流程的当前运行前提（引用共同事实）：</strong>共用事实归第12点；PaiCLI用途0、本人可用模型0，运行环境未准备且无目录。关联清单与合成输入准备已完成，128是本地Python原缺陷基线；没有实际Agent发送、模型修改或宿主检查结果，不能把设计的合成缺陷当项目bug。<br><strong>下一步条件：</strong>合法PaiCLI用途、可用精确模型及具体获准Linux/macOS本人可信宿主/目录，完成真实bubblewrap/seatbelt隔离核验，并有该宿主到同一中心可达的HTTPS或明确本机回环安全连接；执行机选择待用户决定，未授权安装/连接新宿主。固定样本及原检查基线，再按本清单同一会话任务运行python3 -B check_sum.py；不产生字节码缓存、不修改冻结检查。</p></div><ul>
+<li><strong>验收前提</strong>：用户 A 有个人目录 R、在线执行设备和可调用工具的文字模型。规则出处：<code>agent/Agent.java</code>、<code>agent/AgentBudget.java</code>、主设计第 3 节及个人目录功能的当前设计。</li>
+<li><strong>操作步骤</strong>：在编码实践的新会话发送“读取 lines.txt，告诉我第三行，不修改文件”；随后发送“第四行与第一行是否相同”。在任务详情展开本轮工具记录。</li>
+<li><strong>预期结果</strong>：第三行为 gamma，第四行与第一行均为 alpha；同一会话保留第一轮上下文，工具读取结果参与回答。模型回复不再请求工具后自然结束，无无依据的后续循环；R 内文件字节和哈希均不变。</li>
+<li><strong>证据要求</strong>：截取两轮对话、完成状态和 read_file 回执；保存会话/轮次 ID、原始请求和工具结果，核对冻结文件清单。</li>
+<li><strong>适用边界</strong>：原 ReAct 已有；中心会话连续性和个人目录是迁移目标，不使用旧工作区、成员准备流程。</li>
+</ul>
+<h4 id="heading-2">实际完成编码修复：关联子场景操作前清单（业务尚未执行，准备基线已冻结）</h4>
+<p>本场景承接当前“先完成真实编码主流程”的方向，补验实际读取→模型分析→只修改实现→原检查→差异/成果回读；第29点原两轮lines.txt输入、独立答案及文件不变要求完全保留，不被替换。当前运行前提不足，以下仅保存待执行清单；不发送、调用模型、运行宿主命令或写入正式业务。</p>
+<ol>
+<li>
+<p><strong>操作</strong>：冻结合成Python标准库样本与独立检查。<br>
+<strong>输入</strong>：只含实现calc.py和检查check_sum.py的获准独立合成目录；calc.py有闭区间求和少包含右端点的缺陷。独立期望在模型任务前冻结：1..3=6、5..5=5、-2..2=0、0..0=0；起点&gt;终点必须明确拒绝，不能静默返回成功。<br>
+<strong>预期及核对</strong>：记录样本路径、原始字节及两个文件SHA；check_sum.py的预期来自上述固定算例，不从模型输出复制。保留原检查产生的失败内容/非零退出基线，原输出及本地解释器现已由128实际登记；此准备命令不是未来受支持宿主中的Agent命令，不伪造已发任务。<br>
+<strong>实际与准备进度</strong>：本地私有acceptance-samples/coding-mainflow/closed-sum样本已准备；2026-10-05 10:22用现有Python312执行-B check_sum.py，五组3失败/2通过、退出1，与事前缺陷预期一致。1..3实际3（期望6）、5..5实际0（期望5）、-2..2实际-2（期望0）；0..0=0及2&gt;1抛ValueError两组通过。两个文件执行前后SHA一致，calc.py未修，check_sum.py冻结；完整摘要及准确命令只见附件，不在主报告粘贴。主对话已逐字回读JSON与日志，独立复核已实际读原样本两文件、日志及JSON并核摘要一致；无PaiCLI session/task、模型或Runner调用。<br>
+<strong>准备证据</strong>：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/128-%E7%BC%96%E7%A0%81%E4%B8%BB%E6%B5%81%E7%A8%8B%E6%A0%B7%E6%9C%AC-%E7%8B%AC%E7%AB%8B%E7%AD%94%E6%A1%88%E4%B8%8E%E5%9F%BA%E7%BA%BF.json">样本独立答案及原缺陷基线128</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/128-%E7%BC%96%E7%A0%81%E4%B8%BB%E6%B5%81%E7%A8%8B%E6%A0%B7%E6%9C%AC-%E5%8E%9F%E7%BC%BA%E9%99%B7%E6%A3%80%E6%9F%A5%E6%97%A5%E5%BF%97.txt">原缺陷检查日志128</a>。<br>
+<strong>本步交付</strong>：已冻结的独立预期、不可修改check_sum.py摘要和真实原缺陷基线；仅本地输入准备完成，不计Agent业务通过。</p>
+</li>
+<li>
+<p><strong>操作</strong>：在实际可支持的可信宿主、同一本人会话/任务中读取和分析。<br>
+<strong>输入</strong>：要求“读取calc.py和check_sum.py，说明闭区间求和错误，只修改calc.py；保持check_sum.py不变，再运行python3 -B check_sum.py并给出真实检查、差异和成果”。当前实际命令固定为python3 -B check_sum.py，-B避免生成__pycache__字节码缓存，五组断言及不可变检查标准不改；128保存时未来命令未带-B的计划字段保留原值，不篡改历史回执。目录归属本人；宿主是否支持此命令先核实。<br>
+<strong>预期及核对</strong>：记录本人session/task/本轮标识、两个read_file实际回执及模型分析依据；不能只把文件内容粘贴或预写答案当实际读取。需要真实可用模型与工具宿主；没有可用环境时停在本步并如实受阻，不以本机直接脚本或合成Provider冒充Agent操作。<br>
+<strong>本步交付</strong>：同一任务内的真实读取/分析与允许范围；仅授权修改calc.py，其他文件不能作为修复目标。</p>
+</li>
+<li>
+<p><strong>操作</strong>：由模型实际修改实现文件并执行冻结检查。<br>
+<strong>输入</strong>：仅calc.py可变；check_sum.py原SHA不可变；同一任务在受支持宿主运行python3 -B check_sum.py。<br>
+<strong>预期及核对</strong>：保留实际写文件/命令工具回执与真实退出码，独立五组断言满足且退出0；核check_sum.py逐字节/SHA未变，不能改检查或降低断言取得通过。明确联系“原失败→模型修改→同一原检查通过”，缺宿主、命令或模型回执则不通过此步。<br>
+<strong>本步交付</strong>：真实calc.py变更、原检查退出0及不变检查程序的关联证据，不能用模型口头“完成”代替。</p>
+</li>
+<li>
+<p><strong>操作</strong>：回读差异、成果及正常终态。<br>
+<strong>输入</strong>：同一session/task/本轮的读取、修改、检查、工具活动与执行账本；calc.py最终实际字节及原/新SHA。<br>
+<strong>预期及核对</strong>：核diff只涉及calc.py、闭区间包含右端点且非法范围明确拒绝；check_sum.py不变、检查日志与命令回执/同一任务一致。截图应覆盖实际要求、模型/工具活动、检查结果、完成状态和成果差异，每张保存回读；必要宿主纯命令证据另存脱敏日志，不伪造页面。模型没有新工具请求后正常结束，不多启任务；账本只记实际对应任务，不据页面截图推全部后台计费。<br>
+<strong>本步交付</strong>：真实编码修复的有限业务子事实与缺口；原lines.txt两轮、其他审批/团队/工具模块仍按各自清单，不能扩展整点或全模块通过。</p>
+</li>
+</ol>
+<h4 id="heading-3">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：新会话读取固定第三行。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“读取lines.txt，告诉我第三行，不修改文件”；甲目录R。<br>
+<strong>预期及核对</strong>：截图要求、工具记录和回复，独立答案gamma，核读取回执与文件摘要不变。<br>
+<strong>本步交付</strong>：原会话内已真实读取的五行资料。</p>
+</li>
+<li>
+<p><strong>操作</strong>：在同会话继续对比。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“第四行与第一行是否相同”。<br>
+<strong>预期及核对</strong>：截图续轮回复及读取内容，独立答案两行均alpha；有效历史承接上一轮，不换会话。<br>
+<strong>本步交付</strong>：已完成两轮的连续上下文。</p>
+</li>
+<li>
+<p><strong>操作</strong>：等待无工具请求的正常终态并回读文件。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步模型自然回复结束；不再追加输入。<br>
+<strong>预期及核对</strong>：截图终态和工具活动，核没有无依据继续循环，无修改，文件仍与原摘要相同。<br>
+<strong>本步交付</strong>：可继续追问且保留真实两轮证据的会话。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：原lines.txt两轮尚未执行；新增真实编码修复关联场景的操作前清单已保存。共用凭据/本人运行条件事实唯一归第12点：PaiSmart来源用途有ACTIVE元数据，但PaiCLI用途0，123/126承接canChat=false、模型0、runtime.ready=false且无目录。当前未发送/调用模型/运行宿主命令或业务写；停在前提，整点受阻。样本原失败基线已由128冻结并完成本地准备，后续同一任务读取/模型修复/宿主原检查仍未执行；主对话及本文维护者此前核对私有CLI与当时target整包SHA一致（73255F…E2D45）；该时点未运行或复制新包。当前因第175点只读导出归属提示修复已构建并同步私有379A，唯一分发事实见第175点；单class变化不证明宿主就绪。当前平台策略经实际源码核对要求Linux/bubblewrap或macOS/seatbelt并完成真实沙箱核验，Windows不在支持范围。下一步缺具体获准Linux/macOS可信宿主，以及该宿主通往同一中心的可达HTTPS或明确本机回环安全连接；远程Linux的localhost不等于Windows中心。已登记服务器专题不构成本项目部署许可，执行机选择待用户决定；不改隔离/连接策略、不虚报sandbox，暂不安装或连接新宿主。</p>
+<h4 id="heading-4">执行记录</h4>
+<h5 id="heading-5">子场景：真实编码主流程的当前运行前提（引用共同事实）</h5>
+<ul>
+<li>结果：受阻</li>
+<li>执行类型：业务验收前提引用（本点未开展任务执行，不重复计共同前提通过）</li>
+<li>时间：2026-10-05；用途观察与本人context的各自原时点见第12点及126</li>
+<li>实际观察：共用事实归第12点；PaiCLI用途0、本人可用模型0，运行环境未准备且无目录。关联清单与合成输入准备已完成，128是本地Python原缺陷基线；没有实际Agent发送、模型修改或宿主检查结果，不能把设计的合成缺陷当项目bug。</li>
+<li>核对结果：真实编码主流程缺执行前提，保留受阻；原lines.txt两轮及新增修复都没有业务通过，不从存在其他项目用途借用权限。</li>
+<li>证据：<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/126-%E7%BC%96%E7%A0%81%E4%B8%BB%E6%B5%81%E7%A8%8B%E5%89%8D%E6%8F%90-%E8%84%B1%E6%95%8F%E7%94%A8%E9%80%94%E4%B8%8E%E6%9C%AC%E4%BA%BA%E6%9D%A1%E4%BB%B6%E6%A0%B8%E5%AF%B9.json">脱敏用途及本人前提126</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/128-%E7%BC%96%E7%A0%81%E4%B8%BB%E6%B5%81%E7%A8%8B%E6%A0%B7%E6%9C%AC-%E7%8B%AC%E7%AB%8B%E7%AD%94%E6%A1%88%E4%B8%8E%E5%9F%BA%E7%BA%BF.json">样本独立答案及原缺陷基线128</a>；<a href="file:///D:/2025Ai/26-05-23/java-workspace/%E6%96%87%E6%A1%A3/%E9%A1%B9%E7%9B%AE/PaiCLI%E6%99%BA%E8%83%BD%E7%BC%96%E7%A0%81%E9%A1%B9%E7%9B%AE/%E8%AF%81%E6%8D%AE/2026-10-03-%E5%AE%8C%E6%95%B4%E5%8A%9F%E8%83%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%AE%9E%E9%99%85%E9%AA%8C%E6%94%B6-20261004/128-%E7%BC%96%E7%A0%81%E4%B8%BB%E6%B5%81%E7%A8%8B%E6%A0%B7%E6%9C%AC-%E5%8E%9F%E7%BC%BA%E9%99%B7%E6%A3%80%E6%9F%A5%E6%97%A5%E5%BF%97.txt">原缺陷检查日志128</a></li>
+<li>截图要求：共同前提图引用第12点，不登记为本点另一轮页面执行；任务/工具/差异页面仍待实际采集</li>
+<li>恢复条件：合法PaiCLI用途、可用精确模型及具体获准Linux/macOS本人可信宿主/目录，完成真实bubblewrap/seatbelt隔离核验，并有该宿主到同一中心可达的HTTPS或明确本机回环安全连接；执行机选择待用户决定，未授权安装/连接新宿主。固定样本及原检查基线，再按本清单同一会话任务运行python3 -B check_sum.py；不产生字节码缓存、不修改冻结检查。</li>
+</ul>
+</div></details><details class="case" data-result="未执行" data-search="### 30. 文字中伪造工具调用的提示 - **验收前提**：可控模型样本仅返回正文 `&lt;read_file&gt;` 或 json 样式工具文本，协议 tool_calls 为空。出处：`agent/agent.java` 的 `lookslikeunexecutedtoolcall` 集成；测试为 `src/test/java/com/paicli/agent/unexecutedtoolcallnoticetest.java`。 - **操作步骤**：发送需要读取文件的请求，回放该协议响应；再以正常 tool_calls 响应作对照。 - **预期结果**：前者明确说明文字中的工具调用没有真正执行，不声称已读或修改；实际调用计数为 0、文件不变。正常协议对照产生真实回执。 - **证据要求**：对话提示、协议响应、调用计数及文件哈希。 - **适用边界**：原已有保护；不可仅以最终答案看似正确判定工具执行通过。 #### 逐步验收 1. **操作**：提交读取要求但返回伪工具文字。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：模型正文&lt;read_file&gt;或json工具文本，协议tool_calls为空。 **预期及核对**：截图未实际执行的提示并核调用次数0，文件不变，答复不能声称已读。 **本步交付**：明确未执行的模型正文和仍待读取的要求。 2. **操作**：使用真实协议调用作对照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：同一读取要求，正常tool_calls及完整参数。 **预期及核对**：截图工具回执与读取答复，id、路径、内容来自实际文件而非正文猜测。 **本步交付**：有实际文件证据的正常读取。 3. **操作**：比较两种结果与原文件。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步两份脱敏协议、工具计数、原摘要。 **预期及核对**：核只有协议对照产生调用，伪文本未导致隐式执行；无页面时保留协议与文件核对记录替代不存在的截图。 **本步交付**：可区分正文与真实工具执行的完整对照记录。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">30</span><span>文字中伪造工具调用的提示</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：可控模型样本仅返回正文 <code>&lt;read_file&gt;</code> 或 JSON 样式工具文本，协议 tool_calls 为空。出处：<code>agent/Agent.java</code> 的 <code>looksLikeUnexecutedToolCall</code> 集成；测试为 <code>src/test/java/com/paicli/agent/UnexecutedToolCallNoticeTest.java</code>。</li>
+<li><strong>操作步骤</strong>：发送需要读取文件的请求，回放该协议响应；再以正常 tool_calls 响应作对照。</li>
+<li><strong>预期结果</strong>：前者明确说明文字中的工具调用没有真正执行，不声称已读或修改；实际调用计数为 0、文件不变。正常协议对照产生真实回执。</li>
+<li><strong>证据要求</strong>：对话提示、协议响应、调用计数及文件哈希。</li>
+<li><strong>适用边界</strong>：原已有保护；不可仅以最终答案看似正确判定工具执行通过。</li>
+</ul>
+<h4 id="heading-6">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：提交读取要求但返回伪工具文字。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：模型正文&lt;read_file&gt;或JSON工具文本，协议tool_calls为空。<br>
+<strong>预期及核对</strong>：截图未实际执行的提示并核调用次数0，文件不变，答复不能声称已读。<br>
+<strong>本步交付</strong>：明确未执行的模型正文和仍待读取的要求。</p>
+</li>
+<li>
+<p><strong>操作</strong>：使用真实协议调用作对照。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：同一读取要求，正常tool_calls及完整参数。<br>
+<strong>预期及核对</strong>：截图工具回执与读取答复，ID、路径、内容来自实际文件而非正文猜测。<br>
+<strong>本步交付</strong>：有实际文件证据的正常读取。</p>
+</li>
+<li>
+<p><strong>操作</strong>：比较两种结果与原文件。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步两份脱敏协议、工具计数、原摘要。<br>
+<strong>预期及核对</strong>：核只有协议对照产生调用，伪文本未导致隐式执行；无页面时保留协议与文件核对记录替代不存在的截图。<br>
+<strong>本步交付</strong>：可区分正文与真实工具执行的完整对照记录。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 31. 重复动作与同类错误的临时提醒 - **验收前提**：控制样本连续重复同工具同参数三次，另一样本连续产生同类 timeout 错误；另设参数键顺序改变、被用户拒绝、间隔正常动作的对照。出处：`agent/runawayguard.java`。 - **操作步骤**：分别执行上述样本，检查第三次重复附近的事件、提示和记忆列表；同一任务再重复一次，下一任务重新验证。 - **预期结果**：三次连续重复触发换思路提醒，每个任务最多一次；json 参数键顺序变化仍识别同动作。拒绝和未执行的调用不作为真正执行重复；中断连续链后不错误累计。提醒是本轮临时信息，不保存为长期记忆或 skill。 - **证据要求**：逐次调用顺序、提醒事件、记忆列表截图及保存记录。 - **适用边界**：原已有；提醒不等于已停止，停止另验预算安全阀。 #### 逐步验收 1. **操作**：运行连续同动作/同错误样本。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：同工具同参数三次；另同类timeout；参数键顺序变化对照。 **预期及核对**：截图第三次附近提醒，记录动作指纹与事件，键顺序变化仍识别同动作。 **本步交付**：本轮一次临时换思路提醒及连续动作链。 2. **操作**：继续本轮并用拒绝/中断作边界对照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：再重复一次、用户拒绝、未执行调用、间隔正常动作。 **预期及核对**：截图提醒与实际调用状态，核本任务最多一次提醒，未执行不计重复，中断后不错误累计。 **本步交付**：不误计拒绝或中断的当前任务记录。 3. **操作**：新任务再触发并查持久记忆。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：新任务同样三次重复，读取长期记忆和skill列表。 **预期及核对**：截图新任务提醒和列表；临时提醒不持久化，上一任务状态不污染本次。 **本步交付**：独立新任务提醒及无持久污染的证据。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">31</span><span>重复动作与同类错误的临时提醒</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：控制样本连续重复同工具同参数三次，另一样本连续产生同类 timeout 错误；另设参数键顺序改变、被用户拒绝、间隔正常动作的对照。出处：<code>agent/RunawayGuard.java</code>。</li>
+<li><strong>操作步骤</strong>：分别执行上述样本，检查第三次重复附近的事件、提示和记忆列表；同一任务再重复一次，下一任务重新验证。</li>
+<li><strong>预期结果</strong>：三次连续重复触发换思路提醒，每个任务最多一次；JSON 参数键顺序变化仍识别同动作。拒绝和未执行的调用不作为真正执行重复；中断连续链后不错误累计。提醒是本轮临时信息，不保存为长期记忆或 Skill。</li>
+<li><strong>证据要求</strong>：逐次调用顺序、提醒事件、记忆列表截图及保存记录。</li>
+<li><strong>适用边界</strong>：原已有；提醒不等于已停止，停止另验预算安全阀。</li>
+</ul>
+<h4 id="heading-7">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：运行连续同动作/同错误样本。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：同工具同参数三次；另同类timeout；参数键顺序变化对照。<br>
+<strong>预期及核对</strong>：截图第三次附近提醒，记录动作指纹与事件，键顺序变化仍识别同动作。<br>
+<strong>本步交付</strong>：本轮一次临时换思路提醒及连续动作链。</p>
+</li>
+<li>
+<p><strong>操作</strong>：继续本轮并用拒绝/中断作边界对照。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：再重复一次、用户拒绝、未执行调用、间隔正常动作。<br>
+<strong>预期及核对</strong>：截图提醒与实际调用状态，核本任务最多一次提醒，未执行不计重复，中断后不错误累计。<br>
+<strong>本步交付</strong>：不误计拒绝或中断的当前任务记录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：新任务再触发并查持久记忆。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：新任务同样三次重复，读取长期记忆和Skill列表。<br>
+<strong>预期及核对</strong>：截图新任务提醒和列表；临时提醒不持久化，上一任务状态不污染本次。<br>
+<strong>本步交付</strong>：独立新任务提醒及无持久污染的证据。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 32. 停滞、费用预算与显式轮数的安全收尾 - **验收前提**：控制样本五轮完全相同调用；分别配置 token 预算 100、硬轮数 2；正常对照未显式限制轮数。出处：`agent/agentbudget.java`、`agentbudgetfinalizationtest`。 - **操作步骤**：分别让累计 input+output 达到 99/100、轮数达到 1/2、重复达到 4/5；记录触发后的下一次模型请求。模拟最后收尾请求失败。 - **预期结果**：预算 100 与硬轮数 2 达到阈值即停止继续工具执行，连续五轮同调用命中停滞；只追加一次无工具收尾请求，其工具集合为空。收尾说明已完成、已验证、未完成或阻塞、建议下一步，不能报全部完成；收尾失败保留已有成果和真实失败状态。未配置硬轮数不凭固定轮数截断，中心的明确费用限制仍生效。 - **证据要求**：计数与阈值、收尾请求的空工具集合、已有成果哈希和最终状态截图。 - **适用边界**：原默认不限制 token/硬轮数；中心费用、取消与租约约束为迁移补齐，不能以原默认无限规避中心限制。 #### 逐步验收 1. **操作**：在独立任务运行预算/轮数/停滞边界。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：token预算100取99/100；硬轮数2取1/2；同调用取4/5轮。 **预期及核对**：截图阈值前后工具状态，按预定阈值核工具停止时点，不以模型“完成”替代计数。 **本步交付**：触达各停止条件的原任务及已有成果。 2. **操作**：检查安全收尾请求并注入一次收尾失败。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：达阈值后的下一模型请求；另一实例让收尾响应失败。 **预期及核对**：留请求与计数，工具集合为空、仅一次；截图已完成/未完成说明或失败，成果不丢、不伪报全部完成。 **本步交付**：有界收尾终态及保留的部分成果。 3. **操作**：以未设置硬轮数作正常对照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：正常任务不设轮数限制，中心仍有明确费用限制。 **预期及核对**：截图正常结束及预算状态，核不凭任意固定轮数截断，也不绕中心预算。 **本步交付**：区分自然结束与安全停止的实际结论。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">32</span><span>停滞、费用预算与显式轮数的安全收尾</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：控制样本五轮完全相同调用；分别配置 token 预算 100、硬轮数 2；正常对照未显式限制轮数。出处：<code>agent/AgentBudget.java</code>、<code>AgentBudgetFinalizationTest</code>。</li>
+<li><strong>操作步骤</strong>：分别让累计 input+output 达到 99/100、轮数达到 1/2、重复达到 4/5；记录触发后的下一次模型请求。模拟最后收尾请求失败。</li>
+<li><strong>预期结果</strong>：预算 100 与硬轮数 2 达到阈值即停止继续工具执行，连续五轮同调用命中停滞；只追加一次无工具收尾请求，其工具集合为空。收尾说明已完成、已验证、未完成或阻塞、建议下一步，不能报全部完成；收尾失败保留已有成果和真实失败状态。未配置硬轮数不凭固定轮数截断，中心的明确费用限制仍生效。</li>
+<li><strong>证据要求</strong>：计数与阈值、收尾请求的空工具集合、已有成果哈希和最终状态截图。</li>
+<li><strong>适用边界</strong>：原默认不限制 token/硬轮数；中心费用、取消与租约约束为迁移补齐，不能以原默认无限规避中心限制。</li>
+</ul>
+<h4 id="heading-8">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：在独立任务运行预算/轮数/停滞边界。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：Token预算100取99/100；硬轮数2取1/2；同调用取4/5轮。<br>
+<strong>预期及核对</strong>：截图阈值前后工具状态，按预定阈值核工具停止时点，不以模型“完成”替代计数。<br>
+<strong>本步交付</strong>：触达各停止条件的原任务及已有成果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：检查安全收尾请求并注入一次收尾失败。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：达阈值后的下一模型请求；另一实例让收尾响应失败。<br>
+<strong>预期及核对</strong>：留请求与计数，工具集合为空、仅一次；截图已完成/未完成说明或失败，成果不丢、不伪报全部完成。<br>
+<strong>本步交付</strong>：有界收尾终态及保留的部分成果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：以未设置硬轮数作正常对照。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：正常任务不设轮数限制，中心仍有明确费用限制。<br>
+<strong>预期及核对</strong>：截图正常结束及预算状态，核不凭任意固定轮数截断，也不绕中心预算。<br>
+<strong>本步交付</strong>：区分自然结束与安全停止的实际结论。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 33. 计划生成、依赖显示与批准后执行 - **验收前提**：四步固定计划 a 读取样本、b/c 分别生成两个新文件且依赖 a、d 读取结果且依赖 b/c。出处：`agent/planexecuteagent.java`、`plan/planner.java`、`plan/executionplan.java`。 - **操作步骤**：在会话选择计划模式或 `/plan` 发起该任务；生成后查看计划及依赖；批准前查文件，批准后执行并查看每步状态。 - **预期结果**：计划的目标、任务 id、依赖和预期成果可审阅；未批准时 b/c 的文件不存在；批准后 a 先完成，b/c 符合并行条件时可并发，d 必须等二者完成。步骤状态、结果和回执与实际文件一致。 - **证据要求**：批准前计划截图、批准回执、步骤时间轴及两文件独立内容核对。 - **适用边界**：原 plan 算法已有；中心计划版本、审批和个人目录接入另按迁移要求验收。 #### 逐步验收 1. **操作**：生成并审阅四步依赖计划。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：a读样本；b/c各生成新文件依赖a；d读结果依赖b/c。 **预期及核对**：截图完整目标、步骤、依赖与成果预期；批准前b/c文件不存在，计划未被偷偷执行。 **本步交付**：待批准的可审查当前计划。 2. **操作**：批准当前计划并观察执行承接。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步当前版本及合法目录许可。 **预期及核对**：截图批准后a、b/c、d有意义状态；a先完成，d等b/c，核回执和时序，并行仅合法条件下发生。 **本步交付**：依赖已满足的各步实际成果。 3. **操作**：从最终成果回读文件和计划状态。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：b/c文件及d读取内容、各步回执。 **预期及核对**：截图计划终态与成果；实际字节符合独立样本，状态与文件一致，未完成步不标完成。 **本步交付**：可供后续使用的真实计划成果及证据。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">33</span><span>计划生成、依赖显示与批准后执行</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：四步固定计划 A 读取样本、B/C 分别生成两个新文件且依赖 A、D 读取结果且依赖 B/C。出处：<code>agent/PlanExecuteAgent.java</code>、<code>plan/Planner.java</code>、<code>plan/ExecutionPlan.java</code>。</li>
+<li><strong>操作步骤</strong>：在会话选择计划模式或 <code>/plan</code> 发起该任务；生成后查看计划及依赖；批准前查文件，批准后执行并查看每步状态。</li>
+<li><strong>预期结果</strong>：计划的目标、任务 ID、依赖和预期成果可审阅；未批准时 B/C 的文件不存在；批准后 A 先完成，B/C 符合并行条件时可并发，D 必须等二者完成。步骤状态、结果和回执与实际文件一致。</li>
+<li><strong>证据要求</strong>：批准前计划截图、批准回执、步骤时间轴及两文件独立内容核对。</li>
+<li><strong>适用边界</strong>：原 Plan 算法已有；中心计划版本、审批和个人目录接入另按迁移要求验收。</li>
+</ul>
+<h4 id="heading-9">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：生成并审阅四步依赖计划。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：A读样本；B/C各生成新文件依赖A；D读结果依赖B/C。<br>
+<strong>预期及核对</strong>：截图完整目标、步骤、依赖与成果预期；批准前B/C文件不存在，计划未被偷偷执行。<br>
+<strong>本步交付</strong>：待批准的可审查当前计划。</p>
+</li>
+<li>
+<p><strong>操作</strong>：批准当前计划并观察执行承接。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步当前版本及合法目录许可。<br>
+<strong>预期及核对</strong>：截图批准后A、B/C、D有意义状态；A先完成，D等B/C，核回执和时序，并行仅合法条件下发生。<br>
+<strong>本步交付</strong>：依赖已满足的各步实际成果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：从最终成果回读文件和计划状态。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：B/C文件及D读取内容、各步回执。<br>
+<strong>预期及核对</strong>：截图计划终态与成果；实际字节符合独立样本，状态与文件一致，未完成步不标完成。<br>
+<strong>本步交付</strong>：可供后续使用的真实计划成果及证据。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 34. 计划修订与取消 - **验收前提**：已有尚未执行的固定计划，原版本没有“先核对 existing.txt”一步。出处：`agent/planexecuteagent.java` 的 planreviewdecision、`plan/planner.java` reviseplan。 - **操作步骤**：审阅时补充“先核对 existing.txt，不覆盖已有文件”；查看修订版，再取消；另新建计划，批准修订版执行。对空反馈及未知审阅输入进行对照。 - **预期结果**：补充要求进入新计划，原计划可追溯；批准绑定当前版本，旧版本批准不能执行新内容。取消只结束当前计划，不写成果、不记业务失败、不触发自动重规划；非执行/取消关键字按补充要求处理，不能当默认批准。空输入在原终端是明确展示后的 enter 执行快捷键，网页不能把意外空反馈当批准。 - **证据要求**：新旧计划差异、版本和批准绑定、取消状态及文件不变清单。 - **适用边界**：原支持修订/取消；中心版本绑定为迁移补齐。 #### 逐步验收 1. **操作**：向尚未执行计划补充明确条件。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“先核对existing.txt，不覆盖已有文件”。 **预期及核对**：截图补充输入和修订版，新增核对步可见，原计划保留可追溯关系。 **本步交付**：待重新审阅的当前修订计划。 2. **操作**：取消该计划，另一次只批准当前修订版。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：取消；新建同样计划后批准新版本，尝试旧版本确认负对照。 **预期及核对**：截图取消/旧版拒绝/新版执行；取消无写入、不判业务失败、不触发重规划，旧批准不适用于新内容。 **本步交付**：已取消原计划与合法新版执行结果。 3. **操作**：核空与未知审阅输入。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：文本补充、原终端明确enter执行提示、网页空反馈。 **预期及核对**：截图实际提示与结果，非关键字按补充处理；网页意外空反馈不自动批准，终端enter仅按已展示快捷键。 **本步交付**：可解释的执行/取消/修订分支记录。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">34</span><span>计划修订与取消</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：已有尚未执行的固定计划，原版本没有“先核对 existing.txt”一步。出处：<code>agent/PlanExecuteAgent.java</code> 的 PlanReviewDecision、<code>plan/Planner.java</code> revisePlan。</li>
+<li><strong>操作步骤</strong>：审阅时补充“先核对 existing.txt，不覆盖已有文件”；查看修订版，再取消；另新建计划，批准修订版执行。对空反馈及未知审阅输入进行对照。</li>
+<li><strong>预期结果</strong>：补充要求进入新计划，原计划可追溯；批准绑定当前版本，旧版本批准不能执行新内容。取消只结束当前计划，不写成果、不记业务失败、不触发自动重规划；非执行/取消关键字按补充要求处理，不能当默认批准。空输入在原终端是明确展示后的 Enter 执行快捷键，网页不能把意外空反馈当批准。</li>
+<li><strong>证据要求</strong>：新旧计划差异、版本和批准绑定、取消状态及文件不变清单。</li>
+<li><strong>适用边界</strong>：原支持修订/取消；中心版本绑定为迁移补齐。</li>
+</ul>
+<h4 id="heading-10">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：向尚未执行计划补充明确条件。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“先核对existing.txt，不覆盖已有文件”。<br>
+<strong>预期及核对</strong>：截图补充输入和修订版，新增核对步可见，原计划保留可追溯关系。<br>
+<strong>本步交付</strong>：待重新审阅的当前修订计划。</p>
+</li>
+<li>
+<p><strong>操作</strong>：取消该计划，另一次只批准当前修订版。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：取消；新建同样计划后批准新版本，尝试旧版本确认负对照。<br>
+<strong>预期及核对</strong>：截图取消/旧版拒绝/新版执行；取消无写入、不判业务失败、不触发重规划，旧批准不适用于新内容。<br>
+<strong>本步交付</strong>：已取消原计划与合法新版执行结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：核空与未知审阅输入。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：文本补充、原终端明确Enter执行提示、网页空反馈。<br>
+<strong>预期及核对</strong>：截图实际提示与结果，非关键字按补充处理；网页意外空反馈不自动批准，终端Enter仅按已展示快捷键。<br>
+<strong>本步交付</strong>：可解释的执行/取消/修订分支记录。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 35. 终端计划审阅键与普通补充输入 - **验收前提**：明确显示审阅提示的未执行计划；出处 `cli/planreviewinputparser.java` 与 main 的 `reviewplan` 输入处理。 - **操作步骤**：按原终端实际入口分别验证：按键审阅提示的 enter 执行、esc 取消、i 进入补充、ctrl+o 展开/收起完整计划；文本审阅提示的 enter、y、yes、run、/run 执行，cancel、esc、/cancel 取消；输入“先检查 readme”并粘贴多行中文補充，在各渲染器核对执行、取消和补充映射。 - **预期结果**：前一组为执行当前展示版本；后一组取消且无成果写入；其余非空输入作为补充，不误执行。浏览器按钮的批准绑定当前版本；原 enter 语义不能掩盖页面自动提交的空字段。转入修改计划后再次展示，不执行旧版。 - **证据要求**：实际按键/输入与提示截图、decision/计划版本、执行计数和文件变化/不变。 - **适用边界**：原计划解析已有；当前网页审阅沿同一语义但必须是用户明确操作，各 tui 映射不能漏。 #### 逐步验收 1. **操作**：在原终端按键审阅当前计划。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：明确提示后分别enter、esc、i、ctrl+o。 **预期及核对**：截图计划展开和执行/取消/补充结果，核键值按原映射，取消不产生文件。 **本步交付**：按键决定及当前展示计划版本。 2. **操作**：在文本审阅中输入执行/取消别名。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：enter、y、yes、run、/run；cancel、esc、/cancel，分别新建同前提计划。 **预期及核对**：留真实终端图和事件，前组执行当前版本、后组取消，不能共用一次计划来伪证全部别名。 **本步交付**：各别名实际语义记录。 3. **操作**：输入多行中文补充并在各渲染器核对。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：“先检查readme”及冻结多行中文；网页当前版本确认对照。 **预期及核对**：截图补充及再展示的新计划，普通非空文本不误执行；网页确认绑定新版本，不用终端enter解释页面空提交。 **本步交付**：可重新批准的修订计划和各界面映射结论。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">35</span><span>终端计划审阅键与普通补充输入</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：明确显示审阅提示的未执行计划；出处 <code>cli/PlanReviewInputParser.java</code> 与 Main 的 <code>reviewPlan</code> 输入处理。</li>
+<li><strong>操作步骤</strong>：按原终端实际入口分别验证：按键审阅提示的 Enter 执行、Esc 取消、I 进入补充、Ctrl+O 展开/收起完整计划；文本审阅提示的 Enter、y、yes、run、/run 执行，cancel、esc、/cancel 取消；输入“先检查 README”并粘贴多行中文補充，在各渲染器核对执行、取消和补充映射。</li>
+<li><strong>预期结果</strong>：前一组为执行当前展示版本；后一组取消且无成果写入；其余非空输入作为补充，不误执行。浏览器按钮的批准绑定当前版本；原 Enter 语义不能掩盖页面自动提交的空字段。转入修改计划后再次展示，不执行旧版。</li>
+<li><strong>证据要求</strong>：实际按键/输入与提示截图、decision/计划版本、执行计数和文件变化/不变。</li>
+<li><strong>适用边界</strong>：原计划解析已有；当前网页审阅沿同一语义但必须是用户明确操作，各 TUI 映射不能漏。</li>
+</ul>
+<h4 id="heading-11">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：在原终端按键审阅当前计划。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：明确提示后分别Enter、Esc、I、Ctrl+O。<br>
+<strong>预期及核对</strong>：截图计划展开和执行/取消/补充结果，核键值按原映射，取消不产生文件。<br>
+<strong>本步交付</strong>：按键决定及当前展示计划版本。</p>
+</li>
+<li>
+<p><strong>操作</strong>：在文本审阅中输入执行/取消别名。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：Enter、y、yes、run、/run；cancel、esc、/cancel，分别新建同前提计划。<br>
+<strong>预期及核对</strong>：留真实终端图和事件，前组执行当前版本、后组取消，不能共用一次计划来伪证全部别名。<br>
+<strong>本步交付</strong>：各别名实际语义记录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：输入多行中文补充并在各渲染器核对。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：“先检查README”及冻结多行中文；网页当前版本确认对照。<br>
+<strong>预期及核对</strong>：截图补充及再展示的新计划，普通非空文本不误执行；网页确认绑定新版本，不用终端Enter解释页面空提交。<br>
+<strong>本步交付</strong>：可重新批准的修订计划和各界面映射结论。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 36. 计划依赖的严格校验 - **验收前提**：可控计划样本分别含重复 id、缺失依赖、自依赖、a→b→a 环、合法空依赖。出处：`plan/planner.java`、`plan/executionplan.java`、`plannergraphvalidationtest`。 - **操作步骤**：逐个提交计划响应，查看失败说明、是否暴露执行入口和实际调用数；合法对照执行只读步骤。 - **预期结果**：四类非法计划在执行前拒绝并指出结构问题，不进入工具执行、不留下成功状态；合法计划能执行。修订计划再次校验，不因旧版合法而放行新非法图。 - **证据要求**：计划 json、拒绝截图、模型/工具调用计数和合法对照回执。 - **适用边界**：原已有；不得仅展示错误后仍执行其中“看似可用”的部分。 #### 逐步验收 1. **操作**：分别送达四种非法依赖图。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：重复id、缺依赖、自依赖、a→b→a。 **预期及核对**：截图结构问题及不可执行状态，调用计数0，不留下成功计划。 **本步交付**：被拒绝的非法图及具体修订原因。 2. **操作**：送达合法空依赖计划并执行只读步。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：合法固定图及当前许可。 **预期及核对**：截图合法计划、执行反馈，核真实读取内容和结束状态。 **本步交付**：可执行合法图与只读结果。 3. **操作**：将合法计划修订为非法图再尝试批准。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步计划的新版本包含同类非法依赖。 **预期及核对**：截图再次校验拒绝，不能因旧版合法放行，核无新增工具执行。 **本步交付**：保留原结果且不可执行的新非法版本。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">36</span><span>计划依赖的严格校验</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：可控计划样本分别含重复 ID、缺失依赖、自依赖、A→B→A 环、合法空依赖。出处：<code>plan/Planner.java</code>、<code>plan/ExecutionPlan.java</code>、<code>PlannerGraphValidationTest</code>。</li>
+<li><strong>操作步骤</strong>：逐个提交计划响应，查看失败说明、是否暴露执行入口和实际调用数；合法对照执行只读步骤。</li>
+<li><strong>预期结果</strong>：四类非法计划在执行前拒绝并指出结构问题，不进入工具执行、不留下成功状态；合法计划能执行。修订计划再次校验，不因旧版合法而放行新非法图。</li>
+<li><strong>证据要求</strong>：计划 JSON、拒绝截图、模型/工具调用计数和合法对照回执。</li>
+<li><strong>适用边界</strong>：原已有；不得仅展示错误后仍执行其中“看似可用”的部分。</li>
+</ul>
+<h4 id="heading-12">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：分别送达四种非法依赖图。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：重复ID、缺依赖、自依赖、A→B→A。<br>
+<strong>预期及核对</strong>：截图结构问题及不可执行状态，调用计数0，不留下成功计划。<br>
+<strong>本步交付</strong>：被拒绝的非法图及具体修订原因。</p>
+</li>
+<li>
+<p><strong>操作</strong>：送达合法空依赖计划并执行只读步。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：合法固定图及当前许可。<br>
+<strong>预期及核对</strong>：截图合法计划、执行反馈，核真实读取内容和结束状态。<br>
+<strong>本步交付</strong>：可执行合法图与只读结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：将合法计划修订为非法图再尝试批准。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步计划的新版本包含同类非法依赖。<br>
+<strong>预期及核对</strong>：截图再次校验拒绝，不能因旧版合法放行，核无新增工具执行。<br>
+<strong>本步交付</strong>：保留原结果且不可执行的新非法版本。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 37. 计划失败时的小于一半、恰好一半与重规划上限 - **验收前提**：四步计划，控制在已完成 1/4 与 2/4 时发生工具失败；重规划默认上限为 2，另配置 0 作禁用对照。出处：`agent/planexecuteagent.java` 的 `plan.getprogress() &lt; 0.5` 与 `paicli.plan.max.replans`。 - **操作步骤**：分别触发 25% 与 50% 完成度失败；对 25% 样本连续让两次新计划失败；再模拟用户取消。 - **预期结果**：25% 失败可进入重规划，50% 不触发该“小于一半”分支；默认最多两次重规划，达到上限后不创建第三次、不执行剩余待办步骤。失败依赖的后续任务跳过且有原因；已有成果保留；取消不作为失败重规划。配置 0 时第一次失败即不重规划。 - **证据要求**：每个计划版本、完成计数、重规划调用次数、失败/跳过状态与已完成成果清单。 - **适用边界**：原已有阈值与上限；实际迁移若修改规则必须先有明确批准，不能为验收放宽。 #### 逐步验收 1. **操作**：分别在四步计划完成1/4与2/4后制造失败。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：固定失败工具及两次独立计划。 **预期及核对**：截图进度与失败反馈；25%可重规划，50%不进入该分支，核失败依赖后续跳过。 **本步交付**：已完成成果及符合条件的重规划请求。 2. **操作**：让25%分支连续新计划失败至上限。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：默认最多两次；对照配置0。 **预期及核对**：截图每次计划及最终失败，默认不产生第三次，0不重规划，旧成果保持。 **本步交付**：达上限的真实终态和未执行步骤。 3. **操作**：以用户取消对照并回读依赖成果。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：尚可执行计划取消；读取原已完成文件。 **预期及核对**：截图取消及成果，取消不触发失败重规划，不自动删除已发生修改。 **本步交付**：可解释的失败/取消结论和保留成果。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">37</span><span>计划失败时的小于一半、恰好一半与重规划上限</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：四步计划，控制在已完成 1/4 与 2/4 时发生工具失败；重规划默认上限为 2，另配置 0 作禁用对照。出处：<code>agent/PlanExecuteAgent.java</code> 的 <code>plan.getProgress() &lt; 0.5</code> 与 <code>paicli.plan.max.replans</code>。</li>
+<li><strong>操作步骤</strong>：分别触发 25% 与 50% 完成度失败；对 25% 样本连续让两次新计划失败；再模拟用户取消。</li>
+<li><strong>预期结果</strong>：25% 失败可进入重规划，50% 不触发该“小于一半”分支；默认最多两次重规划，达到上限后不创建第三次、不执行剩余待办步骤。失败依赖的后续任务跳过且有原因；已有成果保留；取消不作为失败重规划。配置 0 时第一次失败即不重规划。</li>
+<li><strong>证据要求</strong>：每个计划版本、完成计数、重规划调用次数、失败/跳过状态与已完成成果清单。</li>
+<li><strong>适用边界</strong>：原已有阈值与上限；实际迁移若修改规则必须先有明确批准，不能为验收放宽。</li>
+</ul>
+<h4 id="heading-13">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：分别在四步计划完成1/4与2/4后制造失败。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：固定失败工具及两次独立计划。<br>
+<strong>预期及核对</strong>：截图进度与失败反馈；25%可重规划，50%不进入该分支，核失败依赖后续跳过。<br>
+<strong>本步交付</strong>：已完成成果及符合条件的重规划请求。</p>
+</li>
+<li>
+<p><strong>操作</strong>：让25%分支连续新计划失败至上限。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：默认最多两次；对照配置0。<br>
+<strong>预期及核对</strong>：截图每次计划及最终失败，默认不产生第三次，0不重规划，旧成果保持。<br>
+<strong>本步交付</strong>：达上限的真实终态和未执行步骤。</p>
+</li>
+<li>
+<p><strong>操作</strong>：以用户取消对照并回读依赖成果。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：尚可执行计划取消；读取原已完成文件。<br>
+<strong>预期及核对</strong>：截图取消及成果，取消不触发失败重规划，不自动删除已发生修改。<br>
+<strong>本步交付</strong>：可解释的失败/取消结论和保留成果。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 38. 内部团队的规划、执行与复核分工 - **验收前提**：四步团队任务，同上 a/b/c/d 图；worker 成果要求固定文件 `team.txt` 内容 `team_ok`，reviewer 有独立内容标准。出处：`agent/agentorchestrator.java`、`subagent.java`、`agentrole.java`、`teamplanparser.java`。 - **操作步骤**：选择内部团队模式或 `/team`，观察 planner、worker、reviewer 各阶段；查看 d 接收到的依赖内容；对合法/非法团队图分别核对。 - **预期结果**：阶段和角色可区分；worker 产物与 reviewer 判定分别记录；只有复核通过的依赖向后传递。非法 id/依赖/环在执行前拒绝；d 不接收未通过成果。团队内部角色不要求用户配置组织成员。 - **证据要求**：团队计划、角色时间轴、工作产物哈希、reviewer 输入和 verdict、依赖上下文记录。 - **适用边界**：原内部多智能体已有；取消工作区/成员概念不取消产品内部 planner/worker/reviewer。 #### 逐步验收 1. **操作**：启动内部团队任务并审阅依赖结构。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：a/b/c/d固定图；预期team.txt=team_ok。 **预期及核对**：截图规划角色和图；合法任务不要求组织成员，非法id/依赖/环先拒绝。 **本步交付**：可供执行者处理的合法团队计划。 2. **操作**：观察执行者产物再交独立复核。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：固定worker成果与reviewer内容标准。 **预期及核对**：截图两角色阶段，读取team.txt核team_ok；复核判定与执行者自报分别记录。 **本步交付**：已有成果及独立明确复核结果。 3. **操作**：检查依赖d收到的内容与最终状态。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：b/c复核通过或未通过的不同实例。 **预期及核对**：截图d开始/未开始原因，只有复核通过成果向后传；核未通过产物不冒充已接受成果。 **本步交付**：有复核依据的团队成果与依赖链记录。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">38</span><span>内部团队的规划、执行与复核分工</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：四步团队任务，同上 A/B/C/D 图；Worker 成果要求固定文件 <code>team.txt</code> 内容 <code>TEAM_OK</code>，Reviewer 有独立内容标准。出处：<code>agent/AgentOrchestrator.java</code>、<code>SubAgent.java</code>、<code>AgentRole.java</code>、<code>TeamPlanParser.java</code>。</li>
+<li><strong>操作步骤</strong>：选择内部团队模式或 <code>/team</code>，观察 Planner、Worker、Reviewer 各阶段；查看 D 接收到的依赖内容；对合法/非法团队图分别核对。</li>
+<li><strong>预期结果</strong>：阶段和角色可区分；Worker 产物与 Reviewer 判定分别记录；只有复核通过的依赖向后传递。非法 ID/依赖/环在执行前拒绝；D 不接收未通过成果。团队内部角色不要求用户配置组织成员。</li>
+<li><strong>证据要求</strong>：团队计划、角色时间轴、工作产物哈希、Reviewer 输入和 verdict、依赖上下文记录。</li>
+<li><strong>适用边界</strong>：原内部多智能体已有；取消工作区/成员概念不取消产品内部 Planner/Worker/Reviewer。</li>
+</ul>
+<h4 id="heading-14">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：启动内部团队任务并审阅依赖结构。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：A/B/C/D固定图；预期team.txt=TEAM_OK。<br>
+<strong>预期及核对</strong>：截图规划角色和图；合法任务不要求组织成员，非法ID/依赖/环先拒绝。<br>
+<strong>本步交付</strong>：可供执行者处理的合法团队计划。</p>
+</li>
+<li>
+<p><strong>操作</strong>：观察执行者产物再交独立复核。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：固定Worker成果与Reviewer内容标准。<br>
+<strong>预期及核对</strong>：截图两角色阶段，读取team.txt核TEAM_OK；复核判定与执行者自报分别记录。<br>
+<strong>本步交付</strong>：已有成果及独立明确复核结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：检查依赖D收到的内容与最终状态。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：B/C复核通过或未通过的不同实例。<br>
+<strong>预期及核对</strong>：截图D开始/未开始原因，只有复核通过成果向后传；核未通过产物不冒充已接受成果。<br>
+<strong>本步交付</strong>：有复核依据的团队成果与依赖链记录。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 39. 团队复核拒绝、异常、空输出与重试耗尽 - **验收前提**：控制 reviewer 分别返回明确批准、拒绝、异常、空输出、格式模糊；worker 分别返回失败、空输出；拒绝样本持续到配置重试上限。出处：`agent/teamreviewverdict.java`、`agentorchestrator.java`；主设计原差距表。 - **操作步骤**：逐一执行控制样本，检查步骤结束状态、重试次数、成果保留和依赖 d 是否启动；拒绝后一次有效修订并批准作对照。 - **预期结果**：只有明确批准进入可供依赖执行的完成状态。复核异常不得视为批准；空/模糊判定拒绝或失败；重试耗尽保留产生的文件并标记复核未通过，后续依赖不执行。有效修订通过后才继续，重试次数有限且可追踪。 - **证据要求**：每次 worker/reviewer 原始响应、重试记录、最终状态、d 调用计数及保留产物。 - **适用边界**：原存在 reviewer 异常及重试耗尽仍完成的缺陷；这是迁移必须修正的验收标准，不能沿用原缺陷作为预期。 #### 逐步验收 1. **操作**：逐个产生复核与执行者异常。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：reviewer批准/拒绝/异常/空/模糊；worker失败/空。 **预期及核对**：截图角色结果及依赖状态，只有明确批准可供依赖使用；异常/空输出不能当批准。 **本步交付**：各异常分支真实未完成或失败结果。 2. **操作**：使拒绝持续至重试上限。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：同一受控拒绝标准与已冻结上限。 **预期及核对**：截图有限重试和结束说明，文件虽保留但标复核未通过，d不启动；核没有无限循环。 **本步交付**：达上限仍未放行的成果与失败证据。 3. **操作**：有效修订后重新复核并继续。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：修正后的固定成果和明确批准。 **预期及核对**：截图新复核与d承接，核修订内容符合独立标准才继续，原失败证据保留。 **本步交付**：当前经复核的实际成果及后续依赖结果。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">39</span><span>团队复核拒绝、异常、空输出与重试耗尽</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：控制 Reviewer 分别返回明确批准、拒绝、异常、空输出、格式模糊；Worker 分别返回失败、空输出；拒绝样本持续到配置重试上限。出处：<code>agent/TeamReviewVerdict.java</code>、<code>AgentOrchestrator.java</code>；主设计原差距表。</li>
+<li><strong>操作步骤</strong>：逐一执行控制样本，检查步骤结束状态、重试次数、成果保留和依赖 D 是否启动；拒绝后一次有效修订并批准作对照。</li>
+<li><strong>预期结果</strong>：只有明确批准进入可供依赖执行的完成状态。复核异常不得视为批准；空/模糊判定拒绝或失败；重试耗尽保留产生的文件并标记复核未通过，后续依赖不执行。有效修订通过后才继续，重试次数有限且可追踪。</li>
+<li><strong>证据要求</strong>：每次 Worker/Reviewer 原始响应、重试记录、最终状态、D 调用计数及保留产物。</li>
+<li><strong>适用边界</strong>：原存在 Reviewer 异常及重试耗尽仍完成的缺陷；这是迁移必须修正的验收标准，不能沿用原缺陷作为预期。</li>
+</ul>
+<h4 id="heading-15">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：逐个产生复核与执行者异常。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：Reviewer批准/拒绝/异常/空/模糊；Worker失败/空。<br>
+<strong>预期及核对</strong>：截图角色结果及依赖状态，只有明确批准可供依赖使用；异常/空输出不能当批准。<br>
+<strong>本步交付</strong>：各异常分支真实未完成或失败结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：使拒绝持续至重试上限。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：同一受控拒绝标准与已冻结上限。<br>
+<strong>预期及核对</strong>：截图有限重试和结束说明，文件虽保留但标复核未通过，D不启动；核没有无限循环。<br>
+<strong>本步交付</strong>：达上限仍未放行的成果与失败证据。</p>
+</li>
+<li>
+<p><strong>操作</strong>：有效修订后重新复核并继续。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：修正后的固定成果和明确批准。<br>
+<strong>预期及核对</strong>：截图新复核与D承接，核修订内容符合独立标准才继续，原失败证据保留。<br>
+<strong>本步交付</strong>：当前经复核的实际成果及后续依赖结果。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 40. 只读工具批次的并发上限与返回顺序 - **验收前提**：八个受控只读调用延迟各不相同，覆盖 read_file/list_dir/glob_files/grep_code/search_code/web_search/web_fetch/load_skill。出处：`tool/toolregistry.java` `parallel_safe_tools`、`max_parallel_tools=4`、executetools。 - **操作步骤**：一次请求包含八个调用；统计运行区间与最大同时执行数，对比输入序号与回灌结果序号；让其中一个超时、任务中途取消。 - **预期结果**：可并发但同时不超过四个；返回和消息回灌保持输入调用顺序，不能按完成快慢错配 tool_call_id。超时/取消有独立失败记录，未完成调用不能伪造成功。 - **证据要求**：调用开始/结束时间、并发峰值、输入/结果序号、超时和取消回执。 - **适用边界**：原批次规则已有；真实网络调用的并发验收需相应授权，离线受控样本只证明调度边界。 #### 逐步验收 1. **操作**：提交八个只读工具同批调用。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：read/list/glob/grep/search/web_search/web_fetch/load_skill，各固定不同延迟。 **预期及核对**：截图批次活动并记录起止区间，独立统计同时执行数不超过4。 **本步交付**：八项真实调用记录和并发时间基线。 2. **操作**：比较输入与返回配对顺序。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：原八个调用序号与调用id。 **预期及核对**：留消息回灌及各结果，顺序按输入而非快慢；有页面截图结果，核结果内容对应原调用。 **本步交付**：有序且未错配的工具结果。 3. **操作**：让一项超时或中途取消作对照。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：同批固定超时实例、另一取消实例。 **预期及核对**：截图失败/取消状态，未完成项不伪成功，独立失败不与其他结果串配。 **本步交付**：包含失败原因的有序批次终态。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">40</span><span>只读工具批次的并发上限与返回顺序</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：八个受控只读调用延迟各不相同，覆盖 read_file/list_dir/glob_files/grep_code/search_code/web_search/web_fetch/load_skill。出处：<code>tool/ToolRegistry.java</code> <code>PARALLEL_SAFE_TOOLS</code>、<code>MAX_PARALLEL_TOOLS=4</code>、executeTools。</li>
+<li><strong>操作步骤</strong>：一次请求包含八个调用；统计运行区间与最大同时执行数，对比输入序号与回灌结果序号；让其中一个超时、任务中途取消。</li>
+<li><strong>预期结果</strong>：可并发但同时不超过四个；返回和消息回灌保持输入调用顺序，不能按完成快慢错配 tool_call_id。超时/取消有独立失败记录，未完成调用不能伪造成功。</li>
+<li><strong>证据要求</strong>：调用开始/结束时间、并发峰值、输入/结果序号、超时和取消回执。</li>
+<li><strong>适用边界</strong>：原批次规则已有；真实网络调用的并发验收需相应授权，离线受控样本只证明调度边界。</li>
+</ul>
+<h4 id="heading-16">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：提交八个只读工具同批调用。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：read/list/glob/grep/search/web_search/web_fetch/load_skill，各固定不同延迟。<br>
+<strong>预期及核对</strong>：截图批次活动并记录起止区间，独立统计同时执行数不超过4。<br>
+<strong>本步交付</strong>：八项真实调用记录和并发时间基线。</p>
+</li>
+<li>
+<p><strong>操作</strong>：比较输入与返回配对顺序。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：原八个调用序号与调用ID。<br>
+<strong>预期及核对</strong>：留消息回灌及各结果，顺序按输入而非快慢；有页面截图结果，核结果内容对应原调用。<br>
+<strong>本步交付</strong>：有序且未错配的工具结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：让一项超时或中途取消作对照。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：同批固定超时实例、另一取消实例。<br>
+<strong>预期及核对</strong>：截图失败/取消状态，未完成项不伪成功，独立失败不与其他结果串配。<br>
+<strong>本步交付</strong>：包含失败原因的有序批次终态。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 41. 写入、命令、浏览器与未知工具的串行规则 - **验收前提**：调用序列 read_file→edit_file→read_file→execute_command；另有 mcp、save_memory、revert_turn 和浏览器混合批次。出处：`tool/toolregistry.java` executetools、`tool/turntoolpolicy.java`。 - **操作步骤**：执行安全资料中上述序列；读取应分别得到修改前/后的独立值。对浏览器混合批次记录所有开始结束时间；未知工具名不触发实际实现。 - **预期结果**：前段读取结束后再写，写后再读取；有副作用、mcp、记忆写入、回退与不在白名单中的工具不并发。含浏览器工具的整个批次串行，保持共享页面状态一致；未知工具明确失败。 - **证据要求**：顺序事件、两次读取正文和修改回执；浏览器批次时间区间；未知工具调用计数。 - **适用边界**：原批次已有；不能把所有“看起来只读”的外部工具自动加入并发白名单。 #### 逐步验收 1. **操作**：按顺序执行读取、编辑、再读及命令。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：read_file→edit_file→read_file→execute_command；预定修改前后值。 **预期及核对**：截图前后读值和编辑回执；读完才写、写后才读，实际内容与独立样本相符。 **本步交付**：正确承接副作用的顺序结果。 2. **操作**：在安全样本里混入副作用与浏览器工具。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：mcp、save_memory、revert_turn及浏览器混合批次。 **预期及核对**：截图活动并核全部起止时间，不在只读白名单的调用不并发，含浏览器整个批次串行。 **本步交付**：未破坏共享页面/文件状态的串行记录。 3. **操作**：提交未知工具并回读最终状态。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：固定未知工具名；原文件、记忆和页面状态。 **预期及核对**：截图明确失败，未知名不触发实际实现，原状态无未授权变化。 **本步交付**：未知工具拒绝及仍有效的原成果。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">41</span><span>写入、命令、浏览器与未知工具的串行规则</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：调用序列 read_file→edit_file→read_file→execute_command；另有 MCP、save_memory、revert_turn 和浏览器混合批次。出处：<code>tool/ToolRegistry.java</code> executeTools、<code>tool/TurnToolPolicy.java</code>。</li>
+<li><strong>操作步骤</strong>：执行安全资料中上述序列；读取应分别得到修改前/后的独立值。对浏览器混合批次记录所有开始结束时间；未知工具名不触发实际实现。</li>
+<li><strong>预期结果</strong>：前段读取结束后再写，写后再读取；有副作用、MCP、记忆写入、回退与不在白名单中的工具不并发。含浏览器工具的整个批次串行，保持共享页面状态一致；未知工具明确失败。</li>
+<li><strong>证据要求</strong>：顺序事件、两次读取正文和修改回执；浏览器批次时间区间；未知工具调用计数。</li>
+<li><strong>适用边界</strong>：原批次已有；不能把所有“看起来只读”的外部工具自动加入并发白名单。</li>
+</ul>
+<h4 id="heading-17">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：按顺序执行读取、编辑、再读及命令。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：read_file→edit_file→read_file→execute_command；预定修改前后值。<br>
+<strong>预期及核对</strong>：截图前后读值和编辑回执；读完才写、写后才读，实际内容与独立样本相符。<br>
+<strong>本步交付</strong>：正确承接副作用的顺序结果。</p>
+</li>
+<li>
+<p><strong>操作</strong>：在安全样本里混入副作用与浏览器工具。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：MCP、save_memory、revert_turn及浏览器混合批次。<br>
+<strong>预期及核对</strong>：截图活动并核全部起止时间，不在只读白名单的调用不并发，含浏览器整个批次串行。<br>
+<strong>本步交付</strong>：未破坏共享页面/文件状态的串行记录。</p>
+</li>
+<li>
+<p><strong>操作</strong>：提交未知工具并回读最终状态。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：固定未知工具名；原文件、记忆和页面状态。<br>
+<strong>预期及核对</strong>：截图明确失败，未知名不触发实际实现，原状态无未授权变化。<br>
+<strong>本步交付</strong>：未知工具拒绝及仍有效的原成果。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details><details class="case" data-result="未执行" data-search="### 42. 同根并发写入与不同个人目录隔离 - **验收前提**：a 的两个会话同时基于同一文件哈希发起互斥编辑；b 使用自己的目录；两会话均有有效 permit。出处：主设计并发写锁、中心 lease/版本约束；原 `toolregistry.java` 只保护单批次。 - **操作步骤**：同时批准 a 的两项不同替换；核对实际锁/版本冲突与最终文件；同时对 a/b 各自无关联文件执行写入。 - **预期结果**：同根冲突按锁或哈希拒绝安全处理，无静默丢失更新、无两项都报成功而只保留一项。不同用户目录可独立工作，b 无法观察 a 内容，日志/成果不串用户。 - **证据要求**：写前后哈希、两个 permit/lease、锁或版本冲突回执、a/b 截图与目录归属核对。 - **适用边界**：迁移补齐；原单批次串行不证明跨会话并发安全，旧 workspacemutationlock 的根语义映射到个人任务目录。 #### 逐步验收 1. **操作**：两个甲会话基于同一旧文件申请不同修改。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：同一原始摘要、互斥替换、各自有效许可。 **预期及核对**：截图两份完整预览，核两申请确实基于同一旧版本。 **本步交付**：可用于并发冲突的两项明确申请。 2. **操作**：同时批准并回读真实文件与冲突。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：上步两个申请。 **预期及核对**：截图成功/冲突及最终差异，锁或摘要拒绝安全处理；不能两项均报成功却只存一项。 **本步交付**：未静默丢更新的文件和冲突回执。 3. **操作**：甲乙同时写各自无关文件。 **实际与截图进度**：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。 **输入**：两人独立个人目录和预期字节。 **预期及核对**：截图各自成果，核内容与归属独立，乙不可见甲日志或成果。 **本步交付**：可独立工作的两套本人文件结果。 **当前执行位置**：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。 "><summary><span class="number">42</span><span>同根并发写入与不同个人目录隔离</span><span class="label">未执行</span></summary><div class="case-body"><p class="current-position"><strong>当前完成位置：</strong>尚未登记本点实际业务执行；下列有顺序的步骤为待执行清单。</p><ul>
+<li><strong>验收前提</strong>：A 的两个会话同时基于同一文件哈希发起互斥编辑；B 使用自己的目录；两会话均有有效 permit。出处：主设计并发写锁、中心 lease/版本约束；原 <code>ToolRegistry.java</code> 只保护单批次。</li>
+<li><strong>操作步骤</strong>：同时批准 A 的两项不同替换；核对实际锁/版本冲突与最终文件；同时对 A/B 各自无关联文件执行写入。</li>
+<li><strong>预期结果</strong>：同根冲突按锁或哈希拒绝安全处理，无静默丢失更新、无两项都报成功而只保留一项。不同用户目录可独立工作，B 无法观察 A 内容，日志/成果不串用户。</li>
+<li><strong>证据要求</strong>：写前后哈希、两个 permit/lease、锁或版本冲突回执、A/B 截图与目录归属核对。</li>
+<li><strong>适用边界</strong>：迁移补齐；原单批次串行不证明跨会话并发安全，旧 WorkspaceMutationLock 的根语义映射到个人任务目录。</li>
+</ul>
+<h4 id="heading-18">逐步验收</h4>
+<ol>
+<li>
+<p><strong>操作</strong>：两个甲会话基于同一旧文件申请不同修改。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：同一原始摘要、互斥替换、各自有效许可。<br>
+<strong>预期及核对</strong>：截图两份完整预览，核两申请确实基于同一旧版本。<br>
+<strong>本步交付</strong>：可用于并发冲突的两项明确申请。</p>
+</li>
+<li>
+<p><strong>操作</strong>：同时批准并回读真实文件与冲突。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：上步两个申请。<br>
+<strong>预期及核对</strong>：截图成功/冲突及最终差异，锁或摘要拒绝安全处理；不能两项均报成功却只存一项。<br>
+<strong>本步交付</strong>：未静默丢更新的文件和冲突回执。</p>
+</li>
+<li>
+<p><strong>操作</strong>：甲乙同时写各自无关文件。   <strong>实际与截图进度</strong>：未执行；页面步骤待截图，无页面步骤按本步要求采集记录，不编造界面。
+<strong>输入</strong>：两人独立个人目录和预期字节。<br>
+<strong>预期及核对</strong>：截图各自成果，核内容与归属独立，乙不可见甲日志或成果。<br>
+<strong>本步交付</strong>：可独立工作的两套本人文件结果。</p>
+</li>
+</ol>
+<p><strong>当前执行位置</strong>：本点尚无新增逐步业务执行记录；以上计划待执行或核对有效既有证据后明确沿用。若前提不能满足，停在缺失步骤并记恢复条件；已观察到违反明确要求时记未通过，不能当环境缺项。</p>
+</div></details></section></main></div><footer>来源：完整业务验收记录.md · 更新日期2026-10-05 · 本页由正文生成，阅读检查不计作产品验收。</footer><script>
+const cases=[...document.querySelectorAll('.case')];const input=document.querySelector('#search');const status=document.querySelector('#status');input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let n=0;cases.forEach(el=>{const hit=!q||el.dataset.search.includes(q);el.classList.toggle('hidden',!hit);if(hit){n++;if(q)el.open=true;}});document.querySelectorAll('.module').forEach(el=>{const items=[...el.querySelectorAll('.case')];el.classList.toggle('hidden',items.length>0&&!items.some(x=>!x.classList.contains('hidden')));});status.textContent=q?'匹配 '+n+' / '+cases.length+' 点':'共 '+cases.length+' 点';});document.querySelector('#expand').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=true));document.querySelector('#collapse').addEventListener('click',()=>document.querySelectorAll('details').forEach(el=>el.open=false));
+</script></body></html>

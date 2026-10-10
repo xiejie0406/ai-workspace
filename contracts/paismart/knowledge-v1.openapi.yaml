@@ -1627,7 +1627,14 @@ paths:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/AjaxSuccess'
+                - allOf:
+                  - $ref: '#/components/schemas/AjaxSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FeedbackResult'
+                    required:
+                    - data
                 - $ref: '#/components/schemas/AjaxFailure'
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -1644,6 +1651,15 @@ paths:
       x-ruoyi-permissions:
       - paismart:chat:send
       x-ruoyi-permission-mode: all
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description: 同键同输入重放返回原回执；同键不同输入拒绝，不重复变更当前评价或写审计。
       requestBody:
         required: true
         content:
@@ -5660,6 +5676,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Reference'
+        generationId:
+          type: string
+          format: uuid
+          nullable: true
+          description: 回答的不可变生成归属；历史关联未知时为null。
+        rating:
+          type: string
+          nullable: true
+          enum: [GOOD, BAD]
+          description: 当前用户对本消息的当前评价；未评价为null。
+        feedbackVersion:
+          type: integer
+          format: int64
+          minimum: 0
+          default: 0
+        feedbackEligible:
+          type: boolean
+          description: 服务端核实为本人且消息与生成可靠关联后可反馈；历史未知或审计只读为false。
         createdAt:
           type: string
           format: date-time
@@ -5671,6 +5705,10 @@ components:
       - state
       - references
       - createdAt
+      - generationId
+      - rating
+      - feedbackVersion
+      - feedbackEligible
     Conversation:
       type: object
       properties:
@@ -5779,9 +5817,19 @@ components:
           type: boolean
         rowVersion: *id015
         config:
-          type: object
-          properties: {}
-          additionalProperties: true
+          $ref: '#/components/schemas/ProviderConfig'
+        compatibilityValid:
+          type: boolean
+          readOnly: true
+          description: 仅 Sub2API 对话配置返回；服务端核对当前配置指纹及托管秘密版本后的激活门禁。
+        activationBlockedReason:
+          type: string
+          readOnly: true
+          description: 配置、密钥、启用状态或兼容结果导致无法激活的脱敏原因。
+        canStartNewVerification:
+          type: boolean
+          readOnly: true
+          description: 仅原待核对验证的账本已全部结算或核账后为 true；用户仍需明确确认新一组最多三次请求的费用，服务端再次核对未知调用门禁。
         updatedAt:
           type: string
           format: date-time
@@ -5813,19 +5861,110 @@ components:
       properties:
         state:
           type: string
-          enum:
-          - READY
+          enum: [READY, PASSED, FAILED, PENDING_RECONCILIATION]
         reachable:
           type: boolean
         latencyMs: *id013
         responsePresent:
           type: boolean
+        reason:
+          type: string
+        compatibility:
+          $ref: '#/components/schemas/ProviderCompatibility'
+      required: [state, latencyMs]
       additionalProperties: true
-      required:
-      - state
-      - reachable
-      - latencyMs
-      - responsePresent
+      description: 原连接测试返回 READY 及 reachable/responsePresent；Sub2API 文字验证返回逐项 compatibility，禁止返回秘密或原协议报文。
+    ProviderConfig:
+      type: object
+      properties:
+        providerCode:
+          type: string
+          description: 与托管秘密元数据一致；Sub2API 固定 sub2api，仅 LLM 用途。
+        capabilityCode:
+          type: string
+          enum: [llm, embedding, rerank]
+        apiProtocol:
+          type: string
+          enum: [responses, chat_completions]
+          description: Sub2API 必填，失败不自动更换；旧供应商缺省仍使用原 Chat Completions 实现。
+        maxOutputTokens:
+          type: integer
+          minimum: 1
+          maximum: 16000
+          description: 显式输出预算，受项目方法及模型上限约束；Responses 包含推理消耗。
+        reasoningEffort:
+          type: string
+          enum: [low]
+          description: Sub2API Responses专属可选参数；映射reasoning.effort，省略保持既有请求，参与兼容指纹；Chat协议拒绝。
+        outputTokenParameter:
+          type: string
+          enum: [max_tokens, max_completion_tokens]
+          description: Sub2API Chat 协议必填且只发送选中参数；Responses 不接受此字段，固定 max_output_tokens。
+        compatibility:
+          allOf:
+          - $ref: '#/components/schemas/ProviderCompatibility'
+          readOnly: true
+      additionalProperties: true
+      description: 旧供应商未知配置保留兼容；Sub2API 客户端仅允许 providerCode、apiProtocol、maxOutputTokens、outputTokenParameter、reasoningEffort，compatibility 仅响应返回，不接受任意 headers、内联密钥、URL 或隐藏降级配置。
+    ProviderCompatibility:
+      type: object
+      readOnly: true
+      properties:
+        state:
+          type: string
+          enum: [PASSED, FAILED, PENDING_RECONCILIATION]
+        providerVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        configFingerprint:
+          type: string
+        secretActiveVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        secretRowVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        checkedAt:
+          type: string
+          format: date-time
+        checks:
+          type: object
+          properties:
+            text:
+              type: boolean
+            stream:
+              type: boolean
+            tool:
+              type: boolean
+          required: [text, stream, tool]
+          additionalProperties: false
+        usageSource:
+          type: string
+          enum: [SUPPLIER, ESTIMATED, UNKNOWN]
+        reason:
+          type: string
+        operationKey:
+          type: string
+          description: 原 Idempotency-Key，仅用于恢复同一次受控验证；未知子请求不得重送。
+        initiatorUserId:
+          type: integer
+          format: int64
+          readOnly: true
+          description: 发起验证的用户标识，恢复原操作仍由服务端核对当前身份。
+        attemptId:
+          type: string
+          readOnly: true
+          description: 服务端验证执行权标识，不由客户端写入，不参与模型调用指纹。
+        attemptExpiresAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: 当前执行权的六分钟期限；到期沿原键仅继续确认未发的子请求，未知调用禁止重送。
+      required: [state, providerVersion, configFingerprint, secretActiveVersion, secretRowVersion, checkedAt, checks, usageSource]
+      additionalProperties: true
     Conflict:
       type: object
       properties:
@@ -6819,10 +6958,33 @@ components:
         reason:
           type: string
           maxLength: 1000
+        expectedVersion:
+          type: integer
+          format: int64
+          minimum: 0
+          description: 当前消息feedbackVersion；新版界面必传，旧客户端可省略由后台兼容处理。
       additionalProperties: true
       required:
       - messageId
       - rating
+    FeedbackResult:
+      type: object
+      properties:
+        messageId: *id001
+        generationId: *id001
+        conversationId: *id001
+        rating:
+          type: string
+          enum: [GOOD, BAD]
+        rowVersion:
+          type: integer
+          format: int64
+          minimum: 1
+        changed:
+          type: boolean
+          description: rating或reason变化为true；相同当前值为false。
+      required: [messageId, generationId, conversationId, rating, rowVersion, changed]
+      additionalProperties: false
     ProviderInput:
       type: object
       properties:
@@ -6853,20 +7015,9 @@ components:
         rowVersion: *id015
         revision: *id015
         config:
-          type: object
-          properties:
-            providerCode:
-              type: string
-              description: 显式值优先，需匹配托管元数据 providerCode。
-            capabilityCode:
-              type: string
-              enum:
-              - llm
-              - embedding
-              - rerank
-          additionalProperties: true
+          $ref: '#/components/schemas/ProviderConfig'
       additionalProperties: true
-      description: 复用共享托管密钥，不传明文 key/env。修改使用 rowVersion（兼容 revision）；新建版本为 0。
+      description: 复用共享托管密钥，不传明文 key/env。修改使用 rowVersion（兼容 revision）；新建版本为 0。Sub2API 仅允许 LLM，供应商 SUB2API，显式协议/预算（Chat 另需输出参数）；客户端禁止提交 compatibility 及激活门禁只读字段，新建默认禁用、未激活。激活须当前配置和密钥的兼容验证有效。
     ConflictResolveInput:
       type: object
       properties:
@@ -7381,11 +7532,26 @@ components:
       additionalProperties: true
       description: 任务创建时冻结的配置；requestHash只摘要标准化用户输入，重试恢复原任务，不因当前配置变化再次创建。超时为完整单次HTTP请求预算。其余冻结配置按后台结果保留。
     ProviderTestInput:
-      type: object
-      properties:
-        id: *id001
-      additionalProperties: true
-      description: 可选正文；指定同scope条目，省略id仍测激活配置。仅允许id，不接受任意地址、模型或凭据。
+      oneOf:
+      - type: object
+        properties:
+          id: *id001
+        additionalProperties: false
+        description: 旧供应商连接测试；省略 id 仍按原激活配置测试。
+      - type: object
+        properties:
+          id: *id001
+          mode:
+            type: string
+            enum: [compatibility]
+          expectedVersion:
+            type: integer
+            format: int64
+            minimum: 0
+            description: 开始及写回均核对同版配置，过期返回版本冲突。
+        required: [id, mode, expectedVersion]
+        additionalProperties: false
+      description: 指定同 scope 条目，旧用途省略 id 仍测激活配置。Sub2API 仅 LLM 受限合成验证：最多 3 次，每次输出固定最多 128 Token，沿用 Idempotency-Key、测试权限及用量账本；不接受任意地址、模型、凭据或客户端输出预算。相同 key 恢复同次结果，未知子请求不重送。
     CleanupUpload:
       type: object
       properties:

@@ -5,12 +5,12 @@ from typing import Any, AsyncIterator, List
 
 from pydantic import BaseModel, Field
 
-from api.schemas.agent_response import AgentResponse, CotStep
-from api.schemas.llm_message import LLMMessage
+from agent.api.schemas.agent_response import AgentResponse, CotStep
+from agent.api.schemas.llm_message import LLMMessage
 
 # Use unified common package import module
-from common_imports import Node, NodeData, NodeDataUsage, NodeTrace, Span
-from domain.models.base import BaseLLMModel
+from agent.common_imports import Node, NodeData, NodeDataUsage, NodeTrace, Span
+from agent.domain.models.base import BaseLLMModel
 
 
 class UpdatedNode(Node):

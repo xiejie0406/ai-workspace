@@ -52,6 +52,8 @@ public final class LanternaWindow {
 
         // 创建 Terminal + Screen
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
+        // 托管终端必须在已有PTY中绘制，不能在Runner机器弹出Swing窗口。
+        if (central) terminalFactory.setForceTextTerminal(true);
         this.screen = new TerminalScreen(terminalFactory.createTerminal());
         this.screen.startScreen();
 

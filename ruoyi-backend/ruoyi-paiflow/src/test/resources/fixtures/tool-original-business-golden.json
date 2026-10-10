@@ -1,0 +1,83 @@
+{
+  "source": "D:\\2025Ai\\26-05-23\\java-workspace\\python\\paiflow-runtime\\workflow\\engine\\nodes\\plugin_tool\\plugin_node.py",
+  "action": {
+    "early": {
+      "name": "earlyDeep"
+    },
+    "name": "rootMatch",
+    "late": {
+      "name": "lateDeep"
+    },
+    "zero": 0,
+    "no": false,
+    "empty": ""
+  },
+  "schema": {
+    "parameters": [
+      {
+        "in": "query",
+        "name": "name",
+        "schema": {
+          "type": "string",
+          "x-from": 1
+        }
+      },
+      {
+        "in": "header",
+        "name": "fixed",
+        "schema": {
+          "type": "string",
+          "default": "原固定头"
+        }
+      },
+      {
+        "in": "path",
+        "name": "zero",
+        "schema": {
+          "type": "integer",
+          "x-from": 0
+        }
+      }
+    ],
+    "requestBody": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "no": {
+                "type": "boolean"
+              },
+              "empty": {
+                "type": "string"
+              },
+              "defaulted": {
+                "type": "string",
+                "default": "原默认"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "business": {
+    "name": "earlyDeep"
+  },
+  "positions": {
+    "header": {
+      "fixed": "原固定头"
+    },
+    "query": {
+      "name": "earlyDeep"
+    },
+    "path": {
+      "zero": 0
+    },
+    "body": {
+      "no": false,
+      "empty": "",
+      "defaulted": "原默认"
+    }
+  }
+}

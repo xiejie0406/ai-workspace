@@ -72,16 +72,16 @@ class WorkflowExportPersistenceTest extends WorkflowDebugTestFixture {
     }
     private void checkedSql(String sql) {try {assertEquals(1,sql(sql));}catch(Exception ex){throw new AssertionError(ex);}}
 
-    @Test void actualCurrentDraftExportsSevenMetadataFieldsAndNeverSelectsLatestOrWritesRuntime()throws Exception {
+    @Test void actualCurrentDraftExportsOriginalMetadataAndApprovedExtensionsWithoutRuntimeWrites()throws Exception {
         var original=canvas();var created=workflows.create(space,JSONObject.of("name","中文😀工作流","description","原说明","data",original,
-                "avatarIcon","原图标","avatarColor","#0a0a0a","edgeType","bezier","category","3","advancedConfig",JSONObject.of("flag",false),"futureMetadata","不得出包"));
+                "avatarIcon","原图标","avatarColor","#0a0a0a","edgeType","bezier","category","3","advancedConfig",JSONObject.of("flag",false),"futureMetadata","保全业务扩展"));
         long id=created.getLongValue("id");var version=workflows.createVersion(id,space,0L,new JSONObject());
         var changed=copy(original);changed.put("viewport",JSONObject.of("x",0,"y",false,"future",null));node(changed).getJSONObject("data").put("label","当前草稿");
         long revision=workflowMapper.find(id).getRevision();workflows.save(id,space,revision,JSONObject.of("data",changed));var before=truth(id);
         var value=exported(id);var meta=value.getJSONObject("flowMeta");
-        assertEquals(Set.of("name","description","avatarIcon","avatarColor","edgeType","category","advancedConfig","dslVersion"),meta.keySet());
+        assertEquals(Set.of("name","description","avatarIcon","avatarColor","edgeType","category","advancedConfig","dslVersion","futureMetadata"),meta.keySet());
         assertEquals("v1",meta.get("dslVersion"));assertEquals(3,meta.get("category"));assertEquals("中文😀工作流",meta.get("name"));assertEquals("{\"flag\":false}",meta.get("advancedConfig"));
-        assertEquals(changed,value.getJSONObject("flowData"));assertFalse(new String(exports.export(id,header()).bytes(),StandardCharsets.UTF_8).contains("futureMetadata"));
+        assertEquals(changed,value.getJSONObject("flowData"));assertEquals("保全业务扩展",meta.get("futureMetadata"));
         assertEquals(version.getLongValue("id"),workflowMapper.find(id).getLatestVersionId());assertEquals(before,truth(id));
         var converter=new JacksonJsonHttpMessageConverter(JsonMapper.builder().findAndAddModules().build());
         var mvc=MockMvcBuilders.standaloneSetup(new LegacyWorkflowExportController(exports)).setControllerAdvice(new GlobalExceptionHandler()).setMessageConverters(converter).build();
@@ -122,6 +122,21 @@ class WorkflowExportPersistenceTest extends WorkflowDebugTestFixture {
         var expected=copy(graph);node(expected).getJSONObject("data").getJSONArray("outputs").getJSONObject(0).getJSONObject("schema").getJSONArray("properties").getJSONObject(0).put("default","123");
         node(expected).getJSONObject("data").getJSONArray("outputs").getJSONObject(0).getJSONObject("schema").getJSONArray("properties").getJSONObject(0).put("required",false);
         assertEquals(expected,value);assertEquals(raw,workflowMapper.find(id).getCanvasJson());assertTrue(value.getJSONObject("futureRoot").containsKey("nil"));
+    }
+    @Test void importedRootAndMetadataNullsSurviveCurrentDraftSaveAndYamlExport()throws Exception {
+        long id=create(canvas());
+        var source=JSONObject.of("unknown",JSONObject.of("nil",null,"flag",false),"futureNull",null,"ext","业务扩展文本");
+        var root=JSONObject.of("packageFuture",JSONObject.of("nil",null,"value",0));
+        workflows.save(id,space,workflowMapper.find(id).getRevision(),JSONObject.of(
+            "importSourceMetadata",source.toJSONString(JSONWriter.Feature.WriteMapNullValue),
+            "importPackageExtensions",root.toJSONString(JSONWriter.Feature.WriteMapNullValue),"futureNull",null));
+        workflows.save(id,space,workflowMapper.find(id).getRevision(),JSONObject.of("description","当前修改"));
+        var storedMeta=JSON.parseObject(workflowMapper.find(id).getMetadataJson());assertTrue(storedMeta.containsKey("futureNull"));
+        var before=truth(id);var value=exported(id);var meta=value.getJSONObject("flowMeta");
+        assertEquals(root.get("packageFuture"),value.get("packageFuture"));assertEquals(source.get("unknown"),meta.get("unknown"));
+        assertEquals("业务扩展文本",meta.get("ext"));
+        assertTrue(meta.containsKey("futureNull"));assertNull(meta.get("futureNull"));assertEquals("当前修改",meta.get("description"));
+        assertFalse(meta.containsKey("importSourceMetadata"));assertFalse(meta.containsKey("importPackageExtensions"));assertEquals(before,truth(id));
     }
     @Test void onlyExactInitiatorUidIsClearedInExportCopyWithChineseSafePathComments()throws Exception {
         var graph=canvas();var parameters=node(graph).getJSONObject("data").getJSONObject("nodeParam");parameters.put("uid","fixture-secret-identity-never-in-package");parameters.put("appId","nonsecret-app-reference");

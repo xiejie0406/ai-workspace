@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-04",
+  "object": "TXT与PDF文档预览接口分支",
+  "cause": "旧代码根据pageCount选PDF页接口；TXT解析后的pageCount=1被误送pages，而后端pdfPage仅接受application/pdf。",
+  "change": {
+    "file": "frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue",
+    "behavior": "仅mimeType=application/pdf且pageCount>0使用getDocumentPage并显示分页；其余走getDocumentContent。保留contentVersion、AbortSignal、引用initialPage与initialAnchor、后端权限及版本校验。"
+  },
+  "newTestFile": "frontend/admin-web/tests/unit/paismart/document-preview-routing.spec.ts",
+  "checks": [
+    {
+      "command": "npm.cmd run typecheck:paismart",
+      "exitCode": 0,
+      "result": "通过"
+    },
+    {
+      "command": "npm.cmd run test:unit:paismart -- tests/unit/paismart/document-preview-routing.spec.ts tests/unit/paismart/pdf-rendering.spec.ts",
+      "exitCode": 0,
+      "filesPassed": 2,
+      "testsPassed": 5,
+      "coverage": [
+        "TXT pageCount=1正文接口及无分页",
+        "PDF引用页2及contentVersion=3/anchor保留",
+        "PDF pageCount=0原正文及待解析提示",
+        "既有PDF本地worker与缩放高亮",
+        "既有未命中引用明确提示"
+      ]
+    },
+    {
+      "command": "git diff --check -- frontend/admin-web/src/views/paismart/documents/components/DocumentPreview.vue frontend/admin-web/tests/unit/paismart/document-preview-routing.spec.ts",
+      "exitCode": 0
+    }
+  ],
+  "businessAcceptanceExecuted": false,
+  "externalCalls": false,
+  "realDatabaseAccess": false,
+  "secretsRead": false,
+  "serviceOperations": false,
+  "sourceFileState": "已修改，未提交",
+  "testFileState": "新建，未提交",
+  "pending": [
+    "其他智能体独立复核",
+    "主对话实际浏览器TXT预览与引用复验"
+  ],
+  "scopeLimit": "只修改DocumentPreview及对应必要测试；本记录为技术验证，不等同真实页面验收通过。"
+}
