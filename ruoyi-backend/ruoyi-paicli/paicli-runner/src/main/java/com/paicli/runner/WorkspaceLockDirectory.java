@@ -65,7 +65,7 @@ final class WorkspaceLockDirectory {
         if (!attrs.isRegularFile() || attrs.isSymbolicLink()) throw new IOException("工作根锁文件必须是普通文件");
         requirePermissions(file, true);
     }
-    private static void requireDirectory(Path path, boolean privateOnly) throws IOException {
+    static void requireDirectory(Path path, boolean privateOnly) throws IOException {
         BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
         if (!attrs.isDirectory() || attrs.isSymbolicLink()) throw new IOException("工作根锁父节点必须是实际目录");
         requirePermissions(path, privateOnly);
@@ -76,8 +76,10 @@ final class WorkspaceLockDirectory {
     private static void requirePermissions(Path path, boolean privateOnly) throws IOException {
         if (!path.toAbsolutePath().normalize().equals(path.toRealPath())) throw new IOException("工作根锁路径包含重解析跳转");
         UserPrincipal user = current(path);
-        if (!Files.getOwner(path, LinkOption.NOFOLLOW_LINKS).equals(user)) throw new IOException("工作根锁节点不属于当前本机用户");
         PosixFileAttributeView posix = Files.getFileAttributeView(path, PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+        UserPrincipal owner=Files.getOwner(path,LinkOption.NOFOLLOW_LINKS);
+        // Windows用户home可由SYSTEM/内置管理员持有；私有锁节点仍必须归当前用户。
+        if (!owner.equals(user)&&(privateOnly||posix!=null||!operatingSystemAuthority(path,owner)))throw new IOException("工作根锁节点不属于当前本机用户或受信系统父目录");
         if (posix != null) {
             Set<PosixFilePermission> permissions = posix.readAttributes().permissions();
             if (permissions.contains(PosixFilePermission.GROUP_WRITE) || permissions.contains(PosixFilePermission.OTHERS_WRITE)

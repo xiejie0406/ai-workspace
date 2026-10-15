@@ -355,6 +355,27 @@ class MainInputNormalizationTest {
     void readEscCancelHandlesNullTerminalSafely() {
         assertFalse(Main.readEscCancel(null));
     }
+    @Test void hostedTaskRecognizesCtrlCByteWithoutChangingNativeEscOnlyBehavior()throws Exception{
+        Terminal terminal=org.mockito.Mockito.mock(Terminal.class);var input=org.mockito.Mockito.mock(org.jline.utils.NonBlockingReader.class);org.mockito.Mockito.when(terminal.reader()).thenReturn(input);
+        org.mockito.Mockito.when(input.read(50)).thenReturn(3);assertTrue(Main.readEscOrInterruptCancel(terminal));
+        org.mockito.Mockito.when(input.read(1)).thenReturn(org.jline.utils.NonBlockingReader.READ_EXPIRED);assertFalse(Main.readEscCancel(terminal));
+        assertFalse(Main.readEscOrInterruptCancel(null));
+    }
+    @Test void hostedTaskDoesNotDiscardInterruptAfterOrdinaryBytesInSameBurst()throws Exception{
+        Terminal terminal=org.mockito.Mockito.mock(Terminal.class);var input=org.mockito.Mockito.mock(org.jline.utils.NonBlockingReader.class);org.mockito.Mockito.when(terminal.reader()).thenReturn(input);
+        org.mockito.Mockito.when(input.read(50)).thenReturn((int)'a');org.mockito.Mockito.when(input.read(1)).thenReturn((int)'x',3,org.jline.utils.NonBlockingReader.READ_EXPIRED);
+        assertTrue(Main.readEscOrInterruptCancel(terminal));
+        org.mockito.Mockito.when(input.read(1)).thenReturn((int)'x',3,org.jline.utils.NonBlockingReader.READ_EXPIRED);assertFalse(Main.readEscCancel(terminal));
+    }
+
+    @Test void hostedTaskDoesNotTreatCtrlCInsidePasteOrControlSequenceAsCancel()throws Exception{
+        Terminal terminal=org.mockito.Mockito.mock(Terminal.class);var input=org.mockito.Mockito.mock(org.jline.utils.NonBlockingReader.class);org.mockito.Mockito.when(terminal.reader()).thenReturn(input);
+        org.mockito.Mockito.when(input.read(50)).thenReturn(27);
+        org.mockito.Mockito.when(input.read(80)).thenReturn((int)'[');
+        org.mockito.Mockito.when(input.read(20)).thenReturn((int)'2',(int)'0',(int)'0',(int)'~',3,org.jline.utils.NonBlockingReader.READ_EXPIRED);
+        assertFalse(Main.readEscOrInterruptCancel(terminal));
+        org.mockito.Mockito.when(input.read(20)).thenReturn((int)'A',3,org.jline.utils.NonBlockingReader.READ_EXPIRED);assertFalse(Main.readEscOrInterruptCancel(terminal));
+    }
 
     private static void restoreProperty(String key, String value) {
         if (value == null) {

@@ -15,8 +15,11 @@ public final class Sub2ApiResponsesClient extends AbstractOpenAiCompatibleClient
     private final ThreadLocal<Sub2ApiRequestException.TokenUsage> reportedUsage=new ThreadLocal<>();
 
     public Sub2ApiResponsesClient(String key,String model,String root) {
+        this(key,model,root,null);
+    }
+    public Sub2ApiResponsesClient(String key,String model,String root,String approvedHttpRoot) {
         if (!ModelCatalog.validModelId(model)) throw new IllegalArgumentException("Sub2API 缺少有效的精确模型 ID");
-        this.key=key;this.model=model;this.url=Sub2ApiEndpoint.endpoint(root,"responses");
+        this.key=key;this.model=model;this.url=Sub2ApiEndpoint.endpoint(root,"responses",approvedHttpRoot);
     }
     protected String getApiUrl(){return url;} protected String getModel(){return model;} protected String getApiKey(){return key;}
     public String getModelName(){return model;} public String getProviderName(){return "sub2api";}

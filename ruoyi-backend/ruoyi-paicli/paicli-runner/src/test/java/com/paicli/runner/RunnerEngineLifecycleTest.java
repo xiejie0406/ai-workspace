@@ -31,6 +31,17 @@ class RunnerEngineLifecycleTest {
         }
     }
 
+    @Test void permanentReadinessFailureStillClosesExecutorAndReleasesLocks()throws Exception{
+        org.junit.jupiter.api.Assumptions.assumeTrue(System.getProperty("os.name","").toLowerCase().contains("win"));
+        Path root=Files.createDirectory(home.resolve("workspace")),locks=Files.createDirectory(home.resolve("locks")),state=home.resolve("state");
+        ClosingExecutor executor=new ClosingExecutor(false);
+        RunnerEngine engine=new RunnerEngine(new CenterHttpClient("http://127.0.0.1:1","fixture",true),root,state,executor,null,null,locks);
+        RunnerReadiness.write(state,null,java.time.Instant.EPOCH,false);var dos=Files.getFileAttributeView(state.resolve("runner-readiness.json"),java.nio.file.attribute.DosFileAttributeView.class);dos.setReadOnly(true);
+        try{var failure=assertThrows(IOException.class,engine::close);assertFalse(failure instanceof RunnerReadiness.PublicationBusy);assertEquals(1,executor.closes);}
+        finally{dos.setReadOnly(false);}
+        try(var reopened=new RunnerEngine(new CenterHttpClient("http://127.0.0.1:1","fixture",true),root,state,(lease,tools)->"",null,null,locks)){assertNotNull(reopened);}
+    }
+
     private static final class ClosingExecutor implements RunnerEngine.TaskExecutor,AutoCloseable{
         private final boolean fail;private int closes;
         private ClosingExecutor(boolean fail){this.fail=fail;}

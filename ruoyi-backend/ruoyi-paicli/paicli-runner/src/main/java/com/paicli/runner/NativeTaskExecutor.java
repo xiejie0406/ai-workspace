@@ -476,7 +476,7 @@ public final class NativeTaskExecutor implements RunnerEngine.TaskExecutor, Auto
         }
         config.getProviders().put(provider, selected);
         LlmClient client;
-        try { client = LlmClientFactory.create(provider, model, config); }
+        try { client = LlmClientFactory.create(provider, model, config,secret.path("approvedHttpRoot").asText(null)); }
         catch (IllegalArgumentException invalid) { throw new IOException("中心供应商模型或调用 API 配置非法", invalid); }
         if (client == null) throw new IOException("中心供应商配置不受支持");
         return client;

@@ -5,6 +5,20 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PcSub2ApiPolicyTest {
+    @Test void httpExceptionIsEmptyByDefaultAndMatchesOnlyTheApprovedCanonicalRoot(){
+        String root="http://39.102.215.183:8080/v1";var p=provider();p.put("baseUrl",root);
+        assertThrows(PcException.class,()->PcSub2ApiPolicy.provider(p));
+        for(String wire:List.of("responses","chat_completions")){p.put("wireApi",wire);PcSub2ApiPolicy.provider(p,List.of(root));
+            for(String bad:List.of("http://39.102.215.184:8080/v1","http://39.102.215.183:8081/v1","http://39.102.215.183/v1",root+"/",root+"/responses",root+"/chat/completions",root+"/models",root+"?x=1",root+"#x","http://user@39.102.215.183:8080/v1","http://39.102.215.183:8080/other/../v1","http://39.102.215.183:8080/%76%31","http://127.0.0.1:8080/v1","http://10.1.2.3:8080/v1")){
+                var rejected=new LinkedHashMap<>(p);rejected.put("baseUrl",bad);assertThrows(PcException.class,()->PcSub2ApiPolicy.provider(rejected,List.of(root)),bad);
+            }
+        }
+        var bound=org.springframework.boot.context.properties.bind.Binder.get(new org.springframework.core.env.StandardEnvironment(){
+            {getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("approved",Map.of("paicli.sub2-api-http-allowed-roots[0]",root,"paicli.expected-database","ry-vue")));}
+        }).bind("paicli",org.springframework.boot.context.properties.bind.Bindable.of(com.ruoyi.paicli.configuration.PcProperties.class)).get();
+        assertEquals(List.of(root),bound.getSub2ApiHttpAllowedRoots());bound.validate();
+        for(String bad:List.of("http://127.0.0.1:8080/v1","http://10.1.2.3:8080/v1",root+"/responses/",root+"?x=1",root+"#x","http://39.102.215.183:8080/./v1")){bound.setSub2ApiHttpAllowedRoots(List.of(bad));assertThrows(IllegalStateException.class,bound::validate,bad);}
+    }
     private static Map<String,Object> provider(){return new LinkedHashMap<>(Map.of("provider","sub2api","wireApi","responses","baseUrl","https://sub2api.example/v1"));}
     @Test void protocolAndRootAreExplicitAndNotFullEndpoint(){
         PcSub2ApiPolicy.provider(provider());

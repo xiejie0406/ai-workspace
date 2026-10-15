@@ -28,15 +28,29 @@ public final class DeviceCredentialCache {
         return supplied;
     }
     public void store(String token,String bootstrap)throws IOException{
-        token=credential(token);var saved=CanonicalJson.MAPPER.createObjectNode();saved.put("deviceToken",token);saved.put("bootstrapHash",hash(credential(bootstrap)));
+        token=credential(token);JsonNode previous=read();var saved=CanonicalJson.MAPPER.createObjectNode();saved.put("deviceToken",token);
+        saved.put("bootstrapHash",previous!=null&&bootstrap.equals(previous.path("deviceToken").asText())&&!previous.path("bootstrapHash").asText().isBlank()?previous.path("bootstrapHash").asText():hash(credential(bootstrap)));
         save(saved);
     }
     public String exchangeKey(String token)throws IOException{
         JsonNode previous=read();
-        if(previous!=null&&token.equals(previous.path("deviceToken").asText()))return UUID.randomUUID().toString();
         String fingerprint=hash(credential(token));
-        if(previous!=null&&fingerprint.equals(previous.path("bootstrapHash").asText())&&!previous.path("exchangeKey").asText().isBlank())return previous.path("exchangeKey").asText();
-        var pending=CanonicalJson.MAPPER.createObjectNode().put("bootstrapHash",fingerprint).put("exchangeKey",UUID.randomUUID().toString());save(pending);return pending.path("exchangeKey").asText();
+        if(previous!=null&&fingerprint.equals(previous.path("exchangeTokenHash").asText(previous.path("bootstrapHash").asText()))&&!previous.path("exchangeKey").asText().isBlank())return previous.path("exchangeKey").asText();
+        var pending=previous==null?CanonicalJson.MAPPER.createObjectNode():(com.fasterxml.jackson.databind.node.ObjectNode)previous.deepCopy();
+        if(!pending.has("bootstrapHash"))pending.put("bootstrapHash",fingerprint);
+        pending.put("exchangeTokenHash",fingerprint).put("exchangeKey",UUID.randomUUID().toString());pending.remove("exchangeRequest");save(pending);return pending.path("exchangeKey").asText();
+    }
+    /** 相同键总是配合同一请求体，进程中断后也不能用变化的目录证明复用旧键。 */
+    public JsonNode exchangeRequest(String token,JsonNode request)throws IOException{
+        exchangeKey(token);var pending=(com.fasterxml.jackson.databind.node.ObjectNode)read();
+        if(pending.has("exchangeRequest"))return pending.get("exchangeRequest").deepCopy();
+        pending.set("exchangeRequest",request.deepCopy());save(pending);return request;
+    }
+    public void completeExchange(String token)throws IOException{
+        JsonNode previous=read();if(previous==null)return;
+        var saved=(com.fasterxml.jackson.databind.node.ObjectNode)previous.deepCopy();
+        if(!hash(credential(token)).equals(saved.path("exchangeTokenHash").asText()))throw new IOException("设备凭证交换状态不符");
+        saved.remove(List.of("exchangeKey","exchangeTokenHash","exchangeRequest"));save(saved);
     }
     private void save(JsonNode saved)throws IOException{
         RunnerPrivateDirectory.requireDirectory(directory);
@@ -52,7 +66,7 @@ public final class DeviceCredentialCache {
     private JsonNode read()throws IOException{
         RunnerPrivateDirectory.requireDirectory(directory);
         if(!Files.exists(file,LinkOption.NOFOLLOW_LINKS))return null;
-        if(Files.isSymbolicLink(file)||!Files.isRegularFile(file,LinkOption.NOFOLLOW_LINKS)||Files.size(file)>4096)throw new IOException("设备凭证缓存非法");
+        if(Files.isSymbolicLink(file)||!Files.isRegularFile(file,LinkOption.NOFOLLOW_LINKS)||Files.size(file)>16384)throw new IOException("设备凭证缓存非法");
         RunnerPrivateDirectory.requireRegularFile(file);JsonNode saved=CanonicalJson.MAPPER.readTree(Files.readAllBytes(file));
         if(saved==null||!saved.isObject())throw new IOException("设备凭证缓存无法读取");return saved;
     }

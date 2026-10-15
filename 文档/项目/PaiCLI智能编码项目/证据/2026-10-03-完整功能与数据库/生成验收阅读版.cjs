@@ -144,7 +144,7 @@ if (moduleMode) rendered = rendered
   .replace(/<span class="stat">\d+ 组能力与边界<\/span>/, '<span class="stat">1 个业务模块</span>')
   .replace(/<span class="stat">32 类原能力 · 17 个工具<\/span><span class="stat">48 命令分派 · 130 配置入口<\/span><span class="stat">8 开发样本 · 28 正式蓝图<\/span>/, '')
   .replace('<strong>按模块阅读</strong>', '<strong>本模块完整流程</strong>');
-if (moduleMode) rendered = rendered.replace('<p class="notice">', '<p class="notice">报告视觉检查未执行：当前浏览器安全策略限制 file:// 页面；静态核对不代替实际布局、图片加载和搜索交互检查。</p><p class="notice">');
+if (moduleMode) rendered = rendered.replace('<p class="notice">', '<p class="notice">报告页面与图片的视觉核对结果见唯一验收正文；生成成功不替代实际检查。</p><p class="notice">');
 const destination = moduleMode ? path.join(base,'模块报告',moduleName,'verification-report.html') : reportPreview
   ? path.join(root,'.runtime/paicli/full-acceptance-doc/verification-report-preview.html')
   : path.join(base, reportMode ? 'verification-report.html' : '页面使用与业务验收逻辑.html');

@@ -37,6 +37,28 @@ class WorkspaceLockDirectoryTest {
         assertThrows(IOException.class, () -> WorkspaceLockDirectory.requireFile(fake));
         assertThrows(IOException.class, () -> WorkspaceLockDirectory.prepareFile(fake));
     }
+    @Test void windowsSystemOwnedHomeAndCacheAreReadOnlyAcceptedButPrivateLocksRemainUserOwned()throws Exception{
+        var acl=Files.getFileAttributeView(home,AclFileAttributeView.class);org.junit.jupiter.api.Assumptions.assumeTrue(acl!=null,"需要Windows ACL文件系统");
+        DeviceCredentialCache.restrict(home);Path cache=Files.createDirectory(home.resolve(".cache"));DeviceCredentialCache.restrict(cache);
+        var lookup=home.getFileSystem().getUserPrincipalLookupService();UserPrincipal user=lookup.lookupPrincipalByName(System.getProperty("user.name")),authority=lookup.lookupPrincipalByName("BUILTIN\\Administrators");
+        try{
+            try{Files.setOwner(home,authority);Files.setOwner(cache,authority);}catch(IOException unavailable){org.junit.jupiter.api.Assumptions.assumeTrue(false,"本机测试进程不能设置系统主体所有者");}
+            var homeAcl=Files.getFileAttributeView(home,AclFileAttributeView.class).getAcl();var cacheAcl=Files.getFileAttributeView(cache,AclFileAttributeView.class).getAcl();
+            Path locks=WorkspaceLockDirectory.prepare(home);assertEquals(authority,Files.getOwner(home));assertEquals(authority,Files.getOwner(cache));assertEquals(user,Files.getOwner(locks));
+            assertEquals(homeAcl,Files.getFileAttributeView(home,AclFileAttributeView.class).getAcl());assertEquals(cacheAcl,Files.getFileAttributeView(cache,AclFileAttributeView.class).getAcl());
+            Path lock=locks.resolve("system-owner.lock");WorkspaceLockDirectory.prepareFile(lock);Files.setOwner(lock,authority);
+            try{assertThrows(IOException.class,()->WorkspaceLockDirectory.requireFile(lock));}finally{Files.setOwner(lock,user);}
+            Files.setOwner(locks,authority);try{assertThrows(IOException.class,()->WorkspaceLockDirectory.prepare(home));}finally{Files.setOwner(locks,user);}
+        }finally{Files.setOwner(cache,user);Files.setOwner(home,user);}
+    }
+    @Test void existingWindowsSystemOwnedProfileIsAcceptedOnlyAsNonPrivateParentWithoutMutation()throws Exception{
+        String profile=System.getenv("USERPROFILE");org.junit.jupiter.api.Assumptions.assumeTrue(profile!=null,"需要Windows实际用户目录");Path actual=Path.of(profile).toRealPath();
+        var acl=Files.getFileAttributeView(actual,AclFileAttributeView.class);org.junit.jupiter.api.Assumptions.assumeTrue(acl!=null,"需要Windows ACL");
+        var lookup=actual.getFileSystem().getUserPrincipalLookupService();UserPrincipal owner=Files.getOwner(actual);
+        var authorities=List.of(lookup.lookupPrincipalByName("NT AUTHORITY\\SYSTEM"),lookup.lookupPrincipalByName("BUILTIN\\Administrators"));org.junit.jupiter.api.Assumptions.assumeTrue(authorities.contains(owner),"仅核对实际受信系统所有者目录");
+        var before=acl.getAcl();WorkspaceLockDirectory.requireDirectory(actual,false);assertThrows(IOException.class,()->WorkspaceLockDirectory.requireDirectory(actual,true));
+        assertEquals(owner,Files.getOwner(actual));assertEquals(before,acl.getAcl());
+    }
     @Test void differentRootsCannotShareStateAndFailedConstructorReleasesRootLock() throws Exception {
         Path rootA=Files.createDirectory(home.resolve("root-a")),rootB=Files.createDirectory(home.resolve("root-b"));
         Path state=home.resolve("private-state"),locksHome=Files.createDirectory(home.resolve("lock-home"));DeviceCredentialCache.restrict(locksHome);

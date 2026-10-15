@@ -32,15 +32,34 @@ public final class PcSub2ApiPolicy {
             throw PcException.deny("Sub2API密钥必须匹配当前目录的AI/sub2api/chat用途和有效版本");
     }
     public static void provider(Map<String,Object> p) {
+        provider(p,java.util.List.of());
+    }
+    public static void provider(Map<String,Object> p,java.util.Collection<String> approvedHttpRoots) {
         if(!applies(p))return;
         if(!Set.of("responses","chat_completions").contains(PcJson.text(p,"wireApi")))throw PcException.invalid("Sub2API必须明确选择调用API");
         try {
             URI u=URI.create(PcJson.text(p,"baseUrl"));String path=u.getPath()==null?"":u.getPath().replaceAll("/+$","");
-            if(!"https".equals(u.getScheme())||u.getHost()==null||u.getUserInfo()!=null||u.getRawQuery()!=null||u.getRawFragment()!=null
+            boolean approvedHttp="http".equals(u.getScheme())&&approvedHttpRoot(PcJson.text(p,"baseUrl"),approvedHttpRoots);
+            if(!("https".equals(u.getScheme())||approvedHttp)||u.getHost()==null||u.getUserInfo()!=null||u.getRawQuery()!=null||u.getRawFragment()!=null
                     ||path.endsWith("/responses")||path.endsWith("/chat/completions")||path.endsWith("/models"))throw new IllegalArgumentException();
             publicLiteralHost(u.getHost());
-        }catch(Exception invalid){throw PcException.invalid("Sub2API须填写HTTPS API根地址，不能含本机/私网文字地址、认证信息、查询串或完整业务端点");}
+        }catch(Exception invalid){throw PcException.invalid("Sub2API须填写HTTPS或服务端明确批准的HTTP API根地址，不能含本机/私网文字地址、认证信息、查询串或完整业务端点");}
         if(!PcJson.text(p,"loraId").isBlank())throw PcException.invalid("Sub2API本期不接受LoRA扩展");
+    }
+    public static void validateHttpAllowedRoots(java.util.Collection<String> roots) {
+        try{for(String root:roots)httpRoot(root);}catch(Exception invalid){throw new IllegalStateException("PaiCLI Sub2API HTTP白名单须为规范公共API根地址",invalid);}
+    }
+    public static boolean approvedHttpRoot(String value,java.util.Collection<String> roots) {
+        try{String actual=httpRoot(value);for(String root:roots)if(actual.equals(httpRoot(root)))return true;return false;}
+        catch(Exception invalid){return false;}
+    }
+    private static String httpRoot(String value)throws Exception {
+        URI u=URI.create(value);String path=u.getRawPath()==null?"":u.getRawPath();String endpointPath=path.replaceAll("/+$","");
+        if(!"http".equals(u.getScheme())||u.getHost()==null||u.getUserInfo()!=null||u.getRawQuery()!=null||u.getRawFragment()!=null
+            ||u.getPort()<1||u.getPort()>65535||path.isEmpty()||path.contains("%")||path.contains("//")
+            ||!u.normalize().getRawPath().equals(path)||java.util.Arrays.asList(path.split("/",-1)).contains(".")
+            ||endpointPath.endsWith("/responses")||endpointPath.endsWith("/chat/completions")||endpointPath.endsWith("/models"))throw new IllegalArgumentException();
+        publicLiteralHost(u.getHost());return "http://"+u.getHost().toLowerCase(Locale.ROOT)+":"+u.getPort()+path;
     }
     /** 仅检查文字地址，不查询DNS；实例部署的DNS/出口约束须另核实。 */
     private static void publicLiteralHost(String raw)throws Exception {

@@ -24,6 +24,7 @@ public final class ManagedProviderGrant {
                 }
                 if (!frozen.path(kind).path("secretRef").asText().equals(next.path(kind).path("secretRef").asText())) throw new IOException("中心用途凭证引用已变化");
                 if (!frozen.path(kind).path("secretVersion").equals(next.path(kind).path("secretVersion"))) throw new IOException("中心用途凭证版本已变化");
+                if (!frozen.path(kind).path("approvedHttpRoot").equals(next.path(kind).path("approvedHttpRoot"))) throw new IOException("中心HTTP根地址许可已变化");
                 context = next.deepCopy(); secret = context.path(kind);
                 validateModelPurpose(); validateEmbeddingPurpose();
             }

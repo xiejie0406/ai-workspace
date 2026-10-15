@@ -1382,6 +1382,13 @@ public class Main {
      * - CONTROL_SEQUENCE / BRACKETED_PASTE / OTHER → 丢弃，不取消
      */
     static boolean readEscCancel(Terminal terminal) {
+        return readCancelInput(terminal,false);
+    }
+    /** 中心托管任务在raw模式下也接收Ctrl+C字节，只提出中心取消，不退出CLI。 */
+    static boolean readEscOrInterruptCancel(Terminal terminal){
+        return readCancelInput(terminal,true);
+    }
+    private static boolean readCancelInput(Terminal terminal,boolean acceptInterrupt) {
         if (terminal == null) {
             return false;
         }
@@ -1391,14 +1398,17 @@ public class Main {
             if (next == NonBlockingReader.READ_EXPIRED || next < 0) {
                 return false;
             }
+            if(acceptInterrupt&&next==3)return true;
             String escTail = next == 27 ? readInputBurst(terminal, 80, 20, 120) : null;
             if (next != 27) {
-                // 非 ESC 输入，drain 这一轮残余字节避免堆积，但不触发取消。
-                while (true) {
+                // 丢弃普通残余输入；中心托管监听保留同一批字节中的Ctrl+C取消意图。
+                int drained=0;
+                while (!acceptInterrupt||drained++<4096) {
                     int more = reader.read(1);
                     if (more == NonBlockingReader.READ_EXPIRED || more < 0) {
                         break;
                     }
+                    if(acceptInterrupt&&more==3)return true;
                 }
             }
             return decideEscCancel(next, escTail);

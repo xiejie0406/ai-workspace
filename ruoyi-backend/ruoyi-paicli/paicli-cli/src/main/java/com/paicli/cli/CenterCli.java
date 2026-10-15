@@ -114,7 +114,7 @@ public final class CenterCli {
                 return cli.dispatch(options.input, renderer) ? 0 : 1;
             }
         }
-        try (Terminal terminal = TerminalBuilder.builder().system(true).dumb(true).build()) {
+        try (Terminal terminal = openInteractiveTerminal(gateway.browserHosted())) {
             RendererFactory.Mode rendering = RendererFactory.resolveMode();
             if (rendering == RendererFactory.Mode.LANTERNA && TuiBootstrap.shouldUseTui(terminal)) {
                 cli.lanterna();
@@ -123,6 +123,12 @@ public final class CenterCli {
             cli.interactive(terminal, rendering);
             return 0;
         }
+    }
+    /** 网页已经核验真实PTY，JNI加载失败须明确失败；普通CLI保留原有非TTY降级。 */
+    static Terminal openInteractiveTerminal(boolean browserHosted)throws IOException{
+        TerminalBuilder builder=TerminalBuilder.builder().system(true).dumb(!browserHosted);
+        if(browserHosted)builder.nativeSignals(true).encoding(java.nio.charset.StandardCharsets.UTF_8);
+        return builder.build();
     }
 
     private void interactive(Terminal terminal, RendererFactory.Mode rendering) throws IOException {
@@ -164,7 +170,7 @@ public final class CenterCli {
                 String input;
                 try { input = reader.readLine(renderer.inputPrompt(),renderer.inputRightPrompt(),(Character)null,retryInput); retryInput=null; }
                 catch (EndOfFileException e) { return; }
-                catch (UserInterruptException e) { cancellation.set(false); continue; }
+                catch (UserInterruptException e) { cancellation.set(false); retryInput=null; pendingExecution=null; continue; }
                 finally { renderer.afterInput(); }
                 if (input == null) return;
                 try { if(!dispatch(input, renderer)&&gateway.browserHosted())retryInput=input; }
@@ -391,7 +397,7 @@ public final class CenterCli {
         try {
             while (System.nanoTime() < deadline) {
                 if(terminalClosing&&gateway.browserHosted())throw new IOException("终端已分离，后台任务保留");
-                if (Main.readEscCancel(interactiveTerminal)) cancellation.set(true);
+                if (Main.readEscOrInterruptCancel(interactiveTerminal)) cancellation.set(true);
                 if (cancellation.compareAndSet(true, false)) gateway.cancel(taskSession, turnId);
                 List<CenterCommandGateway.Event> events = taskScoped?gateway.taskEvents(turnId,taskCursor,200):gateway.events(session.id(), cursor, 200);
                 for (CenterCommandGateway.Event event : events) {

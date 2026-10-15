@@ -32,11 +32,15 @@ public class LlmClientFactory {
     }
 
     public static LlmClient create(String provider, String selectedModel, PaiCliConfig config) {
+        return create(provider,selectedModel,config,null);
+    }
+    /** 托管路径专用：HTTP许可由中心短期能力发放，普通本机配置不能开启。 */
+    public static LlmClient create(String provider, String selectedModel, PaiCliConfig config,String approvedHttpRoot) {
         if (provider == null) return null;
 
         String normalized = normalizeProvider(provider);
         String configuredProvider = provider.trim().toLowerCase();
-        if (normalized.equals("sub2api")) return createSub2Api(selectedModel, config);
+        if (normalized.equals("sub2api")) return createSub2Api(selectedModel, config,approvedHttpRoot);
         String apiKey = config.getApiKey(normalized);
         if ((apiKey == null || apiKey.isBlank()) && !configuredProvider.equals(normalized)) {
             apiKey = config.getApiKey(configuredProvider);
@@ -95,18 +99,18 @@ public class LlmClientFactory {
         return null;
     }
 
-    private static LlmClient createSub2Api(String selectedModel, PaiCliConfig config) {
+    private static LlmClient createSub2Api(String selectedModel, PaiCliConfig config,String approvedHttpRoot) {
         PaiCliConfig.ProviderConfig settings = config.getProviders().get("sub2api");
         if (settings == null) throw new IllegalArgumentException("Sub2API 缺少供应商配置");
         String wireApi = Sub2ApiEndpoint.wireApi(settings.getWireApi());
         String model = firstConfigured(selectedModel, settings.getModel());
         if (!ModelCatalog.validModelId(model)) throw new IllegalArgumentException("Sub2API 缺少精确模型 ID");
         String root = settings.getBaseUrl();
-        Sub2ApiEndpoint.root(root);
+        Sub2ApiEndpoint.root(root,approvedHttpRoot);
         if (settings.getApiKey() == null || settings.getApiKey().isBlank()) return null;
         AbstractOpenAiCompatibleClient client = wireApi.equals("responses")
-                ? new Sub2ApiResponsesClient(settings.getApiKey(), model, root)
-                : new Sub2ApiChatClient(settings.getApiKey(), model, root);
+                ? new Sub2ApiResponsesClient(settings.getApiKey(), model, root,approvedHttpRoot)
+                : new Sub2ApiChatClient(settings.getApiKey(), model, root,approvedHttpRoot);
         ModelProfile profile = settings.getModels().get(model);
         if (profile == null) return client;
         if (Boolean.TRUE.equals(profile.dsml())

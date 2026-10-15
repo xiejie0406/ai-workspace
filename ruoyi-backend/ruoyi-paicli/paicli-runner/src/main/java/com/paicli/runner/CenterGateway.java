@@ -47,6 +47,12 @@ public final class CenterGateway {
             engine.connect();
             if(directoryProof){engine.proveDirectory(Path.of(args[2]));System.out.println("本人现有目录已经由真实宿主核验并登记。");return 0;}
             do {
+                // 本机启动管理器只在本人私有状态目录发出停止请求；正常关闭托管 PTY。
+                Path stopRequest=state.resolve("runner-stop.request");
+                if(Files.exists(stopRequest,java.nio.file.LinkOption.NOFOLLOW_LINKS)){
+                    RunnerPrivateDirectory.requireRegularFile(stopRequest);
+                    break;
+                }
                 boolean claimed = engine.runOnce();
                 if (args.length == 2) return 0;
                 if (!claimed) Thread.sleep(1000);

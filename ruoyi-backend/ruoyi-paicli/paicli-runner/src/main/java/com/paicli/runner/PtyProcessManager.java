@@ -17,7 +17,7 @@ final class PtyProcessManager {
     static final String VERSION="0.13.4";
     static final long MAX_INPUT_HISTORY_BYTES=256L*1024*1024;
     record Started(PtyProcess process,Path directory,Path renewal,String artifactHash,String mode){}
-    private final Path root,state,inputHistoryRoot,javaExecutable,cli;
+    private final Path root,state,inputHistoryRoot,nativeCacheRoot,javaExecutable,cli;
     private final String centerUrl,artifactHash;
     private final PersonalDirectoryContext personalDirectories;
     private final boolean windows=System.getProperty("os.name","").toLowerCase(Locale.ROOT).contains("win");
@@ -27,6 +27,7 @@ final class PtyProcessManager {
     PtyProcessManager(Path root,Path state,String centerUrl,PersonalDirectoryContext directories)throws IOException{
         personalDirectories=directories;
         this.root=root.toRealPath();this.state=RunnerPrivateDirectory.createDirectories(state.resolve("terminals"));this.centerUrl=centerUrl;
+        nativeCacheRoot=state.toAbsolutePath().normalize().resolveSibling("native");
         String centerScope=CanonicalJson.sha256(centerUrl.replaceAll("/+$","").getBytes(java.nio.charset.StandardCharsets.UTF_8));
         inputHistoryRoot=RunnerPrivateDirectory.createDirectories(state.resolve("terminal-input-history").resolve(centerScope));
         if(inputHistoryRoot.toRealPath().startsWith(this.root))throw new IOException("输入历史必须位于工作区外的Runner私有状态");
@@ -55,6 +56,7 @@ final class PtyProcessManager {
         String renderer=frame.path("renderer").asText("inline");if(!List.of("inline","lanterna","plain").contains(renderer))throw new IOException("终端界面非法");
         int cols=dimension(frame,"cols",20,400),rows=dimension(frame,"rows",5,120);
         if(!artifactHash.equals(CanonicalJson.sha256(Files.readAllBytes(cli))))throw new IOException("CLI制品在Runner启动后已改变");
+        Path jlineNative=windows?FixedTerminalNativeLibrary.prepare(cli,artifactHash,nativeCacheRoot):null;
         Path history=persistentInputHistory(owner,new ResourceFingerprint(workingDirectory).rootFingerprint());
         Path directory=RunnerPrivateDirectory.createDirectories(state.resolve(terminal+"-"+epoch+"-"+UUID.randomUUID()));
         Path home=RunnerPrivateDirectory.createDirectories(directory.resolve("home"));Path temp=RunnerPrivateDirectory.createDirectories(directory.resolve("tmp"));
@@ -68,8 +70,10 @@ final class PtyProcessManager {
         environment.put("PAICLI_CENTER_URL",centerUrl);environment.put("PAICLI_TERMINAL_CAPABILITY_FILE",initial.toString());environment.put("PAICLI_RENDERER",renderer);
         environment.put("PAICLI_WEB_TERMINAL","true");environment.put("PAICLI_DIRECTORY_ROOT",workingDirectory.toString());
         environment.put("PAICLI_HISTORY_FILE",history.toString());environment.put("PAICLI_HISTORY_SIZE","2000");environment.put("PAICLI_HISTORY_FILE_SIZE","10000");
-        String[] command={javaExecutable.toString(),"-Dfile.encoding=UTF-8","-Duser.home="+home,"-Djava.io.tmpdir="+temp,"-cp",cli.toString(),"com.paicli.runner.TerminalChildMain",
-                "--directory",context,"--runner",runner,"--session",session};
+        List<String> arguments=new ArrayList<>(List.of(javaExecutable.toString(),"--enable-native-access=ALL-UNNAMED","-Dfile.encoding=UTF-8","-Duser.home="+home,"-Djava.io.tmpdir="+temp));
+        if(jlineNative!=null)arguments.add("-Dlibrary.jline.path="+jlineNative);
+        arguments.addAll(List.of("-cp",cli.toString(),"com.paicli.runner.TerminalChildMain","--directory",context,"--runner",runner,"--session",session));
+        String[] command=arguments.toArray(String[]::new);
         PtyProcess process=null;
         try{
             process=new PtyProcessBuilder(command).setDirectory(workingDirectory.toString()).setEnvironment(environment).setConsole(false).setRedirectErrorStream(true)

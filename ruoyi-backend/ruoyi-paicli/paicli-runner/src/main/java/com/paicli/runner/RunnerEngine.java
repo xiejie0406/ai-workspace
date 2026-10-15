@@ -30,6 +30,9 @@ public final class RunnerEngine implements AutoCloseable {
     private String deviceToken;
     private volatile java.time.Instant sessionExpiry=java.time.Instant.MIN;
     private volatile boolean closed;
+    private volatile JsonNode readinessIdentity;
+    private boolean readinessScheduled;
+    private volatile boolean exchangeHealthy;
 
     public RunnerEngine(CenterHttpClient center, Path root, Path stateDirectory, TaskExecutor executor) throws IOException {
         this(center,root,stateDirectory,executor,null,null);
@@ -72,7 +75,12 @@ public final class RunnerEngine implements AutoCloseable {
         terminalHost=requestedHost;
     }
     public JsonNode connect() throws IOException {
-        JsonNode response=exchangeSession();replayReceipts();if(terminalHost!=null)terminalHost.start();return response;
+        try{
+            JsonNode response=exchangeSession();replayReceipts();if(terminalHost!=null)terminalHost.start();
+            publishReadiness();
+            if(!readinessScheduled){readinessScheduled=true;heartbeats.scheduleWithFixedDelay(()->{try{writeReadiness();}catch(IOException unavailable){/* 监管按checkedAt超时拒绝旧信号，不记录凭证。 */}},3,3,TimeUnit.SECONDS);}
+            return response;
+        }catch(IOException failure){exchangeHealthy=false;publishReadiness();throw failure;}
     }
     /** 运营宿主核验已经存在的本人子目录；浏览器或模型传入任意外部路径不能扩展边界。 */
     public JsonNode proveDirectory(Path directory)throws IOException{
@@ -101,9 +109,14 @@ public final class RunnerEngine implements AutoCloseable {
         // capability只表示支持协议，实际命令仍要求中心核验记录及本机REQUIRED检测同时通过。
         JsonNode response;
         if(deviceToken==null)response=center.post("/paicli/runner/v1/sessions",request,UUID.randomUUID().toString());
-        else try(CenterHttpClient bootstrap=center.withRunnerToken(deviceToken)){response=bootstrap.post("/paicli/runner/v1/sessions",request,credentials==null?UUID.randomUUID().toString():credentials.exchangeKey(deviceToken));}
+        else try(CenterHttpClient bootstrap=center.withRunnerToken(deviceToken)){
+            String key=credentials==null?UUID.randomUUID().toString():credentials.exchangeKey(deviceToken);
+            JsonNode exchangeRequest=credentials==null?request:credentials.exchangeRequest(deviceToken,request);
+            response=bootstrap.post("/paicli/runner/v1/sessions",exchangeRequest,key);
+        }
         java.time.Instant expiry=RunnerLease.expiry(response.path("expiresAt"));
-        if (!expiry.isAfter(java.time.Instant.now())) throw new IOException("设备会话已过期");
+        String sessionToken=response.path("sessionToken").asText();
+        if(sessionToken.isBlank()||sessionToken.indexOf('\n')>=0||sessionToken.indexOf('\r')>=0)throw new IOException("中心会话响应缺少合法凭证");
         if(personalDirectories!=null){
             if(!personalDirectories.ownerUserId().equals(response.path("ownerUserId").asText())
                 ||!personalDirectories.runtime().equals(Path.of(response.path("runtimeCanonicalPath").asText()).toRealPath())
@@ -115,12 +128,20 @@ public final class RunnerEngine implements AutoCloseable {
         }
         if(response.hasNonNull("deviceToken")){
             String bound=response.path("deviceToken").asText();if(credentials!=null)credentials.store(bound,deviceToken);deviceToken=bound;
-        }
-        center.replaceToken(response.path("sessionToken").asText());
+        }else if(credentials!=null&&deviceToken!=null)credentials.completeExchange(deviceToken);
+        if (!expiry.isAfter(java.time.Instant.now())) throw new IOException("重放的设备会话已过期，已保留设备绑定，可重新交换会话");
+        center.replaceToken(sessionToken);
         if(terminalHost!=null)terminalHost.refreshDeviceConnection();
         sessionExpiry=expiry;
+        readinessIdentity=response.deepCopy();
+        exchangeHealthy=true;
         return response;
     }
+    private synchronized void writeReadiness()throws IOException{
+        RunnerReadiness.write(state,readinessIdentity,sessionExpiry,!closed&&exchangeHealthy&&sessionExpiry.isAfter(java.time.Instant.now())&&terminalHost!=null&&terminalHost.ready());
+    }
+    /** 就绪文件是监管信号，短暂读句柄竞争不能杀掉健康任务/PTY；失败后监管按旧checkedAt判断。 */
+    private void publishReadiness()throws IOException{try{writeReadiness();}catch(RunnerReadiness.PublicationBusy unavailable){/* 不修权限、不移除重解析节点，不发布虚假成功。 */}}
     private static String distributionVersion(){
         String packaged=RunnerEngine.class.getPackage().getImplementationVersion();
         if(packaged!=null&&!packaged.isBlank())return packaged;
@@ -131,7 +152,8 @@ public final class RunnerEngine implements AutoCloseable {
     }
     private synchronized void renewSession()throws IOException{
         if(sessionExpiry.isAfter(java.time.Instant.now().plusSeconds(60)))return;
-        if(deviceToken==null)throw new IOException("缺少已绑定设备凭证，不能续期会话");exchangeSession();
+        if(deviceToken==null)throw new IOException("缺少已绑定设备凭证，不能续期会话");
+        try{exchangeSession();}catch(IOException failure){exchangeHealthy=false;throw failure;}
     }
     public void replayReceipts() throws IOException {
         for (Path path : spool.pending()) {
@@ -146,8 +168,11 @@ public final class RunnerEngine implements AutoCloseable {
     }
     public boolean runOnce() throws IOException {
         if (closed) throw new IOException("Runner 已关闭");
-        renewSession();
-        JsonNode claim = center.post("/paicli/runner/v1/claims", CanonicalJson.MAPPER.createObjectNode(), UUID.randomUUID().toString());
+        try{renewSession();}catch(IOException failure){exchangeHealthy=false;publishReadiness();throw failure;}
+        publishReadiness();
+        JsonNode claim;
+        try{claim=center.post("/paicli/runner/v1/claims",CanonicalJson.MAPPER.createObjectNode(),UUID.randomUUID().toString());exchangeHealthy=true;}
+        catch(IOException failure){exchangeHealthy=false;publishReadiness();throw failure;}
         if (claim == null || claim.isNull() || claim.has("available") && !claim.path("available").asBoolean()) return false;
         RunnerLease lease = new RunnerLease(claim);
         if (spool.hasUncertainExecution(lease.taskId())) { lease.invalidate(); throw new IOException("上次执行状态不确定，需要中心人工对账"); }
@@ -183,6 +208,7 @@ public final class RunnerEngine implements AutoCloseable {
     }
     @Override public synchronized void close() throws IOException {
         if(closed)return;closed=true;heartbeats.shutdownNow();IOException failure=null;
+        try{publishReadiness();}catch(IOException unavailable){failure=unavailable;}
         if(terminalHost!=null)terminalHost.close();
         try {
             if(executor instanceof AutoCloseable resource)resource.close();

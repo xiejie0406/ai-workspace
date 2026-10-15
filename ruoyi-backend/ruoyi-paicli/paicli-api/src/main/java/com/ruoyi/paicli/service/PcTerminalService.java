@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.socket.*;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -24,6 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @ConditionalOnProperty(prefix="paicli",name="enabled",havingValue="true")
 public class PcTerminalService {
     private static final Set<String> ACTIVE=Set.of("STARTING","RUNNING","STOPPING");
+    // Redis 3也支持Lua；使用模板现有值序列化器返回原值，GET与DEL必须在单次原子脚本内。
+    static final DefaultRedisScript<String> CONSUME_TICKET_SCRIPT=new DefaultRedisScript<>(
+        "local value = redis.call('GET', KEYS[1]); if value then redis.call('DEL', KEYS[1]); end; return value",String.class);
     private final PcStore store; private final PcAccess access; private final PcDeviceService devices;
     private final PcCrypto crypto; private final RedisCache redis; private final ISysUserService users;
     private final PcCommandService commands;
@@ -105,7 +109,7 @@ public class PcTerminalService {
             String ticket=crypto.token("pct_");String key="paicli:terminal:ticket:"+PcJson.digest(ticket);Map<String,Object> data=Map.of("terminalId",id,"loginRef",user.getToken(),"clientId",client);redis.setCacheObject(key,store.json.write(data),30,java.util.concurrent.TimeUnit.SECONDS);
             return Map.of("ticket",ticket,"protocols",List.of("paicli-terminal","paicli-ticket."+ticket),"terminalId",String.valueOf(id),"hostEpoch",t.hostEpoch,"writerEpoch",t.writerEpoch,"clientId",client,"canWrite",client.equals(t.writer),"expiresAt",store.clock.instant().plusSeconds(30).toString());}
     }
-    public BrowserIdentity consumeTicket(String ticket,String origin){enabled();if(!originAllowed(origin))throw PcException.deny("终端连接Origin未批准");if(ticket==null||!ticket.matches("pct_[A-Za-z0-9_-]{43}"))throw PcException.deny("终端票据无效");Object raw=redis.redisTemplate.opsForValue().getAndDelete("paicli:terminal:ticket:"+PcJson.digest(ticket));if(!(raw instanceof String text))throw PcException.deny("终端票据已使用或过期");Map<String,Object> data=store.json.read(text);Terminal t=require(PcJson.number(data,"terminalId"));String ref=PcJson.text(data,"loginRef");authorize(t,ref,false);return new BrowserIdentity(t.id,ref,PcJson.text(data,"clientId"));}
+    public BrowserIdentity consumeTicket(String ticket,String origin){enabled();if(!originAllowed(origin))throw PcException.deny("终端连接Origin未批准");if(ticket==null||!ticket.matches("pct_[A-Za-z0-9_-]{43}"))throw PcException.deny("终端票据无效");Object raw=redis.redisTemplate.execute(CONSUME_TICKET_SCRIPT,List.of("paicli:terminal:ticket:"+PcJson.digest(ticket)));if(!(raw instanceof String text))throw PcException.deny("终端票据已使用或过期");Map<String,Object> data=store.json.read(text);Terminal t=require(PcJson.number(data,"terminalId"));String ref=PcJson.text(data,"loginRef");authorize(t,ref,false);return new BrowserIdentity(t.id,ref,PcJson.text(data,"clientId"));}
     public Map<String,Object> claim(long id,LoginUser user,Map<String,Object> input){Terminal t=require(id);authorize(t,user.getToken(),true);String client=client(input);synchronized(t){if(!ACTIVE.contains(t.state))throw PcException.conflict("终端已结束");if(number(input,"expectedWriterEpoch",-1)!=t.writerEpoch)throw PcException.conflict("输入控制版本已变化，请刷新后再接管");if(!client.equals(t.writer)){t.writer=client;t.writerEpoch++;t.inputSeq=0;for(Map<String,Object> request:t.attachments.values())if(Set.of("PENDING","READY").contains(request.get("state")))request.put("state","CANCELLED");for(Map<String,Object> request:t.authorizations.values())if("PENDING".equals(request.get("status")))request.put("status","REJECTED");persist(t,Map.of());}broadcastState(t);return view(t);}}
     public Map<String,Object> stop(long id,LoginUser user,Map<String,Object> input){enabled();PcRecord row=access.resource(PcTable.TERMINAL_SESSION,id,user.getUserId(),true,false);permission(login(user.getToken()),"paicli:terminal:use");if(Boolean.TRUE.equals(input.get("cancelTask")))throw PcException.invalid("请通过既有任务取消接口单独确认取消，再结束终端");Terminal t=terminals.get(id);if(t==null){transaction.execute(s->{PcRecord r=store.require(PcTable.TERMINAL_SESSION,id,true);r.setState("LOST");r.setUniqueKey(null);Map<String,Object>d=store.data(r);d.put("reason","中心托管状态丢失");store.save(PcTable.TERMINAL_SESSION,r,d);return null;});return detail(id,user);}synchronized(t){authorize(t,user.getToken(),true);stopHost(t,"USER_STOP");return view(t);}}
     private Map<String,Object> issueCapability(Terminal t){if(!Set.of("STARTING","RUNNING").contains(t.state))throw PcException.deny("终端已停止委托");String token=crypto.token("pctc_");t.previousCapabilityHash=t.capabilityHash;t.previousExpires=t.expires;t.capabilityHash=PcJson.digest(token);t.expires=store.clock.instant().plusSeconds(90);return Map.of("capabilityToken",token,"capabilityExpiresAt",t.expires.toString());}

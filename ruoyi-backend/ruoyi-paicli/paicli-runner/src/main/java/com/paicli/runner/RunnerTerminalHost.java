@@ -28,6 +28,7 @@ public final class RunnerTerminalHost implements AutoCloseable {
     private volatile Instant lastMessage=Instant.now(),lastConnect=Instant.MIN;
     private volatile Instant lastPing=Instant.MIN;
     private volatile boolean closed;
+    private volatile boolean hostHelloSent;
     private long connectionGeneration;
     public RunnerTerminalHost(CenterHttpClient center,Path root,Path state)throws IOException{
         this(center,root,state,null);
@@ -37,13 +38,14 @@ public final class RunnerTerminalHost implements AutoCloseable {
     }
     private static ThreadFactory daemon(String name){return r->{Thread t=new Thread(r,name);t.setDaemon(true);return t;};}
     public void start(){clock.scheduleWithFixedDelay(this::tick,0,5,TimeUnit.SECONDS);}
-    synchronized void refreshDeviceConnection(){WebSocket previous=socket;socket=null;++connectionGeneration;lastConnect=Instant.MIN;for(Terminal t:terminals.values())synchronized(t){t.streamReady=false;t.notifyAll();}if(previous!=null)previous.close(1000,"DEVICE_SESSION_RENEWED");}
+    synchronized void refreshDeviceConnection(){WebSocket previous=socket;socket=null;hostHelloSent=false;++connectionGeneration;lastConnect=Instant.MIN;for(Terminal t:terminals.values())synchronized(t){t.streamReady=false;t.notifyAll();}if(previous!=null)previous.close(1000,"DEVICE_SESSION_RENEWED");}
     public String candidateMode(){return manager.candidateMode();}
+    public synchronized boolean ready(){return !closed&&socket!=null&&hostHelloSent&&lastMessage.isAfter(Instant.now().minusSeconds(45));}
     private void tick(){
         if(closed)return;
         try{
             if(socket==null){if(lastConnect.isBefore(Instant.now().minusSeconds(5)))connect();}
-            else if(lastMessage.isBefore(Instant.now().minusSeconds(45))){WebSocket stale=socket;socket=null;detachStreams();stale.cancel();}
+            else if(lastMessage.isBefore(Instant.now().minusSeconds(45))){WebSocket stale=socket;socket=null;hostHelloSent=false;detachStreams();stale.cancel();}
             else if(lastPing.isBefore(Instant.now().minusSeconds(15))){send(CanonicalJson.MAPPER.createObjectNode().put("type","PING").put("bootId",bootId));lastPing=Instant.now();}
             for(Terminal terminal:terminals.values()){
                 if(!terminal.alive())continue;
@@ -62,7 +64,8 @@ public final class RunnerTerminalHost implements AutoCloseable {
             @Override public void onOpen(WebSocket ws,Response response){
                 synchronized(RunnerTerminalHost.this){if(closed||generation!=connectionGeneration){ws.close(1000,"SUPERSEDED");return;}socket=ws;lastMessage=Instant.now();}
                 ObjectNode hello=CanonicalJson.MAPPER.createObjectNode().put("type","HOST_HELLO").put("bootId",bootId).put("ptyMode",manager.candidateMode()).put("ptyVersion",PtyProcessManager.VERSION);
-                var list=hello.putArray("terminals");for(Terminal t:terminals.values())if(!t.exited)list.add(t.metadata());send(hello);
+                var list=hello.putArray("terminals");for(Terminal t:terminals.values())if(!t.exited)list.add(t.metadata());
+                synchronized(RunnerTerminalHost.this){if(generation==connectionGeneration&&socket==ws&&!closed)hostHelloSent=send(hello);}
             }
             @Override public void onMessage(WebSocket ws,String text){
                 if(generation!=connectionGeneration||closed||socket!=ws)return;lastMessage=Instant.now();
@@ -74,7 +77,7 @@ public final class RunnerTerminalHost implements AutoCloseable {
         });
     }
     private synchronized void disconnected(long generation,WebSocket ws){
-        if(generation==connectionGeneration){socket=null;for(Terminal t:terminals.values())synchronized(t){t.streamReady=false;t.notifyAll();}}
+        if(generation==connectionGeneration){socket=null;hostHelloSent=false;for(Terminal t:terminals.values())synchronized(t){t.streamReady=false;t.notifyAll();}}
     }
     private void receive(JsonNode frame)throws IOException{
         if(frame==null||!frame.isObject())throw new IOException("宿主帧非法");String type=frame.path("type").asText();
@@ -151,7 +154,7 @@ public final class RunnerTerminalHost implements AutoCloseable {
     private boolean send(JsonNode value){
         WebSocket current=socket;if(closed||current==null)return false;
         if(current.send(value.toString()))return true;
-        if(socket==current){socket=null;detachStreams();current.cancel();}return false;
+        if(socket==current){socket=null;hostHelloSent=false;detachStreams();current.cancel();}return false;
     }
     private void detachStreams(){for(Terminal terminal:terminals.values())terminal.streamReady=false;}
 
@@ -249,7 +252,7 @@ public final class RunnerTerminalHost implements AutoCloseable {
         }catch(Exception interrupted){if(interrupted instanceof InterruptedException)Thread.currentThread().interrupt();}}
     }
     @Override public void close(){
-        if(closed)return;closed=true;for(Terminal terminal:terminals.values())terminal.stop("RUNNER_SHUTDOWN");
+        if(closed)return;closed=true;hostHelloSent=false;for(Terminal terminal:terminals.values())terminal.stop("RUNNER_SHUTDOWN");
         WebSocket current=socket;socket=null;if(current!=null)current.close(1000,"RUNNER_SHUTDOWN");clock.shutdownNow();commands.shutdownNow();processes.shutdown();
     }
 }

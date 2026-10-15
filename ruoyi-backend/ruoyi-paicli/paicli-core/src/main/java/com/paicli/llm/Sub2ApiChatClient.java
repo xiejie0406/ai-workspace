@@ -15,8 +15,11 @@ public final class Sub2ApiChatClient extends AbstractOpenAiCompatibleClient {
     private final java.util.concurrent.atomic.AtomicBoolean cancelled = new java.util.concurrent.atomic.AtomicBoolean();
 
     public Sub2ApiChatClient(String key, String model, String root) {
+        this(key,model,root,null);
+    }
+    public Sub2ApiChatClient(String key, String model, String root,String approvedHttpRoot) {
         if (model == null || !ModelCatalog.validModelId(model)) throw new IllegalArgumentException("Sub2API 缺少有效的精确模型 ID");
-        this.key = key; this.model = model; this.url = Sub2ApiEndpoint.endpoint(root, "chat_completions");
+        this.key = key; this.model = model; this.url = Sub2ApiEndpoint.endpoint(root, "chat_completions",approvedHttpRoot);
     }
     protected String getApiUrl() { return url; }
     protected String getModel() { return model; }
